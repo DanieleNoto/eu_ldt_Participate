@@ -1,12 +1,7 @@
 dist
 dist-ssr
 *.local
-
-# env
-.env
-
-# MF
-.__mf__temp
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # env
 .env
@@ -87,3 +82,6 @@ Thumbs.db
 /build
 /build/
 /build/*
+
+
+/test-results/*

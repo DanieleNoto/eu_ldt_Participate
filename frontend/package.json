@@ -5,9 +5,10 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
+		"dev:debug": "vite --debug",
 		"build": "tsc -b && vite build",
 		"watch": "tsc -b && vite build --watch",
-		"test": "vitest",
+		"test": "jest",
 		"preview": "vite preview"
 	},
 	"dependencies": {
