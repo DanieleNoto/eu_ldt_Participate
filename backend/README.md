@@ -1,8 +1,8 @@
-# euldt-ucs-manager-be
+# euldt-participate-be
 
 ## 📌 Project Information
 
-- **Name**: `euldt-ucs-manager-be`
+- **Name**: `euldt-participate-be`
 - **Version**: `1.0.0`
 - **Description**: Project template for Node.js with Fastify in TypeScript
 - **Main Entry Point**: `build/app.js`
