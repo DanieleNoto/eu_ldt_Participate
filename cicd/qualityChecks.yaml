@@ -74,12 +74,107 @@ jobs:
                 --only-verified --fail --no-update git file:///tmp/
             displayName: 'Run TruffleHog'
 
+    - job: UnitTest_Backend
+      dependsOn: LintProject
+      condition: succeeded()
+      displayName: 'Install and Run Jest (Backend)'
+      steps:
+          - task: NodeTool@0
+            inputs:
+                versionSource: 'fromFile'
+                versionFilePath: '.nvmrc'
+          - task: Cache@2
+            inputs:
+                key: 'npm-be | "$(Agent.OS)" | backend/package-lock.json'
+                restoreKeys: |
+                    npm-be | "$(Agent.OS)"
+                path: backend/node_modules
+            displayName: 'Cache npm modules (Backend)'
+          - script: |
+                cd backend
+                npm ci
+            displayName: 'Install Jest (Backend)'
+          - script: |
+                cd backend
+                npm run test
+            displayName: 'Run Jest (Backend)'
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Jest Backend Results
+            inputs:
+                targetPath: backend/test-results/junit.xml
+                artifactName: jest-backend-results_$(Build.BuildId)
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Backend Coverage (LCOV)
+            inputs:
+                targetPath: backend/coverage/lcov.info
+                artifactName: backend-coverage_$(Build.BuildId)
+
+    - job: UnitTest_Frontend
+      dependsOn: LintProject
+      condition: succeeded()
+      displayName: 'Install and Run Jest (Frontend)'
+      steps:
+          - task: NodeTool@0
+            inputs:
+                versionSource: 'fromFile'
+                versionFilePath: '.nvmrc'
+          - task: Cache@2
+            inputs:
+                key: 'npm-fe | "$(Agent.OS)" | frontend/package-lock.json'
+                restoreKeys: |
+                    npm-fe | "$(Agent.OS)"
+                path: frontend/node_modules
+            displayName: 'Cache npm modules (Frontend)'
+          - script: |
+                cd frontend
+                npm ci
+            displayName: 'Install Jest (Frontend)'
+          - script: |
+                cd frontend
+                npm run test
+            displayName: 'Run Jest (Frontend)'
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Jest Frontend Results
+            inputs:
+                targetPath: frontend/test-results/junit.xml
+                artifactName: jest-frontend-results_$(Build.BuildId)
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Frontend Coverage (LCOV)
+            inputs:
+                targetPath: frontend/coverage/lcov.info
+                artifactName: frontend-coverage_$(Build.BuildId)
+
     - job: Sonarqube
       displayName: Sonarqube Analyses
       dependsOn:
-          - SecretsCheck
+          - UnitTest_Backend
+          - UnitTest_Frontend
       condition: succeeded()
       steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Jest Backend Results
+            inputs:
+                artifactName: jest-backend-results_$(Build.BuildId)
+                targetPath: $(System.DefaultWorkingDirectory)/test-results/backend
+
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Jest Frontend Results
+            inputs:
+                artifactName: jest-frontend-results_$(Build.BuildId)
+                targetPath: $(System.DefaultWorkingDirectory)/test-results/frontend
+
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Backend Coverage LCOV
+            inputs:
+                artifactName: backend-coverage_$(Build.BuildId)
+                targetPath: $(System.DefaultWorkingDirectory)/coverage/backend
+
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Frontend Coverage LCOV
+            inputs:
+                artifactName: frontend-coverage_$(Build.BuildId)
+                targetPath: $(System.DefaultWorkingDirectory)/coverage/frontend
+
           - task: SonarQubePrepare@7
             inputs:
                 SonarQube: 'EU-LDT-Toolbox-Sonarqube-INT'
@@ -120,6 +215,32 @@ jobs:
                 serviceConnectionEndpoint: 'EU-LDT-Toolbox-Snyk'
                 testType: 'code'
                 failOnIssues: true
+                projectName: 'EU-LDT-Toobox-Participate'
+                organization: 'eutoolbox'
+          - script: |
+                cd backend
+                npm ci
+            displayName: 'Install Deps (BE)'
+          - task: SnykSecurityScan@1
+            inputs:
+                serviceConnectionEndpoint: 'EU-LDT-Toolbox-Snyk'
+                testType: 'app'
+                targetFile: 'backend/package.json'
+                monitorWhen: 'always'
+                failOnIssues: false
+                projectName: 'EU-LDT-Toobox-Participate'
+                organization: 'eutoolbox'
+          - script: |
+                cd frontend
+                npm ci
+            displayName: 'Install Deps (FE)'
+          - task: SnykSecurityScan@1
+            inputs:
+                serviceConnectionEndpoint: 'EU-LDT-Toolbox-Snyk'
+                testType: 'app'
+                targetFile: 'frontend/package.json'
+                monitorWhen: 'always'
+                failOnIssues: false
                 projectName: 'EU-LDT-Toobox-Participate'
                 organization: 'eutoolbox'
 
