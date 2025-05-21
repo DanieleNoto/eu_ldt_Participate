@@ -1,0 +1,6 @@
+@import 'tailwindcss' prefix(uc);
+
+:root {
+	--max-viewport-height: calc(100vh - 146px);
+	--max-viewport-content-height: calc(100vh - 156px);
+}

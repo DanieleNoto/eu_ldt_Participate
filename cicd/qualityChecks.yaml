@@ -1,0 +1,138 @@
+name: Tool3-QualityChecks-DEV-$(date:yyyyMMdd)$(rev:.r)
+
+#trigger:
+#- main
+#pr:
+#- main
+
+pool:
+    vmImage: 'ubuntu-latest'
+
+variables:
+    - group: 'TOOL3 - PT'
+    - group: 'TOOL3 - PT - KV'
+    - name: isMain
+      value: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+
+jobs:
+    # - job: replaceVariables
+    #   displayName: "Replace configuration parameters and values"
+    #   steps:
+    #     - task: replacetokens@5
+    #       displayName: "Replace tokens Backend"
+    #       inputs:
+    #         rootDirectory: <BE DIRECTORY>
+    #         targetFiles: Dockerfile*
+    #         tokenPattern: custom
+    #         tokenPrefix: __
+    #         tokenSuffix: __
+    #         writeBOM: false
+    #         verbosity: detailed
+    #         actionOnNoFiles: warn
+    #     - task: replacetokens@5
+    #       displayName: "Replace tokens Backend API"
+    #       inputs:
+    #         rootDirectory: <BE DIRECTORY>
+    #         targetFiles: application.properties
+    #         tokenPattern: custom
+    #         tokenPrefix: __
+    #         tokenSuffix: __
+    #         writeBOM: false
+    #         verbosity: detailed
+    #         actionOnNoFiles: warn
+
+    - job: LintProject
+      displayName: 'Install and Run Lint (Frontend&Backend)'
+      steps:
+          - task: NodeTool@0
+            inputs:
+                versionSource: 'fromFile'
+                versionFilePath: '.nvmrc'
+          - task: Cache@2
+            inputs:
+                key: 'npm-root | "$(Agent.OS)" | package-lock.json'
+                restoreKeys: |
+                    npm-root | "$(Agent.OS)"
+                path: node_modules
+            displayName: 'Cache npm modules (root)'
+          - script: |
+                npm ci
+            displayName: 'Install Lint (Frontend&Backend)'
+          - script: |
+                npm run lint
+            displayName: 'Run Lint (Frontend&Backend)'
+
+    - job: SecretsCheck
+      dependsOn: LintProject
+      displayName: 'Check Secrets & Sensitive Data in the repository (TruffleHog)'
+      steps:
+          - checkout: self
+            fetchDepth: 0
+            displayName: 'Checkout Git repository'
+          - script: |
+                docker run --rm -v "$(pwd)":/tmp ghcr.io/trufflesecurity/trufflehog:latest \
+                --only-verified --fail --no-update git file:///tmp/
+            displayName: 'Run TruffleHog'
+
+    - job: Sonarqube
+      displayName: Sonarqube Analyses
+      dependsOn:
+          - SecretsCheck
+      condition: succeeded()
+      steps:
+          - task: SonarQubePrepare@7
+            inputs:
+                SonarQube: 'EU-LDT-Toolbox-Sonarqube-INT'
+                scannerMode: 'cli'
+                configMode: 'manual'
+                cliProjectKey: 'EU_LDT_Use_Cases_and_Scenarios_EU_LDT_Use_Cases_and_Scenarios_AZU8wNs5oX-g5gJeRIO2'
+                cliProjectName: 'EU_LDT_Use_Cases_and_Scenarios'
+                extraProperties: |
+                    # Additional properties that will be passed to the scanner,
+                    # Put one key=value per line, example:
+                    # sonar.exclusions=**/*.bin
+                    sonar.host.url=https://sq-int.ldttoolbox.app
+                    sonar.projectKey=EU_LDT_Use_Cases_and_Scenarios_EU_LDT_Use_Cases_and_Scenarios_AZU8wNs5oX-g5gJeRIO2
+          - task: JavaToolInstaller@1
+            inputs:
+                versionSpec: '21'
+                jdkArchitectureOption: 'x64'
+                jdkSourceOption: 'PreInstalled'
+
+          - task: SonarQubeAnalyze@7
+            inputs:
+                jdkversion: 'JAVA_HOME_21_X64'
+
+          - task: SonarQubePublish@7
+            inputs:
+                pollingTimeoutSec: '300'
+
+    - job: snykScans
+      dependsOn: Sonarqube
+      displayName: 'Snyk Code & Licenses Scans'
+      steps:
+          - task: NodeTool@0
+            inputs:
+                versionSource: 'fromFile'
+                versionFilePath: '.nvmrc'
+          - task: SnykSecurityScan@1
+            inputs:
+                serviceConnectionEndpoint: 'EU-LDT-Toolbox-Snyk'
+                testType: 'code'
+                failOnIssues: true
+                projectName: 'EU-LDT-Toobox-Participate'
+                organization: 'eutoolbox'
+
+    - job: sBomGeneration
+      dependsOn: snykScans
+      displayName: 'SBOM File(s) generation'
+      steps:
+          - script: |
+                npm install @cyclonedx/cdxgen
+                npx cdxgen -r -o bomlic.json --deep --profile license-compliance
+            displayName: 'Generate SBOM'
+          - task: PublishPipelineArtifact@1
+            displayName: Publish SBOM - License
+            inputs:
+                targetPath: $(System.DefaultWorkingDirectory)/bomlic.json
+                artifactName: sbom
