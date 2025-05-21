@@ -1,0 +1,11 @@
+behave==1.2.6
+behave-html-formatter==0.9.10
+black==25.1.0
+commitizen==4.2.2
+coverage==7.6.11
+locust==2.32.9
+playwright==1.50.0
+pre-commit==4.1.0
+pytest-playwright==0.7.0
+ruff==0.9.6
+pact-python==2.3.1
