@@ -4,6 +4,10 @@ import appConfig from '../config/config';
 import logger from '../utils/logger';
 
 export default fp(async (fastify, opts) => {
+	if (!appConfig.jwtConfig.enable) {
+		return;
+	}
+
 	fastify.register(jwt, appConfig.jwtConfig);
 
 	fastify.addHook('onRequest', async (request, reply) => {
@@ -15,7 +19,7 @@ export default fp(async (fastify, opts) => {
 				return;
 			}
 
-			if (!appConfig.jwtConfig.enable && !request.headers.authorization) {
+			if (!appConfig.jwtConfig.enable || !request.headers.authorization) {
 				return;
 			}
 

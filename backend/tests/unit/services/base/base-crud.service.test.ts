@@ -165,19 +165,6 @@ describe('BaseCrudService', () => {
 		await expect(service.delete('1', op)).rejects.toThrow('Entity not found');
 	});
 
-	it('should export an entity (sync)', async () => {
-		process.env.EXPORT_ASYNC = 'false';
-		const op = new OpParams();
-		await expect(service.export('1', { format: 'PDF' }, op)).resolves.toBeDefined();
-	});
-
-	it('should export an entity (async)', async () => {
-		process.env.EXPORT_ASYNC = 'true';
-		service.testNewTransactional = jest.fn().mockResolvedValue({});
-		const op = new OpParams();
-		await expect(service.export('1', { format: 'PDF' }, op)).resolves.toBeDefined();
-	});
-
 	it('should filter includes correctly', async () => {
 		DummyModel.associations = {
 			tags: { as: 'tags' },
@@ -265,28 +252,6 @@ describe('BaseCrudService', () => {
 			expect(testTx.commit).not.toHaveBeenCalled();
 		}
 		expect(op.steps).toBe(1);
-	});
-
-	it('should handle error in _executeExportGeneration', async () => {
-		const fileEntity = {
-			update: jest.fn().mockResolvedValue({})
-		};
-
-		const testEntity = { id: '1' };
-
-		service.generateExport = jest.fn().mockRejectedValue(new Error('Export error'));
-
-		const op = new OpParams();
-
-		await service.testExecuteExportGeneration(fileEntity, testEntity, op);
-
-		expect(fileEntity.update).toHaveBeenCalledWith(
-			expect.objectContaining({
-				error: expect.any(String),
-				status: StatusEnum.COMPLETED
-			}),
-			expect.any(Object)
-		);
 	});
 
 	it('should roll back transaction on error', async () => {
@@ -394,57 +359,6 @@ describe('BaseCrudService', () => {
 		expect(service.create).toHaveBeenCalledTimes(2);
 		expect(result[0]).toEqual({ id: '1' });
 		expect(result[1]).toEqual({ id: '2' });
-	});
-
-	it('should handle export with entity fetch error', async () => {
-		service.getById = jest.fn().mockRejectedValue(new Error('Entity not found'));
-
-		const op = new OpParams();
-		await expect(service.export('999', { format: 'PDF' }, op)).rejects.toThrow('Entity not found');
-	});
-
-	it('should handle successful export generation', async () => {
-		const fileEntity = {
-			update: jest.fn().mockResolvedValue({})
-		};
-
-		const testEntity = { id: '1' };
-
-		const buffer = Buffer.from('export data');
-		service.generateExport = jest.fn().mockResolvedValue(buffer);
-
-		const op = new OpParams();
-
-		await service.testExecuteExportGeneration(fileEntity, testEntity, op);
-
-		expect(fileEntity.update).toHaveBeenCalledWith(
-			expect.objectContaining({
-				fileBuffer: buffer,
-				status: StatusEnum.COMPLETED
-			}),
-			expect.any(Object)
-		);
-	});
-
-	it('should generate PDF export', async () => {
-		const testEntity = { toJSON: () => ({}) };
-		process.env.EXPORT_TEMPLATE_FOLDER_PATH = '../../assets/template/export';
-		service.generateExport('PDF', testEntity as unknown as IDummyModel);
-	});
-
-	it('should generate CSV export', async () => {
-		const testEntity = { toJSON: () => ({}) };
-		service.generateExport('CSV', testEntity as unknown as IDummyModel);
-	});
-
-	it('should generate Excel export', async () => {
-		const testEntity = { toJSON: () => ({}) };
-		service.generateExport('XLSX', testEntity as unknown as IDummyModel);
-	});
-
-	it('should generate JSON export', async () => {
-		const testEntity = { toJSON: () => ({}) };
-		service.generateExport('JSON', testEntity as unknown as IDummyModel);
 	});
 
 	it('should get model service with string input', () => {

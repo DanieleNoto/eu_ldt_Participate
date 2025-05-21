@@ -2,7 +2,6 @@ import { DataType } from 'sequelize-typescript';
 import { Op } from 'sequelize';
 import { BaseReadonlyService } from '../../../../src/services/base/base-readonly.service';
 import { OpParams } from '../../../../src/services/base/base-crud.service';
-import * as modelUtils from '../../../../src/utils/model.utils';
 
 describe('BaseReadonlyService', () => {
 	class DummyModel {
@@ -30,7 +29,6 @@ describe('BaseReadonlyService', () => {
 	beforeEach(() => {
 		service = new DummyService();
 		jest.clearAllMocks();
-		jest.spyOn(modelUtils, 'getModelScope').mockReturnValue(DummyModel);
 	});
 
 	it('should get all entities', async () => {

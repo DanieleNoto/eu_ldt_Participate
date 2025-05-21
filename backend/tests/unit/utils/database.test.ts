@@ -4,6 +4,7 @@ import { createDBConnection, isSQLite, ofString, runSeeders } from '../../../src
 jest.mock('../../../src/config/database', () => ({
 	sequelize: { authenticate: jest.fn(), sync: jest.fn(), getQueryInterface: jest.fn() }
 }));
+jest.mock('../../../src/models/entities/scopes', () => ({ loadScopes: jest.fn() }));
 jest.mock('../../../src/utils/logger', () => ({ info: jest.fn(), error: jest.fn(), debug: jest.fn() }));
 jest.mock('umzug', () => ({
 	Umzug: jest.fn().mockImplementation(() => ({ pending: jest.fn().mockResolvedValue([]), up: jest.fn() })),

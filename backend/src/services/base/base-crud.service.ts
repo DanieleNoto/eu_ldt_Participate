@@ -6,13 +6,8 @@ import { Identifier, ScopeOptions, WhereAttributeHash } from 'sequelize/types/mo
 import logger from '../../utils/logger';
 import { NotFoundError } from '../../utils/errors';
 import { getModelScope } from '../../utils/model.utils';
-import FileExport from '../../models/entities/file-export.model';
 import { StatusEnum } from '../../enums/status.enum';
 import { FileType } from '../../enums/file-type.enum';
-import { exportToPDF } from '../../utils/export/pdf.export.utils';
-import { exportToCSV } from '../../utils/export/csv.export.utils';
-import { exportToJSON } from '../../utils/export/json.export.utils';
-import { exportToExcel } from '../../utils/export/excel.export.utils';
 import { BaseReadonlyService } from './base-readonly.service';
 
 /**
@@ -90,70 +85,6 @@ export abstract class BaseCrudService<Entity extends Model, ID extends Identifie
 			await entity.destroy({ transaction: opParams.transaction });
 			return entity;
 		})) as Entity;
-	}
-
-	/**
-	 * Export an entity by ID.
-	 */
-	async export(id: ID, data: any, opParams: OpParams): Promise<FileExport> {
-		return (await this.transactional(opParams, async (): Promise<FileExport> => {
-			this.logInfo({ message: `Exporting entity with ID: ${id}` });
-			const entity: Entity = await this.getById(id, opParams);
-
-			if (!entity) throw new NotFoundError('Entity not found');
-
-			// create export record
-			const fileEntity = (await this.getModelService(FileExport)?.create(
-				{
-					entityId: entity.id,
-					entityName: entity.constructor.name,
-					fileType: data.format,
-					entityVersion: entity.version,
-					status: StatusEnum.DRAFT
-				} as FileExport,
-				opParams
-			)) as FileExport;
-
-			if (process.env.EXPORT_ASYNC === 'true') {
-				this.newTransactional(opParams, async () => {
-					return this._executeExportGeneration(fileEntity, entity, opParams);
-				})
-					.then((response): FileExport => {
-						logger.debug('export generation done');
-						return response as FileExport;
-					})
-					.catch(reason => {
-						logger.error(reason.message);
-						return {} as FileExport;
-					});
-
-				return fileEntity;
-			} else {
-				return await this._executeExportGeneration(fileEntity, entity, opParams);
-			}
-		})) as FileExport;
-	}
-
-	protected async generateExport(fileType: FileType, data: Entity): Promise<Buffer> {
-		const jsonData = data.toJSON();
-
-		const filePath = path.join(
-			__dirname,
-			(process.env.EXPORT_TEMPLATE_FOLDER_PATH ?? `../../assets/template/export/`) +
-				`${this.model.name.toLowerCase()}`,
-			`${this.model.name.toLowerCase()}.${fileType.toLowerCase()}.template-export.html`
-		);
-
-		switch (fileType) {
-			case FileType.PDF:
-				return await exportToPDF(jsonData, filePath);
-			case FileType.CSV:
-				return await exportToCSV(jsonData, filePath);
-			case FileType.XLSX:
-				return await exportToExcel(jsonData, filePath);
-			default:
-				return exportToJSON(jsonData);
-		}
 	}
 
 	protected getModelService = (modelClass: any): BaseCrudService<Model, any> | undefined => {
@@ -277,34 +208,6 @@ export abstract class BaseCrudService<Entity extends Model, ID extends Identifie
 		BaseCrudService.serviceRegistry.set(modelName, this);
 	}
 
-	private async _executeExportGeneration(
-		fileEntity: FileExport,
-		entity: Entity,
-		opParams: OpParams
-	): Promise<FileExport> {
-		try {
-			this.logInfo({ message: `Exporting entity with ID: ${entity.id}` });
-			const fileBuffer = await this.generateExport(fileEntity.fileType, entity);
-
-			// set buffer and status to completed
-			return await fileEntity?.update(
-				{
-					fileBuffer,
-					status: StatusEnum.COMPLETED
-				},
-				{ transaction: opParams.transaction }
-			);
-		} catch (error) {
-			await fileEntity?.update(
-				{
-					error: (error || 'generic error, during export generation execution').toString(),
-					status: StatusEnum.COMPLETED
-				},
-				{ transaction: opParams.transaction }
-			);
-			throw error;
-		}
-	}
 }
 
 export class OpParams {

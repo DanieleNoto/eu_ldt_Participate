@@ -79,3 +79,6 @@ Thumbs.db
 /build
 /build/
 /build/*
+
+
+/test-results/*

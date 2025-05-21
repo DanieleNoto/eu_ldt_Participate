@@ -27,7 +27,8 @@ module.exports = {
 		'!**/db/**',
 		'!**/src/server.ts',
 		'!**/src/config/**',
-		'!**/src/plugins/sequilize.plugin.ts'
+		'!**/src/plugins/sequilize.plugin.ts',
+		'!**/tests/**'
 	],
 	coverageDirectory: 'coverage',
 	coverageReporters: ['text', 'html', 'lcov'],
