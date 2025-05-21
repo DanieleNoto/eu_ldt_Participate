@@ -1,0 +1,30 @@
+import { FastifyInstance } from 'fastify';
+import autoloadPlugin from './autoload.plugin';
+import corsPlugin from './cors.plugin';
+import formbodyPlugin from './formbody.plugin';
+import healthPlugin from './health.plugin';
+import i18nextPlugin from './i18next.plugin';
+import jwtPlugin from './jwt.plugin';
+import requestContextPlugin from './request-context.plugin';
+import passportPlugin from './passport.plugin';
+import securityPlugin from './security.plugin';
+import standardLoggerPlugin from './standard-logger.plugin';
+import swagger from './swagger.plugin';
+import underpressurePlugin from './underpressure.plugin';
+import zodPlugin from './zod.plugin';
+
+export const registerPlugin = async (app: FastifyInstance) => {
+	await app.register(swagger);
+	app.register(zodPlugin);
+	app.register(securityPlugin);
+	app.register(autoloadPlugin);
+	app.register(corsPlugin);
+	app.register(formbodyPlugin);
+	app.register(i18nextPlugin);
+	app.register(healthPlugin);
+	app.register(jwtPlugin);
+	app.register(passportPlugin);
+	app.register(underpressurePlugin);
+	app.register(standardLoggerPlugin);
+	app.register(requestContextPlugin);
+};
