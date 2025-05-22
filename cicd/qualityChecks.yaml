@@ -250,7 +250,7 @@ jobs:
       steps:
           - task: UseRubyVersion@0
             inputs:
-                versionSpec: '= 3.2.0'
+                versionSpec: '= 3.2.8'
 
           - script: |
                 ruby --version
