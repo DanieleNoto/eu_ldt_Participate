@@ -78,23 +78,8 @@ export interface BlobWithHeaders {
  * merges headers, performs the fetch call, and maps the response using the provided model mapper if available.
  */
 const useApiRequest = <T extends BaseModel, R = T, L = T[]>(options: RequestOptions<T, R, L>) => {
-	const { backend, auth } = useAppSelector(selectConfig);
+	const { backend } = useAppSelector(selectConfig);
 	const { success: toastrSuccess, error: toastrError } = useToastr();
-
-	/**
-	 * Retrieves the token from the local storage.
-	 */
-	const getToken = (): string | null => {
-		const oidcStorageKey = `${auth.storageKey}`; // Replace with your actual client ID and issuer URL
-		const oidcStorage = localStorage.getItem(oidcStorageKey);
-		if (oidcStorage) {
-			const userData = JSON.parse(oidcStorage);
-			return userData.access_token;
-		}
-
-		return null;
-	};
-
 	const { logger } = useLogger();
 	/**
 	 * Retrieves the API configuration for the given API name.
@@ -172,12 +157,6 @@ const useApiRequest = <T extends BaseModel, R = T, L = T[]>(options: RequestOpti
 
 		// Merge default headers with additional headers.
 		const headers = mergeHeaders(apiConfig.headers || {}, options.headers);
-
-		// Retrieve the bearer token and set it in the state
-		const retrievedToken = getToken();
-		if (retrievedToken) {
-			headers.append('Authorization', `Bearer ${retrievedToken}`);
-		}
 
 		// Build the fetch options.
 		const fetchOptions: RequestInit = {

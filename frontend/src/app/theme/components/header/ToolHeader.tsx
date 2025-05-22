@@ -1,18 +1,20 @@
-import AppsIcon from '@mui/icons-material/Apps';
-import { Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import logo from '/images/tool-logo.svg';
 
 const ToolHeader = () => {
 	const { t } = useTranslation();
-
 	return (
-		<header className="uc:min-h-[64px] uc:flex uc:px-4 uc:p-4 uc:items-center uc:justify-between">
-			<img src={logo} alt={t('header.toollogo')} />
-			<Button variant="text">
+		<header
+			aria-label="Tool header applicazione"
+			className="uc:min-h-[48px] uc:flex uc:px-4 uc:p-2 uc:items-center uc:justify-between"
+		>
+			<div className="uc:flex uc:gap-4">
+				<img src={logo} alt={t('header.toollogo')} className="uc:mr-3" />
+			</div>
+			{/* <Button variant="text">
 				<AppsIcon></AppsIcon>
 				{t('header.toollink')}
-			</Button>
+			</Button> */}
 		</header>
 	);
 };

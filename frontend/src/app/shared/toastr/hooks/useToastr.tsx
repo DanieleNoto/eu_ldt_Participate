@@ -21,7 +21,7 @@ import { id } from '@utils/functions';
  * // Display an informational toast:
  * info({ title: 'Information', text: 'This is an info message.' });
  */
-export const useToastr: (delay: number) => {
+export const useToastr: (delay?: number) => {
 	info: (props: ToastrProps) => void;
 	success: (props: ToastrProps) => void;
 	error: (props: ToastrProps) => void;

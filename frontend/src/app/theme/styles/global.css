@@ -1,6 +1,8 @@
 @import 'tailwindcss' prefix(uc);
 
 :root {
-	--max-viewport-height: calc(100vh - 146px);
-	--max-viewport-content-height: calc(100vh - 156px);
+	font-family: 'Open Sans', sans-serif;
+	--max-viewport-height: calc(100vh - 120px);
+	--max-viewport-content-section-height: calc(100vh - 210px);
+	--max-viewport-content-height: calc(100vh - 146px);
 }

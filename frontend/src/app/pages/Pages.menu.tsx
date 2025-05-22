@@ -1,20 +1,9 @@
+import { MenuItem } from '@app/core/models/menuItem.model';
 import HomeIcon from '@mui/icons-material/Home';
-import { SvgIconTypeMap } from '@mui/material';
-import { OverridableComponent } from '@mui/material/OverridableComponent';
-import { ReactNode } from 'react';
 
-export interface MenuItem {
-	title: string;
-	description?: string;
-	icon: ReactNode | (OverridableComponent<SvgIconTypeMap> & { muiName: string });
-	link: string;
-	home?: boolean;
-	hidden?: boolean;
-	children?: MenuItem[];
-	data?: {
-		permission: string;
-		resource: string;
-	};
+export enum MenuLevel {
+	PRIMARY = 'PRIMARY',
+	SECONDARY = 'SECONDARY'
 }
 
 const pagesMenuItems: MenuItem[] = [

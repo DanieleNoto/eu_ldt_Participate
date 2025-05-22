@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ModalProvider } from '@app/shared/modal/ModalContext';
 import { ToastrProvider } from '@app/shared/toastr/context/ToastrContext';
 import { createContext, Dispatch, ReactNode, useContext, useReducer } from 'react';
 
@@ -79,7 +80,9 @@ const UIProvider = ({ children }: { children: ReactNode }) => {
 	const value = { state, dispatch };
 	return (
 		<UIContext.Provider value={value}>
-			<ToastrProvider>{children}</ToastrProvider>
+			<ModalProvider>
+				<ToastrProvider>{children}</ToastrProvider>
+			</ModalProvider>
 		</UIContext.Provider>
 	);
 };
