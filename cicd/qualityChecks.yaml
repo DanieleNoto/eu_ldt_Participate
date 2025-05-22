@@ -277,7 +277,7 @@ jobs:
 
                 cyclonedx-ruby -p . 
 
-                mv bom.json $(System.DefaultWorkingDirectory)/sbom-ruby.json
+                mv bom.xml $(System.DefaultWorkingDirectory)/sbom-ruby.xml
             displayName: 'Generate SBOM (Decidim/Ruby)'
 
           - task: PublishPipelineArtifact@1
