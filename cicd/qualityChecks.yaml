@@ -275,10 +275,9 @@ jobs:
                 cd decidim/decidim_application
                 bundle install --jobs 4 --retry 3
 
-                cyclonedx-ruby \
-                  -p . \
-                  --format json \
-                  --output $(System.DefaultWorkingDirectory)/sbom-ruby.json
+                cyclonedx-ruby -f json  -p . 
+
+                mv bom.json $(System.DefaultWorkingDirectory)/sbom-ruby.json
             displayName: 'Generate SBOM (Decidim/Ruby)'
 
           - task: PublishPipelineArtifact@1
