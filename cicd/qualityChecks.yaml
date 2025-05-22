@@ -269,11 +269,16 @@ jobs:
                 gem install bundler --no-document
                 gem install cyclonedx-ruby --no-document
 
-                cd decidim/decidim_application
+                which cyclonedx-ruby
+                cyclonedx-ruby --version
 
+                cd decidim/decidim_application
                 bundle install --jobs 4 --retry 3
 
-                bundle exec cyclonedx-ruby -p . --format json
+                cyclonedx-ruby \
+                  -p . \
+                  --format json \
+                  --output $(System.DefaultWorkingDirectory)/sbom-ruby.json
             displayName: 'Generate SBOM (Decidim/Ruby)'
 
           - task: PublishPipelineArtifact@1
