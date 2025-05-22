@@ -248,12 +248,47 @@ jobs:
       dependsOn: snykScans
       displayName: 'SBOM File(s) generation'
       steps:
-          - script: |
-                npm install @cyclonedx/cdxgen
-                npx cdxgen -r -o bomlic.json --deep --profile license-compliance
-            displayName: 'Generate SBOM'
-          - task: PublishPipelineArtifact@1
-            displayName: Publish SBOM - License
+
+          - task: RubyToolInstaller@0
             inputs:
-                targetPath: $(System.DefaultWorkingDirectory)/bomlic.json
-                artifactName: sbom
+              versionSpec: '>=2.7'
+              addToPath: true
+            displayName: 'Install Ruby runtime'
+
+          - script: |
+              ruby --version
+              gem --version
+            displayName: 'Check Ruby/Gem availability'
+           
+          - script: |
+                npm install @cyclonedx/cdxgen --no-save
+                npx cdxgen -r \
+                  -o $(System.DefaultWorkingDirectory)/sbom-js.json \
+                  --deep \
+                  --profile license-compliance
+            displayName: 'Generate SBOM (JavaScript)'
+
+          - script: |
+              gem install bundler --no-document
+              gem install cyclonedx-ruby-gem --no-document
+
+              cd decidim/decidim_application
+
+              bundle install --jobs 4 --retry 3
+
+              bundle exec cyclonedx-ruby-gem \
+                --output $(System.DefaultWorkingDirectory)/sbom-ruby.json \
+                --format json
+            displayName: 'Generate SBOM (Decidim/Ruby)'
+            
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish SBOM JavaScript'
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)/sbom-js.json'
+              artifactName: 'sbom-js'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish SBOM Ruby (Decidim)'
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)/sbom-ruby.json'
+              artifactName: 'sbom-ruby'
