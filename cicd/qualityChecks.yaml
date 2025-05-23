@@ -280,7 +280,10 @@ jobs:
 
                 cyclonedx-ruby -p . 
 
+                echo Verify sbom file exists and move
+                ls -la
                 mv bom.xml $(System.DefaultWorkingDirectory)/sbom-ruby.xml
+                ls -la $(System.DefaultWorkingDirectory)
             displayName: 'Generate SBOM (Decidim/Ruby)'
 
           - task: PublishPipelineArtifact@1
