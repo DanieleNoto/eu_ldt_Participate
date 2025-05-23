@@ -258,6 +258,7 @@ jobs:
             displayName: 'Check Ruby/Gem availability'
 
           - script: |
+                cd frontend
                 npm install @cyclonedx/cdxgen --no-save
                 npx cdxgen -r \
                   -o $(System.DefaultWorkingDirectory)/sbom-js.json \
