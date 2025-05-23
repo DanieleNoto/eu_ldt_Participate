@@ -1,19 +1,27 @@
 {
-  "name": "decidim-development-app",
-  "private": true,
-  "dependencies": {
-    "@decidim/browserslist-config": "^0.29.3",
-    "@decidim/core": "^0.29.3",
-    "@decidim/webpacker": "^0.29.3"
-  },
-  "version": "0.1.0",
-  "devDependencies": {
-    "@decidim/dev": "^0.29.3",
-    "@decidim/eslint-config": "^0.29.3",
-    "@decidim/prettier-config": "^0.29.3",
-    "@decidim/stylelint-config": "^0.29.3"
-  },
-  "browserslist": [
-    "extends @decidim/browserslist-config"
-  ]
+	"name": "decidim-development-app",
+	"private": true,
+	"dependencies": {
+		"@decidim/browserslist-config": "^0.29.3",
+		"@decidim/core": "^0.29.3",
+		"@decidim/webpacker": "^0.29.3",
+		"graphql": "^16.11.0"
+	},
+	"version": "0.1.0",
+	"devDependencies": {
+		"@decidim/dev": "^0.29.3",
+		"@decidim/eslint-config": "^0.29.3",
+		"@decidim/prettier-config": "^0.29.3",
+		"@decidim/stylelint-config": "^0.29.3",
+		"webpack": "^5.99.9",
+		"webpack-cli": "^6.0.1"
+	},
+	"browserslist": [
+		"extends @decidim/browserslist-config"
+	],
+	"resolutions": {
+		"uc.micro": "1.0.6",
+		"markdown-it": "12.3.2",
+		"punycode": "2.3.1"
+	}
 }
