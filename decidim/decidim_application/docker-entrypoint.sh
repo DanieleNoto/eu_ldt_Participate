@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e 
 
+# Remove old server PID file if it exists
+if [ -f tmp/pids/server.pid ]; then
+  rm tmp/pids/server.pid
+fi
+
 echo "--- Cleaning Yarn cache ---"
 yarn cache clean
 
