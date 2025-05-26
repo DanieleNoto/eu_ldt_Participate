@@ -295,5 +295,5 @@ jobs:
           - task: PublishPipelineArtifact@1
             displayName: 'Publish SBOM Ruby (Decidim)'
             inputs:
-                targetPath: '$(System.DefaultWorkingDirectory)/sbom-ruby.json'
+                targetPath: '$(System.DefaultWorkingDirectory)/sbom-ruby.xml'
                 artifactName: 'sbom-ruby'
