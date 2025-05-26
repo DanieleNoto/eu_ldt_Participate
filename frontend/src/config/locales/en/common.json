@@ -1,0 +1,24 @@
+{
+	"header": {
+		"logo": "EU LDT Toolbox",
+		"toollogo": "Use Cases & Scenarios",
+		"toollink": "Tools"
+	},
+	"home": {
+		"title": "Titolo pagina principale"
+	},
+	"example": {
+		"title": "Example section",
+		"forms": {
+			"title": "Forms component example works!"
+		},
+		"utils": {
+			"dialogs": {
+				"title": "Dialog component example works!"
+			},
+			"toastr": {
+				"title": "Toastr component example works!"
+			}
+		}
+	}
+}

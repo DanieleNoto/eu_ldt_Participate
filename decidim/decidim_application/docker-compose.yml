@@ -1,0 +1,83 @@
+services:
+  decidim:
+    #image: decidim/decidim-dev:0.29.3
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=decidim_application_development
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY_BASE=insecure_key_base
+      - DECIDIM_FORCE_SSL=false
+      - RAILS_ENV=development
+      - NODE_ENV=development
+      - DECIDIM_MAILER_SENDER=changeme@example.org
+      - QUEUE_ADAPTER=async
+    volumes:
+      - .:/code
+      - bundle_cache:/usr/local/bundle
+      - vendor_bundle:/app/vendor/bundle
+      - node_modules:/code/node_modules
+    command: bash /code/docker-entrypoint.sh
+    networks:
+      - private
+    depends_on:
+      - redis
+      - db
+    healthcheck:
+      test: ["CMD", "test", "-d", "node_modules"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DATABASE=decidim_application_development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - private
+  redis:
+    image: redis:7
+    volumes:
+      - redis_data:/data
+    networks:
+      - private
+  shakapacker:
+    build: .
+    command: bundle exec bin/shakapacker-dev-server
+    volumes:
+      - .:/code
+      - bundle_cache:/usr/local/bundle
+      - vendor_bundle:/app/vendor/bundle
+      - node_modules:/code/node_modules
+    depends_on:
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+      decidim:
+        condition: service_healthy
+    networks:
+      - private
+    ports:
+      - "3035:3035"
+    environment:
+      - RAILS_ENV=development
+      - NODE_ENV=development
+      - SHAKAPACKER_DEV_SERVER_HOST=0.0.0.0
+
+volumes:
+  decidim_public:
+  redis_data:
+  postgres_data:
+  bundle_cache:
+  vendor_bundle:
+  node_modules:
+networks:
+  private:

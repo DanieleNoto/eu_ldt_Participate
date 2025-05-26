@@ -1,0 +1,7 @@
+#!/bin/sh
+. "$(dirname $0)/_/husky.sh"
+
+echo "Husky hooks Started"
+echo "TODO add linter for Decidim component"
+npm run lint:ci
+npm run format:git:staged

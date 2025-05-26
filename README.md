@@ -1,20 +1,55 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# EU LDT Participate
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+## Overview
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+**EU LDT Participate** is a modular, open-source-based platform designed to facilitate collaborative decision-making, analytics, and real-time communication. The project integrates the following components:
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+* **Decidim:** A civic participation framework for managing proposals, deliberation, and participatory processes.
+* **Matomo & Grafana:** Analytics and monitoring solutions to track usage metrics and system health.
+* **Jitsi Meet:** A self-hosted video conferencing solution for live discussions.
+* **Chatbot:** A custom conversational agent with a React frontend (wrapped as a WebComponents) and a Fastify (Node.js).
+* **CI/CD:** Automated pipelines for testing, building, and deploying each component.
+* **Infrastructure as Code:** Terraform, Helm, and Ansible configurations to manage environments and deployments.
+* **Testing:** Comprehensive test suites covering unit, integration, acceptance, contract, and performance testing.
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+## Main Features
+
+* **Modular Architecture:** Components are isolated into dedicated directories, enabling independent development, testing, and scaling.
+* **Automation:** Centralized CI/CD pipelines and reusable scripts streamline build, test, and deployment workflows.
+* **Scalability:** Easily extendable to include new modules such as message brokers (Kafka), API gateways, or additional microservices.
+* **Code Quality:** Shared linting, formatting, and testing configurations enforce coding standards and prevent regressions.
+* **Observability:** Preconfigured Grafana dashboards and Matomo reports provide actionable insights into platform usage and performance.
+
+## Monorepo Structure
+
+```bash
+├── cicd/                          # CI/CD pipelines and workflows
+├── infrastructure/                # Infrastructure as Code (Terraform, Helm, Ansible)
+├── decidim/                       # Decidim core and custom extensions
+├── analytics/                     # Matomo & Grafana configurations
+├── jitsi/                         # Jitsi Meet deployment and customizations
+├── frontend/                      # React application for the chatbot UI
+├── backend/                       # Fastify (Node.js) chatbot service
+├── tests/                         # Integration, acceptance, contract, and performance tests
+├── utils/                         # Helper scripts and developer tools
+└── docs/                          # High-level documentation (architecture, setup, troubleshooting)
+```
+
+## Getting Started
+
+### Prerequisites
+
+* [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
+* [Node.js](https://nodejs.org/) (LTS) and npm or yarn
+* [Helm](https://helm.sh/) and [kubectl](https://kubernetes.io/) for Kubernetes deployments
+
+## Contributing
+
+Contributions are welcome! Please review the following before submitting a pull request:
+
+* [CONTRIBUTING.md](./CONTRIBUTING.md)
+* [CODE\_OF\_CONDUCT.md](./CODE_OF_CONDUCT.md)
+
+## License
+
+This project is licensed under the **EUROPEAN UNION PUBLIC LICENCE v. 1.2**. See the [LICENSE](./LICENSE) file for details.

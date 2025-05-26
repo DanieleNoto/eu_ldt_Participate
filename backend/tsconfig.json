@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["ES2023"],
+		"module": "CommonJS",
+		"moduleResolution": "node",
+		"baseUrl": "./",
+		"outDir": "./build",
+		"rootDir": "./",
+		"strict": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true
+	},
+	"include": ["src/**/*", "db/**/*", "tests/**/*", "node_modules/sqlite3"],
+	"exclude": ["node_modules"]
+}

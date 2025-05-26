@@ -1,0 +1,9 @@
+#!/bin/sh
+. "$(dirname $0)/_/husky.sh"
+
+if [ "$OSTYPE" == "win32" ] || [ "$OSTYPE" == "msys" ];
+then
+  npm run prepare:commit-msg-win
+else
+  npm run prepare:commit-msg-unix
+fi

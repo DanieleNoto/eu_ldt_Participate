@@ -1,0 +1,299 @@
+name: Tool3-QualityChecks-DEV-$(date:yyyyMMdd)$(rev:.r)
+
+#trigger:
+#- main
+#pr:
+#- main
+
+pool:
+    vmImage: 'ubuntu-latest'
+
+variables:
+    - group: 'TOOL3 - PT'
+    - group: 'TOOL3 - PT - KV'
+    - name: isMain
+      value: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+
+jobs:
+    # - job: replaceVariables
+    #   displayName: "Replace configuration parameters and values"
+    #   steps:
+    #     - task: replacetokens@5
+    #       displayName: "Replace tokens Backend"
+    #       inputs:
+    #         rootDirectory: <BE DIRECTORY>
+    #         targetFiles: Dockerfile*
+    #         tokenPattern: custom
+    #         tokenPrefix: __
+    #         tokenSuffix: __
+    #         writeBOM: false
+    #         verbosity: detailed
+    #         actionOnNoFiles: warn
+    #     - task: replacetokens@5
+    #       displayName: "Replace tokens Backend API"
+    #       inputs:
+    #         rootDirectory: <BE DIRECTORY>
+    #         targetFiles: application.properties
+    #         tokenPattern: custom
+    #         tokenPrefix: __
+    #         tokenSuffix: __
+    #         writeBOM: false
+    #         verbosity: detailed
+    #         actionOnNoFiles: warn
+
+    - job: LintProject
+      displayName: 'Install and Run Lint (Frontend&Backend)'
+      steps:
+          - task: NodeTool@0
+            inputs:
+                versionSource: 'fromFile'
+                versionFilePath: '.nvmrc'
+          - task: Cache@2
+            inputs:
+                key: 'npm-root | "$(Agent.OS)" | package-lock.json'
+                restoreKeys: |
+                    npm-root | "$(Agent.OS)"
+                path: node_modules
+            displayName: 'Cache npm modules (root)'
+          - script: |
+                npm ci
+            displayName: 'Install Lint (Frontend&Backend)'
+          - script: |
+                npm run lint
+            displayName: 'Run Lint (Frontend&Backend)'
+
+    - job: SecretsCheck
+      dependsOn: LintProject
+      displayName: 'Check Secrets & Sensitive Data in the repository (TruffleHog)'
+      steps:
+          - checkout: self
+            fetchDepth: 0
+            displayName: 'Checkout Git repository'
+          - script: |
+                docker run --rm -v "$(pwd)":/tmp ghcr.io/trufflesecurity/trufflehog:latest \
+                --only-verified --fail --no-update git file:///tmp/
+            displayName: 'Run TruffleHog'
+
+    - job: UnitTest_Backend
+      dependsOn: LintProject
+      condition: succeeded()
+      displayName: 'Install and Run Jest (Backend)'
+      steps:
+          - task: NodeTool@0
+            inputs:
+                versionSource: 'fromFile'
+                versionFilePath: '.nvmrc'
+          - task: Cache@2
+            inputs:
+                key: 'npm-be | "$(Agent.OS)" | backend/package-lock.json'
+                restoreKeys: |
+                    npm-be | "$(Agent.OS)"
+                path: backend/node_modules
+            displayName: 'Cache npm modules (Backend)'
+          - script: |
+                cd backend
+                npm ci
+            displayName: 'Install Jest (Backend)'
+          - script: |
+                cd backend
+                npm run test
+            displayName: 'Run Jest (Backend)'
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Jest Backend Results
+            inputs:
+                targetPath: backend/test-results/junit.xml
+                artifactName: jest-backend-results_$(Build.BuildId)
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Backend Coverage (LCOV)
+            inputs:
+                targetPath: backend/coverage/lcov.info
+                artifactName: backend-coverage_$(Build.BuildId)
+
+    - job: UnitTest_Frontend
+      dependsOn: LintProject
+      condition: succeeded()
+      displayName: 'Install and Run Jest (Frontend)'
+      steps:
+          - task: NodeTool@0
+            inputs:
+                versionSource: 'fromFile'
+                versionFilePath: '.nvmrc'
+          - task: Cache@2
+            inputs:
+                key: 'npm-fe | "$(Agent.OS)" | frontend/package-lock.json'
+                restoreKeys: |
+                    npm-fe | "$(Agent.OS)"
+                path: frontend/node_modules
+            displayName: 'Cache npm modules (Frontend)'
+          - script: |
+                cd frontend
+                npm ci
+            displayName: 'Install Jest (Frontend)'
+          - script: |
+                cd frontend
+                npm run test
+            displayName: 'Run Jest (Frontend)'
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Jest Frontend Results
+            inputs:
+                targetPath: frontend/test-results/junit.xml
+                artifactName: jest-frontend-results_$(Build.BuildId)
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Frontend Coverage (LCOV)
+            inputs:
+                targetPath: frontend/coverage/lcov.info
+                artifactName: frontend-coverage_$(Build.BuildId)
+
+    - job: Sonarqube
+      displayName: Sonarqube Analyses
+      dependsOn:
+          - UnitTest_Backend
+          - UnitTest_Frontend
+      condition: succeeded()
+      steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Jest Backend Results
+            inputs:
+                artifactName: jest-backend-results_$(Build.BuildId)
+                targetPath: $(System.DefaultWorkingDirectory)/test-results/backend
+
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Jest Frontend Results
+            inputs:
+                artifactName: jest-frontend-results_$(Build.BuildId)
+                targetPath: $(System.DefaultWorkingDirectory)/test-results/frontend
+
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Backend Coverage LCOV
+            inputs:
+                artifactName: backend-coverage_$(Build.BuildId)
+                targetPath: $(System.DefaultWorkingDirectory)/coverage/backend
+
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Frontend Coverage LCOV
+            inputs:
+                artifactName: frontend-coverage_$(Build.BuildId)
+                targetPath: $(System.DefaultWorkingDirectory)/coverage/frontend
+
+          - task: SonarQubePrepare@7
+            inputs:
+                SonarQube: 'EU-LDT-Toolbox-Sonarqube-INT'
+                scannerMode: 'cli'
+                configMode: 'manual'
+                cliProjectKey: 'EU_LDT_Participate_EU_LDT_Participate_AZbzElXiAi9yyI3i8xfA'
+                cliProjectName: 'EU_LDT_Participate'
+                extraProperties: |
+                    # Additional properties that will be passed to the scanner,
+                    # Put one key=value per line, example:
+                    # sonar.exclusions=**/*.bin
+                    sonar.host.url=https://sq-int.ldttoolbox.app
+                    sonar.projectKey=EU_LDT_Participate_EU_LDT_Participate_AZbzElXiAi9yyI3i8xfA
+          - task: JavaToolInstaller@1
+            inputs:
+                versionSpec: '21'
+                jdkArchitectureOption: 'x64'
+                jdkSourceOption: 'PreInstalled'
+
+          - task: SonarQubeAnalyze@7
+            inputs:
+                jdkversion: 'JAVA_HOME_21_X64'
+
+          - task: SonarQubePublish@7
+            inputs:
+                pollingTimeoutSec: '300'
+
+    - job: snykScans
+      dependsOn: Sonarqube
+      displayName: 'Snyk Code & Licenses Scans'
+      steps:
+          - task: NodeTool@0
+            inputs:
+                versionSource: 'fromFile'
+                versionFilePath: '.nvmrc'
+          - task: SnykSecurityScan@1
+            inputs:
+                serviceConnectionEndpoint: 'EU-LDT-Toolbox-Snyk'
+                testType: 'code'
+                failOnIssues: true
+                projectName: 'EU-LDT-Toobox-Participate'
+                organization: 'eutoolbox'
+          - script: |
+                cd backend
+                npm ci
+            displayName: 'Install Deps (BE)'
+          - task: SnykSecurityScan@1
+            inputs:
+                serviceConnectionEndpoint: 'EU-LDT-Toolbox-Snyk'
+                testType: 'app'
+                targetFile: 'backend/package.json'
+                monitorWhen: 'always'
+                failOnIssues: false
+                projectName: 'EU-LDT-Toobox-Participate'
+                organization: 'eutoolbox'
+          - script: |
+                cd frontend
+                npm ci
+            displayName: 'Install Deps (FE)'
+          - task: SnykSecurityScan@1
+            inputs:
+                serviceConnectionEndpoint: 'EU-LDT-Toolbox-Snyk'
+                testType: 'app'
+                targetFile: 'frontend/package.json'
+                monitorWhen: 'always'
+                failOnIssues: false
+                projectName: 'EU-LDT-Toobox-Participate'
+                organization: 'eutoolbox'
+
+    - job: sBomGeneration
+      dependsOn: snykScans
+      displayName: 'SBOM File(s) generation'
+      steps:
+          - task: UseRubyVersion@0
+            inputs:
+                versionSpec: '= 3.2.8'
+
+          - script: |
+                ruby --version
+                gem --version
+            displayName: 'Check Ruby/Gem availability'
+
+          - script: |
+                cd frontend
+                npm install @cyclonedx/cdxgen --no-save
+                npx cdxgen -r \
+                  -o $(System.DefaultWorkingDirectory)/sbom-js.json \
+                  --deep \
+                  --profile license-compliance
+                ls -la
+                ls -la $(System.DefaultWorkingDirectory)
+            displayName: 'Generate SBOM (JavaScript)'
+
+          - script: |
+                gem install bundler --no-document
+                gem install cyclonedx-ruby --no-document
+
+                which cyclonedx-ruby
+                cyclonedx-ruby --version
+
+                cd decidim/decidim_application
+                bundle install --jobs 4 --retry 3
+
+                cyclonedx-ruby -p . 
+
+                echo Verify sbom file exists and move
+                ls -la
+                mv bom.xml $(System.DefaultWorkingDirectory)/sbom-ruby.xml
+                ls -la $(System.DefaultWorkingDirectory)
+            displayName: 'Generate SBOM (Decidim/Ruby)'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish SBOM JavaScript'
+            inputs:
+                targetPath: '$(System.DefaultWorkingDirectory)/sbom-js.json'
+                artifactName: 'sbom-js'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish SBOM Ruby (Decidim)'
+            inputs:
+                targetPath: '$(System.DefaultWorkingDirectory)/sbom-ruby.xml'
+                artifactName: 'sbom-ruby'

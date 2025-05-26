@@ -1,0 +1,22 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"types": ["jest", "@testing-library/jest-dom"],
+		"esModuleInterop": true,
+		"moduleResolution": "node",
+		"baseUrl": "./",
+		"paths": {
+			"@app/*": ["src/app/*"],
+			"@config/*": ["src/config/*"],
+			"@core/*": ["src/app/core/*"],
+			"@logger/*": ["src/app/logger/*"],
+			"@pages/*": ["src/app/pages/*"],
+			"@theme/*": ["src/app/theme/*"],
+			"@src/*": ["src/*"],
+			"@shared/*": ["src/app/shared/*"],
+			"@utils/*": ["src/app/utils/*"]
+		}
+	},
+	"include": ["src", "**/*.test.ts", "**/*.test.tsx", "jest.setup.ts"]
+}
