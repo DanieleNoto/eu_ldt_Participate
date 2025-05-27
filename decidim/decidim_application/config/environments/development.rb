@@ -8,6 +8,7 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.hosts << "localhost"
   config.cache_classes = false
+  config.web_console.permissions = '192.168.0.0/16'
 
   # Do not eager load code on boot.
   config.eager_load = false
