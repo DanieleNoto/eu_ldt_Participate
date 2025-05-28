@@ -1,4 +1,3 @@
-version: v1
-ignore:
-  "tests/**":
-    - code
+exclude:
+  global:
+    - tests
