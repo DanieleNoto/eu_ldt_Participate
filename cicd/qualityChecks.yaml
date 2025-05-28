@@ -215,7 +215,6 @@ jobs:
                 serviceConnectionEndpoint: 'EU-LDT-Toolbox-Snyk'
                 testType: 'code'
                 failOnIssues: true
-                additionalArguments: ignore --file-path="tests"
                 projectName: 'EU-LDT-Toobox-Participate'
                 organization: 'eutoolbox'
           - script: |
