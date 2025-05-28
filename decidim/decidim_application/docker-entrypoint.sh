@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e 
 
+# Remove old server PID file if it exists
+if [ -f tmp/pids/server.pid ]; then
+  rm tmp/pids/server.pid
+fi
+
 echo "--- Cleaning Yarn cache ---"
 yarn cache clean
 
@@ -45,12 +50,9 @@ if [ "$RAILS_ENV" = "development" ]; then
 
     echo "Attempting to create admin user with email: $ADMIN_EMAIL"
 
-    bin/rails decidim_system:create_admin <<EOF
-$ADMIN_EMAIL
-$ADMIN_PASSWORD
-$ADMIN_PASSWORD
-EOF
-    echo "--- Admin user creation command executed. ---"
+    bin/rails runner "Decidim::System::Admin.create!(email: '$ADMIN_EMAIL', password: '$ADMIN_PASSWORD', password_confirmation: '$ADMIN_PASSWORD')" \
+      && echo '--- Admin user created successfully. ---' \
+      || echo '--- Failed to create admin user. It may already exist or there was a validation error. ---'
   else
     echo "--- Existing admin users found (Count: $ADMIN_COUNT). Skipping automatic admin creation. ---"
   fi

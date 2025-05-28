@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_05_20_094615) do
+ActiveRecord::Schema[7.0].define(version: 2025_05_26_132745) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "ltree"
   enable_extension "pg_trgm"
@@ -1019,6 +1019,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_20_094615) do
     t.boolean "enable_participatory_space_filters", default: true
     t.jsonb "content_security_policy", default: {}
     t.jsonb "name", default: {}, null: false
+    t.jsonb "extra_user_fields", default: {"enabled"=>false}
     t.index ["host"], name: "index_decidim_organizations_on_host", unique: true
   end
 

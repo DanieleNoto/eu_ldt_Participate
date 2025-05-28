@@ -84,3 +84,9 @@ backend/.env
 /.vscode/
 tls.crt
 tls.key
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
