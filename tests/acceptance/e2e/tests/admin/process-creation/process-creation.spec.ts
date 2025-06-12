@@ -1,14 +1,11 @@
-import { test, expect } from '../fixtures/process-fixtures';
-import { ProcessTestDataGenerator } from '../fixtures/process-fixtures';
+import { expect, ProcessTestDataGenerator, test } from '../../../fixtures/process-fixtures';
 
 test.describe('PAR R8, PAR R12c - City Administrator Process Creation', () => {
 	test.describe('Main Flow - Create Process', () => {
 		test('should successfully create a public participatory process with all required information', async ({
-			loggedInAdminProcessPage
+			loggedInAdminProcessPage,
+			validProcessData
 		}) => {
-			// Generate valid test data
-			const validProcessData = ProcessTestDataGenerator.generateValidProcessData();
-
 			// Step 1: City Administrator is already logged in and navigated to "New Process" section
 			// (handled by loggedInAdminProcessPage fixture)
 
@@ -44,7 +41,7 @@ test.describe('PAR R8, PAR R12c - City Administrator Process Creation', () => {
 
 			// Step 5 & 6: System validates and saves the Process
 			// Step 7: System notifies successful creation
-			await loggedInAdminProcessPage.waitForSuccessMessage();
+			await loggedInAdminProcessPage.expectSuccessMessage();
 
 			// Verify navigation to process steps page indicates successful creation
 			await loggedInAdminProcessPage.expectUrl(/\/admin\/participatory_processes\/.*\/steps/);
@@ -69,7 +66,7 @@ test.describe('PAR R8, PAR R12c - City Administrator Process Creation', () => {
 			// City Administrator decides to cancel the Process creation process
 			await loggedInAdminProcessPage.cancelProcessCreation();
 
-			await loggedInAdminProcessPage.expectUrl(/\/admin$/);
+			await loggedInAdminProcessPage.expectUrl(/.*\/admin\/?$/);
 
 			// Verify we're back at the admin dashboard
 			await expect(await loggedInAdminProcessPage.getTextBySelector('Dashboard')).toBeVisible();

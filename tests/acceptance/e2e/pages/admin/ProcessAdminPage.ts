@@ -1,12 +1,26 @@
 import { Page, expect } from '@playwright/test';
-import path from 'path';
+import { ADMIN_ROUTES } from '@utils/routes';
+import { BaseAdminPage } from '../admin/BaseAdminPage';
 
-export class AdminConfigPage {
-	constructor(private page: Page) {}
+export class ProcessAdminPage extends BaseAdminPage {
+	constructor(page: Page) {
+		super(page);
+	}
 
 	// Public getter for page access in tests
 	getPage(): Page {
 		return this.page;
+	}
+
+	// Navigation specific to processes
+	async navigateToProcesses() {
+		await this.page.getByRole('link', { name: 'Processes' }).click();
+		await this.page.goto(ADMIN_ROUTES.participatoryProcesses.pattern);
+	}
+
+	async navigateToNewProcess() {
+		await this.page.getByRole('link', { name: 'New process' }).click();
+		await this.page.goto(ADMIN_ROUTES.newParticipatoryProcesses.pattern);
 	}
 
 	// Form element getters for test assertions
@@ -17,74 +31,12 @@ export class AdminConfigPage {
 	async getOrderPositionSpinbutton() {
 		return this.page.getByRole('spinbutton', { name: 'Order position Required field' });
 	}
+
 	async getTitleTextbox() {
 		return this.page.getByRole('textbox', { name: 'title', exact: true });
 	}
 
-	// URL checking methods
-	async getCurrentUrl(): Promise<string> {
-		return this.page.url();
-	}
-
-	async waitForUrl(pattern: RegExp, timeout: number = 30000): Promise<void> {
-		await this.page.waitForURL(pattern, { timeout });
-	}
-
-	async expectUrl(pattern: RegExp): Promise<void> {
-		await expect(this.page).toHaveURL(pattern);
-	}
-
-	// Text and element checking methods
-	async getTextBySelector(text: string): Promise<any> {
-		return this.page.getByText(text);
-	}
-
-	async waitForTimeout(ms: number): Promise<void> {
-		await this.page.waitForTimeout(ms);
-	}
-
-	async getLocator(selector: string, options?: any): Promise<any> {
-		return this.page.locator(selector, options);
-	}
-
-	async navigateToHomePage() {
-		await this.page.goto('http://localhost:3000/');
-	}
-
-	async clickLoginLink() {
-		await this.page.getByLabel('Log in', { exact: true }).click();
-	}
-
-	async navigateToSignIn() {
-		await this.page.goto('http://localhost:3000/users/sign_in');
-	}
-
-	async acceptCookies() {
-		await this.page.getByRole('button', { name: 'Accept all' }).click();
-	}
-
-	async loginAsAdmin(email: string = 'admin@admin.com', password: string = 'decidim123456789') {
-		await this.page.getByRole('textbox', { name: 'Email Required field' }).click();
-		await this.page.getByRole('textbox', { name: 'Email Required field' }).fill(email);
-		await this.page.getByRole('textbox', { name: 'Password Required field' }).click();
-		await this.page.getByRole('textbox', { name: 'Password Required field' }).fill(password);
-		await this.page.getByRole('button', { name: 'Log in' }).click();
-	}
-
-	async navigateToAdminDashboard() {
-		await this.page.goto('http://localhost:3000/');
-		await this.page.getByRole('link', { name: 'Admin dashboard' }).click();
-	}
-
-	async navigateToProcesses() {
-		await this.page.getByRole('link', { name: 'Processes' }).click();
-		await this.page.goto('http://localhost:3000/admin/participatory_processes');
-	}
-	async navigateToNewProcess() {
-		await this.page.getByRole('link', { name: 'New process' }).click();
-		await this.page.goto('http://localhost:3000/admin/participatory_processes/new');
-	}
-
+	// Process creation form methods
 	async fillGeneralInfo(processData: ProcessGeneralInfo) {
 		await this.page.getByRole('textbox', { name: 'title', exact: true }).click();
 		await this.page.getByRole('textbox', { name: 'title', exact: true }).fill(processData.title);
@@ -100,17 +52,35 @@ export class AdminConfigPage {
 		await this.page.getByRole('textbox', { name: 'URL slug Required field URL' }).click();
 		await this.page.getByRole('textbox', { name: 'URL slug Required field URL' }).fill(processData.urlSlug);
 
-		await this.page.getByRole('textbox', { name: 'Short description' }).click();
-		await this.page.getByRole('textbox', { name: 'Short description' }).fill(processData.shortDescription);
+		await this.page
+			.locator('#participatory_process_short_description_en')
+			.getByRole('textbox', { name: 'Add image' })
+			.click();
+		await this.page
+			.locator('#participatory_process_short_description_en')
+			.getByRole('textbox', { name: 'Add image' })
+			.fill(processData.shortDescription);
 
 		await this.page.locator('#panel-title div').filter({ hasText: 'Hashtag' }).nth(1).click();
 		await this.page.getByRole('textbox', { name: 'Hashtag' }).fill(processData.hashtag);
 
-		await this.page.getByRole('textbox', { name: 'Description', exact: true }).click();
-		await this.page.getByRole('textbox', { name: 'Description', exact: true }).fill(processData.description);
+		await this.page
+			.locator('#participatory_process_description_en')
+			.getByRole('textbox', { name: 'Add image' })
+			.click();
+		await this.page
+			.locator('#participatory_process_description_en')
+			.getByRole('textbox', { name: 'Add image' })
+			.fill(processData.description);
 
-		await this.page.getByRole('textbox', { name: 'Announcement' }).click();
-		await this.page.getByRole('textbox', { name: 'Announcement' }).fill(processData.announcement);
+		await this.page
+			.locator('#participatory_process_announcement_en')
+			.getByRole('textbox', { name: 'Add image' })
+			.click();
+		await this.page
+			.locator('#participatory_process_announcement_en')
+			.getByRole('textbox', { name: 'Add image' })
+			.fill(processData.announcement);
 	}
 
 	async fillDurationInfo(durationData: ProcessDurationInfo) {
@@ -120,6 +90,7 @@ export class AdminConfigPage {
 		await this.page.locator('#participatory_process_end_date_date').click();
 		await this.page.locator('#participatory_process_end_date_date').fill(durationData.endDate);
 	}
+
 	async addImage(imagePath: string = 'tests/acceptance/e2e/tests/processes/test-assets/test.jpg') {
 		await this.page.getByRole('button', { name: 'Add image' }).click();
 		// Wait for the dialog to appear
@@ -151,6 +122,7 @@ export class AdminConfigPage {
 			.fill(metadataData.participatoryStructure);
 	}
 
+	// Visibility settings
 	async setVisibilityToPublic() {
 		const publicVisibilityRadio = this.page.getByRole('radio', { name: 'Public' });
 		if (await publicVisibilityRadio.isVisible()) {
@@ -165,6 +137,7 @@ export class AdminConfigPage {
 		}
 	}
 
+	// Process submission and management
 	async submitProcess() {
 		await this.page.getByRole('button', { name: 'Create' }).click();
 	}
@@ -174,34 +147,11 @@ export class AdminConfigPage {
 		await cancelButton.click();
 	}
 
-	async waitForSuccessMessage() {
-		await this.page.getByText('Participatory process successfully created.');
-	}
-
-	async waitForErrorMessage() {
-		await this.page.getByText('There was a problem creating a new participatory process.');
-	}
-
-	async getValidationErrors(): Promise<string[]> {
-		const validationSelectors = '.form-error';
-		await this.page.waitForTimeout(1000); // Wait for validation to appear
-		const errors = await this.page.locator(validationSelectors).all();
-		const errorTexts: string[] = [];
-
-		for (const error of errors) {
-			const text = await error.textContent();
-			if (text) {
-				errorTexts.push(text.trim());
-			}
-		}
-
-		return errorTexts;
-	}
-
 	async retrySubmission() {
 		await this.page.getByRole('button', { name: 'Retry' }).click();
 	}
 
+	// Private process participants
 	async addPrivateParticipants(emails: string[]) {
 		for (const email of emails) {
 			await this.page.getByRole('textbox', { name: 'Participant email' }).fill(email);
@@ -209,13 +159,24 @@ export class AdminConfigPage {
 		}
 	}
 
-	async isSessionExpired(): Promise<boolean> {
-		return (
-			(await this.page.locator('text=Session expired').isVisible()) ||
-			(await this.page.url().includes('/users/sign_in'))
-		);
+	// Success and error handling
+	async waitForSuccessMessage() {
+		await this.page.getByText('Participatory process successfully created.');
 	}
 
+	async waitForProcessErrorMessage() {
+		await this.page.getByText('There was a problem creating a new participatory process.');
+	}
+
+	async expectSuccessMessage() {
+		await expect(this.page.getByText('Participatory process successfully created.')).toBeVisible();
+	}
+
+	async expectErrorMessage() {
+		await expect(this.page.getByText('There was a problem creating a new participatory process.')).toBeVisible();
+	}
+
+	// Complete workflow methods
 	async createNewProcess(processData: CompleteProcessData) {
 		await this.navigateToNewProcess();
 		await this.fillGeneralInfo(processData.general);
@@ -237,9 +198,14 @@ export class AdminConfigPage {
 			await this.addPrivateParticipants(processData.privateParticipants);
 		}
 	}
+
+	async setupProcessManagement() {
+		await this.performAdminLogin();
+		await this.navigateToProcesses();
+	}
 }
 
-// Type definitions for better type safety
+// Type definitions for better type safety (moved from original file)
 export interface ProcessGeneralInfo {
 	title: string;
 	subtitle: string;

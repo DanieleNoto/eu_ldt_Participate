@@ -1,0 +1,24 @@
+{
+	"name": "e2e",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"test:dev": "cross-env ENV=development npx playwright test",
+		"test:prod": "cross-env ENV=production npx playwright test",
+		"test-ui": "playwright test --ui",
+		"test-ui-port0:dev": "cross-env ENV=development npx playwright test --ui-port=0",
+		"test-ui-port0:prod": "cross-env ENV=production npx playwright test --ui-port=0",
+		"report": "playwright show-report"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@axe-core/playwright": "^4.10.1",
+		"@playwright/test": "^1.52.0",
+		"@types/node": "^22.15.21",
+		"cross-env": "^7.0.3",
+		"dotenv": "^16.4.7"
+	}
+}

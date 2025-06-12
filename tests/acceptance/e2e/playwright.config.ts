@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { STORAGE_STATE } from '@utils/constants';
 
 /**
  * Read environment variables from file.
@@ -12,7 +13,7 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-	testDir: './tests',
+	testDir: '../', // Relative to this config file location
 
 	// Global test timeout (default is 30 seconds)
 	timeout: 300000, // 300 seconds for each test 5 minutes
@@ -35,7 +36,7 @@ export default defineConfig({
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
 	use: {
 		/* Base URL to use in actions like `await page.goto('/')`. */
-		// baseURL: 'http://localhost:3000',
+		baseURL: process.env.BASE_URL || 'http://localhost:3000',
 
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: 'on-first-retry',
@@ -49,9 +50,65 @@ export default defineConfig({
 
 	/* Configure projects for major browsers */
 	projects: [
+		// Setup project for user authentication
 		{
-			name: 'chromium',
-			use: { ...devices['Desktop Chrome'] }
+			name: 'user-setup',
+			testMatch: 'tests/**/auth/user-auth.setup.ts',
+			teardown: 'user-cleanup'
+		},
+		// Setup project for admin authentication
+		{
+			name: 'admin-setup',
+			testMatch: 'tests/**/auth/admin-auth.setup.ts',
+			teardown: 'admin-cleanup'
+		},
+
+		// Cleanup project
+		{
+			name: 'user-cleanup',
+			testMatch: 'tests/**/auth/user-auth.cleanup.ts'
+		},
+		// Cleanup project
+		{
+			name: 'admin-cleanup',
+			testMatch: 'tests/**/auth/admin-auth.cleanup.ts'
+		},
+
+		// User tests with authenticated state
+		{
+			name: 'user-tests',
+			use: {
+				...devices['Desktop Chrome'],
+				storageState: STORAGE_STATE.USER
+			},
+			dependencies: ['user-setup'],
+			testMatch: 'tests/user/**/*.spec.ts'
+		},
+
+		// Admin tests with authenticated state
+		{
+			name: 'admin-tests',
+			use: {
+				...devices['Desktop Chrome'],
+				storageState: STORAGE_STATE.ADMIN
+			},
+			dependencies: ['admin-setup'],
+			testMatch: 'tests/admin/**/*.spec.ts'
+		},
+
+		// Shared/general tests
+		{
+			name: 'shared-tests',
+			use: { ...devices['Desktop Chrome'] },
+			testMatch: 'tests/shared/**/*.spec.ts'
+		},
+
+		// Legacy tests (existing structure)
+		{
+			name: 'legacy-tests',
+			use: { ...devices['Desktop Chrome'] },
+			testMatch: 'tests/**/*.spec.ts',
+			testIgnore: ['tests/user/**', 'tests/admin/**', 'tests/shared/**']
 		}
 
 		// {

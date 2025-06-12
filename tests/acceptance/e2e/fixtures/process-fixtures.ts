@@ -1,46 +1,37 @@
 import { test as base } from '@playwright/test';
-import {
-	AdminConfigPage,
-	CompleteProcessData,
-	ProcessGeneralInfo,
-	ProcessDurationInfo,
-	ProcessMetadataInfo
-} from '../pages/AdminConfigPage';
-import path from 'path';
+import { CompleteProcessData, ProcessAdminPage } from '../pages/admin/ProcessAdminPage';
+import { LoginPage } from '../pages/auth/LoginPage';
 
 // Extend the base test to include our fixtures
-type TestFixtures = {
-	adminProcessPage: AdminConfigPage;
-	loggedInAdminProcessPage: AdminConfigPage;
+type ProcessFixtures = {
+	loginPage: LoginPage;
+	loggedInAdminProcessPage: ProcessAdminPage;
 	validProcessData: CompleteProcessData;
 	invalidProcessData: Partial<CompleteProcessData>;
 	privateProcessData: CompleteProcessData;
+	minimalProcessData: CompleteProcessData;
 };
 
-export const test = base.extend<TestFixtures>({
-	// Fixture that provides a fresh AdminConfigPage instance
-	adminProcessPage: async ({ page }, use) => {
-		const adminProcessPage = new AdminConfigPage(page);
-		await use(adminProcessPage);
+export const test = base.extend<ProcessFixtures>({
+	loginPage: async ({ page }, use) => {
+		const loginPage = new LoginPage(page);
+		await use(loginPage);
 	},
 
-	// Fixture that provides a logged-in admin page ready for process creation
+	// Pre-logged in admin page ready for process creation
 	loggedInAdminProcessPage: async ({ page }, use) => {
-		const adminProcessPage = new AdminConfigPage(page);
-
-		// Perform login sequence
-		await adminProcessPage.navigateToHomePage();
-		await adminProcessPage.clickLoginLink();
-		await adminProcessPage.navigateToSignIn();
-		await adminProcessPage.acceptCookies();
-		await adminProcessPage.loginAsAdmin();
-		await adminProcessPage.navigateToAdminDashboard();
-		await adminProcessPage.navigateToProcesses();
-
-		await use(adminProcessPage);
+		const processAdminPage = new ProcessAdminPage(page);
+		await processAdminPage.setupProcessManagement();
+		await use(processAdminPage);
 	},
 
-	// Fixture that provides invalid test data for validation testing
+	// Valid test data for process creation
+	validProcessData: async ({}, use) => {
+		const data = ProcessTestDataGenerator.generateValidProcessData();
+		await use(data);
+	},
+
+	// Invalid test data for validation testing
 	invalidProcessData: async ({}, use) => {
 		const invalidData: Partial<CompleteProcessData> = {
 			general: {
@@ -59,6 +50,18 @@ export const test = base.extend<TestFixtures>({
 			}
 		};
 		await use(invalidData);
+	},
+
+	// Private process data
+	privateProcessData: async ({}, use) => {
+		const data = ProcessTestDataGenerator.generatePrivateProcessData();
+		await use(data);
+	},
+
+	// Minimal valid data
+	minimalProcessData: async ({}, use) => {
+		const data = ProcessTestDataGenerator.generateMinimalValidProcessData();
+		await use(data);
 	}
 });
 
@@ -135,6 +138,26 @@ export class ProcessTestDataGenerator {
 				participatoryStructure: 'Minimal Structure'
 			},
 			visibility: 'public'
+		};
+	}
+
+	static generatePrivateProcessData(): CompleteProcessData {
+		const uniqueId = Date.now().toString();
+		return {
+			...this.generateValidProcessData(uniqueId),
+			visibility: 'private',
+			privateParticipants: ['participant1@example.com', 'participant2@example.com', 'participant3@example.com']
+		};
+	}
+
+	static generateLongRunningProcessData(): CompleteProcessData {
+		const uniqueId = Date.now().toString();
+		return {
+			...this.generateValidProcessData(uniqueId),
+			duration: {
+				startDate: '01/01/2025',
+				endDate: '31/12/2025'
+			}
 		};
 	}
 }

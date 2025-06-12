@@ -1,6 +1,3 @@
-import { test, expect } from '@playwright/test';
-import { AdminConfigPage } from '../pages/AdminConfigPage';
-
 // test.describe('Admin Extra User Fields Configuration - Error Handling', () => {
 // 	let adminConfigPage: AdminConfigPage;
 
