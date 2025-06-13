@@ -4,7 +4,6 @@ import { Page } from '@playwright/test';
  * Utility class for handling localization in Playwright tests
  */
 export class LocalizationUtils {
-	
 	/**
 	 * Detect current locale from URL parameters
 	 * @param page - Playwright page instance
@@ -41,14 +40,14 @@ export class LocalizationUtils {
 	 */
 	static async getWorkingLocalizedSelector(page: Page, baseFieldName: string): Promise<string> {
 		const localizedSelector = this.getLocalizedFieldSelector(page, baseFieldName);
-		
+
 		// First try the localized version
 		const localizedElement = page.locator(localizedSelector);
-		if (await localizedElement.count() > 0) {
+		if ((await localizedElement.count()) > 0) {
 			console.log(`Using localized selector: ${localizedSelector}`);
 			return localizedSelector;
 		}
-		
+
 		// Fallback to default English version
 		const defaultSelector = `#${baseFieldName}_en`;
 		console.log(`Falling back to default selector: ${defaultSelector}`);
@@ -65,8 +64,10 @@ export class LocalizationUtils {
 	static async isLocaleSupported(page: Page, baseFieldName: string, locale: string): Promise<boolean> {
 		const selector = `#${baseFieldName}_${locale}`;
 		const element = page.locator(selector);
-		const exists = await element.count() > 0;
-		console.log(`Locale '${locale}' support check for '${baseFieldName}': ${exists ? 'supported' : 'not supported'}`);
+		const exists = (await element.count()) > 0;
+		console.log(
+			`Locale '${locale}' support check for '${baseFieldName}': ${exists ? 'supported' : 'not supported'}`
+		);
 		return exists;
 	}
 
@@ -164,8 +165,8 @@ export class LocalizationUtils {
 	 * @returns Promise resolving to validation result
 	 */
 	static async validateLocalizedFields(
-		page: Page, 
-		fieldNames: string[], 
+		page: Page,
+		fieldNames: string[],
 		locale: string
 	): Promise<{ valid: boolean; missingFields: string[] }> {
 		const missingFields: string[] = [];
@@ -185,4 +186,68 @@ export class LocalizationUtils {
 
 		return { valid, missingFields };
 	}
+}
+
+/**
+ * Helper function to get a localized selector (simplified version)
+ * @param baseSelector - The base selector
+ * @param locale - Optional locale (defaults to 'it')
+ * @returns Localized selector
+ */
+export function getLocalizedSelector(baseSelector: string, locale: string = 'it'): string {
+	return `${baseSelector}[lang="${locale}"], ${baseSelector}`;
+}
+
+/**
+ * Helper function to get localized text based on key
+ * @param key - The text key in dot notation
+ * @param locale - Optional locale (defaults to 'it')
+ * @returns Localized text
+ */
+export function getLocalizedText(key: string, locale: string = 'en'): string {
+	const texts = {
+		it: {
+			accountDeletion: {
+				warningMessage: 'This action cannot be undone',
+				helpText: 'Per favore, compila il motivo per cui desideri eliminare il tuo account',
+				deleteButton: 'Elimina il mio account',
+				successMessage: 'La richiesta di eliminazione account è stata inviata con successo',
+				errorMessage: "Si è verificato un errore durante l'eliminazione dell'account",
+				reasonLabel: 'Motivo per il quale vuoi eliminare il tuo account',
+				confirmationTitle: 'Conferma eliminazione account',
+				confirmationMessage: 'Sei sicuro di voler eliminare il tuo account?',
+				confirmButton: 'Sì, elimina il mio account',
+				cancelButton: 'Annulla'
+			},
+			session: {
+				timeoutMessage: 'La sessione è scaduta per motivi di sicurezza'
+			}
+		},
+		en: {
+			accountDeletion: {
+				warningMessage: 'This action cannot be undone',
+				helpText: 'Please, fill in the reason you want to delete your account (optional).',
+				deleteButton: 'Delete my account',
+				successMessage: 'Your account was successfully deleted.',
+				errorMessage: 'An error occurred while deleting the account',
+				reasonLabel: 'Reason why you want to delete your account',
+				confirmationTitle: 'Confirm account deletion',
+				confirmationMessage: 'Are you sure you want to delete your account?',
+				confirmButton: 'Yes, delete my account',
+				cancelButton: 'Cancel'
+			},
+			session: {
+				timeoutMessage: 'Session has expired for security reasons'
+			}
+		}
+	};
+
+	const keys = key.split('.');
+	let result: any = texts[locale as keyof typeof texts] || texts.en;
+
+	for (const k of keys) {
+		result = result?.[k];
+	}
+
+	return result || key;
 }

@@ -103,9 +103,6 @@ export class VerticalTabsComponent {
 	}
 
 	async navigateToDeleteAccount() {
-		if (!(await this.tabsList.isVisible())) {
-			await this.openTabsDropdown();
-		}
 		await this.deleteAccountTab.click();
 	}
 

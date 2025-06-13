@@ -1,7 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
+import { LocalizationUtils } from '../../../utils/localization.utils';
 import { HeaderComponent } from '../../components/common/HeaderComponent';
 import { VerticalTabsComponent } from '../../components/common/VerticalTabsComponent';
-import { LocalizationUtils } from '../../../utils/localization.utils';
 
 export class AccountPage {
 	private page: Page;
@@ -393,8 +393,8 @@ export class AccountPage {
 				hasLocalizedFields = true;
 				supportedLocales.push(...availableLocales);
 			}
-		}    // Remove duplicates
-    const uniqueLocales = Array.from(new Set(supportedLocales));
+		} // Remove duplicates
+		const uniqueLocales = Array.from(new Set(supportedLocales));
 
 		return {
 			currentLocale,

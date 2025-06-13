@@ -86,23 +86,23 @@ export class HeaderComponent {
 
 	// Selettori per i link del dropdown account (desktop)
 	private get myAccountLink() {
-		return this.page.locator('a[href*="/account"]');
+		return this.page.locator('div#dropdown-menu-account a[href*="/account"]');
 	}
 
 	private get myProfileLink() {
-		return this.page.locator('a[href*="/profiles/"]');
+		return this.page.locator('div#dropdown-menu-account a[href*="/profiles/"]');
 	}
 
 	private get notificationsLink() {
-		return this.page.locator('a[href*="/notifications"]');
+		return this.page.locator('div#dropdown-menu-account a[href*="/notifications"]');
 	}
 
 	private get conversationsLink() {
-		return this.page.locator('a[href*="/conversations"]');
+		return this.page.locator('div#dropdown-menu-account a[href*="/conversations"]');
 	}
 
 	private get logoutLink() {
-		return this.page.locator('a[href*="/users/sign_out"]');
+		return this.page.locator('div#dropdown-menu-account a[href*="/users/sign_out"]');
 	}
 
 	// Selettori per l'utente loggato (mobile)
