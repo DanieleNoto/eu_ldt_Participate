@@ -2,6 +2,9 @@ name: Tool3-Testing-DEV-$(date:yyyyMMdd)$(rev:.r)
 pool:
     vmImage: 'ubuntu-latest'
 
+trigger:
+    - main
+
 variables:
     - group: 'TOOL3 - PT'
     - group: 'TOOL3 - PT - KV'
