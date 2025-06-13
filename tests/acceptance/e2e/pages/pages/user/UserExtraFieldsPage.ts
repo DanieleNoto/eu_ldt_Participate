@@ -1,7 +1,7 @@
 import { Page, expect } from '@playwright/test';
 import { TEST_SELECTORS } from '@utils/constants';
+import { AuthenticatedPage } from '../../base/AuthenticatedPage';
 import { LoginPage } from '../auth/LoginPage';
-import { AuthenticatedPage } from '../base/AuthenticatedPage';
 
 export class UserExtraFieldsPage extends AuthenticatedPage {
 	private loginPage: LoginPage;

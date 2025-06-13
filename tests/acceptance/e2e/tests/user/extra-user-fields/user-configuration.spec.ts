@@ -1,23 +1,35 @@
 import { TEST_USERS } from '@config/test-users';
-import {
-	expect,
-	ExtraUserFieldsTestDataGenerator,
-	extraUserFieldsTest as test
-} from '../../../fixtures/extra-user-fields-fixtures';
+import { UserExtraFieldsPage, UserFieldsData } from '@pages/pages/user/UserExtraFieldsPage';
+import { expect, test } from '@playwright/test';
+import { STORAGE_STATE } from '@utils/constants';
+import { ExtraUserFieldsTestDataGenerator } from '../../../fixtures/extra-user-fields-fixtures';
 
 test.describe('User Extra Fields Configuration', () => {
-	test('should successfully update user profile with all extra fields', async ({
-		loggedInUserPage,
-		defaultUserData
-	}) => {
-		// Modify user fields using the pre-logged in fixture
-		await loggedInUserPage.modifyUserFields(defaultUserData);
+	test.use({ storageState: STORAGE_STATE.USER });
+
+	let userExtraFieldsPage: UserExtraFieldsPage;
+
+	test.beforeEach(async ({ page }) => {
+		userExtraFieldsPage = new UserExtraFieldsPage(page);
+		await userExtraFieldsPage.navigateToMyAccount();
+	});
+	test('should successfully update user profile with all extra fields', async ({ page }) => {
+		const defaultUserData: UserFieldsData = {
+			dateOfBirth: '10/04/1996',
+			gender: 'female',
+			country: 'IT',
+			postalCode: '00144',
+			phoneNumber: '3258023921',
+			location: 'Rome'
+		};
+
+		// Modify user fields using the authenticated state
+		await userExtraFieldsPage.modifyUserFields(defaultUserData);
 
 		// Verify the form was submitted successfully
-		await loggedInUserPage.expectUpdateSuccess();
+		await userExtraFieldsPage.expectUpdateSuccess();
 
 		// Verify the fields are populated with the correct values
-		const page = loggedInUserPage.getPage();
 		await expect(page.locator('#user_date_of_birth_date')).toHaveValue(TEST_USERS.NORMAL_USER.birth);
 		await expect(page.locator('#user_gender')).toHaveValue(TEST_USERS.NORMAL_USER.gender);
 		await expect(page.locator('#user_country')).toHaveValue(TEST_USERS.NORMAL_USER.country);
@@ -32,11 +44,7 @@ test.describe('User Extra Fields Configuration', () => {
 		);
 	});
 
-	test('should validate required fields before submission', async ({ userExtraFieldsPage }) => {
-		// Setup: Login and navigate to account
-		await userExtraFieldsPage.performUserLogin();
-		await userExtraFieldsPage.navigateToMyAccount();
-
+	test('should validate required fields before submission', async ({ page }) => {
 		// Try to submit with empty required fields
 		await userExtraFieldsPage.updateAccount();
 
@@ -44,12 +52,20 @@ test.describe('User Extra Fields Configuration', () => {
 		await userExtraFieldsPage.expectUpdateError();
 	});
 
-	test('should maintain user field values after page reload', async ({ userExtraFieldsPage, defaultUserData }) => {
+	test('should maintain user field values after page reload', async ({ page }) => {
+		const defaultUserData: UserFieldsData = {
+			dateOfBirth: '10/04/1996',
+			gender: 'female',
+			country: 'IT',
+			postalCode: '00144',
+			phoneNumber: '3258023921',
+			location: 'Rome'
+		};
+
 		// Setup and modify fields
-		await userExtraFieldsPage.setupUserExtraFields(defaultUserData);
+		await userExtraFieldsPage.modifyUserFields(defaultUserData);
 
 		// Reload the page
-		const page = userExtraFieldsPage.getPage();
 		await page.reload();
 
 		// Verify the values are still there
@@ -67,11 +83,7 @@ test.describe('User Extra Fields Configuration', () => {
 		);
 	});
 
-	test('should validate date of birth field format', async ({ userExtraFieldsPage }) => {
-		// Setup: Login and navigate to account
-		await userExtraFieldsPage.performUserLogin();
-		await userExtraFieldsPage.navigateToMyAccount();
-
+	test('should validate date of birth field format', async ({ page }) => {
 		// Try invalid date formats
 		const invalidDates = ['invalid-date', '32/13/2025', '00/00/0000', 'abc/def/ghij'];
 
@@ -80,7 +92,6 @@ test.describe('User Extra Fields Configuration', () => {
 			await userExtraFieldsPage.updateAccount();
 
 			// Check for date validation error
-			const page = userExtraFieldsPage.getPage();
 			const dateError = page.getByText('Please enter a valid date');
 			if (await dateError.isVisible()) {
 				await expect(dateError).toContainText('valid date');
@@ -89,11 +100,7 @@ test.describe('User Extra Fields Configuration', () => {
 		}
 	});
 
-	test('should validate phone number field format', async ({ userExtraFieldsPage }) => {
-		// Setup: Login and navigate to account
-		await userExtraFieldsPage.performUserLogin();
-		await userExtraFieldsPage.navigateToMyAccount();
-
+	test('should validate phone number field format', async ({ page }) => {
 		// Try invalid phone number formats
 		const invalidPhones = ['abc123', '123', '+++++', 'phone-number'];
 
@@ -102,7 +109,6 @@ test.describe('User Extra Fields Configuration', () => {
 			await userExtraFieldsPage.updateAccount();
 
 			// Check for phone validation error
-			const page = userExtraFieldsPage.getPage();
 			const phoneError = page.getByText('Please enter a valid phone number');
 			if (await phoneError.isVisible()) {
 				await expect(phoneError).toContainText('valid phone');
@@ -111,11 +117,7 @@ test.describe('User Extra Fields Configuration', () => {
 		}
 	});
 
-	test('should validate postal code field format', async ({ userExtraFieldsPage }) => {
-		// Setup: Login and navigate to account
-		await userExtraFieldsPage.performUserLogin();
-		await userExtraFieldsPage.navigateToMyAccount();
-
+	test('should validate postal code field format', async ({ page }) => {
 		// Try invalid postal code formats
 		const invalidPostalCodes = ['abc', '123456789012345', '!@#$%'];
 
@@ -124,7 +126,6 @@ test.describe('User Extra Fields Configuration', () => {
 			await userExtraFieldsPage.updateAccount();
 
 			// Check for postal code validation error
-			const page = userExtraFieldsPage.getPage();
 			const postalError = page.getByText('Please enter a valid postal code');
 			if (await postalError.isVisible()) {
 				await expect(postalError).toContainText('valid postal');
@@ -133,11 +134,7 @@ test.describe('User Extra Fields Configuration', () => {
 		}
 	});
 
-	test('should allow partial field updates', async ({ userExtraFieldsPage }) => {
-		// Setup: Login and navigate to account
-		await userExtraFieldsPage.performUserLogin();
-		await userExtraFieldsPage.navigateToMyAccount();
-
+	test('should allow partial field updates', async ({ page }) => {
 		// Update only some fields
 		await userExtraFieldsPage.fillDateOfBirth('15/06/1990');
 		await userExtraFieldsPage.selectGender('male');
@@ -150,18 +147,17 @@ test.describe('User Extra Fields Configuration', () => {
 		await userExtraFieldsPage.expectUpdateSuccess();
 
 		// Verify only the changed fields were updated
-		const page = userExtraFieldsPage.getPage();
 		await expect(page.locator('#user_date_of_birth_date')).toHaveValue('15/06/1990');
 		await expect(page.getByLabel('Gender*Required field Male')).toHaveValue('male');
 		await expect(page.getByLabel('Country*Required')).toHaveValue('FR');
 	});
 
-	test('should handle different user data sets', async ({ userExtraFieldsPage }) => {
+	test('should handle different user data sets', async ({ page }) => {
 		// Generate custom test data
 		const customData = ExtraUserFieldsTestDataGenerator.generateValidUserData();
 
 		// Setup and modify fields with custom data
-		await userExtraFieldsPage.setupUserExtraFields(customData);
+		await userExtraFieldsPage.modifyUserFields(customData);
 
 		// Verify the update was successful
 		await userExtraFieldsPage.expectUpdateSuccess();

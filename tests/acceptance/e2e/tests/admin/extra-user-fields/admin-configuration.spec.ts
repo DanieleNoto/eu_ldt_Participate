@@ -1,15 +1,24 @@
-import { expect, extraUserFieldsTest } from '../../../fixtures/extra-user-fields-fixtures';
+import { ExtraUserFieldsAdminPage } from '@pages/pages/admin/ExtraUserFieldsAdminPage';
+import { expect, test } from '@playwright/test';
+import { STORAGE_STATE } from '@utils/constants';
 
-extraUserFieldsTest.describe('Admin Extra User Fields Configuration', () => {
-	extraUserFieldsTest('should successfully configure extra user fields as admin', async ({ loggedInAdminPage }) => {
-		// Enable all extra user fields (already logged in via fixture)
-		await loggedInAdminPage.enableAllExtraUserFields();
-		await loggedInAdminPage.saveConfiguration();
+test.describe('Admin Extra User Fields Configuration', () => {
+	test.use({ storageState: STORAGE_STATE.ADMIN });
+
+	let extraUserFieldsAdminPage: ExtraUserFieldsAdminPage;
+
+	test.beforeEach(async ({ page }) => {
+		extraUserFieldsAdminPage = new ExtraUserFieldsAdminPage(page);
+	});
+
+	test('should successfully configure extra user fields as admin', async ({ page }) => {
+		// Enable all extra user fields (already logged in via storage state)
+		await extraUserFieldsAdminPage.enableAllExtraUserFields();
+		await extraUserFieldsAdminPage.saveConfiguration();
 
 		// Verify success and that all checkboxes are checked
-		await loggedInAdminPage.expectConfigurationSaved();
+		await extraUserFieldsAdminPage.expectConfigurationSaved();
 
-		const page = loggedInAdminPage.getPage();
 		await expect(page.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
 		await expect(page.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
 		await expect(page.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
@@ -19,9 +28,8 @@ extraUserFieldsTest.describe('Admin Extra User Fields Configuration', () => {
 		await expect(page.getByRole('checkbox', { name: 'Enable location field' })).toBeChecked();
 	});
 
-	extraUserFieldsTest('should allow selective enabling of user fields', async ({ extraUserFieldsAdminPage }) => {
-		// Setup: Login and navigate to configuration
-		await extraUserFieldsAdminPage.performAdminLogin();
+	test('should allow selective enabling of user fields', async ({ page }) => {
+		// Navigate to configuration page
 		await extraUserFieldsAdminPage.navigateToSettings();
 		await extraUserFieldsAdminPage.navigateToExtraUserFields();
 
@@ -35,58 +43,47 @@ extraUserFieldsTest.describe('Admin Extra User Fields Configuration', () => {
 		await extraUserFieldsAdminPage.saveConfiguration();
 
 		// Verify only selected fields are enabled
-		const page = extraUserFieldsAdminPage.getPage();
 		await expect(page.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
 		await expect(page.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
 		await expect(page.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
 	});
 
-	extraUserFieldsTest(
-		'should maintain configuration state after page reload',
-		async ({ extraUserFieldsAdminPage }) => {
-			// Setup and configure fields
-			await extraUserFieldsAdminPage.performAdminLogin();
-			await extraUserFieldsAdminPage.navigateToSettings();
-			await extraUserFieldsAdminPage.navigateToExtraUserFields();
-			await extraUserFieldsAdminPage.enableAllExtraUserFields();
-			await extraUserFieldsAdminPage.saveConfiguration();
-			await extraUserFieldsAdminPage.expectConfigurationSaved();
+	test('should maintain configuration state after page reload', async ({ page }) => {
+		// Setup and configure fields
+		await extraUserFieldsAdminPage.navigateToSettings();
+		await extraUserFieldsAdminPage.navigateToExtraUserFields();
+		await extraUserFieldsAdminPage.enableAllExtraUserFields();
+		await extraUserFieldsAdminPage.saveConfiguration();
+		await extraUserFieldsAdminPage.expectConfigurationSaved();
 
-			// Reload the page
-			const page = extraUserFieldsAdminPage.getPage();
-			await page.reload();
+		// Reload the page
+		await page.reload();
 
-			// Verify configuration persisted
-			await expect(page.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
-			await expect(page.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
-			await expect(page.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
+		// Verify configuration persisted
+		await expect(page.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
+		await expect(page.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
+		await expect(page.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
+	});
+
+	test('should validate form before submission to prevent errors', async ({ page }) => {
+		// Navigate to configuration
+		await extraUserFieldsAdminPage.navigateToSettings();
+		await extraUserFieldsAdminPage.navigateToExtraUserFields();
+
+		// Attempt to save without enabling any fields (if validation exists)
+		await extraUserFieldsAdminPage.saveConfiguration();
+
+		// Check for validation messages
+		const validationMessage = await page.locator('.field-error, .validation-error').first();
+		if (await validationMessage.isVisible()) {
+			expect(await validationMessage.textContent()).toContain('required');
 		}
-	);
 
-	extraUserFieldsTest(
-		'should validate form before submission to prevent errors',
-		async ({ extraUserFieldsAdminPage }) => {
-			// Setup: Login and navigate to configuration
-			await extraUserFieldsAdminPage.performAdminLogin();
-			await extraUserFieldsAdminPage.navigateToSettings();
-			await extraUserFieldsAdminPage.navigateToExtraUserFields();
+		// Enable fields and retry
+		await extraUserFieldsAdminPage.enableAllExtraUserFields();
+		await extraUserFieldsAdminPage.saveConfiguration();
 
-			// Attempt to save without enabling any fields (if validation exists)
-			await extraUserFieldsAdminPage.saveConfiguration();
-
-			// Check for validation messages
-			const page = extraUserFieldsAdminPage.getPage();
-			const validationMessage = await page.locator('.field-error, .validation-error').first();
-			if (await validationMessage.isVisible()) {
-				expect(await validationMessage.textContent()).toContain('required');
-			}
-
-			// Enable fields and retry
-			await extraUserFieldsAdminPage.enableAllExtraUserFields();
-			await extraUserFieldsAdminPage.saveConfiguration();
-
-			// Verify successful save
-			await extraUserFieldsAdminPage.expectConfigurationSaved();
-		}
-	);
+		// Verify successful save
+		await extraUserFieldsAdminPage.expectConfigurationSaved();
+	});
 });
