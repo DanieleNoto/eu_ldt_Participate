@@ -1,15 +1,19 @@
-import {
-	expect,
-	extraUserFieldsTest,
-	ExtraUserFieldsTestDataGenerator
-} from '../../../fixtures/extra-user-fields-fixtures';
+import { UserExtraFieldsPage } from '@pages/pages/user/UserExtraFieldsPage';
+import { expect, test } from '@playwright/test';
+import { STORAGE_STATE } from '@utils/constants';
+import { ExtraUserFieldsTestDataGenerator } from '../../../fixtures/extra-user-fields-fixtures';
 
-extraUserFieldsTest.describe('User Configuration - Data Validation and Business Logic', () => {
-	extraUserFieldsTest('should validate date of birth business rules', async ({ userExtraFieldsPage }) => {
-		// Setup: Login and navigate to account
-		await userExtraFieldsPage.performUserLogin();
+test.describe('User Configuration - Data Validation and Business Logic', () => {
+	test.use({ storageState: STORAGE_STATE.USER });
+
+	let userExtraFieldsPage: UserExtraFieldsPage;
+
+	test.beforeEach(async ({ page }) => {
+		userExtraFieldsPage = new UserExtraFieldsPage(page);
 		await userExtraFieldsPage.navigateToMyAccount();
+	});
 
+	test('should validate date of birth business rules', async ({ page }) => {
 		// Test future dates (should be invalid)
 		const futureDate = new Date();
 		futureDate.setDate(futureDate.getDate() + 30); // 30 days in the future
@@ -19,7 +23,6 @@ extraUserFieldsTest.describe('User Configuration - Data Validation and Business 
 		await userExtraFieldsPage.updateAccount();
 
 		// Check for future date validation
-		const page = userExtraFieldsPage.getPage();
 		const futureDateError = await page.getByText('Please enter a valid date').isVisible();
 
 		// Test very old dates (e.g., before 1900)
@@ -43,9 +46,7 @@ extraUserFieldsTest.describe('User Configuration - Data Validation and Business 
 		expect(futureDateError || oldDateError || reasonableDateSuccess).toBe(true);
 	});
 
-	extraUserFieldsTest('should validate postal code formats by country', async ({ userExtraFieldsPage }) => {
-		// Setup: Login and navigate to account
-		await userExtraFieldsPage.performUserLogin();
+	test('should validate postal code formats by country', async ({ page }) => {
 		await userExtraFieldsPage.navigateToMyAccount();
 
 		// Test different postal code formats for different countries
@@ -64,7 +65,6 @@ extraUserFieldsTest.describe('User Configuration - Data Validation and Business 
 			await userExtraFieldsPage.fillPostalCode(testCase.invalidPostal);
 			await userExtraFieldsPage.updateAccount();
 
-			const page = userExtraFieldsPage.getPage();
 			const postalError = await page.getByText('Please enter a valid postal code').isVisible();
 
 			// Test valid postal code
@@ -79,25 +79,19 @@ extraUserFieldsTest.describe('User Configuration - Data Validation and Business 
 		}
 	});
 
-	extraUserFieldsTest('should validate cross-field dependencies', async ({ userExtraFieldsPage }) => {
-		// Setup: Login and navigate to account
-		await userExtraFieldsPage.performUserLogin();
-		await userExtraFieldsPage.navigateToMyAccount();
-
+	test('should validate cross-field dependencies', async ({ page }) => {
 		// Test location-country consistency
 		await userExtraFieldsPage.selectCountry('IT');
 		await userExtraFieldsPage.fillLocation('New York'); // US city with Italian country
 		await userExtraFieldsPage.updateAccount();
 
 		// This might show a warning or be accepted based on business rules
-		const page = userExtraFieldsPage.getPage();
 		const crossFieldValidation = await page.getByText('Your account was successfully updated').isVisible();
 
 		expect(crossFieldValidation).toBe(true);
 	});
 
-	extraUserFieldsTest('should handle all gender options correctly', async ({ userExtraFieldsPage }) => {
-		// Setup: Login and navigate to account
+	test('should handle all gender options correctly', async ({ page }) => {
 		await userExtraFieldsPage.performUserLogin();
 		await userExtraFieldsPage.navigateToMyAccount();
 
@@ -118,7 +112,7 @@ extraUserFieldsTest.describe('User Configuration - Data Validation and Business 
 		}
 	});
 
-	extraUserFieldsTest('should validate phone number formats', async ({ userExtraFieldsPage }) => {
+	test('should validate phone number formats', async ({ page }) => {
 		// Setup: Login and navigate to account
 		await userExtraFieldsPage.performUserLogin();
 		await userExtraFieldsPage.navigateToMyAccount();
@@ -152,7 +146,7 @@ extraUserFieldsTest.describe('User Configuration - Data Validation and Business 
 		}
 	});
 
-	extraUserFieldsTest('should handle special characters in location field', async ({ userExtraFieldsPage }) => {
+	test('should handle special characters in location field', async ({ page }) => {
 		// Setup: Login and navigate to account
 		await userExtraFieldsPage.performUserLogin();
 		await userExtraFieldsPage.navigateToMyAccount();
@@ -181,7 +175,7 @@ extraUserFieldsTest.describe('User Configuration - Data Validation and Business 
 		}
 	});
 
-	extraUserFieldsTest('should validate required field combinations', async ({ userExtraFieldsPage }) => {
+	test('should validate required field combinations', async ({ page }) => {
 		// Setup: Login and navigate to account
 		await userExtraFieldsPage.performUserLogin();
 		await userExtraFieldsPage.navigateToMyAccount();

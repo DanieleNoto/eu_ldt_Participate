@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { UserExtraFieldsPage, UserFieldsData } from '../../../pages/user/UserExtraFieldsPage';
+import { UserExtraFieldsPage, UserFieldsData } from '../../../pages/pages/user/UserExtraFieldsPage';
 
 test.describe('User Navigation and UI Interactions', () => {
 	let userExtraFieldsPage: UserExtraFieldsPage;

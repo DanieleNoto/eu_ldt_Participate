@@ -2,7 +2,7 @@ import { TEST_USERS } from '@config/test-users';
 import { Locator, Page, expect } from '@playwright/test';
 import { TEST_SELECTORS } from '@utils/constants';
 import { ROUTES } from '@utils/routes';
-import { BasePage } from '../base/BasePage';
+import { BasePage } from '../../base/BasePage';
 
 export class LoginPage extends BasePage {
 	inputEmail: Locator;
