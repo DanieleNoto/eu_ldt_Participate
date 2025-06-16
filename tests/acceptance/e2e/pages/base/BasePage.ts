@@ -197,4 +197,11 @@ export abstract class BasePage {
 	async acceptCookies() {
 		await this.handleCookieBar('all');
 	}
+
+	/**
+	 * Gets the page instance for direct Playwright API access
+	 */
+	public getPage(): Page {
+		return this.page;
+	}
 }

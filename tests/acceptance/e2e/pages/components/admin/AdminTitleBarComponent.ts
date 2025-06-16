@@ -10,7 +10,7 @@ export class AdminTitleBarComponent {
 
 	// Selettori principali
 	private get titleBar() {
-		return this.page.locator('.title-bar');
+		return this.page.locator('.title-bar').first();
 	}
 
 	private get layoutContainer() {
@@ -32,11 +32,11 @@ export class AdminTitleBarComponent {
 
 	// Selettori per il dropdown delle lingue
 	private get languageDropdown() {
-		return this.page.locator('.language-choose');
+		return this.page.locator('admin-dropdown-menu-language .dropdown');
 	}
 
 	private get languageTrigger() {
-		return this.page.locator('#admin-menu-trigger, #admin-menu-trigger-responsive');
+		return this.page.locator('#admin-menu-trigger');
 	}
 
 	private get languageDropdownMenu() {

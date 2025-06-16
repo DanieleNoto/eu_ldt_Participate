@@ -1,8 +1,8 @@
-import { ProcessAdminPage } from '@pages/pages/admin/ProcessAdminPage';
+import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { expect, test } from '@playwright/test';
 import { STORAGE_STATE } from '@utils/constants';
-import { ProcessTestDataGenerator } from '../../../fixtures/process-fixtures';
-import { LocalizationUtils } from '../../../utils/localization.utils';
+import { ProcessTestDataGenerator } from '../../../../fixtures/process-fixtures';
+import { LocalizationUtils } from '../../../../utils/localization.utils';
 
 test.describe('PAR R8, PAR R12c - City Administrator Process Creation', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });

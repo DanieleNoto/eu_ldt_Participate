@@ -1,10 +1,10 @@
 import { Page, expect } from '@playwright/test';
-import { LocalizationUtils } from '../../../utils/localization.utils';
-import { AdminProcessBreadcrumbComponent } from '../../components/admin/process/AdminProcessBreadcrumbComponent';
-import { AdminProcessFiltersComponent } from '../../components/admin/process/AdminProcessFiltersComponent';
-import { AdminProcessTableComponent } from '../../components/admin/process/AdminProcessTableComponent';
-import { AdminProcessTabNavigationComponent } from '../../components/admin/process/AdminProcessTabNavigationComponent';
-import { BaseAdminPage } from './BaseAdminPage';
+import { LocalizationUtils } from '../../../../utils/localization.utils';
+import { AdminProcessBreadcrumbComponent } from '../../../components/admin/process/AdminProcessBreadcrumbComponent';
+import { AdminProcessFiltersComponent } from '../../../components/admin/process/AdminProcessFiltersComponent';
+import { AdminProcessTableComponent } from '../../../components/admin/process/AdminProcessTableComponent';
+import { AdminProcessTabNavigationComponent } from '../../../components/admin/process/AdminProcessTabNavigationComponent';
+import { BaseAdminPage } from '../BaseAdminPage';
 
 /**
  * Page Object Model for the Decidim admin participatory processes page.
