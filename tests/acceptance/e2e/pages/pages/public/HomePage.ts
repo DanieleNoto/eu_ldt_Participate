@@ -332,6 +332,10 @@ export class HomePage extends BasePage {
 		return await this.homeMenuSection.isVisible();
 	}
 
+	async goToProcessesFromHomeMenu() {
+		return await this.homeMenuSection.locator('a[href*="/processes"]').click();
+	}
+
 	// Metodi per i cookie settings
 	async openCookieSettingsFromFooter() {
 		await this.footer.clickCookieSettings();
