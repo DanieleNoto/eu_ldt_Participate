@@ -136,7 +136,7 @@ export class FooterComponent {
 
 	async selectLanguage(languageCode: string) {
 		await this.openLanguageChooser();
-		await this.page.locator(`a[href="/locale?locale=${languageCode}"]`).click();
+		await this.page.locator(`#dropdown-menu-language-chooser a[href="/locale?locale=${languageCode}"]`).click();
 	}
 
 	async getCurrentLanguage(): Promise<string> {

@@ -98,9 +98,9 @@ export default defineConfig({
 
 		// Shared/general tests
 		{
-			name: 'shared-tests',
+			name: 'public-tests',
 			use: { ...devices['Desktop Chrome'] },
-			testMatch: 'tests/shared/**/*.spec.ts'
+			testMatch: 'tests/public/**/*.spec.ts'
 		},
 
 		// Legacy tests (existing structure)
