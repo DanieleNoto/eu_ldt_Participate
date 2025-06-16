@@ -237,7 +237,14 @@ export class BaseAdminPage extends AuthenticatedPage {
 	 * Selettore per le notifiche flash di successo
 	 */
 	private get successFlashNotification() {
-		return this.page.locator('.flash.success[data-alert-box]');
+		return this.page.locator('.flash.success[data-alert-box], .flash.primary[data-alert-box]');
+	}
+
+	/**
+	 * Selettore per le notifiche flash di tipo primary (spesso usate per il successo)
+	 */
+	private get primaryFlashNotification() {
+		return this.page.locator('.flash.primary[data-alert-box]');
 	}
 
 	/**
@@ -266,6 +273,13 @@ export class BaseAdminPage extends AuthenticatedPage {
 	 */
 	async hasSuccessFlashNotification(): Promise<boolean> {
 		return await this.successFlashNotification.isVisible();
+	}
+
+	/**
+	 * Verifica se è presente una notifica flash di tipo primary
+	 */
+	async hasPrimaryFlashNotification(): Promise<boolean> {
+		return await this.primaryFlashNotification.isVisible();
 	}
 
 	/**
@@ -314,6 +328,15 @@ export class BaseAdminPage extends AuthenticatedPage {
 	async expectErrorFlashMessage(expectedMessage: string): Promise<void> {
 		await expect(this.errorFlashNotification).toBeVisible();
 		await expect(this.errorFlashNotification.locator('.flash__message')).toHaveText(expectedMessage);
+	}
+
+	/**
+	 * Verifica se è presente una notifica di tipo primary con un messaggio specifico
+	 * @param expectedMessage - Il messaggio atteso nella notifica primary
+	 */
+	async expectPrimaryFlashMessage(expectedMessage: string): Promise<void> {
+		await expect(this.primaryFlashNotification).toBeVisible();
+		await expect(this.primaryFlashNotification.locator('.flash__message')).toHaveText(expectedMessage);
 	}
 
 	/**
@@ -377,10 +400,14 @@ export class BaseAdminPage extends AuthenticatedPage {
 
 	/**
 	 * Ottiene il tipo di notifica flash presente
-	 * @returns 'success', 'error', o 'none' se non presente
+	 * @returns 'success', 'primary', 'error', o 'none' se non presente
 	 */
-	async getFlashNotificationType(): Promise<'success' | 'error' | 'none'> {
+	async getFlashNotificationType(): Promise<'success' | 'primary' | 'error' | 'none'> {
 		if (await this.hasSuccessFlashNotification()) {
+			// Check if it's specifically primary or success
+			if (await this.hasPrimaryFlashNotification()) {
+				return 'primary';
+			}
 			return 'success';
 		} else if (await this.hasErrorFlashNotification()) {
 			return 'error';
