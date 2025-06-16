@@ -9,5 +9,5 @@ export type {
 	ProcessDurationInfo,
 	ProcessGeneralInfo,
 	ProcessMetadataInfo
-} from '../pages/pages/admin/ProcessAdminPage';
+} from '../pages/pages/admin/processes/ProcessAdminPage';
 export type { UserFieldsData } from '../pages/pages/user/UserExtraFieldsPage';

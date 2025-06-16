@@ -1,4 +1,4 @@
-import { CompleteProcessData } from '../pages/pages/admin/ProcessAdminPage';
+import { CompleteProcessData } from '../pages/pages/admin/processes/ProcessAdminPage';
 
 // Test data generators for different scenarios
 export class ProcessTestDataGenerator {

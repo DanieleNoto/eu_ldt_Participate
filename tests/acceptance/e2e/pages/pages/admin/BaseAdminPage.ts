@@ -7,7 +7,7 @@ import { LoginPage } from '../auth/LoginPage';
 export class BaseAdminPage extends AuthenticatedPage {
 	protected loginPage: LoginPage;
 	protected adminNavigation: AdminNavigationComponent;
-	protected adminTitleBar: AdminTitleBarComponent;
+	public adminTitleBar: AdminTitleBarComponent;
 
 	constructor(page: Page) {
 		super(page);
@@ -222,5 +222,169 @@ export class BaseAdminPage extends AuthenticatedPage {
 		if (expectedElement) {
 			await this.waitForElement(expectedElement);
 		}
+	}
+
+	// Flash notification management
+
+	/**
+	 * Selettore per il wrapper delle notifiche flash
+	 */
+	private get flashNotificationWrapper() {
+		return this.page.locator('[data-callout-wrapper]');
+	}
+
+	/**
+	 * Selettore per le notifiche flash di successo
+	 */
+	private get successFlashNotification() {
+		return this.page.locator('.flash.success[data-alert-box]');
+	}
+
+	/**
+	 * Selettore per le notifiche flash di errore
+	 */
+	private get errorFlashNotification() {
+		return this.page.locator('.flash.alert[data-alert-box], .flash.error[data-alert-box]');
+	}
+
+	/**
+	 * Selettore per il messaggio all'interno della notifica flash
+	 */
+	private get flashMessage() {
+		return this.page.locator('.flash__message');
+	}
+
+	/**
+	 * Selettore per il pulsante di chiusura della notifica
+	 */
+	private get flashCloseButton() {
+		return this.page.locator('.flash .close-button[data-close]');
+	}
+
+	/**
+	 * Verifica se è presente una notifica flash di successo
+	 */
+	async hasSuccessFlashNotification(): Promise<boolean> {
+		return await this.successFlashNotification.isVisible();
+	}
+
+	/**
+	 * Verifica se è presente una notifica flash di errore
+	 */
+	async hasErrorFlashNotification(): Promise<boolean> {
+		return await this.errorFlashNotification.isVisible();
+	}
+
+	/**
+	 * Verifica se è presente una notifica flash (di qualsiasi tipo)
+	 */
+	async hasFlashNotification(): Promise<boolean> {
+		return await this.flashNotificationWrapper.isVisible();
+	}
+
+	/**
+	 * Ottiene il messaggio della notifica flash
+	 */
+	async getFlashMessage(): Promise<string> {
+		const message = await this.flashMessage.textContent();
+		return message?.trim() || '';
+	}
+
+	/**
+	 * Verifica se la notifica flash contiene un messaggio specifico
+	 * @param expectedMessage - Il messaggio atteso nella notifica
+	 */
+	async expectFlashMessage(expectedMessage: string): Promise<void> {
+		await expect(this.flashMessage).toHaveText(expectedMessage);
+	}
+
+	/**
+	 * Verifica se è presente una notifica di successo con un messaggio specifico
+	 * @param expectedMessage - Il messaggio atteso nella notifica di successo
+	 */
+	async expectSuccessFlashMessage(expectedMessage: string): Promise<void> {
+		await expect(this.successFlashNotification).toBeVisible();
+		await expect(this.successFlashNotification.locator('.flash__message')).toHaveText(expectedMessage);
+	}
+
+	/**
+	 * Verifica se è presente una notifica di errore con un messaggio specifico
+	 * @param expectedMessage - Il messaggio atteso nella notifica di errore
+	 */
+	async expectErrorFlashMessage(expectedMessage: string): Promise<void> {
+		await expect(this.errorFlashNotification).toBeVisible();
+		await expect(this.errorFlashNotification.locator('.flash__message')).toHaveText(expectedMessage);
+	}
+
+	/**
+	 * Chiude la notifica flash cliccando sul pulsante di chiusura
+	 */
+	async closeFlashNotification(): Promise<void> {
+		if (await this.flashCloseButton.isVisible()) {
+			await this.flashCloseButton.click();
+		}
+	}
+
+	/**
+	 * Attende che appaia una notifica flash di successo con un messaggio specifico
+	 * @param expectedMessage - Il messaggio atteso
+	 * @param timeout - Timeout in millisecondi (default: 10000)
+	 */
+	async waitForSuccessFlashNotification(expectedMessage: string, timeout: number = 10000): Promise<void> {
+		await this.successFlashNotification.waitFor({ state: 'visible', timeout });
+		await expect(this.successFlashNotification.locator('.flash__message')).toHaveText(expectedMessage, { timeout });
+	}
+
+	/**
+	 * Attende che appaia una notifica flash di errore con un messaggio specifico
+	 * @param expectedMessage - Il messaggio atteso
+	 * @param timeout - Timeout in millisecondi (default: 10000)
+	 */
+	async waitForErrorFlashNotification(expectedMessage: string, timeout: number = 10000): Promise<void> {
+		await this.errorFlashNotification.waitFor({ state: 'visible', timeout });
+		await expect(this.errorFlashNotification.locator('.flash__message')).toHaveText(expectedMessage, { timeout });
+	}
+
+	/**
+	 * Attende che appaia una notifica flash (di qualsiasi tipo)
+	 * @param timeout - Timeout in millisecondi (default: 10000)
+	 */
+	async waitForFlashNotification(timeout: number = 10000): Promise<void> {
+		await this.flashNotificationWrapper.waitFor({ state: 'visible', timeout });
+	}
+
+	/**
+	 * Attende che scompaia la notifica flash
+	 * @param timeout - Timeout in millisecondi (default: 10000)
+	 */
+	async waitForFlashNotificationToDisappear(timeout: number = 10000): Promise<void> {
+		await this.flashNotificationWrapper.waitFor({ state: 'hidden', timeout });
+	}
+
+	/**
+	 * Verifica se la notifica flash è di tipo successo
+	 */
+	async isFlashNotificationSuccess(): Promise<boolean> {
+		return await this.successFlashNotification.isVisible();
+	}
+
+	/**
+	 * Verifica se la notifica flash è di tipo errore
+	 */
+	async isFlashNotificationError(): Promise<boolean> {
+		return await this.errorFlashNotification.isVisible();
+	}
+
+	/**
+	 * Ottiene il tipo di notifica flash presente
+	 * @returns 'success', 'error', o 'none' se non presente
+	 */
+	async getFlashNotificationType(): Promise<'success' | 'error' | 'none'> {
+		if (await this.hasSuccessFlashNotification()) {
+			return 'success';
+		} else if (await this.hasErrorFlashNotification()) {
+			return 'error';
+		}
+		return 'none';
 	}
 }

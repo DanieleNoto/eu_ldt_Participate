@@ -241,4 +241,66 @@ export class AdminHomePage extends BaseAdminPage {
 			mostRecentLog: await this.getMostRecentLogInfo()
 		};
 	}
+
+	// Metodi per gestire il locale tramite AdminTitleBarComponent
+
+	/**
+	 * Verifica se il dropdown delle lingue è visibile
+	 */
+	async isLanguageDropdownVisible(): Promise<boolean> {
+		await this.adminTitleBar.openLanguageDropdown();
+		await this.page.waitForTimeout(500); // Attende che il dropdown si apra
+		return await this.adminTitleBar.isLanguageDropdownVisible();
+	}
+
+	/**
+	 * Ottiene la lingua corrente dal dropdown
+	 */
+	async getCurrentLanguage(): Promise<string> {
+		return await this.adminTitleBar.getCurrentLanguage();
+	}
+
+	/**
+	 * Verifica se una specifica lingua è disponibile nel dropdown
+	 */
+	async isLanguageAvailable(languageName: string): Promise<boolean> {
+		return await this.adminTitleBar.isLanguageAvailable(languageName);
+	}
+
+	/**
+	 * Seleziona una lingua specifica dal dropdown
+	 */
+	async selectLanguage(languageCode: string): Promise<void> {
+		await this.adminTitleBar.selectLanguage(languageCode);
+	}
+
+	/**
+	 * Ottiene tutte le lingue disponibili nel dropdown
+	 */
+	async getAvailableLanguages(): Promise<string[]> {
+		return await this.adminTitleBar.getAvailableLanguages();
+	}
+
+	/**
+	 * Imposta il locale inglese se disponibile
+	 */
+	async setEnglishLocale(): Promise<boolean> {
+		const currentLanguage = await this.getCurrentLanguage();
+
+		// Verifica se l'inglese è già selezionato
+		if (currentLanguage.toLowerCase().includes('en') || currentLanguage.toLowerCase().includes('english')) {
+			return true;
+		}
+
+		// Verifica se l'inglese è disponibile e lo seleziona
+		const isEnglishAvailable = await this.isLanguageAvailable('English');
+		if (isEnglishAvailable) {
+			await this.selectLanguage('en');
+			// Attende che la pagina si ricarichi con il nuovo locale
+			await this.page.waitForLoadState('networkidle');
+			return true;
+		}
+
+		return false;
+	}
 }
