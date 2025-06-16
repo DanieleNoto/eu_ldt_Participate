@@ -83,6 +83,10 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.processTable.editProcess(processName);
 	}
 
+	async editFirstProcess() {
+		await this.processTable.editFirstProcess();
+	}
+
 	async duplicateProcess(processName: string) {
 		await this.processTable.duplicateProcess(processName);
 	}
@@ -162,27 +166,6 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 	async isProcessArchived(processName: string) {
 		return await this.processTable.isProcessArchived(processName);
-	}
-
-	// Bulk operations
-	async selectProcess(processName: string) {
-		await this.processTable.selectProcess(processName);
-	}
-
-	async selectAllProcesses() {
-		await this.processTable.selectAllProcesses();
-	}
-
-	async deselectAllProcesses() {
-		await this.processTable.deselectAllProcesses();
-	}
-
-	async performBulkAction(action: 'publish' | 'unpublish' | 'delete') {
-		await this.processTable.performBulkAction(action);
-	}
-
-	async getSelectedProcessCount() {
-		return await this.processTable.getSelectedProcessCount();
 	}
 
 	// Page loading helpers

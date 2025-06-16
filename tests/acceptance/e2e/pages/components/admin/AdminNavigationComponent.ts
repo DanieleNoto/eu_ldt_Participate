@@ -26,36 +26,36 @@ export class AdminNavigationComponent {
 
 	// Selettori per i moduli principali
 	private get processesLink() {
-		return this.page.locator('a[href*="/admin/participatory_processes"]');
+		return this.page.locator('.layout-nav nav a[href*="/admin/participatory_processes"]');
 	}
 
 	private get assembliesLink() {
-		return this.page.locator('a[href*="/admin/assemblies"]');
+		return this.page.locator('.layout-nav nav a[href*="/admin/assemblies"]');
 	}
 
 	// Selettori per il menu secondario
 	private get moderationLink() {
-		return this.page.locator('a[href*="/admin/moderations"]');
+		return this.page.locator('.layout-nav nav a[href*="/admin/moderations"]');
 	}
 
 	private get pagesLink() {
-		return this.page.locator('a[href*="/admin/static_pages"]');
+		return this.page.locator('.layout-nav nav a[href*="/admin/static_pages"]');
 	}
 
 	private get usersLink() {
-		return this.page.locator('a[href*="/admin/users"]');
+		return this.page.locator('.layout-nav nav a[href*="/admin/users"]');
 	}
 
 	private get newslettersLink() {
-		return this.page.locator('a[href*="/admin/newsletters"]');
+		return this.page.locator('.layout-nav nav a[href*="/admin/newsletters"]');
 	}
 
 	private get settingsLink() {
-		return this.page.locator('a[href*="/admin/organization/edit"]');
+		return this.page.locator('.layout-nav nav a[href*="/admin/organization/edit"]');
 	}
 
 	private get logsLink() {
-		return this.page.locator('a[href*="/admin/logs"]');
+		return this.page.locator('.layout-nav nav a[href*="/admin/logs"]');
 	}
 
 	// Metodi di verifica

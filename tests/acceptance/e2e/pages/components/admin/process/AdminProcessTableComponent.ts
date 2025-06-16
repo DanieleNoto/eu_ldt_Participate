@@ -43,6 +43,13 @@ export class AdminProcessTableComponent {
 		await this.page.locator('[data-action="edit"], .action-menu-item:has-text("Modifica")').first().click();
 	}
 
+	async editFirstProcess() {
+		// Get the first process row action menu
+		const firstRow = this.processRows.first();
+		const actionMenu = firstRow.locator('.action-icon').first();
+		await actionMenu.click();
+	}
+
 	async duplicateProcess(processName: string) {
 		const actionMenu = await this.getProcessActionMenu(processName);
 		await actionMenu.click();
