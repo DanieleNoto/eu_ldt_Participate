@@ -212,7 +212,7 @@ export class ComponentsPage extends BaseAdminPage {
 
 	// Component row methods
 	getComponentRow(componentName: string): Locator {
-		return this.componentRows.filter({ hasText: componentName });
+		return this.componentRows.filter({ hasText: new RegExp(`.*${componentName}.*`) }).first();
 	}
 
 	getComponentRowByIndex(index: number): Locator {
@@ -221,7 +221,7 @@ export class ComponentsPage extends BaseAdminPage {
 
 	// Component actions
 	async manageComponent(componentName: string) {
-		const row = this.getComponentRow(componentName);
+		const row = this.getComponentRow(componentName).first();
 		const manageLink = row.locator('a.action-icon--manage');
 		await manageLink.click();
 		await this.page.waitForLoadState('networkidle');
@@ -236,7 +236,7 @@ export class ComponentsPage extends BaseAdminPage {
 
 	async configureComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
-		const configureLink = row.locator('a.action-icon--configure');
+		const configureLink = row.locator('a.action-icon--configure').first();
 		await configureLink.click();
 		await this.page.waitForLoadState('networkidle');
 	}
