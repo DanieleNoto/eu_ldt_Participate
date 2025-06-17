@@ -127,7 +127,7 @@ export class DebatesOverviewPage {
 	async getDebateTitleByIndex(index: number): Promise<string> {
 		const debateCard = this.debateCards.nth(index);
 		const titleElement = debateCard.locator('.card__list-title');
-		return (await titleElement.textContent()) || '';
+		return ((await titleElement.textContent()) || '').trim();
 	}
 
 	/**
@@ -138,7 +138,7 @@ export class DebatesOverviewPage {
 	async getDebateDescriptionByIndex(index: number): Promise<string> {
 		const debateCard = this.debateCards.nth(index);
 		const descriptionElement = debateCard.locator('.card__list-text');
-		return (await descriptionElement.textContent()) || '';
+		return ((await descriptionElement.textContent()) || '').trim();
 	}
 
 	/**

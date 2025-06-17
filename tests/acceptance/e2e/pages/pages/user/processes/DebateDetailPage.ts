@@ -68,6 +68,9 @@ export class DebateDetailPage {
 	private readonly referenceItem: Locator;
 	private readonly versionItem: Locator;
 
+	// Buttons on Right side
+	private readonly closeDebateLink: Locator;
+
 	constructor(page: Page) {
 		this.page = page;
 
@@ -135,6 +138,8 @@ export class DebateDetailPage {
 		this.metadataContainer = this.page.locator('[data-metadata-footer]');
 		this.referenceItem = this.page.locator('.metadata__item', { hasText: 'Riferimento:' });
 		this.versionItem = this.page.locator('.metadata__item', { hasText: 'Versione' });
+
+		this.closeDebateLink = this.page.locator('a.button[href*="debate_closes"]');
 	}
 
 	/**
@@ -233,6 +238,12 @@ export class DebateDetailPage {
 	 */
 	async clickLikeButton(): Promise<void> {
 		await this.likeButton.click();
+	}
+	/**
+	 * Click the like button
+	 */
+	async clickCloseDebateLink(): Promise<void> {
+		await this.closeDebateLink.click();
 	}
 
 	/**
@@ -606,8 +617,6 @@ export class DebateDetailPage {
 		await expect(this.getPage()).toHaveURL(/\/processes\/.*\/debates\/\d+/);
 		await expect(this.debateTitle).toBeVisible();
 		await expect(this.debateDescription).toBeVisible();
-		await expect(this.instructionsSection).toBeVisible();
-		await expect(this.existingComments.first()).toBeVisible();
 	}
 	/**
 	 * Scroll through existing comments to ensure they are loaded

@@ -1,5 +1,5 @@
-import { DebatesPage } from '@pages/pages/admin/processes/detail/DebatesPage';
-import { NewDebatePage } from '@pages/pages/admin/processes/detail/NewDebatePage';
+import { DebatesPage } from '@pages/pages/admin/processes/detail/debates/DebatesPage';
+import { NewDebatePage } from '@pages/pages/admin/processes/detail/debates/NewDebatePage';
 import { expect, test } from '@playwright/test';
 import { ProcessTestDataGenerator } from '../../../../fixtures/process-fixtures';
 import { ComponentsPage } from '../../../../pages/pages/admin/processes/detail/ComponentsPage';

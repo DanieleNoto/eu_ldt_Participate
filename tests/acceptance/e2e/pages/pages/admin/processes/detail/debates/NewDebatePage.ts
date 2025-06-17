@@ -1,6 +1,6 @@
 import { SidebarProcessDetailComponent } from '@pages/components/admin/process/detail/SidebarProcessDetailComponent';
 import { Locator, Page } from '@playwright/test';
-import { BaseAdminPage } from '../../BaseAdminPage';
+import { BaseAdminPage } from '../../../BaseAdminPage';
 
 export class NewDebatePage extends BaseAdminPage {
 	public readonly sidebar: SidebarProcessDetailComponent;
