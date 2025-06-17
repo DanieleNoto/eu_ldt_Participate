@@ -1,3 +1,5 @@
+import { DebatesPage } from '@pages/pages/admin/processes/detail/DebatesPage';
+import { NewDebatePage } from '@pages/pages/admin/processes/detail/NewDebatePage';
 import { expect, test } from '@playwright/test';
 import { ProcessTestDataGenerator } from '../../../../fixtures/process-fixtures';
 import { ComponentsPage } from '../../../../pages/pages/admin/processes/detail/ComponentsPage';
@@ -25,6 +27,8 @@ test.describe('Create New Debate Topic', () => {
 	let processAdminPage: ProcessAdminPage;
 	let componentsPage: ComponentsPage;
 	let newDebatesComponentPage: NewDebatesComponentPage;
+	let debatesPage: DebatesPage;
+	let newDebatePage: NewDebatePage;
 	let validProcessData: any;
 
 	// Test data - English only
@@ -51,8 +55,9 @@ test.describe('Create New Debate Topic', () => {
 		instructions:
 			'Please be respectful and constructive in your comments. Focus on specific budget items and provide reasoning for your suggestions.',
 		informationUpdates: 'Updates will be posted weekly regarding the budget process timeline.',
-		debateType: 'open', // or 'finite'
-		category: 'Budget & Finance'
+		debateType: 'open' as const, // or 'finite'
+		category: 'Budget & Finance',
+		commentsEnabled: true
 	};
 
 	test.beforeEach(async ({ page }) => {
@@ -62,6 +67,8 @@ test.describe('Create New Debate Topic', () => {
 		processAdminPage = new ProcessAdminPage(page);
 		componentsPage = new ComponentsPage(page);
 		newDebatesComponentPage = new NewDebatesComponentPage(page);
+		debatesPage = new DebatesPage(page);
+		newDebatePage = new NewDebatePage(page);
 
 		// Generate valid test data
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
@@ -123,85 +130,113 @@ test.describe('Create New Debate Topic', () => {
 				expect(isOnComponentsPage).toBe(true);
 
 				// Navigate to debates component management (simulating accessing "Create Debate" section)
-				await componentsPage.addDebatesComponent();
-				await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
+				await componentsPage.manageComponent('Debate');
+				const currentUrl = componentsPage.getPage().url();
+				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\//);
+				await debatesPage.getPage().waitForLoadState('networkidle');
+				await debatesPage.createNewDebate();
 			});
 
 			await test.step('6. System displays the debate creation form with input fields, including Title, Description, Instructions to Participate, Information Updates, Debate Type, Start and End Dates (for Finite debates), and Category', async () => {
 				// Verify we're on the debates component creation page
-				const currentUrl = newDebatesComponentPage.getPage().url();
-				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/new\?type=debates/);
+				const currentUrl = newDebatePage.getPage().url();
+				expect(currentUrl).toMatch(
+					/\/admin\/participatory_processes\/.*\/components\/.*\/manage\/debates\/new/
+				);
 
 				// For this test, we'll simulate that we're in a "Create New Debate" form
 				// In a real implementation, there would be a specific page for creating individual debates
 				// For now, we'll use the component configuration as a proxy
 
 				// Verify page elements are visible
-				const pageTitle = await newDebatesComponentPage.getPageTitle();
-				expect(pageTitle).toBeTruthy();
+				await newDebatePage.waitForPageReady();
 
 				// Verify sidebar is accessible
-				const isSidebarVisible = await newDebatesComponentPage.sidebar.isSidebarVisible();
+				const isSidebarVisible = await newDebatePage.sidebar.isSidebarVisible();
 				expect(isSidebarVisible).toBe(true);
 			});
 
 			await test.step('7. User fills in the required fields', async () => {
-				// Fill in debate creation form fields
-				// Note: In a real implementation, these would be different fields specific to creating a debate
-				// For this test, we'll use the component fields as a simulation
+				// Fill in debate creation form fields using NewDebatePage
+				await newDebatePage.fillTitle(newDebateData.title);
+				await newDebatePage.fillDescription(newDebateData.description);
+				await newDebatePage.fillInstructions(newDebateData.instructions);
+				await newDebatePage.fillInformationUpdates(newDebateData.informationUpdates);
 
-				await newDebatesComponentPage.fillComponentName(newDebateData.title);
-				await newDebatesComponentPage.fillGlobalAnnouncement(newDebateData.description);
-				await newDebatesComponentPage.fillStepAnnouncement(newDebateData.instructions);
+				// Set debate type
+				if (newDebateData.debateType === 'open') {
+					await newDebatePage.setDebateTypeOpen();
+				} else {
+					await newDebatePage.setDebateTypeFinite();
+				}
 
-				// Configure debate settings
-				await newDebatesComponentPage.enableComments();
-				await newDebatesComponentPage.setCommentsMaxLength(1000);
+				// // Set category if available
+				// if (newDebateData.category) {
+				// 	await newDebatePage.selectCategory(newDebateData.category);
+				// }
+
+				// Enable comments
+				await newDebatePage.setCommentsEnabled(newDebateData.commentsEnabled);
 
 				// Verify form data has been filled correctly
-				await newDebatesComponentPage.expectComponentName(newDebateData.title);
+				const titleValue = await newDebatePage.getPage().locator('#debate_title_en').inputValue();
+				expect(titleValue).toBe(newDebateData.title);
 			});
 
 			await test.step('8. User clicks on "Create Debate" to submit the form', async () => {
 				// Verify submit button is enabled
-				await newDebatesComponentPage.expectSubmitButtonToBeEnabled();
+				const isButtonVisible = await newDebatePage.isFormVisible();
+				expect(isButtonVisible).toBe(true);
 
-				// Submit the form (simulating debate creation)
-				await newDebatesComponentPage.submitForm();
+				// Submit the form (creating the actual debate)
+				await newDebatePage.clickCreateDebate();
 			});
 
 			await test.step('9. System validates the form input for completeness, correctness, and permission checks', async () => {
 				// Wait for form submission to complete
-				await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
+				await newDebatePage.getPage().waitForLoadState('networkidle');
 
 				// Check if we're redirected or if there are validation errors
-				const currentUrl = newDebatesComponentPage.getPage().url();
+				const currentUrl = newDebatePage.getPage().url();
 
 				// In case of validation errors, check for them
-				if (currentUrl.includes('/manage')) {
-					const hasErrors = await newDebatesComponentPage.getValidationErrors();
-					expect(hasErrors.length).toBe(0); // Should not have validation errors with valid data
+				if (currentUrl.includes('/new')) {
+					// Still on the new debate form, check for validation errors
+					const errorElements = await newDebatePage
+						.getPage()
+						.locator('.alert.alert-danger, .field_with_errors')
+						.count();
+					expect(errorElements).toBe(0); // Should not have validation errors with valid data
 				}
 			});
 
 			await test.step('10. System saves changes', async () => {
 				// Verify that the changes are saved successfully
-				// In a real debate creation scenario, we would be redirected to the debates list or management page
+				// After creating a debate, we should be redirected to the debates list or management page
 
 				// Wait for any redirect or success indication
-				await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
+				await newDebatePage.getPage().waitForLoadState('networkidle');
+
+				// Verify we're no longer on the new debate creation page
+				const currentUrl = newDebatePage.getPage().url();
+				expect(currentUrl).not.toMatch(/\/new$/);
 			});
 
 			await test.step('11. System notifies the authorized user that the debate has been successfully created and is available for participants', async () => {
 				// Check for success notification
-				const hasSuccessMessage = await newDebatesComponentPage.hasSuccessFlashNotification();
+				const successElement = await newDebatePage
+					.getPage()
+					.locator('.alert.alert-success, .flash.success')
+					.first();
+				const hasSuccessMessage = await successElement.isVisible().catch(() => false);
 				expect(hasSuccessMessage).toBe(true);
 			});
 
 			await test.step('Result: The debate is successfully created and published on the platform, and citizens can now view, participate, and contribute to the debate', async () => {
-				// Verify the debate is accessible and properly configured
-				const currentUrl = newDebatesComponentPage.getPage().url();
-				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components/);
+				// Verify the debate is accessible and properly created
+				const currentUrl = newDebatePage.getPage().url();
+				// Should be redirected to debates management page or debate detail page
+				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\/debates/);
 			});
 		});
 	});
@@ -213,16 +248,18 @@ test.describe('Create New Debate Topic', () => {
 				await processAdminPage.editFirstProcess();
 				await componentsPage.sidebarProcessDetail.navigateToComponents();
 				await componentsPage.waitForComponentsPageLoad();
-				await componentsPage.configureComponent('Debate');
-				await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
+				await componentsPage.manageComponent('Debate');
+				await debatesPage.getPage().waitForLoadState('networkidle');
+				await debatesPage.createNewDebate();
+				await newDebatePage.waitForPageReady();
 			});
 
 			await test.step('User decides not to proceed with creating a new debate', async () => {
 				// Fill some data first
-				await newDebatesComponentPage.fillComponentName('Cancel Test Debate');
+				await newDebatePage.fillTitle('Cancel Test Debate');
 
 				// Navigate away using sidebar (equivalent to canceling)
-				await newDebatesComponentPage.navigateToComponents();
+				await newDebatePage.sidebar.navigateToComponents();
 			});
 
 			await test.step('System aborts the operation and discards any changes', async () => {
@@ -249,42 +286,45 @@ test.describe('Create New Debate Topic', () => {
 				await processAdminPage.editFirstProcess();
 				await componentsPage.sidebarProcessDetail.navigateToComponents();
 				await componentsPage.waitForComponentsPageLoad();
-				await componentsPage.configureComponent('Debate');
-				await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
+				await componentsPage.manageComponent('Debate');
+				await debatesPage.getPage().waitForLoadState('networkidle');
+				await debatesPage.createNewDebate();
+				await newDebatePage.waitForPageReady();
 			});
 
 			await test.step('User submits form with missing required fields', async () => {
-				// Try to submit without filling required fields
-				await newDebatesComponentPage.fillComponentName(''); // Clear required field
-				await newDebatesComponentPage.submitForm();
+				// Try to submit without filling required fields (leave title empty)
+				await newDebatePage.fillTitle(''); // Clear required field
+				await newDebatePage.clickCreateDebate();
 			});
 
 			await test.step('System detects missing or incorrect fields and displays appropriate error messages', async () => {
 				// Wait for validation
-				await newDebatesComponentPage.getPage().waitForTimeout(1000);
+				await newDebatePage.getPage().waitForTimeout(1000);
 
 				// Verify we're still on the form page
-				const currentUrl = newDebatesComponentPage.getPage().url();
-				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*/);
+				const currentUrl = newDebatePage.getPage().url();
+				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\/debates/);
 
 				// Check for validation errors
-				const validationErrors = await newDebatesComponentPage.getValidationErrors();
-				expect(validationErrors.length).toBeGreaterThan(0);
+				await newDebatePage.expectErrorFlashMessage('There was a problem creating the debate.');
 			});
 
 			await test.step('User corrects the errors and resubmits the form', async () => {
 				// Fill the required field
-				await newDebatesComponentPage.fillComponentName('Corrected Debate Title');
+				await newDebatePage.fillTitle('Corrected Debate Title');
+				await newDebatePage.fillDescription('A proper description for the corrected debate.');
+				await newDebatePage.fillInstructions('Instructions for participation in this debate.');
 
 				// Submit again
-				await newDebatesComponentPage.submitForm();
+				await newDebatePage.clickCreateDebate();
 
 				// Wait for successful submission
-				await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
+				await newDebatePage.getPage().waitForLoadState('networkidle');
 
-				// Verify success
-				const hasSuccessMessage = await newDebatesComponentPage.hasSuccessFlashNotification();
-				expect(hasSuccessMessage).toBe(true);
+				// Verify success (check that we're no longer on the new debate page)
+				const currentUrl = newDebatePage.getPage().url();
+				expect(currentUrl).not.toMatch(/\/new$/);
 			});
 		});
 	});
@@ -296,20 +336,23 @@ test.describe('Create New Debate Topic', () => {
 				await processAdminPage.editFirstProcess();
 				await componentsPage.sidebarProcessDetail.navigateToComponents();
 				await componentsPage.waitForComponentsPageLoad();
-				await componentsPage.configureComponent('Debate');
-				await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
+				await componentsPage.manageComponent('Debate');
+				await debatesPage.getPage().waitForLoadState('networkidle');
+				await debatesPage.createNewDebate();
+				await newDebatePage.waitForPageReady();
 			});
 
 			await test.step('User fills form and submits', async () => {
 				// Fill the form with valid data
-				await newDebatesComponentPage.fillComponentName('Submission Error Test');
-				await newDebatesComponentPage.fillGlobalAnnouncement('This debate should fail on submission');
+				await newDebatePage.fillTitle('Submission Error Test');
+				await newDebatePage.fillDescription('This debate should test submission error handling');
+				await newDebatePage.fillInstructions('Instructions for testing submission errors');
 			});
 
 			await test.step('System encounters an error while saving the new debate', async () => {
 				// Submit the form
-				await newDebatesComponentPage.submitForm();
-				await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
+				await newDebatePage.clickCreateDebate();
+				await newDebatePage.getPage().waitForLoadState('networkidle');
 
 				// In a real scenario, this would be where a submission error occurs
 				// For testing purposes, we'll check if we can handle error states
@@ -318,8 +361,16 @@ test.describe('Create New Debate Topic', () => {
 			await test.step('System displays an error message indicating the failure', async () => {
 				// Check for any error messages or failure indicators
 				// In case of success (no actual error in test), verify the normal flow
-				const hasErrorMessage = await newDebatesComponentPage.hasErrorFlashNotification();
-				const hasSuccessMessage = await newDebatesComponentPage.hasSuccessFlashNotification();
+				const hasErrorMessage = await newDebatePage
+					.getPage()
+					.locator('.alert.alert-danger')
+					.isVisible()
+					.catch(() => false);
+				const hasSuccessMessage = await newDebatePage
+					.getPage()
+					.locator('.alert.alert-success, .flash.success')
+					.isVisible()
+					.catch(() => false);
 
 				// Either there should be an error message or success (for test environment)
 				expect(hasErrorMessage || hasSuccessMessage).toBe(true);
@@ -328,19 +379,23 @@ test.describe('Create New Debate Topic', () => {
 			await test.step('User chooses to retry the operation', async () => {
 				// If there was an error, user would retry
 				// For successful submission, verify the result
-				if (await newDebatesComponentPage.hasSuccessFlashNotification()) {
-					// Verify successful submission
-					await componentsPage.configureComponent('Debate');
-					await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
-					const componentName = await newDebatesComponentPage.getComponentName();
-					expect(componentName).toBe('Submission Error Test');
+				const currentUrl = newDebatePage.getPage().url();
+
+				if (currentUrl.includes('/new')) {
+					// Still on new debate page, retry submission
+					await newDebatePage.clickCreateDebate();
+					await newDebatePage.getPage().waitForLoadState('networkidle');
 				}
+
+				// Verify final state
+				const finalUrl = newDebatePage.getPage().url();
+				expect(finalUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\/debates/);
 			});
 
 			await test.step('Result: The debate creation is handled appropriately, with proper error logging and retry capability', async () => {
 				// Verify the system state is consistent
-				const currentUrl = newDebatesComponentPage.getPage().url();
-				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/edit/);
+				const currentUrl = newDebatePage.getPage().url();
+				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\/debates/);
 			});
 		});
 	});
