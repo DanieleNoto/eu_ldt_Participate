@@ -7,18 +7,18 @@ import test, { expect } from '@playwright/test';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
- * Test suite for closing a debate topic
+ * Test suite for ENDORSE a debate topic
  *
- * User Story: As an authorized user (City Administrator, Moderator, or debate creator), I want to close a debate and add conclusions so that participants are informed of the outcome and further participation is restricted.
+ * User Story: As a Citizen, I want to endorse a debate so that I can show my support for a discussion and signal its importance to others.
  *
  * Requirements: PAR R12
  *
  * Prerequisites:
  * - The user has an active account on the platform and is logged in.
- * - The debate is currently active and open for participation.
- * - If the debate was created by a participant, only that participant has the permissions to close it.
+ * - The debate allows endorsements (not blocked by permissions or debate settings).
+ * - The debate is open for participation (not closed).
  */
-test.describe('Closing a debate', () => {
+test.describe('Endorsing a debate', () => {
 	test.use({ storageState: STORAGE_STATE.USER });
 	let processesOverviewPage: ProcessesOverviewPage;
 	let debatesOverviewPage: DebatesOverviewPage;
@@ -40,7 +40,7 @@ test.describe('Closing a debate', () => {
 	});
 
 	test.describe('Main Flow', () => {
-		test('should allow user to participate in a debate', async () => {
+		test('should allow user to endorse a debate', async () => {
 			let likesCount = 0;
 			let resultLikesCount = 0;
 			await test.step('1. User: navigates to the "Processes" section', async () => {
