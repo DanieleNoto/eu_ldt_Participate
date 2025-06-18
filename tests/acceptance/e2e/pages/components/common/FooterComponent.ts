@@ -126,7 +126,7 @@ export class FooterComponent {
 	}
 
 	async clickCookieSettings() {
-		await this.cookieSettingsButton.click();
+		await this.cookieSettingsButton.first().click();
 	}
 
 	// Metodi per il language chooser

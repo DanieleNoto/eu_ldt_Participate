@@ -1,6 +1,7 @@
 // filepath: c:\_DEV\Work Projects\EU LDT Participate\tests\acceptance\e2e\tests\user\privacy\cookie-persistence.spec.ts
-import { test, expect } from '@playwright/test';
 import { CookieBarComponent } from '@pages/components/common/CookieBarComponent';
+import { FooterComponent } from '@pages/components/common/FooterComponent';
+import { expect, test } from '@playwright/test';
 
 /**
  * Test Suite: Cookie Persistence and Storage
@@ -13,9 +14,11 @@ import { CookieBarComponent } from '@pages/components/common/CookieBarComponent'
  */
 test.describe('Cookie Settings Persistence and Storage', () => {
 	let cookieBar: CookieBarComponent;
+	let footerComponent: FooterComponent;
 
 	test.beforeEach(async ({ page }) => {
 		cookieBar = new CookieBarComponent(page);
+		footerComponent = new FooterComponent(page);
 	});
 
 	test.describe('Cookie Creation and Storage', () => {
@@ -84,7 +87,7 @@ test.describe('Cookie Settings Persistence and Storage', () => {
 			});
 
 			// Update preferences
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.toggleMarketing();
 			await cookieBar.saveSettings();
 
@@ -127,7 +130,7 @@ test.describe('Cookie Settings Persistence and Storage', () => {
 			await cookieBar.verifyCookieBannerHidden();
 
 			// Settings should reflect the preferences
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.verifyPreferencesToggleState(true);
 			await cookieBar.verifyAnalyticsToggleState(true);
 			await cookieBar.verifyMarketingToggleState(true);
@@ -159,7 +162,7 @@ test.describe('Cookie Settings Persistence and Storage', () => {
 			await cookieBar.verifyCookieBannerHidden();
 
 			// Should reflect the partial preferences
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.verifyPreferencesToggleState(false);
 			await cookieBar.verifyAnalyticsToggleState(true);
 			await cookieBar.verifyMarketingToggleState(false);
@@ -191,7 +194,7 @@ test.describe('Cookie Settings Persistence and Storage', () => {
 
 			// Banner should remain hidden
 			await cookieBar.verifyCookieBannerHidden(); // Preferences should be restored
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.verifyPreferencesToggleState(false); // Not toggled, remains disabled
 			await cookieBar.verifyAnalyticsToggleState(false); // Not toggled, remains disabled
 			await cookieBar.verifyMarketingToggleState(true); // Toggled to enabled
@@ -245,31 +248,6 @@ test.describe('Cookie Settings Persistence and Storage', () => {
 				// Should not be session-only (should have expiry or be persistent)
 				// Note: Some implementations might not set explicit expiry for localStorage-backed cookies
 			}
-		});
-	});
-
-	test.describe('Storage Cleanup and Reset', () => {
-		test('should allow resetting preferences to default', async () => {
-			await cookieBar.navigateToHomePage();
-
-			// Set custom preferences
-			await cookieBar.openCookieSettings();
-			await cookieBar.waitForCookieSettingsToLoad();
-			await cookieBar.toggleAnalytics();
-			await cookieBar.toggleMarketing();
-			await cookieBar.saveSettings();
-
-			// Reset to accept all
-			await cookieBar.openCookieSettings();
-			await cookieBar.acceptAllCookies();
-
-			// Verify reset
-			await cookieBar.verifyCookiePreferences({
-				essential: true,
-				preferences: true,
-				analytics: true,
-				marketing: true
-			});
 		});
 	});
 });

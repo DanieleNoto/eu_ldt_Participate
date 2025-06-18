@@ -212,6 +212,8 @@ export class HeaderComponent {
 			await this.loginLink.click();
 		} else if (await this.mobileLoginLink.isVisible()) {
 			await this.mobileLoginLink.click();
+		} else {
+			await this.page.goto('/users/sign_in');
 		}
 		await this.page.waitForLoadState('networkidle');
 	}

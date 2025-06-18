@@ -1,5 +1,6 @@
-import { test, expect } from '@playwright/test';
 import { CookieBarComponent } from '@pages/components/common/CookieBarComponent';
+import { FooterComponent } from '@pages/components/common/FooterComponent';
+import { expect, test } from '@playwright/test';
 
 /**
  * Test Suite: Cookie Preferences Management
@@ -12,9 +13,11 @@ import { CookieBarComponent } from '@pages/components/common/CookieBarComponent'
  */
 test.describe('Cookie Preferences Management', () => {
 	let cookieBar: CookieBarComponent;
+	let footerComponent: FooterComponent;
 
 	test.beforeEach(async ({ page }) => {
 		cookieBar = new CookieBarComponent(page);
+		footerComponent = new FooterComponent(page);
 		await cookieBar.navigateToHomePage();
 	});
 
@@ -124,7 +127,7 @@ test.describe('Cookie Preferences Management', () => {
 			await cookieBar.waitForLoadState();
 
 			// Verify preferences persisted
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.verifyPreferencesToggleState(false); // Not toggled, remains disabled
 			await cookieBar.verifyAnalyticsToggleState(true); // Toggled, enabled
 			await cookieBar.verifyMarketingToggleState(true); // Toggled, enabled
@@ -144,7 +147,7 @@ test.describe('Cookie Preferences Management', () => {
 			});
 
 			// Update setting
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.toggleAnalytics(); // false → true
 			await cookieBar.saveSettings();
 
@@ -172,7 +175,7 @@ test.describe('Cookie Preferences Management', () => {
 			await cookieBar.verifyCookieBannerHidden();
 
 			// Should still be able to open settings
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.verifyCookieSettingsDialogVisible();
 		});
 	});

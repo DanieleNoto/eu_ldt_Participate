@@ -1,5 +1,6 @@
-import { test, expect } from '@playwright/test';
 import { CookieBarComponent } from '@pages/components/common/CookieBarComponent';
+import { FooterComponent } from '@pages/components/common/FooterComponent';
+import { expect, test } from '@playwright/test';
 
 /**
  * Test Suite: Cookie Banner Basic Interactions
@@ -11,9 +12,11 @@ import { CookieBarComponent } from '@pages/components/common/CookieBarComponent'
  */
 test.describe('Cookie Banner Basic Interactions', () => {
 	let cookieBar: CookieBarComponent;
+	let footerComponent: FooterComponent;
 
 	test.beforeEach(async ({ page }) => {
 		cookieBar = new CookieBarComponent(page);
+		footerComponent = new FooterComponent(page);
 		await cookieBar.navigateToHomePage();
 	});
 
@@ -36,7 +39,7 @@ test.describe('Cookie Banner Basic Interactions', () => {
 			await cookieBar.verifyCookieBannerHidden();
 
 			// Verify that only essential cookies are enabled
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.verifyPreferencesToggleState(false);
 			await cookieBar.verifyAnalyticsToggleState(false);
 			await cookieBar.verifyMarketingToggleState(false);
@@ -47,7 +50,7 @@ test.describe('Cookie Banner Basic Interactions', () => {
 			await cookieBar.verifyCookieBannerHidden();
 
 			// Verify that all cookie categories are enabled
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.verifyPreferencesToggleState(true);
 			await cookieBar.verifyAnalyticsToggleState(true);
 			await cookieBar.verifyMarketingToggleState(true);
@@ -58,7 +61,7 @@ test.describe('Cookie Banner Basic Interactions', () => {
 			await cookieBar.verifyCookieBannerHidden();
 
 			// Verify that only essential cookies remain
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.verifyPreferencesToggleState(false);
 			await cookieBar.verifyAnalyticsToggleState(false);
 			await cookieBar.verifyMarketingToggleState(false);
@@ -66,24 +69,26 @@ test.describe('Cookie Banner Basic Interactions', () => {
 
 		test('should handle sequential quick actions correctly', async () => {
 			// First accept all
+
 			await cookieBar.acceptAllCookies();
 			await cookieBar.verifyCookieBannerHidden();
 
 			// Then accept only essential
-			await cookieBar.openCookieSettings();
-			await cookieBar.acceptOnlyEssential();
+			await footerComponent.clickCookieSettings();
+			await cookieBar.verifyModalButtonsVisible();
+			await cookieBar.rejectAllInModal();
 
 			// Verify the change took effect
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.verifyPreferencesToggleState(false);
 			await cookieBar.verifyAnalyticsToggleState(false);
 			await cookieBar.verifyMarketingToggleState(false);
 
 			// Then accept all again
-			await cookieBar.acceptAllCookies();
+			await cookieBar.acceptAllInModal();
 
 			// Verify all are enabled again
-			await cookieBar.openCookieSettings();
+			await footerComponent.clickCookieSettings();
 			await cookieBar.verifyPreferencesToggleState(true);
 			await cookieBar.verifyAnalyticsToggleState(true);
 			await cookieBar.verifyMarketingToggleState(true);

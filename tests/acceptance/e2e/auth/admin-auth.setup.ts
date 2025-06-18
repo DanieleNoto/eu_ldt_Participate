@@ -14,7 +14,7 @@ setup('authenticate as admin', async ({ page }) => {
 
 	// Navigate to home page and handle cookies automatically
 	const homePage = new HomePage(page);
-	await homePage.navigateToHomePage();
+	await homePage.goToHomePage();
 
 	// Wait for page to fully load
 	await homePage.waitForPageToFullyLoad();
