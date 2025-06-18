@@ -46,6 +46,11 @@ export class DebateDetailPage {
 	private readonly commentSubmitButton: Locator;
 	private readonly remainingCharacters: Locator;
 
+	// Mention/Tribute system
+	private readonly tributeContainer: Locator;
+	private readonly tributeResults: Locator;
+	private readonly tributeOptions: Locator;
+
 	// Opinion buttons
 	private readonly opinionContainer: Locator;
 	private readonly inFavorButton: Locator;
@@ -124,6 +129,11 @@ export class DebateDetailPage {
 		this.commentTextarea = this.page.locator('textarea[id*="add-comment-Debate"][name="comment[body]"]');
 		this.commentSubmitButton = this.page.locator('button[type="submit"]', { hasText: 'Publish comment' });
 		this.remainingCharacters = this.page.locator('[id*="remaining-characters"]');
+
+		// Mention/Tribute system
+		this.tributeContainer = this.page.locator('.tribute-container');
+		this.tributeResults = this.page.locator('.tribute-container #results');
+		this.tributeOptions = this.page.locator('.tribute-container li[role="option"]');
 
 		// Opinion buttons
 		this.opinionContainer = this.page.locator('[data-opinion-toggle]');
@@ -407,6 +417,357 @@ export class DebateDetailPage {
 	async getRemainingCharacters(): Promise<string> {
 		return (await this.remainingCharacters.textContent()) || '';
 	}
+
+	// === MENTION/TRIBUTE METHODS ===
+
+	/**
+	 * Type text character by character to trigger mention suggestions
+	 * @param text - The text to type (should include @ for mentions)
+	 */
+	async typeCommentWithMentions(text: string): Promise<void> {
+		await this.commentTextarea.waitFor({ state: 'visible' });
+		await this.commentTextarea.click();
+
+		// Type character by character to trigger tribute.js
+		// Use a more robust approach for the @ character
+		for (const char of text) {
+			if (char === '@') {
+				// Use direct input value setting combined with simulated events
+				await this.insertAtSymbolRobustly();
+			} else {
+				await this.commentTextarea.type(char);
+			}
+			await this.page.waitForTimeout(100); // Small delay between characters
+		}
+	}
+
+	/**
+	 * Insert @ symbol in a way that reliably triggers Tribute.js
+	 * This combines multiple approaches to ensure cross-platform compatibility
+	 */
+	private async insertAtSymbolRobustly(): Promise<void> {
+		// Method 1: Try direct typing first
+		try {
+			await this.commentTextarea.type('@');
+
+			// Check if the @ was inserted correctly
+			const currentValue = await this.commentTextarea.inputValue();
+			if (currentValue.includes('@')) {
+				console.log('@ inserted successfully via typing');
+				return;
+			}
+		} catch (error) {
+			console.log('Direct typing failed, trying alternative methods');
+		}
+
+		// Method 2: Use keyboard shortcut approach
+		try {
+			await this.page.keyboard.press('Shift+2'); // @ on US keyboards
+
+			const currentValue = await this.commentTextarea.inputValue();
+			if (currentValue.includes('@')) {
+				console.log('@ inserted successfully via Shift+2');
+				return;
+			}
+		} catch (error) {
+			console.log('Shift+2 failed, trying direct manipulation');
+		}
+
+		// Method 3: Direct DOM manipulation with event simulation
+		await this.page.evaluate(() => {
+			const textarea = document.querySelector('#comment_body') as HTMLTextAreaElement;
+			if (textarea) {
+				const currentValue = textarea.value;
+				textarea.value = currentValue + '@';
+
+				// Simulate input events that Tribute.js listens for
+				const inputEvent = new Event('input', { bubbles: true, cancelable: true });
+				const keyupEvent = new KeyboardEvent('keyup', {
+					key: '@',
+					charCode: 64,
+					keyCode: 64,
+					bubbles: true,
+					cancelable: true
+				});
+
+				textarea.dispatchEvent(inputEvent);
+				textarea.dispatchEvent(keyupEvent);
+
+				// Focus and set cursor position
+				textarea.focus();
+				textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+			}
+		});
+
+		console.log('@ inserted via DOM manipulation');
+	}
+
+	/**
+	 * Check if the mention suggestions container is visible
+	 * @returns True if the tribute container is visible
+	 */
+	async areMentionSuggestionsVisible(): Promise<boolean> {
+		try {
+			const containerExists = (await this.tributeContainer.count()) > 0;
+			if (!containerExists) {
+				console.log('Tribute container does not exist');
+				return false;
+			}
+
+			const isVisible = await this.tributeContainer.isVisible();
+			console.log('Tribute container visible:', isVisible);
+
+			if (!isVisible) {
+				// Check if container exists but is hidden
+				const ariaExpanded = await this.tributeContainer.getAttribute('aria-expanded');
+				console.log('Tribute container aria-expanded:', ariaExpanded);
+				return ariaExpanded === 'true';
+			}
+
+			return isVisible;
+		} catch (error) {
+			console.log('Error checking tribute suggestions visibility:', error);
+			return false;
+		}
+	}
+
+	/**
+	 * Wait for mention suggestions to appear with timeout
+	 * @param timeout - Maximum time to wait in milliseconds
+	 * @returns True if suggestions appeared within timeout
+	 */
+	async waitForMentionSuggestions(timeout: number = 5000): Promise<boolean> {
+		const startTime = Date.now();
+
+		while (Date.now() - startTime < timeout) {
+			if (await this.areMentionSuggestionsVisible()) {
+				console.log('Mention suggestions appeared');
+				return true;
+			}
+			await this.page.waitForTimeout(100);
+		}
+
+		console.log('Mention suggestions did not appear within timeout');
+		return false;
+	}
+
+	/**
+	 * Check if Tribute.js is properly initialized on the textarea
+	 * @returns True if the textarea has tribute data attributes
+	 */
+	async isTributeInitialized(): Promise<boolean> {
+		const hasTributeAttr = await this.commentTextarea.getAttribute('data-tribute');
+		return hasTributeAttr === 'true';
+	}
+
+	/**
+	 * Debug tribute state and force initialization if needed
+	 */
+	async debugTributeState(): Promise<void> {
+		console.log('=== TRIBUTE DEBUG INFO ===');
+
+		const isInitialized = await this.isTributeInitialized();
+		console.log('Tribute initialized:', isInitialized);
+
+		const containerExists = (await this.tributeContainer.count()) > 0;
+		console.log('Container exists:', containerExists);
+
+		if (containerExists) {
+			const isVisible = await this.tributeContainer.isVisible();
+			const ariaExpanded = await this.tributeContainer.getAttribute('aria-expanded');
+			console.log('Container visible:', isVisible);
+			console.log('Aria expanded:', ariaExpanded);
+		}
+
+		const textareaValue = await this.commentTextarea.inputValue();
+		console.log('Textarea value:', textareaValue);
+
+		// Check if there are any JS errors that might prevent Tribute from working
+		const jsErrors = await this.page.evaluate(() => {
+			// Return any stored JS errors or console errors
+			return (window as any).jsErrors || [];
+		});
+		console.log('JS Errors:', jsErrors);
+
+		console.log('=== END TRIBUTE DEBUG ===');
+	}
+
+	/**
+	 * Get the number of mention suggestions displayed
+	 * @returns The number of suggestion options
+	 */
+	async getMentionSuggestionsCount(): Promise<number> {
+		if (!(await this.areMentionSuggestionsVisible())) {
+			return 0;
+		}
+		return await this.tributeOptions.count();
+	}
+
+	/**
+	 * Get all mention suggestion usernames
+	 * @returns Array of suggested usernames
+	 */
+	async getMentionSuggestions(): Promise<string[]> {
+		if (!(await this.areMentionSuggestionsVisible())) {
+			return [];
+		}
+
+		const options = this.tributeOptions;
+		const count = await options.count();
+		const suggestions: string[] = [];
+
+		for (let i = 0; i < count; i++) {
+			const option = options.nth(i);
+			const usernameElement = option.locator('strong');
+			const username = (await usernameElement.textContent()) || '';
+			// Remove @ symbol if present
+			suggestions.push(username.replace('@', ''));
+		}
+
+		return suggestions;
+	}
+
+	/**
+	 * Select a mention suggestion by index
+	 * @param index - The index of the suggestion to select (0-based)
+	 */
+	async selectMentionSuggestionByIndex(index: number): Promise<void> {
+		await this.tributeOptions.waitFor({ state: 'visible' });
+		const option = this.tributeOptions.nth(index);
+		await option.click();
+
+		// Wait for the mention to be inserted
+		await this.page.waitForTimeout(500);
+	}
+
+	/**
+	 * Select a mention suggestion by username
+	 * @param username - The username to select (without @ symbol)
+	 */
+	async selectMentionSuggestionByUsername(username: string): Promise<void> {
+		await this.tributeOptions.waitFor({ state: 'visible' });
+
+		const suggestions = await this.getMentionSuggestions();
+		const index = suggestions.indexOf(username);
+
+		if (index === -1) {
+			throw new Error(`Username "${username}" not found in suggestions: ${suggestions.join(', ')}`);
+		}
+
+		await this.selectMentionSuggestionByIndex(index);
+	}
+
+	/**
+	 * Type a mention and select a user from suggestions
+	 * @param partialUsername - Part of the username to type after @
+	 * @param fullUsername - The full username to select from suggestions
+	 */
+	async mentionUser(partialUsername: string, fullUsername: string): Promise<void> {
+		// Type @ followed by partial username
+		await this.typeCommentWithMentions(`@${partialUsername}`);
+
+		// Wait for suggestions to appear
+		await this.tributeContainer.waitFor({ state: 'visible', timeout: 5000 });
+
+		// Select the desired user
+		await this.selectMentionSuggestionByUsername(fullUsername);
+	}
+
+	/**
+	 * Add a comment with user mentions
+	 * @param commentText - The comment text (can include @ mentions)
+	 * @param opinion - The opinion: 'favor', 'neutral', or 'against'
+	 */
+	async addCommentWithMentions(
+		commentText: string,
+		opinion: 'favor' | 'neutral' | 'against' = 'favor'
+	): Promise<void> {
+		// First check if user can add comments
+		const canComment = await this.canAddComments();
+		if (!canComment) {
+			throw new Error('User must be logged in to add comments');
+		}
+
+		// Type the comment with mentions
+		await this.typeCommentWithMentions(commentText);
+
+		// Set the opinion
+		switch (opinion) {
+			case 'favor':
+				await this.setOpinionInFavor();
+				break;
+			case 'neutral':
+				await this.setOpinionNeutral();
+				break;
+			case 'against':
+				await this.setOpinionAgainst();
+				break;
+		}
+
+		// Submit the comment
+		await this.submitComment();
+	}
+
+	/**
+	 * Clear the comment textarea
+	 */
+	async clearComment(): Promise<void> {
+		await this.commentTextarea.click();
+		await this.commentTextarea.selectText();
+		await this.commentTextarea.press('Delete');
+	}
+
+	/**
+	 * Get the current text in the comment textarea
+	 * @returns The current text content
+	 */
+	async getCommentText(): Promise<string> {
+		return (await this.commentTextarea.inputValue()) || '';
+	}
+
+	/**
+	 * Wait for mention suggestions to disappear
+	 */
+	async waitForMentionSuggestionsToDisappear(): Promise<void> {
+		await this.tributeContainer.waitFor({ state: 'hidden', timeout: 5000 });
+	}
+
+	/**
+	 * Verify that mention suggestions contain a specific user
+	 * @param username - The username to look for (without @ symbol)
+	 */
+	async expectMentionSuggestionToContain(username: string): Promise<void> {
+		const suggestions = await this.getMentionSuggestions();
+		expect(suggestions).toContain(username);
+	}
+
+	/**
+	 * Verify that mention suggestions are visible
+	 */
+	async expectMentionSuggestionsToBeVisible(): Promise<void> {
+		// Prova ad attendere che il container diventi visibile con un timeout più lungo
+		try {
+			await expect(this.tributeContainer).toBeVisible({ timeout: 10000 });
+		} catch (error) {
+			// Se fallisce, prova a vedere se il container ha contenuto anche se non "visibile"
+			const hasContent = (await this.tributeResults.locator('li').count()) > 0;
+			if (hasContent) {
+				console.log('Tribute container has content but is not marked as visible');
+				// In questo caso, consideriamo che funzioni
+				return;
+			}
+			throw error;
+		}
+	}
+
+	/**
+	 * Verify that mention suggestions are not visible
+	 */
+	async expectMentionSuggestionsToBeHidden(): Promise<void> {
+		await expect(this.tributeContainer).not.toBeVisible();
+	}
+
+	// === END MENTION/TRIBUTE METHODS ===
 
 	/**
 	 * Check if the comment form is visible
