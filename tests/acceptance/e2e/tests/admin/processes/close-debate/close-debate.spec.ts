@@ -92,18 +92,86 @@ test.describe('Closing a debate', () => {
 			});
 			await test.step('Result.', async () => {
 				const index = await debatesPage.getIndexByTitle(debateName);
-				debatesPage.clickPreviewButtonByIndex(index);
-				const conclusionHeaderLocator = debateDetailPage
-					.getPage()
-					.locator('.flash__title', { hasText: 'conclusions' });
-				const conclusionLocator = debateDetailPage
-					.getPage()
-					.locator('.flash__message', { hasText: conclusionText });
-				expect(await conclusionHeaderLocator).toBeVisible();
-				expect(await conclusionLocator.textContent()).toBe(conclusionText);
+
+				// Gestisci l'apertura della nuova tab quando si clicca sul preview
+				const [newPage] = await Promise.all([
+					debatesPage.getPage().waitForEvent('popup'),
+					debatesPage.clickPreviewButtonByIndex(index)
+				]);
+
+				// Attendi che la nuova pagina sia completamente caricata
+				await newPage.waitForLoadState('networkidle');
+
+				// Verifica che la sezione di successo con l'annuncio della chiusura sia presente nella nuova tab
+				const successFlashSection = newPage.locator('.flash.success[data-announcement]');
+				await expect(successFlashSection).toBeVisible();
+
+				// Verifica il titolo che contiene informazioni sulla chiusura e le conclusioni
+				const conclusionHeaderLocator = successFlashSection.locator('.flash__title');
+				await expect(conclusionHeaderLocator).toBeVisible();
+				await expect(conclusionHeaderLocator).toContainText('conclusions');
+
+				// Verifica che il messaggio contenga il testo della conclusione
+				const conclusionMessageLocator = successFlashSection.locator('.flash__message');
+				await expect(conclusionMessageLocator).toBeVisible();
+				await expect(conclusionMessageLocator).toContainText(conclusionText);
+
+				// Chiudi la nuova tab
+				await newPage.close();
+			});
+		});
+	});
+	test.describe('Alternative Flow', () => {
+		let debateName: string;
+		let conclusionText = 'No';
+		test('should allow system to show validation fail', async () => {
+			await test.step('1. User: navigates to the "Processes" section', async () => {
+				// Navigate to processes section
+				await homePage.goToProcessesFromHomeMenu();
+				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+
+				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
+				await processesOverviewPage.navigateToProcessByIndex(0);
+			});
+			await test.step('2. System: Displays the details of the selected process', async () => {
+				await processDetailPage.expectToBeOnProcessDetailPage();
+			});
+			await test.step('3. User: Navigate to the “Debates” section of the process', async () => {
+				await processDetailPage.navigateToDebatesPage();
+			});
+			await test.step('4. System: Loads all the debates related to the navigated process', async () => {
+				await debatesOverviewPage.expectToBeOnDebatesOverviewPage();
+			});
+			await test.step('5. User: Selects a debate from the list of available debates.', async () => {
+				debateName = await debatesOverviewPage.getDebateTitleByIndex(0);
+				await debatesOverviewPage.clickDebateByIndex(0);
+			});
+			await test.step('6. System: Displays the selected debate, including the title, description, instructions, and current comments or posts.', async () => {
+				await debateDetailPage.expectToBeOnDebateDetailPage();
+			});
+			await test.step('7. User: Clicks on the "Close Debate" button.', async () => {
+				await debateDetailPage.clickCloseDebateLink();
+			});
+			await test.step('8. System: Displays the "Close Debate" form, including the required field for conclusions', async () => {
+				await closeDebatePage.expectToBeOnCloseDebatePage();
+			});
+			await test.step('9. User: Fills in the Conclusions field with a summary of the discussion and outcomes.', async () => {
+				await closeDebatePage.fillConclusion(conclusionText);
+			});
+			await test.step('10. User: Clicks on "Close Debate" to submit the form. ', async () => {
+				await closeDebatePage.clickCloseDebate();
+			});
+			await test.step('11. System: Detects missing or incorrect data in the Conclusions field.', async () => {
+				expect(await closeDebatePage.isConclusionValidationVisible()).toBeTruthy();
+			});
+			await test.step('12. System: Highlights the invalid field and displays an appropriate error message.', async () => {
+				expect(await closeDebatePage.isConclusionValidationVisible()).toBeTruthy();
+			});
+			await test.step('13. User: Corrects the errors and resubmits the form.', async () => {
+				await closeDebatePage.fillConclusion('This is a valid conclusion.');
+				await closeDebatePage.clickCloseDebate();
+				expect(await debatesPage.isDebateClosedByTitle(debateName)).toBeTruthy();
 			});
 		});
 	});
 });
-
-//error message in close debate page: There was a problem closing the debate.
