@@ -13,10 +13,18 @@ export class DebateDetailPage {
 
 	// Action buttons
 	private readonly likeButton: Locator;
+	private readonly endorsementDropdown: Locator;
 	private readonly commentButton: Locator;
 	private readonly followButton: Locator;
 	private readonly shareButton: Locator;
 	private readonly reportButton: Locator;
+
+	// Endorsement/Like system
+	private readonly endorsementBlock: Locator;
+	private readonly endorsementButton: Locator;
+	private readonly endorsersListDropdown: Locator;
+	private readonly endorsersListGrid: Locator;
+	private readonly endorsersListText: Locator;
 
 	// Sidebar info
 	private readonly debateStatus: Locator;
@@ -84,10 +92,18 @@ export class DebateDetailPage {
 
 		// Action buttons
 		this.likeButton = this.page.locator('#endorsement-button');
+		this.endorsementDropdown = this.page.locator('button#dropdown-trigger');
 		this.commentButton = this.page.locator('a[href="#comments"]', { hasText: 'Comment' });
 		this.followButton = this.page.locator('button[id^="follow_debate"]');
 		this.shareButton = this.page.locator('button[data-dialog-open="socialShare"]');
 		this.reportButton = this.page.locator('button[data-dialog-open="loginModal"]', { hasText: 'Rapporto' });
+
+		// Endorsement/Like system
+		this.endorsementBlock = this.page.locator('[id*="endorsement-block"]');
+		this.endorsementButton = this.page.locator('#endorsement-button');
+		this.endorsersListDropdown = this.page.locator('#dropdown-menu-endorsers-list');
+		this.endorsersListGrid = this.page.locator('.endorsers-list__grid');
+		this.endorsersListText = this.page.locator('.endorsers-list__text');
 
 		// Sidebar info
 		this.debateStatus = this.page.locator('.text-md.font-semibold');
@@ -609,6 +625,233 @@ export class DebateDetailPage {
 		const countText = (await downvoteElement.textContent()) || '0';
 		return parseInt(countText.trim());
 	}
+
+	// === ENDORSEMENT/LIKE METHODS ===
+
+	/**
+	 * Click the like/endorsement button
+	 */
+	async clickEndorsementButton(): Promise<void> {
+		await this.endorsementButton.click();
+		await this.page.waitForLoadState('networkidle');
+	}
+
+	/**
+	 * Click the endorsement dropdown to view likes list
+	 */
+	async clickEndorsementDropdown(): Promise<void> {
+		await this.endorsementDropdown.click();
+	}
+
+	/**
+	 * Check if the current user has liked/endorsed the debate
+	 * @returns True if the endorsement button shows "Dislike", false if it shows "Like"
+	 */
+	async isDebateLikedByCurrentUser(): Promise<boolean> {
+		const buttonText = (await this.endorsementButton.textContent()) || '';
+		return buttonText.trim().toLowerCase().includes('dislike');
+	}
+
+	/**
+	 * Check if the endorsement button is visible
+	 * @returns True if the endorsement button is available
+	 */
+	async isEndorsementButtonVisible(): Promise<boolean> {
+		return await this.endorsementButton.isVisible();
+	}
+
+	/**
+	 * Get the endorsement button text (Like/Dislike)
+	 * @returns The button text
+	 */
+	async getEndorsementButtonText(): Promise<string> {
+		return (await this.endorsementButton.textContent()) || '';
+	}
+
+	/**
+	 * Open the endorsers list dropdown and get the count of people who liked
+	 * @returns The number of people who endorsed/liked the debate
+	 */
+	async getEndorsersCount(): Promise<number> {
+		// Check if dropdown is already visible
+		const isDropdownVisible = await this.endorsersListDropdown.isVisible();
+
+		if (!isDropdownVisible) {
+			// Click to open the dropdown
+			await this.clickEndorsementDropdown();
+			// Wait for the dropdown to be visible
+			await this.endorsersListDropdown.waitFor({ state: 'visible', timeout: 5000 });
+		}
+
+		// Count the number of endorser elements (span.author) in the grid
+		const endorserElements = this.endorsersListGrid.locator('span.author[data-author="true"]');
+		const count = await endorserElements.count();
+
+		// Close the dropdown by clicking elsewhere if we opened it
+		if (!isDropdownVisible) {
+			await this.page.click('body');
+			// Wait for dropdown to close
+			await this.endorsersListDropdown.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {
+				// Ignore timeout if dropdown doesn't close properly
+			});
+		}
+
+		return count;
+	}
+
+	/**
+	 * Check if there are any endorsers/likes
+	 * @returns True if the debate has been liked by at least one person
+	 */
+	async hasEndorsers(): Promise<boolean> {
+		return (await this.getEndorsersCount()) > 0;
+	}
+
+	/**
+	 * Get the endorsers list text (e.g., "Liked by…")
+	 * @returns The endorsers list header text
+	 */
+	async getEndorsersListText(): Promise<string> {
+		const isDropdownVisible = await this.endorsersListDropdown.isVisible();
+
+		if (!isDropdownVisible) {
+			await this.clickEndorsementDropdown();
+			await this.endorsersListDropdown.waitFor({ state: 'visible', timeout: 5000 });
+		}
+
+		const text = (await this.endorsersListText.textContent()) || '';
+
+		// Close the dropdown if we opened it
+		if (!isDropdownVisible) {
+			await this.page.click('body');
+			await this.endorsersListDropdown.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {
+				// Ignore timeout if dropdown doesn't close properly
+			});
+		}
+
+		return text.trim();
+	}
+
+	/**
+	 * Get a list of endorser names from the dropdown
+	 * @returns An array of endorser names/usernames
+	 */
+	async getEndorserNames(): Promise<string[]> {
+		const isDropdownVisible = await this.endorsersListDropdown.isVisible();
+
+		if (!isDropdownVisible) {
+			await this.clickEndorsementDropdown();
+			await this.endorsersListDropdown.waitFor({ state: 'visible', timeout: 5000 });
+		}
+
+		// Use the same specific selector as in getEndorsersCount
+		const endorserElements = this.endorsersListGrid.locator('span.author[data-author="true"] img');
+		const count = await endorserElements.count();
+		const names: string[] = [];
+
+		for (let i = 0; i < count; i++) {
+			const altText = (await endorserElements.nth(i).getAttribute('alt')) || '';
+			// Extract name from alt text like "Avatar: admin"
+			const match = altText.match(/Avatar:\s*(.+)/);
+			if (match) {
+				names.push(match[1].trim());
+			}
+		}
+
+		// Close the dropdown if we opened it
+		if (!isDropdownVisible) {
+			await this.page.click('body');
+			await this.endorsersListDropdown.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {
+				// Ignore timeout if dropdown doesn't close properly
+			});
+		}
+
+		return names;
+	}
+
+	/**
+	 * Like the debate (if not already liked)
+	 */
+	async likeDebate(): Promise<void> {
+		const isAlreadyLiked = await this.isDebateLikedByCurrentUser();
+		if (!isAlreadyLiked) {
+			await this.clickEndorsementButton();
+		}
+	}
+
+	/**
+	 * Unlike the debate (if currently liked)
+	 */
+	async unlikeDebate(): Promise<void> {
+		const isLiked = await this.isDebateLikedByCurrentUser();
+		if (isLiked) {
+			await this.clickEndorsementButton();
+		}
+	}
+
+	/**
+	 * Toggle the like status of the debate
+	 */
+	async toggleLike(): Promise<void> {
+		await this.clickEndorsementButton();
+	}
+
+	/**
+	 * Verify that the debate has been liked by the current user
+	 */
+	async expectDebateToBeLiked(): Promise<void> {
+		await expect(this.endorsementButton).toContainText('Dislike');
+	}
+
+	/**
+	 * Verify that the debate has not been liked by the current user
+	 */
+	async expectDebateToBeNotLiked(): Promise<void> {
+		await expect(this.endorsementButton).not.toContainText('Dislike');
+	}
+
+	/**
+	 * Verify that the debate has a specific number of endorsers
+	 * @param expectedCount - The expected number of endorsers
+	 */
+	async expectEndorsersCount(expectedCount: number): Promise<void> {
+		const actualCount = await this.getEndorsersCount();
+		expect(actualCount).toBe(expectedCount);
+	}
+
+	/**
+	 * Debug method to log endorsement information
+	 */
+	async debugEndorsementInfo(): Promise<void> {
+		console.log('=== DEBUG ENDORSEMENT INFO ===');
+
+		const isDropdownVisible = await this.endorsersListDropdown.isVisible();
+		console.log('Dropdown initially visible:', isDropdownVisible);
+
+		if (!isDropdownVisible) {
+			await this.clickEndorsementDropdown();
+			await this.endorsersListDropdown.waitFor({ state: 'visible', timeout: 5000 });
+		}
+
+		const endorserElements = this.endorsersListGrid.locator('span.author[data-author="true"]');
+		const count = await endorserElements.count();
+		console.log('Endorser elements count:', count);
+
+		const allElements = this.endorsersListGrid.locator('*');
+		const allCount = await allElements.count();
+		console.log('All elements in grid:', allCount);
+
+		const endorsersListHTML = await this.endorsersListGrid.innerHTML();
+		console.log('Grid HTML:', endorsersListHTML);
+
+		if (!isDropdownVisible) {
+			await this.page.click('body');
+		}
+
+		console.log('=== END DEBUG ===');
+	}
+
+	// === END ENDORSEMENT/LIKE METHODS ===
 
 	/**
 	 * Verifies that the debate detail page is properly loaded
