@@ -248,6 +248,14 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		const hasComponent = await this.hasComponent(componentName);
 		expect(hasComponent).toBe(true);
 	}
+	/**
+	 *
+	 *
+	 */
+	async expectParticipatoryContainerToBeVisible(): Promise<void> {
+		this.expectToBeOnProcessDetailPage();
+		expect(this.participatorySpaceContainer).toBeVisible();
+	}
 
 	// Page state verification
 
