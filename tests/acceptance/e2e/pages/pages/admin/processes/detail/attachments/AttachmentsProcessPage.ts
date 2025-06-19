@@ -95,14 +95,14 @@ export class AttachmentsProcessPage extends BaseAdminPage {
 	 */
 	async hasAttachmentWithTitle(title: string): Promise<boolean> {
 		const rowCount = await this.tableRows.count();
-		
+
 		for (let i = 0; i < rowCount; i++) {
 			const attachmentTitle = await this.getAttachmentTitleByIndex(i);
 			if (attachmentTitle === title) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -113,14 +113,14 @@ export class AttachmentsProcessPage extends BaseAdminPage {
 	 */
 	async getAttachmentIndexByTitle(title: string): Promise<number> {
 		const rowCount = await this.tableRows.count();
-		
+
 		for (let i = 0; i < rowCount; i++) {
 			const attachmentTitle = await this.getAttachmentTitleByIndex(i);
 			if (attachmentTitle === title) {
 				return i;
 			}
 		}
-		
+
 		return -1;
 	}
 
