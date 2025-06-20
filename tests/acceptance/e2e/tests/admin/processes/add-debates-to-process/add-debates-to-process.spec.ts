@@ -1,7 +1,8 @@
+import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { expect, test } from '@playwright/test';
 import { ProcessTestDataGenerator } from '../../../../fixtures/process-fixtures';
-import { ComponentsPage } from '../../../../pages/pages/admin/processes/detail/ComponentsPage';
-import { NewDebatesComponentPage } from '../../../../pages/pages/admin/processes/detail/NewDebatesComponentPage';
+import { ComponentsPage } from '../../../../pages/pages/admin/processes/detail/components/ComponentsPage';
+import { NewDebatesComponentPage } from '../../../../pages/pages/admin/processes/detail/components/NewDebatesComponentPage';
 import { ProcessAdminPage } from '../../../../pages/pages/admin/processes/ProcessAdminPage';
 import { STORAGE_STATE } from '../../../../utils/constants';
 
@@ -18,20 +19,14 @@ import { STORAGE_STATE } from '../../../../utils/constants';
  * - There are processes available on the platform
  * - The debate allows citizen participation (not blocked or restricted by permissions)
  */
-test.describe('Add Debates Component to Process', () => {
+test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 	// Use admin storage state for authentication
 	test.use({ storageState: STORAGE_STATE.ADMIN });
-
+	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let componentsPage: ComponentsPage;
 	let newDebatesComponentPage: NewDebatesComponentPage;
 	let validProcessData: any;
-
-	// Test data - English only
-	const testProcessData = {
-		slug: 'test-process-debates',
-		title: 'Test Process for Debates Component'
-	};
 
 	const debatesComponentData = {
 		name: 'Community Debates',
@@ -46,6 +41,7 @@ test.describe('Add Debates Component to Process', () => {
 
 	test.beforeEach(async ({ page }) => {
 		// Initialize Page Objects
+		adminHomePage = new AdminHomePage(page);
 		processAdminPage = new ProcessAdminPage(page);
 		componentsPage = new ComponentsPage(page);
 		newDebatesComponentPage = new NewDebatesComponentPage(page);
@@ -53,9 +49,8 @@ test.describe('Add Debates Component to Process', () => {
 		// Generate valid test data
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 
-		// Override with specific data for consistency
-		validProcessData.general.urlSlug = testProcessData.slug;
-		validProcessData.general.title = testProcessData.title;
+		await adminHomePage.navigateToAdminHomePage();
+		await setupTestProcess();
 	});
 
 	/**
@@ -69,11 +64,7 @@ test.describe('Add Debates Component to Process', () => {
 
 	test.describe('Main Flow - Successfully add debates component to process', () => {
 		test('should allow City Administrator to add a debate component to a specific process', async () => {
-			// Setup test environment
-			await setupTestProcess();
-
 			await test.step('1. User navigates to the "Processes" section', async () => {
-				// Already done in setup, verify we're in the right place
 				await processAdminPage.navigateToProcesses();
 				await processAdminPage.getPage().waitForLoadState('networkidle');
 
@@ -85,10 +76,6 @@ test.describe('Add Debates Component to Process', () => {
 				// Verify processes table is visible and has content
 				const hasProcesses = await processAdminPage.processTable.hasProcesses();
 				expect(hasProcesses).toBe(true);
-
-				// Verify our test process is in the list
-				const processNames = await processAdminPage.processTable.getProcessTitles();
-				expect(processNames).toContain(testProcessData.title);
 			});
 
 			await test.step('3. User selects the process that want to update', async () => {

@@ -1,6 +1,6 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { LocalizationUtils } from '../../../../../utils/localization.utils';
-import { BaseAdminPage } from '../../BaseAdminPage';
+import { LocalizationUtils } from '../../../../../../utils/localization.utils';
+import { BaseAdminPage } from '../../../BaseAdminPage';
 
 /**
  * Page Object Model for managing a Page component in Decidim admin.
