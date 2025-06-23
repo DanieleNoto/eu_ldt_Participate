@@ -75,4 +75,10 @@ export class NewAdminPage extends BaseAdminPage {
 		await expect(this.emailInput).toBeVisible();
 		await expect(this.roleDropdown).toBeVisible();
 	}
+	async expectToBeOnEditAdminPage(): Promise<void> {
+		await expect(this.page).toHaveURL(/user_roles\/\d+\/edit$/);
+		await expect(this.nameInput).toBeVisible();
+		await expect(this.emailInput).toBeVisible();
+		await expect(this.roleDropdown).toBeVisible();
+	}
 }

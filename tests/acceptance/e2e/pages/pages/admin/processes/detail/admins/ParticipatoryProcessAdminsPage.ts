@@ -111,4 +111,9 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 		const row = this.tableRows.filter({ hasText: name }).filter({ hasText: email }).first();
 		await expect(row).toBeVisible();
 	}
+	async getRoleByRowIndex(rowIndex: number): Promise<string> {
+		const row = this.tableRows.nth(rowIndex);
+		const roleCell = row.locator('td:nth-child(5)'); // Supponendo che la colonna "Role" sia la quinta
+		return (await roleCell.textContent())?.trim() || '';
+	}
 }
