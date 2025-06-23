@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 
 /**
  * Component for managing the participatory processes table in the admin area.
@@ -250,5 +250,19 @@ export class AdminProcessTableComponent {
 	async refreshTable() {
 		await this.page.reload();
 		await this.waitForTableLoad();
+	}
+
+	public async getRows(): Promise<Locator[]> {
+		const rowCount = await this.processRows.count();
+		const rows: Locator[] = [];
+		for (let i = 0; i < rowCount; i++) {
+			rows.push(this.processRows.nth(i));
+		}
+		return rows;
+	}
+
+	public async getVisibility(row: Locator): Promise<string> {
+		const visibilityCell = row.locator('td:nth-child(3)'); // Supponendo che la visibilità sia nella terza colonna
+		return (await visibilityCell.textContent())?.trim() || '';
 	}
 }

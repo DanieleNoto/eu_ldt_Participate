@@ -50,6 +50,11 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 		await row.locator('a.action-icon--remove').click();
 	}
 
+	async getRowsCount(): Promise<number> {
+		const rows = this.page.locator('table.table-list tbody tr');
+		return await rows.count();
+	}
+
 	// Validations
 	async expectToBeOnPrivateParticipantsPage(): Promise<void> {
 		await expect(this.page).toHaveURL(/participatory_space_private_users/);
