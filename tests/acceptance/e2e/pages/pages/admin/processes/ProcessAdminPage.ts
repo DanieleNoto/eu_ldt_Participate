@@ -511,15 +511,17 @@ export class ProcessAdminPage extends BaseAdminPage {
 		};
 	}
 
-	public async createTestProcess(validProcessData: CompleteProcessData) {
+	public async createTestProcess(validProcessData: CompleteProcessData, isPrivateProcess: boolean = false) {
 		await this.navigateToProcesses();
 		await this.waitForLoadState('networkidle');
 		await this.page.waitForTimeout(1000); // Ensure the page is fully loaded
-		const isTableVisible = await this.processTable.isTableVisible();
-		expect(isTableVisible).toBe(true);
-		const isTableEmpty = await this.isTableEmpty();
-		if (isTableVisible && !isTableEmpty) {
-			return; // Skip creation if table is not empty
+		if (!isPrivateProcess) {
+			const isTableVisible = await this.processTable.isTableVisible();
+			expect(isTableVisible).toBe(true);
+			const isTableEmpty = await this.isTableEmpty();
+			if (isTableVisible && !isTableEmpty) {
+				return; // Skip creation if table is not empty
+			}
 		}
 		await this.navigateToNewProcess();
 
@@ -541,9 +543,13 @@ export class ProcessAdminPage extends BaseAdminPage {
 		// Fill metadata information
 		await this.fillMetadataInfo(validProcessData.metadata);
 
-		// Set public visibility
-		await this.setVisibilityToPublic();
-
+		if (isPrivateProcess) {
+			// Set private visibility
+			await this.setVisibilityToPrivate();
+		} else {
+			// Set public visibility
+			await this.setVisibilityToPublic();
+		}
 		// Submit process
 		await this.submitProcess();
 

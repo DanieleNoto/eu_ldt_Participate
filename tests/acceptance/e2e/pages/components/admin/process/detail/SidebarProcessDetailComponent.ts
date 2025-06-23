@@ -27,6 +27,7 @@ export class SidebarProcessDetailComponent {
 	private readonly attachmentsLink: Locator;
 	private readonly processAdminsLink: Locator;
 	private readonly moderationsLink: Locator;
+	private readonly privateParticipantsLink: Locator;
 
 	constructor(page: Page) {
 		this.page = page;
@@ -51,6 +52,9 @@ export class SidebarProcessDetailComponent {
 		this.attachmentsLink = page.locator('a[href*="/attachments"]:has-text("Attachments")');
 		this.processAdminsLink = page.locator('a[href*="/user_roles"]:has-text("Process admins")');
 		this.moderationsLink = page.locator('a[href*="/moderations"]:has-text("Moderations")');
+		this.privateParticipantsLink = page.locator(
+			'a[href*="/participatory_space_private_users"]:has-text("Private participants")'
+		);
 	}
 
 	// Visibility and state checks
@@ -124,6 +128,10 @@ export class SidebarProcessDetailComponent {
 
 	async navigateToModerations(): Promise<void> {
 		await this.moderationsLink.first().click();
+		await this.page.waitForLoadState('networkidle');
+	}
+	async navigateToPrivateParticipants(): Promise<void> {
+		await this.privateParticipantsLink.first().click();
 		await this.page.waitForLoadState('networkidle');
 	}
 
