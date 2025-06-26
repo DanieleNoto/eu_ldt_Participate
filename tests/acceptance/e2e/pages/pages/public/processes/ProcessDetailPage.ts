@@ -24,6 +24,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 
 	// Help elements
 	private readonly helpButton: Locator;
+	private readonly debatesLink: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -46,6 +47,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 
 		// Help elements
 		this.helpButton = page.locator('#floating-helper-tip button');
+		this.debatesLink = page.locator('a[href$="/debates"]:visible').first();
 	}
 
 	// Navigation methods
@@ -78,6 +80,15 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		// Find and click the convocation page link
 		const convocationLink = this.navItems.filter({ hasText: 'Convocation Page' });
 		await convocationLink.click();
+		await this.waitForLoadState('networkidle');
+	}
+
+	/**
+	 * Navigates to the debates page from the link
+	 */
+	async navigateToDebatesPage(): Promise<void> {
+		// Find and click the debates page link
+		await this.debatesLink.click();
 		await this.waitForLoadState('networkidle');
 	}
 
