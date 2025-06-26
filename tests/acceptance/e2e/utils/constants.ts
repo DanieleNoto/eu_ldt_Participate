@@ -32,6 +32,26 @@ export const TEST_SELECTORS = {
 	USER_ACCOUNT: {
 		UPDATE_ACCOUNT_BUTTON: 'form.edit_user button[type="submit"]'
 	},
+	COOKIES: {
+		BANNER: '#dc-dialog-wrapper.cookies__container',
+		BANNER_WRAPPER: '#dc-dialog-wrapper',
+		ACCEPT_ALL_BUTTON: '#dc-dialog-accept',
+		ACCEPT_ESSENTIAL_BUTTON: '#dc-dialog-reject',
+		REJECT_ALL_BUTTON: 'button[data-testid="reject-all-cookies"]', // Keep as fallback
+		SETTINGS_BUTTON: '#dc-dialog-settings',
+		DIALOG: '[data-dialog-target="dc-modal"]',
+		MODAL: '#dc-modal',
+		MODAL_ACCEPT_BUTTON: '#dc-modal-accept',
+		MODAL_REJECT_BUTTON: '#dc-modal-reject',
+		MODAL_SAVE_BUTTON: '#dc-modal-save',
+		PREFERENCES_CHECKBOX: '#dc-preferences',
+		ANALYTICS_CHECKBOX: '#dc-analytics',
+		MARKETING_CHECKBOX: '#dc-marketing',
+		PREFERENCES_TOGGLE: 'label[for="dc-preferences"]',
+		ANALYTICS_TOGGLE: 'label[for="dc-analytics"]',
+		MARKETING_TOGGLE: 'label[for="dc-marketing"]',
+		SAVE_BUTTON: '#dc-modal-save'
+	},
 
 	SUCCESS_MESSAGE: '[data-testid="success-message"]',
 	ERROR_MESSAGE: '[data-testid="error-message"]',

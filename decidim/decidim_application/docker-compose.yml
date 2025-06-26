@@ -80,4 +80,4 @@ volumes:
   vendor_bundle:
   node_modules:
 networks:
-  private:
+  private: {}
