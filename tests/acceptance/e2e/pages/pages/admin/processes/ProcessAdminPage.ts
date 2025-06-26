@@ -506,6 +506,41 @@ export class ProcessAdminPage extends BaseAdminPage {
 			testSelectors
 		};
 	}
+
+	public async createTestProcess(validProcessData: CompleteProcessData) {
+		await this.navigateToProcesses();
+		await this.navigateToNewProcess();
+
+		// Verify we're on new process page
+		const isOnNewProcessPage = await this.isOnNewProcessPage();
+		expect(isOnNewProcessPage).toBe(true);
+
+		// Fill general information
+		await this.fillGeneralInfo(validProcessData.general);
+
+		// Fill duration information
+		await this.fillDurationInfo(validProcessData.duration);
+
+		// Add image if provided
+		if (validProcessData.image) {
+			await this.addImage(validProcessData.image);
+		}
+
+		// Fill metadata information
+		await this.fillMetadataInfo(validProcessData.metadata);
+
+		// Set public visibility
+		await this.setVisibilityToPublic();
+
+		// Submit process
+		await this.submitProcess();
+
+		// Verify success message
+		await this.expectSuccessMessage();
+
+		// Verify navigation to process edit page (indicates successful creation)
+		await expect(this.getPage()).toHaveURL(/\/admin\/participatory_processes\/.*\/edit/);
+	}
 }
 
 // Type definitions for better type safety
