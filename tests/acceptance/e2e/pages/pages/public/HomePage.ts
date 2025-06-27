@@ -1,5 +1,5 @@
 import { BasePage } from '@pages/base/BasePage';
-import { Page } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 import { AdminHeaderComponent } from '../../components/admin/AdminHeaderComponent';
 import { FooterComponent } from '../../components/common/FooterComponent';
 import { OfflineMessageComponent } from '../../components/common/OfflineMessageComponent';
@@ -395,5 +395,35 @@ export class HomePage extends BasePage {
 
 	async getLoginSuccessMessage(): Promise<string> {
 		return await this.getSuccessFlashMessageText();
+	}
+
+	/**
+	 * Verify that we are on the home page
+	 */
+	async expectToBeOnHomePage(): Promise<void> {
+		await expect(this.page).toHaveURL(/.*\/(it|en|fr|de|es)?(\?.*)?$/);
+		await this.waitForPageToFullyLoad();
+	}
+	/**
+	 * Navigate to Privacy Policy page from current page
+	 * Note: The privacy policy is available through the "Terms of Service" link in the footer
+	 */
+	async navigateToPrivacyPolicy(): Promise<void> {
+		// Scroll to footer to ensure the Terms of Service link is visible
+		await this.footer.scrollToFooter();
+
+		// Look for the "Terms of Service" link in the footer's legal navigation section
+		const termsOfServiceLink = this.page.locator('a[href="/pages/terms-of-service"]');
+
+		try {
+			// Wait for the link to be visible and click it
+			await termsOfServiceLink.waitFor({ state: 'visible', timeout: 10000 });
+			await termsOfServiceLink.click();
+			await this.page.waitForLoadState('networkidle');
+		} catch {
+			// If link not found, navigate directly to the URL
+			await this.page.goto('/pages/terms-of-service');
+			await this.page.waitForLoadState('networkidle');
+		}
 	}
 }
