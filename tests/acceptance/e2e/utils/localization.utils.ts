@@ -189,16 +189,6 @@ export class LocalizationUtils {
 }
 
 /**
- * Helper function to get a localized selector (simplified version)
- * @param baseSelector - The base selector
- * @param locale - Optional locale (defaults to 'it')
- * @returns Localized selector
- */
-export function getLocalizedSelector(baseSelector: string, locale: string = 'it'): string {
-	return `${baseSelector}[lang="${locale}"], ${baseSelector}`;
-}
-
-/**
  * Helper function to get localized text based on key
  * @param key - The text key in dot notation
  * @param locale - Optional locale (defaults to 'it')
@@ -206,23 +196,6 @@ export function getLocalizedSelector(baseSelector: string, locale: string = 'it'
  */
 export function getLocalizedText(key: string, locale: string = 'en'): string {
 	const texts = {
-		it: {
-			accountDeletion: {
-				warningMessage: 'This action cannot be undone',
-				helpText: 'Per favore, compila il motivo per cui desideri eliminare il tuo account',
-				deleteButton: 'Elimina il mio account',
-				successMessage: 'La richiesta di eliminazione account è stata inviata con successo',
-				errorMessage: "Si è verificato un errore durante l'eliminazione dell'account",
-				reasonLabel: 'Motivo per il quale vuoi eliminare il tuo account',
-				confirmationTitle: 'Conferma eliminazione account',
-				confirmationMessage: 'Sei sicuro di voler eliminare il tuo account?',
-				confirmButton: 'Sì, elimina il mio account',
-				cancelButton: 'Annulla'
-			},
-			session: {
-				timeoutMessage: 'La sessione è scaduta per motivi di sicurezza'
-			}
-		},
 		en: {
 			accountDeletion: {
 				warningMessage: 'This action cannot be undone',

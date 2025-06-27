@@ -73,8 +73,8 @@ export class HomePage extends BasePage {
 	}
 
 	// Metodi per la navigazione alla home page
-	async navigateToHomePage(locale: string = 'it') {
-		await this.navigateToAndHandleCookies(`/?locale=${locale}`);
+	async navigateToHomePage() {
+		await this.navigateToAndHandleCookies();
 	}
 
 	async goToHomePage() {
