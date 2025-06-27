@@ -24,42 +24,56 @@ export class AdminProcessTableComponent {
 	async getProcessByName(processName: string) {
 		return this.processRows.filter({ hasText: processName }).first();
 	}
-
 	async getProcessActionMenu(processName: string) {
 		const row = await this.getProcessByName(processName);
-		return row.locator('.action-icon, [data-toggle="action-menu"]');
+		// Return the row container since we'll target specific action links within it
+		return row;
 	}
 
 	// Process actions
 	async viewProcess(processName: string) {
-		const actionMenu = await this.getProcessActionMenu(processName);
-		await actionMenu.click();
-		await this.page.locator('[data-action="view"], .action-menu-item:has-text("Visualizza")').first().click();
+		const row = await this.getProcessActionMenu(processName);
+		// Click on the Preview link
+		await row.locator('a[title="Preview"]').click();
 	}
 
 	async editProcess(processName: string) {
-		const actionMenu = await this.getProcessActionMenu(processName);
-		await actionMenu.click();
-		await this.page.locator('[data-action="edit"], .action-menu-item:has-text("Modifica")').first().click();
+		const row = await this.getProcessActionMenu(processName);
+		// Click on the Configure link which leads to the edit page
+		await row.locator('a[title="Configure"]').click();
 	}
 
 	async editFirstProcess() {
-		// Get the first process row action menu
+		// Get the first process row and click the Configure link
 		const firstRow = this.processRows.first();
-		const actionMenu = firstRow.locator('.action-icon').first();
-		await actionMenu.click();
+		await firstRow.locator('a[title="Configure"]').click();
 	}
 
 	async duplicateProcess(processName: string) {
-		const actionMenu = await this.getProcessActionMenu(processName);
-		await actionMenu.click();
-		await this.page.locator('[data-action="duplicate"], .action-menu-item:has-text("Duplica")').first().click();
+		const row = await this.getProcessActionMenu(processName);
+		// Click on the Duplicate link
+		await row.locator('a[title="Duplicate"]').click();
 	}
 
+	async exportProcess(processName: string) {
+		const row = await this.getProcessActionMenu(processName);
+		// Click on the Export link
+		await row.locator('a[title="Export"]').click();
+	}
+
+	async moderateProcess(processName: string) {
+		const row = await this.getProcessActionMenu(processName);
+		// Click on the Moderate link
+		await row.locator('a[title="Moderate"]').click();
+	}
 	async deleteProcess(processName: string) {
-		const actionMenu = await this.getProcessActionMenu(processName);
-		await actionMenu.click();
-		await this.page.locator('[data-action="delete"], .action-menu-item:has-text("Elimina")').first().click();
+		const row = await this.getProcessActionMenu(processName);
+		// Look for a delete action link (this might be in a different location or require different handling)
+		// Since delete wasn't in the provided list, it might be in a dropdown or require special permissions
+		await row
+			.locator('a[title="Delete"], [data-action="delete"], .action-menu-item:has-text("Elimina")')
+			.first()
+			.click();
 
 		// Handle confirmation dialog if present
 		const confirmButton = this.page.locator('[data-confirm="true"], .button--alert:has-text("Elimina")');
@@ -69,16 +83,21 @@ export class AdminProcessTableComponent {
 	}
 
 	async publishProcess(processName: string) {
-		const actionMenu = await this.getProcessActionMenu(processName);
-		await actionMenu.click();
-		await this.page.locator('[data-action="publish"], .action-menu-item:has-text("Pubblica")').first().click();
+		const row = await this.getProcessActionMenu(processName);
+		// Look for a publish action link (this might be in a different location or require different handling)
+		await row
+			.locator('a[title="Publish"], [data-action="publish"], .action-menu-item:has-text("Pubblica")')
+			.first()
+			.click();
 	}
 
 	async unpublishProcess(processName: string) {
-		const actionMenu = await this.getProcessActionMenu(processName);
-		await actionMenu.click();
-		await this.page
-			.locator('[data-action="unpublish"], .action-menu-item:has-text("Annulla pubblicazione")')
+		const row = await this.getProcessActionMenu(processName);
+		// Look for an unpublish action link (this might be in a different location or require different handling)
+		await row
+			.locator(
+				'a[title="Unpublish"], [data-action="unpublish"], .action-menu-item:has-text("Annulla pubblicazione")'
+			)
 			.first()
 			.click();
 	}
@@ -227,5 +246,13 @@ export class AdminProcessTableComponent {
 	async refreshTable() {
 		await this.page.reload();
 		await this.waitForTableLoad();
+	}
+
+	// Get the first process name for editing
+	async getFirstProcessName(): Promise<string> {
+		const firstRow = this.processRows.first();
+		const titleCell = firstRow.locator('td:first-child, .title');
+		const title = await titleCell.textContent();
+		return title?.trim() || '';
 	}
 }
