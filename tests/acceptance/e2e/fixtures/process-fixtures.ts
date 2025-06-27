@@ -93,4 +93,32 @@ export class ProcessTestDataGenerator {
 			}
 		};
 	}
+
+	static generateUpdateProcessData(uniqueId: string = Date.now().toString()): CompleteProcessData {
+		return {
+			general: {
+				title: `Updated Process ${uniqueId}`,
+				subtitle: `Updated Subtitle for Process ${uniqueId}`,
+				orderPosition: parseInt(uniqueId.slice(-2)) || 2,
+				urlSlug: `updated-process-${uniqueId}`,
+				shortDescription: `Updated short description for test process ${uniqueId}`,
+				hashtag: `UpdatedProcess${uniqueId}`,
+				description: `Updated detailed description for test process ${uniqueId}. This process has been modified to test update functionality.`,
+				announcement: `Updated test announcement for process ${uniqueId}`
+			},
+			duration: {
+				startDate: '01/07/2025',
+				endDate: '30/07/2025'
+			},
+			metadata: {
+				developerGroup: `Updated Group ${uniqueId}`,
+				localArea: `Updated Area ${uniqueId}`,
+				metaScope: `Updated Scope ${uniqueId}`,
+				target: `Updated Target ${uniqueId}`,
+				participatoryScope: `Updated Participatory Scope ${uniqueId}`,
+				participatoryStructure: `Updated Structure ${uniqueId}`
+			},
+			visibility: 'public'
+		};
+	}
 }
