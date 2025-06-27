@@ -1,7 +1,7 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { LocalizationUtils } from '../../../../../utils/localization.utils';
-import { SidebarProcessDetailComponent } from '../../../../components/admin/process/detail/SidebarProcessDetailComponent';
-import { BaseAdminPage } from '../../BaseAdminPage';
+import { LocalizationUtils } from '../../../../../../utils/localization.utils';
+import { SidebarProcessDetailComponent } from '../../../../../components/admin/process/detail/SidebarProcessDetailComponent';
+import { BaseAdminPage } from '../../../BaseAdminPage';
 
 /**
  * Page Object Model for creating a new Debates component in process detail management.
@@ -175,15 +175,19 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	}
 
 	async blockComments(): Promise<void> {
-		if (!(await this.commentsBlockedToggle.isChecked())) {
-			await this.commentsBlockedToggle.check();
-		}
+		(await this.commentsBlockedToggle.all()).forEach(async checkbox => {
+			if (!(await checkbox.isChecked())) {
+				await checkbox.check();
+			}
+		});
 	}
 
 	async unblockComments(): Promise<void> {
-		if (await this.commentsBlockedToggle.isChecked()) {
-			await this.commentsBlockedToggle.uncheck();
-		}
+		(await this.commentsBlockedToggle.all()).forEach(async checkbox => {
+			if (await checkbox.isChecked()) {
+				await checkbox.uncheck();
+			}
+		});
 	}
 
 	async areCommentsBlocked(): Promise<boolean> {
@@ -202,7 +206,7 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 
 	// Permissions methods
 	async setCreateDebatesPermission(): Promise<void> {
-		await this.createDebatesPermissionSelect.check();
+		(await this.createDebatesPermissionSelect.all()).forEach(async select => await select.check());
 	}
 
 	async getCreateDebatesPermission(): Promise<string> {
@@ -310,11 +314,13 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	}
 
 	async expectCommentsBlocked(blocked: boolean): Promise<void> {
-		if (blocked) {
-			await expect(this.commentsBlockedToggle).toBeChecked();
-		} else {
-			await expect(this.commentsBlockedToggle).not.toBeChecked();
-		}
+		(await this.commentsBlockedToggle.all()).forEach(async checkbox => {
+			if (blocked) {
+				await expect(checkbox).toBeChecked();
+			} else {
+				await expect(checkbox).not.toBeChecked();
+			}
+		});
 	}
 
 	async expectCommentsMaxLength(expectedLength: number): Promise<void> {
@@ -322,11 +328,13 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	}
 
 	async expectCreateDebatesPermission(expectedPermission: boolean): Promise<void> {
-		if (expectedPermission) {
-			await expect(this.createDebatesPermissionSelect).toBeChecked();
-		} else {
-			await expect(this.createDebatesPermissionSelect).not.toBeChecked();
-		}
+		(await this.createDebatesPermissionSelect.all()).forEach(async checkbox => {
+			if (expectedPermission) {
+				await expect(checkbox).toBeChecked();
+			} else {
+				await expect(checkbox).not.toBeChecked();
+			}
+		});
 	}
 
 	async expectSubmitButtonToBeEnabled(): Promise<void> {

@@ -1,6 +1,6 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { LocalizationUtils } from '../../../../../utils/localization.utils';
-import { BaseAdminPage } from '../../BaseAdminPage';
+import { LocalizationUtils } from '../../../../../../utils/localization.utils';
+import { BaseAdminPage } from '../../../BaseAdminPage';
 
 /**
  * Page Object Model for creating a new Page component in process detail management.

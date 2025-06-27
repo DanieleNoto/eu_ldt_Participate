@@ -1,6 +1,6 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { SidebarProcessDetailComponent } from '../../../../components/admin/process/detail/SidebarProcessDetailComponent';
-import { BaseAdminPage } from '../../BaseAdminPage';
+import { SidebarProcessDetailComponent } from '../../../../../components/admin/process/detail/SidebarProcessDetailComponent';
+import { BaseAdminPage } from '../../../BaseAdminPage';
 
 /**
  * Page Object Model for the Components page in process detail management.

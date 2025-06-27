@@ -15,6 +15,7 @@ export class UploadFileModalComponent {
 	private readonly removeButton: Locator;
 	private readonly dropzoneItems: Locator;
 	private readonly TEST_IMAGE_PATH = 'tests/acceptance/e2e/test-assets/test.jpg';
+	private readonly TEST_CSV_PATH = 'tests/acceptance/e2e/test-assets/private-participants.csv';
 	private readonly NOT_VALID_TEST_IMAGE_PATH = 'tests/acceptance/e2e/test-assets/not.valid.file';
 
 	constructor(page: Page) {
@@ -57,6 +58,16 @@ export class UploadFileModalComponent {
 		await this.fileInput.setInputFiles(filePath);
 	}
 
+	/**
+	 * Uploads the standard test CSV (test.csv)
+	 * This method selects the test CSV file and waits for it to be processed
+	 * @returns Promise that resolves when the file is uploaded
+	 */
+	async uploadTestCsv(): Promise<void> {
+		await this.selectFile(this.TEST_CSV_PATH);
+		// Wait for upload processing (optional timeout adjustment if needed)
+		await this.page.waitForTimeout(1500);
+	}
 	/**
 	 * Uploads the standard test image (test.jpg)
 	 * This method selects the test image file and waits for it to be processed

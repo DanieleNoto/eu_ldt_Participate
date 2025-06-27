@@ -43,6 +43,29 @@ export class AdminProcessTableComponent {
 		await row.locator('a[title="Configure"]').click();
 	}
 
+	/**
+	 * Clicks on the first process that has "Private" visibility
+	 * @throws Error if no private process is found
+	 */
+	async clickFirstPrivateProcess(): Promise<void> {
+		const rows = this.processRows;
+		const rowCount = await rows.count();
+
+		for (let i = 0; i < rowCount; i++) {
+			const row = rows.nth(i);
+			const privateSpan = row.locator('td.table-list__state span:has-text("Private")');
+
+			if (await privateSpan.isVisible()) {
+				// Click on the process title link in the first column
+				const titleLink = row.locator('td:first-child a');
+				await titleLink.click();
+				return;
+			}
+		}
+
+		throw new Error('No process with "Private" visibility found in the table');
+	}
+
 	async editFirstProcess() {
 		// Get the first process row and click the Configure link
 		const firstRow = this.processRows.first();

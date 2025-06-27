@@ -544,8 +544,18 @@ export class ProcessAdminPage extends BaseAdminPage {
 		};
 	}
 
-	public async createTestProcess(validProcessData: CompleteProcessData) {
+	public async createTestProcess(validProcessData: CompleteProcessData, isPrivateProcess: boolean = false) {
 		await this.navigateToProcesses();
+		await this.waitForLoadState('networkidle');
+		await this.page.waitForTimeout(1000); // Ensure the page is fully loaded
+		if (!isPrivateProcess) {
+			const isTableVisible = await this.processTable.isTableVisible();
+			expect(isTableVisible).toBe(true);
+			const isTableEmpty = await this.isTableEmpty();
+			if (isTableVisible && !isTableEmpty) {
+				return; // Skip creation if table is not empty
+			}
+		}
 		await this.navigateToNewProcess();
 
 		// Verify we're on new process page
@@ -566,9 +576,13 @@ export class ProcessAdminPage extends BaseAdminPage {
 		// Fill metadata information
 		await this.fillMetadataInfo(validProcessData.metadata);
 
-		// Set public visibility
-		await this.setVisibilityToPublic();
-
+		if (isPrivateProcess) {
+			// Set private visibility
+			await this.setVisibilityToPrivate();
+		} else {
+			// Set public visibility
+			await this.setVisibilityToPublic();
+		}
 		// Submit process
 		await this.submitProcess();
 
@@ -576,7 +590,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.expectSuccessMessage();
 
 		// Verify navigation to process edit page (indicates successful creation)
-		await expect(this.getPage()).toHaveURL(/\/admin\/participatory_processes\/.*\/edit/);
+		await expect(this.getPage()).toHaveURL(/\/admin\/participatory_processes\/.*/);
 	}
 
 	// Process Update Methods

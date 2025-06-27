@@ -1,9 +1,9 @@
+import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { DebatesPage } from '@pages/pages/admin/processes/detail/debates/DebatesPage';
 import { NewDebatePage } from '@pages/pages/admin/processes/detail/debates/NewDebatePage';
 import { expect, test } from '@playwright/test';
 import { ProcessTestDataGenerator } from '../../../../fixtures/process-fixtures';
-import { ComponentsPage } from '../../../../pages/pages/admin/processes/detail/ComponentsPage';
-import { NewDebatesComponentPage } from '../../../../pages/pages/admin/processes/detail/NewDebatesComponentPage';
+import { ComponentsPage } from '../../../../pages/pages/admin/processes/detail/components/ComponentsPage';
 import { ProcessAdminPage } from '../../../../pages/pages/admin/processes/ProcessAdminPage';
 import { STORAGE_STATE } from '../../../../utils/constants';
 
@@ -20,13 +20,12 @@ import { STORAGE_STATE } from '../../../../utils/constants';
  * - The authorized user has permissions to create debates
  * - The debate component is available and configured properly on Process
  */
-test.describe('Create New Debate Topic', () => {
+test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 	// Use admin storage state for authentication
 	test.use({ storageState: STORAGE_STATE.ADMIN });
-
+	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let componentsPage: ComponentsPage;
-	let newDebatesComponentPage: NewDebatesComponentPage;
 	let debatesPage: DebatesPage;
 	let newDebatePage: NewDebatePage;
 	let validProcessData: any;
@@ -35,17 +34,6 @@ test.describe('Create New Debate Topic', () => {
 	const testProcessData = {
 		slug: 'test-process-create-debate',
 		title: 'Test Process for Creating Debates'
-	};
-
-	const debatesComponentData = {
-		name: 'Community Debates',
-		orderPosition: 1,
-		commentsEnabled: true,
-		commentsBlocked: false,
-		commentsMaxLength: 1000,
-		createDebatesPermission: 'all' as const,
-		globalAnnouncement: 'Welcome to our community debates section!',
-		stepAnnouncement: 'Phase 1: Initial discussions and idea sharing'
 	};
 
 	const newDebateData = {
@@ -62,11 +50,9 @@ test.describe('Create New Debate Topic', () => {
 
 	test.beforeEach(async ({ page }) => {
 		// Initialize Page Objects
-		await page.goto('/admin');
-		await page.waitForLoadState('networkidle');
+		adminHomePage = new AdminHomePage(page);
 		processAdminPage = new ProcessAdminPage(page);
 		componentsPage = new ComponentsPage(page);
-		newDebatesComponentPage = new NewDebatesComponentPage(page);
 		debatesPage = new DebatesPage(page);
 		newDebatePage = new NewDebatePage(page);
 
@@ -76,6 +62,9 @@ test.describe('Create New Debate Topic', () => {
 		// Override with specific data for consistency
 		validProcessData.general.urlSlug = testProcessData.slug;
 		validProcessData.general.title = testProcessData.title;
+
+		await adminHomePage.navigateToAdminHomePage();
+		await setupTestProcess();
 	});
 
 	/**
@@ -90,7 +79,6 @@ test.describe('Create New Debate Topic', () => {
 	test.describe('Main Flow - Successfully create new debate topic', () => {
 		test('should allow City Administrator to create a new debate topic for citizen discussions', async () => {
 			await test.step('1. User navigates to the "Processes" section', async () => {
-				// Navigate to processes section
 				await processAdminPage.navigateToProcesses();
 				await processAdminPage.getPage().waitForLoadState('networkidle');
 

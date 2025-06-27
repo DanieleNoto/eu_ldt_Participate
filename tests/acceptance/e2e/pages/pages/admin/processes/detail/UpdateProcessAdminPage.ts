@@ -112,6 +112,11 @@ export class UpdateProcessAdminPage extends BaseAdminPage {
 		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/moderations/);
 	}
 
+	async navigateToPrivateParticipants() {
+		await this.sidebarProcessDetail.navigateToPrivateParticipants();
+		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/participatory_space_private_users/);
+	}
+
 	// Page state validation
 	async waitForUpdateProcessPageLoad() {
 		await this.page.waitForSelector('form[data-remote="true"], form[action*="participatory_processes"]');
