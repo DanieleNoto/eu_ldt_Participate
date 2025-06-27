@@ -32,6 +32,10 @@ export class CloseDebatePage extends BaseAdminPage {
 		await this.closeDebateButton.click();
 	}
 
+	async isConclusionValidationVisible(): Promise<boolean> {
+		return this.page.locator('small.form-error').isVisible();
+	}
+
 	async expectToBeOnCloseDebatePage(): Promise<void> {
 		await expect(this.getPage()).toHaveURL(/\/debate_closes\//);
 		await expect(this.conclusionInput).toBeVisible();
