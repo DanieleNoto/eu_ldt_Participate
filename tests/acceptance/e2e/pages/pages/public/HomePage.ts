@@ -78,7 +78,7 @@ export class HomePage extends BasePage {
 	}
 
 	async goToHomePage() {
-		await this.navigateToHomePage();
+		await this.page.goto('/');
 	}
 
 	// Metodi per verificare la struttura della pagina
@@ -265,7 +265,6 @@ export class HomePage extends BasePage {
 		await this.layoutContainer.waitFor({ state: 'visible' });
 		await this.header.waitForHeaderToLoad();
 		await this.heroSection.waitForHeroToLoad();
-		await this.handleCookieBar();
 	}
 
 	async waitForPageToFullyLoadForAdmin() {
@@ -274,7 +273,6 @@ export class HomePage extends BasePage {
 		await this.header.waitForHeaderToLoad();
 		await this.adminHeader.waitForAdminBarToLoad();
 		await this.heroSection.waitForHeroToLoad();
-		await this.handleCookieBar();
 	}
 
 	// Metodi per la verifica della completezza della pagina

@@ -307,22 +307,35 @@ export class ProcessAdminPage extends BaseAdminPage {
 			console.log('Error filling URL slug field:', error);
 			throw error;
 		}
-
 		// Short description field
 		try {
 			const shortDescriptionSelector = await LocalizationUtils.getWorkingLocalizedSelector(
 				this.page,
 				'participatory_process_short_description'
 			);
-			await this.page.locator(shortDescriptionSelector).getByRole('textbox', { name: 'Add image' }).click();
-			await this.page
-				.locator(shortDescriptionSelector)
-				.getByRole('textbox', { name: 'Add image' })
-				.fill(processData.shortDescription);
+
+			// Target the ProseMirror editor content area within the editor container
+			const editorSelector = `${shortDescriptionSelector} .editor-container .ProseMirror`;
+			await this.page.locator(editorSelector).click();
+			await this.page.locator(editorSelector).fill(processData.shortDescription);
 			console.log('Short description field filled successfully');
 		} catch (error) {
 			console.log('Error filling short description field:', error);
-			// Not critical, continue
+			// Try fallback method
+			try {
+				const shortDescriptionSelector = await LocalizationUtils.getWorkingLocalizedSelector(
+					this.page,
+					'participatory_process_short_description'
+				);
+				await this.page.locator(shortDescriptionSelector).getByRole('textbox').click();
+				await this.page
+					.locator(shortDescriptionSelector)
+					.getByRole('textbox')
+					.fill(processData.shortDescription);
+				console.log('Short description field filled successfully (fallback)');
+			} catch (fallbackError) {
+				console.log('Both methods failed for short description field, continuing...', fallbackError);
+			}
 		}
 
 		// Hashtag field
@@ -334,39 +347,59 @@ export class ProcessAdminPage extends BaseAdminPage {
 			console.log('Error filling hashtag field:', error);
 			// Not critical, continue
 		}
-
 		// Description field
 		try {
 			const descriptionSelector = await LocalizationUtils.getWorkingLocalizedSelector(
 				this.page,
 				'participatory_process_description'
 			);
-			await this.page.locator(descriptionSelector).getByRole('textbox', { name: 'Add image' }).click();
-			await this.page
-				.locator(descriptionSelector)
-				.getByRole('textbox', { name: 'Add image' })
-				.fill(processData.description);
+
+			// Target the ProseMirror editor content area within the editor container
+			const editorSelector = `${descriptionSelector} .editor-container .ProseMirror`;
+			await this.page.locator(editorSelector).click();
+			await this.page.locator(editorSelector).fill(processData.description);
 			console.log('Description field filled successfully');
 		} catch (error) {
 			console.log('Error filling description field:', error);
-			// Not critical, continue
+			// Try fallback method
+			try {
+				const descriptionSelector = await LocalizationUtils.getWorkingLocalizedSelector(
+					this.page,
+					'participatory_process_description'
+				);
+				await this.page.locator(descriptionSelector).getByRole('textbox').click();
+				await this.page.locator(descriptionSelector).getByRole('textbox').fill(processData.description);
+				console.log('Description field filled successfully (fallback)');
+			} catch (fallbackError) {
+				console.log('Both methods failed for description field, continuing...', fallbackError);
+			}
 		}
-
 		// Announcement field
 		try {
 			const announcementSelector = await LocalizationUtils.getWorkingLocalizedSelector(
 				this.page,
 				'participatory_process_announcement'
 			);
-			await this.page.locator(announcementSelector).getByRole('textbox', { name: 'Add image' }).click();
-			await this.page
-				.locator(announcementSelector)
-				.getByRole('textbox', { name: 'Add image' })
-				.fill(processData.announcement);
+
+			// Target the ProseMirror editor content area within the editor container
+			const editorSelector = `${announcementSelector} .editor-container .ProseMirror`;
+			await this.page.locator(editorSelector).click();
+			await this.page.locator(editorSelector).fill(processData.announcement);
 			console.log('Announcement field filled successfully');
 		} catch (error) {
 			console.log('Error filling announcement field:', error);
-			// Not critical, continue
+			// Try fallback method
+			try {
+				const announcementSelector = await LocalizationUtils.getWorkingLocalizedSelector(
+					this.page,
+					'participatory_process_announcement'
+				);
+				await this.page.locator(announcementSelector).getByRole('textbox').click();
+				await this.page.locator(announcementSelector).getByRole('textbox').fill(processData.announcement);
+				console.log('Announcement field filled successfully (fallback)');
+			} catch (fallbackError) {
+				console.log('Both methods failed for announcement field, continuing...', fallbackError);
+			}
 		}
 	}
 
@@ -560,7 +593,6 @@ export class ProcessAdminPage extends BaseAdminPage {
 		// Verify navigation to process edit page (indicates successful creation)
 		await expect(this.getPage()).toHaveURL(/\/admin\/participatory_processes\/.*/);
 	}
-
 	async hasPrivateProcess(): Promise<boolean> {
 		const rows = await this.processTable.getRows();
 		for (const row of rows) {
@@ -570,6 +602,297 @@ export class ProcessAdminPage extends BaseAdminPage {
 			}
 		}
 		return false;
+	}
+
+	// Process Update Methods
+	async getFirstProcessName(): Promise<string> {
+		return await this.processTable.getFirstProcessName();
+	}
+
+	async selectProcessForEdit(processName: string): Promise<void> {
+		await this.editProcess(processName);
+	}
+	async waitForEditFormToLoad(): Promise<void> {
+		await this.page.waitForLoadState('networkidle');
+
+		// Wait for the edit form to be present using the exact form class from HTML
+		try {
+			await this.page.waitForSelector('form.edit_participatory_process', { state: 'visible', timeout: 30000 });
+		} catch (error) {
+			console.log("Edit form not found, checking if we're on the correct page");
+			console.log('Current URL:', this.page.url());
+			throw new Error('Process edit form not found. Current URL: ' + this.page.url());
+		}
+
+		// Wait for essential form fields to be present
+		await this.page.waitForSelector('input[name*="title"], input[id*="title"]', { timeout: 30000 });
+	}
+
+	async isOnProcessEditPage(): Promise<boolean> {
+		const currentUrl = this.page.url();
+		return currentUrl.includes('/admin/participatory_processes/') && currentUrl.includes('/edit');
+	}
+
+	async getCurrentTitleValue(): Promise<string> {
+		const titleField = await this.getTitleTextbox();
+		return await titleField.inputValue();
+	}
+
+	async getCurrentSubtitleValue(): Promise<string> {
+		const subtitleField = await this.getSubtitleTextbox();
+		return await subtitleField.inputValue();
+	}
+
+	async updateGeneralInfo(processData: ProcessGeneralInfo): Promise<void> {
+		console.log('Updating general info fields...');
+
+		// Update title field
+		if (processData.title) {
+			try {
+				const titleField = await this.getTitleTextbox();
+				await titleField.click();
+				await titleField.fill(processData.title);
+				console.log('Title field updated successfully');
+			} catch (error) {
+				console.log('Error updating title field:', error);
+				throw error;
+			}
+		}
+
+		// Update subtitle field
+		if (processData.subtitle) {
+			try {
+				const subtitleField = await this.getSubtitleTextbox();
+				await subtitleField.click();
+				await subtitleField.fill(processData.subtitle);
+				console.log('Subtitle field updated successfully');
+			} catch (error) {
+				console.log('Error updating subtitle field:', error);
+				throw error;
+			}
+		}
+
+		// Update order position field - handle gracefully
+		if (processData.orderPosition !== undefined && processData.orderPosition !== 0) {
+			try {
+				const orderPositionField = await this.getOrderPositionSpinbutton();
+				if (await orderPositionField.isVisible({ timeout: 5000 })) {
+					await orderPositionField.click();
+					await orderPositionField.fill(processData.orderPosition.toString());
+					console.log('Order position field updated successfully');
+				} else {
+					console.log('Order position field not visible, skipping...');
+				}
+			} catch (error) {
+				console.log('Order position field not found or not fillable, continuing...', error);
+			}
+		}
+
+		// Update URL slug field
+		if (processData.urlSlug) {
+			try {
+				await this.page.locator('#participatory_process_slug').click();
+				await this.page.locator('#participatory_process_slug').fill(processData.urlSlug);
+				console.log('URL slug field updated successfully');
+			} catch (error) {
+				console.log('Error updating URL slug field:', error);
+				throw error;
+			}
+		}
+
+		// Update hashtag field
+		if (processData.hashtag) {
+			try {
+				await this.page.getByRole('textbox', { name: 'Hashtag' }).fill(processData.hashtag);
+				console.log('Hashtag field updated successfully');
+			} catch (error) {
+				console.log('Error updating hashtag field:', error);
+				// Not critical, continue
+			}
+		}
+		// Update short description field using the proper editor structure
+		if (processData.shortDescription) {
+			try {
+				const shortDescriptionSelector = await LocalizationUtils.getWorkingLocalizedSelector(
+					this.page,
+					'participatory_process_short_description'
+				);
+
+				// Target the ProseMirror editor content area within the editor container
+				const editorSelector = `${shortDescriptionSelector} .editor-container .ProseMirror`;
+				await this.page.locator(editorSelector).click();
+				await this.page.locator(editorSelector).fill(processData.shortDescription);
+				console.log('Short description field updated successfully');
+			} catch (error) {
+				console.log('Error updating short description field:', error);
+				// Try fallback method with textbox role
+				try {
+					const shortDescriptionSelector = await LocalizationUtils.getWorkingLocalizedSelector(
+						this.page,
+						'participatory_process_short_description'
+					);
+					await this.page.locator(shortDescriptionSelector).getByRole('textbox').click();
+					await this.page
+						.locator(shortDescriptionSelector)
+						.getByRole('textbox')
+						.fill(processData.shortDescription);
+					console.log('Short description field updated successfully (fallback method)');
+				} catch (fallbackError) {
+					console.log('Both methods failed for short description field, continuing...', fallbackError);
+				}
+			}
+		}
+		// Update description field using the proper editor structure
+		if (processData.description) {
+			try {
+				const descriptionSelector = await LocalizationUtils.getWorkingLocalizedSelector(
+					this.page,
+					'participatory_process_description'
+				);
+
+				// Target the ProseMirror editor content area within the editor container
+				const editorSelector = `${descriptionSelector} .editor-container .ProseMirror`;
+				await this.page.locator(editorSelector).click();
+				await this.page.locator(editorSelector).fill(processData.description);
+				console.log('Description field updated successfully');
+			} catch (error) {
+				console.log('Error updating description field:', error);
+				// Try fallback method with textbox role
+				try {
+					const descriptionSelector = await LocalizationUtils.getWorkingLocalizedSelector(
+						this.page,
+						'participatory_process_description'
+					);
+					await this.page.locator(descriptionSelector).getByRole('textbox').click();
+					await this.page.locator(descriptionSelector).getByRole('textbox').fill(processData.description);
+					console.log('Description field updated successfully (fallback method)');
+				} catch (fallbackError) {
+					console.log('Both methods failed for description field, continuing...', fallbackError);
+				}
+			}
+		}
+		// Update announcement field using the proper editor structure
+		if (processData.announcement) {
+			try {
+				const announcementSelector = await LocalizationUtils.getWorkingLocalizedSelector(
+					this.page,
+					'participatory_process_announcement'
+				);
+
+				// Target the ProseMirror editor content area within the editor container
+				const editorSelector = `${announcementSelector} .editor-container .ProseMirror`;
+				await this.page.locator(editorSelector).click();
+				await this.page.locator(editorSelector).fill(processData.announcement);
+				console.log('Announcement field updated successfully');
+			} catch (error) {
+				console.log('Error updating announcement field:', error);
+				// Try fallback method with textbox role
+				try {
+					const announcementSelector = await LocalizationUtils.getWorkingLocalizedSelector(
+						this.page,
+						'participatory_process_announcement'
+					);
+					await this.page.locator(announcementSelector).getByRole('textbox').click();
+					await this.page.locator(announcementSelector).getByRole('textbox').fill(processData.announcement);
+					console.log('Announcement field updated successfully (fallback method)');
+				} catch (fallbackError) {
+					console.log('Both methods failed for announcement field, continuing...', fallbackError);
+				}
+			}
+		}
+	}
+
+	async updateDurationInfo(durationData: ProcessDurationInfo): Promise<void> {
+		if (durationData.startDate) {
+			await this.page.locator('#participatory_process_start_date_date').click();
+			await this.page.locator('#participatory_process_start_date_date').fill(durationData.startDate);
+		}
+
+		if (durationData.endDate) {
+			await this.page.locator('#participatory_process_end_date_date').click();
+			await this.page.locator('#participatory_process_end_date_date').fill(durationData.endDate);
+		}
+	}
+
+	async updateImage(imagePath: string = 'tests/acceptance/e2e/tests/processes/test-assets/test.jpg'): Promise<void> {
+		await this.page.getByRole('button', { name: 'Add image' }).click();
+		// Wait for the dialog to appear
+		const dialog = this.page.getByRole('dialog');
+		const fileInput = dialog.locator('input[type="file"][name="participatory_process[hero_image]"]');
+		await fileInput.setInputFiles(imagePath);
+		await this.page.getByRole('button', { name: 'Save' }).click();
+	}
+
+	async updateMetadataInfo(metadataData: ProcessMetadataInfo): Promise<void> {
+		if (metadataData.developerGroup) {
+			await this.page.getByRole('textbox', { name: 'developer_group' }).click();
+			await this.page.getByRole('textbox', { name: 'developer_group' }).fill(metadataData.developerGroup);
+		}
+
+		if (metadataData.localArea) {
+			await this.page.getByRole('textbox', { name: 'local_area' }).click();
+			await this.page.getByRole('textbox', { name: 'local_area' }).fill(metadataData.localArea);
+		}
+
+		if (metadataData.metaScope) {
+			await this.page.getByRole('textbox', { name: 'meta_scope' }).click();
+			await this.page.getByRole('textbox', { name: 'meta_scope' }).fill(metadataData.metaScope);
+		}
+
+		if (metadataData.target) {
+			await this.page.getByRole('textbox', { name: 'target' }).click();
+			await this.page.getByRole('textbox', { name: 'target' }).fill(metadataData.target);
+		}
+
+		if (metadataData.participatoryScope) {
+			await this.page.getByRole('textbox', { name: 'participatory_scope' }).click();
+			await this.page.getByRole('textbox', { name: 'participatory_scope' }).fill(metadataData.participatoryScope);
+		}
+
+		if (metadataData.participatoryStructure) {
+			await this.page.getByRole('textbox', { name: 'participatory_structure' }).click();
+			await this.page
+				.getByRole('textbox', { name: 'participatory_structure' })
+				.fill(metadataData.participatoryStructure);
+		}
+	}
+
+	async updateVisibilitySettings(visibility: 'public' | 'private'): Promise<void> {
+		if (visibility === 'public') {
+			await this.setVisibilityToPublic();
+		} else {
+			await this.setVisibilityToPrivate();
+		}
+	}
+	async saveProcessChanges(): Promise<void> {
+		// Target the Update button within the edit form more specifically
+		const updateButton = this.page
+			.locator('form.edit_participatory_process button[type="submit"]')
+			.getByText('Update');
+
+		// Try the specific form button first
+		try {
+			await updateButton.click();
+			console.log('Update button clicked successfully (form-specific)');
+		} catch (error) {
+			console.log('Form-specific update button not found, trying generic approach');
+			// Fallback to generic update button
+			const genericUpdateButton = this.page.getByRole('button', { name: 'Update' });
+			await genericUpdateButton.click();
+			console.log('Update button clicked successfully (generic)');
+		}
+	}
+	async expectUpdateSuccessMessage(): Promise<void> {
+		// Wait for and verify the exact update success message from the HTML
+		await expect(
+			this.page.locator('.flash.success').getByText('Participatory process successfully updated.')
+		).toBeVisible({ timeout: 10000 });
+	}
+
+	async updateProcessTitle(title: string): Promise<void> {
+		const titleField = await this.getTitleTextbox();
+		await titleField.click();
+		await titleField.fill(title);
 	}
 }
 
