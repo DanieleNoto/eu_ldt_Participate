@@ -548,7 +548,8 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.navigateToProcesses();
 		await this.waitForLoadState('networkidle');
 		await this.page.waitForTimeout(1000); // Ensure the page is fully loaded
-		if (!isPrivateProcess) {
+		const hasPrivateProcess = await this.hasPrivateProcess();
+		if (!isPrivateProcess || (isPrivateProcess && hasPrivateProcess)) {
 			const isTableVisible = await this.processTable.isTableVisible();
 			expect(isTableVisible).toBe(true);
 			const isTableEmpty = await this.isTableEmpty();
@@ -591,6 +592,16 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 		// Verify navigation to process edit page (indicates successful creation)
 		await expect(this.getPage()).toHaveURL(/\/admin\/participatory_processes\/.*/);
+	}
+	async hasPrivateProcess(): Promise<boolean> {
+		const rows = await this.processTable.getRows();
+		for (const row of rows) {
+			const visibility = await this.processTable.getVisibility(row);
+			if (visibility === 'Private') {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	// Process Update Methods
