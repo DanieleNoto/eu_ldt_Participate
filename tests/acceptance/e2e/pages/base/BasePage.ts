@@ -91,8 +91,8 @@ export abstract class BasePage {
 	/**
 	 * Naviga a una URL e gestisce automaticamente la cookie bar
 	 */
-	async navigateToAndHandleCookies(url: string, acceptType: 'all' | 'essential' = 'all'): Promise<void> {
-		await this.navigateTo(url);
+	async navigateToAndHandleCookies(acceptType: 'all' | 'essential' = 'all'): Promise<void> {
+		await this.navigateTo('/');
 		await this.waitForLoadState();
 		await this.handleCookieBar(acceptType);
 	}
