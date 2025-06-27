@@ -1,3 +1,4 @@
+import { FooterComponent } from '@pages/components/common/FooterComponent';
 import { AdminHeaderComponent } from '../components/admin/AdminHeaderComponent';
 import { BasePage } from './BasePage';
 
@@ -7,10 +8,12 @@ import { BasePage } from './BasePage';
  */
 export abstract class AuthenticatedPage extends BasePage {
 	protected adminHeader: AdminHeaderComponent;
+	public footer: FooterComponent;
 
 	constructor(page: any) {
 		super(page);
 		this.adminHeader = new AdminHeaderComponent(page);
+		this.footer = new FooterComponent(page);
 	}
 
 	/**

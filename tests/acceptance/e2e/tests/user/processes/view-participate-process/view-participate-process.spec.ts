@@ -1,0 +1,84 @@
+import { HomePage } from '@pages/pages/public/HomePage';
+import { DebatesOverviewPage } from '@pages/pages/public/processes/DebatesOverviewPage';
+import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
+import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
+import { DebateDetailPage } from '@pages/pages/user/processes/DebateDetailPage';
+import test, { expect } from '@playwright/test';
+import { STORAGE_STATE } from '@utils/constants';
+
+/**
+ * Test suite for citizens to view the details of a specific process and participate by reviewing, commenting, and providing feedback.
+ *
+ * User Story: As a Citizen, I want to view and engage with the details of a specific process so that I can provide my feedback and contribute to its development.
+ *
+ * Requirements: PAR R8, PAR R6
+ *
+ * Prerequisites:
+ * - The citizen has an active account on the platform and is logged in (optional for public processes).
+ * - The process is published and accessible to citizens.
+ */
+test.describe('[PAR-CP002] – View and participate in a specific process', () => {
+	test.use({ storageState: STORAGE_STATE.USER });
+	let processesOverviewPage: ProcessesOverviewPage;
+	let processDetailPage: ProcessDetailPage;
+	let debatesOverviewPage: DebatesOverviewPage;
+	let debateDetailPage: DebateDetailPage;
+	let homePage: HomePage;
+
+	test.beforeEach(async ({ page }) => {
+		homePage = new HomePage(page);
+		processesOverviewPage = new ProcessesOverviewPage(page);
+		processDetailPage = new ProcessDetailPage(page);
+		debatesOverviewPage = new DebatesOverviewPage(page);
+		debateDetailPage = new DebateDetailPage(page);
+
+		await homePage.navigateToHomePage();
+	});
+
+	test.describe('Main Flow', () => {
+		test('should allows citizens to view and participate in a specific process', async () => {
+			await test.step('1. User: navigates to the "Processes" section', async () => {
+				// Navigate to processes section
+				await homePage.goToProcessesFromHomeMenu();
+				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+
+				// Verifica che siamo nella pagina dei processi
+				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
+
+				// Seleziona il primo processo disponibile
+				await processesOverviewPage.navigateToProcessByIndex(0);
+			});
+
+			await test.step('2. System: Displays the details of the selected process, including the title, description, phases, key objectives.', async () => {
+				// Verifica che siamo nella pagina di dettaglio del processo
+				await processDetailPage.expectToBeOnProcessDetailPage();
+
+				// Ottiene e verifica il titolo del processo
+				const processTitle = await processDetailPage.getProcessTitle();
+				console.log('Titolo del processo:', processTitle);
+				expect(processTitle).not.toBe('');
+
+				// Verifica che la pagina mostri informazioni sul processo
+				const isPageLoaded = await processDetailPage.isPageLayoutLoaded();
+				expect(isPageLoaded).toBe(true);
+
+				// Ottiene e mostra i componenti disponibili
+				const components = await processDetailPage.getAvailableComponents();
+				console.log('Componenti disponibili:', components);
+				expect(components.length).toBeGreaterThan(0);
+			});
+
+			await test.step('3. User: Scrolls through the process details to understand the context and purpose of the process.', async () => {
+				await processDetailPage.footer.scrollToFooter();
+			});
+
+			await test.step('4. System: Provides options for interaction, such as adding comments, joining debates, or responding to surveys linked to the process.', async () => {
+				await processDetailPage.expectParticipatoryContainerToBeVisible();
+			});
+
+			await test.step('Result.', async () => {
+				await processDetailPage.expectToBeOnProcessDetailPage();
+			});
+		});
+	});
+});
