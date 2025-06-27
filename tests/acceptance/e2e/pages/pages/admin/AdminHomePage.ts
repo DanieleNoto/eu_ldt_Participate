@@ -64,7 +64,7 @@ export class AdminHomePage extends BaseAdminPage {
 	}
 
 	// Metodi di navigazione alla dashboard
-	async navigateToAdminHomePage(locale: string = 'it'): Promise<void> {
+	async navigateToAdminHomePage(locale: string = 'en'): Promise<void> {
 		await this.navigateTo(`/admin/?locale=${locale}`);
 	}
 

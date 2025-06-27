@@ -463,6 +463,10 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await expect(this.page.locator('div.slug span.form-error')).toBeVisible();
 	}
 
+	async expectToBeOnProcessesAdminPage() {
+		await expect(this.page).toHaveURL(/\/admin\/participatory_processes/);
+	}
+
 	// Complete workflow methods
 	async createNewProcess(processData: CompleteProcessData) {
 		await this.navigateToNewProcess();
