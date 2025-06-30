@@ -60,7 +60,7 @@ export class HeaderComponent {
 	}
 
 	private get loginLink() {
-		return this.page.locator('.main-bar__links-desktop__item[aria-label="Accedi"]');
+		return this.page.locator('.main-bar__links-desktop__item[aria-label="Log in"]');
 	}
 
 	// Selettori per l'utente loggato (desktop)

@@ -6,7 +6,7 @@ organization_name = ENV["SYSTEM_ORG_NAME"] || "EU LDT Participate Tool"
 organization_host = ENV["SYSTEM_ORG_HOST"] || "localhost"
 organization_reference_prefix = ENV["SYSTEM_ORG_PREFIX"] || "EU-LDT"
 
-user_email = ENV["DEFAULT_USER_EMAIL"] || "user@example.com"
+user_email = ENV["DEFAULT_USER_EMAIL"] || "user@user.com"
 user_to_delete_email = ENV["DEFAULT_USER_TO_DELETE_EMAIL"] || "user-to-delete@example.com"
 user_password = ENV["DEFAULT_USER_PASSWORD"] || "decidim123456789"
 

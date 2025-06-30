@@ -65,6 +65,10 @@ export class LoginPage extends BasePage {
 		await this.login(TEST_USERS.NORMAL_USER.email, TEST_USERS.NORMAL_USER.password);
 	}
 
+	async loginAsUserToDelete() {
+		await this.login(TEST_USERS.USER_TO_DELETE.email, TEST_USERS.USER_TO_DELETE.password);
+	}
+
 	// Validation methods
 	async expectLoginSuccess() {
 		await expect(this.page).toHaveURL(/\/(?!users\/sign_in)/);
