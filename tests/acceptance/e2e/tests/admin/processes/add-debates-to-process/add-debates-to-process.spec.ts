@@ -1,6 +1,5 @@
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { expect, test } from '@playwright/test';
-import { ProcessTestDataGenerator } from '../../../../fixtures/process-fixtures';
 import { ComponentsPage } from '../../../../pages/pages/admin/processes/detail/components/ComponentsPage';
 import { NewDebatesComponentPage } from '../../../../pages/pages/admin/processes/detail/components/NewDebatesComponentPage';
 import { ProcessAdminPage } from '../../../../pages/pages/admin/processes/ProcessAdminPage';
@@ -26,7 +25,6 @@ test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 	let processAdminPage: ProcessAdminPage;
 	let componentsPage: ComponentsPage;
 	let newDebatesComponentPage: NewDebatesComponentPage;
-	let validProcessData: any;
 
 	const debatesComponentData = {
 		name: 'Community Debates',
@@ -46,21 +44,8 @@ test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 		componentsPage = new ComponentsPage(page);
 		newDebatesComponentPage = new NewDebatesComponentPage(page);
 
-		// Generate valid test data
-		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
-
 		await adminHomePage.navigateToAdminHomePage();
-		await setupTestProcess();
 	});
-
-	/**
-	 * Setup test environment by ensuring a test process exists
-	 */
-	async function setupTestProcess() {
-		await test.step('Setup: Create/verify test process exists', async () => {
-			await processAdminPage.createTestProcess(validProcessData);
-		});
-	}
 
 	test.describe('Main Flow - Successfully add debates component to process', () => {
 		test('should allow City Administrator to add a debate component to a specific process', async () => {
@@ -208,9 +193,6 @@ test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 
 	test.describe('Alternative Flow - Cancel operation', () => {
 		test('should allow user to cancel adding a debate component', async () => {
-			// Setup test environment
-			await setupTestProcess();
-
 			await test.step('Navigate to add debates component form', async () => {
 				await processAdminPage.navigateToProcesses();
 				await processAdminPage.editFirstProcess();
@@ -241,9 +223,6 @@ test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 
 	test.describe('Alternative Flow - Field validation fail', () => {
 		test('should handle validation errors when required fields are missing', async () => {
-			// Setup test environment
-			await setupTestProcess();
-
 			await test.step('Navigate to add debates component form', async () => {
 				await processAdminPage.navigateToProcesses();
 				await processAdminPage.editFirstProcess();

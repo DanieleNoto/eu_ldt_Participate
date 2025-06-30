@@ -137,12 +137,10 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 
 	// Step announcement methods using LocalizationUtils (English-only)
 	async fillStepAnnouncement(content: string): Promise<void> {
-		const selector = await LocalizationUtils.getWorkingLocalizedSelector(
-			this.getPage(),
-			'component_step_settings_9_announcement'
-		);
-		const editorLocator = this.getPage().locator(`${selector} .tiptap`);
-
+		const editorLocator = this.page
+			.getByRole('group', { name: 'Information and Preparation' })
+			.getByLabel('Announcement');
+		await editorLocator.scrollIntoViewIfNeeded();
 		// Wait for the rich text editor to be ready
 		await editorLocator.waitFor({ state: 'visible' });
 		await editorLocator.fill(content);
@@ -175,19 +173,23 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	}
 
 	async blockComments(): Promise<void> {
-		(await this.commentsBlockedToggle.all()).forEach(async checkbox => {
+		const checkboxes = await this.commentsBlockedToggle.all();
+		for (const checkbox of checkboxes) {
 			if (!(await checkbox.isChecked())) {
 				await checkbox.check();
+				await this.page.waitForTimeout(50);
 			}
-		});
+		}
 	}
 
 	async unblockComments(): Promise<void> {
-		(await this.commentsBlockedToggle.all()).forEach(async checkbox => {
+		const checkboxes = await this.commentsBlockedToggle.all();
+		for (const checkbox of checkboxes) {
 			if (await checkbox.isChecked()) {
 				await checkbox.uncheck();
+				await this.page.waitForTimeout(50);
 			}
-		});
+		}
 	}
 
 	async areCommentsBlocked(): Promise<boolean> {
@@ -206,7 +208,13 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 
 	// Permissions methods
 	async setCreateDebatesPermission(): Promise<void> {
-		(await this.createDebatesPermissionSelect.all()).forEach(async select => await select.check());
+		const checkboxes = await this.createDebatesPermissionSelect.all();
+		for (const checkbox of checkboxes) {
+			if (!(await checkbox.isChecked())) {
+				await checkbox.check();
+				await this.page.waitForTimeout(100); // Small delay between operations
+			}
+		}
 	}
 
 	async getCreateDebatesPermission(): Promise<string> {
@@ -219,7 +227,18 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 
 	// Form submission methods
 	async submitForm(): Promise<void> {
+		// Wait for any pending operations to complete
+		await this.page.waitForTimeout(200);
+		
+		// Ensure the submit button is ready
+		await expect(this.submitButton).toBeEnabled();
+		await expect(this.submitButton).toBeVisible();
+		
+		// Submit the form and wait for navigation
 		await this.submitButton.click();
+		
+		// Wait for navigation to complete
+		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components/, { timeout: 10000 });
 		await this.waitForLoadState('networkidle');
 	}
 
@@ -314,13 +333,14 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	}
 
 	async expectCommentsBlocked(blocked: boolean): Promise<void> {
-		(await this.commentsBlockedToggle.all()).forEach(async checkbox => {
+		const checkboxes = await this.commentsBlockedToggle.all();
+		for (const checkbox of checkboxes) {
 			if (blocked) {
 				await expect(checkbox).toBeChecked();
 			} else {
 				await expect(checkbox).not.toBeChecked();
 			}
-		});
+		}
 	}
 
 	async expectCommentsMaxLength(expectedLength: number): Promise<void> {
@@ -328,13 +348,14 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	}
 
 	async expectCreateDebatesPermission(expectedPermission: boolean): Promise<void> {
-		(await this.createDebatesPermissionSelect.all()).forEach(async checkbox => {
+		const checkboxes = await this.createDebatesPermissionSelect.all();
+		for (const checkbox of checkboxes) {
 			if (expectedPermission) {
 				await expect(checkbox).toBeChecked();
 			} else {
 				await expect(checkbox).not.toBeChecked();
 			}
-		});
+		}
 	}
 
 	async expectSubmitButtonToBeEnabled(): Promise<void> {
