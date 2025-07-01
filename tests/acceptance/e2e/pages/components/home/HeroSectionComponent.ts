@@ -5,7 +5,7 @@ export class HeroSectionComponent {
 
 	// Selettori per la sezione hero
 	private get heroSection() {
-		return this.page.locator('#hero-2.hero__container');
+		return this.page.locator('.hero__container');
 	}
 
 	private get heroTitle() {
