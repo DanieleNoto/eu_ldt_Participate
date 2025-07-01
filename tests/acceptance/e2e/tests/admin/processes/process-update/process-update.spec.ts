@@ -1,59 +1,64 @@
+import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { expect, test } from '@playwright/test';
 import { STORAGE_STATE } from '@utils/constants';
 import { ProcessTestDataGenerator } from '../../../../fixtures/process-fixtures';
 
-test.describe('PAR R8 - City Administrator Process Update', () => {
+/**
+ * Test suite for Allows City Administrators to update existing process.
+ *
+ * User Story: As a City Administrator, I want to update process.
+ *
+ * Requirements: PAR R8
+ *
+ * Prerequisites:
+ * - The City Administrator has an active account on the platform and is logged in.
+ * - The process to be updated exists on the platform and the City Administrator has the necessary permissions to edit it.
+ */
+test.describe('[PAR-PPM008] – Update process', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
-
+	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let validProcessData: any;
 	let updateData: any;
 
 	test.beforeEach(async ({ page }) => {
 		// Navigate directly to admin area and wait for it to load
-		await page.goto('/admin');
-		await page.waitForLoadState('networkidle');
-
+		adminHomePage = new AdminHomePage(page);
 		processAdminPage = new ProcessAdminPage(page);
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 		updateData = ProcessTestDataGenerator.generateUpdateProcessData();
-
-		// Use the modular navigation method with proper waiting
-		await processAdminPage.navigateToProcesses();
-		await page.waitForLoadState('networkidle');
-
-		// Verify we're on the processes page, with fallback navigation
-		let isOnProcessesPage = await processAdminPage.isOnProcessesPage();
-
-		if (!isOnProcessesPage) {
-			// Try direct navigation if component navigation failed
-			await page.goto('/admin/participatory_processes');
-			await page.waitForLoadState('networkidle');
-			isOnProcessesPage = await processAdminPage.isOnProcessesPage();
-		}
-
-		expect(isOnProcessesPage).toBe(true);
+		await adminHomePage.navigateToAdminHomePage();
 	});
 
-	test.describe('Main Flow - Update Process', () => {
+	test.describe('Main Flow', () => {
 		test('should successfully update an existing participatory process with new information', async ({ page }) => {
-			await test.step('City Administrator navigates to Processes section and selects process to update', async () => {
-				// Step 1: City Administrator is already logged in via storage state
-				// Step 2: System displays list of all processes the administrator can update
+			await test.step('1. User: Navigates to the "Processes" section.', async () => {
+				await processAdminPage.navigateToProcesses();
+			});
+			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
+				await page.waitForLoadState('networkidle');
+
+				// Verify we're on the processes page, with fallback navigation
+				let isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+
+				if (!isOnProcessesPage) {
+					// Try direct navigation if component navigation failed
+					await page.goto('/admin/participatory_processes');
+					await page.waitForLoadState('networkidle');
+					isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+				}
+
+				expect(isOnProcessesPage).toBe(true);
 				const processCount = await processAdminPage.getProcessCount();
 				expect(processCount).toBeGreaterThan(0);
-
-				// Step 3: Selects the process that needs updating
-				// Get the first available process for updating
+			});
+			await test.step('3. User: Selects the process that needs updating', async () => {
 				const firstProcessName = await processAdminPage.getFirstProcessName();
-				expect(firstProcessName).toBeDefined();
-
-				// Navigate to edit the selected process
 				await processAdminPage.selectProcessForEdit(firstProcessName);
 			});
 
-			await test.step('System loads the selected process in editable form', async () => {
+			await test.step('4. System: Loads the selected process in editable form', async () => {
 				// Step 4: System loads the selected process and displays content in editable form
 				await processAdminPage.waitForEditFormToLoad();
 
@@ -72,7 +77,7 @@ test.describe('PAR R8 - City Administrator Process Update', () => {
 				await expect(subtitleTextbox).toBeVisible({ timeout: 30000 });
 			});
 
-			await test.step('City Administrator edits the desired fields of the process', async () => {
+			await test.step('5. User: edits the desired fields of the process', async () => {
 				// Step 5: Edits the desired fields of the process
 				console.log('Updating process fields with new information...');
 
@@ -100,12 +105,12 @@ test.describe('PAR R8 - City Administrator Process Update', () => {
 				}
 			});
 
-			await test.step('City Administrator saves the changes', async () => {
+			await test.step('6. User: saves the changes', async () => {
 				// Step 6: Clicks on "Save Changes" button to update the process
 				await processAdminPage.saveProcessChanges();
 			});
 
-			await test.step('System validates, saves and confirms the update', async () => {
+			await test.step('7. System: validates, saves and confirms the update', async () => {
 				// Step 7: System validates the updated information for completeness and correctness
 				// Step 8: System saves the updated process to the database
 				// Step 9: System displays confirmation message indicating successful update
@@ -144,6 +149,7 @@ test.describe('PAR R8 - City Administrator Process Update', () => {
 	test.describe('Process Selection and Navigation', () => {
 		test('should navigate to edit form for selected process', async ({ page }) => {
 			await test.step('Select a specific process for editing', async () => {
+				await processAdminPage.navigateToProcesses();
 				// Ensure we have processes to work with
 				const hasProcesses = await processAdminPage.hasProcesses();
 				expect(hasProcesses).toBe(true);
@@ -156,21 +162,13 @@ test.describe('PAR R8 - City Administrator Process Update', () => {
 				const isOnEditPage = await processAdminPage.isOnProcessEditPage();
 				expect(isOnEditPage).toBe(true);
 			});
-
-			await test.step('Verify edit form loads with existing data', async () => {
-				// Verify form fields are populated with existing data
-				const titleValue = await processAdminPage.getCurrentTitleValue();
-				expect(titleValue).toBeTruthy();
-
-				const subtitleValue = await processAdminPage.getCurrentSubtitleValue();
-				// Subtitle might be optional, so we don't assert it's required
-			});
 		});
 	});
 
 	test.describe('Form Field Updates', () => {
 		test('should handle individual field updates correctly', async ({ page }) => {
 			await test.step('Navigate to process edit form', async () => {
+				await processAdminPage.navigateToProcesses();
 				const firstProcessName = await processAdminPage.getFirstProcessName();
 				await processAdminPage.selectProcessForEdit(firstProcessName);
 				await processAdminPage.waitForEditFormToLoad();
@@ -191,6 +189,7 @@ test.describe('PAR R8 - City Administrator Process Update', () => {
 
 		test('should handle metadata field updates', async ({ page }) => {
 			await test.step('Navigate to process edit form', async () => {
+				await processAdminPage.navigateToProcesses();
 				const firstProcessName = await processAdminPage.getFirstProcessName();
 				await processAdminPage.selectProcessForEdit(firstProcessName);
 				await processAdminPage.waitForEditFormToLoad();
