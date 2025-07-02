@@ -5,6 +5,11 @@ import { AdminProcessFiltersComponent } from '../../../components/admin/process/
 import { AdminProcessTableComponent } from '../../../components/admin/process/AdminProcessTableComponent';
 import { AdminProcessTabNavigationComponent } from '../../../components/admin/process/AdminProcessTabNavigationComponent';
 import { BaseAdminPage } from '../BaseAdminPage';
+import { NewAdminPage } from './detail/admins/NewAdminPage';
+import { ParticipatoryProcessAdminsPage } from './detail/admins/ParticipatoryProcessAdminsPage';
+import { NewPrivateParticipantFormPage } from './detail/private-participants/NewParticipantsPage';
+import { PrivateParticipantsPage } from './detail/private-participants/PrivateParticipantsPage';
+import { UpdateProcessAdminPage } from './detail/UpdateProcessAdminPage';
 
 /**
  * Page Object Model for the Decidim admin participatory processes page.
@@ -554,6 +559,8 @@ export class ProcessAdminPage extends BaseAdminPage {
 			expect(isTableVisible).toBe(true);
 			const isTableEmpty = await this.isTableEmpty();
 			if (isTableVisible && !isTableEmpty) {
+				await this.createPrivateParticipants();
+				await this.createPrivateAdmins();
 				return; // Skip creation if table is not empty
 			}
 		}
@@ -592,6 +599,10 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 		// Verify navigation to process edit page (indicates successful creation)
 		await expect(this.getPage()).toHaveURL(/\/admin\/participatory_processes\/.*/);
+		if (isPrivateProcess) {
+			await this.createPrivateParticipants();
+			await this.createPrivateAdmins();
+		}
 	}
 	async hasPrivateProcess(): Promise<boolean> {
 		const rows = await this.processTable.getRows();
@@ -602,6 +613,36 @@ export class ProcessAdminPage extends BaseAdminPage {
 			}
 		}
 		return false;
+	}
+
+	async createPrivateParticipants() {
+		await this.processTable.clickFirstPrivateProcess();
+		await this.getPage().waitForLoadState('networkidle');
+		const updateProcessAdminPage = new UpdateProcessAdminPage(this.page);
+		await updateProcessAdminPage.navigateToPrivateParticipants();
+		const privateParticipantsPage = new PrivateParticipantsPage(this.page);
+		await privateParticipantsPage.clickNewPrivateUser();
+		const newPrivateParticipantFormPage = new NewPrivateParticipantFormPage(this.page);
+		await newPrivateParticipantFormPage.fillName('Test User');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User', 'test-privateuser@example.com');
+		await this.navigateToProcesses();
+	}
+	async createPrivateAdmins() {
+		await this.processTable.clickFirstPrivateProcess();
+		await this.getPage().waitForLoadState('networkidle');
+		const updateProcessAdminPage = new UpdateProcessAdminPage(this.page);
+		await updateProcessAdminPage.navigateToProcessAdmins();
+		const processAdminsPage = new ParticipatoryProcessAdminsPage(this.page);
+		await processAdminsPage.clickNewAdminButton();
+		const newAdminPage = new NewAdminPage(this.page);
+		await newAdminPage.fillName('Test Admin');
+		await newAdminPage.fillEmail('test-privateadmin@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin', 'test-privateadmin@example.com');
+		await this.navigateToProcesses();
 	}
 
 	// Process Update Methods
