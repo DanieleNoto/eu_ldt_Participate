@@ -1,7 +1,6 @@
 import { ConfirmDeleteModalComponent } from '@pages/components/common/ConfirmDeleteModalComponent';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { AttachmentsProcessPage } from '@pages/pages/admin/processes/detail/attachments/AttachmentsProcessPage';
-import { NewAttachmentProcessPage } from '@pages/pages/admin/processes/detail/attachments/NewAttachmentProcessPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import test, { expect } from '@playwright/test';
@@ -25,7 +24,6 @@ test.describe('[PAR-PPA003] – Delete an existing attachment', () => {
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
 	let attachmentsProcessPage: AttachmentsProcessPage;
-	let newAttachmentProcessPage: NewAttachmentProcessPage;
 	let confirmDeleteModalComponent: ConfirmDeleteModalComponent;
 
 	test.beforeEach(async ({ page }) => {
@@ -33,7 +31,6 @@ test.describe('[PAR-PPA003] – Delete an existing attachment', () => {
 		processAdminPage = new ProcessAdminPage(page);
 		updateProcessAdminPage = new UpdateProcessAdminPage(page);
 		attachmentsProcessPage = new AttachmentsProcessPage(page);
-		newAttachmentProcessPage = new NewAttachmentProcessPage(page);
 		confirmDeleteModalComponent = new ConfirmDeleteModalComponent(page);
 		await adminHomePage.navigateToAdminHomePage();
 	});
@@ -45,7 +42,6 @@ test.describe('[PAR-PPA003] – Delete an existing attachment', () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
 				await processAdminPage.waitForLoadState('networkidle');
-				await process;
 			});
 			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
 				await processAdminPage.expectToBeOnProcessesAdminPage();
@@ -93,7 +89,7 @@ test.describe('[PAR-PPA003] – Delete an existing attachment', () => {
 	});
 
 	test.describe('Alternative Flow', () => {
-		test('should can abort the delete process', async () => {
+		test('should can abort the delete attachments', async () => {
 			let countPreviousDelete = 0;
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section

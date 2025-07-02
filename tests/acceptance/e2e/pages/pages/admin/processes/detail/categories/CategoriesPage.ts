@@ -22,6 +22,9 @@ export class CategoriesPage extends BaseAdminPage {
 	async createNewCategory(): Promise<void> {
 		await this.newButton.click();
 	}
+	async getCategoryCount(): Promise<number | PromiseLike<number>> {
+		return await this.tableRows.count();
+	}
 
 	/**
 	 * Get category title by row index
@@ -58,6 +61,23 @@ export class CategoriesPage extends BaseAdminPage {
 		const row = this.tableRows.nth(index);
 		const deleteButton = row.locator('.action-icon--remove');
 		await deleteButton.click();
+	}
+
+	/**
+	 * Clicks the delete button for the first row where delete is enabled
+	 */
+	async clickFirstEnabledDeleteButton(): Promise<void> {
+		const count = await this.tableRows.count();
+		for (let i = 0; i < count; i++) {
+			const row = this.tableRows.nth(i);
+			// Il delete abilitato è un <a> con .action-icon--remove, quello disabilitato è solo <svg> con .action-icon--disabled
+			const deleteButton = row.locator('a.action-icon--remove');
+			if ((await deleteButton.count()) > 0 && (await deleteButton.first().isVisible())) {
+				await deleteButton.first().click();
+				return;
+			}
+		}
+		throw new Error('No enabled delete button found in any row');
 	}
 
 	/**
