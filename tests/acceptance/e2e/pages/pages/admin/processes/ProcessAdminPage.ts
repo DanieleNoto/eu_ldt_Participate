@@ -444,15 +444,15 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 	// Visibility settings
 	async setVisibilityToPublic() {
-		const publicVisibilityRadio = this.page.getByRole('radio', { name: 'Public' });
-		if (await publicVisibilityRadio.isVisible()) {
+		const publicVisibilityRadio = this.page.getByText('Private process');
+		if ((await publicVisibilityRadio.isVisible()) && (await publicVisibilityRadio.isChecked())) {
 			await publicVisibilityRadio.click();
 		}
 	}
 
 	async setVisibilityToPrivate() {
-		const privateVisibilityRadio = this.page.getByRole('radio', { name: 'Private' });
-		if (await privateVisibilityRadio.isVisible()) {
+		const privateVisibilityRadio = this.page.getByText('Private process');
+		if ((await privateVisibilityRadio.isVisible()) && !(await privateVisibilityRadio.isChecked())) {
 			await privateVisibilityRadio.click();
 		}
 	}

@@ -137,9 +137,7 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 
 	// Step announcement methods using LocalizationUtils (English-only)
 	async fillStepAnnouncement(content: string): Promise<void> {
-		const editorLocator = this.page
-			.getByRole('group', { name: 'Information and Preparation' })
-			.getByLabel('Announcement');
+		const editorLocator = this.page.locator('#panel-step_settings').getByLabel('Announcement');
 		await editorLocator.scrollIntoViewIfNeeded();
 		// Wait for the rich text editor to be ready
 		await editorLocator.waitFor({ state: 'visible' });
@@ -229,14 +227,14 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	async submitForm(): Promise<void> {
 		// Wait for any pending operations to complete
 		await this.page.waitForTimeout(200);
-		
+
 		// Ensure the submit button is ready
 		await expect(this.submitButton).toBeEnabled();
 		await expect(this.submitButton).toBeVisible();
-		
+
 		// Submit the form and wait for navigation
 		await this.submitButton.click();
-		
+
 		// Wait for navigation to complete
 		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components/, { timeout: 10000 });
 		await this.waitForLoadState('networkidle');
