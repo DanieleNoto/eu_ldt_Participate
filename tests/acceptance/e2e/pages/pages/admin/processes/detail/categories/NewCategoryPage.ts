@@ -16,6 +16,11 @@ export class NewCategoryPage extends BaseAdminPage {
 		await expect(this.page.getByRole('heading', { name: 'New category' })).toBeVisible();
 	}
 
+	async expectToBeOnEditCategoryPage(): Promise<void> {
+		await expect(this.page).toHaveURL(/\/admin\/participatory_processes\/.+\/categories\/.+\/edit/);
+		await expect(this.page.getByRole('heading', { name: 'Edit category' })).toBeVisible();
+	}
+
 	// Interazioni campi
 	async fillName(name: string): Promise<void> {
 		await this.page.fill('#category_name_en', name);
