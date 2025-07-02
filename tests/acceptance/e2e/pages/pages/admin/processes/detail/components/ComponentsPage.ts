@@ -241,6 +241,13 @@ export class ComponentsPage extends BaseAdminPage {
 		await this.page.waitForLoadState('networkidle');
 	}
 
+	async configureFirstComponent() {
+		const row = this.getComponentRowByIndex(0);
+		const configureLink = row.locator('a.action-icon--configure').first();
+		await configureLink.click();
+		await this.page.waitForLoadState('networkidle');
+	}
+
 	async unpublishComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
 		const unpublishLink = row.locator('a.action-icon--unpublish');
@@ -389,18 +396,5 @@ export class ComponentsPage extends BaseAdminPage {
 		} else {
 			await expect(this.page).toHaveURL(/\/admin\/participatory_processes\/.*\/components\/new/);
 		}
-	}
-
-	// Debug methods
-	async debugComponentsState() {
-		console.log('=== Components Page Debug State ===');
-		console.log('URL:', this.page.url());
-		console.log('Page title:', await this.getPageTitle());
-		console.log('Components count:', await this.getComponentsCount());
-		console.log('Table headers:', await this.getTableHeaders());
-		console.log('Component names:', await this.getComponentNames());
-		console.log('Component types:', await this.getComponentTypes());
-		console.log('Add dropdown visible:', await this.isAddComponentDropdownVisible());
-		console.log('===================================');
 	}
 }
