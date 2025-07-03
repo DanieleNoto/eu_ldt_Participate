@@ -1,14 +1,14 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component per la barra del titolo dell'area admin.
- * Gestisce il nome dell'organizzazione, il pulsante "See site",
- * il dropdown delle lingue e il menu utente.
+ * Component for the admin area title bar.
+ * Manages the organization name, the "See site" button,
+ * the language dropdown, and the user menu.
  */
 export class AdminTitleBarComponent {
 	constructor(private page: Page) {}
 
-	// Selettori principali
+	// Main selectors
 	private get titleBar() {
 		return this.page.locator('.title-bar').first();
 	}
@@ -25,12 +25,12 @@ export class AdminTitleBarComponent {
 		return this.page.locator('.tool-bar');
 	}
 
-	// Selettori per il pulsante "See site"
+	// Selectors for the "See site" button
 	private get seeSiteButton() {
 		return this.page.locator('.button__site');
 	}
 
-	// Selettori per il dropdown delle lingue
+	// Selectors for the language dropdown
 	private get languageDropdown() {
 		return this.page.locator('admin-dropdown-menu-language .dropdown');
 	}
@@ -43,7 +43,7 @@ export class AdminTitleBarComponent {
 		return this.page.locator('#admin-dropdown-menu-language, #admin-dropdown-menu-language-responsive');
 	}
 
-	// Selettori per il menu utente
+	// Selectors for the user menu
 	private get userLogin() {
 		return this.page.locator('.user-login');
 	}
@@ -60,12 +60,12 @@ export class AdminTitleBarComponent {
 		return this.page.locator('a[href*="/users/sign_out"]').first();
 	}
 
-	// Selettori per il menu mobile
+	// Selectors for the mobile menu
 	private get menuTrigger() {
 		return this.page.locator('.menu-trigger');
 	}
 
-	// Metodi di verifica
+	// Verification methods
 	async isTitleBarVisible(): Promise<boolean> {
 		return await this.titleBar.isVisible();
 	}
@@ -94,7 +94,7 @@ export class AdminTitleBarComponent {
 		return await this.menuTrigger.isVisible();
 	}
 
-	// Metodi per ottenere testo
+	// Methods to get text
 	async getOrganizationName(): Promise<string> {
 		return (await this.organizationName.textContent()) || '';
 	}
@@ -105,11 +105,11 @@ export class AdminTitleBarComponent {
 
 	async getCurrentUserEmail(): Promise<string> {
 		const userText = (await this.userDropdownTrigger.textContent()) || '';
-		// Rimuove l'icona arrow e spazi extra
+		// Removes the arrow icon and extra spaces
 		return userText.replace(/\s*$/g, '').replace(/^\s*/, '');
 	}
 
-	// Metodi di interazione
+	// Interaction methods
 	async clickSeeSite(): Promise<void> {
 		await this.seeSiteButton.click();
 	}
@@ -146,7 +146,7 @@ export class AdminTitleBarComponent {
 		await this.menuTrigger.click();
 	}
 
-	// Verifica dropdown states
+	// Dropdown state verification
 	async isLanguageDropdownOpen(): Promise<boolean> {
 		return await this.languageDropdownMenu.isVisible();
 	}
@@ -155,7 +155,7 @@ export class AdminTitleBarComponent {
 		return await this.userDropdownMenu.isVisible();
 	}
 
-	// Metodi per ottenere le opzioni disponibili
+	// Methods to get available options
 	async getAvailableLanguages(): Promise<string[]> {
 		await this.openLanguageDropdown();
 		const options = await this.languageDropdownMenu.locator('.dropdown__item a').all();
@@ -172,7 +172,7 @@ export class AdminTitleBarComponent {
 		return languages;
 	}
 
-	// Verifica se una lingua specifica è disponibile
+	// Check if a specific language is available
 	async isLanguageAvailable(languageName: string): Promise<boolean> {
 		const languages = await this.getAvailableLanguages();
 		return languages.includes(languageName);

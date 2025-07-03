@@ -1,8 +1,8 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component for the main header functionality.
- * Handles logo, navigation, user authentication, and language selection.
+ * Componente per la funzionalità principale dell'intestazione.
+ * Gestisce logo, navigazione, autenticazione utente e selezione della lingua.
  */
 export class HeaderComponent {
 	constructor(private page: Page) {}
@@ -48,15 +48,15 @@ export class HeaderComponent {
 
 	// Selettori per i link desktop
 	private get helpLink() {
-		return this.page.locator('.main-bar__links-desktop__item[aria-label="Aiuto"]');
+		return this.page.locator('.main-bar__links-desktop__item[aria-label="Help"]');
 	}
 
 	private get meetingsLink() {
-		return this.page.locator('.main-bar__links-desktop__item[aria-label="Incontri"]');
+		return this.page.locator('.main-bar__links-desktop__item[aria-label="Meetings"]');
 	}
 
 	private get activitiesLink() {
-		return this.page.locator('.main-bar__links-desktop__item[aria-label="Attività"]');
+		return this.page.locator('.main-bar__links-desktop__item[aria-label="Activities"]');
 	}
 
 	private get loginLink() {

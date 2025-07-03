@@ -104,21 +104,41 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 		await expect(this.page).toHaveURL(/user_roles$/);
 		await expect(this.newAdminButton).toBeVisible();
 	}
+
+	/**
+	 * Verifies that the admins table is visible.
+	 */
 	async expectTableIsVisible(): Promise<void> {
 		await expect(this.table).toBeVisible();
 	}
+
+	/**
+	 * Verifies that an admin with the given name and email is present in the table.
+	 * @param name The name of the admin.
+	 * @param email The email of the admin.
+	 */
 	async expectAdminIsInTable(name: string, email: string): Promise<void> {
 		const row = this.tableRows.filter({ hasText: name }).filter({ hasText: email }).first();
 		await expect(row).toBeVisible();
 	}
+
+	/**
+	 * Verifies the number of search results in the table.
+	 * @param expectedCount The expected number of rows.
+	 */
 	async expectSearchResultsCount(expectedCount: number): Promise<void> {
 		const rows = this.page.locator('table.table-list tbody tr');
 		await expect(rows).toHaveCount(expectedCount);
 	}
 
+	/**
+	 * Returns the role of the admin at the given row index.
+	 * @param rowIndex The index of the row (0-based).
+	 * @returns The role as a string.
+	 */
 	async getRoleByRowIndex(rowIndex: number): Promise<string> {
 		const row = this.tableRows.nth(rowIndex);
-		const roleCell = row.locator('td:nth-child(5)'); // Supponendo che la colonna "Role" sia la quinta
+		const roleCell = row.locator('td:nth-child(5)'); // Assuming the "Role" column is the fifth
 		return (await roleCell.textContent())?.trim() || '';
 	}
 }

@@ -3,7 +3,7 @@ import { Page } from '@playwright/test';
 export class OfflineMessageComponent {
 	constructor(private page: Page) {}
 
-	// Selettori per il messaggio offline
+	// Selectors for the offline message
 	private get offlineMessage() {
 		return this.page.locator('.js-offline-message');
 	}
@@ -16,7 +16,7 @@ export class OfflineMessageComponent {
 		return this.page.locator('.js-offline-message .flash__message');
 	}
 
-	// Metodi per verificare la visibilità
+	// Methods to check visibility
 	async isOfflineMessageVisible(): Promise<boolean> {
 		return await this.offlineMessage.isVisible();
 	}
@@ -25,7 +25,7 @@ export class OfflineMessageComponent {
 		return (await this.offlineMessageText.textContent()) || '';
 	}
 
-	// Metodi di utilità
+	// Utility methods
 	async waitForOfflineMessage() {
 		await this.offlineMessage.waitFor({ state: 'visible' });
 	}

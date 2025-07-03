@@ -281,7 +281,7 @@ export class AdminProcessTableComponent {
 	}
 
 	public async getVisibility(row: Locator): Promise<string> {
-		const visibilityCell = row.locator('td:nth-child(3)'); // Supponendo che la visibilità sia nella terza colonna
+		const visibilityCell = row.locator('td:nth-child(3)'); // Assuming visibility is in the third column
 		return (await visibilityCell.textContent())?.trim() || '';
 	}
 

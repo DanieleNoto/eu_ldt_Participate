@@ -258,26 +258,4 @@ export class DebatesPage extends BaseAdminPage {
 
 		return index;
 	}
-
-	/**
-	 * Check if a debate exists in the table by title
-	 * @param title - The title to search for
-	 * @returns True if debate exists
-	 */
-	async hasDebateWithTitle(title: string): Promise<boolean> {
-		return (await this.findDebateIndexByTitle(title)) !== -1;
-	}
-
-	/**
-	 * Wait for the table to be loaded
-	 */
-	async waitForTableToLoad(): Promise<void> {
-		await this.debatesTable.waitFor({ state: 'visible' });
-		// Wait for at least one row to be present or confirm table is empty
-		try {
-			await this.tableRows.first().waitFor({ state: 'visible', timeout: 5000 });
-		} catch {
-			// Table might be empty, which is fine
-		}
-	}
 }

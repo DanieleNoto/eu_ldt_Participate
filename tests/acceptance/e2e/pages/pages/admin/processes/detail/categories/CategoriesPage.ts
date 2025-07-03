@@ -70,7 +70,7 @@ export class CategoriesPage extends BaseAdminPage {
 		const count = await this.tableRows.count();
 		for (let i = 0; i < count; i++) {
 			const row = this.tableRows.nth(i);
-			// Il delete abilitato è un <a> con .action-icon--remove, quello disabilitato è solo <svg> con .action-icon--disabled
+
 			const deleteButton = row.locator('a.action-icon--remove');
 			if ((await deleteButton.count()) > 0 && (await deleteButton.first().isVisible())) {
 				await deleteButton.first().click();
