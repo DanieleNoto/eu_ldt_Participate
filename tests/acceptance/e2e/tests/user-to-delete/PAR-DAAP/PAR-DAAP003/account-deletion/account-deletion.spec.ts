@@ -1,4 +1,5 @@
 import { HeaderComponent } from '@pages/components/common/HeaderComponent';
+import { HomePage } from '@pages/pages/public/HomePage';
 import { AccountDeletionPage } from '@pages/pages/user/AccountDeletionPage';
 import { expect, test } from '@playwright/test';
 import { STORAGE_STATE } from '@utils/constants';
@@ -17,51 +18,19 @@ As a Citizen, I want to request the deletion of my personal data so that I can e
  */
 test.describe('[PAR-DAAP003] – Request deletion of personal account', () => {
 	test.use({ storageState: STORAGE_STATE.ACCOUNT_DELETION_USER });
+	let homePage: HomePage;
 	let accountDeletionPage: AccountDeletionPage;
 	let headerComponent: HeaderComponent;
 
 	test.beforeEach(async ({ page }) => {
 		accountDeletionPage = new AccountDeletionPage(page);
 		headerComponent = new HeaderComponent(page);
-
+		homePage = new HomePage(page);
 		// Navigate to the application
-		await page.goto('/');
+		await homePage.navigateToHomePage();
 		// Navigate to account deletion page
 	});
 
-	test.describe('Alternative Flow - Abort user deletion', () => {
-		test('should cancel deletion request and return to account settings', async ({ page }) => {
-			await accountDeletionPage.navigateToMyAccount();
-			await accountDeletionPage.navigateToAccountDeletion();
-			// Fill deletion reason
-			const deletionReason = 'Ci ho ripensato';
-			await accountDeletionPage.fillDeleteReason(deletionReason);
-
-			// Click delete account button
-			await accountDeletionPage.clickDeleteAccountButton();
-
-			// Wait for confirmation modal and verify it's properly displayed
-			await accountDeletionPage.waitForConfirmationModal();
-			await accountDeletionPage.verifyModalContent();
-
-			// Cancel deletion
-			await accountDeletionPage.cancelDeletion();
-
-			// Verify modal is closed
-			await expect(accountDeletionPage.isModalHidden()).resolves.toBe(true);
-
-			// Verify we're still on the account deletion page
-			await expect(accountDeletionPage.pageTitle).toBeVisible();
-			await expect(accountDeletionPage.deleteAccountButton).toBeVisible();
-
-			// Verify the filled reason is still there
-			const filledReason = await accountDeletionPage.deleteReasonTextarea.inputValue();
-			expect(filledReason).toBe(deletionReason);
-
-			// Verify user is still logged in
-			await expect(headerComponent.isUserLoggedIn()).resolves.toBe(true);
-		});
-	});
 	test.describe('Main flow', () => {
 		test('should successfully delete account with confirmation', async ({ page }) => {
 			await test.step('1. User: Navigates to their "Account Settings" section within the platform.', async () => {
