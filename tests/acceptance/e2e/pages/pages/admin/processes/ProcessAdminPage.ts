@@ -413,8 +413,6 @@ export class ProcessAdminPage extends BaseAdminPage {
 			expect(isTableVisible).toBe(true);
 			const isTableEmpty = await this.isTableEmpty();
 			if (isTableVisible && !isTableEmpty) {
-				await this.createPrivateParticipants();
-				await this.createPrivateAdmins();
 				return; // Skip creation if table is not empty
 			}
 		}
@@ -470,6 +468,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 	}
 
 	async createPrivateParticipants() {
+		await this.navigateToProcesses();
 		await this.processTable.clickFirstPrivateProcess();
 		await this.getPage().waitForLoadState('networkidle');
 		const updateProcessAdminPage = new UpdateProcessAdminPage(this.page);
@@ -477,13 +476,39 @@ export class ProcessAdminPage extends BaseAdminPage {
 		const privateParticipantsPage = new PrivateParticipantsPage(this.page);
 		await privateParticipantsPage.clickNewPrivateUser();
 		const newPrivateParticipantFormPage = new NewPrivateParticipantFormPage(this.page);
-		await newPrivateParticipantFormPage.fillName('Test User');
-		await newPrivateParticipantFormPage.fillEmail('test-privateuser@example.com');
+		await newPrivateParticipantFormPage.fillName('Test User 1');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser1@example.com');
 		await newPrivateParticipantFormPage.submitForm();
-		await privateParticipantsPage.expectParticipantIsInTable('Test User', 'test-privateuser@example.com');
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 1', 'test-privateuser1@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 2');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser2@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 2', 'test-privateuser2@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 3');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser3@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 3', 'test-privateuser3@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 4');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser4@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 4', 'test-privateuser4@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 5');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser5@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 5', 'test-privateuser5@example.com');
+
 		await this.navigateToProcesses();
 	}
 	async createPrivateAdmins() {
+		await this.navigateToProcesses();
 		await this.processTable.clickFirstPrivateProcess();
 		await this.getPage().waitForLoadState('networkidle');
 		const updateProcessAdminPage = new UpdateProcessAdminPage(this.page);
@@ -491,11 +516,40 @@ export class ProcessAdminPage extends BaseAdminPage {
 		const processAdminsPage = new ParticipatoryProcessAdminsPage(this.page);
 		await processAdminsPage.clickNewAdminButton();
 		const newAdminPage = new NewAdminPage(this.page);
-		await newAdminPage.fillName('Test Admin');
-		await newAdminPage.fillEmail('test-privateadmin@example.com');
+		await newAdminPage.fillName('Test Admin 1');
+		await newAdminPage.fillEmail('test-privateadmin1@example.com');
 		await newAdminPage.selectRole('admin');
 		await newAdminPage.submitForm();
-		await processAdminsPage.expectAdminIsInTable('Test Admin', 'test-privateadmin@example.com');
+		await processAdminsPage.expectAdminIsInTable('Test Admin 1', 'test-privateadmin1@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 2');
+		await newAdminPage.fillEmail('test-privateadmin2@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 2', 'test-privateadmin2@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 3');
+		await newAdminPage.fillEmail('test-privateadmin3@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 3', 'test-privateadmin3@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 4');
+		await newAdminPage.fillEmail('test-privateadmin4@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 4', 'test-privateadmin4@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 5');
+		await newAdminPage.fillEmail('test-privateadmin5@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 5', 'test-privateadmin5@example.com');
+
 		await this.navigateToProcesses();
 	}
 
