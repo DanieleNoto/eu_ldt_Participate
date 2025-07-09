@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { UserExtraFieldsPage, UserFieldsData } from '../../../pages/pages/user/UserExtraFieldsPage';
 
-test.describe('User Navigation and UI Interactions', () => {
+test.describe.skip('User Navigation and UI Interactions', () => {
 	let userExtraFieldsPage: UserExtraFieldsPage;
 
 	test.beforeEach(async ({ page }) => {

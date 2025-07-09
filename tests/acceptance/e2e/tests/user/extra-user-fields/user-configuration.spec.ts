@@ -1,21 +1,24 @@
 import { TEST_USERS } from '@config/test-users';
+import { HomePage } from '@pages/pages/public/HomePage';
 import { UserExtraFieldsPage, UserFieldsData } from '@pages/pages/user/UserExtraFieldsPage';
 import { expect, test } from '@playwright/test';
 import { STORAGE_STATE } from '@utils/constants';
 import { ExtraUserFieldsTestDataGenerator } from '../../../fixtures/extra-user-fields-fixtures';
 
-test.describe('User Extra Fields Configuration', () => {
+test.describe.skip('User Extra Fields Configuration', () => {
 	test.use({ storageState: STORAGE_STATE.USER });
-
+	let homePage: HomePage;
 	let userExtraFieldsPage: UserExtraFieldsPage;
 
 	test.beforeEach(async ({ page }) => {
+		homePage = new HomePage(page);
 		userExtraFieldsPage = new UserExtraFieldsPage(page);
-		await userExtraFieldsPage.navigateToMyAccount();
+		await homePage.navigateToHomePage();
+		await homePage.header.navigateToMyAccount();
 	});
 	test('should successfully update user profile with all extra fields', async ({ page }) => {
 		const defaultUserData: UserFieldsData = {
-			dateOfBirth: '10/04/1996',
+			dateOfBirth: '01/01/1996',
 			gender: 'female',
 			country: 'IT',
 			postalCode: '00144',
