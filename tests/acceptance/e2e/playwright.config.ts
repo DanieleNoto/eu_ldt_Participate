@@ -86,7 +86,7 @@ export default defineConfig({
 				storageState: STORAGE_STATE.ACCOUNT_DELETION_USER
 			},
 			dependencies: ['account-deletion-user-setup'],
-			testMatch: 'tests/user-to-delete/account-deletion/account-deletion.spec.ts'
+			testMatch: 'tests/user-to-delete/**/*.spec.ts'
 		},
 
 		// User tests with authenticated state
