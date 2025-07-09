@@ -10,7 +10,7 @@ import { STORAGE_STATE } from '../utils/constants';
 
 // Setup authentication for normal user
 setup('authenticate as user to delete', async ({ page }) => {
-	console.log('Setting up user authentication...');
+	console.log('Setting up user to delete authentication...');
 
 	// Navigate to home page and handle cookies automatically
 	const homePage = new HomePage(page);
@@ -35,15 +35,15 @@ setup('authenticate as user to delete', async ({ page }) => {
 	// Verify user is actually logged in
 	const isLoggedIn = await homePage.header.isUserLoggedIn();
 	if (isLoggedIn) {
-		console.log('User successfully logged in');
+		console.log('User to delete successfully logged in');
 		const userInitials = await homePage.header.getUserInitials();
-		console.log(`Logged in as: ${userInitials}`);
+		console.log(`Logged in as: ${userInitials} to delete`);
 	} else {
-		throw new Error('User login failed - user not logged in');
+		throw new Error('User to delete login failed - user not logged in');
 	}
 
 	// Save authentication state
 	await page.context().storageState({ path: STORAGE_STATE.ACCOUNT_DELETION_USER });
 
-	console.log('User authentication completed');
+	console.log('User to delete authentication completed');
 });
