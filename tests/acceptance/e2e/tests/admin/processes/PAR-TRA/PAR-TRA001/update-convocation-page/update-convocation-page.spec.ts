@@ -28,12 +28,6 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 	let managePageComponentPage: ManagePageComponentPage;
 	let processAdminPage: ProcessAdminPage;
 
-	// Test data - English only
-	const testProcessData = {
-		slug: 'test-process-convocation',
-		title: 'Test Process for Convocation Page'
-	};
-
 	const testContent = {
 		title: 'Process Outcomes and Next Steps',
 		body: 'This section contains the results, decisions and next steps of the participatory process.'
