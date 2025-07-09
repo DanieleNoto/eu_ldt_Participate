@@ -1,5 +1,6 @@
 import { CookieBarComponent } from '@pages/components/common/CookieBarComponent';
 import { FooterComponent } from '@pages/components/common/FooterComponent';
+import { HomePage } from '@pages/pages/public/HomePage';
 import { expect, test } from '@playwright/test';
 
 /**
@@ -13,16 +14,17 @@ import { expect, test } from '@playwright/test';
 test.describe('Cookie Compliance and Admin Monitoring', () => {
 	let cookieBar: CookieBarComponent;
 	let footer: FooterComponent;
+	let homePage: HomePage;
 
 	test.beforeEach(async ({ page }) => {
 		cookieBar = new CookieBarComponent(page);
 		footer = new FooterComponent(page);
+		homePage = new HomePage(page);
+		await homePage.navigateToHomePage();
 	});
 
 	test.describe('Admin Compliance Verification', () => {
 		test('should verify all required consent elements are present for compliance', async ({ page }) => {
-			await cookieBar.navigateToHomePage();
-
 			// Verify banner compliance
 			await cookieBar.verifyCookieBannerPresent();
 			await cookieBar.verifyCookieConsentDialogPresent();
@@ -44,7 +46,6 @@ test.describe('Cookie Compliance and Admin Monitoring', () => {
 		});
 
 		test('should ensure granular consent options are available', async ({ page }) => {
-			await cookieBar.navigateToHomePage();
 			await cookieBar.rejectAllCookies();
 
 			// Test each toggle independently for compliance
@@ -73,8 +74,6 @@ test.describe('Cookie Compliance and Admin Monitoring', () => {
 		});
 
 		test('should validate consent persistence for compliance', async ({ page }) => {
-			await cookieBar.navigateToHomePage();
-
 			// Give specific consent
 			await cookieBar.openCookieSettings();
 			await cookieBar.waitForCookieSettingsToLoad();
@@ -112,7 +111,6 @@ test.describe('Cookie Compliance and Admin Monitoring', () => {
 
 	test.describe('Admin Cookie Policy Validation', () => {
 		test('should validate essential cookies cannot be disabled', async () => {
-			await cookieBar.navigateToHomePage();
 			await cookieBar.openCookieSettings();
 			await cookieBar.waitForCookieSettingsToLoad();
 
@@ -166,7 +164,6 @@ test.describe('Cookie Compliance and Admin Monitoring', () => {
 		});
 
 		test('should validate cookie data structure meets policy requirements', async ({ page }) => {
-			await cookieBar.navigateToHomePage();
 			await cookieBar.acceptAllCookies();
 
 			const cookies = await page.context().cookies();
@@ -195,8 +192,6 @@ test.describe('Cookie Compliance and Admin Monitoring', () => {
 	});
 	test.describe('Admin Monitoring and Audit', () => {
 		test('should enable admin to audit consent flow', async ({ page }) => {
-			await cookieBar.navigateToHomePage();
-
 			// Admin should be able to monitor consent flow
 			await cookieBar.openCookieSettings();
 			await cookieBar.waitForCookieSettingsToLoad();
