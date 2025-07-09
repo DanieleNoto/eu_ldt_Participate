@@ -19,14 +19,12 @@ test.describe('[PAR-PPM008] – Update process', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
-	let validProcessData: any;
 	let updateData: any;
 
 	test.beforeEach(async ({ page }) => {
 		// Navigate directly to admin area and wait for it to load
 		adminHomePage = new AdminHomePage(page);
 		processAdminPage = new ProcessAdminPage(page);
-		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 		updateData = ProcessTestDataGenerator.generateUpdateProcessData();
 		await adminHomePage.navigateToAdminHomePage();
 	});

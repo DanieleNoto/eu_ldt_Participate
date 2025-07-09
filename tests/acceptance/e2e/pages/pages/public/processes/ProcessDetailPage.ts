@@ -78,7 +78,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		await this.openNavigationDropdown();
 
 		// Find and click the convocation page link
-		const convocationLink = this.navItems.filter({ hasText: 'Convocation Page' });
+		const convocationLink = this.navItems.filter({ hasText: 'Page' });
 		await convocationLink.click();
 		await this.waitForLoadState('networkidle');
 	}
