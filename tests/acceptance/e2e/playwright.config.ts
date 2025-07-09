@@ -80,7 +80,7 @@ export default defineConfig({
 		},
 
 		{
-			name: 'user-account-deletion-tests',
+			name: 'account-deletion-user-tests',
 			use: {
 				...devices['Desktop Chrome'],
 				storageState: STORAGE_STATE.ACCOUNT_DELETION_USER
