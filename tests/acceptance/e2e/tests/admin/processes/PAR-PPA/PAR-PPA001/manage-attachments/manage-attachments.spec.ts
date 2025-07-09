@@ -43,7 +43,6 @@ test.describe('[PAR-PPA001] – Manage attachments in process', () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
 				await processAdminPage.waitForLoadState('networkidle');
-				await process;
 			});
 			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
 				await processAdminPage.expectToBeOnProcessesAdminPage();
