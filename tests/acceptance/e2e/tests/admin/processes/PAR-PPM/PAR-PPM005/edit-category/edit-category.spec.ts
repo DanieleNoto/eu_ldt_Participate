@@ -32,9 +32,26 @@ test.describe('[PAR-PPM005] – Edit category in process', () => {
 		updateProcessAdminPage = new UpdateProcessAdminPage(page);
 		categoriesPage = new CategoriesPage(page);
 		newCategoryPage = new NewCategoryPage(page);
-
+		await setupTestProcess();
 		await adminHomePage.navigateToAdminHomePage();
 	});
+
+	/**
+	 * Setup test environment by ensuring a test process exists
+	 */
+	async function setupTestProcess() {
+		await test.step('Setup: Create test categories ', async () => {
+			await adminHomePage.navigateToAdminHomePage();
+			await adminHomePage.navigateViaAdminNav('processes');
+			await processAdminPage.processTable.editFirstProcess();
+			await updateProcessAdminPage.navigateToCategories();
+
+			await categoriesPage.createNewCategory();
+			await newCategoryPage.fillName('New Beautiful Category 1');
+			await newCategoryPage.submitForm();
+			await categoriesPage.expectCategoryIsInTable('New Beautiful Category 1');
+		});
+	}
 
 	test.describe('Main Flow', () => {
 		test('should allow admin to edit categories of process', async () => {
@@ -136,7 +153,7 @@ test.describe('[PAR-PPM005] – Edit category in process', () => {
 			await test.step('10.1. System: Detects that the category details are incomplete or incorrect.', async () => {
 				await newCategoryPage.waitForLoadState('networkidle');
 
-				await newCategoryPage.expectErrorFlashMessage('There was a problem creating this category.');
+				await newCategoryPage.expectErrorFlashMessage('There was a problem updating this category.');
 			});
 			await test.step('10.2. System: Highlights the fields with errors and displays appropriate error messages.', async () => {
 				await newCategoryPage.expectFormValidationError();
