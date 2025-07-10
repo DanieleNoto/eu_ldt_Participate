@@ -235,7 +235,7 @@ export class CookieBarComponent {
 	 */
 	async openCookieSettings(): Promise<void> {
 		// Use the Settings button from the cookie banner
-		if (await this.settingsButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+		if (await this.settingsButton.isVisible().catch(() => false)) {
 			await this.settingsButton.click();
 		} else {
 			throw new Error('Settings button is not visible');
@@ -279,7 +279,7 @@ export class CookieBarComponent {
 	}
 
 	async waitForCookieSettingsToLoad(): Promise<void> {
-		await this.page.waitForSelector(TEST_SELECTORS.COOKIES.MODAL, { timeout: 10000 });
+		await this.page.waitForSelector(TEST_SELECTORS.COOKIES.MODAL);
 		await this.waitForLoadState('networkidle');
 	}
 

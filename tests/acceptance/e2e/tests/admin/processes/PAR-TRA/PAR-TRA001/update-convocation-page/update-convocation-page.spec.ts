@@ -5,6 +5,7 @@ import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/C
 import { ManagePageComponentPage } from '@pages/pages/admin/processes/detail/components/ManagePageComponentPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -19,6 +20,11 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The participatory process has been completed.
  * - The convocation page for the process is available for editing.
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
 test.describe('[PAR-TRA001] – Update convocation page after process completion', () => {
 	// Use admin storage state for authentication
 	test.use({ storageState: STORAGE_STATE.ADMIN });
@@ -67,7 +73,7 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 			await test.step('5. User: Navigate to convocation page management', async () => {
 				// Navigate to convocation page component management
 				await updateProcessAdminPage.sidebarProcessDetail.navigateToComponents();
-				await componentsPage.manageComponent('Page');
+				await componentsPage.checkPageComponent('Page');
 
 				// Verify being on the management page
 				await managePageComponentPage.verifyPageLoaded();

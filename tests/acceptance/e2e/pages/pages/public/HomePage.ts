@@ -414,7 +414,7 @@ export class HomePage extends BasePage {
 
 		try {
 			// Wait for the link to be visible and click it
-			await termsOfServiceLink.waitFor({ state: 'visible', timeout: 10000 });
+			await termsOfServiceLink.waitFor({ state: 'visible' });
 			await termsOfServiceLink.click();
 			await this.page.waitForLoadState('networkidle');
 		} catch {

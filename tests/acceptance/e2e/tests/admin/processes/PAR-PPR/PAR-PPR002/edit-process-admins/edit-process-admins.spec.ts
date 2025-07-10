@@ -5,6 +5,7 @@ import { ParticipatoryProcessAdminsPage } from '@pages/pages/admin/processes/det
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -19,6 +20,11 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The process has already been created.
  * - The Process Administrator has already been linked to the process.
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
 test.describe('[PAR-PPR002] – Edit process administrator role', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;

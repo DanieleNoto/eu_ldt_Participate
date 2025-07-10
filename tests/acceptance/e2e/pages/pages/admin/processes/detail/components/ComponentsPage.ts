@@ -1,6 +1,8 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { SidebarProcessDetailComponent } from '../../../../../components/admin/process/detail/SidebarProcessDetailComponent';
 import { BaseAdminPage } from '../../../BaseAdminPage';
+import { ManagePageComponentPage } from './ManagePageComponentPage';
+import { NewPageComponentPage } from './NewPageComponentPage';
 
 /**
  * Page Object Model for the Components page in process detail management.
@@ -9,6 +11,8 @@ import { BaseAdminPage } from '../../../BaseAdminPage';
 export class ComponentsPage extends BaseAdminPage {
 	// Sidebar component
 	public readonly sidebarProcessDetail: SidebarProcessDetailComponent;
+	public readonly newPageComponentPage: NewPageComponentPage;
+	public readonly managePageComponentPage: ManagePageComponentPage;
 
 	// Main page elements
 	private readonly pageWrapper: Locator;
@@ -42,7 +46,8 @@ export class ComponentsPage extends BaseAdminPage {
 
 		// Initialize sidebar component
 		this.sidebarProcessDetail = new SidebarProcessDetailComponent(page);
-
+		this.newPageComponentPage = new NewPageComponentPage(page);
+		this.managePageComponentPage = new ManagePageComponentPage(page);
 		// Main page elements
 		this.pageWrapper = page.locator('.item_show__wrapper');
 		this.card = page.locator('.card');
@@ -225,6 +230,18 @@ export class ComponentsPage extends BaseAdminPage {
 		const manageLink = row.locator('a.action-icon--manage');
 		await manageLink.click();
 		await this.page.waitForLoadState('networkidle');
+	}
+
+	async checkPageComponent(componentName: string) {
+		await this.addPagesComponent();
+		await this.newPageComponentPage.waitForNewPageComponentPageLoad();
+		await this.newPageComponentPage.fillComponentName(componentName);
+		await this.newPageComponentPage.submitForm();
+		await this.page.waitForLoadState('networkidle');
+		await this.expectComponentExists(componentName);
+		await this.manageComponent(componentName);
+		await this.managePageComponentPage.fillBody('This is a test page body');
+		await this.managePageComponentPage.savePage();
 	}
 
 	async shareComponent(componentName: string) {

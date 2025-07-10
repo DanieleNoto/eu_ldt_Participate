@@ -3,6 +3,7 @@ import { CategoriesPage } from '@pages/pages/admin/processes/detail/categories/C
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 import { NewCategoryPage } from '../../../../../../pages/pages/admin/processes/detail/categories/NewCategoryPage';
 
@@ -18,6 +19,11 @@ import { NewCategoryPage } from '../../../../../../pages/pages/admin/processes/d
  * - The process has already been created.
  * - The category has already been created and linked to process.
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
 test.describe('[PAR-PPM005] – Edit category in process', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;

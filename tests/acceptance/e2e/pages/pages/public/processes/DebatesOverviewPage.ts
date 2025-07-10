@@ -95,7 +95,7 @@ export class DebatesOverviewPage {
 	 */
 	async waitForPageReady(): Promise<void> {
 		await this.debatesSection.waitFor({ state: 'visible' });
-		await this.debateCards.first().waitFor({ state: 'visible', timeout: 10000 });
+		await this.debateCards.first().waitFor({ state: 'visible' });
 	}
 
 	/**

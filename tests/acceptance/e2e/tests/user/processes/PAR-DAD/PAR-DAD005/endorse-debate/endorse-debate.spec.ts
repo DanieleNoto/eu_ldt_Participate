@@ -4,6 +4,7 @@ import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPa
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { DebateDetailPage } from '@pages/pages/user/processes/DebateDetailPage';
 import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -18,6 +19,11 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The debate allows endorsements (not blocked by permissions or debate settings).
  * - The debate is open for participation (not closed).
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'USER');
+});
 test.describe('[PAR-DAD005] – Endorse a debate', () => {
 	test.use({ storageState: STORAGE_STATE.USER });
 	let processesOverviewPage: ProcessesOverviewPage;

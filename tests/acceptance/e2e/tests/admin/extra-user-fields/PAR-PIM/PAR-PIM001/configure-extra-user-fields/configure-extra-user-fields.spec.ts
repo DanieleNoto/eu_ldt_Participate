@@ -3,7 +3,7 @@ import { ExtraUserFieldsAdminPage } from '@pages/pages/admin/ExtraUserFieldsAdmi
 import { expect, test } from '@playwright/test';
 import { STORAGE_STATE } from '@utils/constants';
 
-test.describe.skip('Admin Extra User Fields Configuration', () => {
+test.describe('[PAR-PIM001] Admin Extra User Fields Configuration', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let extraUserFieldsAdminPage: ExtraUserFieldsAdminPage;
@@ -12,6 +12,7 @@ test.describe.skip('Admin Extra User Fields Configuration', () => {
 		extraUserFieldsAdminPage = new ExtraUserFieldsAdminPage(page);
 		adminHomePage = new AdminHomePage(page);
 		await adminHomePage.navigateToAdminHomePage();
+		await extraUserFieldsAdminPage.navigateToSettings();
 	});
 
 	test('should successfully configure extra user fields as admin', async ({ page }) => {

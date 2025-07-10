@@ -236,7 +236,7 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 		await this.submitButton.click();
 
 		// Wait for navigation to complete
-		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components/, { timeout: 10000 });
+		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components/);
 		await this.waitForLoadState('networkidle');
 	}
 

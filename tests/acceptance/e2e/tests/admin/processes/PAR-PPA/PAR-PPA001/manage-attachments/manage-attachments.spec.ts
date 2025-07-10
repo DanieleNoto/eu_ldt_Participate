@@ -5,6 +5,7 @@ import { NewAttachmentProcessPage } from '@pages/pages/admin/processes/detail/at
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -18,6 +19,11 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The process has already been created.
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
 test.describe('[PAR-PPA001] – Manage attachments in process', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;

@@ -2,6 +2,7 @@ import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { expect, test } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -14,6 +15,11 @@ import { STORAGE_STATE } from '@utils/constants';
  * Prerequisites:
  * - The City Administrator has an active account on the platform and is logged in.
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
 test.describe('[PAR-PPM001] – Create new process', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
@@ -44,15 +50,15 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 
 				// Verify essential form elements are visible with increased timeout
 				const titleTextbox = await processAdminPage.getTitleTextbox();
-				await expect(titleTextbox).toBeVisible({ timeout: 30000 });
+				await expect(titleTextbox).toBeVisible();
 
 				const subtitleTextbox = await processAdminPage.getSubtitleTextbox();
-				await expect(subtitleTextbox).toBeVisible({ timeout: 30000 });
+				await expect(subtitleTextbox).toBeVisible();
 
 				// For order position field, use the improved method from ProcessAdminPage
 				try {
 					const orderPositionField = await processAdminPage.getOrderPositionSpinbutton();
-					await expect(orderPositionField).toBeVisible({ timeout: 10000 });
+					await expect(orderPositionField).toBeVisible();
 					console.log('Order position field is visible');
 				} catch (error) {
 					console.log('Order position field not found or not visible - this is acceptable:', error);

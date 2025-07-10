@@ -210,17 +210,6 @@ export class AdminHomePage extends BaseAdminPage {
 		return isLoggedIn && hasAdminPermissions && dashboardLoaded;
 	}
 
-	// Utility methods for the dashboard
-	async waitForDashboardToLoad(timeout: number = 30000): Promise<void> {
-		await this.page.waitForLoadState('networkidle');
-		await this.waitForElement('.layout-content__container[data-content]', timeout);
-
-		// Waits for all cards to be visible
-		await this.activityCard.isActivityCardVisible();
-		await this.metricsCard.isMetricsCardVisible();
-		await this.logsCard.isLogsCardVisible();
-	}
-
 	// Methods to get aggregated dashboard information
 	async getDashboardSummary(): Promise<{
 		title: string;

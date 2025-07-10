@@ -92,7 +92,7 @@ export class DebateDetailPage {
 		this.authorSection = this.page.locator('.layout-author');
 		this.authorAvatar = this.page.locator('.author__avatar');
 		this.authorName = this.page.locator('.author__name');
-		this.debateDescription = this.page.locator('.editor-content .rich-text-display').first();
+		this.debateDescription = this.page.locator('.editor-content div').first();
 		this.instructionsSection = this.page.locator('[data-announcement] .rich-text-display');
 
 		// Action buttons
@@ -105,7 +105,7 @@ export class DebateDetailPage {
 
 		// Endorsement/Like system
 		this.endorsementBlock = this.page.locator('[id*="endorsement-block"]');
-		this.endorsementButton = this.page.locator('#endorsement-button');
+		this.endorsementButton = this.page.locator('#endorsement-button').first();
 		this.endorsersListDropdown = this.page.locator('#dropdown-menu-endorsers-list');
 		this.endorsersListGrid = this.page.locator('.endorsers-list__grid');
 		this.endorsersListText = this.page.locator('.endorsers-list__text');
@@ -667,7 +667,7 @@ export class DebateDetailPage {
 		await this.typeCommentWithMentions(`@${partialUsername}`);
 
 		// Wait for suggestions to appear
-		await this.tributeContainer.waitFor({ state: 'visible', timeout: 5000 });
+		await this.tributeContainer.waitFor({ state: 'visible' });
 
 		// Select the desired user
 		await this.selectMentionSuggestionByUsername(fullUsername);
@@ -729,7 +729,7 @@ export class DebateDetailPage {
 	 * Wait for mention suggestions to disappear
 	 */
 	async waitForMentionSuggestionsToDisappear(): Promise<void> {
-		await this.tributeContainer.waitFor({ state: 'hidden', timeout: 5000 });
+		await this.tributeContainer.waitFor({ state: 'hidden' });
 	}
 
 	/**
@@ -747,7 +747,7 @@ export class DebateDetailPage {
 	async expectMentionSuggestionsToBeVisible(): Promise<void> {
 		// Prova ad attendere che il container diventi visibile con un timeout più lungo
 		try {
-			await expect(this.tributeContainer).toBeVisible({ timeout: 10000 });
+			await expect(this.tributeContainer).toBeVisible();
 		} catch (error) {
 			// Se fallisce, prova a vedere se il container ha contenuto anche se non "visibile"
 			const hasContent = (await this.tributeResults.locator('li').count()) > 0;
@@ -815,8 +815,8 @@ export class DebateDetailPage {
 	async waitForCommentsToLoad(): Promise<void> {
 		// Wait for loading indicator to appear and then disappear
 		try {
-			await this.loadingComments.waitFor({ state: 'visible', timeout: 2000 });
-			await this.loadingComments.waitFor({ state: 'hidden', timeout: 10000 });
+			await this.loadingComments.waitFor({ state: 'visible' });
+			await this.loadingComments.waitFor({ state: 'hidden' });
 		} catch {
 			// Loading indicator might not appear for fast loads
 		}
@@ -1041,7 +1041,7 @@ export class DebateDetailPage {
 			// Click to open the dropdown
 			await this.clickEndorsementDropdown();
 			// Wait for the dropdown to be visible
-			await this.endorsersListDropdown.waitFor({ state: 'visible', timeout: 5000 });
+			await this.endorsersListDropdown.waitFor({ state: 'visible' });
 		}
 
 		// Count the number of endorser elements (span.author) in the grid
@@ -1052,7 +1052,7 @@ export class DebateDetailPage {
 		if (!isDropdownVisible) {
 			await this.page.click('body');
 			// Wait for dropdown to close
-			await this.endorsersListDropdown.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {
+			await this.endorsersListDropdown.waitFor({ state: 'hidden' }).catch(() => {
 				// Ignore timeout if dropdown doesn't close properly
 			});
 		}
@@ -1077,7 +1077,7 @@ export class DebateDetailPage {
 
 		if (!isDropdownVisible) {
 			await this.clickEndorsementDropdown();
-			await this.endorsersListDropdown.waitFor({ state: 'visible', timeout: 5000 });
+			await this.endorsersListDropdown.waitFor({ state: 'visible' });
 		}
 
 		const text = (await this.endorsersListText.textContent()) || '';
@@ -1085,7 +1085,7 @@ export class DebateDetailPage {
 		// Close the dropdown if we opened it
 		if (!isDropdownVisible) {
 			await this.page.click('body');
-			await this.endorsersListDropdown.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {
+			await this.endorsersListDropdown.waitFor({ state: 'hidden' }).catch(() => {
 				// Ignore timeout if dropdown doesn't close properly
 			});
 		}
@@ -1102,7 +1102,7 @@ export class DebateDetailPage {
 
 		if (!isDropdownVisible) {
 			await this.clickEndorsementDropdown();
-			await this.endorsersListDropdown.waitFor({ state: 'visible', timeout: 5000 });
+			await this.endorsersListDropdown.waitFor({ state: 'visible' });
 		}
 
 		// Use the same specific selector as in getEndorsersCount
@@ -1122,7 +1122,7 @@ export class DebateDetailPage {
 		// Close the dropdown if we opened it
 		if (!isDropdownVisible) {
 			await this.page.click('body');
-			await this.endorsersListDropdown.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {
+			await this.endorsersListDropdown.waitFor({ state: 'hidden' }).catch(() => {
 				// Ignore timeout if dropdown doesn't close properly
 			});
 		}
@@ -1191,7 +1191,7 @@ export class DebateDetailPage {
 
 		if (!isDropdownVisible) {
 			await this.clickEndorsementDropdown();
-			await this.endorsersListDropdown.waitFor({ state: 'visible', timeout: 5000 });
+			await this.endorsersListDropdown.waitFor({ state: 'visible' });
 		}
 
 		const endorserElements = this.endorsersListGrid.locator('span.author[data-author="true"]');

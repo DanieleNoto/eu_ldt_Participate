@@ -2,6 +2,7 @@ import { HeaderComponent } from '@pages/components/common/HeaderComponent';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { AccountDeletionPage } from '@pages/pages/user/AccountDeletionPage';
 import { expect, test } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -16,6 +17,11 @@ As a Citizen, I want to request the deletion of my personal data so that I can e
  * - The citizen has an active account on the platform.
  * - The citizen is logged into the platform.
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'USER');
+});
 test.describe('[PAR-DAAP003] – Request deletion of personal account', () => {
 	test.use({ storageState: STORAGE_STATE.USER });
 	let homePage: HomePage;

@@ -480,11 +480,11 @@ export class HeaderComponent {
 	}
 
 	async waitForUserLogin() {
-		await this.accountDropdownTrigger.waitFor({ state: 'visible', timeout: 10000 });
+		await this.accountDropdownTrigger.waitFor({ state: 'visible' });
 	}
 
 	async waitForUserLogout() {
-		await this.loginLink.waitFor({ state: 'visible', timeout: 10000 });
+		await this.loginLink.waitFor({ state: 'visible' });
 	}
 
 	// Metodo per verificare se l'header è completamente caricato per un utente loggato

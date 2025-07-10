@@ -4,6 +4,7 @@ import { PhasesPage } from '@pages/pages/admin/processes/detail/phases/PhasesPag
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -17,6 +18,11 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The process has already been created.
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
 test.describe('[PAR-PPM002] – Manage process phases', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
@@ -52,7 +58,7 @@ test.describe('[PAR-PPM002] – Manage process phases', () => {
 			});
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
-				await processAdminPage.processTable.clickFirstPrivateProcess();
+				await processAdminPage.editFirstProcess();
 				await processAdminPage.getPage().waitForLoadState('networkidle');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -113,7 +119,7 @@ test.describe('[PAR-PPM002] – Manage process phases', () => {
 			});
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
-				await processAdminPage.processTable.clickFirstPrivateProcess();
+				await processAdminPage.editFirstProcess();
 				await processAdminPage.getPage().waitForLoadState('networkidle');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {

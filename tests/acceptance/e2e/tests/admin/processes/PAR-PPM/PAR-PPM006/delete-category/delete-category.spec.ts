@@ -5,6 +5,7 @@ import { NewCategoryPage } from '@pages/pages/admin/processes/detail/categories/
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -18,6 +19,11 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The process has already been created.
  * - The category has already been created and linked to process.
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
 test.describe('[PAR-PPM006] – Delete category in process', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
@@ -52,6 +58,10 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 			await newCategoryPage.fillName('New Beautiful Category 1');
 			await newCategoryPage.submitForm();
 			await categoriesPage.expectCategoryIsInTable('New Beautiful Category 1');
+			await categoriesPage.createNewCategory();
+			await newCategoryPage.fillName('New Beautiful Category 2');
+			await newCategoryPage.submitForm();
+			await categoriesPage.expectCategoryIsInTable('New Beautiful Category 2');
 		});
 	}
 

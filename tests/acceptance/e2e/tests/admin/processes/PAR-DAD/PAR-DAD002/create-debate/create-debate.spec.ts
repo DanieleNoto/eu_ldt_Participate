@@ -6,6 +6,7 @@ import { expect, test } from '@playwright/test';
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -21,6 +22,11 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The authorized user has permissions to create debates
  * - The debate component is available and configured properly on Process
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
 test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 	// Use admin storage state for authentication
 	test.use({ storageState: STORAGE_STATE.ADMIN });
@@ -51,6 +57,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 
 	test.beforeEach(async ({ page }) => {
 		// Initialize Page Objects
+
 		adminHomePage = new AdminHomePage(page);
 		processAdminPage = new ProcessAdminPage(page);
 		componentsPage = new ComponentsPage(page);

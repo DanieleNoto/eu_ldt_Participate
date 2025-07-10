@@ -107,7 +107,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 		// Wait for the form to be present
 		try {
-			await this.page.waitForSelector('form', { state: 'visible', timeout: 30000 });
+			await this.page.waitForSelector('form', { state: 'visible' });
 		} catch (error) {
 			console.log("Form not found, checking if we're on the correct page");
 			console.log('Current URL:', this.page.url());
@@ -115,7 +115,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		}
 
 		// Wait for essential form fields to be present
-		await this.page.waitForSelector('input[name*="title"], input[id*="title"]', { timeout: 30000 });
+		await this.page.waitForSelector('input[name*="title"], input[id*="title"]');
 	}
 
 	// Form element getters for test assertions (legacy support)
@@ -152,7 +152,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 				const count = await selector.count();
 				if (count > 0) {
 					const element = selector.first();
-					if (await element.isVisible({ timeout: 2000 })) {
+					if (await element.isVisible()) {
 						console.log(`Order position field found using selector ${i}: ${selector}`);
 						return element;
 					}
@@ -206,7 +206,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		if (processData.orderPosition !== 0) {
 			try {
 				const orderPositionField = await this.getOrderPositionSpinbutton();
-				if (await orderPositionField.isVisible({ timeout: 5000 })) {
+				if (await orderPositionField.isVisible()) {
 					await orderPositionField.click();
 					await orderPositionField.fill(processData.orderPosition.toString());
 					console.log('Order position field filled successfully');
@@ -566,7 +566,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 		// Wait for the edit form to be present using the exact form class from HTML
 		try {
-			await this.page.waitForSelector('form.edit_participatory_process', { state: 'visible', timeout: 30000 });
+			await this.page.waitForSelector('form.edit_participatory_process', { state: 'visible' });
 		} catch (error) {
 			console.log("Edit form not found, checking if we're on the correct page");
 			console.log('Current URL:', this.page.url());
@@ -574,7 +574,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		}
 
 		// Wait for essential form fields to be present
-		await this.page.waitForSelector('input[name*="title"], input[id*="title"]', { timeout: 30000 });
+		await this.page.waitForSelector('input[name*="title"], input[id*="title"]');
 	}
 
 	async isOnProcessEditPage(): Promise<boolean> {
@@ -625,7 +625,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		if (processData.orderPosition !== undefined && processData.orderPosition !== 0) {
 			try {
 				const orderPositionField = await this.getOrderPositionSpinbutton();
-				if (await orderPositionField.isVisible({ timeout: 5000 })) {
+				if (await orderPositionField.isVisible()) {
 					await orderPositionField.click();
 					await orderPositionField.fill(processData.orderPosition.toString());
 					console.log('Order position field updated successfully');
@@ -835,7 +835,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		// Wait for and verify the exact update success message from the HTML
 		await expect(
 			this.page.locator('.flash.success').getByText('Participatory process successfully updated.')
-		).toBeVisible({ timeout: 10000 });
+		).toBeVisible();
 	}
 
 	async updateProcessTitle(title: string): Promise<void> {

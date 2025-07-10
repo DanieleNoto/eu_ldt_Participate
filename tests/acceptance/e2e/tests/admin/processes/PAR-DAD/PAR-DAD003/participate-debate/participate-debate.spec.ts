@@ -4,6 +4,7 @@ import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPa
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { DebateDetailPage } from '@pages/pages/user/processes/DebateDetailPage';
 import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -19,6 +20,11 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The authorized user has permissions to create debates.
  * - The debate component is available and configured properly on Process.
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
 test.describe('[PAR-DAD003] – Participate in a debate', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let processesOverviewPage: ProcessesOverviewPage;

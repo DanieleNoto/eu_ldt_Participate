@@ -164,8 +164,8 @@ export class ManagePageComponentPage extends BaseAdminPage {
 	/**
 	 * Waits for the page to have a specific URL pattern
 	 */
-	async waitForUrl(pattern: RegExp, timeout: number = 30000): Promise<void> {
-		await this.getPage().waitForURL(pattern, { timeout });
+	async waitForUrl(pattern: RegExp): Promise<void> {
+		await this.getPage().waitForURL(pattern);
 	}
 
 	/**

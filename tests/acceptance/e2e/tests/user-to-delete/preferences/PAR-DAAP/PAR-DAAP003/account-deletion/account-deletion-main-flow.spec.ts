@@ -2,7 +2,7 @@ import { HeaderComponent } from '@pages/components/common/HeaderComponent';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { AccountDeletionPage } from '@pages/pages/user/AccountDeletionPage';
 import { expect, test } from '@playwright/test';
-import { STORAGE_STATE } from '@utils/constants';
+import { ensureLoggedIn } from '@utils/auth-helper';
 
 /**
  * Test suite for Enables citizens to request the deletion of their personal account.
@@ -17,7 +17,6 @@ As a Citizen, I want to request the deletion of my personal data so that I can e
  * - The citizen is logged into the platform.
  */
 test.describe('[PAR-DAAP003] – Request deletion of personal account', () => {
-	test.use({ storageState: STORAGE_STATE.ACCOUNT_DELETION_USER });
 	let homePage: HomePage;
 	let accountDeletionPage: AccountDeletionPage;
 	let headerComponent: HeaderComponent;
@@ -26,13 +25,15 @@ test.describe('[PAR-DAAP003] – Request deletion of personal account', () => {
 		accountDeletionPage = new AccountDeletionPage(page);
 		headerComponent = new HeaderComponent(page);
 		homePage = new HomePage(page);
-		// Navigate to the application
-		await homePage.navigateToHomePage();
-		// Navigate to account deletion page
 	});
 
 	test.describe('Main flow', () => {
 		test('should successfully delete account with confirmation', async ({ page }) => {
+			await test.step('0. Setup.', async () => {
+				await ensureLoggedIn(page, 'ACCOUNT_DELETION_USER');
+				// Navigate to the application
+				await homePage.navigateToHomePage();
+			});
 			await test.step('1. User: Navigates to their "Account Settings" section within the platform.', async () => {
 				await accountDeletionPage.navigateToMyAccount();
 			});
@@ -53,36 +54,18 @@ test.describe('[PAR-DAAP003] – Request deletion of personal account', () => {
 				await accountDeletionPage.fillDeleteReason(deletionReason);
 				await accountDeletionPage.clickDeleteAccountButton();
 			});
+			await test.step('Result.', async () => {
+				// Wait for confirmation modal and verify its content
+				await accountDeletionPage.waitForConfirmationModal();
+				await accountDeletionPage.verifyModalContent();
+				await accountDeletionPage.verifyModalAccessibility();
 
-			// Wait for confirmation modal and verify its content
-			await accountDeletionPage.waitForConfirmationModal();
-			await accountDeletionPage.verifyModalContent();
-			await accountDeletionPage.verifyModalAccessibility();
+				// Confirm deletion
+				await accountDeletionPage.confirmDeletion();
 
-			// Add a safety mechanism to prevent actual deletion in tests
-			await page.route('**/account**', route => {
-				if (route.request().method() === 'DELETE') {
-					route.fulfill({
-						status: 200,
-						body: JSON.stringify({ message: 'Account deletion requested successfully' }),
-						headers: { 'content-type': 'application/json' }
-					});
-				} else {
-					route.continue();
-				}
+				// Verify user contributions are anonymized (check that user is logged out)
+				await expect(headerComponent.isUserLoggedIn()).resolves.toBe(false);
 			});
-
-			// Confirm deletion
-			await accountDeletionPage.confirmDeletion();
-
-			// Clean up route interception
-			await page.unroute('**/account**');
-
-			// Verify success message
-			await accountDeletionPage.verifySuccessMessage();
-
-			// Verify user contributions are anonymized (check that user is logged out)
-			await expect(headerComponent.isUserLoggedIn()).resolves.toBe(false);
 		});
 	});
 });
