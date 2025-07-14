@@ -42,7 +42,7 @@ test.describe('[PAR-EP007] – Add in personal calendar', () => {
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {
-		test('should allow user to endorse a debate', async () => {
+		test('should allow user to share calendar in personal', async () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
