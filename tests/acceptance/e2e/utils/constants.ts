@@ -1,7 +1,10 @@
+import path = require('path');
+
 // Constants for test organization
 export const STORAGE_STATE = {
-	USER: 'tests/acceptance/e2e/auth/user-state.json',
-	ADMIN: 'tests/acceptance/e2e/auth/admin-state.json'
+	USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/user-state.json'),
+	ADMIN: path.resolve(__dirname, '../../../acceptance/e2e/auth/admin-state.json'),
+	ACCOUNT_DELETION_USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/account-deletion-user-state.json')
 } as const;
 
 export const TEST_TIMEOUTS = {

@@ -3,9 +3,9 @@ import { Page } from '@playwright/test';
 export class HeroSectionComponent {
 	constructor(private page: Page) {}
 
-	// Selettori per la sezione hero
+	// Selectors for the hero section
 	private get heroSection() {
-		return this.page.locator('#hero-2.hero__container');
+		return this.page.locator('.hero__container');
 	}
 
 	private get heroTitle() {
@@ -16,7 +16,7 @@ export class HeroSectionComponent {
 		return this.page.locator('#hero-cta');
 	}
 
-	// Metodi per verificare la visibilità
+	// Methods to check visibility
 	async isHeroVisible(): Promise<boolean> {
 		return await this.heroSection.isVisible();
 	}
@@ -29,7 +29,7 @@ export class HeroSectionComponent {
 		return (await this.heroCTA.locator('span').textContent()) || '';
 	}
 
-	// Metodi per le azioni
+	// Action methods
 	async clickParticipateButton() {
 		await this.heroCTA.click();
 	}
@@ -38,7 +38,7 @@ export class HeroSectionComponent {
 		return await this.heroCTA.isVisible();
 	}
 
-	// Metodi di utilità
+	// Utility methods
 	async waitForHeroToLoad() {
 		await this.heroSection.waitFor({ state: 'visible' });
 	}

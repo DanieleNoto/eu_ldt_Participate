@@ -1,0 +1,68 @@
+import { LoginPage } from '@pages/pages/auth/LoginPage';
+import { HomePage } from '@pages/pages/public/HomePage';
+import { Page } from '@playwright/test';
+import { STORAGE_STATE, TEST_SELECTORS } from './constants';
+
+/**
+ * Helper function to ensure the user is logged in.
+ * If the user is not logged in, it performs the login again.
+ * @param page - Playwright page instance
+ * @param userType - Type of user ('USER', 'ADMIN', 'ACCOUNT_DELETION_USER')
+ */
+export async function ensureLoggedIn(page: Page, userType: keyof typeof STORAGE_STATE) {
+	const homePage = new HomePage(page);
+	await homePage.goToHomePage();
+	const isLoggedIn = await page.isVisible('#trigger-dropdown-account');
+
+	if (!isLoggedIn) {
+		await _login(page, userType);
+		if (userType === 'ADMIN') {
+			const adminMenu = await page.locator(TEST_SELECTORS.ADMIN_BAR);
+			if (await adminMenu.isVisible()) {
+				console.log('Admin permissions verified');
+			} else {
+				console.warn('Admin menu not found, user might not have admin permissions');
+			}
+		}
+
+		// Save authentication state
+		await page.context().storageState({ path: STORAGE_STATE[userType] });
+
+		console.log(`${userType} login completed and state saved.`);
+	} else {
+		console.log(`${userType} is already logged in.`);
+	}
+}
+
+async function _login(page: Page, userType: keyof typeof STORAGE_STATE) {
+	console.log(`${userType} session expired. Performing login again...`);
+	const homePage = new HomePage(page);
+	const loginPage = new LoginPage(page);
+	await homePage.goToHomePage();
+	await homePage.goToLoginFromHeader();
+	// Perform login based on user type
+	switch (userType) {
+		case 'USER':
+			await loginPage.loginAsUser();
+			break;
+		case 'ADMIN':
+			await loginPage.loginAsAdmin();
+			break;
+		case 'ACCOUNT_DELETION_USER':
+			await loginPage.loginAsUserToDelete();
+			break;
+		default:
+			throw new Error(`Unknown user type: ${userType}`);
+	}
+	await page.waitForLoadState('networkidle');
+	const isLoggedIn = await homePage.header.isUserLoggedIn();
+	if (isLoggedIn) {
+		console.log(userType + ' successfully logged in');
+		const userInitials = await homePage.header.getUserInitials();
+		console.log(`Logged in as: ${userInitials}`);
+	} else {
+		throw new Error(userType + ' login failed - user not logged in');
+	}
+
+	await page.context().storageState({ path: STORAGE_STATE[userType] });
+}

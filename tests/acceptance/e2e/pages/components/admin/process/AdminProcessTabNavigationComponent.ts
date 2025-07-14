@@ -1,13 +1,13 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component per la navigazione a tab della sezione processi admin.
- * Gestisce i tab "Processi" e "Gruppo di processi".
+ * Component for tab navigation in the admin processes section.
+ * Manages the "Processes" and "Process Group" tabs.
  */
 export class AdminProcessTabNavigationComponent {
 	constructor(private page: Page) {}
 
-	// Selettori principali
+	// Main selectors
 	private get tabNavigation() {
 		return this.page.locator('nav.main-nav').filter({ has: this.page.locator('.tab-x-container') });
 	}
@@ -20,7 +20,7 @@ export class AdminProcessTabNavigationComponent {
 		return this.tabContainer.locator('li[role="menuitem"]');
 	}
 
-	// Selettori per i tab specifici
+	// Selectors for specific tabs
 	private get processesTab() {
 		return this.tabContainer.locator('a[href*="/admin/participatory_processes"]').first();
 	}
@@ -29,7 +29,7 @@ export class AdminProcessTabNavigationComponent {
 		return this.tabContainer.locator('a[href*="/admin/participatory_process_groups"]');
 	}
 
-	// Metodi di verifica
+	// Verification methods
 	async isTabNavigationVisible(): Promise<boolean> {
 		return await this.tabNavigation.isVisible();
 	}
@@ -46,7 +46,7 @@ export class AdminProcessTabNavigationComponent {
 		return await this.processGroupsTab.isVisible();
 	}
 
-	// Metodi per ottenere testo
+	// Methods to get text
 	async getProcessesTabText(): Promise<string> {
 		return (await this.processesTab.textContent()) || '';
 	}
@@ -55,7 +55,7 @@ export class AdminProcessTabNavigationComponent {
 		return (await this.processGroupsTab.textContent()) || '';
 	}
 
-	// Metodi per verificare lo stato attivo
+	// Methods to check active state
 	async isProcessesTabActive(): Promise<boolean> {
 		const parentLi = this.processesTab.locator('..'); // Parent li element
 		const hasActiveClass = await parentLi.getAttribute('class');
@@ -73,7 +73,7 @@ export class AdminProcessTabNavigationComponent {
 		return (await activeTab.textContent()) || '';
 	}
 
-	// Metodi di navigazione
+	// Navigation methods
 	async clickProcessesTab(): Promise<void> {
 		await this.processesTab.click();
 	}
@@ -82,7 +82,7 @@ export class AdminProcessTabNavigationComponent {
 		await this.processGroupsTab.click();
 	}
 
-	// Metodi per ottenere informazioni sui tab
+	// Methods to get tab information
 	async getTabCount(): Promise<number> {
 		return await this.tabItems.count();
 	}
@@ -101,7 +101,7 @@ export class AdminProcessTabNavigationComponent {
 		return tabTexts;
 	}
 
-	// Metodi per verificare aria attributes
+	// Methods to check aria attributes
 	async getProcessesTabAriaCurrent(): Promise<string | null> {
 		return await this.processesTab.getAttribute('aria-current');
 	}
@@ -110,7 +110,7 @@ export class AdminProcessTabNavigationComponent {
 		return await this.processGroupsTab.getAttribute('aria-current');
 	}
 
-	// Verifica se il componente è completamente caricato
+	// Check if the component is fully loaded
 	async isComponentFullyLoaded(): Promise<boolean> {
 		const navigationVisible = await this.isTabNavigationVisible();
 		const containerVisible = await this.isTabContainerVisible();
@@ -120,7 +120,7 @@ export class AdminProcessTabNavigationComponent {
 		return navigationVisible && containerVisible && processesTabVisible && processGroupsTabVisible;
 	}
 
-	// Verifica se almeno un tab è attivo
+	// Check if at least one tab is active
 	async hasActiveTab(): Promise<boolean> {
 		const processesActive = await this.isProcessesTabActive();
 		const processGroupsActive = await this.isProcessGroupsTabActive();

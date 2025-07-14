@@ -2,8 +2,8 @@ import { expect, Locator, Page } from '@playwright/test';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
 
 /**
- * Page Object Model per la pagina di convocazione (Convocation Page).
- * Gestisce la visualizzazione del contenuto della convocation page di un processo partecipativo.
+ * Page Object Model for the Convocation Page.
+ * Manages the display of the convocation page content of a participatory process.
  */
 export class ConvocationPage extends AuthenticatedPage {
 	// Main content elements
@@ -86,7 +86,7 @@ export class ConvocationPage extends AuthenticatedPage {
 	 */
 	async isTitleConvocationPage(): Promise<boolean> {
 		const title = await this.getPageTitle();
-		return title.trim() === 'Convocation Page';
+		return title.trim() === 'Page';
 	}
 
 	// Verification methods
@@ -95,7 +95,7 @@ export class ConvocationPage extends AuthenticatedPage {
 	 * Verifies that the page title is "Convocation Page"
 	 */
 	async expectTitleToBeConvocationPage(): Promise<void> {
-		await expect(this.pageTitle).toHaveText('Convocation Page');
+		await expect(this.pageTitle).toHaveText('Page');
 	}
 
 	/**

@@ -201,7 +201,7 @@ export class AccountPage {
 	async uploadAvatar(filePath: string): Promise<void> {
 		await this.avatarFileInput.setInputFiles(filePath);
 		// Wait for the avatar to be processed and displayed
-		await expect(this.avatarImage).toBeVisible({ timeout: 10000 });
+		await expect(this.avatarImage).toBeVisible();
 	}
 
 	/**
@@ -339,8 +339,8 @@ export class AccountPage {
 	async waitForFormSubmission(): Promise<void> {
 		// Wait for either success or error notification
 		await Promise.race([
-			this.successNotification.waitFor({ state: 'visible', timeout: 10000 }),
-			this.errorNotification.waitFor({ state: 'visible', timeout: 10000 })
+			this.successNotification.waitFor({ state: 'visible' }),
+			this.errorNotification.waitFor({ state: 'visible' })
 		]);
 	}
 

@@ -34,7 +34,7 @@ export class LoginPage extends BasePage {
 	}
 
 	async checkUserAlreadySignIn() {
-		await this.page.waitForSelector(TEST_SELECTORS.HEADER.USER_MENU, { timeout: 10000 });
+		await this.page.waitForSelector(TEST_SELECTORS.HEADER.USER_MENU);
 		return await this.page.locator(TEST_SELECTORS.HEADER.USER_MENU).isVisible();
 	}
 
@@ -52,7 +52,7 @@ export class LoginPage extends BasePage {
 	}
 
 	// Complete login flow
-	async login(email: string = 'admin@admin.com', password: string = 'decidim123456789') {
+	async login(email: string = 'admin@example.org', password: string = 'decidim123456789') {
 		await this.fillForm(email, password);
 		await this.clickLoginButton();
 	}
@@ -63,6 +63,10 @@ export class LoginPage extends BasePage {
 
 	async loginAsUser() {
 		await this.login(TEST_USERS.NORMAL_USER.email, TEST_USERS.NORMAL_USER.password);
+	}
+
+	async loginAsUserToDelete() {
+		await this.login(TEST_USERS.USER_TO_DELETE.email, TEST_USERS.USER_TO_DELETE.password);
 	}
 
 	// Validation methods

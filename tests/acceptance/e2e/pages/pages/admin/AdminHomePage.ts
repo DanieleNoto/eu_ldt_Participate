@@ -6,19 +6,19 @@ import { AdminMetricsCardComponent } from '../../components/admin/AdminMetricsCa
 import { BaseAdminPage } from './BaseAdminPage';
 
 /**
- * AdminHomePage - Page Object Model per la dashboard principale dell'area admin.
+ * AdminHomePage - Page Object Model for the main admin dashboard.
  *
- * Estende BaseAdminPage e compone tutti i componenti specifici della dashboard:
- * - AdminDashboardHeaderComponent per breadcrumb e titolo
- * - AdminActivityCardComponent per le statistiche di attività
- * - AdminMetricsCardComponent per le metriche di partecipazione
- * - AdminLogsCardComponent per il registro di amministrazione
+ * Extends BaseAdminPage and composes all dashboard-specific components:
+ * - AdminDashboardHeaderComponent for breadcrumb and title
+ * - AdminActivityCardComponent for activity statistics
+ * - AdminMetricsCardComponent for participation metrics
+ * - AdminLogsCardComponent for the admin log
  *
- * Integra AdminNavigationComponent e AdminTitleBarComponent da BaseAdminPage.
- * Fornisce metodi per navigazione, verifica delle sezioni e gestione dei dati dashboard.
+ * Integrates AdminNavigationComponent and AdminTitleBarComponent from BaseAdminPage.
+ * Provides methods for navigation, section verification, and dashboard data management.
  */
 export class AdminHomePage extends BaseAdminPage {
-	// Componenti specifici della dashboard
+	// Dashboard-specific components
 	public dashboardHeader: AdminDashboardHeaderComponent;
 	public activityCard: AdminActivityCardComponent;
 	public metricsCard: AdminMetricsCardComponent;
@@ -27,14 +27,14 @@ export class AdminHomePage extends BaseAdminPage {
 	constructor(page: Page) {
 		super(page);
 
-		// Inizializzazione dei componenti specifici della dashboard
+		// Initialization of dashboard-specific components
 		this.dashboardHeader = new AdminDashboardHeaderComponent(page);
 		this.activityCard = new AdminActivityCardComponent(page);
 		this.metricsCard = new AdminMetricsCardComponent(page);
 		this.logsCard = new AdminLogsCardComponent(page);
 	}
 
-	// Selettori per la struttura principale della dashboard
+	// Selectors for the main dashboard structure
 	private get mainContent() {
 		return this.page.locator('main.main');
 	}
@@ -63,7 +63,7 @@ export class AdminHomePage extends BaseAdminPage {
 		return this.page.locator('a[href*="/admin/admin_terms/show"]');
 	}
 
-	// Metodi di navigazione alla dashboard
+	// Methods for navigating to the dashboard
 	async navigateToAdminHomePage(locale: string = 'en'): Promise<void> {
 		await this.navigateTo(`/admin/?locale=${locale}`);
 	}
@@ -72,7 +72,7 @@ export class AdminHomePage extends BaseAdminPage {
 		await this.navigateToAdminHomePage();
 	}
 
-	// Metodi per verificare la struttura della pagina
+	// Methods to verify the page structure
 	async isPageLayoutValid(): Promise<boolean> {
 		const main = await this.mainContent.isVisible();
 		const wrapper = await this.layoutWrapper.isVisible();
@@ -90,7 +90,7 @@ export class AdminHomePage extends BaseAdminPage {
 		return await this.gridContainer.isVisible();
 	}
 
-	// Metodi per verificare i componenti della dashboard
+	// Methods to verify dashboard components
 	async isHeaderSectionVisible(): Promise<boolean> {
 		const titleBarVisible = await this.adminTitleBar.isTitleBarVisible();
 		const navigationVisible = await this.adminNavigation.isNavigationVisible();
@@ -115,7 +115,7 @@ export class AdminHomePage extends BaseAdminPage {
 		return activityLoaded && metricsLoaded && logsLoaded;
 	}
 
-	// Metodi per l'interazione con le card
+	// Methods for interacting with the cards
 	async getActivityData(): Promise<{
 		participants: { lastMonth: string; lastWeek: string; lastDay: string };
 		admins: { lastMonth: string; lastWeek: string; lastDay: string };
@@ -141,7 +141,7 @@ export class AdminHomePage extends BaseAdminPage {
 		};
 	}
 
-	// Metodi di navigazione tramite dashboard
+	// Methods for navigation via dashboard
 	async navigateToMetricsDetails(): Promise<void> {
 		await this.metricsCard.clickViewDetails();
 	}
@@ -154,7 +154,7 @@ export class AdminHomePage extends BaseAdminPage {
 		await this.adminTermsLink.click();
 	}
 
-	// Metodi per verificare la presenza di elementi specifici
+	// Methods to verify the presence of specific elements
 	async hasAdminTermsLink(): Promise<boolean> {
 		return await this.adminTermsLink.isVisible();
 	}
@@ -163,7 +163,7 @@ export class AdminHomePage extends BaseAdminPage {
 		return (await this.adminTermsLink.textContent()) || '';
 	}
 
-	// Metodi per l'interazione con i log
+	// Methods for interacting with the log
 	async expandLogEntry(index: number): Promise<void> {
 		await this.logsCard.expandLogEntry(index);
 	}
@@ -172,7 +172,7 @@ export class AdminHomePage extends BaseAdminPage {
 		return await this.logsCard.getLogEntryByIndex(index);
 	}
 
-	// Metodi per verificare lo stato della dashboard
+	// Methods to verify the dashboard state
 	async isDashboardFullyLoaded(): Promise<boolean> {
 		const layoutValid = await this.isPageLayoutValid();
 		const adminLayoutLoaded = await this.isAdminLayoutLoaded();
@@ -183,7 +183,7 @@ export class AdminHomePage extends BaseAdminPage {
 		return layoutValid && adminLayoutLoaded && headerVisible && cardsLoaded && dashboardContentVisible;
 	}
 
-	// Metodi per l'interazione con la breadcrumb
+	// Methods for interacting with the breadcrumb
 	async navigateToHomeViaBreadcrumb(): Promise<void> {
 		await this.dashboardHeader.clickHomeIcon();
 	}
@@ -192,7 +192,7 @@ export class AdminHomePage extends BaseAdminPage {
 		return await this.dashboardHeader.getDashboardTitle();
 	}
 
-	// Metodi per verificare la presenza di notifiche
+	// Methods to verify the presence of notifications
 	async hasNotifications(): Promise<boolean> {
 		return await this.dashboardHeader.hasCalloutNotifications();
 	}
@@ -201,7 +201,7 @@ export class AdminHomePage extends BaseAdminPage {
 		return await this.dashboardHeader.getCalloutContent();
 	}
 
-	// Metodi per verificare lo stato della sessione admin
+	// Methods to verify the admin session state
 	async isAdminSessionActive(): Promise<boolean> {
 		const isLoggedIn = await this.isLoggedIn();
 		const hasAdminPermissions = await this.hasAdminPermissions();
@@ -210,18 +210,7 @@ export class AdminHomePage extends BaseAdminPage {
 		return isLoggedIn && hasAdminPermissions && dashboardLoaded;
 	}
 
-	// Metodi di utilità per la dashboard
-	async waitForDashboardToLoad(timeout: number = 30000): Promise<void> {
-		await this.page.waitForLoadState('networkidle');
-		await this.waitForElement('.layout-content__container[data-content]', timeout);
-
-		// Attende che tutte le card siano visibili
-		await this.activityCard.isActivityCardVisible();
-		await this.metricsCard.isMetricsCardVisible();
-		await this.logsCard.isLogsCardVisible();
-	}
-
-	// Metodi per ottenere informazioni aggregate della dashboard
+	// Methods to get aggregated dashboard information
 	async getDashboardSummary(): Promise<{
 		title: string;
 		organizationName: string;
@@ -242,61 +231,61 @@ export class AdminHomePage extends BaseAdminPage {
 		};
 	}
 
-	// Metodi per gestire il locale tramite AdminTitleBarComponent
+	// Methods to manage the locale via AdminTitleBarComponent
 
 	/**
-	 * Verifica se il dropdown delle lingue è visibile
+	 * Checks if the language dropdown is visible
 	 */
 	async isLanguageDropdownVisible(): Promise<boolean> {
 		await this.adminTitleBar.openLanguageDropdown();
-		await this.page.waitForTimeout(500); // Attende che il dropdown si apra
+		await this.page.waitForTimeout(500); // Waits for the dropdown to open
 		return await this.adminTitleBar.isLanguageDropdownVisible();
 	}
 
 	/**
-	 * Ottiene la lingua corrente dal dropdown
+	 * Gets the current language from the dropdown
 	 */
 	async getCurrentLanguage(): Promise<string> {
 		return await this.adminTitleBar.getCurrentLanguage();
 	}
 
 	/**
-	 * Verifica se una specifica lingua è disponibile nel dropdown
+	 * Checks if a specific language is available in the dropdown
 	 */
 	async isLanguageAvailable(languageName: string): Promise<boolean> {
 		return await this.adminTitleBar.isLanguageAvailable(languageName);
 	}
 
 	/**
-	 * Seleziona una lingua specifica dal dropdown
+	 * Selects a specific language from the dropdown
 	 */
 	async selectLanguage(languageCode: string): Promise<void> {
 		await this.adminTitleBar.selectLanguage(languageCode);
 	}
 
 	/**
-	 * Ottiene tutte le lingue disponibili nel dropdown
+	 * Gets all available languages from the dropdown
 	 */
 	async getAvailableLanguages(): Promise<string[]> {
 		return await this.adminTitleBar.getAvailableLanguages();
 	}
 
 	/**
-	 * Imposta il locale inglese se disponibile
+	 * Sets the English locale if available
 	 */
 	async setEnglishLocale(): Promise<boolean> {
 		const currentLanguage = await this.getCurrentLanguage();
 
-		// Verifica se l'inglese è già selezionato
+		// Checks if English is already selected
 		if (currentLanguage.toLowerCase().includes('en') || currentLanguage.toLowerCase().includes('english')) {
 			return true;
 		}
 
-		// Verifica se l'inglese è disponibile e lo seleziona
+		// Checks if English is available and selects it
 		const isEnglishAvailable = await this.isLanguageAvailable('English');
 		if (isEnglishAvailable) {
 			await this.selectLanguage('en');
-			// Attende che la pagina si ricarichi con il nuovo locale
+			// Waits for the page to reload with the new locale
 			await this.page.waitForLoadState('networkidle');
 			return true;
 		}

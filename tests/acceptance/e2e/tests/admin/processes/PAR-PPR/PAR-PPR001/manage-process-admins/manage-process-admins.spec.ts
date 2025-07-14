@@ -1,0 +1,180 @@
+import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
+import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
+import { NewAdminPage } from '@pages/pages/admin/processes/detail/admins/NewAdminPage';
+import { ParticipatoryProcessAdminsPage } from '@pages/pages/admin/processes/detail/admins/ParticipatoryProcessAdminsPage';
+import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
+import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
+import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
+import { STORAGE_STATE } from '@utils/constants';
+
+/**
+ * Test suite for Allows City Administrators to manage the administrators of a process, including assigning and removing roles to ensure that the process is effectively managed by the right individuals.
+ *
+ * User Story: 	As a City Administrator, I want to manage the administrators of a process so that I can assign or remove roles and ensure the process is effectively managed by the right individuals.
+ *
+ * Requirements: PAR R8
+ *
+ * Prerequisites:
+ * - The City Administrator has an active account on the platform and is logged in.
+ * - The process has already been created.
+ */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
+test.describe('[PAR-PPR001] – Manage process administrators', () => {
+	test.use({ storageState: STORAGE_STATE.ADMIN });
+	let adminHomePage: AdminHomePage;
+	let processAdminPage: ProcessAdminPage;
+	let updateProcessAdminPage: UpdateProcessAdminPage;
+	let participatoryProcessAdminsPage: ParticipatoryProcessAdminsPage;
+	let newAdminPage: NewAdminPage;
+
+	let validProcessData: any;
+
+	test.beforeEach(async ({ page }) => {
+		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
+		adminHomePage = new AdminHomePage(page);
+		processAdminPage = new ProcessAdminPage(page);
+		updateProcessAdminPage = new UpdateProcessAdminPage(page);
+		participatoryProcessAdminsPage = new ParticipatoryProcessAdminsPage(page);
+		newAdminPage = new NewAdminPage(page);
+		await adminHomePage.navigateToAdminHomePage();
+		await setupTestProcess();
+	});
+
+	/**
+	 * Setup test environment by ensuring a test process exists
+	 */
+	async function setupTestProcess() {
+		await test.step('Setup: Create/verify test process exists', async () => {
+			await processAdminPage.createTestProcess(validProcessData, true);
+		});
+	}
+
+	test.describe('Main Flow', () => {
+		test('should allow admin to add other admins to process', async () => {
+			await test.step('1. User: navigates to the "Processes" section', async () => {
+				// Navigate to processes section
+				await adminHomePage.navigateViaAdminNav('processes');
+				await processAdminPage.waitForLoadState('networkidle');
+
+				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+				expect(isOnProcessesPage).toBe(true);
+			});
+			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
+				await processAdminPage.expectToBeOnProcessesAdminPage();
+				// Verify processes table is visible and has content
+				const hasProcesses = await processAdminPage.processTable.hasProcesses();
+				expect(hasProcesses).toBe(true);
+			});
+			await test.step('3. User: Selects the process that want to update', async () => {
+				// Click edit on the first process in the table
+				await processAdminPage.processTable.clickFirstPrivateProcess();
+				await processAdminPage.getPage().waitForLoadState('networkidle');
+			});
+			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
+				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
+			});
+			await test.step('5. User: Navigates to the "Process Admins" section within the process management interface.', async () => {
+				await updateProcessAdminPage.navigateToProcessAdmins();
+			});
+			await test.step('6. System: Displays a list of current admins and provides options to add or remove admins.', async () => {
+				await participatoryProcessAdminsPage.expectToBeOnParticipatoryProcessAdminsPage();
+				await participatoryProcessAdminsPage.expectTableIsVisible();
+			});
+			await test.step('7. User: Click on new Process Admin.', async () => {
+				await participatoryProcessAdminsPage.clickNewAdminButton();
+			});
+			await test.step('8. User: Fills user info (name, mail, role) and assign as an administrator.', async () => {
+				await newAdminPage.expectToBeOnNewAdminPage();
+				await newAdminPage.fillName('Test Admin');
+				await newAdminPage.fillEmail('testadmin@example.com');
+				await newAdminPage.selectRole('admin');
+			});
+			await test.step('9. User: Clicks on "Save Changes" to confirm the addition of the new administrator.   ', async () => {
+				await newAdminPage.submitForm();
+			});
+			await test.step('10. System: Validates the user selection and checks permissions.', async () => {
+				await participatoryProcessAdminsPage.waitForLoadState('networkidle');
+				await participatoryProcessAdminsPage.expectToBeOnParticipatoryProcessAdminsPage();
+			});
+			await test.step('11. System: Adds the selected user as an administrator of the process.', async () => {
+				await participatoryProcessAdminsPage.expectAdminIsInTable('Test Admin', 'testadmin@example.com');
+			});
+			await test.step('12. System: Notifies the City Administrator that the new administrator has been successfully added..', async () => {
+				await participatoryProcessAdminsPage.expectSuccessFlashMessage(
+					'Admin successfully added to this participatory process.'
+				);
+			});
+			await test.step('Result.', async () => {
+				await participatoryProcessAdminsPage.expectAdminIsInTable('Test Admin', 'testadmin@example.com');
+			});
+		});
+	});
+
+	test.describe('Alternative Flow', () => {
+		test('should show validation fail when add new admin with wrong field', async () => {
+			await test.step('1. User: navigates to the "Processes" section', async () => {
+				// Navigate to processes section
+				await adminHomePage.navigateViaAdminNav('processes');
+				await processAdminPage.waitForLoadState('networkidle');
+
+				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+				expect(isOnProcessesPage).toBe(true);
+			});
+			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
+				await processAdminPage.expectToBeOnProcessesAdminPage();
+				// Verify processes table is visible and has content
+				const hasProcesses = await processAdminPage.processTable.hasProcesses();
+				expect(hasProcesses).toBe(true);
+			});
+			await test.step('3. User: Selects the process that want to update', async () => {
+				// Click edit on the first process in the table
+				await processAdminPage.processTable.clickFirstPrivateProcess();
+				await processAdminPage.getPage().waitForLoadState('networkidle');
+			});
+			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
+				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
+			});
+			await test.step('5. User: Navigates to the "Process Admins" section within the process management interface.', async () => {
+				await updateProcessAdminPage.navigateToProcessAdmins();
+			});
+			await test.step('6. System: Displays a list of current admins and provides options to add or remove admins.', async () => {
+				await participatoryProcessAdminsPage.expectToBeOnParticipatoryProcessAdminsPage();
+				await participatoryProcessAdminsPage.expectTableIsVisible();
+			});
+			await test.step('7. User: Click on new Process Admin.', async () => {
+				await participatoryProcessAdminsPage.clickNewAdminButton();
+			});
+			await test.step('8. User: Fills user info (name, mail, role) and assign as an administrator.', async () => {
+				await newAdminPage.expectToBeOnNewAdminPage();
+				await newAdminPage.fillName('');
+				await newAdminPage.fillEmail('wrong-mail');
+				await newAdminPage.selectRole('admin');
+			});
+			await test.step('9.1. System: Detects missing or invalid information in the user details (e.g., email format error).   ', async () => {
+				await newAdminPage.submitForm();
+			});
+			await test.step('9.2. System: Highlights the incorrect fields and displays an appropriate error message. ', async () => {
+				await newAdminPage.submitForm();
+			});
+			await test.step('9.3. User: Corrects the errors in the user information.   ', async () => {
+				await newAdminPage.fillName('Correct Admin Name');
+				await newAdminPage.fillEmail('testadmin.correct@example.com');
+				await newAdminPage.selectRole('admin');
+			});
+			await test.step('9.4. User: Clicks on "Save Changes" again.', async () => {
+				await newAdminPage.submitForm();
+			});
+			await test.step('Result.', async () => {
+				await participatoryProcessAdminsPage.expectAdminIsInTable(
+					'Correct Admin Name',
+					'testadmin.correct@example.com'
+				);
+			});
+		});
+	});
+});

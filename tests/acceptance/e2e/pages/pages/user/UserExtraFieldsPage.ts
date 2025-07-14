@@ -1,34 +1,15 @@
 import { Page, expect } from '@playwright/test';
 import { TEST_SELECTORS } from '@utils/constants';
 import { AuthenticatedPage } from '../../base/AuthenticatedPage';
-import { LoginPage } from '../auth/LoginPage';
 
 export class UserExtraFieldsPage extends AuthenticatedPage {
-	private loginPage: LoginPage;
-
 	constructor(page: Page) {
 		super(page);
-		this.loginPage = new LoginPage(page);
 	}
 
 	// Public getter for page access in tests
 	getPage(): Page {
 		return this.page;
-	}
-
-	// Navigation methods
-	async navigateToMyAccount() {
-		await this.page.locator(TEST_SELECTORS.HEADER.USER_MENU).click();
-		await this.page.locator(TEST_SELECTORS.HEADER.ACCOUNT_LINK).click();
-	}
-
-	// Login workflow for users
-	async performUserLogin() {
-		await this.loginPage.goToThisPage();
-		const isSignedIn = await this.loginPage.checkUserAlreadySignIn();
-		if (!isSignedIn) {
-			await this.loginPage.loginAsAdmin();
-		}
 	}
 
 	// Extra user fields modification
@@ -115,13 +96,6 @@ export class UserExtraFieldsPage extends AuthenticatedPage {
 	async expectFieldError(fieldName: string) {
 		const fieldContainer = this.page.locator(`[data-field="${fieldName}"]`);
 		await expect(fieldContainer.locator('.form-error')).toBeVisible();
-	}
-
-	// Complete user workflow
-	async setupUserExtraFields(userData?: UserFieldsData) {
-		await this.performUserLogin();
-		await this.navigateToMyAccount();
-		await this.modifyUserFields(userData);
 	}
 }
 

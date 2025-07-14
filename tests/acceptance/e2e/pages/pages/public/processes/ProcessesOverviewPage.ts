@@ -2,8 +2,8 @@ import { expect, Locator, Page } from '@playwright/test';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
 
 /**
- * Page Object Model per la pagina di panoramica dei processi partecipativi.
- * Gestisce la visualizzazione, filtri e navigazione dei processi disponibili.
+ * Page Object Model for the participatory processes overview page.
+ * Manages the display, filters, and navigation of available processes.
  */
 export class ProcessesOverviewPage extends AuthenticatedPage {
 	// Main layout elements
@@ -104,7 +104,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 
 		// Process cards grid
 		this.cardGrid = page.locator('.card__grid-grid');
-		this.processCards = page.locator('.card__grid');
+		this.processCards = page.locator('#highlighted-processes .card__highlight');
 
 		// Help elements
 		this.helpButton = page.locator('#floating-helper-tip button');
@@ -154,7 +154,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	 * @param index - The index of the process card (0-based)
 	 */
 	async navigateToProcessByIndex(index: number): Promise<void> {
-		const processCard = this.processCards.nth(index);
+		const processCard = await this.processCards.nth(index);
 		await processCard.click();
 		await this.waitForLoadState('networkidle');
 	}
@@ -298,7 +298,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		await expect(processCard).toBeVisible();
 	}
 	/**
-	 * Expects a process with the given title to be visible
+	 * Expects the processes filter to be visible
 	 * @param processTitle - The title of the process
 	 */
 	async expectProcessesFilterToBeVisible(): Promise<void> {
@@ -360,18 +360,18 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	// Filter interaction methods
 
 	/**
-	 * Apre il pannello filtri se è chiuso
+	 * Opens the filters panel if it is closed
 	 */
 	async openFiltersPanel(): Promise<void> {
 		const isExpanded = await this.filterDropdownTrigger.getAttribute('aria-expanded');
 		if (isExpanded !== 'true') {
 			await this.filterDropdownTrigger.click();
-			await this.page.waitForTimeout(300); // Piccola pausa per l'animazione
+			await this.page.waitForTimeout(300); // Small pause for animation
 		}
 	}
 
 	/**
-	 * Apre il filtro data se è chiuso
+	 * Opens the date filter if it is closed
 	 */
 	async openDateFilter(): Promise<void> {
 		await this.openFiltersPanel();
@@ -379,12 +379,12 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		const isExpanded = await this.dateFilterTrigger.getAttribute('aria-expanded');
 		if (isExpanded !== 'true') {
 			await this.dateFilterTrigger.click();
-			await this.page.waitForTimeout(300); // Piccola pausa per l'animazione
+			await this.page.waitForTimeout(300); // Small pause for animation
 		}
 	}
 
 	/**
-	 * Apre il filtro scope se è chiuso
+	 * Opens the scope filter if it is closed
 	 */
 	async openScopeFilter(): Promise<void> {
 		await this.openFiltersPanel();
@@ -392,12 +392,12 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		const isExpanded = await this.scopeFilterTrigger.getAttribute('aria-expanded');
 		if (isExpanded !== 'true') {
 			await this.scopeFilterTrigger.click();
-			await this.page.waitForTimeout(300); // Piccola pausa per l'animazione
+			await this.page.waitForTimeout(300); // Small pause for animation
 		}
 	}
 
 	/**
-	 * Apre il filtro area se è chiuso
+	 * Opens the area filter if it is closed
 	 */
 	async openAreaFilter(): Promise<void> {
 		await this.openFiltersPanel();
@@ -405,13 +405,13 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		const isExpanded = await this.areaFilterTrigger.getAttribute('aria-expanded');
 		if (isExpanded !== 'true') {
 			await this.areaFilterTrigger.click();
-			await this.page.waitForTimeout(300); // Piccola pausa per l'animazione
+			await this.page.waitForTimeout(300); // Small pause for animation
 		}
 	}
 
 	/**
-	 * Filtra i processi per data: tutti, prossimi, passati o attivi
-	 * @param option - L'opzione di filtro per data: 'all', 'upcoming', 'past' o 'active'
+	 * Filters processes by date: all, upcoming, past, or active
+	 * @param option - The date filter option: 'all', 'upcoming', 'past', or 'active'
 	 */
 	async filterByDate(option: 'all' | 'upcoming' | 'past' | 'active'): Promise<void> {
 		await this.openDateFilter();
@@ -431,13 +431,13 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 				break;
 		}
 
-		// Attendi che i risultati vengano aggiornati
+		// Wait for the results to update
 		await this.page.waitForLoadState('networkidle');
 	}
 
 	/**
-	 * Filtra i processi per scope: tutti o globale
-	 * @param option - L'opzione di filtro per scope: 'all' o 'global'
+	 * Filters processes by scope: all or global
+	 * @param option - The scope filter option: 'all' or 'global'
 	 */
 	async filterByScope(option: 'all' | 'global'): Promise<void> {
 		await this.openScopeFilter();
@@ -451,12 +451,12 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 				break;
 		}
 
-		// Attendi che i risultati vengano aggiornati
+		// Wait for the results to update
 		await this.page.waitForLoadState('networkidle');
 	}
 
 	/**
-	 * Seleziona l'opzione "All" nel filtro area
+	 * Selects the "All" option in the area filter
 	 */
 	async filterByAllAreas(): Promise<void> {
 		await this.openAreaFilter();
@@ -465,33 +465,33 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	}
 
 	/**
-	 * Seleziona un'area specifica dal filtro area
-	 * @param areaName - Il nome dell'area da selezionare
+	 * Selects a specific area from the area filter
+	 * @param areaName - The name of the area to select
 	 */
 	async filterByArea(areaName: string): Promise<void> {
 		await this.openAreaFilter();
 
-		// Cerca l'area per nome visualizzato
+		// Search for the area by displayed name
 		const areaOption = this.page.locator(`.filter span:text("${areaName}")`).first();
 
-		// Se è stata trovata, seleziona la checkbox associata
+		// If found, select the associated checkbox
 		if (await areaOption.isVisible()) {
-			// Risali al parent label e poi trova la checkbox
+			// Go up to the parent label and then find the checkbox
 			const parent = areaOption.locator('xpath=..');
 			await parent.locator('input[type="checkbox"]').check();
 			await this.page.waitForLoadState('networkidle');
 		} else {
-			throw new Error(`Area "${areaName}" non trovata nel filtro aree`);
+			throw new Error(`Area "${areaName}" not found in area filter`);
 		}
 	}
 
 	/**
-	 * Resetta tutti i filtri applicati
+	 * Resets all applied filters
 	 */
 	async resetAllFilters(): Promise<void> {
 		await this.openFiltersPanel();
 
-		// Seleziona le opzioni "All" per ogni filtro
+		// Select the "All" options for each filter
 		await this.openDateFilter();
 		await this.dateFilterAll.check();
 
@@ -501,13 +501,13 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		await this.openAreaFilter();
 		await this.areaFilterAll.check();
 
-		// Attendi che i risultati vengano aggiornati
+		// Wait for the results to update
 		await this.page.waitForLoadState('networkidle');
 	}
 
 	/**
-	 * Verifica quale opzione di filtro per data è attualmente selezionata
-	 * @returns L'opzione attualmente selezionata: 'all', 'upcoming', 'past' o 'active'
+	 * Checks which date filter option is currently selected
+	 * @returns The currently selected option: 'all', 'upcoming', 'past', or 'active'
 	 */
 	async getSelectedDateFilter(): Promise<'all' | 'upcoming' | 'past' | 'active'> {
 		await this.openDateFilter();
@@ -517,12 +517,12 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		if (await this.dateFilterPast.isChecked()) return 'past';
 		if (await this.dateFilterActive.isChecked()) return 'active';
 
-		return 'all'; // Default se nessuna opzione è selezionata
+		return 'all'; // Default if no option is selected
 	}
 
 	/**
-	 * Verifica se il filtro è stato applicato controllando l'URL
-	 * @returns True se almeno un filtro è attivo nell'URL
+	 * Checks if the filter has been applied by checking the URL
+	 * @returns True if at least one filter is active in the URL
 	 */
 	async hasActiveFilters(): Promise<boolean> {
 		const url = this.page.url();

@@ -111,9 +111,9 @@ export class DebatesPage extends BaseAdminPage {
 
 		for (let i = 0; i < count; i++) {
 			const rowTitle = (await this.getDebateTitleByIndex(i)).toLowerCase();
-			title.toLowerCase().trim();
+
 			// Check if this row contains the target title
-			if (rowTitle.includes(title)) {
+			if (rowTitle.includes(title.toLowerCase().trim())) {
 				const row = this.tableRows.nth(i);
 
 				// Check if title is clickable (has a link)
@@ -257,27 +257,5 @@ export class DebatesPage extends BaseAdminPage {
 		}
 
 		return index;
-	}
-
-	/**
-	 * Check if a debate exists in the table by title
-	 * @param title - The title to search for
-	 * @returns True if debate exists
-	 */
-	async hasDebateWithTitle(title: string): Promise<boolean> {
-		return (await this.findDebateIndexByTitle(title)) !== -1;
-	}
-
-	/**
-	 * Wait for the table to be loaded
-	 */
-	async waitForTableToLoad(): Promise<void> {
-		await this.debatesTable.waitFor({ state: 'visible' });
-		// Wait for at least one row to be present or confirm table is empty
-		try {
-			await this.tableRows.first().waitFor({ state: 'visible', timeout: 5000 });
-		} catch {
-			// Table might be empty, which is fine
-		}
 	}
 }

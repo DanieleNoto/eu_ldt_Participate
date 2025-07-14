@@ -3,7 +3,7 @@ import { Page } from '@playwright/test';
 export class CallToActionSectionComponent {
 	constructor(private page: Page) {}
 
-	// Selettori per la sezione CTA finale
+	// Selectors for the final CTA section
 	private get ctaSection() {
 		return this.page.locator('#footer_sub_hero');
 	}
@@ -20,7 +20,7 @@ export class CallToActionSectionComponent {
 		return this.page.locator('#footer_sub_hero .button');
 	}
 
-	// Metodi per verificare la visibilità
+	// Methods to check visibility
 	async isCTASectionVisible(): Promise<boolean> {
 		return await this.ctaSection.isVisible();
 	}
@@ -37,7 +37,7 @@ export class CallToActionSectionComponent {
 		return (await this.registerButton.textContent()) || '';
 	}
 
-	// Metodi per le azioni
+	// Action methods
 	async clickRegisterButton() {
 		await this.registerButton.click();
 	}
@@ -50,7 +50,7 @@ export class CallToActionSectionComponent {
 		return await this.registerButton.locator('svg').isVisible();
 	}
 
-	// Metodi di utilità
+	// Utility methods
 	async waitForSectionToLoad() {
 		await this.ctaSection.waitFor({ state: 'visible' });
 	}

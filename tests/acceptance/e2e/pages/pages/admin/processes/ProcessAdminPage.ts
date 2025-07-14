@@ -5,6 +5,11 @@ import { AdminProcessFiltersComponent } from '../../../components/admin/process/
 import { AdminProcessTableComponent } from '../../../components/admin/process/AdminProcessTableComponent';
 import { AdminProcessTabNavigationComponent } from '../../../components/admin/process/AdminProcessTabNavigationComponent';
 import { BaseAdminPage } from '../BaseAdminPage';
+import { NewAdminPage } from './detail/admins/NewAdminPage';
+import { ParticipatoryProcessAdminsPage } from './detail/admins/ParticipatoryProcessAdminsPage';
+import { NewPrivateParticipantFormPage } from './detail/private-participants/NewParticipantsPage';
+import { PrivateParticipantsPage } from './detail/private-participants/PrivateParticipantsPage';
+import { UpdateProcessAdminPage } from './detail/UpdateProcessAdminPage';
 
 /**
  * Page Object Model for the Decidim admin participatory processes page.
@@ -44,28 +49,11 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.waitForNewProcessPageLoad();
 	}
 
-	async navigateToProcessGroups() {
-		await this.processTabNavigation.clickProcessGroupsTab();
-		await this.waitForProcessGroupsPageLoad();
-	}
-
-	async navigateToProcessesTab() {
-		await this.processTabNavigation.clickProcessesTab();
-		await this.waitForProcessesPageLoad();
-	}
-
 	// Page state and checks using components
 	async isOnProcessesPage() {
 		return (
 			(await this.processBreadcrumb.isBreadcrumbVisible()) &&
 			(await this.processTabNavigation.isProcessesTabActive())
-		);
-	}
-
-	async isOnProcessGroupsPage() {
-		return (
-			(await this.processBreadcrumb.isBreadcrumbVisible()) &&
-			(await this.processTabNavigation.isProcessGroupsTabActive())
 		);
 	}
 
@@ -75,9 +63,6 @@ export class ProcessAdminPage extends BaseAdminPage {
 	}
 
 	// Process management using table component
-	async viewProcess(processName: string) {
-		await this.processTable.viewProcess(processName);
-	}
 
 	async editProcess(processName: string) {
 		await this.processTable.editProcess(processName);
@@ -87,60 +72,10 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.processTable.editFirstProcess();
 	}
 
-	async duplicateProcess(processName: string) {
-		await this.processTable.duplicateProcess(processName);
-	}
-
-	async deleteProcess(processName: string) {
-		await this.processTable.deleteProcess(processName);
-	}
-
-	async publishProcess(processName: string) {
-		await this.processTable.publishProcess(processName);
-	}
-
-	async unpublishProcess(processName: string) {
-		await this.processTable.unpublishProcess(processName);
-	}
-
 	// Process filtering and search using filters component
 	async searchProcesses(searchTerm: string) {
 		await this.processFilters.searchFor(searchTerm);
 		await this.processTable.waitForTableLoad();
-	}
-
-	async filterByPublicSpace() {
-		await this.processFilters.filterByPublicSpace();
-		await this.processTable.waitForTableLoad();
-	}
-
-	async filterByPrivateSpace() {
-		await this.processFilters.filterByPrivateSpace();
-		await this.processTable.waitForTableLoad();
-	}
-
-	async filterByPublished() {
-		await this.processFilters.filterByPublished();
-		await this.processTable.waitForTableLoad();
-	}
-
-	async filterByUnpublished() {
-		await this.processFilters.filterByUnpublished();
-		await this.processTable.waitForTableLoad();
-	}
-
-	async clearAllFilters() {
-		await this.processFilters.clearAllFilters();
-		await this.processTable.waitForTableLoad();
-	}
-
-	// Process data retrieval
-	async getProcessTitles() {
-		return await this.processTable.getProcessTitles();
-	}
-
-	async getProcessStatuses() {
-		return await this.processTable.getProcessStatuses();
 	}
 
 	async getProcessCount() {
@@ -153,19 +88,6 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 	async isTableEmpty() {
 		return await this.processTable.isEmpty();
-	}
-
-	// Process status checks
-	async isProcessPublished(processName: string) {
-		return await this.processTable.isProcessPublished(processName);
-	}
-
-	async isProcessDraft(processName: string) {
-		return await this.processTable.isProcessDraft(processName);
-	}
-
-	async isProcessArchived(processName: string) {
-		return await this.processTable.isProcessArchived(processName);
 	}
 
 	// Page loading helpers
@@ -185,7 +107,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 		// Wait for the form to be present
 		try {
-			await this.page.waitForSelector('form', { state: 'visible', timeout: 30000 });
+			await this.page.waitForSelector('form', { state: 'visible' });
 		} catch (error) {
 			console.log("Form not found, checking if we're on the correct page");
 			console.log('Current URL:', this.page.url());
@@ -193,7 +115,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		}
 
 		// Wait for essential form fields to be present
-		await this.page.waitForSelector('input[name*="title"], input[id*="title"]', { timeout: 30000 });
+		await this.page.waitForSelector('input[name*="title"], input[id*="title"]');
 	}
 
 	// Form element getters for test assertions (legacy support)
@@ -230,7 +152,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 				const count = await selector.count();
 				if (count > 0) {
 					const element = selector.first();
-					if (await element.isVisible({ timeout: 2000 })) {
+					if (await element.isVisible()) {
 						console.log(`Order position field found using selector ${i}: ${selector}`);
 						return element;
 					}
@@ -284,7 +206,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		if (processData.orderPosition !== 0) {
 			try {
 				const orderPositionField = await this.getOrderPositionSpinbutton();
-				if (await orderPositionField.isVisible({ timeout: 5000 })) {
+				if (await orderPositionField.isVisible()) {
 					await orderPositionField.click();
 					await orderPositionField.fill(processData.orderPosition.toString());
 					console.log('Order position field filled successfully');
@@ -444,15 +366,15 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 	// Visibility settings
 	async setVisibilityToPublic() {
-		const publicVisibilityRadio = this.page.getByRole('radio', { name: 'Public' });
-		if (await publicVisibilityRadio.isVisible()) {
+		const publicVisibilityRadio = this.page.getByText('Private process');
+		if ((await publicVisibilityRadio.isVisible()) && (await publicVisibilityRadio.isChecked())) {
 			await publicVisibilityRadio.click();
 		}
 	}
 
 	async setVisibilityToPrivate() {
-		const privateVisibilityRadio = this.page.getByRole('radio', { name: 'Private' });
-		if (await privateVisibilityRadio.isVisible()) {
+		const privateVisibilityRadio = this.page.getByText('Private process');
+		if ((await privateVisibilityRadio.isVisible()) && !(await privateVisibilityRadio.isChecked())) {
 			await privateVisibilityRadio.click();
 		}
 	}
@@ -467,26 +389,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await cancelButton.click();
 	}
 
-	async retrySubmission() {
-		await this.page.getByRole('button', { name: 'Retry' }).click();
-	}
-
-	// Private process participants
-	async addPrivateParticipants(emails: string[]) {
-		for (const email of emails) {
-			await this.page.getByRole('textbox', { name: 'Participant email' }).fill(email);
-			await this.page.getByRole('button', { name: 'Add participant' }).click();
-		}
-	}
-
 	// Success and error handling
-	async waitForSuccessMessage() {
-		await this.page.getByText('Participatory process successfully created.');
-	}
-
-	async waitForProcessErrorMessage() {
-		await this.page.getByText('There was a problem creating a new participatory process.');
-	}
 
 	async expectSuccessMessage() {
 		await expect(this.page.getByText('Participatory process successfully created.')).toBeVisible();
@@ -498,50 +401,6 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 	async expectToBeOnProcessesAdminPage() {
 		await expect(this.page).toHaveURL(/\/admin\/participatory_processes/);
-	}
-
-	// Complete workflow methods
-	async createNewProcess(processData: CompleteProcessData) {
-		await this.navigateToNewProcess();
-		await this.fillGeneralInfo(processData.general);
-		await this.fillDurationInfo(processData.duration);
-		if (processData.image) {
-			await this.addImage(processData.image);
-		}
-		await this.fillMetadataInfo(processData.metadata);
-
-		if (processData.visibility === 'private') {
-			await this.setVisibilityToPrivate();
-		} else {
-			await this.setVisibilityToPublic();
-		}
-
-		await this.submitProcess();
-
-		if (processData.visibility === 'private' && processData.privateParticipants) {
-			await this.addPrivateParticipants(processData.privateParticipants);
-		}
-	}
-
-	// Public method to test locale detection (for testing purposes)
-	public async testLocaleDetection(): Promise<{ currentLocale: string; testSelectors: string[] }> {
-		const currentLocale = LocalizationUtils.getCurrentLocale(this.page);
-		const testFields = [
-			'participatory_process_short_description',
-			'participatory_process_description',
-			'participatory_process_announcement'
-		];
-
-		const testSelectors = [];
-		for (const field of testFields) {
-			const selector = await LocalizationUtils.getWorkingLocalizedSelector(this.page, field);
-			testSelectors.push(selector);
-		}
-
-		return {
-			currentLocale,
-			testSelectors
-		};
 	}
 
 	public async createTestProcess(validProcessData: CompleteProcessData, isPrivateProcess: boolean = false) {
@@ -592,6 +451,10 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 		// Verify navigation to process edit page (indicates successful creation)
 		await expect(this.getPage()).toHaveURL(/\/admin\/participatory_processes\/.*/);
+		if (isPrivateProcess) {
+			await this.createPrivateParticipants();
+			await this.createPrivateAdmins();
+		}
 	}
 	async hasPrivateProcess(): Promise<boolean> {
 		const rows = await this.processTable.getRows();
@@ -602,6 +465,92 @@ export class ProcessAdminPage extends BaseAdminPage {
 			}
 		}
 		return false;
+	}
+
+	async createPrivateParticipants() {
+		await this.navigateToProcesses();
+		await this.processTable.clickFirstPrivateProcess();
+		await this.getPage().waitForLoadState('networkidle');
+		const updateProcessAdminPage = new UpdateProcessAdminPage(this.page);
+		await updateProcessAdminPage.navigateToPrivateParticipants();
+		const privateParticipantsPage = new PrivateParticipantsPage(this.page);
+		await privateParticipantsPage.clickNewPrivateUser();
+		const newPrivateParticipantFormPage = new NewPrivateParticipantFormPage(this.page);
+		await newPrivateParticipantFormPage.fillName('Test User 1');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser1@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 1', 'test-privateuser1@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 2');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser2@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 2', 'test-privateuser2@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 3');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser3@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 3', 'test-privateuser3@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 4');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser4@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 4', 'test-privateuser4@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 5');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser5@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 5', 'test-privateuser5@example.com');
+
+		await this.navigateToProcesses();
+	}
+	async createPrivateAdmins() {
+		await this.navigateToProcesses();
+		await this.processTable.clickFirstPrivateProcess();
+		await this.getPage().waitForLoadState('networkidle');
+		const updateProcessAdminPage = new UpdateProcessAdminPage(this.page);
+		await updateProcessAdminPage.navigateToProcessAdmins();
+		const processAdminsPage = new ParticipatoryProcessAdminsPage(this.page);
+		await processAdminsPage.clickNewAdminButton();
+		const newAdminPage = new NewAdminPage(this.page);
+		await newAdminPage.fillName('Test Admin 1');
+		await newAdminPage.fillEmail('test-privateadmin1@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 1', 'test-privateadmin1@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 2');
+		await newAdminPage.fillEmail('test-privateadmin2@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 2', 'test-privateadmin2@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 3');
+		await newAdminPage.fillEmail('test-privateadmin3@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 3', 'test-privateadmin3@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 4');
+		await newAdminPage.fillEmail('test-privateadmin4@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 4', 'test-privateadmin4@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 5');
+		await newAdminPage.fillEmail('test-privateadmin5@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 5', 'test-privateadmin5@example.com');
+
+		await this.navigateToProcesses();
 	}
 
 	// Process Update Methods
@@ -617,7 +566,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 		// Wait for the edit form to be present using the exact form class from HTML
 		try {
-			await this.page.waitForSelector('form.edit_participatory_process', { state: 'visible', timeout: 30000 });
+			await this.page.waitForSelector('form.edit_participatory_process', { state: 'visible' });
 		} catch (error) {
 			console.log("Edit form not found, checking if we're on the correct page");
 			console.log('Current URL:', this.page.url());
@@ -625,7 +574,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		}
 
 		// Wait for essential form fields to be present
-		await this.page.waitForSelector('input[name*="title"], input[id*="title"]', { timeout: 30000 });
+		await this.page.waitForSelector('input[name*="title"], input[id*="title"]');
 	}
 
 	async isOnProcessEditPage(): Promise<boolean> {
@@ -676,7 +625,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		if (processData.orderPosition !== undefined && processData.orderPosition !== 0) {
 			try {
 				const orderPositionField = await this.getOrderPositionSpinbutton();
-				if (await orderPositionField.isVisible({ timeout: 5000 })) {
+				if (await orderPositionField.isVisible()) {
 					await orderPositionField.click();
 					await orderPositionField.fill(processData.orderPosition.toString());
 					console.log('Order position field updated successfully');
@@ -886,7 +835,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		// Wait for and verify the exact update success message from the HTML
 		await expect(
 			this.page.locator('.flash.success').getByText('Participatory process successfully updated.')
-		).toBeVisible({ timeout: 10000 });
+		).toBeVisible();
 	}
 
 	async updateProcessTitle(title: string): Promise<void> {

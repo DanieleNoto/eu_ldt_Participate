@@ -1,4 +1,5 @@
 import { Locator, Page, expect } from '@playwright/test';
+import path = require('path');
 
 /**
  * Page Object Model for the file upload modal in the admin process area.
@@ -14,9 +15,9 @@ export class UploadFileModalComponent {
 	private readonly saveButton: Locator;
 	private readonly removeButton: Locator;
 	private readonly dropzoneItems: Locator;
-	private readonly TEST_IMAGE_PATH = 'tests/acceptance/e2e/test-assets/test.jpg';
-	private readonly TEST_CSV_PATH = 'tests/acceptance/e2e/test-assets/private-participants.csv';
-	private readonly NOT_VALID_TEST_IMAGE_PATH = 'tests/acceptance/e2e/test-assets/not.valid.file';
+	private readonly TEST_IMAGE_PATH = path.resolve(__dirname, '../../../../../test-assets/test.jpg');
+	private readonly TEST_CSV_PATH = path.resolve(__dirname, '../../../../../test-assets/private-participants.csv');
+	private readonly NOT_VALID_TEST_IMAGE_PATH = path.resolve(__dirname, '../../../../../test-assets/not.valid.file');
 
 	constructor(page: Page) {
 		this.page = page;

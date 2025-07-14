@@ -1,8 +1,8 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component for the main header functionality.
- * Handles logo, navigation, user authentication, and language selection.
+ * Componente per la funzionalità principale dell'intestazione.
+ * Gestisce logo, navigazione, autenticazione utente e selezione della lingua.
  */
 export class HeaderComponent {
 	constructor(private page: Page) {}
@@ -48,19 +48,19 @@ export class HeaderComponent {
 
 	// Selettori per i link desktop
 	private get helpLink() {
-		return this.page.locator('.main-bar__links-desktop__item[aria-label="Aiuto"]');
+		return this.page.locator('.main-bar__links-desktop__item[aria-label="Help"]');
 	}
 
 	private get meetingsLink() {
-		return this.page.locator('.main-bar__links-desktop__item[aria-label="Incontri"]');
+		return this.page.locator('.main-bar__links-desktop__item[aria-label="Meetings"]');
 	}
 
 	private get activitiesLink() {
-		return this.page.locator('.main-bar__links-desktop__item[aria-label="Attività"]');
+		return this.page.locator('.main-bar__links-desktop__item[aria-label="Activities"]');
 	}
 
 	private get loginLink() {
-		return this.page.locator('.main-bar__links-desktop__item[aria-label="Accedi"]');
+		return this.page.locator('.main-bar__links-desktop__item[aria-label="Log in"]');
 	}
 
 	// Selettori per l'utente loggato (desktop)
@@ -480,11 +480,11 @@ export class HeaderComponent {
 	}
 
 	async waitForUserLogin() {
-		await this.accountDropdownTrigger.waitFor({ state: 'visible', timeout: 10000 });
+		await this.accountDropdownTrigger.waitFor({ state: 'visible' });
 	}
 
 	async waitForUserLogout() {
-		await this.loginLink.waitFor({ state: 'visible', timeout: 10000 });
+		await this.loginLink.waitFor({ state: 'visible' });
 	}
 
 	// Metodo per verificare se l'header è completamente caricato per un utente loggato

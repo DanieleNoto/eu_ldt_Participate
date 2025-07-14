@@ -2,8 +2,8 @@ import { expect, Locator, Page } from '@playwright/test';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
 
 /**
- * Page Object Model per la pagina di dettaglio di un processo partecipativo.
- * Gestisce la visualizzazione dei dettagli del processo e la navigazione verso i suoi componenti.
+ * Page Object Model for the participatory process detail page.
+ * Manages the display of process details and navigation to its components.
  */
 export class ProcessDetailPage extends AuthenticatedPage {
 	// Main content elements
@@ -78,7 +78,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		await this.openNavigationDropdown();
 
 		// Find and click the convocation page link
-		const convocationLink = this.navItems.filter({ hasText: 'Convocation Page' });
+		const convocationLink = this.navItems.filter({ hasText: 'Page' });
 		await convocationLink.click();
 		await this.waitForLoadState('networkidle');
 	}
@@ -249,8 +249,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		expect(hasComponent).toBe(true);
 	}
 	/**
-	 *
-	 *
+	 * Expects the participatory container to be visible
 	 */
 	async expectParticipatoryContainerToBeVisible(): Promise<void> {
 		this.expectToBeOnProcessDetailPage();

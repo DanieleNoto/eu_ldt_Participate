@@ -76,14 +76,14 @@ export abstract class AuthenticatedPage extends BasePage {
 	 * Checks if user has admin permissions
 	 */
 	async hasAdminPermissions(): Promise<boolean> {
-		// Verifica presenza admin bar
+		// Check for admin bar presence
 		const hasAdminBar = await this.adminHeader.isAdminBarVisible();
 
 		if (hasAdminBar) {
 			return true;
 		}
 
-		// Se non c'è admin bar, verifica nel menu utente
+		// If there is no admin bar, check in the user menu
 		if (await this.isLoggedIn()) {
 			await this.header.openAccountDropdown();
 			const adminLink = await this.page.locator('a[href*="/admin/"]').isVisible();
@@ -150,20 +150,6 @@ export abstract class AuthenticatedPage extends BasePage {
 		}
 
 		return '';
-	}
-
-	/**
-	 * Waits for success notification to appear
-	 */
-	async waitForSuccessNotification(timeout: number = 10000): Promise<void> {
-		await this.waitForSuccessFlashMessage(timeout);
-	}
-
-	/**
-	 * Waits for error notification to appear
-	 */
-	async waitForErrorNotification(timeout: number = 10000): Promise<void> {
-		await this.waitForErrorFlashMessage(timeout);
 	}
 
 	/**
