@@ -2,17 +2,17 @@
 	"name": "decidim-development-app",
 	"private": true,
 	"dependencies": {
-		"@decidim/browserslist-config": "^0.29.3",
-		"@decidim/core": "^0.29.3",
-		"@decidim/webpacker": "^0.29.3",
+		"@decidim/browserslist-config": "^0.30.1",
+		"@decidim/core": "^0.30.1",
+		"@decidim/webpacker": "^0.30.1",
 		"graphql": "^16.11.0"
 	},
 	"version": "0.1.0",
 	"devDependencies": {
-		"@decidim/dev": "^0.29.3",
-		"@decidim/eslint-config": "^0.29.3",
-		"@decidim/prettier-config": "^0.29.3",
-		"@decidim/stylelint-config": "^0.29.3",
+		"@decidim/dev": "^0.30.1",
+		"@decidim/eslint-config": "^0.30.1",
+		"@decidim/prettier-config": "^0.30.1",
+		"@decidim/stylelint-config": "^0.30.1",
 		"webpack": "^5.99.9",
 		"webpack-cli": "^6.0.1"
 	},

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # This migration comes from decidim (originally 20240401192628)
+# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:53 UTC
 class ChangeNameOnDecidimOrganizations < ActiveRecord::Migration[6.1]
   class Organization < ApplicationRecord
     self.table_name = :decidim_organizations

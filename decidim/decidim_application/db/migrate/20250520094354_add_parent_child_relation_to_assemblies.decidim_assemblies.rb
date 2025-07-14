@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # This migration comes from decidim_assemblies (originally 20180226103942)
+# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:30 UTC
 class AddParentChildRelationToAssemblies < ActiveRecord::Migration[5.1]
   def change
     unless extension_enabled?("ltree")

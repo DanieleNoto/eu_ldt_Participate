@@ -1,5 +1,29 @@
 # See https://git-scm.com/docs/gitattributes for more about git attribute files.
 
+# Set default line ending behavior
+* text=auto
+
+# Explicitly declare text files you want to always be normalized
+*.rb text
+*.js text
+*.ts text
+*.jsx text
+*.tsx text
+*.css text
+*.scss text
+*.sass text
+*.html text
+*.erb text
+*.yml text
+*.yaml text
+*.json text
+*.md text
+*.txt text
+
+# Declare files that will always have LF line endings on checkout
+*.sh text eol=lf
+bin/* text eol=lf
+
 # Mark the database schema as having been generated.
 db/schema.rb linguist-generated
 

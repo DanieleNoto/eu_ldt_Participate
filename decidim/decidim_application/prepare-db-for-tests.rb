@@ -133,7 +133,7 @@ if existing_users_count > 5 && existing_processes_count > 3 && existing_proposal
   puts "--- Fake data already exists (#{existing_users_count} users, #{existing_processes_count} processes, #{existing_proposals_count} proposals). Skipping seeds generation. ---"
 else
   puts "--- Generating fake data with Decidim seeds ---"
-  puts "--- This may take a few minutes... ---"
+  puts "--- This may take an hour... ---"
   
   begin
     # Opzionale: riduci il numero di record generati

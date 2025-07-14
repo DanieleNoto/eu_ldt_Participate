@@ -1,6 +1,17 @@
 #!/bin/bash
 set -e 
 
+echo "--- Fixing line endings for bin scripts ---"
+# Fix line endings for all scripts in bin/ directory
+for script in bin/*; do
+  if [ -f "$script" ]; then
+    sed -i 's/\r$//' "$script"
+  fi
+done
+
+# Create necessary directories
+mkdir -p tmp/pids tmp/cache tmp/sockets
+
 # Remove old server PID file if it exists
 if [ -f tmp/pids/server.pid ]; then
   rm tmp/pids/server.pid
@@ -15,15 +26,44 @@ bundle install
 echo "--- Installing Node.js packages ---"
 yarn install
 
+echo "--- Testing Redis connection ---"
+until redis-cli -h redis -p 6379 ping; do
+  echo "Waiting for Redis to be ready..."
+  sleep 2
+done
+echo "--- Redis is ready ---"
+
 if [ "$RAILS_ENV" = "development" ]; then
   echo "--- Dropping and recreating database for a clean state ---"
   bin/rails db:drop DISABLE_DATABASE_ENVIRONMENT_CHECK=1 || true
   bin/rails db:create
+  
+  # Only run decidim:upgrade if it's a fresh database or if migrations are pending
+  echo "--- Checking if Decidim upgrade is needed ---"
+  if ! bin/rails db:version &>/dev/null || [ ! -f .decidim_upgrade_completed ]; then
+    echo "--- Installing Decidim migrations ---"
+    bin/rails decidim:upgrade
+    touch .decidim_upgrade_completed
+  else
+    echo "--- Decidim upgrade already completed, skipping ---"
+  fi
+  
   bin/rails db:migrate
   echo "--- Database dropped, created and migrated ---"
 else
   echo "--- Creating database (if it doesn't exist) ---"
   bin/rails db:create || true
+  
+  # Only run decidim:upgrade if migrations are pending or if it hasn't been run
+  echo "--- Checking if Decidim upgrade is needed ---"
+  if ! bin/rails db:migrate:status &>/dev/null || [ ! -f .decidim_upgrade_completed ]; then
+    echo "--- Installing Decidim migrations ---"
+    bin/rails decidim:upgrade
+    touch .decidim_upgrade_completed
+  else
+    echo "--- Decidim upgrade already completed, skipping ---"
+  fi
+  
   echo "--- Running database migrations ---"
   bin/rails db:migrate
 fi
