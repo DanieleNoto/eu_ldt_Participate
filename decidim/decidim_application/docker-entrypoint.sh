@@ -19,11 +19,15 @@ if [ "$RAILS_ENV" = "development" ]; then
   echo "--- Dropping and recreating database for a clean state ---"
   bin/rails db:drop DISABLE_DATABASE_ENVIRONMENT_CHECK=1 || true
   bin/rails db:create
+  bin/rails decidim_calendar:install:migrations
+  bin/rails decidim_calendar:webpacker:install
   bin/rails db:migrate
   echo "--- Database dropped, created and migrated ---"
 else
   echo "--- Creating database (if it doesn't exist) ---"
   bin/rails db:create || true
+  bin/rails decidim_calendar:install:migrations
+  bin/rails decidim_calendar:webpacker:install
   echo "--- Running database migrations ---"
   bin/rails db:migrate
 fi

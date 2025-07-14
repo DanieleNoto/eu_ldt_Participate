@@ -5,6 +5,7 @@ source "https://rubygems.org"
 ruby RUBY_VERSION
 
 gem "decidim", "0.29.3"
+gem "decidim-calendar", git: "https://github.com/decidim-ice/decidim-module-calendar",branch: "release/0.29-stable"
 # gem "decidim-conferences", "0.29.3"
 # gem "decidim-design", "0.29.3"
 # gem "decidim-initiatives", "0.29.3"
