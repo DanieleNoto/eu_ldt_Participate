@@ -333,6 +333,10 @@ export class HomePage extends BasePage {
 		return await this.homeMenuSection.locator('a[href*="/processes"]').click();
 	}
 
+	async goToCalendarFromHomeMenu() {
+		return await this.homeMenuSection.locator('a[href*="/calendar"]').click();
+	}
+
 	// Methods for cookie settings
 	async openCookieSettingsFromFooter() {
 		await this.footer.clickCookieSettings();
