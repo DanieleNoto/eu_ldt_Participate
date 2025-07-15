@@ -39,9 +39,223 @@
 
 ### Prerequisites
 
+* **Operating System**: Linux or WSL (Windows Subsystem for Linux) on Windows - recommended for optimal development experience
 * [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
 * [Node.js](https://nodejs.org/) (LTS) and npm or yarn
+* [NVM](https://github.com/nvm-sh/nvm) - Node Version Manager for managing Node.js versions
 * [Helm](https://helm.sh/) and [kubectl](https://kubernetes.io/) for Kubernetes deployments
+
+### Local Development Setup
+
+> **🚀 Recommended: Use Makefile for automated setup**
+>
+> The project includes a comprehensive Makefile that automates the entire development environment setup. This is the recommended approach for both new and experienced developers.
+
+#### Option A: Automated Setup with Makefile (Recommended)
+
+First, clone the repository and navigate to the project root:
+
+```bash
+git clone <repository-url>
+cd eu-ldt-participate
+```
+
+Then use the Makefile for complete automated setup:
+
+```bash
+# Show all available commands
+make help
+
+# Complete environment setup (includes NVM, dependencies, Playwright, Decidim)
+make setup
+
+# Alternative: Quick setup without Playwright (faster)
+make quick-setup
+
+# Start all services
+make start
+
+# Run all tests
+make test-all
+```
+
+**Key Makefile Commands:**
+
+```bash
+# Setup & Environment
+make setup              # Complete automated environment setup
+make quick-setup        # Fast setup without Playwright
+make validate-env       # Check if all tools are properly installed
+make info              # Show project information and structure
+
+# Service Management
+make start             # Start Decidim services
+make stop              # Stop all services
+make restart           # Restart services
+make status            # Check service status
+make logs              # View Decidim logs
+
+# Development
+make dev-decidim      # Start Decidim
+make dev-frontend     # Start frontend development server
+make dev-backend      # Start backend development server
+make dev-all          # Instructions for all development servers
+
+# Testing
+make test             # Run Playwright E2E tests
+make test-all         # Run all tests (backend, frontend, E2E)
+make test-playwright  # Run Playwright E2E tests
+make test-playwright-ui # Run Playwright with UI
+make test-frontend    # Run frontend unit tests
+make test-backend     # Run backend unit tests
+make report-playwright # Show Playwright test report
+
+# Utilities
+make clean            # Clean up containers and data
+make reset            # Complete reset and setup
+make urls             # Show all service URLs
+```
+
+#### Option B: Manual Setup (Advanced Users)
+
+If you prefer manual control over the setup process, follow these steps:
+
+##### 1. Initial Setup
+
+First, clone the repository and navigate to the project root:
+
+```bash
+git clone <repository-url>
+cd eu-ldt-participate
+```
+
+##### 2. Node.js Version Management
+
+This project uses NVM to ensure consistent Node.js versions across different environments. The required Node.js version is specified in the `.nvmrc` file.
+
+```bash
+# Install and use the required Node.js version
+nvm install
+nvm use
+```
+
+##### 3. Install Root Dependencies
+
+Install the monorepo dependencies:
+
+```bash
+npm install
+```
+
+##### 4. Playwright E2E Tests Setup
+
+Navigate to the Playwright tests directory and install dependencies:
+
+```bash
+cd tests/acceptance/e2e
+npm install
+npx playwright install --with-deps
+```
+
+Available Playwright commands:
+
+```bash
+# Run tests in different environments
+npm run test:dev        # Development environment
+npm run test:ci         # CI environment  
+npm run test:prod       # Production environment
+
+# Run tests with UI
+npm run test-ui         # Standard UI mode
+npm run test-ui-port0   # UI mode on random port
+
+# View test reports
+npm run report
+```
+
+##### 5. Decidim Setup with Docker Compose
+
+Decidim is the core civic participation framework. To run it locally:
+
+```bash
+# Navigate to the Decidim application directory
+cd decidim/decidim_application
+
+# Start all services (Decidim, PostgreSQL, Redis, Shakapacker)
+docker-compose up -d
+
+# View logs (optional)
+docker-compose logs -f decidim
+
+# Stop services
+docker-compose down
+```
+
+The Decidim application will be available at `http://localhost:3000`.
+
+**Default Admin Credentials** (development only):
+
+* Email: `admin@example.org`
+* Password: `decidim123456789`
+
+**Default Simple User Credentials** (development only):
+
+* Email: `user@example.org`
+* Password: `decidim123456789`
+
+**Default User to delete Credentials** (development only):
+
+* Email: `user2@example.org`
+* Password: `decidim123456789`
+
+**Services included:**
+
+* **Decidim App**: Main application (`http://localhost:3000`)
+* **PostgreSQL**: Database service
+* **Redis**: Cache and session storage
+* **Shakapacker**: Asset compilation service (`http://localhost:3035`)
+
+##### 6. Frontend Chatbot Setup
+
+Navigate to the frontend directory and install dependencies:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+##### 7. Backend Chatbot Setup
+
+Navigate to the backend directory and install dependencies:
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Development Workflow
+
+#### Using Makefile (Recommended)
+
+```bash
+# First-time setup
+make setup
+
+# Daily development workflow
+make start                    # Start Decidim
+make test-all                # Run all tests
+make dev-frontend            # Start frontend (in separate terminal)
+make dev-backend             # Start backend (in separate terminal)
+```
+
+#### Manual Commands
+
+1. **Start Decidim**: `cd decidim/decidim_application && docker-compose up -d`
+2. **Run Playwright Tests**: `cd tests/acceptance/e2e && npm run test:dev`
+3. **Frontend Development**: `cd frontend && npm run dev`
+4. **Backend Development**: `cd backend && npm run dev`
 
 ## Contributing
 
