@@ -58,6 +58,10 @@ export class AdminNavigationComponent {
 		return this.page.locator('.layout-nav nav a[href*="/admin/logs"]');
 	}
 
+	private get templatesLink() {
+		return this.page.locator('.layout-nav nav a[href*="/admin/templates"]');
+	}
+
 	// Verification methods
 	async isNavigationVisible(): Promise<boolean> {
 		return await this.navigationContainer.isVisible();
@@ -109,6 +113,10 @@ export class AdminNavigationComponent {
 		await this.logsLink.click();
 	}
 
+	async navigateToTemplates(): Promise<void> {
+		await this.templatesLink.click();
+	}
+
 	// Navigation via logo
 	async clickLogo(): Promise<void> {
 		await this.logo.click();
@@ -147,6 +155,10 @@ export class AdminNavigationComponent {
 		return await this.logsLink.isVisible();
 	}
 
+	async isTemplatesLinkVisible(): Promise<boolean> {
+		return await this.templatesLink.isVisible();
+	}
+
 	// Get link texts
 	async getProcessesLinkText(): Promise<string> {
 		return (await this.processesLink.textContent()) || '';
@@ -178,5 +190,9 @@ export class AdminNavigationComponent {
 
 	async getLogsLinkText(): Promise<string> {
 		return (await this.logsLink.textContent()) || '';
+	}
+
+	async getTemplatesLinkText(): Promise<string> {
+		return (await this.templatesLink.textContent()) || '';
 	}
 }

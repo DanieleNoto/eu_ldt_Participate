@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     apt-transport-https \
     redis-tools \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /etc/apt/keyrings && \

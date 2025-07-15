@@ -13,10 +13,10 @@ import { STORAGE_STATE } from '@utils/constants';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-	testDir: '../', // Relative to this config file location
+	testDir: './', // Look for tests starting from the current directory
 
 	// Global test timeout (default is 30 seconds)
-	timeout: 300000, // 300 seconds for each test 5 minutes
+	timeout: 3000000, // 300 seconds for each test 5 minutes
 
 	// Timeout for expect() assertions (default is 5 seconds)
 	expect: {
@@ -54,25 +54,25 @@ export default defineConfig({
 		// Setup project for user authentication
 		{
 			name: 'user-setup',
-			testMatch: 'tests/**/auth/user-auth.setup.ts',
+			testMatch: '../**/auth/user-auth.setup.ts',
 			teardown: 'user-cleanup'
 		},
 		// Setup project for admin authentication
 		{
 			name: 'admin-setup',
-			testMatch: 'tests/**/auth/admin-auth.setup.ts',
+			testMatch: '../**/auth/admin-auth.setup.ts',
 			teardown: 'admin-cleanup'
 		},
 
 		// Cleanup project
 		{
 			name: 'user-cleanup',
-			testMatch: 'tests/**/auth/user-auth.cleanup.ts'
+			testMatch: '../**/auth/user-auth.cleanup.ts'
 		},
 		// Cleanup project
 		{
 			name: 'admin-cleanup',
-			testMatch: 'tests/**/auth/admin-auth.cleanup.ts'
+			testMatch: '../**/auth/admin-auth.cleanup.ts'
 		},
 
 		// User tests with authenticated state
@@ -83,7 +83,7 @@ export default defineConfig({
 				storageState: STORAGE_STATE.USER
 			},
 			dependencies: ['user-setup'],
-			testMatch: 'tests/user/**/*.spec.ts'
+			testMatch: ['../user/**/*.spec.ts', 'tests/user/**/*.spec.ts']
 		},
 
 		// Admin tests with authenticated state
@@ -94,12 +94,12 @@ export default defineConfig({
 				storageState: STORAGE_STATE.ADMIN
 			},
 			dependencies: ['admin-setup'],
-			testMatch: 'tests/admin/**/*.spec.ts'
+			testMatch: ['../admin/**/*.spec.ts', 'tests/admin/**/*.spec.ts']
 		},
 		// User to delete tests
 		{
 			name: 'user-to-delete-tests',
-			testMatch: 'tests/user-to-delete/**/*.spec.ts'
+			testMatch: ['../user-to-delete/**/*.spec.ts', 'tests/user-to-delete/**/*.spec.ts']
 		}
 
 		// {

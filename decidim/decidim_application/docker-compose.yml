@@ -18,6 +18,9 @@ services:
             - NODE_ENV=${NODE_ENV}
             - DECIDIM_MAILER_SENDER=${DECIDIM_MAILER_SENDER}
             - QUEUE_ADAPTER=${QUEUE_ADAPTER}
+            - SHAKAPACKER_DEV_SERVER_HOST=shakapacker
+            - SHAKAPACKER_DEV_SERVER_PORT=3035
+            - SHAKAPACKER_DEV_SERVER_ENABLED=true
         volumes:
             - .:/code
             - bundle_cache:/usr/local/bundle
@@ -30,6 +33,8 @@ services:
             redis:
                 condition: service_healthy
             db:
+                condition: service_started
+            shakapacker:
                 condition: service_started
         healthcheck:
             test: ['CMD', 'test', '-d', 'node_modules']
@@ -75,8 +80,6 @@ services:
                 condition: service_started
             redis:
                 condition: service_healthy
-            decidim:
-                condition: service_healthy
         networks:
             - private
         ports:
@@ -87,6 +90,12 @@ services:
             - RAILS_ENV=${RAILS_ENV}
             - NODE_ENV=${NODE_ENV}
             - SHAKAPACKER_DEV_SERVER_HOST=${SHAKAPACKER_DEV_SERVER_HOST}
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3035"]
+            interval: 15s
+            timeout: 10s
+            retries: 20
+            start_period: 30s
 
     # grafana:
     #     image: grafana/grafana:11.0.0
