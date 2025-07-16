@@ -128,6 +128,8 @@ make reset                # Complete reset and setup
 make urls                 # Show all service URLs
 ```
 
+Now that you have everything running, go to the section **Use the application**
+
 #### Option B: Manual Setup (Advanced Users)
 
 If you prefer manual control over the setup process, follow these steps:
