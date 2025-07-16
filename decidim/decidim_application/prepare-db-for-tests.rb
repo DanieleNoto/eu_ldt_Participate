@@ -1,4 +1,3 @@
-# Configurazione variabili di default
 admin_email = ENV["SYSTEM_ADMIN_EMAIL"] || "admin@admin.com"
 admin_password = ENV["SYSTEM_ADMIN_PASSWORD"] || "decidim123456789"
 
@@ -14,7 +13,6 @@ puts "--- Starting data preparation ---"
 
 begin
 
-# --- Prima crea l'organizzazione ---
 puts "--- Creating organization ---"
 
 begin
@@ -109,7 +107,6 @@ end
 
 puts "--- Organization #{organization_name} created successfully with ID: #{org.id} ---"
 
-# --- Crea l'admin di sistema ---
 puts "--- Creating system admin ---"
 begin
   system_admin = Decidim::System::Admin.find_or_create_by!(email: admin_email) do |a|
@@ -124,7 +121,6 @@ end
 
 puts "--- System admin #{admin_email} created successfully ---"
 
-# --- Crea l'admin come utente dell'organizzazione ---
 puts "--- Creating admin user for organization ---"
 begin
   admin_user = Decidim::User.find_or_create_by!(email: admin_email, organization: org) do |u|
@@ -149,7 +145,6 @@ end
 
 puts "--- Admin user #{admin_email} created and associated to organization ---"
 
-# --- Crea altri utenti associati all'organizzazione ---
 puts "--- Creating regular users ---"
 users = [
   { email: user_email, nickname: "user", name: "User Test" },
@@ -173,7 +168,6 @@ users.each do |user_attrs|
   puts "--- User #{user.email} created and associated to organization ---"
 end
 
-# --- Crea static page topics ---
 puts "--- Creating static page topics ---"
 
 # General topic
@@ -188,7 +182,6 @@ end
 
 puts "--- Static page topics created successfully ---"
 
-# --- Crea le pagine statiche essenziali ---
 puts "--- Creating static pages ---"
 
 # Terms of Service page
@@ -257,7 +250,6 @@ end
 
 puts "--- Static pages created successfully ---"
 
-# --- Crea contextual help sections ---
 puts "--- Creating contextual help sections ---"
 
 # Participatory Processes contextual help
@@ -282,7 +274,6 @@ end
 
 puts "--- Contextual help sections created successfully ---"
 
-# --- Crea i content blocks per la homepage ---
 puts "--- Creating homepage content blocks ---"
 
 content_blocks = [
@@ -313,7 +304,6 @@ end
 
 puts "--- Homepage content blocks created successfully ---"
 
-# --- Create test participatory processes ---
 puts "--- Creating test participatory processes ---"
 
 # First create a process type if needed

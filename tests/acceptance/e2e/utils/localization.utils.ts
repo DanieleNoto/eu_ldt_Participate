@@ -128,14 +128,6 @@ export class LocalizationUtils {
 				announcement: 'Important announcement for the participatory process',
 				hashtag: '#testprocess'
 			},
-			it: {
-				title: 'Processo Partecipativo di Test',
-				subtitle: 'Sottotitolo del processo di test',
-				shortDescription: 'Breve descrizione del processo partecipativo per i test',
-				description: 'Descrizione completa del processo partecipativo in italiano',
-				announcement: 'Annuncio importante per il processo partecipativo',
-				hashtag: '#processotest'
-			},
 			fr: {
 				title: 'Processus Participatif de Test',
 				subtitle: 'Sous-titre du processus de test',
