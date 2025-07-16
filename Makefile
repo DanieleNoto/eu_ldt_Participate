@@ -20,6 +20,22 @@ DECIDIM_URL := http://localhost:3000
 FRONTEND_URL := http://localhost:5001
 BACKEND_URL := http://localhost:8080
 
+# --- OS Detection ---
+# Detect OS using uname -s
+UNAME_S := $(shell uname -s)
+
+ifeq ($(findstring MINGW64_NT,$(UNAME_S)),MINGW64_NT)
+    # Commands for Git Bash on Windows (using nvm-windows)
+    NVM_CHECK_CMD = where nvm >/dev/null 2>&1 || { test -f "$$NVM_HOME/nvm.exe" && true; }
+	NODE_VERSION_FROM_NVMRC := $(shell cat .nvmrc 2>/dev/null | tr -d '[:space:]' | sed 's/^v//')
+    NODE_SETUP_CMD = nvm install $(NODE_VERSION_FROM_NVMRC) || nvm install lts; nvm use $(NODE_VERSION_FROM_NVMRC) || nvm use lts
+else # Assuming Linux/macOS or other Unix-like
+    # Commands for standard Unix-like systems (using original nvm)
+    NVM_CHECK_CMD = bash -c "source ~/.nvm/nvm.sh && command -v nvm" >/dev/null 2>&1
+    NODE_SETUP_CMD = bash -c "source ~/.nvm/nvm.sh && nvm install && nvm use"
+endif
+# --- End OS Detection ---
+
 help: ## Show this help message
 	@echo "$(GREEN)EU LDT Participate - Development Makefile$(NC)"
 	@echo "$(YELLOW)Available targets:$(NC)"
@@ -29,12 +45,12 @@ check-prerequisites: ## Check if required tools are installed
 	@echo "$(YELLOW)Checking prerequisites...$(NC)"
 	@command -v docker >/dev/null 2>&1 || { echo "$(RED)Error: Docker is required but not installed.$(NC)"; exit 1; }
 	@command -v docker compose >/dev/null 2>&1 || { echo "$(RED)Error: Docker Compose is required but not installed.$(NC)"; exit 1; }
-	@bash -c "source ~/.nvm/nvm.sh && command -v nvm" >/dev/null 2>&1 || { echo "$(RED)Error: NVM is required but not installed.$(NC)"; exit 1; }
+	@$(NVM_CHECK_CMD) || { echo "$(RED)Error: NVM is required but not installed.$(NC)"; exit 1; }
 	@echo "$(GREEN)✓ All prerequisites are installed$(NC)"
 
 setup-node: check-prerequisites ## Setup Node.js using NVM
 	@echo "$(YELLOW)Setting up Node.js version...$(NC)"
-	@bash -c "source ~/.nvm/nvm.sh && nvm install && nvm use"
+	@$(NODE_SETUP_CMD)
 	@echo "$(GREEN)✓ Node.js setup completed$(NC)"
 
 install-deps: setup-node ## Install all dependencies

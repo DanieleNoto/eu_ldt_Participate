@@ -39,10 +39,12 @@
 
 ### Prerequisites
 
-* **Operating System**: Linux or WSL (Windows Subsystem for Linux) on Windows - recommended for optimal development experience
+* **Operating System**: Linux, macOS, or Windows (WSL recommended, but native Windows is now supported)
 * [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
 * [Node.js](https://nodejs.org/) (LTS) and npm or yarn
-* [NVM](https://github.com/nvm-sh/nvm) - Node Version Manager for managing Node.js versions
+* **Make**: Required for running the Makefile. On Windows, install via [Chocolatey](https://chocolatey.org/) with `choco install make`.
+* [NVM](https://github.com/nvm-sh/nvm) - Node Version Manager for managing Node.js versions (Linux/macOS/WSL)
+* [nvm-windows](https://github.com/coreybutler/nvm-windows) - Node Version Manager for Windows (native Windows only)
 * [Helm](https://helm.sh/) and [kubectl](https://kubernetes.io/) for Kubernetes deployments
 
 ### Local Development Setup
@@ -53,20 +55,30 @@
 
 #### Option A: Automated Setup with Makefile (Recommended)
 
-First, clone the repository and navigate to the project root:
+First, start Docker if you don't have it started yet, then clone the repository and navigate to the project root:
 
 ```bash
 git clone <repository-url>
 cd eu-ldt-participate
 ```
 
-Then use the Makefile for complete automated setup:
+**Windows users:**
+
+* Install [Chocolatey](https://chocolatey.org/) if not present.
+* Install Make: `choco install make`
+* Install [nvm-windows](https://github.com/coreybutler/nvm-windows) and ensure it is in your PATH.
+
+**Linux/macOS/WSL users:**
+
+* Ensure you have GNU Make and [nvm](https://github.com/nvm-sh/nvm) installed.
+
+Then use the Makefile for complete automated setup (works on Linux, macOS, WSL, and Windows):
 
 ```bash
 # Show all available commands
 make help
 
-# Complete environment setup (includes NVM, dependencies, Playwright, Decidim)
+# Complete environment setup (includes NVM/nvm-windows, dependencies, Playwright, Decidim)
 make setup
 
 # Alternative: Quick setup without Playwright (faster)
@@ -79,41 +91,41 @@ make start
 make test-all
 ```
 
-**Key Makefile Commands:**
+**Key Makefile Commands (cross-platform):**
 
 ```bash
 # Setup & Environment
-make setup              # Complete automated environment setup
-make quick-setup        # Fast setup without Playwright
-make validate-env       # Check if all tools are properly installed
-make info              # Show project information and structure
+make setup                # Complete automated environment setup
+make quick-setup          # Fast setup without Playwright
+make validate-env         # Check if all tools are properly installed
+make info                 # Show project information and structure
 
 # Service Management
-make start             # Start Decidim services
-make stop              # Stop all services
-make restart           # Restart services
-make status            # Check service status
-make logs              # View Decidim logs
+make start                # Start Decidim services
+make stop                 # Stop all services
+make restart              # Restart services
+make status               # Check service status
+make logs                 # View Decidim logs
 
 # Development
-make dev-decidim      # Start Decidim
-make dev-frontend     # Start frontend development server
-make dev-backend      # Start backend development server
-make dev-all          # Instructions for all development servers
+make dev-decidim          # Start Decidim
+make dev-frontend         # Start frontend development server
+make dev-backend          # Start backend development server
+make dev-all              # Instructions for all development servers
 
 # Testing
-make test             # Run Playwright E2E tests
-make test-all         # Run all tests (backend, frontend, E2E)
-make test-playwright  # Run Playwright E2E tests
-make test-playwright-ui # Run Playwright with UI
-make test-frontend    # Run frontend unit tests
-make test-backend     # Run backend unit tests
-make report-playwright # Show Playwright test report
+make test                 # Run Playwright E2E tests
+make test-all             # Run all tests (backend, frontend, E2E)
+make test-playwright      # Run Playwright E2E tests
+make test-playwright-ui   # Run Playwright with UI
+make test-frontend        # Run frontend unit tests
+make test-backend         # Run backend unit tests
+make report-playwright    # Show Playwright test report
 
 # Utilities
-make clean            # Clean up containers and data
-make reset            # Complete reset and setup
-make urls             # Show all service URLs
+make clean                # Clean up containers and data
+make reset                # Complete reset and setup
+make urls                 # Show all service URLs
 ```
 
 #### Option B: Manual Setup (Advanced Users)
@@ -191,6 +203,8 @@ docker-compose logs -f decidim
 docker-compose down
 ```
 
+##### 6. How to use application
+
 The Decidim application will be available at `http://localhost:3000`.
 
 **Default Admin Credentials** (development only):
@@ -215,7 +229,7 @@ The Decidim application will be available at `http://localhost:3000`.
 * **Redis**: Cache and session storage
 * **Shakapacker**: Asset compilation service (`http://localhost:3035`)
 
-##### 6. Frontend Chatbot Setup
+##### 7. Frontend Chatbot Setup
 
 Navigate to the frontend directory and install dependencies:
 
@@ -225,7 +239,7 @@ npm install
 npm run dev
 ```
 
-##### 7. Backend Chatbot Setup
+##### 8. Backend Chatbot Setup
 
 Navigate to the backend directory and install dependencies:
 
