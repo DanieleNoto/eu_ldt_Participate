@@ -7,7 +7,7 @@ import { Page } from '@playwright/test';
 export class HeaderComponent {
 	constructor(private page: Page) {}
 
-	// Selettori per la struttura principale
+	// Selectors for the main structure
 	private get mainBar() {
 		return this.page.locator('#main-bar');
 	}
@@ -16,7 +16,7 @@ export class HeaderComponent {
 		return this.page.locator('.main-bar__container');
 	}
 
-	// Selettori per il logo
+	// Selectors for the logo
 	private get logoDesktop() {
 		return this.page.locator('.main-bar__logo-desktop a');
 	}
@@ -25,7 +25,7 @@ export class HeaderComponent {
 		return this.page.locator('.main-bar__logo-mobile a');
 	}
 
-	// Selettori per la ricerca
+	// Selectors for search
 	private get searchForm() {
 		return this.page.locator('#form-search_topbar');
 	}
@@ -46,24 +46,24 @@ export class HeaderComponent {
 		return this.page.locator('#input-search-mobile');
 	}
 
-	// Selettori per i link desktop
+	// Selectors for desktop links
 	private get helpLink() {
-		return this.page.locator('.main-bar__links-desktop__item[aria-label="Aiuto"]');
+		return this.page.locator('.main-bar__links-desktop__item[aria-label="Help"]');
 	}
 
 	private get meetingsLink() {
-		return this.page.locator('.main-bar__links-desktop__item[aria-label="Incontri"]');
+		return this.page.locator('.main-bar__links-desktop__item[aria-label="Meetings"]');
 	}
 
 	private get activitiesLink() {
-		return this.page.locator('.main-bar__links-desktop__item[aria-label="Attività"]');
+		return this.page.locator('.main-bar__links-desktop__item[aria-label="Activities"]');
 	}
 
 	private get loginLink() {
 		return this.page.locator('.main-bar__links-desktop__item[aria-label="Log in"]');
 	}
 
-	// Selettori per l'utente loggato (desktop)
+	// Selectors for logged-in user (desktop)
 	private get accountDropdownContainer() {
 		return this.page.locator('.main-bar__dropdown-container');
 	}
@@ -84,7 +84,7 @@ export class HeaderComponent {
 		return this.page.locator('.main-bar__notification[data-unread-notifications="true"]');
 	}
 
-	// Selettori per i link del dropdown account (desktop)
+	// Selectors for account dropdown links (desktop)
 	private get myAccountLink() {
 		return this.page.locator('div#dropdown-menu-account a[href*="/account"]');
 	}
@@ -105,7 +105,7 @@ export class HeaderComponent {
 		return this.page.locator('div#dropdown-menu-account a[href*="/users/sign_out"]');
 	}
 
-	// Selettori per l'utente loggato (mobile)
+	// Selectors for logged-in user (mobile)
 	private get mobileAccountButton() {
 		return this.page.locator('#dropdown-trigger-links-mobile');
 	}
@@ -122,7 +122,7 @@ export class HeaderComponent {
 		return this.page.locator('.account-container .h3');
 	}
 
-	// Selettori per il menu mobile
+	// Selectors for mobile menu
 	private get mobileMenuButton() {
 		return this.page.locator('#main-dropdown-summary-mobile');
 	}
@@ -135,7 +135,7 @@ export class HeaderComponent {
 		return this.page.locator('.main-bar__links-mobile__login');
 	}
 
-	// Selettori per il language chooser mobile
+	// Selectors for mobile language chooser
 	private get languageChooserButton() {
 		return this.page.locator('#dropdown-trigger-language-chooser-mobile');
 	}
@@ -144,7 +144,7 @@ export class HeaderComponent {
 		return this.page.locator('#dropdown-menu-language-chooser-mobile');
 	}
 
-	// Metodi per verificare la visibilità degli elementi
+	// Methods to check element visibility
 	async isMainBarVisible(): Promise<boolean> {
 		return await this.mainBar.isVisible();
 	}
@@ -159,7 +159,7 @@ export class HeaderComponent {
 		return await this.searchForm.isVisible();
 	}
 
-	// Metodi per la navigazione tramite logo
+	// Methods for logo navigation
 	async clickLogo() {
 		if (await this.logoDesktop.isVisible()) {
 			await this.logoDesktop.click();
@@ -177,7 +177,7 @@ export class HeaderComponent {
 		return '';
 	}
 
-	// Metodi per la ricerca
+	// Methods for search
 	async performSearch(term: string) {
 		if (await this.searchInput.isVisible()) {
 			await this.searchInput.fill(term);
@@ -194,7 +194,7 @@ export class HeaderComponent {
 		return desktop || mobile;
 	}
 
-	// Metodi per i link desktop
+	// Methods for desktop links
 	async clickHelpLink() {
 		await this.helpLink.click();
 	}
@@ -218,7 +218,7 @@ export class HeaderComponent {
 		await this.page.waitForLoadState('networkidle');
 	}
 
-	// Metodi per verificare lo stato di login
+	// Methods to check login state
 	async isUserLoggedIn(): Promise<boolean> {
 		const desktopAccount = await this.accountDropdownTrigger.isVisible();
 		const mobileAccount = await this.mobileAccountButton.isVisible();
@@ -231,7 +231,7 @@ export class HeaderComponent {
 		return desktopLogin || mobileLogin;
 	}
 
-	// Metodi per l'account dropdown (desktop)
+	// Methods for account dropdown (desktop)
 	async openAccountDropdown() {
 		await this.accountDropdownTrigger.click();
 	}
@@ -259,7 +259,7 @@ export class HeaderComponent {
 		return await this.notificationBadge.isVisible();
 	}
 
-	// Metodi per la navigazione dell'account (desktop)
+	// Methods for account navigation (desktop)
 	async goToMyAccount() {
 		await this.openAccountDropdown();
 		await this.myAccountLink.click();
@@ -287,7 +287,7 @@ export class HeaderComponent {
 		}
 	}
 
-	// Metodi per l'account mobile
+	// Methods for account (mobile)
 	async openMobileAccountMenu() {
 		await this.mobileAccountButton.click();
 	}
@@ -306,7 +306,7 @@ export class HeaderComponent {
 		return (await this.mobileUserGreeting.textContent()) || '';
 	}
 
-	// Metodi per la navigazione dell'account (mobile)
+	// Methods for account navigation (mobile)
 	async goToMyAccountMobile() {
 		await this.openMobileAccountMenu();
 		await this.page.locator('#dropdown-menu-account-mobile a[href*="/account"]').click();
@@ -332,7 +332,7 @@ export class HeaderComponent {
 		await this.page.locator('#dropdown-menu-account-mobile a[href*="/users/sign_out"]').click();
 	}
 
-	// Metodi universali che funzionano sia per desktop che mobile
+	// Universal methods that work for both desktop and mobile
 	async navigateToMyAccount() {
 		if (await this.accountDropdownTrigger.isVisible()) {
 			await this.goToMyAccount();
@@ -374,13 +374,13 @@ export class HeaderComponent {
 		await this.page.waitForLoadState('networkidle');
 	}
 
-	// Metodi per verificare la visibilità dei link desktop
+	// Methods to check desktop links visibility
 	async areDesktopLinksVisible(): Promise<boolean> {
 		const help = await this.helpLink.isVisible();
 		const meetings = await this.meetingsLink.isVisible();
 		const activities = await this.activitiesLink.isVisible();
 
-		// Verifica se è presente il link di login (utente non loggato) o l'account dropdown (utente loggato)
+		// Check if login link (logged out user) or account dropdown (logged in user) is present
 		const authElement = (await this.loginLink.isVisible()) || (await this.accountDropdownTrigger.isVisible());
 
 		return help && meetings && activities && authElement;
@@ -404,7 +404,7 @@ export class HeaderComponent {
 		return help && meetings && activities && login;
 	}
 
-	// Metodi per il menu mobile
+	// Methods for mobile menu
 	async openMobileMenu() {
 		await this.mobileMenuButton.click();
 	}
@@ -423,7 +423,7 @@ export class HeaderComponent {
 		return await this.mobileMenuButton.isVisible();
 	}
 
-	// Metodi per il language chooser
+	// Methods for language chooser
 	async openLanguageChooser() {
 		await this.languageChooserButton.click();
 	}
@@ -441,21 +441,21 @@ export class HeaderComponent {
 		return await this.languageChooserButton.isVisible();
 	}
 
-	// Metodi di utilità
+	// Utility methods
 	async waitForHeaderToLoad() {
 		await this.mainBar.waitFor({ state: 'visible' });
 	}
 
 	async isResponsiveHeaderWorking(): Promise<boolean> {
-		// Verifica se il comportamento responsive funziona correttamente
+		// Check if responsive behavior works correctly
 		const desktopLinks = await this.page.locator('.main-bar__links-desktop').isVisible();
 		const mobileMenu = await this.mobileMenuButton.isVisible();
 
-		// Almeno uno dei due dovrebbe essere visibile
+		// At least one of the two should be visible
 		return desktopLinks || mobileMenu;
 	}
 
-	// Metodo per ottenere tutti i link del menu mobile
+	// Method to get all mobile menu links
 	async getMobileMenuLinks(): Promise<string[]> {
 		await this.openMobileMenu();
 		const links = await this.page.locator('.menu-bar__main-dropdown__menu li a span').allTextContents();
@@ -463,7 +463,7 @@ export class HeaderComponent {
 		return links;
 	}
 
-	// Metodi di utilità per l'account management
+	// Utility methods for account management
 	async getAccountMenuItems(): Promise<string[]> {
 		if (await this.accountDropdownTrigger.isVisible()) {
 			await this.openAccountDropdown();
@@ -480,14 +480,14 @@ export class HeaderComponent {
 	}
 
 	async waitForUserLogin() {
-		await this.accountDropdownTrigger.waitFor({ state: 'visible', timeout: 10000 });
+		await this.accountDropdownTrigger.waitFor({ state: 'visible' });
 	}
 
 	async waitForUserLogout() {
-		await this.loginLink.waitFor({ state: 'visible', timeout: 10000 });
+		await this.loginLink.waitFor({ state: 'visible' });
 	}
 
-	// Metodo per verificare se l'header è completamente caricato per un utente loggato
+	// Method to check if header is fully loaded for a logged-in user
 	async isHeaderLoadedForLoggedInUser(): Promise<boolean> {
 		const mainBar = await this.isMainBarVisible();
 		const logo = await this.isLogoVisible();
@@ -497,7 +497,7 @@ export class HeaderComponent {
 		return mainBar && logo && search && account;
 	}
 
-	// Metodo per verificare se l'header è completamente caricato per un utente non loggato
+	// Method to check if header is fully loaded for a logged-out user
 	async isHeaderLoadedForLoggedOutUser(): Promise<boolean> {
 		const mainBar = await this.isMainBarVisible();
 		const logo = await this.isLogoVisible();
