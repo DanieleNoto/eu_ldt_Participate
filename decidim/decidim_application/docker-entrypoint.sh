@@ -17,7 +17,7 @@ yarn install
 
 if [ "$RAILS_ENV" = "development" ]; then
   echo "--- Dropping and recreating database for a clean state ---"
-  bin/rails db:drop DISABLE_DATABASE_ENVIRONMENT_CHECK=1 || true
+  # bin/rails db:drop DISABLE_DATABASE_ENVIRONMENT_CHECK=1 || true
   bin/rails db:create
   bin/rails db:migrate
   echo "--- Database dropped, created and migrated ---"

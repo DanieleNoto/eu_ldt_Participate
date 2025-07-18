@@ -5,8 +5,8 @@ organization_name = ENV["SYSTEM_ORG_NAME"] || "EU LDT Participate Tool"
 organization_host = ENV["SYSTEM_ORG_HOST"] || "localhost"
 organization_reference_prefix = ENV["SYSTEM_ORG_PREFIX"] || "EU-LDT"
 
-user_email = ENV["DEFAULT_USER_EMAIL"] || "user@example.com"
-user_to_delete_email = ENV["DEFAULT_USER_TO_DELETE_EMAIL"] || "user-to-delete@example.com"
+user_email = ENV["DEFAULT_USER_EMAIL"] || "user@example.org"
+user_to_delete_email = ENV["DEFAULT_USER_TO_DELETE_EMAIL"] || "user2@example.org"
 user_password = ENV["DEFAULT_USER_PASSWORD"] || "decidim123456789"
 
 puts "--- Starting data preparation ---"
@@ -631,4 +631,37 @@ rescue => e
   puts "--- Backtrace: ---"
   puts e.backtrace.join("\n")
   exit 1
+end
+
+# Alla fine del tuo script prepare-db-for-tests.rb
+puts "--- Checking if fake data already exists ---"
+
+# Controlla se esistono già dati fake (oltre ai tuoi utenti base)
+existing_users_count = Decidim::User.where(organization: org).count
+existing_processes_count = Decidim::ParticipatoryProcess.where(organization: org).count
+existing_proposals_count = Decidim::Proposals::Proposal.joins(:component)
+                            .where(component: { participatory_space: { decidim_organization_id: org.id } }).count rescue 0
+
+# I tuoi utenti base sono 3, se ce ne sono molti di più significa che i seeds sono già stati eseguiti
+if existing_users_count > 5 && existing_processes_count > 3 && existing_proposals_count > 10
+  puts "--- Fake data already exists (#{existing_users_count} users, #{existing_processes_count} processes, #{existing_proposals_count} proposals). Skipping seeds generation. ---"
+else
+  puts "--- Generating fake data with Decidim seeds ---"
+  puts "--- This may take a few minutes... ---"
+  
+  begin
+    # Opzionale: riduci il numero di record generati
+    original_number = ENV.fetch("DECIDIM_SEED_RECORDS", "5")
+    ENV["DECIDIM_SEED_RECORDS"] = "2" # Riduci da 5 a 2 per velocizzare
+
+    Decidim.seed!
+    
+    # Ripristina il valore originale
+    ENV["DECIDIM_SEED_RECORDS"] = original_number
+    
+    puts "--- Decidim seeds completed successfully ---"
+  rescue => e
+    puts "--- Error running Decidim seeds: #{e.message} ---"
+    puts e.backtrace.join("\n")
+  end
 end

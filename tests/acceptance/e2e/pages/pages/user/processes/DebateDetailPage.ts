@@ -1226,7 +1226,7 @@ export class DebateDetailPage {
 	 * Scroll through existing comments to ensure they are loaded
 	 */
 	async scrollThroughComments(): Promise<void> {
-		await this.existingComments.last().scrollIntoViewIfNeeded();
+		await this.commentForm.last().scrollIntoViewIfNeeded();
 	}
 	/**
 	 * Verifies that exist a comment with text from text param

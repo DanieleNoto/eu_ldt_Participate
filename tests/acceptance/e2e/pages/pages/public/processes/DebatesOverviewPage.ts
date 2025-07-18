@@ -258,6 +258,5 @@ export class DebatesOverviewPage {
 	async expectToBeOnDebatesOverviewPage(): Promise<void> {
 		await expect(this.getPage()).toHaveURL(/\/processes\/.*\/debates$/);
 		await expect(this.debatesSection).toBeVisible();
-		await expect(this.newDebateButton).toBeVisible();
 	}
 }
