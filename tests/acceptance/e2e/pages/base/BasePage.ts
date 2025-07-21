@@ -23,7 +23,7 @@ export abstract class BasePage {
 	}
 
 	/**
-	 * Waits for the page to be fully loaded
+	 * Waits for the page to fully load
 	 */
 	async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle' = 'networkidle'): Promise<void> {
 		await this.page.waitForLoadState(state);
@@ -61,7 +61,7 @@ export abstract class BasePage {
 	}
 
 	/**
-	 * Gets the text content of an element
+	 * Gets the text of an element
 	 */
 	async getElementText(selector: string): Promise<string> {
 		return (await this.page.textContent(selector)) || '';
@@ -105,27 +105,27 @@ export abstract class BasePage {
 	}
 
 	/**
-	 * Checks if the user is logged in via header
+	 * Checks if the user is logged in via the header
 	 */
 	async isUserLoggedIn(): Promise<boolean> {
 		return await this.header.isUserLoggedIn();
 	}
 
 	/**
-	 * Navigates to login via header
+	 * Navigates to login via the header
 	 */
 	async navigateToLogin(): Promise<void> {
 		await this.header.goToLoginPage();
 	}
 
 	/**
-	 * Performs logout via header
+	 * Performs logout via the header
 	 */
 	async performLogout(): Promise<void> {
 		await this.header.performLogout();
 	}
 
-	// Common flash message selectors
+	// Selectors for common flash messages
 	private get flashMessagesContainer() {
 		return this.page.locator('#flash-messages-container, .flash-messages');
 	}

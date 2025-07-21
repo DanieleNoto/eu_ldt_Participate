@@ -9,9 +9,9 @@ import { ParticipationSectionComponent } from '../../components/home/Participati
 import { StatisticsSectionComponent } from '../../components/home/StatisticsSectionComponent';
 
 /**
- * HomePage - Page Object Model for the main site page.
+ * HomePage - Page Object Model for the main page of the site.
  *
- * Extends BasePage and composes all necessary components for the homepage:
+ * Extends BasePage and composes all the necessary components for the homepage:
  * - AdminHeaderComponent for the admin bar (when visible)
  * - Footer, OfflineMessage, and homepage sections
  * - Integrates HeaderComponent and CookieBarComponent from BasePage
@@ -32,7 +32,7 @@ export class HomePage extends BasePage {
 	constructor(page: Page) {
 		super(page);
 
-		// Initialization of components (header already initialized in BasePage)
+		// Component initialization (header already initialized in BasePage)
 		this.adminHeader = new AdminHeaderComponent(page);
 		this.footer = new FooterComponent(page);
 		this.offlineMessage = new OfflineMessageComponent(page);
@@ -140,7 +140,7 @@ export class HomePage extends BasePage {
 		return await this.adminHeader.isEditOrganizationButtonVisible();
 	}
 
-	// Methods for managing flash messages (uses public methods from BasePage)
+	// Methods for handling flash messages (uses public methods from BasePage)
 	async isSuccessFlashMessageVisible(): Promise<boolean> {
 		return await this.hasSuccessFlashMessage();
 	}
@@ -164,7 +164,7 @@ export class HomePage extends BasePage {
 		return hasSuccess || hasError;
 	}
 
-	// Methods for interacting with main sections
+	// Methods for interacting with the main sections
 	async participateInPlatform() {
 		await this.heroSection.clickParticipateButton();
 	}
@@ -202,7 +202,7 @@ export class HomePage extends BasePage {
 		return await this.statisticsSection.getParticipantsCount();
 	}
 
-	// Methods for navigation from sections
+	// Methods for navigation from the sections
 	async goToMeetingsFromHeader() {
 		await this.header.clickMeetingsLink();
 	}
@@ -274,7 +274,7 @@ export class HomePage extends BasePage {
 		await this.heroSection.waitForHeroToLoad();
 	}
 
-	// Methods to verify page completeness
+	// Methods to verify the completeness of the page
 	async isHomePageCompletelyLoaded(): Promise<boolean> {
 		const layout = await this.isPageLayoutValid();
 		const header = await this.isHeaderSectionVisible();
@@ -349,7 +349,7 @@ export class HomePage extends BasePage {
 
 	// Utility methods for admin
 	async isCurrentUserAdmin(): Promise<boolean> {
-		// Checks if the current user has admin privileges by checking for the admin bar
+		// Checks if the current user has admin privileges by checking for the presence of the admin bar
 		return await this.isAdminHeaderVisible();
 	}
 
@@ -398,7 +398,7 @@ export class HomePage extends BasePage {
 	 * Verify that we are on the home page
 	 */
 	async expectToBeOnHomePage(): Promise<void> {
-		await expect(this.page).toHaveURL(/.*\/(it|en|fr|de|es)?(\?.*)?$/);
+		await expect(this.page).toHaveURL(/^\/(\?.*)?$/);
 		await this.waitForPageToFullyLoad();
 	}
 	/**
