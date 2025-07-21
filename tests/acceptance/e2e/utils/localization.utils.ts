@@ -127,30 +127,6 @@ export class LocalizationUtils {
 				description: 'Complete description of the participatory process in English',
 				announcement: 'Important announcement for the participatory process',
 				hashtag: '#testprocess'
-			},
-			it: {
-				title: 'Processo Partecipativo di Test',
-				subtitle: 'Sottotitolo del processo di test',
-				shortDescription: 'Breve descrizione del processo partecipativo per i test',
-				description: 'Descrizione completa del processo partecipativo in italiano',
-				announcement: 'Annuncio importante per il processo partecipativo',
-				hashtag: '#processotest'
-			},
-			fr: {
-				title: 'Processus Participatif de Test',
-				subtitle: 'Sous-titre du processus de test',
-				shortDescription: 'Brève description du processus participatif pour les tests',
-				description: 'Description complète du processus participatif en français',
-				announcement: 'Annonce importante pour le processus participatif',
-				hashtag: '#processustest'
-			},
-			de: {
-				title: 'Test Partizipativer Prozess',
-				subtitle: 'Test-Prozess Untertitel',
-				shortDescription: 'Kurze Beschreibung des partizipativen Prozesses für Tests',
-				description: 'Vollständige Beschreibung des partizipativen Prozesses auf Deutsch',
-				announcement: 'Wichtige Ankündigung für den partizipativen Prozess',
-				hashtag: '#testprozess'
 			}
 		};
 
