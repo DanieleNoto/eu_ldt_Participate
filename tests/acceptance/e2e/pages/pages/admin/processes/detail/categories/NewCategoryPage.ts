@@ -16,6 +16,11 @@ export class NewCategoryPage extends BaseAdminPage {
 		await expect(this.page.getByRole('heading', { name: 'New category' })).toBeVisible();
 	}
 
+	async expectToBeOnEditCategoryPage(): Promise<void> {
+		await expect(this.page).toHaveURL(/\/admin\/participatory_processes\/.+\/categories\/.+\/edit/);
+		await expect(this.page.getByRole('heading', { name: 'Edit category' })).toBeVisible();
+	}
+
 	// Interazioni campi
 	async fillName(name: string): Promise<void> {
 		await this.page.fill('#category_name_en', name);
@@ -24,9 +29,17 @@ export class NewCategoryPage extends BaseAdminPage {
 	async fillOrderPosition(position: number): Promise<void> {
 		await this.page.fill('#category_weight', position.toString());
 	}
+	async getOrderPosition(): Promise<number> {
+		const value = await this.page.locator('#category_weight').inputValue();
+		return parseInt(value, 10);
+	}
 
-	async selectParentByValue(value: string): Promise<void> {
-		await this.page.selectOption('#category_parent_id', value);
+	async selectParentByIndex(index: number): Promise<void> {
+		await this.page.selectOption('#category_parent_id', { index });
+	}
+
+	async getSelectedOption(): Promise<string | null> {
+		return await this.page.locator('#category_parent_id option:checked').innerText();
 	}
 
 	// Submit
