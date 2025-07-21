@@ -62,6 +62,11 @@ export default defineConfig({
 			testMatch: 'tests/**/auth/admin-auth.setup.ts',
 			teardown: 'admin-cleanup'
 		},
+		// Setup project for user to delete authentication
+		{
+			name: 'account-deletion-user-setup',
+			testMatch: 'tests/**/auth/user-to-delete-auth.setup.ts'
+		},
 
 		// Cleanup project
 		{
@@ -72,6 +77,16 @@ export default defineConfig({
 		{
 			name: 'admin-cleanup',
 			testMatch: 'tests/**/auth/admin-auth.cleanup.ts'
+		},
+
+		{
+			name: 'user-account-deletion-tests',
+			use: {
+				...devices['Desktop Chrome'],
+				storageState: STORAGE_STATE.ACCOUNT_DELETION_USER
+			},
+			dependencies: ['account-deletion-user-setup'],
+			testMatch: 'tests/user-to-delete/account-deletion/account-deletion.spec.ts'
 		},
 
 		// User tests with authenticated state

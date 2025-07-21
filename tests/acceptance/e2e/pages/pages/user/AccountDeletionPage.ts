@@ -140,8 +140,10 @@ export class AccountDeletionPage {
 	}
 
 	// Methods
-	async navigateToAccountDeletion(): Promise<void> {
+	async navigateToMyAccount(): Promise<void> {
 		await this.headerComponent.goToMyAccount();
+	}
+	async navigateToAccountDeletion(): Promise<void> {
 		await this.verticalTabsComponent.navigateToDeleteAccount();
 	}
 

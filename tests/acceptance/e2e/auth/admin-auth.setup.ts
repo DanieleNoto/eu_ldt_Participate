@@ -1,4 +1,3 @@
-import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { LoginPage } from '@pages/pages/auth/LoginPage';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { test as setup } from '@playwright/test';
@@ -52,21 +51,8 @@ setup('authenticate as admin', async ({ page }) => {
 		throw new Error('Admin login failed - user not logged in');
 	}
 
-	// Navigate to AdminHomePage and set English locale
-	console.log('Navigating to admin dashboard...');
-	const adminHomePage = new AdminHomePage(page);
-	await adminHomePage.navigateToAdminHomePage('en');
-
-	// Wait for admin dashboard to load completely
-	await adminHomePage.waitForDashboardToLoad();
-
-	// Set locale to English using AdminTitleBarComponent
-	console.log('Setting locale to English...');
-
-	await adminHomePage.setEnglishLocale();
-
 	// Save authentication state
 	await page.context().storageState({ path: STORAGE_STATE.ADMIN });
 
-	console.log('Admin authentication completed with English locale set');
+	console.log('Admin authentication completed');
 });

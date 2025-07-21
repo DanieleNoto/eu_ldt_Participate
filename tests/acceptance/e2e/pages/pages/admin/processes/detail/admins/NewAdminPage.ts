@@ -17,7 +17,7 @@ export class NewAdminPage extends BaseAdminPage {
 		this.nameInput = page.locator('#participatory_process_user_role_name');
 		this.emailInput = page.locator('#participatory_process_user_role_email');
 		this.roleDropdown = page.locator('#participatory_process_user_role_role');
-		this.createButton = page.locator('form button[type="submit"]');
+		this.createButton = page.locator('form button[type="submit"][name="commit"]');
 	}
 
 	/**

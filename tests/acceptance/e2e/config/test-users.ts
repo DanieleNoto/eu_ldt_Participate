@@ -1,11 +1,24 @@
 export const TEST_USERS = {
 	NORMAL_USER: {
-		email: process.env.TEST_USER_EMAIL || 'user@user.com',
+		email: process.env.TEST_USER_EMAIL || 'user@example.org',
 		password: process.env.TEST_USER_PASSWORD || 'decidim123456789',
 		role: 'user' as const,
 		name: 'John Doe',
 		username: 'john_doe_3',
-		birth: '11undefined06undefined2025',
+		birth: '11/06/2025',
+		gender: 'Male',
+		country: 'Bangladesh',
+		postalCode: '40133',
+		phoneNumber: '233233233',
+		location: 'Bologna'
+	},
+	USER_TO_DELETE: {
+		email: process.env.TEST_USER_TO_DELETE_EMAIL || 'user2@example.org',
+		password: process.env.TEST_USER_TO_DELETE_PASSWORD || 'decidim123456789',
+		role: 'user' as const,
+		name: 'John Doe',
+		username: 'john_doe_4',
+		birth: '11/06/2025',
 		gender: 'Male',
 		country: 'Bangladesh',
 		postalCode: '40133',
@@ -13,7 +26,7 @@ export const TEST_USERS = {
 		location: 'Bologna'
 	},
 	ADMIN_USER: {
-		email: process.env.TEST_ADMIN_EMAIL || 'admin@admin.com',
+		email: process.env.TEST_ADMIN_EMAIL || 'admin@example.org',
 		password: process.env.TEST_ADMIN_PASSWORD || 'decidim123456789',
 		role: 'admin' as const,
 		firstName: 'Admin',
