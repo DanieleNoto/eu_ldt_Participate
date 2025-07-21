@@ -38,6 +38,8 @@ test.describe('[PAR-PPM005] – Edit category in process', () => {
 
 	test.describe('Main Flow', () => {
 		test('should allow admin to edit categories of process', async () => {
+			let parentName = '';
+			let position = 0;
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -73,8 +75,10 @@ test.describe('[PAR-PPM005] – Edit category in process', () => {
 				await newCategoryPage.expectToBeOnEditCategoryPage();
 			});
 			await test.step('9. User: Makes the desired changes to the category (e.g., updates the name or parent link).', async () => {
+				parentName = await newCategoryPage.getSelectedOption();
+				position = await newCategoryPage.getOrderPosition();
 				await newCategoryPage.fillName('Updated Beautiful Category Name');
-				await newCategoryPage.fillOrderPosition(2);
+				await newCategoryPage.fillOrderPosition(-10); // Negative Index to move it to the top
 				await newCategoryPage.selectParentByIndex(1); // Assuming '1' is the value for the desired parent category
 			});
 			await test.step('10. User: Clicks on "Update" to save the changes.', async () => {
@@ -92,6 +96,13 @@ test.describe('[PAR-PPM005] – Edit category in process', () => {
 			});
 			await test.step('Result.', async () => {
 				await categoriesPage.expectCategoryIsInTable('Updated Beautiful Category Name');
+				const updatedIndex = await categoriesPage.getIndexByTitle('Updated Beautiful Category Name');
+				await categoriesPage.clickEditButtonByIndex(updatedIndex);
+				await newCategoryPage.expectToBeOnEditCategoryPage();
+				const updatedParentName = await newCategoryPage.getSelectedOption();
+				const updatedPosition = await newCategoryPage.getOrderPosition();
+				expect(updatedParentName).not.toBe(parentName);
+				expect(updatedPosition).not.toBe(position);
 			});
 		});
 	});
