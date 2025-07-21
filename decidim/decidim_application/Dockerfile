@@ -5,23 +5,23 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Update system and install base dependencies
 RUN apt-get update && apt-get install -y \
-    curl \
-    gnupg \
-    ca-certificates \
-    build-essential \
-    sudo \
-    lsb-release \
-    apt-transport-https \
-    && rm -rf /var/lib/apt/lists/*
+  curl \
+  gnupg \
+  ca-certificates \
+  build-essential \
+  sudo \
+  lsb-release \
+  apt-transport-https \
+  && rm -rf /var/lib/apt/lists/*
 
 # Add NodeSource GPG key
 RUN mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | \
-    gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | \
+  gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
 
 # Add Node.js 20 (LTS) repository
 RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" \
-    > /etc/apt/sources.list.d/nodesource.list
+  > /etc/apt/sources.list.d/nodesource.list
 
 # Install Node.js
 RUN apt-get update && apt-get install -y nodejs
