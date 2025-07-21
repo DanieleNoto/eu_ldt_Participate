@@ -74,6 +74,8 @@ test.describe('[PAR-PPM005] – Edit category in process', () => {
 			});
 			await test.step('9. User: Makes the desired changes to the category (e.g., updates the name or parent link).', async () => {
 				await newCategoryPage.fillName('Updated Beautiful Category Name');
+				await newCategoryPage.fillOrderPosition(2);
+				await newCategoryPage.selectParentByIndex(1); // Assuming '1' is the value for the desired parent category
 			});
 			await test.step('10. User: Clicks on "Update" to save the changes.', async () => {
 				await newCategoryPage.submitForm();
@@ -136,7 +138,7 @@ test.describe('[PAR-PPM005] – Edit category in process', () => {
 			await test.step('10.1. System: Detects that the category details are incomplete or incorrect.', async () => {
 				await newCategoryPage.waitForLoadState('networkidle');
 
-				await newCategoryPage.expectErrorFlashMessage('There was a problem creating this category.');
+				await newCategoryPage.expectErrorFlashMessage('There was a problem updating this category.');
 			});
 			await test.step('10.2. System: Highlights the fields with errors and displays appropriate error messages.', async () => {
 				await newCategoryPage.expectFormValidationError();

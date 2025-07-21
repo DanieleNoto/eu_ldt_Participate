@@ -30,8 +30,8 @@ export class NewCategoryPage extends BaseAdminPage {
 		await this.page.fill('#category_weight', position.toString());
 	}
 
-	async selectParentByValue(value: string): Promise<void> {
-		await this.page.selectOption('#category_parent_id', value);
+	async selectParentByIndex(index: number): Promise<void> {
+		await this.page.selectOption('#category_parent_id', { index });
 	}
 
 	// Submit
