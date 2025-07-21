@@ -37,6 +37,24 @@
 
 ## Getting Started
 
+## Cross-Platform Compatibility
+
+This project is designed to work seamlessly across Linux, macOS, WSL, and native Windows environments.
+
+### Line Ending Handling
+
+The project uses **`.gitattributes`** and **`.editorconfig`** files to ensure consistent line endings across all platforms:
+
+* **`.gitattributes`**: Automatically normalizes line endings to LF for script files, preventing execution issues in Docker containers
+* **`.editorconfig`**: Ensures your editor respects the correct line ending settings
+
+**This means:**
+
+* ✅ **Windows users**: No manual line ending conversion needed
+* ✅ **Linux/macOS users**: Everything works as expected
+* ✅ **Docker containers**: Always receive files with correct line endings
+* ✅ **Git operations**: Automatic line ending normalization
+
 ### Prerequisites
 
 * **Operating System**: Linux, macOS, or Windows (WSL recommended, but native Windows is now supported)
@@ -67,6 +85,8 @@ cd eu-ldt-participate
 * Install [Chocolatey](https://chocolatey.org/) if not present.
 * Install Make: `choco install make`
 * Install [nvm-windows](https://github.com/coreybutler/nvm-windows) and ensure it is in your PATH.
+
+> **📝 Note for Windows users:** This project uses `.gitattributes` to automatically handle line ending conversion. You don't need to manually convert line endings - Git will handle this automatically when you clone or checkout files.
 
 **Linux/macOS/WSL users:**
 
