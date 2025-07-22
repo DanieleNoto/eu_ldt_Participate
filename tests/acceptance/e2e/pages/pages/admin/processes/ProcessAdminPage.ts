@@ -97,11 +97,6 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.processTable.waitForTableLoad();
 	}
 
-	private async waitForProcessGroupsPageLoad() {
-		await this.page.waitForLoadState('networkidle');
-		await this.processTabNavigation.isComponentFullyLoaded();
-	}
-
 	private async waitForNewProcessPageLoad() {
 		await this.page.waitForLoadState('networkidle');
 
