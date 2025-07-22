@@ -32,7 +32,7 @@ export class HomePage extends BasePage {
 	constructor(page: Page) {
 		super(page);
 
-		// Initialization of components (header already initialized in BasePage)
+		// Component initialization (header already initialized in BasePage)
 		this.adminHeader = new AdminHeaderComponent(page);
 		this.footer = new FooterComponent(page);
 		this.offlineMessage = new OfflineMessageComponent(page);
@@ -185,6 +185,7 @@ export class HomePage extends BasePage {
 		await this.header.performSearch(searchTerm);
 	}
 
+	// Methods to get information from the page
 	// Methods to get information from the page
 	async getHeroTitle(): Promise<string> {
 		return await this.heroSection.getHeroTitle();
@@ -398,7 +399,7 @@ export class HomePage extends BasePage {
 	 * Verify that we are on the home page
 	 */
 	async expectToBeOnHomePage(): Promise<void> {
-		await expect(this.page).toHaveURL(/.*\/(it|en|fr|de|es)?(\?.*)?$/);
+		await expect(this.page).toHaveURL(/^\/(\?.*)?$/);
 		await this.waitForPageToFullyLoad();
 	}
 	/**
