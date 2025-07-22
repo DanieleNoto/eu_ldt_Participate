@@ -23,14 +23,14 @@ export abstract class BasePage {
 	}
 
 	/**
-	 * Attende il caricamento completo della pagina
+	 * Waits for the page to fully load
 	 */
 	async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle' = 'networkidle'): Promise<void> {
 		await this.page.waitForLoadState(state);
 	}
 
 	/**
-	 * Prende uno screenshot della pagina corrente
+	 * Takes a screenshot of the current page
 	 */
 	async takeScreenshot(name: string): Promise<void> {
 		await this.page.screenshot({
@@ -40,43 +40,43 @@ export abstract class BasePage {
 	}
 
 	/**
-	 * Attende che un elemento sia visibile
+	 * Waits for an element to be visible
 	 */
 	async waitForElement(selector: string, timeout: number = 30000): Promise<void> {
 		await this.page.waitForSelector(selector, { timeout });
 	}
 
 	/**
-	 * Riempie un campo di input
+	 * Fills an input field
 	 */
 	async fillInput(selector: string, value: string): Promise<void> {
 		await this.page.fill(selector, value);
 	}
 
 	/**
-	 * Clicca su un elemento
+	 * Clicks on an element
 	 */
 	async clickElement(selector: string): Promise<void> {
 		await this.page.click(selector);
 	}
 
 	/**
-	 * Ottiene il testo di un elemento
+	 * Gets the text of an element
 	 */
 	async getElementText(selector: string): Promise<string> {
 		return (await this.page.textContent(selector)) || '';
 	}
 
 	/**
-	 * Verifica se un elemento è visibile
+	 * Checks if an element is visible
 	 */
 	async isElementVisible(selector: string): Promise<boolean> {
 		return await this.page.isVisible(selector);
 	}
 
 	/**
-	 * Gestisce automaticamente la cookie bar se presente
-	 * Accetta tutti i cookie per default
+	 * Automatically handles the cookie bar if present
+	 * Accepts all cookies by default
 	 */
 	async handleCookieBar(acceptType: 'all' | 'essential' = 'all'): Promise<void> {
 		if (await this.cookieBar.isCookieBarVisible()) {
@@ -89,7 +89,7 @@ export abstract class BasePage {
 	}
 
 	/**
-	 * Naviga a una URL e gestisce automaticamente la cookie bar
+	 * Navigates to a URL and automatically handles the cookie bar
 	 */
 	async navigateToAndHandleCookies(acceptType: 'all' | 'essential' = 'all'): Promise<void> {
 		await this.navigateTo('/');
@@ -98,34 +98,34 @@ export abstract class BasePage {
 	}
 
 	/**
-	 * Verifica se la cookie bar è presente
+	 * Checks if the cookie bar is present
 	 */
 	async isCookieBarPresent(): Promise<boolean> {
 		return await this.cookieBar.isCookieBarVisible();
 	}
 
 	/**
-	 * Verifica se l'utente è loggato tramite header
+	 * Checks if the user is logged in via the header
 	 */
 	async isUserLoggedIn(): Promise<boolean> {
 		return await this.header.isUserLoggedIn();
 	}
 
 	/**
-	 * Naviga al login tramite header
+	 * Navigates to login via the header
 	 */
 	async navigateToLogin(): Promise<void> {
 		await this.header.goToLoginPage();
 	}
 
 	/**
-	 * Esegue il logout tramite header
+	 * Performs logout via the header
 	 */
 	async performLogout(): Promise<void> {
 		await this.header.performLogout();
 	}
 
-	// Selettori per flash messages comuni
+	// Selectors for common flash messages
 	private get flashMessagesContainer() {
 		return this.page.locator('#flash-messages-container, .flash-messages');
 	}
@@ -139,35 +139,35 @@ export abstract class BasePage {
 	}
 
 	/**
-	 * Verifica presenza di flash message di successo
+	 * Checks for the presence of a success flash message
 	 */
 	async hasSuccessFlashMessage(): Promise<boolean> {
 		return await this.successFlashMessage.isVisible();
 	}
 
 	/**
-	 * Verifica presenza di flash message di errore
+	 * Checks for the presence of an error flash message
 	 */
 	async hasErrorFlashMessage(): Promise<boolean> {
 		return await this.errorFlashMessage.isVisible();
 	}
 
 	/**
-	 * Ottiene il testo del flash message di successo
+	 * Gets the text of the success flash message
 	 */
 	async getSuccessFlashMessageText(): Promise<string> {
 		return (await this.successFlashMessage.locator('.flash__message').textContent()) || '';
 	}
 
 	/**
-	 * Ottiene il testo del flash message di errore
+	 * Gets the text of the error flash message
 	 */
 	async getErrorFlashMessageText(): Promise<string> {
 		return (await this.errorFlashMessage.locator('.flash__message').textContent()) || '';
 	}
 
 	/**
-	 * Chiude il flash message se presente
+	 * Closes the flash message if present
 	 */
 	async dismissFlashMessage(): Promise<void> {
 		const closeButton = this.page.locator('.flash .close-button, .alert .close');
@@ -177,14 +177,14 @@ export abstract class BasePage {
 	}
 
 	/**
-	 * Attende la comparsa di un flash message di successo
+	 * Waits for a success flash message to appear
 	 */
 	async waitForSuccessFlashMessage(timeout: number = 10000): Promise<void> {
 		await this.successFlashMessage.waitFor({ state: 'visible', timeout });
 	}
 
 	/**
-	 * Attende la comparsa di un flash message di errore
+	 * Waits for an error flash message to appear
 	 */
 	async waitForErrorFlashMessage(timeout: number = 10000): Promise<void> {
 		await this.errorFlashMessage.waitFor({ state: 'visible', timeout });
