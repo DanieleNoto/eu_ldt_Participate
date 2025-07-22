@@ -20,7 +20,6 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	// Filter elements
 	private readonly filterForm: Locator;
 	private readonly filterDropdownTrigger: Locator;
-	private readonly filterDropdownMenu: Locator;
 
 	// Date filter
 	private readonly dateFilterContainer: Locator;
@@ -39,17 +38,12 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	private readonly scopeFilterGlobal: Locator;
 
 	// Area filter
-	private readonly areaFilterContainer: Locator;
 	private readonly areaFilterTrigger: Locator;
-	private readonly areaFilterPanel: Locator;
 	private readonly areaFilterAll: Locator;
 
 	// Process cards grid
 	private readonly cardGrid: Locator;
 	private readonly processCards: Locator;
-
-	// Help elements
-	private readonly helpButton: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -68,7 +62,6 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		// Filter elements
 		this.filterForm = page.locator('form.new_filter[data-filters]');
 		this.filterDropdownTrigger = page.locator('#dropdown-trigger-filters');
-		this.filterDropdownMenu = page.locator('#dropdown-menu-filters');
 
 		// Date filter
 		this.dateFilterContainer = page
@@ -93,11 +86,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		this.scopeFilterGlobal = page.locator('input[name="filter[with_any_scope][]"][value="global"]');
 
 		// Area filter
-		this.areaFilterContainer = page
-			.locator('.filter-container')
-			.filter({ has: page.locator('#trigger-menu-area') });
 		this.areaFilterTrigger = page.locator('#trigger-menu-area');
-		this.areaFilterPanel = page.locator('#panel-dropdown-menu-area');
 		this.areaFilterAll = page.locator(
 			'label[data-global-checkbox] input[name="filter[with_any_area][]"][value=""]'
 		);
@@ -105,9 +94,6 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		// Process cards grid
 		this.cardGrid = page.locator('.card__grid-grid');
 		this.processCards = page.locator('#highlighted-processes .card__highlight');
-
-		// Help elements
-		this.helpButton = page.locator('#floating-helper-tip button');
 	}
 
 	// Navigation methods
