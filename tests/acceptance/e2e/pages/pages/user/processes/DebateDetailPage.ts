@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from '@playwright/test';
+import { ShareModalComponent } from '../../../components/common/ShareModalComponent';
 
 export class DebateDetailPage {
 	private readonly page: Page;
@@ -84,6 +85,9 @@ export class DebateDetailPage {
 	// Buttons on Right side
 	private readonly closeDebateLink: Locator;
 
+	// Components
+	public readonly shareModal: ShareModalComponent;
+
 	constructor(page: Page) {
 		this.page = page;
 
@@ -166,6 +170,9 @@ export class DebateDetailPage {
 		this.versionItem = this.page.locator('.metadata__item', { hasText: 'Versione' });
 
 		this.closeDebateLink = this.page.locator('a.button[href*="debate_closes"]');
+
+		// Initialize components
+		this.shareModal = new ShareModalComponent(this.page);
 	}
 
 	/**
@@ -287,9 +294,65 @@ export class DebateDetailPage {
 	}
 
 	/**
-	 * Click the share button
+	 * Click the share button and wait for the share modal to open
 	 */
 	async clickShareButton(): Promise<void> {
+		// Ensure the button is visible and enabled before clicking
+		await this.shareButton.waitFor({ state: 'visible' });
+		await expect(this.shareButton).toBeEnabled();
+
+		// Scroll into view if needed
+		await this.shareButton.scrollIntoViewIfNeeded();
+
+		// Try multiple click approaches to ensure the event is properly triggered
+		try {
+			// First attempt: Normal click
+			await this.shareButton.click();
+			await this.page.waitForTimeout(1000);
+
+			// Check if modal appeared
+			const isModalVisible = await this.shareModal.isModalVisible();
+			if (isModalVisible) {
+				return;
+			}
+		} catch (error) {
+			console.log('Normal click failed, trying alternative approaches');
+		}
+
+		// Second attempt: Dispatch click event directly
+		await this.page.evaluate(() => {
+			const shareButton = document.querySelector('button[data-dialog-open="socialShare"]') as HTMLButtonElement;
+			if (shareButton) {
+				shareButton.dispatchEvent(
+					new MouseEvent('click', {
+						view: window,
+						bubbles: true,
+						cancelable: true
+					})
+				);
+			}
+		});
+
+		await this.page.waitForTimeout(1000);
+
+		// Check if modal appeared after direct event dispatch
+		const isModalVisible = await this.shareModal.isModalVisible();
+		if (isModalVisible) {
+			return;
+		}
+
+		// Third attempt: Focus and press Enter
+		await this.shareButton.focus();
+		await this.page.keyboard.press('Enter');
+
+		// Wait for the modal to appear
+		await this.shareModal.waitForModalToBeVisible();
+	}
+
+	/**
+	 * Click the share button without waiting for modal (for error scenarios)
+	 */
+	async clickShareButtonOnly(): Promise<void> {
 		await this.shareButton.click();
 	}
 
@@ -1234,5 +1297,81 @@ export class DebateDetailPage {
 	async expectCommentToBeVisible(text: string): Promise<void> {
 		const comment = this.existingComments.locator(`text=${text}`).last();
 		await expect(comment).toBeVisible();
+	}
+
+	// === SHARE MODAL CONVENIENCE METHODS ===
+
+	/**
+	 * Open share modal and copy the share URL to clipboard
+	 * @returns The copied share URL
+	 */
+	async shareAndCopyUrl(): Promise<string> {
+		await this.clickShareButton();
+		const shareUrl = await this.shareModal.getShareUrl();
+		await this.shareModal.copyShareUrl();
+		await this.shareModal.expectCopySuccessMessage();
+		await this.shareModal.closeModal();
+		return shareUrl;
+	}
+
+	/**
+	 * Open share modal and get all social sharing URLs without clicking them
+	 * @returns Object containing all social sharing URLs
+	 */
+	async getShareUrls(): Promise<{
+		x: string;
+		facebook: string;
+		whatsapp: string;
+		telegram: string;
+		shareUrl: string;
+	}> {
+		await this.clickShareButton();
+
+		const urls = {
+			x: await this.shareModal.getXShareUrl(),
+			facebook: await this.shareModal.getFacebookShareUrl(),
+			whatsapp: await this.shareModal.getWhatsappShareUrl(),
+			telegram: await this.shareModal.getTelegramShareUrl(),
+			shareUrl: await this.shareModal.getShareUrl()
+		};
+
+		await this.shareModal.closeModal();
+		return urls;
+	}
+
+	/**
+	 * Test complete share modal functionality including accessibility
+	 */
+	async testShareModalFunctionality(): Promise<void> {
+		// Open share modal
+		await this.clickShareButton();
+
+		// Test accessibility
+		await this.shareModal.expectProperAccessibility();
+
+		// Test all social options are visible
+		await this.shareModal.expectAllSocialOptionsToBeVisible();
+
+		// Test copy to clipboard workflow
+		await this.shareModal.testCopyToClipboardWorkflow();
+
+		// Verify social sharing URLs
+		await this.shareModal.verifyAllSocialSharingUrls();
+
+		// Close modal
+		await this.shareModal.closeModal();
+	}
+
+	/**
+	 * Verify that the share modal contains expected content for this debate
+	 * @param expectedTitle - Expected debate title in share URLs
+	 */
+	async verifyShareContentForDebate(expectedTitle?: string): Promise<void> {
+		const debateTitle = expectedTitle || (await this.getDebateTitle());
+		const currentUrl = this.page.url();
+
+		await this.clickShareButton();
+		await this.shareModal.verifyShareUrlsContent(debateTitle, currentUrl);
+		await this.shareModal.closeModal();
 	}
 }

@@ -1,0 +1,25 @@
+{
+	"cookies": [
+		{
+			"name": "decidim-consent",
+			"value": "{}",
+			"domain": "localhost",
+			"path": "/",
+			"expires": 1784746149,
+			"httpOnly": false,
+			"secure": false,
+			"sameSite": "Lax"
+		},
+		{
+			"name": "_session_id",
+			"value": "yKha74wGjOMiKxOs2SWJchs4D1ZEL%2BBF8MpQMTec7%2FFD%2FDwE5gU4PG5k82GpFHXgKrohuP6hbYnW%2ButdIiFuVzS1ZHCyfaPaHyPKCGp5j5iBbPHaz43%2FnI1Z%2BW3U6GL0JExhId0FUC6Zs6YD5yQmu%2FeggTm5aUDpznX%2FdbiCLVRKw300sR3Vl6LT5CyVRfi4lhu3igkX36gVOTrFFBWbzweOMmWRRe7H5kcHjPa6H7JxUT71PPsKZfPDvF%2FFhgjW9ayy2%2BZmE8lgfoCs%2BG68c6Vtpzn2kyuaI5YEhb9Dbp%2FG6hD8Jz6D81h%2FNCs59rEOeGB1LRJuNFiHdIFfQGMUCkx8eCnAvqtiOcKsOBFA%2B6xsTjV4WlZq6hKoLz0wK8bxMYJdXBA7OrisrVka3harxWsJJ%2FaeoFQ5ZcgHsupVtSUC%2FqwGa1982vvE0Sc7M1C3Iw6MeNcJpNurRP5Jh1aia0IMNF%2Bx8p71cupRp8Z4BesV8Wu7adn54yNjkalzfiODanyxy4uJ9fBqEMuo%2BK39yB9nC3%2FYkdEWq%2BB96AmRsDKtOBxb52xP0A1OHEr%2BB4pR7Y1Dv0wLZSf6ONJXUJGKR8gNOJ7qjVXb7DC8Nxgw%2FuSa8Y0hrFmhtqaznfcgDlhaErhvvEuq4k7F5YNKBdtEMDdg4zAT2fTs84CyCavFDRbV--MnGnHD6GqrlG6YcA--65rAa%2BMKbGgz623L3OoUQg%3D%3D",
+			"domain": "localhost",
+			"path": "/",
+			"expires": 1753211969,
+			"httpOnly": true,
+			"secure": false,
+			"sameSite": "Lax"
+		}
+	],
+	"origins": []
+}

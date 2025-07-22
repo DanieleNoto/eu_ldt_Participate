@@ -54,25 +54,24 @@ export default defineConfig({
 		// Setup project for user authentication
 		{
 			name: 'user-setup',
-			testMatch: '../**/auth/user-auth.setup.ts',
-			teardown: 'user-cleanup'
+			testMatch: 'auth/user-auth.setup.ts'
 		},
 		// Setup project for admin authentication
 		{
 			name: 'admin-setup',
-			testMatch: '../**/auth/admin-auth.setup.ts',
+			testMatch: 'auth/admin-auth.setup.ts',
 			teardown: 'admin-cleanup'
 		},
 
 		// Cleanup project
-		{
-			name: 'user-cleanup',
-			testMatch: '../**/auth/user-auth.cleanup.ts'
-		},
+		// {
+		//     name: 'user-cleanup',
+		//     testMatch: 'auth/user-auth.cleanup.ts'
+		// },
 		// Cleanup project
 		{
 			name: 'admin-cleanup',
-			testMatch: '../**/auth/admin-auth.cleanup.ts'
+			testMatch: 'auth/admin-auth.cleanup.ts'
 		},
 
 		// User tests with authenticated state
@@ -83,7 +82,12 @@ export default defineConfig({
 				storageState: STORAGE_STATE.USER
 			},
 			dependencies: ['user-setup'],
-			testMatch: ['../user/**/*.spec.ts', 'tests/user/**/*.spec.ts']
+			testMatch: [
+				'../user/**/*.spec.ts',
+				'tests/user/**/*.spec.ts',
+				'**/tests/user/**/*.spec.ts',
+				'**/user/**/*.spec.ts'
+			]
 		},
 
 		// Admin tests with authenticated state
@@ -94,12 +98,38 @@ export default defineConfig({
 				storageState: STORAGE_STATE.ADMIN
 			},
 			dependencies: ['admin-setup'],
-			testMatch: ['../admin/**/*.spec.ts', 'tests/admin/**/*.spec.ts']
+			testMatch: ['../admin/**/*.spec.ts', 'tests/admin/**/*.spec.ts', '**/tests/admin/**/*.spec.ts']
 		},
+
 		// User to delete tests
 		{
 			name: 'user-to-delete-tests',
-			testMatch: ['../user-to-delete/**/*.spec.ts', 'tests/user-to-delete/**/*.spec.ts']
+			use: {
+				...devices['Desktop Chrome']
+				// Note: These tests handle their own authentication setup
+			},
+			testMatch: [
+				'../user-to-delete/**/*.spec.ts',
+				'tests/user-to-delete/**/*.spec.ts',
+				'**/tests/user-to-delete/**/*.spec.ts'
+			]
+		},
+
+		// Combined test project that ensures all setups run
+		{
+			name: 'all-authenticated-tests',
+			use: {
+				...devices['Desktop Chrome']
+			},
+			dependencies: ['user-setup', 'admin-setup'],
+			testMatch: [
+				'../user/**/*.spec.ts',
+				'tests/user/**/*.spec.ts',
+				'**/tests/user/**/*.spec.ts',
+				'../admin/**/*.spec.ts',
+				'tests/admin/**/*.spec.ts',
+				'**/tests/admin/**/*.spec.ts'
+			]
 		}
 
 		// {
