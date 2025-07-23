@@ -24,10 +24,10 @@ jobs:
     - task: swellaby.mirror-git-repository.mirror-git-repository-vsts-task.mirror-git-repository-vsts-task@1
       displayName: 'Mirror Git Repository'
       inputs:
-        sourceGitRepositoryUri: 'https://EULDT-Toolbox@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate'
+        sourceGitRepositoryUri: 'https://dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate'
         sourceGitRepositoryPersonalAccessToken: '$(PAT-LOT5-REPO-SYNC)'
         sourceGitRepositoryCloneDirectoryName: 'tmpDir'
         sourceVerifySSLCertificate: false
-        destinationGitRepositoryUri: 'https://EULDT-Toolbox@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Toolbox/_git/EU%20LDT%20Participate'
+        destinationGitRepositoryUri: 'https://dev.azure.com/EULDT-Toolbox/EU%20LDT%20Toolbox/_git/EU%20LDT%20Participate'
         destinationGitRepositoryPersonalAccessToken: '$(PAT-LOT5-REPO-SYNC)'
         destinationVerifySSLCertificate: false
