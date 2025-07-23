@@ -327,22 +327,6 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		return count > 0;
 	}
 
-	// Debug methods
-
-	/**
-	 * Debug method to log all visible process information
-	 */
-	async debugProcessesList(): Promise<void> {
-		console.log('=== Processes Overview Debug ===');
-		console.log('URL:', this.getPage().url());
-		console.log('Processes count:', await this.getProcessesCount());
-		console.log('Count text:', await this.getProcessesCountText());
-
-		const titles = await this.getAllProcessTitles();
-		console.log('Process titles:', titles);
-		console.log('================================');
-	}
-
 	// Filter interaction methods
 
 	/**

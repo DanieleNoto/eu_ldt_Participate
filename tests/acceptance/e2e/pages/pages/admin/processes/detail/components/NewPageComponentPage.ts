@@ -192,14 +192,4 @@ export class NewPageComponentPage extends BaseAdminPage {
 	async expectSubmitButtonToBeDisabled() {
 		await expect(this.submitButton).toBeDisabled();
 	}
-
-	// Debug methods
-	async debugFormState() {
-		console.log('=== New Page Component Form Debug State ===');
-		console.log('URL:', this.getPage().url());
-		console.log('Page title:', await this.getPageTitle());
-		console.log('Order position:', await this.getOrderPosition());
-		console.log('Submit button enabled:', await this.isSubmitButtonEnabled());
-		console.log('===========================================');
-	}
 }
