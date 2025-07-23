@@ -11,7 +11,7 @@ trigger:
 
 # User defined parameters
 variables:
-- group: 'TOOL3 - PV - KV'
+- group: 'TOOL3 - PT - KV'
 
 jobs:
 - job: MirrorRepoToLot5
