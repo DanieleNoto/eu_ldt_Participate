@@ -18,6 +18,9 @@ services:
             - NODE_ENV=${NODE_ENV}
             - DECIDIM_MAILER_SENDER=${DECIDIM_MAILER_SENDER}
             - QUEUE_ADAPTER=${QUEUE_ADAPTER}
+            - SHAKAPACKER_DEV_SERVER_HOST=shakapacker
+            - SHAKAPACKER_DEV_SERVER_PORT=3035
+            - SHAKAPACKER_DEV_SERVER_ENABLED=true
         volumes:
             - .:/code
             - bundle_cache:/usr/local/bundle
