@@ -199,6 +199,8 @@ urls: ## Show all service URLs
 	@echo "  Frontend:  $(FRONTEND_URL)"
 	@echo "  Backend:   $(BACKEND_URL)"
 	@echo "  Shakapacker: http://localhost:3035"
+	@echo "  Grafana:   http://localhost:3000/grafana/"
+	@echo "  Matomo:    http://localhost:8080"
 
 # Validation targets
 validate-env: ## Validate environment setup

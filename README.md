@@ -31,6 +31,8 @@
 ├── frontend/                      # React application for the chatbot UI
 ├── backend/                       # Fastify (Node.js) chatbot service
 ├── tests/                         # Integration, acceptance, contract, and performance tests
+│   └── acceptance/
+│       └── e2e/                   # Playwright E2E tests organized by user role and process
 ├── utils/                         # Helper scripts and developer tools
 └── docs/                          # High-level documentation (architecture, setup, troubleshooting)
 ```
@@ -76,7 +78,7 @@ The project uses **`.gitattributes`** and **`.editorconfig`** files to ensure co
 First, start Docker if you don't have it started yet, then clone the repository and navigate to the project root:
 
 ```bash
-git clone <repository-url>
+git clone https://EULDT-Toolbox@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate
 cd eu-ldt-participate
 ```
 
@@ -159,7 +161,7 @@ If you prefer manual control over the setup process, follow these steps:
 First, clone the repository and navigate to the project root:
 
 ```bash
-git clone <repository-url>
+git clone https://EULDT-Toolbox@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate
 cd eu-ldt-participate
 ```
 
@@ -190,6 +192,17 @@ cd tests/acceptance/e2e
 npm install
 npx playwright install --with-deps
 ```
+
+**E2E Tests Structure:**
+
+* Tests are organized by user role and process:
+  * `tests/acceptance/e2e/tests/admin/` - Admin user workflows
+  * `tests/acceptance/e2e/tests/public/` - Public user workflows
+  * `tests/acceptance/e2e/tests/user/` - Authenticated user workflows
+* Each process/scenario has its own subfolder
+* Test files use the `.spec.ts` extension
+* Page Object Models are in the `pages/` directory
+* Shared utilities are in the `utils/` directory
 
 Available Playwright commands:
 
@@ -251,6 +264,43 @@ The Decidim application will be available at `http://localhost:3000`.
 * **Redis**: Cache and session storage
 * **Shakapacker**: Asset compilation service (`http://localhost:3035`)
 
+##### 6.1. Analytics Services Configuration
+
+The project includes analytics infrastructure with Grafana and Matomo services:
+
+**Grafana Dashboard:**
+
+* **URL**: `http://localhost:3000/grafana/`
+* **Default Credentials**:
+  * Username: `admin`
+  * Password: `admin`
+* **Purpose**: System monitoring and metrics visualization
+* **Configuration**: Pre-configured dashboards for Decidim monitoring
+
+**Matomo Analytics:**
+
+* **URL**: `http://localhost:8080`
+* **Database**: MariaDB backend included
+* **Initial Setup Required**: After starting the services, you must access the Matomo web interface to complete the initial configuration:
+  1. Navigate to `http://localhost:8080`
+  2. Follow the setup wizard
+  3. Configure database connection (MariaDB container is automatically available)
+  4. Create admin user and configure site tracking
+* **Purpose**: Web analytics and user behavior tracking
+
+**Additional Analytics Services:**
+
+* **MariaDB**: Database backend for Matomo (`localhost:3306`)
+
+To start analytics services along with Decidim:
+
+```bash
+cd decidim/decidim_application
+docker-compose up -d
+```
+
+All analytics services are included in the main docker-compose configuration and will start automatically.
+
 ##### 7. Frontend Chatbot Setup
 
 Navigate to the frontend directory and install dependencies:
@@ -283,6 +333,7 @@ make setup
 make start                    # Start Decidim
 make test-all                # Run all tests
 make dev-frontend            # Start frontend (in separate terminal)
+make dev-backend             # Start backend (in separate terminal)
 make dev-backend             # Start backend (in separate terminal)
 ```
 
