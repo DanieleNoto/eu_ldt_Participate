@@ -1,0 +1,96 @@
+# EditorConfig for EU LDT Participate project
+# This file ensures consistent coding styles across different editors and IDEs
+# See https://editorconfig.org/
+
+root = true
+
+# Default settings for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Shell scripts
+[*.{sh,bash}]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+# Ruby files
+[*.{rb,rake}]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+# Gemfile and Rakefile
+[{Gemfile,Rakefile,Capfile,config.ru}]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+# JavaScript and TypeScript
+[*.{js,jsx,ts,tsx}]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+# CSS and SCSS
+[*.{css,scss,sass}]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+# HTML
+[*.{html,htm,erb}]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+# JSON files
+[*.json]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+# Markdown files
+[*.md]
+end_of_line = lf
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = 2
+
+# Makefile - must use tabs
+[{Makefile,*.mk}]
+end_of_line = lf
+indent_style = tab
+
+# Dockerfile
+[Dockerfile*]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+# Configuration files
+[.{env*,nvmrc,gitignore,gitattributes}]
+end_of_line = lf
+
+# Decidim bin files (no extension)
+[decidim/decidim_application/bin/*]
+end_of_line = lf
+indent_style = space
+indent_size = 2
+
+# All bin directories
+[**/bin/*]
+end_of_line = lf
+indent_style = space
+indent_size = 2
