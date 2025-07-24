@@ -4,7 +4,8 @@ import path = require('path');
 export const STORAGE_STATE = {
 	USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/user-state.json'),
 	ADMIN: path.resolve(__dirname, '../../../acceptance/e2e/auth/admin-state.json'),
-	ACCOUNT_DELETION_USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/account-deletion-user-state.json')
+	ACCOUNT_DELETION_USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/account-deletion-user-state.json'),
+	USER_WITHOUT_MESSAGES: path.resolve(__dirname, '../../../acceptance/e2e/auth/user-without-messages-state.json')
 } as const;
 
 export const TEST_TIMEOUTS = {
