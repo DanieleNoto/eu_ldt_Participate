@@ -76,14 +76,14 @@ export abstract class AuthenticatedPage extends BasePage {
 	 * Checks if user has admin permissions
 	 */
 	async hasAdminPermissions(): Promise<boolean> {
-		// Verifica presenza admin bar
+		// Check for admin bar presence
 		const hasAdminBar = await this.adminHeader.isAdminBarVisible();
 
 		if (hasAdminBar) {
 			return true;
 		}
 
-		// Se non c'è admin bar, verifica nel menu utente
+		// If there is no admin bar, check in the user menu
 		if (await this.isLoggedIn()) {
 			await this.header.openAccountDropdown();
 			const adminLink = await this.page.locator('a[href*="/admin/"]').isVisible();

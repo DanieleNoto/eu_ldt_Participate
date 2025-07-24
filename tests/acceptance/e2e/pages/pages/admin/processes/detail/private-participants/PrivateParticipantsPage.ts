@@ -26,25 +26,6 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 		await this.page.click('a.button.new');
 	}
 
-	async applyFilter(filterName: string, filterOption: string): Promise<void> {
-		const filterDropdown = this.page.locator('a.dropdown.button');
-		await filterDropdown.click();
-		const filter = this.page.locator(`a[aria-label="${filterName}"]`);
-		await filter.click();
-		const option = this.page.locator(`a[role="menuitem"]:has-text("${filterOption}")`);
-		await option.click();
-	}
-
-	async searchByNameOrEmail(query: string): Promise<void> {
-		await this.page.fill('#q_user_name_or_user_email_cont', query);
-		await this.page.click('button[aria-label="Search"]');
-	}
-
-	async clickResendInvitation(rowIndex: number): Promise<void> {
-		const row = this.page.locator('table.table-list tbody tr').nth(rowIndex);
-		await row.locator('a.action-icon.resend-invitation').click();
-	}
-
 	async clickDelete(rowIndex: number): Promise<void> {
 		const row = this.page.locator('table.table-list tbody tr').nth(rowIndex);
 		await row.locator('a.action-icon--remove').click();
@@ -66,12 +47,6 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 	async expectSearchResultsCount(expectedCount: number): Promise<void> {
 		const rows = this.page.locator('table.table-list tbody tr');
 		await expect(rows).toHaveCount(expectedCount);
-	}
-
-	async expectRowContains(rowIndex: number, name: string, email: string): Promise<void> {
-		const row = this.page.locator('table.table-list tbody tr').nth(rowIndex);
-		await expect(row.locator('td').nth(0)).toHaveText(name);
-		await expect(row.locator('td').nth(1)).toHaveText(email);
 	}
 
 	async expectTableIsVisible(): Promise<void> {

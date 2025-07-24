@@ -1,13 +1,13 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component per la card delle attività nella dashboard admin.
- * Gestisce la tabella con le statistiche di partecipanti e amministratori.
+ * Component for the activity card in the admin dashboard.
+ * Manages the table with participant and admin statistics.
  */
 export class AdminActivityCardComponent {
 	constructor(private page: Page) {}
 
-	// Selettori principali
+	// Main selectors
 	private get activityCard() {
 		return this.page.locator('.card').filter({ hasText: 'Attività' });
 	}
@@ -28,7 +28,7 @@ export class AdminActivityCardComponent {
 		return this.activityTable.locator('tbody tr');
 	}
 
-	// Selettori per righe specifiche
+	// Selectors for specific rows
 	private get participantsRow() {
 		return this.activityTable.locator('tr').filter({ hasText: 'Partecipanti' });
 	}
@@ -37,7 +37,7 @@ export class AdminActivityCardComponent {
 		return this.activityTable.locator('tr').filter({ hasText: 'Amministratori' });
 	}
 
-	// Metodi di verifica
+	// Verification methods
 	async isActivityCardVisible(): Promise<boolean> {
 		return await this.activityCard.isVisible();
 	}
@@ -50,7 +50,7 @@ export class AdminActivityCardComponent {
 		return (await this.cardTitle.textContent()) || '';
 	}
 
-	// Metodi per ottenere dati della tabella
+	// Methods to get table data
 	async getTableHeaders(): Promise<string[]> {
 		const headers = await this.tableHeaders.all();
 		const headerTexts: string[] = [];
@@ -91,7 +91,7 @@ export class AdminActivityCardComponent {
 		};
 	}
 
-	// Metodi per verificare la presenza di dati specifici
+	// Methods to check for specific data presence
 	async hasParticipantsData(): Promise<boolean> {
 		return await this.participantsRow.isVisible();
 	}
@@ -100,7 +100,7 @@ export class AdminActivityCardComponent {
 		return await this.adminsRow.isVisible();
 	}
 
-	// Metodi per ottenere valori numerici
+	// Methods to get numeric values
 	async getParticipantsLastMonth(): Promise<number> {
 		const data = await this.getParticipantsData();
 		return parseInt(data.lastMonth) || 0;
@@ -131,7 +131,7 @@ export class AdminActivityCardComponent {
 		return parseInt(data.lastDay) || 0;
 	}
 
-	// Metodi per verificare la struttura della tabella
+	// Methods to check table structure
 	async getRowCount(): Promise<number> {
 		return await this.tableRows.count();
 	}

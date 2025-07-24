@@ -64,31 +64,31 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				await debateDetailPage.clickCommentButton();
 			});
 			await test.step('8. User: Types a message in the provided text box and uses the "@" symbol to mention a specific user.', async () => {
-				// Debug dello stato iniziale
+				// Debug initial state
 				await debateDetailPage.debugTributeState();
 
-				// Prima clicca nel textarea per assicurarsi che sia attivo
+				// First click in the textarea to make sure it is active
 				const textarea = debateDetailPage.getPage().locator('textarea[data-tribute="true"]:visible');
 				await textarea.click();
 
-				// Assicurati che il textarea sia vuoto
+				// Make sure the textarea is empty
 				await textarea.clear();
 
-				// Attendi un momento per assicurarsi che il focus sia impostato
+				// Wait a moment to ensure focus is set
 				await debateDetailPage.getPage().waitForTimeout(500);
 
 				console.log('Attempting to trigger mention suggestions...');
 
-				// Approccio diretto: inserisci @ character direttamente
+				// Direct approach: insert @ character directly
 				await textarea.fill('@');
 				await debateDetailPage.getPage().waitForTimeout(300);
 				await textarea.type('a');
 
-				// Attendi che Tribute.js processi l'input
+				// Wait for Tribute.js to process the input
 				await debateDetailPage.getPage().waitForTimeout(1000);
 				await textarea.type('d');
 
-				// Verifica che il testo sia corretto
+				// Check that the text is correct
 				const textValue = await textarea.inputValue();
 				console.log('Text after typing:', textValue);
 			});
@@ -231,31 +231,31 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				await debateDetailPage.clickCommentButton();
 			});
 			await test.step('8a. User: Types the "@" symbol and begins typing the user\'s name.', async () => {
-				// Debug dello stato iniziale
+				// Debug initial state
 				await debateDetailPage.debugTributeState();
 
-				// Prima clicca nel textarea per assicurarsi che sia attivo
+				// First click in the textarea to make sure it is active
 				const textarea = debateDetailPage.getPage().locator('textarea[data-tribute="true"]:visible');
 				await textarea.click();
 
-				// Assicurati che il textarea sia vuoto
+				// Make sure the textarea is empty
 				await textarea.clear();
 
-				// Attendi un momento per assicurarsi che il focus sia impostato
+				// Wait a moment to ensure focus is set
 				await debateDetailPage.getPage().waitForTimeout(500);
 
 				console.log('Attempting to trigger mention suggestions...');
 
-				// Approccio diretto: inserisci @ character direttamente
+				// Direct approach: insert @ character directly
 				await textarea.fill('@');
 				await debateDetailPage.getPage().waitForTimeout(300);
 				await textarea.type('not');
 
-				// Attendi che Tribute.js processi l'input
+				// Wait for Tribute.js to process the input
 				await debateDetailPage.getPage().waitForTimeout(1000);
 				await textarea.type('existinguser');
 
-				// Verifica che il testo sia corretto
+				// Check that the text is correct
 				const textValue = await textarea.inputValue();
 				console.log('Text after typing:', textValue);
 				textarea.clear();

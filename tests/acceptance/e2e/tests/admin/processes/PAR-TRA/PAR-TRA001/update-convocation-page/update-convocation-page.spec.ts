@@ -9,15 +9,15 @@ import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage'
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
- * Suite di test per l'aggiornamento della convocation page (componente Page) di un processo partecipativo
+ * Test suite for updating the convocation page (Page component) of a participatory process
  *
- * Requisiti:
- * - Il City Administrator deve essere autenticato
- * - Deve esistere un processo partecipativo con permessi di modifica
- * - Deve esistere una convocation page (componente Page) associata al processo
+ * Requirements:
+ * - The City Administrator must be authenticated
+ * - There must be a participatory process with edit permissions
+ * - There must be a convocation page (Page component) associated with the process
  */
 test.describe('[PAR-TRA001] – Update convocation page after process completion', () => {
-	// Usa lo storage state admin per l'autenticazione
+	// Use admin storage state for authentication
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let componentsPage: ComponentsPage;
@@ -26,7 +26,7 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 	let processAdminPage: ProcessAdminPage;
 	let validProcessData: any;
 
-	// Dati di test - solo lingua inglese
+	// Test data - English only
 	const testProcessData = {
 		slug: 'test-process-convocation',
 		title: 'Test Process for Convocation Page'
@@ -43,28 +43,28 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 	};
 
 	test.beforeEach(async ({ page }) => {
-		// Navigazione diretta all'area admin e attesa del caricamento
+		// Direct navigation to the admin area and wait for load
 		adminHomePage = new AdminHomePage(page);
 
-		// Inizializzazione dei Page Objects
+		// Page Objects initialization
 		processAdminPage = new ProcessAdminPage(page);
 		componentsPage = new ComponentsPage(page);
 		newPageComponentPage = new NewPageComponentPage(page);
 		managePageComponentPage = new ManagePageComponentPage(page);
 
-		// Genera dati di test validi
+		// Generate valid test data
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 
-		// Override con dati specifici per questo test per garantire consistenza
+		// Override with specific data for this test to ensure consistency
 		validProcessData.general.urlSlug = testProcessData.slug;
 		validProcessData.general.title = testProcessData.title;
 		await adminHomePage.navigateToAdminHomePage();
-		// Setup iniziale: verifica/crea processo e convocation page
+		// Initial setup: verify/create process and convocation page
 		await setupTestEnvironment();
 	});
 
 	/**
-	 * Setup per garantire l'esistenza di un processo con convocation page
+	 * Setup to ensure a process with convocation page exists
 	 */
 	async function setupTestEnvironment() {
 		await test.step('Setup: Create/verify test process exists', async () => {
@@ -73,44 +73,44 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 		});
 
 		await test.step('Setup: Create/verify convocation page component exists', async () => {
-			// Naviga alla pagina Components del processo
+			// Navigate to the Components page of the process
 			await componentsPage.sidebarProcessDetail.navigateToComponents();
 			await componentsPage.waitForComponentsPageLoad();
 
-			// Verifica se esiste già un componente Page
+			// Check if a Page component already exists
 			const convocationPageExists = await componentsPage.findComponentByName(convocationPageData.name);
 
 			if (!convocationPageExists) {
-				// Se non esiste, crea la convocation page
+				// If it does not exist, create the convocation page
 				await createConvocationPage();
 			}
 		});
 	}
 
 	/**
-	 * Crea una convocation page se non esiste
+	 * Creates a convocation page if it does not exist
 	 */
 	async function createConvocationPage() {
 		await test.step('Create convocation page component', async () => {
-			// Aggiungi componente Page
+			// Add Page component
 			await componentsPage.addPagesComponent();
 
-			// Verifica di essere nella pagina di creazione nuovo componente Page
+			// Verify being on the new Page component creation page
 			await newPageComponentPage.expectToBeOnNewPageComponentPage();
 
-			// Compila il form di creazione
+			// Fill in the creation form
 			await newPageComponentPage.fillNewPageComponentForm({
 				name: convocationPageData.name,
 				orderPosition: convocationPageData.orderPosition
 			});
 
-			// Salva il componente
+			// Save the component
 			await newPageComponentPage.submitForm();
 
-			// Verifica di essere tornati alla pagina Components
+			// Verify being back on the Components page
 			await componentsPage.expectToBeOnComponentsPage();
 
-			// Verifica che il componente sia stato creato
+			// Verify that the component was created
 			await componentsPage.expectComponentExists(convocationPageData.name);
 		});
 	}
@@ -118,24 +118,24 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 	test.describe('Main Flow - Update convocation page after process completion', () => {
 		test('should successfully update convocation page content', async () => {
 			await test.step('Navigate to convocation page management', async () => {
-				// Naviga alla gestione del componente convocation page
+				// Navigate to convocation page component management
 				await componentsPage.sidebarProcessDetail.navigateToComponents();
 				await componentsPage.manageComponent(convocationPageData.name);
 
-				// Verifica di essere nella pagina di gestione
+				// Verify being on the management page
 				await managePageComponentPage.verifyPageLoaded();
 			});
 
 			await test.step('Update content', async () => {
-				// Aggiorna contenuti usando solo inglese
+				// Update content using only English
 				await managePageComponentPage.fillBody(testContent.body);
 			});
 
 			await test.step('Save changes and verify success', async () => {
-				// Salva le modifiche
+				// Save changes
 				await managePageComponentPage.savePage();
 
-				// Verifica che appaia la notifica di successo
+				// Verify that the success notification appears
 				await managePageComponentPage.waitForSuccessFlashNotification('Page successfully saved.');
 			});
 		});
@@ -144,24 +144,24 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 	test.describe('Alternative Flow - abort update', () => {
 		test('should discard changes when cancelling update', async () => {
 			await test.step('Get original content and start editing', async () => {
-				// Naviga alla gestione del componente
+				// Navigate to component management
 				await componentsPage.navigateToComponents(testProcessData.slug);
 				await componentsPage.manageComponent(convocationPageData.name);
 				await managePageComponentPage.verifyPageLoaded();
 
-				// Inizia a modificare
+				// Start editing
 				await managePageComponentPage.fillBody('Modified Body - Should be discarded');
 			});
 
 			await test.step('Cancel changes and verify discard', async () => {
-				// Simula cancellazione navigando via senza salvare
+				// Simulate cancellation by navigating away without saving
 				await componentsPage.navigateToComponents(testProcessData.slug);
 
-				// Torna alla gestione del componente
+				// Return to component management
 				await componentsPage.manageComponent(convocationPageData.name);
 				await managePageComponentPage.verifyPageLoaded();
 
-				// Verifica che le modifiche non salvate siano state scartate
+				// Verify that unsaved changes were discarded
 				const currentBody = await managePageComponentPage.getBody();
 				expect(currentBody).not.toBe('Modified Body - Should be discarded');
 			});

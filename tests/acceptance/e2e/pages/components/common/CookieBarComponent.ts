@@ -139,7 +139,7 @@ export class CookieBarComponent {
 		await this.settingsButton.click();
 	}
 
-	// Metodi per verificare lo stato dei pulsanti
+	// Methods to check the state of the buttons
 	async isAcceptAllButtonEnabled(): Promise<boolean> {
 		return await this.acceptAllButton.isEnabled();
 	}
@@ -152,14 +152,14 @@ export class CookieBarComponent {
 		return await this.settingsButton.isEnabled();
 	}
 
-	// Metodi per verificare gli attributi specifici
+	// Methods to check specific attributes
 	async hasSettingsButtonDialogAttribute(): Promise<boolean> {
 		const ariaHasPopup = await this.settingsButton.getAttribute('aria-haspopup');
 		const dataDialogOpen = await this.settingsButton.getAttribute('data-dialog-open');
 		return ariaHasPopup === 'dialog' && dataDialogOpen === 'dc-modal';
 	}
 
-	// Metodi di utilità
+	// Utility methods
 	async waitForCookieBarToLoad() {
 		await this.cookieBar.waitFor({ state: 'visible' });
 	}
@@ -168,7 +168,7 @@ export class CookieBarComponent {
 		await this.cookieBar.waitFor({ state: 'hidden' });
 	}
 
-	// Metodo per verificare che la cookie bar sia completamente caricata
+	// Method to check that the cookie bar is fully loaded
 	async isCookieBarFullyLoaded(): Promise<boolean> {
 		const barVisible = await this.isCookieBarVisible();
 		const titleVisible = await this.isCookieTitleVisible();

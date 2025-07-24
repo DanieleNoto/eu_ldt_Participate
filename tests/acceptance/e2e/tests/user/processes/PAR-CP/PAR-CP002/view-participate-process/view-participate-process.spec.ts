@@ -42,29 +42,29 @@ test.describe('[PAR-CP002] – View and participate in a specific process', () =
 				await homePage.goToProcessesFromHomeMenu();
 				await processesOverviewPage.getPage().waitForLoadState('networkidle');
 
-				// Verifica che siamo nella pagina dei processi
+				// Verify that we are on the processes page
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
 
-				// Seleziona il primo processo disponibile
+				// Select the first available process
 				await processesOverviewPage.navigateToProcessByIndex(0);
 			});
 
 			await test.step('2. System: Displays the details of the selected process, including the title, description, phases, key objectives.', async () => {
-				// Verifica che siamo nella pagina di dettaglio del processo
+				// Verify that we are on the process detail page
 				await processDetailPage.expectToBeOnProcessDetailPage();
 
-				// Ottiene e verifica il titolo del processo
+				// Get and verify the process title
 				const processTitle = await processDetailPage.getProcessTitle();
-				console.log('Titolo del processo:', processTitle);
+				console.log('Process title:', processTitle);
 				expect(processTitle).not.toBe('');
 
-				// Verifica che la pagina mostri informazioni sul processo
+				// Verify that the page shows process information
 				const isPageLoaded = await processDetailPage.isPageLayoutLoaded();
 				expect(isPageLoaded).toBe(true);
 
-				// Ottiene e mostra i componenti disponibili
+				// Get and show available components
 				const components = await processDetailPage.getAvailableComponents();
-				console.log('Componenti disponibili:', components);
+				console.log('Available components:', components);
 				expect(components.length).toBeGreaterThan(0);
 			});
 

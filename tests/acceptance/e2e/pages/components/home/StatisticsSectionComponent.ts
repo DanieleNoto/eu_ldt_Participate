@@ -3,7 +3,7 @@ import { Page } from '@playwright/test';
 export class StatisticsSectionComponent {
 	constructor(private page: Page) {}
 
-	// Selettori per la sezione statistiche
+	// Selectors for the statistics section
 	private get statisticsSection() {
 		return this.page.locator('#statistics');
 	}
@@ -28,7 +28,7 @@ export class StatisticsSectionComponent {
 		return this.page.locator('.statistic.users_count .statistic__number');
 	}
 
-	// Metodi per verificare la visibilità
+	// Methods to check visibility
 	async isStatisticsSectionVisible(): Promise<boolean> {
 		return await this.statisticsSection.isVisible();
 	}
@@ -37,7 +37,7 @@ export class StatisticsSectionComponent {
 		return (await this.sectionTitle.textContent()) || '';
 	}
 
-	// Metodi per ottenere le statistiche
+	// Methods to get statistics
 	async getParticipantsCount(): Promise<number> {
 		const text = (await this.participantsNumber.textContent()) || '0';
 		return parseInt(text.trim(), 10) || 0;
@@ -51,7 +51,7 @@ export class StatisticsSectionComponent {
 		return await this.participantsStatistic.isVisible();
 	}
 
-	// Metodi per ottenere tutte le statistiche disponibili
+	// Methods to get all available statistics
 	async getAllStatistics(): Promise<Array<{ title: string; value: string }>> {
 		const statistics = await this.statisticsContainer.locator('.statistic').all();
 		const results: Array<{ title: string; value: string }> = [];
@@ -65,7 +65,7 @@ export class StatisticsSectionComponent {
 		return results;
 	}
 
-	// Metodi di utilità
+	// Utility methods
 	async waitForSectionToLoad() {
 		await this.statisticsSection.waitFor({ state: 'visible' });
 	}

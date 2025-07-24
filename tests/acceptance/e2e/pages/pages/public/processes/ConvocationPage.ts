@@ -2,8 +2,8 @@ import { expect, Locator, Page } from '@playwright/test';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
 
 /**
- * Page Object Model per la pagina di convocazione (Convocation Page).
- * Gestisce la visualizzazione del contenuto della convocation page di un processo partecipativo.
+ * Page Object Model for the Convocation Page.
+ * Manages the display of the convocation page content of a participatory process.
  */
 export class ConvocationPage extends AuthenticatedPage {
 	// Main content elements

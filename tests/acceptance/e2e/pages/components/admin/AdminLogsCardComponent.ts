@@ -1,15 +1,15 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component per la card del registro di amministrazione nella dashboard admin.
- * Gestisce la visualizzazione dei log e le azioni correlate.
+ * Component for the admin logs card in the admin dashboard.
+ * Manages the display of logs and related actions.
  */
 export class AdminLogsCardComponent {
 	constructor(private page: Page) {}
 
-	// Selettori principali
+	// Main selectors
 	private get logsCard() {
-		return this.page.locator('.card').filter({ hasText: 'Registro di amministrazione' });
+		return this.page.locator('.card').filter({ hasText: 'Admin log' });
 	}
 
 	private get cardTitle() {
@@ -25,10 +25,10 @@ export class AdminLogsCardComponent {
 	}
 
 	private get viewMoreLogsButton() {
-		return this.page.locator('a[href*="/admin/logs"]').filter({ hasText: 'Visualizza più registri' });
+		return this.page.locator('a[href*="/admin/logs"]').filter({ hasText: 'View more logs' });
 	}
 
-	// Selettori per i singoli log
+	// Selectors for individual logs
 	private get logDates() {
 		return this.logEntries.locator('.logs__log__date');
 	}
@@ -45,7 +45,7 @@ export class AdminLogsCardComponent {
 		return this.logEntries.locator('.logs__log__actions');
 	}
 
-	// Metodi di verifica
+	// Verification methods
 	async isLogsCardVisible(): Promise<boolean> {
 		return await this.logsCard.isVisible();
 	}
@@ -62,7 +62,7 @@ export class AdminLogsCardComponent {
 		return (await this.cardTitle.textContent()) || '';
 	}
 
-	// Metodi per i log entries
+	// Methods for log entries
 	async getLogEntriesCount(): Promise<number> {
 		return await this.logEntries.count();
 	}
@@ -72,7 +72,7 @@ export class AdminLogsCardComponent {
 		return count > 0;
 	}
 
-	// Metodi per ottenere dati dei log
+	// Methods to get log data
 	async getLogDates(): Promise<string[]> {
 		const dates = await this.logDates.all();
 		const dateTexts: string[] = [];
@@ -115,7 +115,7 @@ export class AdminLogsCardComponent {
 		return authorTexts;
 	}
 
-	// Metodi per ottenere dati di un log specifico
+	// Methods to get data for a specific log
 	async getLogEntryByIndex(index: number): Promise<{
 		date: string;
 		explanation: string;
@@ -130,7 +130,7 @@ export class AdminLogsCardComponent {
 		};
 	}
 
-	// Metodi per l'interazione
+	// Interaction methods
 	async clickViewMoreLogs(): Promise<void> {
 		await this.viewMoreLogsButton.click();
 	}
@@ -149,7 +149,7 @@ export class AdminLogsCardComponent {
 		}
 	}
 
-	// Metodi per verificare lo stato dei log
+	// Methods to check log state
 	async isLogEntryExpanded(index: number): Promise<boolean> {
 		const logEntry = this.logEntries.nth(index);
 		const diffPanel = logEntry.locator('.logs__log__diff');
@@ -164,7 +164,7 @@ export class AdminLogsCardComponent {
 		return await actionsButton.isVisible();
 	}
 
-	// Metodi per ottenere informazioni specifiche
+	// Methods to get specific information
 	async getMostRecentLogDate(): Promise<string> {
 		const dates = await this.getLogDates();
 		return dates.length > 0 ? dates[0] : '';
@@ -179,7 +179,7 @@ export class AdminLogsCardComponent {
 		return (await this.viewMoreLogsButton.textContent()) || '';
 	}
 
-	// Verifica se la card è completamente caricata
+	// Check if the card is fully loaded
 	async isCardFullyLoaded(): Promise<boolean> {
 		const cardVisible = await this.isLogsCardVisible();
 		const containerVisible = await this.isLogsContainerVisible();

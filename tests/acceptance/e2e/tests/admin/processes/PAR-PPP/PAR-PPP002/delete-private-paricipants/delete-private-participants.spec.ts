@@ -1,9 +1,6 @@
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
-import { UploadFileModalComponent } from '@pages/components/admin/process/detail/UploadFileModalComponent';
 import { ConfirmDeleteModalComponent } from '@pages/components/common/ConfirmDeleteModalComponent';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
-import { ImportCsvPage } from '@pages/pages/admin/processes/detail/private-participants/ImportCsvPage';
-import { NewPrivateParticipantFormPage } from '@pages/pages/admin/processes/detail/private-participants/NewParticipantsPage';
 import { PrivateParticipantsPage } from '@pages/pages/admin/processes/detail/private-participants/PrivateParticipantsPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
@@ -28,9 +25,6 @@ test.describe('[PAR-PPP002] – Delete an existing participant (only if the proc
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
 	let privateParticipantsPage: PrivateParticipantsPage;
-	let newPrivateParticipantFormPage: NewPrivateParticipantFormPage;
-	let importCsvPage: ImportCsvPage;
-	let uploadFileModalComponent: UploadFileModalComponent;
 	let confirmDeleteModalComponent: ConfirmDeleteModalComponent;
 	let validProcessData: any;
 
@@ -40,9 +34,6 @@ test.describe('[PAR-PPP002] – Delete an existing participant (only if the proc
 		processAdminPage = new ProcessAdminPage(page);
 		updateProcessAdminPage = new UpdateProcessAdminPage(page);
 		privateParticipantsPage = new PrivateParticipantsPage(page);
-		newPrivateParticipantFormPage = new NewPrivateParticipantFormPage(page);
-		importCsvPage = new ImportCsvPage(page);
-		uploadFileModalComponent = new UploadFileModalComponent(page);
 		confirmDeleteModalComponent = new ConfirmDeleteModalComponent(page);
 		await adminHomePage.navigateToAdminHomePage();
 		await setupTestProcess();
