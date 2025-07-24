@@ -1,4 +1,5 @@
 import { BasePage } from '@pages/base/BasePage';
+import { LastActivityComponent } from '@pages/components/home/LastActivityComponent';
 import { Page, expect } from '@playwright/test';
 import { AdminHeaderComponent } from '../../components/admin/AdminHeaderComponent';
 import { FooterComponent } from '../../components/common/FooterComponent';
@@ -31,6 +32,7 @@ export class HomePage extends BasePage {
 	public participationSection: ParticipationSectionComponent;
 	public statisticsSection: StatisticsSectionComponent;
 	public ctaSection: CallToActionSectionComponent;
+	public lastActivitySection: LastActivityComponent;
 
 	constructor(page: Page) {
 		super(page);
@@ -43,6 +45,7 @@ export class HomePage extends BasePage {
 		this.participationSection = new ParticipationSectionComponent(page);
 		this.statisticsSection = new StatisticsSectionComponent(page);
 		this.ctaSection = new CallToActionSectionComponent(page);
+		this.lastActivitySection = new LastActivityComponent(page);
 	}
 
 	// Selectors for the main page structure
@@ -319,6 +322,9 @@ export class HomePage extends BasePage {
 
 	async scrollToParticipation() {
 		await this.participationSection.scrollToSection();
+	}
+	async scrollToLastActivity() {
+		await this.lastActivitySection.scrollToSection();
 	}
 
 	async scrollToStatistics() {
