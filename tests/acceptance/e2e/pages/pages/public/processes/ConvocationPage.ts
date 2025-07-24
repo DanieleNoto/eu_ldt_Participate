@@ -148,19 +148,4 @@ export class ConvocationPage extends AuthenticatedPage {
 
 		return editorLoaded && richTextLoaded;
 	}
-
-	// Debug methods
-
-	/**
-	 * Debug method to log page information
-	 */
-	async debugPageInfo(): Promise<void> {
-		console.log('=== Convocation Page Debug ===');
-		console.log('URL:', this.getPage().url());
-		console.log('Page title:', await this.getPageTitle());
-		console.log('Has content:', await this.hasContent());
-		console.log('Content:', await this.getPageContent());
-		console.log('Is title "Convocation Page":', await this.isTitleConvocationPage());
-		console.log('==============================');
-	}
 }

@@ -396,20 +396,4 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	async navigateToModerations(): Promise<void> {
 		await this.sidebar.navigateToModerations();
 	}
-
-	// Debug methods
-	async debugFormState(): Promise<void> {
-		console.log('=== New Debates Component Form Debug State ===');
-		console.log('URL:', this.getPage().url());
-		console.log('Page title:', await this.getPageTitle());
-		console.log('Component name:', await this.getComponentName());
-		console.log('Order position:', await this.getOrderPosition());
-		console.log('Comments enabled:', await this.isCommentsEnabled());
-		console.log('Comments blocked:', await this.areCommentsBlocked());
-		console.log('Comments max length:', await this.getCommentsMaxLength());
-		console.log('Create debates permission:', await this.getCreateDebatesPermission());
-		console.log('Submit button enabled:', await this.isSubmitButtonEnabled());
-		console.log('Sidebar visible:', await this.sidebar.isSidebarVisible());
-		console.log('===============================================');
-	}
 }

@@ -290,25 +290,4 @@ export class ProcessDetailPage extends AuthenticatedPage {
 
 		return navLoaded && triggerLoaded;
 	}
-
-	// Debug methods
-
-	/**
-	 * Debug method to log process and component information
-	 */
-	async debugProcessInfo(): Promise<void> {
-		console.log('=== Process Detail Debug ===');
-		console.log('URL:', this.getPage().url());
-		console.log('Process title:', await this.getProcessTitle());
-		console.log('Process slogan:', await this.getProcessSlogan());
-
-		const components = await this.getAvailableComponents();
-		console.log('Available components:', components);
-		console.log('Has convocation page:', await this.hasConvocationPage());
-
-		if (await this.hasConvocationPage()) {
-			console.log('Convocation page URL:', await this.getConvocationPageUrl());
-		}
-		console.log('============================');
-	}
 }
