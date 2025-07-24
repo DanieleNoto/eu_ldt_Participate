@@ -52,7 +52,7 @@ export class LoginPage extends BasePage {
 	}
 
 	// Complete login flow
-	async login(email: string = 'admin@admin.com', password: string = 'decidim123456789') {
+	async login(email: string = 'admin@example.org', password: string = 'decidim123456789') {
 		await this.fillForm(email, password);
 		await this.clickLoginButton();
 	}

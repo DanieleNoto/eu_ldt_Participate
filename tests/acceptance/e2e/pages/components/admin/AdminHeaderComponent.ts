@@ -7,7 +7,7 @@ import { Page } from '@playwright/test';
 export class AdminHeaderComponent {
 	constructor(private page: Page) {}
 
-	// Selettori per gli elementi dell'admin bar
+	// Selectors for admin bar elements
 	private get adminBar() {
 		return this.page.locator('#admin-bar');
 	}
@@ -24,7 +24,7 @@ export class AdminHeaderComponent {
 		return this.page.locator('.admin-bar__button[href="/admin/organization/edit"]');
 	}
 
-	// Metodi per verificare la visibilità degli elementi
+	// Methods to check element visibility
 	async isAdminBarVisible(): Promise<boolean> {
 		return await this.adminBar.isVisible();
 	}
@@ -37,7 +37,7 @@ export class AdminHeaderComponent {
 		return (await this.adminTitle.textContent()) || '';
 	}
 
-	// Metodi per navigazione
+	// Navigation methods
 	async navigateToAdminDashboard() {
 		await this.adminDashboardButton.click();
 	}
@@ -46,7 +46,7 @@ export class AdminHeaderComponent {
 		await this.editOrganizationButton.click();
 	}
 
-	// Metodi per verificare i pulsanti
+	// Methods to check buttons
 	async isAdminDashboardButtonVisible(): Promise<boolean> {
 		return await this.adminDashboardButton.isVisible();
 	}
@@ -65,7 +65,7 @@ export class AdminHeaderComponent {
 		return (await span.textContent()) || '';
 	}
 
-	// Metodi per verificare la presenza delle icone SVG
+	// Methods to check for SVG icons presence
 	async hasAdminDashboardIcon(): Promise<boolean> {
 		const svg = this.adminDashboardButton.locator('svg');
 		return await svg.isVisible();
@@ -76,7 +76,7 @@ export class AdminHeaderComponent {
 		return await svg.isVisible();
 	}
 
-	// Metodo per attendere che l'admin bar sia caricata
+	// Method to wait for the admin bar to load
 	async waitForAdminBarToLoad() {
 		await this.adminBar.waitFor({ state: 'visible' });
 	}

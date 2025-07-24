@@ -49,28 +49,11 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.waitForNewProcessPageLoad();
 	}
 
-	async navigateToProcessGroups() {
-		await this.processTabNavigation.clickProcessGroupsTab();
-		await this.waitForProcessGroupsPageLoad();
-	}
-
-	async navigateToProcessesTab() {
-		await this.processTabNavigation.clickProcessesTab();
-		await this.waitForProcessesPageLoad();
-	}
-
 	// Page state and checks using components
 	async isOnProcessesPage() {
 		return (
 			(await this.processBreadcrumb.isBreadcrumbVisible()) &&
 			(await this.processTabNavigation.isProcessesTabActive())
-		);
-	}
-
-	async isOnProcessGroupsPage() {
-		return (
-			(await this.processBreadcrumb.isBreadcrumbVisible()) &&
-			(await this.processTabNavigation.isProcessGroupsTabActive())
 		);
 	}
 
@@ -80,9 +63,6 @@ export class ProcessAdminPage extends BaseAdminPage {
 	}
 
 	// Process management using table component
-	async viewProcess(processName: string) {
-		await this.processTable.viewProcess(processName);
-	}
 
 	async editProcess(processName: string) {
 		await this.processTable.editProcess(processName);
@@ -92,60 +72,10 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.processTable.editFirstProcess();
 	}
 
-	async duplicateProcess(processName: string) {
-		await this.processTable.duplicateProcess(processName);
-	}
-
-	async deleteProcess(processName: string) {
-		await this.processTable.deleteProcess(processName);
-	}
-
-	async publishProcess(processName: string) {
-		await this.processTable.publishProcess(processName);
-	}
-
-	async unpublishProcess(processName: string) {
-		await this.processTable.unpublishProcess(processName);
-	}
-
 	// Process filtering and search using filters component
 	async searchProcesses(searchTerm: string) {
 		await this.processFilters.searchFor(searchTerm);
 		await this.processTable.waitForTableLoad();
-	}
-
-	async filterByPublicSpace() {
-		await this.processFilters.filterByPublicSpace();
-		await this.processTable.waitForTableLoad();
-	}
-
-	async filterByPrivateSpace() {
-		await this.processFilters.filterByPrivateSpace();
-		await this.processTable.waitForTableLoad();
-	}
-
-	async filterByPublished() {
-		await this.processFilters.filterByPublished();
-		await this.processTable.waitForTableLoad();
-	}
-
-	async filterByUnpublished() {
-		await this.processFilters.filterByUnpublished();
-		await this.processTable.waitForTableLoad();
-	}
-
-	async clearAllFilters() {
-		await this.processFilters.clearAllFilters();
-		await this.processTable.waitForTableLoad();
-	}
-
-	// Process data retrieval
-	async getProcessTitles() {
-		return await this.processTable.getProcessTitles();
-	}
-
-	async getProcessStatuses() {
-		return await this.processTable.getProcessStatuses();
 	}
 
 	async getProcessCount() {
@@ -158,19 +88,6 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 	async isTableEmpty() {
 		return await this.processTable.isEmpty();
-	}
-
-	// Process status checks
-	async isProcessPublished(processName: string) {
-		return await this.processTable.isProcessPublished(processName);
-	}
-
-	async isProcessDraft(processName: string) {
-		return await this.processTable.isProcessDraft(processName);
-	}
-
-	async isProcessArchived(processName: string) {
-		return await this.processTable.isProcessArchived(processName);
 	}
 
 	// Page loading helpers
@@ -472,26 +389,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await cancelButton.click();
 	}
 
-	async retrySubmission() {
-		await this.page.getByRole('button', { name: 'Retry' }).click();
-	}
-
-	// Private process participants
-	async addPrivateParticipants(emails: string[]) {
-		for (const email of emails) {
-			await this.page.getByRole('textbox', { name: 'Participant email' }).fill(email);
-			await this.page.getByRole('button', { name: 'Add participant' }).click();
-		}
-	}
-
 	// Success and error handling
-	async waitForSuccessMessage() {
-		await this.page.getByText('Participatory process successfully created.');
-	}
-
-	async waitForProcessErrorMessage() {
-		await this.page.getByText('There was a problem creating a new participatory process.');
-	}
 
 	async expectSuccessMessage() {
 		await expect(this.page.getByText('Participatory process successfully created.')).toBeVisible();
@@ -503,50 +401,6 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 	async expectToBeOnProcessesAdminPage() {
 		await expect(this.page).toHaveURL(/\/admin\/participatory_processes/);
-	}
-
-	// Complete workflow methods
-	async createNewProcess(processData: CompleteProcessData) {
-		await this.navigateToNewProcess();
-		await this.fillGeneralInfo(processData.general);
-		await this.fillDurationInfo(processData.duration);
-		if (processData.image) {
-			await this.addImage(processData.image);
-		}
-		await this.fillMetadataInfo(processData.metadata);
-
-		if (processData.visibility === 'private') {
-			await this.setVisibilityToPrivate();
-		} else {
-			await this.setVisibilityToPublic();
-		}
-
-		await this.submitProcess();
-
-		if (processData.visibility === 'private' && processData.privateParticipants) {
-			await this.addPrivateParticipants(processData.privateParticipants);
-		}
-	}
-
-	// Public method to test locale detection (for testing purposes)
-	public async testLocaleDetection(): Promise<{ currentLocale: string; testSelectors: string[] }> {
-		const currentLocale = LocalizationUtils.getCurrentLocale(this.page);
-		const testFields = [
-			'participatory_process_short_description',
-			'participatory_process_description',
-			'participatory_process_announcement'
-		];
-
-		const testSelectors = [];
-		for (const field of testFields) {
-			const selector = await LocalizationUtils.getWorkingLocalizedSelector(this.page, field);
-			testSelectors.push(selector);
-		}
-
-		return {
-			currentLocale,
-			testSelectors
-		};
 	}
 
 	public async createTestProcess(validProcessData: CompleteProcessData, isPrivateProcess: boolean = false) {

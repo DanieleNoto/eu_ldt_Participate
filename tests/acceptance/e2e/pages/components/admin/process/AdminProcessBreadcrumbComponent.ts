@@ -1,13 +1,13 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component per la breadcrumb specifica della sezione processi admin.
- * Gestisce la breadcrumb, il pulsante "Nuovo processo" e il dropdown "Gestisci".
+ * Component for the breadcrumb specific to the admin processes section.
+ * Manages the breadcrumb, the "New process" button, and the "Manage" dropdown.
  */
 export class AdminProcessBreadcrumbComponent {
 	constructor(private page: Page) {}
 
-	// Selettori principali
+	// Main selectors
 	private get processTitle() {
 		return this.page.locator('.process-title');
 	}
@@ -24,7 +24,7 @@ export class AdminProcessBreadcrumbComponent {
 		return this.breadcrumbContainer.locator('.process-title-content-breadcrumb-container-right');
 	}
 
-	// Selettori per la breadcrumb sinistra
+	// Selectors for the left breadcrumb
 	private get homeIcon() {
 		return this.breadcrumbLeft.locator('.process-title-content-icon-home');
 	}
@@ -37,7 +37,7 @@ export class AdminProcessBreadcrumbComponent {
 		return this.breadcrumbLeft.locator('.process-title-content-breadcrumb');
 	}
 
-	// Selettori per la breadcrumb destra (azioni)
+	// Selectors for the right breadcrumb (actions)
 	private get newProcessButton() {
 		return this.breadcrumbRight.locator('a[href*="/admin/participatory_processes/new"]');
 	}
@@ -50,7 +50,7 @@ export class AdminProcessBreadcrumbComponent {
 		return this.page.locator('#processes-dropdown-menu-settings');
 	}
 
-	// Selettori per le voci del dropdown "Gestisci"
+	// Selectors for the "Manage" dropdown items
 	private get processesMenuItem() {
 		return this.manageDropdownMenu.locator('a[href*="/admin/participatory_processes"]').first();
 	}
@@ -63,7 +63,7 @@ export class AdminProcessBreadcrumbComponent {
 		return this.manageDropdownMenu.locator('a[href*="/admin/participatory_process_types"]');
 	}
 
-	// Metodi di verifica
+	// Verification methods
 	async isBreadcrumbVisible(): Promise<boolean> {
 		return await this.processTitle.isVisible();
 	}
@@ -84,7 +84,7 @@ export class AdminProcessBreadcrumbComponent {
 		return await this.manageDropdownTrigger.isVisible();
 	}
 
-	// Metodi per ottenere testo
+	// Methods to get text
 	async getProcessesLabelText(): Promise<string> {
 		return (await this.processesLabel.textContent()) || '';
 	}
@@ -97,7 +97,7 @@ export class AdminProcessBreadcrumbComponent {
 		return (await this.manageDropdownTrigger.textContent()) || '';
 	}
 
-	// Metodi di navigazione
+	// Navigation methods
 	async clickHomeIcon(): Promise<void> {
 		await this.homeIcon.click();
 	}
@@ -115,7 +115,7 @@ export class AdminProcessBreadcrumbComponent {
 		await this.processesLabel.click();
 	}
 
-	// Metodi per navigazione tramite dropdown
+	// Methods for navigation via dropdown
 	async navigateToProcesses(): Promise<void> {
 		await this.openManageDropdown();
 		await this.processesMenuItem.click();
@@ -131,7 +131,7 @@ export class AdminProcessBreadcrumbComponent {
 		await this.processTypesMenuItem.click();
 	}
 
-	// Metodi per verificare lo stato del dropdown
+	// Methods to check the dropdown state
 	async isManageDropdownOpen(): Promise<boolean> {
 		return await this.manageDropdownMenu.isVisible();
 	}
@@ -152,13 +152,13 @@ export class AdminProcessBreadcrumbComponent {
 		return itemTexts;
 	}
 
-	// Metodi per verificare l'aria-current
+	// Methods to check aria-current
 	async isProcessesLabelCurrent(): Promise<boolean> {
 		const ariaCurrent = await this.processesLabel.getAttribute('aria-current');
 		return ariaCurrent === 'page';
 	}
 
-	// Verifica se il componente è completamente caricato
+	// Check if the component is fully loaded
 	async isComponentFullyLoaded(): Promise<boolean> {
 		const breadcrumbVisible = await this.isBreadcrumbVisible();
 		const homeIconVisible = await this.isHomeIconVisible();

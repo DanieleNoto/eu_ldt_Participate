@@ -147,7 +147,7 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	async getStepAnnouncement(): Promise<string> {
 		const selector = await LocalizationUtils.getWorkingLocalizedSelector(
 			this.getPage(),
-			'component_step_settings_9_announcement'
+			'component_step_settings_1_announcement'
 		);
 		const editorLocator = this.getPage().locator(`${selector} .tiptap`);
 		return (await editorLocator.inputValue()) || '';

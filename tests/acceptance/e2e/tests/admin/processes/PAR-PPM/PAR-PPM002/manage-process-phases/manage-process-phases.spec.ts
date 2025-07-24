@@ -1,4 +1,3 @@
-import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { NewPhasePage } from '@pages/pages/admin/processes/detail/phases/NewPhasesPage';
 import { PhasesPage } from '@pages/pages/admin/processes/detail/phases/PhasesPage';
@@ -26,10 +25,7 @@ test.describe('[PAR-PPM002] – Manage process phases', () => {
 	let phasePage: PhasesPage;
 	let newPhasePage: NewPhasePage;
 
-	let validProcessData: any;
-
 	test.beforeEach(async ({ page }) => {
-		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 		adminHomePage = new AdminHomePage(page);
 		processAdminPage = new ProcessAdminPage(page);
 		updateProcessAdminPage = new UpdateProcessAdminPage(page);
