@@ -9,7 +9,7 @@ export class SidebarProcessDetailComponent {
 
 	// Main sidebar container
 	private readonly sidebarMenu: Locator;
-	private readonly adminSidebarSettings: Locator;
+	
 
 	// Desktop menu
 	private readonly desktopMenu: Locator;
@@ -34,7 +34,6 @@ export class SidebarProcessDetailComponent {
 
 		// Main containers
 		this.sidebarMenu = page.locator('.sidebar-menu');
-		this.adminSidebarSettings = page.locator('#admin-sidebar-menu-settings');
 
 		// Desktop and mobile versions
 		this.desktopMenu = page.locator('.sidebar-menu .hidden.md\\:block ul').first();
