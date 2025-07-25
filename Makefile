@@ -15,7 +15,7 @@ RED := \033[0;31m
 NC := \033[0m # No Color
 
 # Configuration
-COMPOSE_FILE := decidim/decidim_application/docker-compose.yml
+COMPOSE_FILE := docker-compose.yml
 DECIDIM_URL := http://localhost:3000
 FRONTEND_URL := http://localhost:5001
 BACKEND_URL := http://localhost:8080
@@ -76,9 +76,7 @@ setup-backend: install-deps ## Setup backend dependencies
 
 setup-decidim: check-prerequisites ## Setup Decidim with Docker Compose
 	@echo "$(YELLOW)Setting up Decidim...$(NC)"
-	@chmod +x decidim/decidim_application/docker-entrypoint.sh
-	@chmod +x decidim/decidim_application/bin/*
-	@cd decidim/decidim_application && docker compose build
+	@docker compose build
 	@echo "$(GREEN)✓ Decidim setup completed$(NC)"
 
 setup: setup-node install-deps setup-playwright setup-frontend setup-backend setup-decidim ## Complete environment setup
@@ -90,24 +88,24 @@ setup: setup-node install-deps setup-playwright setup-frontend setup-backend set
 
 start: ## Start all services
 	@echo "$(YELLOW)Starting Decidim services...$(NC)"
-	@cd decidim/decidim_application && docker compose up -d
+	@docker compose up -d
 	@echo "$(GREEN)✓ Decidim services started$(NC)"
 	@echo "$(YELLOW)Decidim will be available at: $(DECIDIM_URL)$(NC)"
 	@echo "$(YELLOW)Default admin credentials: admin@admin.com / decidim123456789$(NC)"
 
 stop: ## Stop all services
 	@echo "$(YELLOW)Stopping Decidim services...$(NC)"
-	@cd decidim/decidim_application && docker compose down
+	@docker compose down
 	@echo "$(GREEN)✓ Decidim services stopped$(NC)"
 
 restart: stop start ## Restart all services
 
 logs: ## View Decidim logs
-	@cd decidim/decidim_application && docker compose logs -f decidim
+	@docker compose logs -f decidim
 
 status: ## Check status of all services
 	@echo "$(YELLOW)Checking service status...$(NC)"
-	@cd decidim/decidim_application && docker compose ps
+	@docker compose ps
 
 check-services: ## Check if services are responding
 	@echo "$(YELLOW)Checking service health...$(NC)"
@@ -160,7 +158,7 @@ report-playwright: ## Show Playwright test report
 
 clean: stop ## Clean up containers and dependencies
 	@echo "$(YELLOW)Cleaning up...$(NC)"
-	@cd decidim/decidim_application && docker compose down -v --remove-orphans
+	@docker compose down -v --remove-orphans
 	@docker system prune -f
 	@echo "$(GREEN)✓ Cleanup completed$(NC)"
 
