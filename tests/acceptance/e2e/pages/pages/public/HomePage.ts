@@ -55,10 +55,6 @@ export class HomePage extends BasePage {
 		return this.page.locator('header.with-admin-bar');
 	}
 
-	private get menuBarContainer() {
-		return this.page.locator('#menu-bar-container');
-	}
-
 	private get contentArea() {
 		return this.page.locator('#content[data-content]');
 	}
@@ -185,7 +181,6 @@ export class HomePage extends BasePage {
 		await this.header.performSearch(searchTerm);
 	}
 
-	// Methods to get information from the page
 	// Methods to get information from the page
 	async getHeroTitle(): Promise<string> {
 		return await this.heroSection.getHeroTitle();
