@@ -7,11 +7,6 @@ export const STORAGE_STATE = {
 	ACCOUNT_DELETION_USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/account-deletion-user-state.json')
 } as const;
 
-export const TEST_TIMEOUTS = {
-	DEFAULT: 30000,
-	LONG: 60000,
-	NAVIGATION: 120000
-} as const;
 
 export const TEST_SELECTORS = {
 	LOGIN: {
