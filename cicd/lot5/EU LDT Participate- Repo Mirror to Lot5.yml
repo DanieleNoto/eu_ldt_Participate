@@ -26,7 +26,7 @@ jobs:
           git config --global http.sslVerify false
 
           echo "Clonando todo el repositorio origen con --mirror..."
-          git clone --mirror https://$(PAT-LOT5-REPO-SYNC)@vdev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate source-repo
+          git clone --mirror https://$(PAT-LOT5-REPO-SYNC)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate source-repo
 
           cd source-repo
 
