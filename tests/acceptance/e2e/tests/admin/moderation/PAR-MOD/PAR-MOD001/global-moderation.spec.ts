@@ -1,5 +1,4 @@
 import { HomePage } from '@pages/pages/public/HomePage';
-import { BaseAdminPage } from '@pages/pages/admin/BaseAdminPage';
 import test, { expect } from '@playwright/test';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -20,11 +19,9 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 
 	let homePage: HomePage;
-	let adminPage: BaseAdminPage;
 
 	test.beforeEach(async ({ page }) => {
 		homePage = new HomePage(page);
-		adminPage = new BaseAdminPage(page);
 		await homePage.navigateToHomePage();
 	});
 
@@ -57,7 +54,77 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 				const itemCount = await reportedItems.count();
 				expect(itemCount).toBeGreaterThan(0);
 
+				// Verify ID is displayed
+				const idElements = page
+					.locator('th:has-text("ID")')
+					.or(page.locator('td').filter({ hasText: /^#?\d+$/ }))
+					.or(page.locator('[data-field="id"]'))
+					.or(page.locator('.moderation-id'))
+					.or(page.locator('text=ID'));
+				await expect(idElements.first()).toBeVisible();
+
+				// Verify type of content is displayed
+				const contentTypeElements = page
+					.locator('th:has-text("Type")')
+					.or(page.locator('th:has-text("Content type")'))
+					.or(page.locator('td').filter({ hasText: /Comment|Proposal|Meeting|Discussion|Post/ }))
+					.or(page.locator('[data-field="content-type"]'))
+					.or(page.locator('.content-type'))
+					.or(page.locator('text=Type'));
+				await expect(contentTypeElements.first()).toBeVisible();
+
+				// Verify participatory space is displayed
+				const participatorySpaceElements = page
+					.locator('th:has-text("Space")')
+					.or(page.locator('th:has-text("Participatory space")'))
+					.or(page.locator('[data-field="participatory-space"]'))
+					.or(page.locator('.participatory-space'))
+					.or(page.locator('text=Space'))
+					.or(page.locator('text=Assembly'))
+					.or(page.locator('text=Process'))
+					.or(page.locator('text=Initiative'));
+				await expect(participatorySpaceElements.first()).toBeVisible();
+
+				// Verify count of reports is displayed
+				const reportCountElements = page
+					.locator('th:has-text("Reports")')
+					.or(page.locator('th:has-text("Count")'))
+					.or(page.locator('td').filter({ hasText: /^\d+$/ }))
+					.or(page.locator('[data-field="report-count"]'))
+					.or(page.locator('.report-count'))
+					.or(page.locator('text=Reports'));
+				await expect(reportCountElements.first()).toBeVisible();
+
+				// Verify reported content URL is displayed
+				const contentUrlElements = page
+					.locator('th:has-text("URL")')
+					.or(page.locator('th:has-text("Link")'))
+					.or(page.locator('a[href*="/"]'))
+					.or(page.locator('[data-field="content-url"]'))
+					.or(page.locator('.content-url'))
+					.or(page.locator('text=URL'))
+					.or(page.locator('text=Link'));
+				await expect(contentUrlElements.first()).toBeVisible();
+
+				// Verify reason for the report is displayed
+				const reportReasonElements = page
+					.locator('th:has-text("Reason")')
+					.or(page.locator('th:has-text("Report reason")'))
+					.or(page.locator('[data-field="reason"]'))
+					.or(page.locator('.report-reason'))
+					.or(page.locator('text=Reason'))
+					.or(page.locator('text=Inappropriate'))
+					.or(page.locator('text=Spam'))
+					.or(page.locator('text=Offensive'));
+				await expect(reportReasonElements.first()).toBeVisible();
+
 				console.log(`Found ${itemCount} reported content items in the list`);
+				console.log('✓ ID information is displayed');
+				console.log('✓ Type of content is displayed');
+				console.log('✓ Participatory space is displayed');
+				console.log('✓ Count of reports is displayed');
+				console.log('✓ Reported content URL is displayed');
+				console.log('✓ Reason for the report is displayed');
 			});
 
 			await test.step('3. USER: Clicks on a specific piece of reported content to review the complaint.', async () => {
@@ -111,21 +178,51 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 			});
 
 			await test.step('5. SYSTEM: Displays full metadata, including the type of content, report reasons, and any additional information provided by the participant.', async () => {
-				// Verify metadata is displayed
+				// Verify metadata container is displayed
 				const metadataContainer = page
 					.locator('[data-content="report-metadata"]')
 					.or(page.locator('.report-details'))
 					.or(page.locator('main'));
 				await expect(metadataContainer).toBeVisible();
 
-				// Check for report reasons and content information
-				const reportInfo = page
-					.locator('text=Report')
-					.or(page.locator('text=Reason'))
-					.or(page.locator('text=Content'));
-				await expect(reportInfo.first()).toBeVisible();
+				// Check for report reasons
+				const reportReasons = page
+					.locator('text=Reason')
+					.or(page.locator('text=Report reason'))
+					.or(page.locator('[data-field="reason"]'))
+					.or(page.locator('.report-reason'));
+				await expect(reportReasons.first()).toBeVisible();
+
+				// Check for type of content
+				const contentType = page
+					.locator('text=Type')
+					.or(page.locator('text=Content type'))
+					.or(page.locator('text=Resource type'))
+					.or(page.locator('[data-field="content-type"]'))
+					.or(page.locator('.content-type'))
+					.or(page.locator('text=Comment'))
+					.or(page.locator('text=Proposal'))
+					.or(page.locator('text=Meeting'))
+					.or(page.locator('text=Discussion'));
+				await expect(contentType.first()).toBeVisible();
+
+				// Check for additional information provided by the participant
+				const additionalInfo = page
+					.locator('text=Additional information')
+					.or(page.locator('text=Details'))
+					.or(page.locator('text=Description'))
+					.or(page.locator('text=Comments'))
+					.or(page.locator('[data-field="details"]'))
+					.or(page.locator('[data-field="description"]'))
+					.or(page.locator('.report-details'))
+					.or(page.locator('textarea'))
+					.or(page.locator('.additional-info'));
+				await expect(additionalInfo.first()).toBeVisible();
 
 				console.log('Report metadata and context information is displayed');
+				console.log('✓ Report reasons are visible');
+				console.log('✓ Content type information is displayed');
+				console.log('✓ Additional participant information is shown');
 			});
 
 			await test.step('6. USER: Clicks on the "Hide" icon to accept the report and hide the content.', async () => {
@@ -146,6 +243,7 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 
 				// Check that the content status has been updated
 				const hiddenStatus = page.locator('text=Hidden').or(page.locator('[data-status="hidden"]'));
+				await expect(hiddenStatus.first()).toBeVisible();
 				console.log('Content status has been updated to Hidden');
 			});
 
@@ -159,6 +257,10 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 					.or(page.locator('.moderations-list'))
 					.or(page.locator('table'));
 				await expect(moderationsList).toBeVisible();
+
+				// Verify content has been hidden
+				const hiddenStatus = page.locator('text=Hidden').or(page.locator('[data-status="hidden"]'));
+				await expect(hiddenStatus.first()).toBeVisible();
 
 				console.log('✓ The reported content has been hidden successfully');
 				console.log('✓ The moderation status has been updated');
@@ -224,7 +326,8 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 					await page.waitForLoadState('networkidle');
 					console.log('Successfully clicked Unreport button to reject the report');
 				} else {
-					console.log('No Unreport button found, continuing test');
+					console.error('CRITICAL: No Unreport button found using any strategy');
+					throw new Error('Failed to find and click Unreport button. All strategies failed!');
 				}
 			});
 
@@ -235,12 +338,26 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 
 				// Verify the unreported status
 				const unreportedStatus = page.locator('text=Unreported').or(page.locator('[data-status="unreported"]'));
+				await expect(unreportedStatus.first()).toBeVisible();
 				console.log('Content status has been updated to Unreported');
 			});
 
 			await test.step('Result.', async () => {
 				// Final verification
 				await expect(page).toHaveURL(/.*\/admin\/moderations.*/);
+
+				// Verify the moderations list is still accessible
+				const moderationsList = page
+					.locator('[data-content="moderations-list"]')
+					.or(page.locator('.moderations-list'))
+					.or(page.locator('table'));
+				await expect(moderationsList).toBeVisible();
+
+				// Verify content is still visible (unreported means it remains visible)
+				const unreportedContent = page
+					.locator('text=Unreported')
+					.or(page.locator('[data-status="unreported"]'));
+				await expect(unreportedContent.first()).toBeVisible();
 
 				console.log('✓ The reported content has been kept visible');
 				console.log('✓ The moderation status has been updated to unreported');
