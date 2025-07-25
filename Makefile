@@ -91,7 +91,8 @@ start: ## Start all services
 	@docker compose up -d
 	@echo "$(GREEN)✓ Decidim services started$(NC)"
 	@echo "$(YELLOW)Decidim will be available at: $(DECIDIM_URL)$(NC)"
-	@echo "$(YELLOW)Default admin credentials: admin@admin.com / decidim123456789$(NC)"
+	@echo "$(YELLOW)Default admin credentials: admin@example.org / decidim123456789$(NC)"
+	@echo "$(YELLOW)Default user credentials: user@example.org / decidim123456789$(NC)"
 
 stop: ## Stop all services
 	@echo "$(YELLOW)Stopping Decidim services...$(NC)"
