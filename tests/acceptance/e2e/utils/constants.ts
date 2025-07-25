@@ -61,6 +61,12 @@ export const TEST_SELECTORS = {
 	ADMIN_BAR: '#admin-bar'
 } as const;
 
+export const TEST_ASSETS = {
+	TEST_IMAGE: path.resolve(__dirname, '../test-assets/test.jpg'),
+	TEST_CSV: path.resolve(__dirname, '../test-assets/private-participants.csv'),
+	NOT_VALID_FILE: path.resolve(__dirname, '../test-assets/not.valid.file')
+} as const;
+
 export const BASE_URLS = {
 	USED: process.env.FE_BASE_URL || 'http://localhost:3000',
 	LOCAL: 'http://localhost:3000',
