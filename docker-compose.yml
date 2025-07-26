@@ -1,7 +1,7 @@
 services:
     decidim:
         #image: decidim/decidim-dev:0.29.3
-        build: .
+        build: ./decidim/decidim_application/
         ports:
             - '3000:3000'
         env_file:
@@ -18,11 +18,16 @@ services:
             - NODE_ENV=${NODE_ENV}
             - DECIDIM_MAILER_SENDER=${DECIDIM_MAILER_SENDER}
             - QUEUE_ADAPTER=${QUEUE_ADAPTER}
-            - SHAKAPACKER_DEV_SERVER_HOST=shakapacker
+            - SHAKAPACKER_DEV_SERVER_HOST=0.0.0.0
             - SHAKAPACKER_DEV_SERVER_PORT=3035
             - SHAKAPACKER_DEV_SERVER_ENABLED=true
+            # CSP Configuration for development
+            - RAILS_CSP_DEVELOPMENT=true
+            # Uncomment these only when you need to force reset/setup
+            # - FORCE_DB_RESET=true
+            # - FORCE_DATA_SETUP=true
         volumes:
-            - .:/code
+            - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
             - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
@@ -30,8 +35,12 @@ services:
         networks:
             - private
         depends_on:
-            - redis
-            - db
+            redis:
+                condition: service_started
+            db:
+                condition: service_started
+            shakapacker:
+                condition: service_healthy
         healthcheck:
             test: ['CMD', 'test', '-d', 'node_modules']
             interval: 5s
@@ -58,20 +67,16 @@ services:
         networks:
             - private
     shakapacker:
-        build: .
-        command: bundle exec bin/shakapacker-dev-server
+        build: ./decidim/decidim_application/
+        command: bash -c "bundle install && yarn install && bundle exec bin/shakapacker-dev-server"
         volumes:
-            - .:/code
+            - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
             - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
         depends_on:
-            db:
-                condition: service_started
-            redis:
-                condition: service_started
-            decidim:
-                condition: service_healthy
+            - db
+            - redis
         networks:
             - private
         ports:
@@ -81,7 +86,15 @@ services:
         environment:
             - RAILS_ENV=${RAILS_ENV}
             - NODE_ENV=${NODE_ENV}
-            - SHAKAPACKER_DEV_SERVER_HOST=${SHAKAPACKER_DEV_SERVER_HOST}
+            - SHAKAPACKER_DEV_SERVER_HOST=0.0.0.0
+            - SHAKAPACKER_DEV_SERVER_PORT=3035
+            - SHAKAPACKER_DEV_SERVER_PUBLIC=0.0.0.0:3035
+        healthcheck:
+            test: ['CMD', 'test', '-f', '/code/bin/shakapacker-dev-server']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        
 
     grafana:
         image: grafana/grafana:11.0.0
@@ -100,8 +113,8 @@ services:
             - DATABASE_PASSWORD=${DATABASE_PASSWORD}
         volumes:
             - grafana_data:/var/lib/grafana
-            - ../../analytics/grafana/provisioning:/etc/grafana/provisioning
-            - ../../analytics/grafana/dashboards:/etc/grafana/provisioning/dashboards
+            - ./analytics/grafana/provisioning:/etc/grafana/provisioning
+            - ./analytics/grafana/dashboards:/etc/grafana/provisioning/dashboards
         networks:
             - private
         depends_on:

@@ -1,4 +1,5 @@
 import { Page, expect } from '@playwright/test';
+import { TEST_ASSETS } from '@utils/constants';
 import { LocalizationUtils } from '../../../../utils/localization.utils';
 import { AdminProcessBreadcrumbComponent } from '../../../components/admin/process/AdminProcessBreadcrumbComponent';
 import { AdminProcessFiltersComponent } from '../../../components/admin/process/AdminProcessFiltersComponent';
@@ -328,7 +329,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.page.locator('#participatory_process_end_date_date').fill(durationData.endDate);
 	}
 
-	async addImage(imagePath: string = 'tests/acceptance/e2e/tests/processes/test-assets/test.jpg') {
+	async addImage(imagePath: string = TEST_ASSETS.TEST_IMAGE) {
 		await this.page.getByRole('button', { name: 'Add image' }).click();
 		// Wait for the dialog to appear
 		const dialog = this.page.getByRole('dialog');
@@ -758,7 +759,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		}
 	}
 
-	async updateImage(imagePath: string = 'tests/acceptance/e2e/tests/processes/test-assets/test.jpg'): Promise<void> {
+	async updateImage(imagePath: string = TEST_ASSETS.TEST_IMAGE): Promise<void> {
 		await this.page.getByRole('button', { name: 'Add image' }).click();
 		// Wait for the dialog to appear
 		const dialog = this.page.getByRole('dialog');

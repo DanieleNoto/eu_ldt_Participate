@@ -64,9 +64,13 @@ Rails.application.configure do
   config.after_initialize do
     if defined?(Shakapacker) && Shakapacker.config
       Shakapacker.config.dev_server['enabled'] = true
-      Shakapacker.config.dev_server['host'] = 'shakapacker'
+      Shakapacker.config.dev_server['host'] = '0.0.0.0'
       Shakapacker.config.dev_server['port'] = 3035
       Shakapacker.config.dev_server['https'] = false
+      # Set the public URL for the browser to access the dev server
+      Shakapacker.config.dev_server['public'] = '0.0.0.0:3035'
+      # Override the dev server URL for asset helpers
+      Shakapacker.config.dev_server['hmr'] = false
     end
   end
 

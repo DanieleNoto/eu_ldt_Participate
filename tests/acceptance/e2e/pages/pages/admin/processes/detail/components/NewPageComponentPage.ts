@@ -8,10 +8,8 @@ import { BaseAdminPage } from '../../../BaseAdminPage';
  */
 export class NewPageComponentPage extends BaseAdminPage {
 	// Main page elements
-	private readonly pageWrapper: Locator;
 	private readonly pageTitle: Locator;
-	private readonly form: Locator;
-
+	
 	// Order position field
 	private readonly orderPositionInput: Locator;
 
@@ -22,9 +20,7 @@ export class NewPageComponentPage extends BaseAdminPage {
 		super(page);
 
 		// Main page elements
-		this.pageWrapper = page.locator('.item_show__wrapper');
 		this.pageTitle = page.locator('.item_show__header-title h1');
-		this.form = page.locator('form.new_component');
 
 		// Order position field
 		this.orderPositionInput = page.locator('#component_weight');

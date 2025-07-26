@@ -26,8 +26,29 @@ RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesourc
 # Install Node.js
 RUN apt-get update && apt-get install -y nodejs
 
+# Set working directory
+WORKDIR /code
 
-# Copy entrypoint and ensure it is executable
+# Copy package files FIRST for better Docker layer caching
+COPY package.json yarn.lock* ./
+COPY Gemfile Gemfile.lock ./
+
+# Install Ruby gems (cached layer)
+RUN bundle config set --local deployment 'false' && \
+  bundle config set --local path 'vendor/bundle' && \
+  bundle install
+
+# Install Node.js dependencies (cached layer)
+RUN yarn install --frozen-lockfile --network-timeout 100000
+
+# NOW copy the application code
+COPY . .
+
+# Copy entrypoint and fix line endings + permissions
 COPY docker-entrypoint.sh /code/docker-entrypoint.sh
-RUN chmod +x /code/docker-entrypoint.sh
-RUN chmod +x /bin/*
+RUN sed -i 's/\r$//' /code/docker-entrypoint.sh && \
+  chmod +x /code/docker-entrypoint.sh && \
+  chmod +x /bin/*
+
+# Expose port
+EXPOSE 3000
