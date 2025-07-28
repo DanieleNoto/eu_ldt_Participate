@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e 
+set -e
 
 echo "--- Fixing line endings for bin scripts ---"
 # Fix line endings for all scripts in bin/ directory
