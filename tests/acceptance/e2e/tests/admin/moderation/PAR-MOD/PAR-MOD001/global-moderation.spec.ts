@@ -186,11 +186,23 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 			});
 
 			await test.step('4. USER: Reviews the metadata and context of the reported content by clicking the "Expand" icon.', async () => {
-				// Navigate to the reports detail page
-				await page.goto('http://localhost:3000/admin/moderations/5/reports');
-				await page.waitForLoadState('networkidle');
+				// If we successfully clicked Expand in step 3, we should already be on the detail page
+				// If not, try to click Expand again or navigate to the first available moderation detail
 
-				// Verify we are on the reports detail page
+				// Check if we're already on a reports detail page
+				const currentUrl = page.url();
+				if (!currentUrl.includes('/reports')) {
+					// We're still on the main moderations list, try to click Expand again
+					const expandButtons = page.getByRole('link', { name: 'Expand' });
+					const expandCount = await expandButtons.count();
+
+					if (expandCount > 0) {
+						await expandButtons.first().click();
+						await page.waitForLoadState('networkidle');
+					}
+				}
+
+				// Verify we are on a reports detail page (any ID is fine)
 				await expect(page).toHaveURL(/.*\/admin\/moderations\/\d+\/reports.*/);
 				console.log('Successfully navigated to reports detail page');
 			});
@@ -245,8 +257,12 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 
 			await test.step('6. USER: Clicks on the "Hide" icon to accept the report and hide the content.', async () => {
 				// First, navigate back to the main moderations list to save the URL
-				await page.goto('http://localhost:3000/admin/moderations');
-				await page.waitForLoadState('networkidle');
+				const currentUrl = page.url();
+				if (!currentUrl.includes('/admin/moderations') || currentUrl.includes('/reports')) {
+					// Navigate back to moderations list using the navigation link
+					await page.getByRole('link', { name: 'Global moderations', exact: true }).click();
+					await page.waitForLoadState('networkidle');
+				}
 
 				// Save the "Visit URL" link before hiding the content and find the corresponding Hide button
 				let reportedContentUrl = '';
@@ -453,9 +469,12 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 			});
 
 			await test.step('6.1. USER: Clicks on the "Unreport" icon to reject the report', async () => {
-				// Navigate back to moderations list and click unreport
-				await page.goto('http://localhost:3000/admin/moderations');
-				await page.waitForLoadState('networkidle');
+				// Navigate back to moderations list using navigation link
+				const currentUrl = page.url();
+				if (!currentUrl.includes('/admin/moderations') || currentUrl.includes('/reports')) {
+					await page.getByRole('link', { name: 'Global moderations', exact: true }).click();
+					await page.waitForLoadState('networkidle');
+				}
 
 				// Try multiple strategies to find the Unreport button
 				let unreported = false;
@@ -495,8 +514,11 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 
 			await test.step('6.2. SYSTEM: Updates the status of the report as "Unreported" and keeps the content visible on the platform', async () => {
 				// Navigate back to moderations to verify status
-				await page.goto('http://localhost:3000/admin/moderations');
-				await page.waitForLoadState('networkidle');
+				const currentUrl = page.url();
+				if (!currentUrl.includes('/admin/moderations') || currentUrl.includes('/reports')) {
+					await page.getByRole('link', { name: 'Global moderations', exact: true }).click();
+					await page.waitForLoadState('networkidle');
+				}
 
 				// Verify the unreported status - look specifically in the table
 				const unreportedStatus = page
@@ -548,9 +570,12 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 	test.describe('Alternative Flow: Cancel', () => {
 		test('should allow moderator to cancel the review process', async ({ page }) => {
 			await test.step('4-6. USER: Decides to cancel the review process', async () => {
-				// Navigate directly to admin dashboard
-				await page.goto('http://localhost:3000/admin/');
-				await page.waitForLoadState('networkidle');
+				// Navigate to admin dashboard using navigation link
+				const currentUrl = page.url();
+				if (!currentUrl.includes('/admin')) {
+					await page.getByRole('link', { name: 'Admin dashboard' }).click();
+					await page.waitForLoadState('networkidle');
+				}
 
 				// Navigate to global moderations
 				await page.getByRole('link', { name: 'Global moderations', exact: true }).click();
