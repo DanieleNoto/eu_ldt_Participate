@@ -1,15 +1,15 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component per la card delle metriche di partecipazione nella dashboard admin.
- * Gestisce la visualizzazione delle metriche e il link per ulteriori dettagli.
+ * Component for the participation metrics card in the admin dashboard.
+ * Manages the display of metrics and the link for more details.
  */
 export class AdminMetricsCardComponent {
 	constructor(private page: Page) {}
 
-	// Selettori principali
+	// Main selectors
 	private get metricsCard() {
-		return this.page.locator('.card').filter({ hasText: 'Partecipazione in cifre' });
+		return this.page.locator('.card').filter({ hasText: 'Participation in numbers' });
 	}
 
 	private get cardTitle() {
@@ -28,7 +28,7 @@ export class AdminMetricsCardComponent {
 		return this.page.locator('a[href*="/admin/metrics"]');
 	}
 
-	// Metodi di verifica
+	// Verification methods
 	async isMetricsCardVisible(): Promise<boolean> {
 		return await this.metricsCard.isVisible();
 	}
@@ -45,7 +45,7 @@ export class AdminMetricsCardComponent {
 		return (await this.cardTitle.textContent()) || '';
 	}
 
-	// Metodi per le metriche
+	// Methods for metrics
 	async getMetricsCount(): Promise<number> {
 		return await this.metricItems.count();
 	}
@@ -55,7 +55,7 @@ export class AdminMetricsCardComponent {
 		return count > 0;
 	}
 
-	// Metodi per interazione
+	// Interaction methods
 	async clickViewDetails(): Promise<void> {
 		await this.viewDetailsLink.click();
 	}
@@ -68,7 +68,7 @@ export class AdminMetricsCardComponent {
 		return (await this.viewDetailsLink.getAttribute('href')) || '';
 	}
 
-	// Metodi per verificare lo stato della card
+	// Methods to check the card state
 	async isCardFullyLoaded(): Promise<boolean> {
 		const cardVisible = await this.isMetricsCardVisible();
 		const containerVisible = await this.isMetricsContainerVisible();

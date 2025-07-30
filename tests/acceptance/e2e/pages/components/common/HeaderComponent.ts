@@ -1,8 +1,8 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component for the main header functionality.
- * Handles logo, navigation, user authentication, and language selection.
+ * Componente per la funzionalità principale dell'intestazione.
+ * Gestisce logo, navigazione, autenticazione utente e selezione della lingua.
  */
 export class HeaderComponent {
 	constructor(private page: Page) {}

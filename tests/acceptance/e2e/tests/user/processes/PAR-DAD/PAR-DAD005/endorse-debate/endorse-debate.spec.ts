@@ -24,8 +24,6 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 	let debatesOverviewPage: DebatesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
 	let debateDetailPage: DebateDetailPage;
-	// let closeDebatePage: CloseDebatePage;
-	// let debatesPage: DebatesPage;
 	let homePage: HomePage;
 
 	test.beforeEach(async ({ page }) => {
@@ -34,8 +32,6 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 		processDetailPage = new ProcessDetailPage(page);
 		debatesOverviewPage = new DebatesOverviewPage(page);
 		debateDetailPage = new DebateDetailPage(page);
-		// closeDebatePage = new CloseDebatePage(page);
-		// debatesPage = new DebatesPage(page);
 		await homePage.navigateToHomePage();
 	});
 
@@ -68,56 +64,56 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 				await debateDetailPage.expectToBeOnDebateDetailPage();
 			});
 			await test.step('7. User: Clicks on the "Like" button to show support for the debate', async () => {
-				// Prima verifica se il debate è già piaciuto dall'utente
+				// First check if the debate is already liked by the user
 				const isAlreadyLiked = await debateDetailPage.isDebateLikedByCurrentUser();
 				console.log('Is already liked by user:', isAlreadyLiked);
 
-				// Prendi il conteggio iniziale
+				// Get the initial count
 				likesCount = await debateDetailPage.getEndorsersCount();
 				console.log('Initial likes count:', likesCount);
 
-				// Se già piaciuto, rimuovi prima il like per fare un test pulito
+				// If already liked, remove the like first for a clean test
 				if (isAlreadyLiked) {
 					await debateDetailPage.clickEndorsementButton();
-					// Attendi che il sistema processi il unlike
+					// Wait for the system to process the unlike
 					await debateDetailPage.getPage().waitForLoadState('networkidle');
-					// Riprendi il conteggio dopo aver rimosso il like
+					// Get the count again after removing the like
 					likesCount = await debateDetailPage.getEndorsersCount();
 					console.log('Likes count after unlike:', likesCount);
 
-					// Verifica che ora il button non mostri più "Dislike"
+					// Check that the button no longer shows "Dislike"
 					const isStillLiked = await debateDetailPage.isDebateLikedByCurrentUser();
 					console.log('Is still liked after unlike:', isStillLiked);
 				}
 
-				// Ora metti il like
+				// Now click like
 				console.log('About to click like button...');
 				await debateDetailPage.clickEndorsementButton();
 
-				// Attendi che il sistema processi il like
+				// Wait for the system to process the like
 				await debateDetailPage.getPage().waitForLoadState('networkidle');
 
-				// Verifica che ora il button mostri "Dislike"
+				// Check that the button now shows "Dislike"
 				const isNowLiked = await debateDetailPage.isDebateLikedByCurrentUser();
 				console.log('Is now liked after click:', isNowLiked);
 			});
 			await test.step('8. System: Registers the endorsement and updates the endorsement count for the debate.', async () => {
-				// Attendi un po' di più per assicurarsi che l'operazione sia completata
+				// Wait a bit longer to ensure the operation is completed
 				await debateDetailPage.getPage().waitForTimeout(1000);
 				await debateDetailPage.getPage().waitForLoadState('networkidle');
 
-				// Debug delle informazioni di endorsement
+				// Debug endorsement information
 				await debateDetailPage.debugEndorsementInfo();
 
-				// Verifica che ora il debate sia piaciuto dall'utente
+				// Check that the debate is now liked by the user
 				const isNowLiked = await debateDetailPage.isDebateLikedByCurrentUser();
 				console.log('Final: Is now liked by user:', isNowLiked);
 
-				// Prendi il nuovo conteggio
+				// Get the new count
 				resultLikesCount = await debateDetailPage.getEndorsersCount();
 				console.log('Final likes count:', resultLikesCount);
 
-				// Se il like non ha funzionato, prova a forzarlo
+				// If the like did not work, try to force it
 				if (!isNowLiked) {
 					console.log('WARNING: Like did not register properly, attempting to force like...');
 					await debateDetailPage.likeDebate();
@@ -132,18 +128,18 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 				console.log('Final likes count:', resultLikesCount);
 				console.log('Expected: final count should be initial count + 1');
 
-				// Verifica finale dello stato del like
+				// Final verification of like state
 				const finalLikeState = await debateDetailPage.isDebateLikedByCurrentUser();
 				console.log('Final like state:', finalLikeState);
 
-				// Il debate dovrebbe essere piaciuto dall'utente
+				// The debate should be liked by the user
 				expect(finalLikeState).toBe(true);
 
-				// Il conteggio finale dovrebbe essere maggiore di quello iniziale
+				// The final count should be greater than the initial one
 				if (resultLikesCount === likesCount) {
 					console.log('ERROR: Counts are equal - this suggests the like was not registered properly');
 
-					// Prova a prendere il conteggio una volta di più
+					// Try to get the count one more time
 					const retryCount = await debateDetailPage.getEndorsersCount();
 					console.log('Retry count:', retryCount);
 
@@ -154,7 +150,7 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 				}
 
 				expect(resultLikesCount).toBeGreaterThan(likesCount);
-				// Specificamente, dovrebbe essere +1
+				// Specifically, it should be +1
 				expect(resultLikesCount).toBe(likesCount + 1);
 			});
 		});

@@ -3,7 +3,7 @@ import { Page } from '@playwright/test';
 export class ParticipationSectionComponent {
 	constructor(private page: Page) {}
 
-	// Selettori per la sezione "Come partecipare"
+	// Selectors for the "How to participate" section
 	private get participationSection() {
 		return this.page.locator('#how_to_participate');
 	}
@@ -17,22 +17,22 @@ export class ParticipationSectionComponent {
 	}
 
 	private get meetingsBlock() {
-		return this.page.locator('.home__section-participate-grid__block').filter({ hasText: 'Incontri' });
+		return this.page.locator('.home__section-participate-grid__block').filter({ hasText: 'Meetings' });
 	}
 
 	private get debatesBlock() {
-		return this.page.locator('.home__section-participate-grid__block').filter({ hasText: 'Dibattiti' });
+		return this.page.locator('.home__section-participate-grid__block').filter({ hasText: 'Debates' });
 	}
 
 	private get proposalsBlock() {
-		return this.page.locator('.home__section-participate-grid__block').filter({ hasText: 'proposte' });
+		return this.page.locator('.home__section-participate-grid__block').filter({ hasText: 'Proposals' });
 	}
 
 	private get moreInfoButton() {
 		return this.page.locator('#how_to_participate .button');
 	}
 
-	// Metodi per verificare la visibilità
+	// Methods to check visibility
 	async isParticipationSectionVisible(): Promise<boolean> {
 		return await this.participationSection.isVisible();
 	}
@@ -41,7 +41,7 @@ export class ParticipationSectionComponent {
 		return (await this.sectionTitle.textContent()) || '';
 	}
 
-	// Metodi per ottenere informazioni sui blocchi
+	// Methods to get information about the blocks
 	async getMeetingsInfo(): Promise<{ title: string; description: string }> {
 		const title = (await this.meetingsBlock.locator('.home__section-participate-grid__title').textContent()) || '';
 		const description =
@@ -63,7 +63,7 @@ export class ParticipationSectionComponent {
 		return { title, description };
 	}
 
-	// Metodi per le azioni
+	// Action methods
 	async clickMoreInfo() {
 		await this.moreInfoButton.click();
 	}
@@ -72,7 +72,7 @@ export class ParticipationSectionComponent {
 		return (await this.moreInfoButton.textContent()) || '';
 	}
 
-	// Metodi per verificare la presenza delle icone
+	// Methods to check the presence of icons
 	async hasIcons(): Promise<boolean> {
 		const meetingsIcon = await this.meetingsBlock.locator('svg').isVisible();
 		const debatesIcon = await this.debatesBlock.locator('svg').isVisible();
@@ -80,7 +80,7 @@ export class ParticipationSectionComponent {
 		return meetingsIcon && debatesIcon && proposalsIcon;
 	}
 
-	// Metodi di utilità
+	// Utility methods
 	async waitForSectionToLoad() {
 		await this.participationSection.waitFor({ state: 'visible' });
 	}

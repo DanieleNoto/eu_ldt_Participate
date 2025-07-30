@@ -1,13 +1,13 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component per la navigazione laterale dell'area admin.
- * Gestisce logo, menu principale e menu secondario.
+ * Component for the admin area side navigation.
+ * Manages logo, main menu, and secondary menu.
  */
 export class AdminNavigationComponent {
 	constructor(private page: Page) {}
 
-	// Selettori principali
+	// Main selectors
 	private get navigationContainer() {
 		return this.page.locator('.layout-nav');
 	}
@@ -24,7 +24,7 @@ export class AdminNavigationComponent {
 		return this.page.locator('.main-nav').nth(1);
 	}
 
-	// Selettori per i moduli principali
+	// Selectors for main modules
 	private get processesLink() {
 		return this.page.locator('.layout-nav nav a[href*="/admin/participatory_processes"]');
 	}
@@ -33,7 +33,7 @@ export class AdminNavigationComponent {
 		return this.page.locator('.layout-nav nav a[href*="/admin/assemblies"]');
 	}
 
-	// Selettori per il menu secondario
+	// Selectors for the secondary menu
 	private get moderationLink() {
 		return this.page.locator('.layout-nav nav a[href*="/admin/moderations"]');
 	}
@@ -58,7 +58,7 @@ export class AdminNavigationComponent {
 		return this.page.locator('.layout-nav nav a[href*="/admin/logs"]');
 	}
 
-	// Metodi di verifica
+	// Verification methods
 	async isNavigationVisible(): Promise<boolean> {
 		return await this.navigationContainer.isVisible();
 	}
@@ -75,7 +75,7 @@ export class AdminNavigationComponent {
 		return await this.secondaryNav.isVisible();
 	}
 
-	// Metodi di navigazione - Moduli principali
+	// Navigation methods - Main modules
 	async navigateToProcesses(): Promise<void> {
 		await this.processesLink.click();
 	}
@@ -84,7 +84,7 @@ export class AdminNavigationComponent {
 		await this.assembliesLink.click();
 	}
 
-	// Metodi di navigazione - Menu secondario
+	// Navigation methods - Secondary menu
 	async navigateToModeration(): Promise<void> {
 		await this.moderationLink.click();
 	}
@@ -109,12 +109,12 @@ export class AdminNavigationComponent {
 		await this.logsLink.click();
 	}
 
-	// Metodi di navigazione tramite logo
+	// Navigation via logo
 	async clickLogo(): Promise<void> {
 		await this.logo.click();
 	}
 
-	// Verifica dei link attivi
+	// Active link verification
 	async isProcessesLinkVisible(): Promise<boolean> {
 		return await this.processesLink.isVisible();
 	}
@@ -147,7 +147,7 @@ export class AdminNavigationComponent {
 		return await this.logsLink.isVisible();
 	}
 
-	// Ottieni testo dei link
+	// Get link texts
 	async getProcessesLinkText(): Promise<string> {
 		return (await this.processesLink.textContent()) || '';
 	}

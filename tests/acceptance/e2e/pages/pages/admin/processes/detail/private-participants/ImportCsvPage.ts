@@ -9,14 +9,6 @@ export class ImportCsvPage extends BaseAdminPage {
 		this.page = page;
 	}
 
-	// Navigation
-	async navigateToImportCsvPage(): Promise<void> {
-		await this.page.goto(
-			'/admin/participatory_processes/minimal-process-1750076875679/participatory_space_private_users/csv_import'
-		);
-		await this.page.waitForLoadState('networkidle');
-	}
-
 	// Actions
 	async deleteAllPrivateParticipants(): Promise<void> {
 		await this.page.click('a.button.alert');

@@ -186,10 +186,10 @@ export const generateTestData = {
 };
 
 /**
- * Formats date for Italian input fields
+ * Formats date for English input fields
  */
 export function formatDateForInput(date: Date): string {
-	return date.toLocaleDateString('it-IT');
+	return date.toLocaleDateString('en-EN');
 }
 
 /**

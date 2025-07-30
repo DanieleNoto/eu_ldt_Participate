@@ -209,7 +209,6 @@ export class BaseAdminPage extends AuthenticatedPage {
 		await this.page.waitForLoadState('networkidle');
 		await this.waitForElement('.layout-wrapper', timeout);
 
-		// Verifica che i componenti admin base siano caricati
 		await this.adminNavigation.isNavigationVisible();
 		await this.adminTitleBar.isTitleBarVisible();
 	}
@@ -227,77 +226,77 @@ export class BaseAdminPage extends AuthenticatedPage {
 	// Flash notification management
 
 	/**
-	 * Selettore per il wrapper delle notifiche flash
+	 * Selector for the flash notification wrapper
 	 */
 	private get flashNotificationWrapper() {
 		return this.page.locator('[data-callout-wrapper]');
 	}
 
 	/**
-	 * Selettore per le notifiche flash di successo
+	 * Selector for success flash notifications
 	 */
 	private get successFlashNotification() {
 		return this.page.locator('.flash.success[data-alert-box], .flash.primary[data-alert-box]');
 	}
 
 	/**
-	 * Selettore per le notifiche flash di tipo primary (spesso usate per il successo)
+	 * Selector for primary flash notifications (often used for success)
 	 */
 	private get primaryFlashNotification() {
 		return this.page.locator('.flash.primary[data-alert-box]');
 	}
 
 	/**
-	 * Selettore per le notifiche flash di errore
+	 * Selector for error flash notifications
 	 */
 	private get errorFlashNotification() {
 		return this.page.locator('.flash.alert[data-alert-box], .flash.error[data-alert-box]');
 	}
 
 	/**
-	 * Selettore per il messaggio all'interno della notifica flash
+	 * Selector for the message inside the flash notification
 	 */
 	private get flashMessage() {
 		return this.page.locator('.flash__message');
 	}
 
 	/**
-	 * Selettore per il pulsante di chiusura della notifica
+	 * Selector for the close button of the notification
 	 */
 	private get flashCloseButton() {
 		return this.page.locator('.flash .close-button[data-close]');
 	}
 
 	/**
-	 * Verifica se è presente una notifica flash di successo
+	 * Checks if a success flash notification is present
 	 */
 	async hasSuccessFlashNotification(): Promise<boolean> {
 		return await this.successFlashNotification.isVisible();
 	}
 
 	/**
-	 * Verifica se è presente una notifica flash di tipo primary
+	 * Checks if a primary flash notification is present
 	 */
 	async hasPrimaryFlashNotification(): Promise<boolean> {
 		return await this.primaryFlashNotification.isVisible();
 	}
 
 	/**
-	 * Verifica se è presente una notifica flash di errore
+	 * Checks if an error flash notification is present
 	 */
 	async hasErrorFlashNotification(): Promise<boolean> {
 		return await this.errorFlashNotification.isVisible();
 	}
 
 	/**
-	 * Verifica se è presente una notifica flash (di qualsiasi tipo)
+	 * Checks if any flash notification is present
 	 */
 	async hasFlashNotification(): Promise<boolean> {
 		return await this.flashNotificationWrapper.isVisible();
 	}
 
 	/**
-	 * Ottiene il messaggio della notifica flash
+	 * Gets the message of the flash notification
 	 */
 	async getFlashMessage(): Promise<string> {
 		const message = await this.flashMessage.textContent();
@@ -305,16 +304,16 @@ export class BaseAdminPage extends AuthenticatedPage {
 	}
 
 	/**
-	 * Verifica se la notifica flash contiene un messaggio specifico
-	 * @param expectedMessage - Il messaggio atteso nella notifica
+	 * Checks if the flash notification contains a specific message
+	 * @param expectedMessage - The expected message in the notification
 	 */
 	async expectFlashMessage(expectedMessage: string): Promise<void> {
 		await expect(this.flashMessage).toHaveText(expectedMessage);
 	}
 
 	/**
-	 * Verifica se è presente una notifica di successo con un messaggio specifico
-	 * @param expectedMessage - Il messaggio atteso nella notifica di successo
+	 * Checks if a success notification with a specific message is present
+	 * @param expectedMessage - The expected message in the success notification
 	 */
 	async expectSuccessFlashMessage(expectedMessage: string): Promise<void> {
 		await expect(this.successFlashNotification).toBeVisible();
@@ -322,8 +321,8 @@ export class BaseAdminPage extends AuthenticatedPage {
 	}
 
 	/**
-	 * Verifica se è presente una notifica di errore con un messaggio specifico
-	 * @param expectedMessage - Il messaggio atteso nella notifica di errore
+	 * Checks if an error notification with a specific message is present
+	 * @param expectedMessage - The expected message in the error notification
 	 */
 	async expectErrorFlashMessage(expectedMessage: string): Promise<void> {
 		await expect(this.errorFlashNotification).toBeVisible();
@@ -331,8 +330,8 @@ export class BaseAdminPage extends AuthenticatedPage {
 	}
 
 	/**
-	 * Verifica se è presente una notifica di tipo primary con un messaggio specifico
-	 * @param expectedMessage - Il messaggio atteso nella notifica primary
+	 * Checks if a primary notification with a specific message is present
+	 * @param expectedMessage - The expected message in the primary notification
 	 */
 	async expectPrimaryFlashMessage(expectedMessage: string): Promise<void> {
 		await expect(this.primaryFlashNotification).toBeVisible();
@@ -340,7 +339,7 @@ export class BaseAdminPage extends AuthenticatedPage {
 	}
 
 	/**
-	 * Chiude la notifica flash cliccando sul pulsante di chiusura
+	 * Closes the flash notification by clicking the close button
 	 */
 	async closeFlashNotification(): Promise<void> {
 		if (await this.flashCloseButton.isVisible()) {
@@ -349,9 +348,9 @@ export class BaseAdminPage extends AuthenticatedPage {
 	}
 
 	/**
-	 * Attende che appaia una notifica flash di successo con un messaggio specifico
-	 * @param expectedMessage - Il messaggio atteso
-	 * @param timeout - Timeout in millisecondi (default: 10000)
+	 * Waits for a success flash notification with a specific message to appear
+	 * @param expectedMessage - The expected message
+	 * @param timeout - Timeout in milliseconds (default: 10000)
 	 */
 	async waitForSuccessFlashNotification(expectedMessage: string, timeout: number = 10000): Promise<void> {
 		await this.successFlashNotification.waitFor({ state: 'visible', timeout });
@@ -359,9 +358,9 @@ export class BaseAdminPage extends AuthenticatedPage {
 	}
 
 	/**
-	 * Attende che appaia una notifica flash di errore con un messaggio specifico
-	 * @param expectedMessage - Il messaggio atteso
-	 * @param timeout - Timeout in millisecondi (default: 10000)
+	 * Waits for an error flash notification with a specific message to appear
+	 * @param expectedMessage - The expected message
+	 * @param timeout - Timeout in milliseconds (default: 10000)
 	 */
 	async waitForErrorFlashNotification(expectedMessage: string, timeout: number = 10000): Promise<void> {
 		await this.errorFlashNotification.waitFor({ state: 'visible', timeout });
@@ -369,38 +368,38 @@ export class BaseAdminPage extends AuthenticatedPage {
 	}
 
 	/**
-	 * Attende che appaia una notifica flash (di qualsiasi tipo)
-	 * @param timeout - Timeout in millisecondi (default: 10000)
+	 * Waits for any flash notification to appear
+	 * @param timeout - Timeout in milliseconds (default: 10000)
 	 */
 	async waitForFlashNotification(timeout: number = 10000): Promise<void> {
 		await this.flashNotificationWrapper.waitFor({ state: 'visible', timeout });
 	}
 
 	/**
-	 * Attende che scompaia la notifica flash
-	 * @param timeout - Timeout in millisecondi (default: 10000)
+	 * Waits for the flash notification to disappear
+	 * @param timeout - Timeout in milliseconds (default: 10000)
 	 */
 	async waitForFlashNotificationToDisappear(timeout: number = 10000): Promise<void> {
 		await this.flashNotificationWrapper.waitFor({ state: 'hidden', timeout });
 	}
 
 	/**
-	 * Verifica se la notifica flash è di tipo successo
+	 * Checks if the flash notification is of type success
 	 */
 	async isFlashNotificationSuccess(): Promise<boolean> {
 		return await this.successFlashNotification.isVisible();
 	}
 
 	/**
-	 * Verifica se la notifica flash è di tipo errore
+	 * Checks if the flash notification is of type error
 	 */
 	async isFlashNotificationError(): Promise<boolean> {
 		return await this.errorFlashNotification.isVisible();
 	}
 
 	/**
-	 * Ottiene il tipo di notifica flash presente
-	 * @returns 'success', 'primary', 'error', o 'none' se non presente
+	 * Gets the type of flash notification present
+	 * @returns 'success', 'primary', 'error', or 'none' if not present
 	 */
 	async getFlashNotificationType(): Promise<'success' | 'primary' | 'error' | 'none'> {
 		if (await this.hasSuccessFlashNotification()) {

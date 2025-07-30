@@ -10,7 +10,7 @@ export class NewCategoryPage extends BaseAdminPage {
 		return this.page;
 	}
 
-	// Navigazione
+	// Navigation
 	async expectToBeOnNewCategoryPage(): Promise<void> {
 		await expect(this.page).toHaveURL(/\/admin\/participatory_processes\/.+\/categories$/);
 		await expect(this.page.getByRole('heading', { name: 'New category' })).toBeVisible();
@@ -21,7 +21,7 @@ export class NewCategoryPage extends BaseAdminPage {
 		await expect(this.page.getByRole('heading', { name: 'Edit category' })).toBeVisible();
 	}
 
-	// Interazioni campi
+	// Fields
 	async fillName(name: string): Promise<void> {
 		await this.page.fill('#category_name_en', name);
 	}
@@ -48,7 +48,7 @@ export class NewCategoryPage extends BaseAdminPage {
 		await this.waitForLoadState();
 	}
 
-	// Validazioni
+	// Validation
 	async expectFormValidationError(): Promise<void> {
 		const error = this.page.locator('.form-error');
 		await expect(error.first()).toBeVisible();
