@@ -7,6 +7,9 @@ Rails.application.configure do
   # it changes. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
   config.hosts << "localhost"
+  config.hosts << "0.0.0.0"
+  config.hosts << "decidim"
+  config.hosts << "shakapacker"
   config.cache_classes = false
   config.web_console.permissions = '192.168.0.0/16'
 
@@ -60,8 +63,19 @@ Rails.application.configure do
   # Highlight code that triggered database queries in logs.
   config.active_record.verbose_query_logs = true
 
-  # Suppress logger output for asset requests.
-  
+  # Force enable Shakapacker dev server for development
+  config.after_initialize do
+    if defined?(Shakapacker) && Shakapacker.config
+      Shakapacker.config.dev_server['enabled'] = true
+      Shakapacker.config.dev_server['host'] = 'shakapacker'
+      Shakapacker.config.dev_server['port'] = 3035
+      Shakapacker.config.dev_server['https'] = false
+      # Set the public URL for the browser to access the dev server
+      Shakapacker.config.dev_server['public'] = 'localhost:3035'
+      # Override the dev server URL for asset helpers
+      Shakapacker.config.dev_server['hmr'] = false
+    end
+  end
 
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true
