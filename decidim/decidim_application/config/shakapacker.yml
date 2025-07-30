@@ -58,6 +58,9 @@ development:
     host_whitelist:
       - .sock$
       - localhost
+      - localhost:3035
+      - 127.0.0.1
+      - 127.0.0.1:3035
       - 0.0.0.0
       - shakapacker
       - host.docker.internal
