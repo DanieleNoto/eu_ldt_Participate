@@ -59,17 +59,9 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 				const itemCount = await reportedItems.count();
 
 				if (itemCount === 0) {
-					// If no reported items, check for empty state message
-					const emptyStateMessage = page
-						.locator('text=No moderations found')
-						.or(page.locator('text=No reported content'))
-						.or(page.locator('.empty-state'))
-						.or(page.locator('[data-testid="empty-state"]'));
-
-					if ((await emptyStateMessage.count()) > 0) {
-						console.log('No reported content found - this is acceptable for testing');
-						return; // Exit early if no content to moderate
-					}
+					throw new Error(
+						'CRITICAL: No reported content found. Cannot perform moderation tests without reported content.'
+					);
 				}
 
 				expect(itemCount).toBeGreaterThan(0);
@@ -548,30 +540,24 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 					unreported = true;
 					console.log('Clicked specific Unreport button (Strategy 1)');
 				} else {
-					// Strategy 2: Look for any Unreport link
+					// Strategy 2 and 3: Look for any Unreport link
 					const unreportButtons = page.getByRole('link', { name: 'Unreport' });
+					const unreportLinks = page.locator('a, button').filter({ hasText: /unreport/i });
 					if ((await unreportButtons.count()) > 0) {
 						await unreportButtons.first().click();
 						unreported = true;
 						console.log('Clicked general Unreport button (Strategy 2)');
+					} else if ((await unreportLinks.count()) > 0) {
+						await unreportLinks.first().click();
+						unreported = true;
+						console.log('Clicked unreport link (Strategy 3)');
 					} else {
-						// Strategy 3: Look for any button with "unreport" text
-						const unreportLinks = page.locator('a, button').filter({ hasText: /unreport/i });
-						if ((await unreportLinks.count()) > 0) {
-							await unreportLinks.first().click();
-							unreported = true;
-							console.log('Clicked unreport link (Strategy 3)');
-						}
+						console.error('CRITICAL: No Unreport button found using any strategy');
+						throw new Error('Failed to find and click Unreport button. All strategies failed!');
 					}
 				}
 
-				if (unreported) {
-					await page.waitForLoadState('networkidle');
-					console.log('Successfully clicked Unreport button to reject the report');
-				} else {
-					console.error('CRITICAL: No Unreport button found using any strategy');
-					throw new Error('Failed to find and click Unreport button. All strategies failed!');
-				}
+				console.log('Successfully clicked Unreport button to reject the report');
 			});
 
 			await test.step('6.2. SYSTEM: Updates the status of the report as "Unreported" and keeps the content visible on the platform', async () => {
@@ -620,7 +606,7 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 					await expect(unreportedContent.first()).toBeVisible();
 					console.log('✓ The reported content has been kept visible');
 				} else {
-					console.log('✓ The unreport action was completed');
+					throw new Error('CRITICAL: No unreported content found. The unreport action may have failed.');
 				}
 
 				console.log('✓ The moderation status has been updated to unreported');
