@@ -1,6 +1,6 @@
 import { HeaderComponent } from '@pages/components/common/HeaderComponent';
 import { HomePage } from '@pages/pages/public/HomePage';
-import { AccountDeletionPage } from '@pages/pages/user/AccountDeletionPage';
+import { AccountDeletionPage } from '@pages/pages/user/account/AccountDeletionPage';
 import { expect, test } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
