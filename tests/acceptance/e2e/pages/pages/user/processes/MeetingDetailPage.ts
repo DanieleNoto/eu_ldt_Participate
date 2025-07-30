@@ -1,4 +1,5 @@
 import { AuthenticatedPage } from '@pages/base/AuthenticatedPage';
+import { ShareModalComponent } from '@pages/components/common/ShareModalComponent';
 import { expect, Page } from '@playwright/test';
 
 export class MeetingDetailPage extends AuthenticatedPage {
@@ -7,15 +8,19 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	private meetingAddress;
 	private meetingAuthor;
 	private meetingDescription;
+	private shareButton;
 	private metadataContainer;
+	public shareModalComponent: ShareModalComponent;
 
 	constructor(page: Page) {
 		super(page);
 		this.meetingTitle = this.page.locator('h1.decorator');
 		this.meetingCalendarContainer = this.page.locator('.meeting__calendar-container');
+		this.shareModalComponent = new ShareModalComponent(this.page);
 		this.meetingAddress = this.page.locator('.address__location');
 		this.meetingAuthor = this.page.locator('.author__name');
 		this.meetingDescription = this.page.locator('.rich-text-display');
+		this.shareButton = this.page.locator('button[data-dialog-open="socialShare"]');
 		this.metadataContainer = this.page.locator('.metadata__container');
 	}
 
@@ -62,5 +67,10 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	 */
 	async getMetadata(): Promise<string[]> {
 		return await this.metadataContainer.evaluateAll(elements => elements.map(el => el.textContent?.trim() || ''));
+	}
+
+	async clickShareButton(): Promise<void> {
+		await this.shareButton.click();
+		await this.page.waitForLoadState('domcontentloaded');
 	}
 }
