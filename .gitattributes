@@ -1,0 +1,88 @@
+# Git attributes for EU LDT Participate project
+# This file ensures consistent line endings across different operating systems
+
+# Default behavior: normalize line endings to LF on checkin,
+# but allow Git to decide what to do on checkout based on core.autocrlf
+* text=auto
+
+# Force LF line endings for shell scripts and executables
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Force LF for Ruby files
+*.rb text eol=lf
+*.rake text eol=lf
+Rakefile text eol=lf
+Gemfile text eol=lf
+Gemfile.lock text eol=lf
+
+# Force LF for Docker and script files
+Dockerfile* text eol=lf
+docker-entrypoint.sh text eol=lf
+decidim/decidim_application/docker-entrypoint.sh text eol=lf
+
+# Force LF for all executable files in bin directories
+decidim/decidim_application/bin/* text eol=lf
+**/bin/* text eol=lf
+
+# Force LF for configuration files that might be interpreted by Unix tools
+*.yml text eol=lf
+*.yaml text eol=lf
+Makefile* text eol=lf
+
+# Web files - normalize to LF for consistency
+*.js text eol=lf
+*.ts text eol=lf
+*.jsx text eol=lf
+*.tsx text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.sass text eol=lf
+*.html text eol=lf
+*.htm text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+
+# Documentation files
+*.md text eol=lf
+*.txt text eol=lf
+
+# Configuration files
+.env* text eol=lf
+.nvmrc text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.editorconfig text eol=lf
+
+# Binary files - don't normalize, don't diff
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+*.tgz binary
+
+# Node.js related
+package-lock.json text eol=lf
+yarn.lock text eol=lf
+
+# Rails/Ruby specific
+config.ru text eol=lf
+*.gemspec text eol=lf
+
+# Decidim specific - ensure all Decidim files use LF
+decidim/**/*.rb text eol=lf
+decidim/**/*.erb text eol=lf
+decidim/**/*.yml text eol=lf
+decidim/**/*.yaml text eol=lf
+decidim/**/*.js text eol=lf
+decidim/**/*.css text eol=lf
+decidim/**/*.scss text eol=lf

@@ -90,3 +90,7 @@ tls.key
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+**/**/admin-state.json
+**/**/user-state.json
+**/**/account-deletion-user-state.json
+**/decidim_application/vendor/**
