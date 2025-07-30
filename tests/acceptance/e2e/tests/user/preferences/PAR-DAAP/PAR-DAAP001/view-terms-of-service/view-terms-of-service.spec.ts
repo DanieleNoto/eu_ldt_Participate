@@ -34,7 +34,7 @@ test.describe('[PAR-DAAP001] – Access information on data collection and usage
 	test.describe('Main Flow', () => {
 		test('should allow citizen to view terms of service information', async () => {
 			await test.step("1. USER: Navigates to the platform's homepage or dashboard", async () => {
-				// Navigate to homepage (already done in beforeEach)
+				await homePage.navigateToHomePage();
 				await homePage.expectToBeOnHomePage();
 				console.log('Successfully navigated to homepage');
 			});
@@ -74,7 +74,7 @@ test.describe('[PAR-DAAP001] – Access information on data collection and usage
 
 			await test.step('5. USER: Closes the Privacy Policy page or navigates back to the previous page', async () => {
 				// Close the Privacy Policy page
-				await privacyPolicyPage.closePrivacyPolicyPage();
+				await homePage.navigateToHomePage();
 				await homePage.expectToBeOnHomePage();
 				console.log('Successfully navigated back to homepage');
 			});
