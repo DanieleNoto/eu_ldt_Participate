@@ -33,7 +33,7 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 				await page.waitForLoadState('networkidle');
 
 				// Navigate to global moderations
-				await page.getByRole('link', { name: 'Global moderations', exact: true }).click();
+				await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
 				await page.waitForLoadState('networkidle');
 
 				// Verify we are on the global moderations page
@@ -53,8 +53,8 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 
 				// Check if there are any reported items first
 				const reportedItems = page
-					.locator('tbody tr')
-					.or(page.locator('table tr'))
+					.locator('table tbody tr')
+					.or(page.locator('tbody tr'))
 					.or(page.locator('.moderation-item'));
 				const itemCount = await reportedItems.count();
 
@@ -259,14 +259,15 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 				// First, navigate back to the main moderations list to save the URL
 				const currentUrl = page.url();
 				if (!currentUrl.includes('/admin/moderations') || currentUrl.includes('/reports')) {
-					// Navigate back to moderations list using the navigation link
-					await page.getByRole('link', { name: 'Global moderations', exact: true }).click();
+					// Navigate back to moderations list using the navigation link (use first one to avoid strict mode violation)
+					await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
 					await page.waitForLoadState('networkidle');
 				}
 
 				// Save the "Visit URL" link before hiding the content and find the corresponding Hide button
 				let reportedContentUrl = '';
 				let targetRowLocator = null;
+				let moderationId = '';
 
 				// Look for the specific structure: span with tooltip containing "Visit URL" link
 				const visitUrlLink = page
@@ -300,8 +301,23 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 					}
 				}
 
-				// Store the URL for later use
+				// If we found a target row, extract the moderation ID from it
+				if (targetRowLocator) {
+					// Look for ID in the first cell of the row
+					const idCell = targetRowLocator.locator('td').first();
+					moderationId = (await idCell.textContent())?.trim() || '';
+					console.log(`Saved moderation ID: ${moderationId}`);
+				} else {
+					// Fallback: try to get ID from first row if no specific row was found
+					const firstRow = page.locator('table.table-list tbody tr').first();
+					const firstIdCell = firstRow.locator('td').first();
+					moderationId = (await firstIdCell.textContent())?.trim() || '';
+					console.log(`Fallback: Saved moderation ID from first row: ${moderationId}`);
+				}
+
+				// Store the URL and ID for later use
 				(page as any).reportedContentUrl = reportedContentUrl;
+				(page as any).moderationId = moderationId;
 
 				// Click the hide button in the same row as the URL we found
 				if (targetRowLocator) {
@@ -334,21 +350,46 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 				// Verify we are back on the moderations page
 				await expect(page).toHaveURL(/.*\/admin\/moderations.*/);
 
-				// Check that the content status has been updated - look specifically in the table
-				const hiddenStatus = page
-					.locator('table.table-list tbody tr')
-					.filter({ hasText: /Hidden|hidden/ })
-					.or(page.locator('table tbody td').filter({ hasText: /Hidden|hidden/ }))
-					.or(page.locator('table [data-status="hidden"]'))
-					.or(page.locator('table .status-hidden'));
+				// Get the saved moderation ID
+				const moderationId = (page as any).moderationId;
 
-				// If no hidden status found, check if the action was successful by looking for a different indicator
-				const hiddenCount = await hiddenStatus.count();
-				if (hiddenCount === 0) {
-					console.log('No hidden status found, but this may be expected behavior in the test environment');
+				if (!moderationId) {
+					throw new Error(
+						'CRITICAL: No moderation ID was saved before hiding the content. Cannot verify status update.'
+					);
+				}
+
+				// Click on "Hidden" filter to see only hidden reports
+				const hiddenFilter = page
+					.getByRole('link', { name: 'Hidden', exact: true })
+					.or(page.locator('a[href*="hidden=true"]'))
+					.or(
+						page
+							.locator('a')
+							.filter({ hasText: /^Hidden$/i })
+							.and(page.locator('[href*="hidden=true"]'))
+					)
+					.or(page.locator('[data-filter="hidden"]'))
+					.or(page.locator('.filter-hidden'));
+
+				await hiddenFilter.first().click();
+				await page.waitForLoadState('networkidle');
+				console.log('Clicked on Hidden filter to view hidden moderations');
+
+				// Look for the specific moderation ID in the hidden list
+				const hiddenModerationRow = page
+					.locator('table.table-list tbody tr')
+					.filter({ hasText: moderationId })
+					.or(page.locator(`table tbody tr:has-text("${moderationId}")`));
+
+				const hiddenRowCount = await hiddenModerationRow.count();
+				if (hiddenRowCount > 0) {
+					await expect(hiddenModerationRow.first()).toBeVisible();
+					console.log(`✓ Moderation ID ${moderationId} found in Hidden filter - content successfully hidden`);
 				} else {
-					await expect(hiddenStatus.first()).toBeVisible();
-					console.log('Content status has been updated to Hidden');
+					throw new Error(
+						`CRITICAL: Moderation ID ${moderationId} not found in Hidden filter. The Hide action may have failed or the content status was not updated properly.`
+					);
 				}
 
 				// Now visit the reported content URL to verify it's hidden from participants
@@ -424,19 +465,42 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 					.or(page.locator('table.table-list'));
 				await expect(moderationsList).toBeVisible();
 
-				// Verify content has been hidden - look specifically in the table
-				const hiddenStatus = page
-					.locator('table.table-list tbody tr')
-					.filter({ hasText: /Hidden|hidden/ })
-					.or(page.locator('table tbody td').filter({ hasText: /Hidden|hidden/ }))
-					.or(page.locator('table [data-status="hidden"]'));
+				// Get the saved moderation ID for final verification
+				const moderationId = (page as any).moderationId;
 
-				const hiddenCount = await hiddenStatus.count();
-				if (hiddenCount > 0) {
-					await expect(hiddenStatus.first()).toBeVisible();
-					console.log('✓ The reported content has been hidden successfully');
+				if (moderationId) {
+					// Ensure we're on Hidden filter and verify the content is there
+					const currentUrl = page.url();
+					if (!currentUrl.includes('hidden')) {
+						const hiddenFilter = page
+							.getByRole('link', { name: 'Hidden', exact: true })
+							.or(page.locator('a[href*="hidden=true"]'))
+							.or(
+								page
+									.locator('a')
+									.filter({ hasText: /^Hidden$/i })
+									.and(page.locator('[href*="hidden=true"]'))
+							);
+						await hiddenFilter.first().click();
+						await page.waitForLoadState('networkidle');
+					}
+
+					// Final verification that our specific moderation ID is in the hidden list
+					const hiddenModerationRow = page
+						.locator('table.table-list tbody tr')
+						.filter({ hasText: moderationId });
+
+					const hiddenRowCount = await hiddenModerationRow.count();
+					if (hiddenRowCount > 0) {
+						await expect(hiddenModerationRow.first()).toBeVisible();
+						console.log(`✓ The reported content (ID: ${moderationId}) has been hidden successfully`);
+					} else {
+						throw new Error(
+							`CRITICAL: Moderation ID ${moderationId} not found in Hidden filter during final verification`
+						);
+					}
 				} else {
-					throw new Error('Failed to verify that the reported content has been hidden');
+					console.log('✓ The moderation action was completed (ID verification skipped)');
 				}
 
 				console.log('✓ The moderation status has been updated');
@@ -451,7 +515,7 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 				// Navigate to admin dashboard and global moderations
 				await page.getByRole('link', { name: 'Admin dashboard' }).click();
 				await page.waitForLoadState('networkidle');
-				await page.getByRole('link', { name: 'Global moderations', exact: true }).click();
+				await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
 				await page.waitForLoadState('networkidle');
 
 				// Review reported content using flexible approach
@@ -470,7 +534,7 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 				// Navigate back to moderations list using navigation link
 				const currentUrl = page.url();
 				if (!currentUrl.includes('/admin/moderations') || currentUrl.includes('/reports')) {
-					await page.getByRole('link', { name: 'Global moderations', exact: true }).click();
+					await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
 					await page.waitForLoadState('networkidle');
 				}
 
@@ -514,7 +578,7 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 				// Navigate back to moderations to verify status
 				const currentUrl = page.url();
 				if (!currentUrl.includes('/admin/moderations') || currentUrl.includes('/reports')) {
-					await page.getByRole('link', { name: 'Global moderations', exact: true }).click();
+					await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
 					await page.waitForLoadState('networkidle');
 				}
 
@@ -576,7 +640,7 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 				}
 
 				// Navigate to global moderations
-				await page.getByRole('link', { name: 'Global moderations', exact: true }).click();
+				await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
 				await page.waitForLoadState('networkidle');
 
 				// Verify we are on the moderations page
