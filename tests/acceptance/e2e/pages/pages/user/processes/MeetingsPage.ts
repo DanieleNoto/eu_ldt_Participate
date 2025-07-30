@@ -1,13 +1,13 @@
+import { AuthenticatedPage } from '@pages/base/AuthenticatedPage';
 import { expect, Page } from '@playwright/test';
 
-export class MeetingsPage {
-	private page: Page;
+export class MeetingsPage extends AuthenticatedPage {
 	private meetingsSection;
 	private meetingCards;
 	private seeAllWithdrawnMeetingsButton;
 
 	constructor(page: Page) {
-		this.page = page;
+		super(page);
 		this.meetingsSection = this.page.locator('#meetings');
 		this.meetingCards = this.page.locator('.card__list-list .card__list');
 		this.seeAllWithdrawnMeetingsButton = this.page.locator('a.button__text-secondary[href*="withdrawn"]');
