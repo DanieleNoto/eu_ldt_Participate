@@ -37,18 +37,20 @@ default: &default
 
 development:
   <<: *default
-  compile: true
+  compile: false
   compiler_strategy: mtime
   # Compile test packs to decidim decidim-packs folder
 
   # Reference: https://webpack.js.org/configuration/dev-server/
   dev_server:
     https: false
-    host: shakapacker
+    host: 0.0.0.0
     # Notice that we use a different port (to prevent blocking the default one) as
     # there will be at least two webpack servers running
     port: 3035
-    public: shakapacker:3035
+    public: 0.0.0.0:3035
+    # Disable host header checking for development
+    disableHostCheck: true
     # Hot Module Replacement updates modules while the application is running without a full reload
     hmr: false
     # mini-css-extract-plugin is a required dependency in both cases.
@@ -56,6 +58,9 @@ development:
     host_whitelist:
       - .sock$
       - localhost
+      - localhost:3035
+      - 127.0.0.1
+      - 127.0.0.1:3035
       - 0.0.0.0
       - shakapacker
       - host.docker.internal
@@ -64,10 +69,10 @@ development:
       # Should we show a full-screen overlay in the browser when there are compiler errors or warnings?
       overlay: false
       # May also be a string
-      # webSocketURL:
-      #  hostname: "0.0.0.0"
-      #  pathname: "/ws"
-      #  port: 8080
+      webSocketURL:
+       hostname: "0.0.0.0"
+       pathname: "/ws"
+       port: 3035
     # Should we use gzip compression?
     compress: true
     pretty: true

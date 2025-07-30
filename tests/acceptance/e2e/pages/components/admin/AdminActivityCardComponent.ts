@@ -9,7 +9,7 @@ export class AdminActivityCardComponent {
 
 	// Main selectors
 	private get activityCard() {
-		return this.page.locator('.card').filter({ hasText: 'Attività' });
+		return this.page.locator('.card').filter({ hasText: 'Activity' });
 	}
 
 	private get cardTitle() {
@@ -30,11 +30,11 @@ export class AdminActivityCardComponent {
 
 	// Selectors for specific rows
 	private get participantsRow() {
-		return this.activityTable.locator('tr').filter({ hasText: 'Partecipanti' });
+		return this.activityTable.locator('tr').filter({ hasText: 'Participants' });
 	}
 
 	private get adminsRow() {
-		return this.activityTable.locator('tr').filter({ hasText: 'Amministratori' });
+		return this.activityTable.locator('tr').filter({ hasText: 'Admins' });
 	}
 
 	// Verification methods

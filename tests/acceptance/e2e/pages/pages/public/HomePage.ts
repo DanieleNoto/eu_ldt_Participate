@@ -9,7 +9,7 @@ import { ParticipationSectionComponent } from '../../components/home/Participati
 import { StatisticsSectionComponent } from '../../components/home/StatisticsSectionComponent';
 
 /**
- * HomePage - Page Object Model for the main site page.
+ * HomePage - Page Object Model for the main page of the site.
  *
  * Extends BasePage and composes all necessary components for the homepage:
  * - AdminHeaderComponent for the admin bar (when visible)
@@ -46,7 +46,6 @@ export class HomePage extends BasePage {
 	}
 
 	// Selectors for the main page structure
-	// Selectors for the main page structure
 	private get layoutContainer() {
 		return this.page.locator('.layout-container');
 	}
@@ -57,10 +56,6 @@ export class HomePage extends BasePage {
 
 	private get headerWithAdminBar() {
 		return this.page.locator('header.with-admin-bar');
-	}
-
-	private get menuBarContainer() {
-		return this.page.locator('#menu-bar-container');
 	}
 
 	private get contentArea() {
@@ -76,7 +71,6 @@ export class HomePage extends BasePage {
 	}
 
 	// Methods for navigating to the home page
-	// Methods for navigating to the home page
 	async navigateToHomePage() {
 		await this.navigateToAndHandleCookies();
 	}
@@ -85,7 +79,6 @@ export class HomePage extends BasePage {
 		await this.page.goto('/');
 	}
 
-	// Methods to verify the page structure
 	// Methods to verify the page structure
 	async isPageLayoutValid(): Promise<boolean> {
 		const layout = await this.layoutContainer.isVisible();
@@ -118,7 +111,6 @@ export class HomePage extends BasePage {
 		return stickyHeader && adminBar && mainBar;
 	}
 
-	// Methods for interacting with the admin header
 	// Methods for interacting with the admin header
 	async navigateToAdminDashboardFromAdminBar() {
 		await this.adminHeader.navigateToAdminDashboard();
@@ -171,7 +163,7 @@ export class HomePage extends BasePage {
 		return hasSuccess || hasError;
 	}
 
-	// Methods for interacting with main sections
+	// Methods for interacting with the main sections
 	async participateInPlatform() {
 		await this.heroSection.clickParticipateButton();
 	}
@@ -193,7 +185,6 @@ export class HomePage extends BasePage {
 	}
 
 	// Methods to get information from the page
-	// Methods to get information from the page
 	async getHeroTitle(): Promise<string> {
 		return await this.heroSection.getHeroTitle();
 	}
@@ -210,7 +201,7 @@ export class HomePage extends BasePage {
 		return await this.statisticsSection.getParticipantsCount();
 	}
 
-	// Methods for navigation from sections
+	// Methods for navigation from the sections
 	async goToMeetingsFromHeader() {
 		await this.header.clickMeetingsLink();
 	}
@@ -236,7 +227,6 @@ export class HomePage extends BasePage {
 	}
 
 	// Methods for language management
-	// Methods for language management
 	async changeLanguageFromHeader(languageCode: string) {
 		await this.header.selectLanguage(languageCode);
 	}
@@ -250,7 +240,6 @@ export class HomePage extends BasePage {
 	}
 
 	// Methods for offline/online management
-	// Methods for offline/online management
 	async isOfflineMessageDisplayed(): Promise<boolean> {
 		return await this.offlineMessage.isOfflineMessageVisible();
 	}
@@ -260,7 +249,6 @@ export class HomePage extends BasePage {
 	}
 
 	// Methods to verify responsiveness
-	// Methods to verify responsiveness
 	async isResponsiveLayoutWorking(): Promise<boolean> {
 		return await this.header.isResponsiveHeaderWorking();
 	}
@@ -269,7 +257,6 @@ export class HomePage extends BasePage {
 		return await this.header.isMobileMenuButtonVisible();
 	}
 
-	// Methods to wait for full page load
 	// Methods to wait for full page load
 	async waitForPageToFullyLoad() {
 		await this.waitForLoadState();
@@ -312,7 +299,6 @@ export class HomePage extends BasePage {
 	}
 
 	// Methods for scrolling to sections
-	// Methods for scrolling to sections
 	async scrollToHero() {
 		await this.heroSection.scrollToHero();
 	}
@@ -333,7 +319,6 @@ export class HomePage extends BasePage {
 		await this.footer.scrollToFooter();
 	}
 
-	// Utility methods for tests
 	// Utility methods for tests
 	async takeFullPageScreenshot(name: string = 'homepage') {
 		await this.takeScreenshot(`${name}-${Date.now()}`);
@@ -357,7 +342,6 @@ export class HomePage extends BasePage {
 	}
 
 	// Methods for external links
-	// Methods for external links
 	async goToDecidimWebsite() {
 		await this.footer.clickDecidimLogo();
 	}
@@ -367,7 +351,6 @@ export class HomePage extends BasePage {
 	}
 
 	// Utility methods for admin
-	// Utility methods for admin
 	async isCurrentUserAdmin(): Promise<boolean> {
 		// Checks if the current user has admin privileges by checking for the admin bar
 		return await this.isAdminHeaderVisible();
@@ -375,11 +358,9 @@ export class HomePage extends BasePage {
 
 	async hasAdminPermissions(): Promise<boolean> {
 		// Checks if the user has admin permissions by checking both the admin bar and the link in the user menu
-		// Checks if the user has admin permissions by checking both the admin bar and the link in the user menu
 		const adminBar = await this.isAdminHeaderVisible();
 
 		if (!adminBar && (await this.header.isUserLoggedIn())) {
-			// If there is no admin bar, check if there is an admin link in the user dropdown
 			// If there is no admin bar, check if there is an admin link in the user dropdown
 			await this.header.openAccountDropdown();
 			const adminLink = await this.page.locator('a[href*="/admin/"]').isVisible();
@@ -392,7 +373,6 @@ export class HomePage extends BasePage {
 
 	async navigateToAdminDashboard() {
 		// Universal method to navigate to the admin dashboard
-		// Universal method to navigate to the admin dashboard
 		if (await this.isAdminHeaderVisible()) {
 			await this.navigateToAdminDashboardFromAdminBar();
 		} else {
@@ -401,7 +381,6 @@ export class HomePage extends BasePage {
 	}
 
 	// Method to check if the page is in admin mode (with admin bar)
-	// Method to check if the page is in admin mode (with admin bar)
 	async isInAdminMode(): Promise<boolean> {
 		const hasAdminBar = await this.isAdminHeaderVisible();
 		const hasAdminLayout = await this.isHeaderWithAdminBarLayout();
@@ -409,7 +388,6 @@ export class HomePage extends BasePage {
 		return hasAdminBar && hasAdminLayout;
 	}
 
-	// Method to wait for the success message after login
 	// Method to wait for the success message after login
 	async waitForLoginSuccessMessage() {
 		await this.waitForSuccessFlashMessage();
@@ -423,7 +401,7 @@ export class HomePage extends BasePage {
 	 * Verify that we are on the home page
 	 */
 	async expectToBeOnHomePage(): Promise<void> {
-		await expect(this.page).toHaveURL(/^\/(\?.*)?$/);
+		await expect(this.page).toHaveURL(/^https?:\/\/[^\/]+\/(\?.*)?$/);
 		await this.waitForPageToFullyLoad();
 	}
 	/**
