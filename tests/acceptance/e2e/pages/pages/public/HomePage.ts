@@ -394,7 +394,7 @@ export class HomePage extends BasePage {
 	 * Verify that we are on the home page
 	 */
 	async expectToBeOnHomePage(): Promise<void> {
-		await expect(this.page).toHaveURL(/^\/(\?.*)?$/);
+		await expect(this.page).toHaveURL(/^https?:\/\/[^\/]+\/(\?.*)?$/);
 		await this.waitForPageToFullyLoad();
 	}
 	/**
