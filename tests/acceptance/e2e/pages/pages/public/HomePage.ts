@@ -55,10 +55,6 @@ export class HomePage extends BasePage {
 		return this.page.locator('header.with-admin-bar');
 	}
 
-	private get menuBarContainer() {
-		return this.page.locator('#menu-bar-container');
-	}
-
 	private get contentArea() {
 		return this.page.locator('#content[data-content]');
 	}
@@ -398,7 +394,7 @@ export class HomePage extends BasePage {
 	 * Verify that we are on the home page
 	 */
 	async expectToBeOnHomePage(): Promise<void> {
-		await expect(this.page).toHaveURL(/^\/(\?.*)?$/);
+		await expect(this.page).toHaveURL(/^https?:\/\/[^\/]+\/(\?.*)?$/);
 		await this.waitForPageToFullyLoad();
 	}
 	/**
@@ -414,7 +410,7 @@ export class HomePage extends BasePage {
 
 		try {
 			// Wait for the link to be visible and click it
-			await termsOfServiceLink.waitFor({ state: 'visible', timeout: 10000 });
+			await termsOfServiceLink.waitFor({ state: 'visible' });
 			await termsOfServiceLink.click();
 			await this.page.waitForLoadState('networkidle');
 		} catch {

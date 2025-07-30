@@ -88,7 +88,16 @@ cd eu-ldt-participate
 - Install Make: `choco install make`
 - Install [nvm-windows](https://github.com/coreybutler/nvm-windows) and ensure it is in your PATH.
 
-> **📝 Note for Windows users:** This project uses `.gitattributes` to automatically handle line ending conversion. You don't need to manually convert line endings - Git will handle this automatically when you clone or checkout files.
+> **⚠️ Important for Windows users:** Before cloning or if you already have the repository, run these Git configuration commands to ensure proper line ending handling:
+>
+> ```bash
+> git config core.autocrlf false
+> git config core.eol lf
+> git add --renormalize .
+> git reset --hard HEAD
+> ```
+>
+> **📝 Note:** This project uses `.gitattributes` to automatically handle line ending conversion. The commands above ensure your local Git configuration is properly aligned with the project's line ending requirements.
 
 **Linux/macOS/WSL users:**
 
@@ -157,6 +166,20 @@ Now that you have everything running, go to the section **Use the application**
 If you prefer manual control over the setup process, follow these steps:
 
 ##### 1. Initial Setup
+
+**Windows users - Git Configuration (Important First Step):**
+
+If you're on Windows, **before cloning** or if you already have the repository, configure Git to handle line endings correctly:
+
+```bash
+git config core.autocrlf false
+git config core.eol lf
+# If you already have the repository cloned:
+git add --renormalize .
+git reset --hard HEAD
+```
+
+This ensures compatibility with the project's `.gitattributes` configuration and prevents Docker execution issues.
 
 First, clone the repository and navigate to the project root:
 

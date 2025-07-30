@@ -2,6 +2,7 @@ import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { expect, test } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -15,18 +16,21 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The process to be updated exists on the platform and the City Administrator has the necessary permissions to edit it.
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
 test.describe('[PAR-PPM008] – Update process', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
-	let validProcessData: any;
 	let updateData: any;
 
 	test.beforeEach(async ({ page }) => {
 		// Navigate directly to admin area and wait for it to load
 		adminHomePage = new AdminHomePage(page);
 		processAdminPage = new ProcessAdminPage(page);
-		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 		updateData = ProcessTestDataGenerator.generateUpdateProcessData();
 		await adminHomePage.navigateToAdminHomePage();
 	});
@@ -68,13 +72,13 @@ test.describe('[PAR-PPM008] – Update process', () => {
 
 				// Verify essential form elements are visible and pre-populated
 				const titleTextbox = await processAdminPage.getTitleTextbox();
-				await expect(titleTextbox).toBeVisible({ timeout: 30000 });
+				await expect(titleTextbox).toBeVisible();
 
 				const currentTitle = await titleTextbox.inputValue();
 				expect(currentTitle).toBeTruthy(); // Should have existing content
 
 				const subtitleTextbox = await processAdminPage.getSubtitleTextbox();
-				await expect(subtitleTextbox).toBeVisible({ timeout: 30000 });
+				await expect(subtitleTextbox).toBeVisible();
 			});
 
 			await test.step('5. User: edits the desired fields of the process', async () => {

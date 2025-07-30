@@ -164,8 +164,8 @@ export class ManagePageComponentPage extends BaseAdminPage {
 	/**
 	 * Waits for the page to have a specific URL pattern
 	 */
-	async waitForUrl(pattern: RegExp, timeout: number = 30000): Promise<void> {
-		await this.getPage().waitForURL(pattern, { timeout });
+	async waitForUrl(pattern: RegExp): Promise<void> {
+		await this.getPage().waitForURL(pattern);
 	}
 
 	/**
@@ -284,15 +284,5 @@ export class ManagePageComponentPage extends BaseAdminPage {
 	 */
 	async expectUpdateButtonToBeDisabled() {
 		await expect(this.updateButton).toBeDisabled();
-	}
-
-	// Debug methods
-	async debugFormState() {
-		console.log('=== Manage Page Component Form Debug State ===');
-		console.log('URL:', this.getPage().url());
-		console.log('Title:', await this.getTitle());
-		console.log('Body content length:', (await this.getBody()).length);
-		console.log('Update button enabled:', await this.updateButton.isEnabled());
-		console.log('===============================================');
 	}
 }

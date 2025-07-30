@@ -15,12 +15,12 @@ Rails.application.configure do
     policy.font_src    :self, :https, :data
     policy.img_src     :self, :https, :data
     policy.object_src  :none
-    
+
     # Allow scripts from self and webpack dev server
     if Rails.env.development?
-      policy.script_src :self, :unsafe_inline, :unsafe_eval, "http://0.0.0.0:3035", "ws://0.0.0.0:3035", "http://shakapacker:3035", "ws://shakapacker:3035", "http://localhost:3035", "ws://localhost:3035"
-      policy.style_src  :self, :unsafe_inline, "http://0.0.0.0:3035", "http://shakapacker:3035", "http://localhost:3035"
-      policy.connect_src :self, "http://0.0.0.0:3035", "ws://0.0.0.0:3035", "http://shakapacker:3035", "ws://shakapacker:3035", "http://localhost:3035", "ws://localhost:3035"
+      policy.script_src :self, :unsafe_inline, :unsafe_eval, "http://0.0.0.0:3035", "ws://0.0.0.0:3035"
+      policy.style_src  :self, :unsafe_inline, "http://0.0.0.0:3035"
+      policy.connect_src :self, "http://0.0.0.0:3035", "ws://0.0.0.0:3035"
     else
       policy.script_src :self
       policy.style_src  :self, :unsafe_inline

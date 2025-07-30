@@ -4,6 +4,7 @@ import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPa
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { DebateDetailPage } from '@pages/pages/user/processes/DebateDetailPage';
 import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -17,6 +18,12 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The user has an active account on the platform and is logged in.
  * - The debate allows participation and tagging of other users.
  */
+
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'USER');
+});
 test.describe('[PAR-DAD006] – Mention users in messages', () => {
 	test.use({ storageState: STORAGE_STATE.USER });
 	let processesOverviewPage: ProcessesOverviewPage;
@@ -64,9 +71,6 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				await debateDetailPage.clickCommentButton();
 			});
 			await test.step('8. User: Types a message in the provided text box and uses the "@" symbol to mention a specific user.', async () => {
-				// Debug initial state
-				await debateDetailPage.debugTributeState();
-
 				// First click in the textarea to make sure it is active
 				const textarea = debateDetailPage.getPage().locator('textarea[data-tribute="true"]:visible');
 				await textarea.click();
@@ -93,7 +97,6 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				console.log('Text after typing:', textValue);
 			});
 			await test.step('9. System: Displays a dropdown of usernames that match the characters being typed.', async () => {
-				// Prima verifica se il container esiste e il suo stato
 				const container = debateDetailPage.getPage().locator('.tribute-container li[role="option"]');
 				const exists = await container.count();
 				console.log('Tribute container exists:', exists > 0);
@@ -104,11 +107,9 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 					console.log('Container visible:', isVisible);
 					console.log('Aria-expanded:', ariaExpanded);
 
-					// Se non è visibile, prova trigger alternativi
 					if (!isVisible) {
 						console.log('Container not visible, trying alternative approaches...');
 
-						// Approccio 2: Dispatch events manuali
 						await debateDetailPage
 							.getPage()
 							.locator('textarea[data-tribute="true"]')
@@ -119,12 +120,10 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 
 						await debateDetailPage.getPage().waitForTimeout(3000);
 
-						// Verifica di nuovo
 						const isVisibleAfterDispatch = await container.isVisible();
 						console.log('Visible after dispatch event:', isVisibleAfterDispatch);
 
 						if (!isVisibleAfterDispatch) {
-							// Approccio 3: Press keys one by one
 							await debateDetailPage.getPage().locator('textarea[data-tribute="true"]').clear();
 							await debateDetailPage.getPage().locator('textarea[data-tribute="true"]').press('Shift+2'); // @ symbol
 							await debateDetailPage.getPage().waitForTimeout(300);
@@ -134,7 +133,6 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 					}
 				}
 
-				// Verifica finale con timeout più lungo
 				try {
 					await debateDetailPage.expectMentionSuggestionsToBeVisible();
 
@@ -147,52 +145,42 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				} catch (error) {
 					console.log('Mention suggestions failed to appear, checking page state...');
 
-					// Debug: controlla il contenuto del textarea
 					const textareaValue = await debateDetailPage
 						.getPage()
-						.locator('textarea[data-tribute="true"]')
+						.getByRole('textbox', { name: 'Comment' })
 						.inputValue();
 					console.log('Textarea value:', textareaValue);
 
-					// Debug: controlla se ci sono errori JS
 					const consoleLogs = await debateDetailPage.getPage().evaluate(() => {
 						return window.console;
 					});
 
-					// Debug: controlla l'HTML del form
 					const formHTML = await debateDetailPage.getPage().locator('form.new_comment').innerHTML();
 					console.log('Form HTML snippet:', formHTML.substring(0, 500));
 
-					// Rilancia l'errore
 					throw error;
 				}
 			});
 			await test.step('10. User: Selects the user from a list of matching names that appears when typing.', async () => {
-				// Seleziona il primo utente dalla lista (probabilmente "admin")
 				await debateDetailPage.selectMentionSuggestionByIndex(0);
 
-				// Verifica che la mention sia stata inserita nel testo
 				const commentText = await debateDetailPage.getCommentText();
 				console.log('Comment text after selection:', commentText);
 				expect(commentText).toContain('@');
 			});
 			await test.step('11. User: Completes the message and clicks on "Submit Comment."', async () => {
-				// Completa il messaggio
 				await debateDetailPage.typeCommentWithMentions(' This is a test comment with mention!');
 
-				// Seleziona un'opinione
 				await debateDetailPage.setOpinionNeutral();
 
-				// Invia il commento
 				await debateDetailPage.submitComment();
 			});
 			await test.step('12. System: Publishes the comment and sends a notification to the mentioned user to inform them about the tag.', async () => {
-				// Verifica che il commento sia stato pubblicato
 				await debateDetailPage.expectCommentToBeVisible('This is a test comment with mention!');
 			});
 			await test.step('Result.', async () => {
 				await debateDetailPage.orderCommentsByRecent();
-				// Verifica finale che il commento contenga la mention
+
 				const lastComment = await debateDetailPage.getCommentTextByIndex(0);
 				console.log('Published comment:', lastComment);
 				expect(lastComment).toContain('@');
@@ -231,9 +219,6 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				await debateDetailPage.clickCommentButton();
 			});
 			await test.step('8a. User: Types the "@" symbol and begins typing the user\'s name.', async () => {
-				// Debug initial state
-				await debateDetailPage.debugTributeState();
-
 				// First click in the textarea to make sure it is active
 				const textarea = debateDetailPage.getPage().locator('textarea[data-tribute="true"]:visible');
 				await textarea.click();
@@ -261,7 +246,6 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				textarea.clear();
 			});
 			await test.step('9.a System: No dropdown will be showed.', async () => {
-				// Prima verifica se il container esiste e il suo stato
 				const container = debateDetailPage.getPage().locator('.tribute-container li[role="option"]');
 				const exists = await container.count();
 				console.log('Tribute container exists:', exists > 0);
@@ -269,21 +253,16 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				expect(container).not.toBeVisible();
 			});
 			await test.step('11. User: Completes the message and clicks on "Submit Comment."', async () => {
-				// Completa il messaggio
 				await debateDetailPage.typeCommentWithMentions('This is a test comment without mention!');
 
-				// Seleziona un'opinione
 				await debateDetailPage.setOpinionAgainst();
 
-				// Invia il commento
 				await debateDetailPage.submitComment();
 			});
 			await test.step('12. System: Publishes the comment and sends a notification to the mentioned user to inform them about the tag.', async () => {
-				// Verifica che il commento sia stato pubblicato
 				await debateDetailPage.expectCommentToBeVisible('This is a test comment with mention!');
 			});
 			await test.step('Result.', async () => {
-				// Verifica finale che il commento contenga la mention
 				await debateDetailPage.orderCommentsByRecent();
 				await debateDetailPage.getPage().waitForTimeout(1500);
 				const lastComment = await debateDetailPage.getCommentTextByIndex(0);

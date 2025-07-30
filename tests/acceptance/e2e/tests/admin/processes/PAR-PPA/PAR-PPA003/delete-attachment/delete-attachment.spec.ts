@@ -4,6 +4,7 @@ import { AttachmentsProcessPage } from '@pages/pages/admin/processes/detail/atta
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -27,6 +28,7 @@ test.describe('[PAR-PPA003] – Delete an existing attachment', () => {
 	let confirmDeleteModalComponent: ConfirmDeleteModalComponent;
 
 	test.beforeEach(async ({ page }) => {
+		await ensureLoggedIn(page, 'ADMIN');
 		adminHomePage = new AdminHomePage(page);
 		processAdminPage = new ProcessAdminPage(page);
 		updateProcessAdminPage = new UpdateProcessAdminPage(page);

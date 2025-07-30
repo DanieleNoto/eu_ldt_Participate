@@ -5,17 +5,9 @@ import { ROUTES } from '@utils/routes';
 export class CookieBarComponent {
 	constructor(private page: Page) {}
 
-	// Selettori per gli elementi della cookie bar
+	// Selectors for Cookie Bar Elements
 	private get cookieBar() {
 		return this.page.locator('.cookies');
-	}
-
-	private get cookieBarLeft() {
-		return this.page.locator('.cookies__left');
-	}
-
-	private get cookieBarRight() {
-		return this.page.locator('.cookies__right');
 	}
 
 	private get cookieTitle() {
@@ -55,10 +47,6 @@ export class CookieBarComponent {
 		return this.page.locator(TEST_SELECTORS.COOKIES.MODAL_SAVE_BUTTON);
 	}
 
-	private get saveSettingsButton() {
-		return this.page.locator(TEST_SELECTORS.COOKIES.SAVE_BUTTON);
-	}
-
 	// Toggle Labels (using label[for] selectors for reliable clicking)
 	private get preferencesToggle() {
 		return this.page.locator(TEST_SELECTORS.COOKIES.PREFERENCES_TOGGLE);
@@ -85,7 +73,7 @@ export class CookieBarComponent {
 		return this.page.locator(TEST_SELECTORS.COOKIES.MARKETING_CHECKBOX);
 	}
 
-	// Metodi per verificare la visibilità degli elementi
+	// Visibility and State Check Methods
 	async isCookieBarVisible(): Promise<boolean> {
 		return await this.cookieBar.isVisible();
 	}
@@ -105,7 +93,7 @@ export class CookieBarComponent {
 		return acceptAll && acceptEssential && settings;
 	}
 
-	// Metodi per ottenere il testo degli elementi
+	// Get the text of elements
 	async getCookieTitleText(): Promise<string> {
 		return (await this.cookieTitle.textContent()) || '';
 	}
@@ -126,7 +114,7 @@ export class CookieBarComponent {
 		return (await this.settingsButton.textContent()) || '';
 	}
 
-	// Metodi per le azioni sui pulsanti
+	// Actions on Cookie Bar Buttons
 	async clickAcceptAll() {
 		await this.acceptAllButton.click();
 	}
@@ -178,13 +166,13 @@ export class CookieBarComponent {
 		return barVisible && titleVisible && descriptionVisible && buttonsVisible;
 	}
 
-	// Metodo per accettare i cookie e attendere che la bar scompaia
+	// Method to accept all cookies and wait for the bar to disappear
 	async acceptAllAndWait() {
 		await this.clickAcceptAll();
 		await this.waitForCookieBarToDisappear();
 	}
 
-	// Metodo per accettare solo i cookie essenziali e attendere che la bar scompaia
+	// Accept essential cookies and wait for the bar to disappear
 	async acceptEssentialAndWait() {
 		await this.clickAcceptEssential();
 		await this.waitForCookieBarToDisappear();
@@ -235,7 +223,7 @@ export class CookieBarComponent {
 	 */
 	async openCookieSettings(): Promise<void> {
 		// Use the Settings button from the cookie banner
-		if (await this.settingsButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+		if (await this.settingsButton.isVisible().catch(() => false)) {
 			await this.settingsButton.click();
 		} else {
 			throw new Error('Settings button is not visible');
@@ -279,7 +267,7 @@ export class CookieBarComponent {
 	}
 
 	async waitForCookieSettingsToLoad(): Promise<void> {
-		await this.page.waitForSelector(TEST_SELECTORS.COOKIES.MODAL, { timeout: 10000 });
+		await this.page.waitForSelector(TEST_SELECTORS.COOKIES.MODAL);
 		await this.waitForLoadState('networkidle');
 	}
 

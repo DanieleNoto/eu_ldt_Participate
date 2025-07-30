@@ -78,7 +78,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		await this.openNavigationDropdown();
 
 		// Find and click the convocation page link
-		const convocationLink = this.navItems.filter({ hasText: 'Convocation Page' });
+		const convocationLink = this.navItems.filter({ hasText: 'Page' });
 		await convocationLink.click();
 		await this.waitForLoadState('networkidle');
 	}
@@ -278,26 +278,5 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		const triggerLoaded = await this.navDropdownTrigger.isVisible();
 
 		return navLoaded && triggerLoaded;
-	}
-
-	// Debug methods
-
-	/**
-	 * Debug method to log process and component information
-	 */
-	async debugProcessInfo(): Promise<void> {
-		console.log('=== Process Detail Debug ===');
-		console.log('URL:', this.getPage().url());
-		console.log('Process title:', await this.getProcessTitle());
-		console.log('Process slogan:', await this.getProcessSlogan());
-
-		const components = await this.getAvailableComponents();
-		console.log('Available components:', components);
-		console.log('Has convocation page:', await this.hasConvocationPage());
-
-		if (await this.hasConvocationPage()) {
-			console.log('Convocation page URL:', await this.getConvocationPageUrl());
-		}
-		console.log('============================');
 	}
 }

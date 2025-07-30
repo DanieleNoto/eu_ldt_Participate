@@ -1,4 +1,5 @@
 import { Page, expect } from '@playwright/test';
+import { TEST_ASSETS } from '@utils/constants';
 import { LocalizationUtils } from '../../../../utils/localization.utils';
 import { AdminProcessBreadcrumbComponent } from '../../../components/admin/process/AdminProcessBreadcrumbComponent';
 import { AdminProcessFiltersComponent } from '../../../components/admin/process/AdminProcessFiltersComponent';
@@ -97,17 +98,12 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.processTable.waitForTableLoad();
 	}
 
-	private async waitForProcessGroupsPageLoad() {
-		await this.page.waitForLoadState('networkidle');
-		await this.processTabNavigation.isComponentFullyLoaded();
-	}
-
 	private async waitForNewProcessPageLoad() {
 		await this.page.waitForLoadState('networkidle');
 
 		// Wait for the form to be present
 		try {
-			await this.page.waitForSelector('form', { state: 'visible', timeout: 30000 });
+			await this.page.waitForSelector('form', { state: 'visible' });
 		} catch (error) {
 			console.log("Form not found, checking if we're on the correct page");
 			console.log('Current URL:', this.page.url());
@@ -115,7 +111,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		}
 
 		// Wait for essential form fields to be present
-		await this.page.waitForSelector('input[name*="title"], input[id*="title"]', { timeout: 30000 });
+		await this.page.waitForSelector('input[name*="title"], input[id*="title"]');
 	}
 
 	// Form element getters for test assertions (legacy support)
@@ -152,7 +148,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 				const count = await selector.count();
 				if (count > 0) {
 					const element = selector.first();
-					if (await element.isVisible({ timeout: 2000 })) {
+					if (await element.isVisible()) {
 						console.log(`Order position field found using selector ${i}: ${selector}`);
 						return element;
 					}
@@ -206,7 +202,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		if (processData.orderPosition !== 0) {
 			try {
 				const orderPositionField = await this.getOrderPositionSpinbutton();
-				if (await orderPositionField.isVisible({ timeout: 5000 })) {
+				if (await orderPositionField.isVisible()) {
 					await orderPositionField.click();
 					await orderPositionField.fill(processData.orderPosition.toString());
 					console.log('Order position field filled successfully');
@@ -333,7 +329,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.page.locator('#participatory_process_end_date_date').fill(durationData.endDate);
 	}
 
-	async addImage(imagePath: string = 'tests/acceptance/e2e/tests/processes/test-assets/test.jpg') {
+	async addImage(imagePath: string = TEST_ASSETS.TEST_IMAGE) {
 		await this.page.getByRole('button', { name: 'Add image' }).click();
 		// Wait for the dialog to appear
 		const dialog = this.page.getByRole('dialog');
@@ -413,8 +409,6 @@ export class ProcessAdminPage extends BaseAdminPage {
 			expect(isTableVisible).toBe(true);
 			const isTableEmpty = await this.isTableEmpty();
 			if (isTableVisible && !isTableEmpty) {
-				await this.createPrivateParticipants();
-				await this.createPrivateAdmins();
 				return; // Skip creation if table is not empty
 			}
 		}
@@ -470,6 +464,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 	}
 
 	async createPrivateParticipants() {
+		await this.navigateToProcesses();
 		await this.processTable.clickFirstPrivateProcess();
 		await this.getPage().waitForLoadState('networkidle');
 		const updateProcessAdminPage = new UpdateProcessAdminPage(this.page);
@@ -477,13 +472,39 @@ export class ProcessAdminPage extends BaseAdminPage {
 		const privateParticipantsPage = new PrivateParticipantsPage(this.page);
 		await privateParticipantsPage.clickNewPrivateUser();
 		const newPrivateParticipantFormPage = new NewPrivateParticipantFormPage(this.page);
-		await newPrivateParticipantFormPage.fillName('Test User');
-		await newPrivateParticipantFormPage.fillEmail('test-privateuser@example.com');
+		await newPrivateParticipantFormPage.fillName('Test User 1');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser1@example.com');
 		await newPrivateParticipantFormPage.submitForm();
-		await privateParticipantsPage.expectParticipantIsInTable('Test User', 'test-privateuser@example.com');
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 1', 'test-privateuser1@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 2');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser2@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 2', 'test-privateuser2@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 3');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser3@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 3', 'test-privateuser3@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 4');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser4@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 4', 'test-privateuser4@example.com');
+
+		await privateParticipantsPage.clickNewPrivateUser();
+		await newPrivateParticipantFormPage.fillName('Test User 5');
+		await newPrivateParticipantFormPage.fillEmail('test-privateuser5@example.com');
+		await newPrivateParticipantFormPage.submitForm();
+		await privateParticipantsPage.expectParticipantIsInTable('Test User 5', 'test-privateuser5@example.com');
+
 		await this.navigateToProcesses();
 	}
 	async createPrivateAdmins() {
+		await this.navigateToProcesses();
 		await this.processTable.clickFirstPrivateProcess();
 		await this.getPage().waitForLoadState('networkidle');
 		const updateProcessAdminPage = new UpdateProcessAdminPage(this.page);
@@ -491,11 +512,40 @@ export class ProcessAdminPage extends BaseAdminPage {
 		const processAdminsPage = new ParticipatoryProcessAdminsPage(this.page);
 		await processAdminsPage.clickNewAdminButton();
 		const newAdminPage = new NewAdminPage(this.page);
-		await newAdminPage.fillName('Test Admin');
-		await newAdminPage.fillEmail('test-privateadmin@example.com');
+		await newAdminPage.fillName('Test Admin 1');
+		await newAdminPage.fillEmail('test-privateadmin1@example.com');
 		await newAdminPage.selectRole('admin');
 		await newAdminPage.submitForm();
-		await processAdminsPage.expectAdminIsInTable('Test Admin', 'test-privateadmin@example.com');
+		await processAdminsPage.expectAdminIsInTable('Test Admin 1', 'test-privateadmin1@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 2');
+		await newAdminPage.fillEmail('test-privateadmin2@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 2', 'test-privateadmin2@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 3');
+		await newAdminPage.fillEmail('test-privateadmin3@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 3', 'test-privateadmin3@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 4');
+		await newAdminPage.fillEmail('test-privateadmin4@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 4', 'test-privateadmin4@example.com');
+
+		await processAdminsPage.clickNewAdminButton();
+		await newAdminPage.fillName('Test Admin 5');
+		await newAdminPage.fillEmail('test-privateadmin5@example.com');
+		await newAdminPage.selectRole('admin');
+		await newAdminPage.submitForm();
+		await processAdminsPage.expectAdminIsInTable('Test Admin 5', 'test-privateadmin5@example.com');
+
 		await this.navigateToProcesses();
 	}
 
@@ -512,7 +562,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 		// Wait for the edit form to be present using the exact form class from HTML
 		try {
-			await this.page.waitForSelector('form.edit_participatory_process', { state: 'visible', timeout: 30000 });
+			await this.page.waitForSelector('form.edit_participatory_process', { state: 'visible' });
 		} catch (error) {
 			console.log("Edit form not found, checking if we're on the correct page");
 			console.log('Current URL:', this.page.url());
@@ -520,7 +570,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		}
 
 		// Wait for essential form fields to be present
-		await this.page.waitForSelector('input[name*="title"], input[id*="title"]', { timeout: 30000 });
+		await this.page.waitForSelector('input[name*="title"], input[id*="title"]');
 	}
 
 	async isOnProcessEditPage(): Promise<boolean> {
@@ -571,7 +621,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		if (processData.orderPosition !== undefined && processData.orderPosition !== 0) {
 			try {
 				const orderPositionField = await this.getOrderPositionSpinbutton();
-				if (await orderPositionField.isVisible({ timeout: 5000 })) {
+				if (await orderPositionField.isVisible()) {
 					await orderPositionField.click();
 					await orderPositionField.fill(processData.orderPosition.toString());
 					console.log('Order position field updated successfully');
@@ -709,7 +759,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		}
 	}
 
-	async updateImage(imagePath: string = 'tests/acceptance/e2e/tests/processes/test-assets/test.jpg'): Promise<void> {
+	async updateImage(imagePath: string = TEST_ASSETS.TEST_IMAGE): Promise<void> {
 		await this.page.getByRole('button', { name: 'Add image' }).click();
 		// Wait for the dialog to appear
 		const dialog = this.page.getByRole('dialog');
@@ -781,7 +831,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		// Wait for and verify the exact update success message from the HTML
 		await expect(
 			this.page.locator('.flash.success').getByText('Participatory process successfully updated.')
-		).toBeVisible({ timeout: 10000 });
+		).toBeVisible();
 	}
 
 	async updateProcessTitle(title: string): Promise<void> {

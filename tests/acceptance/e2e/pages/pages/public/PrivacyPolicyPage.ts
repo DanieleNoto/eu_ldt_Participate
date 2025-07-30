@@ -69,25 +69,6 @@ export class PrivacyPolicyPage extends BasePage {
 	}
 
 	/**
-	 * Navigate back to previous page
-	 */
-	async navigateBack(): Promise<void> {
-		try {
-			await this.backButton.click();
-		} catch {
-			// If no back button, use browser back
-			await this.page.goBack();
-		}
-		await this.page.waitForLoadState('networkidle');
-	}
-
-	/**
-	 * Close the privacy policy page (navigate back or to home)
-	 */
-	async closePrivacyPolicyPage(): Promise<void> {
-		await this.navigateBack();
-	}
-	/**
 	 * Verify that basic page information is displayed (simplified for development state)
 	 */
 	async expectComprehensivePrivacyInformationToBeDisplayed(): Promise<void> {

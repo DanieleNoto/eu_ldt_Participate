@@ -23,7 +23,6 @@ export class BaseAdminPage extends AuthenticatedPage {
 	}
 
 	async navigateToSettings() {
-		await this.page.goto('/admin/');
 		await this.page.getByRole('link', { name: 'Settings' }).click();
 	}
 
@@ -42,8 +41,8 @@ export class BaseAdminPage extends AuthenticatedPage {
 		return this.page.url();
 	}
 
-	async waitForUrl(pattern: RegExp, timeout: number = 30000): Promise<void> {
-		await this.page.waitForURL(pattern, { timeout });
+	async waitForUrl(pattern: RegExp): Promise<void> {
+		await this.page.waitForURL(pattern);
 	}
 
 	async expectUrl(pattern: RegExp): Promise<void> {
@@ -205,9 +204,9 @@ export class BaseAdminPage extends AuthenticatedPage {
 	}
 
 	// Improved admin verification
-	async waitForAdminPageLoad(timeout: number = 30000): Promise<void> {
+	async waitForAdminPageLoad(): Promise<void> {
 		await this.page.waitForLoadState('networkidle');
-		await this.waitForElement('.layout-wrapper', timeout);
+		await this.waitForElement('.layout-wrapper');
 
 		await this.adminNavigation.isNavigationVisible();
 		await this.adminTitleBar.isTitleBarVisible();
@@ -352,9 +351,9 @@ export class BaseAdminPage extends AuthenticatedPage {
 	 * @param expectedMessage - The expected message
 	 * @param timeout - Timeout in milliseconds (default: 10000)
 	 */
-	async waitForSuccessFlashNotification(expectedMessage: string, timeout: number = 10000): Promise<void> {
-		await this.successFlashNotification.waitFor({ state: 'visible', timeout });
-		await expect(this.successFlashNotification.locator('.flash__message')).toHaveText(expectedMessage, { timeout });
+	async waitForSuccessFlashNotification(expectedMessage: string): Promise<void> {
+		await this.successFlashNotification.waitFor({ state: 'visible' });
+		await expect(this.successFlashNotification.locator('.flash__message')).toHaveText(expectedMessage);
 	}
 
 	/**
@@ -362,25 +361,25 @@ export class BaseAdminPage extends AuthenticatedPage {
 	 * @param expectedMessage - The expected message
 	 * @param timeout - Timeout in milliseconds (default: 10000)
 	 */
-	async waitForErrorFlashNotification(expectedMessage: string, timeout: number = 10000): Promise<void> {
-		await this.errorFlashNotification.waitFor({ state: 'visible', timeout });
-		await expect(this.errorFlashNotification.locator('.flash__message')).toHaveText(expectedMessage, { timeout });
+	async waitForErrorFlashNotification(expectedMessage: string): Promise<void> {
+		await this.errorFlashNotification.waitFor({ state: 'visible' });
+		await expect(this.errorFlashNotification.locator('.flash__message')).toHaveText(expectedMessage);
 	}
 
 	/**
 	 * Waits for any flash notification to appear
 	 * @param timeout - Timeout in milliseconds (default: 10000)
 	 */
-	async waitForFlashNotification(timeout: number = 10000): Promise<void> {
-		await this.flashNotificationWrapper.waitFor({ state: 'visible', timeout });
+	async waitForFlashNotification(): Promise<void> {
+		await this.flashNotificationWrapper.waitFor({ state: 'visible' });
 	}
 
 	/**
 	 * Waits for the flash notification to disappear
 	 * @param timeout - Timeout in milliseconds (default: 10000)
 	 */
-	async waitForFlashNotificationToDisappear(timeout: number = 10000): Promise<void> {
-		await this.flashNotificationWrapper.waitFor({ state: 'hidden', timeout });
+	async waitForFlashNotificationToDisappear(): Promise<void> {
+		await this.flashNotificationWrapper.waitFor({ state: 'hidden' });
 	}
 
 	/**

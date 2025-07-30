@@ -2,6 +2,7 @@ import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -14,6 +15,11 @@ import { STORAGE_STATE } from '@utils/constants';
  * Prerequisites:
  * - The citizen has an active account on the platform and is logged in (optional for public processes).
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'USER');
+});
 test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 	test.use({ storageState: STORAGE_STATE.USER });
 	let processesOverviewPage: ProcessesOverviewPage;

@@ -8,9 +8,9 @@ import { Page } from '@playwright/test';
 /**
  * Waits for element to be stable (not changing position) before interacting
  */
-export async function waitForElementStable(page: Page, selector: string, timeout = 5000): Promise<void> {
+export async function waitForElementStable(page: Page, selector: string): Promise<void> {
 	const element = page.locator(selector);
-	await element.waitFor({ state: 'visible', timeout });
+	await element.waitFor({ state: 'visible' });
 
 	let previousBox = await element.boundingBox();
 	let stableCount = 0;
@@ -36,7 +36,7 @@ export async function waitForElementStable(page: Page, selector: string, timeout
 export async function safeClick(page: Page, selector: string): Promise<boolean> {
 	try {
 		const element = page.locator(selector);
-		await element.waitFor({ state: 'visible', timeout: 5000 });
+		await element.waitFor({ state: 'visible' });
 		await waitForElementStable(page, selector);
 		await element.click();
 		return true;
@@ -52,7 +52,7 @@ export async function safeClick(page: Page, selector: string): Promise<boolean> 
 export async function safeFill(page: Page, selector: string, value: string): Promise<boolean> {
 	try {
 		const element = page.locator(selector);
-		await element.waitFor({ state: 'visible', timeout: 5000 });
+		await element.waitFor({ state: 'visible' });
 		await element.clear();
 		await element.fill(value);
 		return true;
@@ -68,7 +68,7 @@ export async function safeFill(page: Page, selector: string, value: string): Pro
 export async function safeSelect(page: Page, selector: string, value: string): Promise<boolean> {
 	try {
 		const element = page.locator(selector);
-		await element.waitFor({ state: 'visible', timeout: 5000 });
+		await element.waitFor({ state: 'visible' });
 		await element.selectOption(value);
 		return true;
 	} catch (error) {

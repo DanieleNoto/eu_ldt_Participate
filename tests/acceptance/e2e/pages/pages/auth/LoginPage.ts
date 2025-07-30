@@ -34,7 +34,7 @@ export class LoginPage extends BasePage {
 	}
 
 	async checkUserAlreadySignIn() {
-		await this.page.waitForSelector(TEST_SELECTORS.HEADER.USER_MENU, { timeout: 10000 });
+		await this.page.waitForSelector(TEST_SELECTORS.HEADER.USER_MENU);
 		return await this.page.locator(TEST_SELECTORS.HEADER.USER_MENU).isVisible();
 	}
 

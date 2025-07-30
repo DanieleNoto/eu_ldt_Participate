@@ -42,8 +42,8 @@ export abstract class BasePage {
 	/**
 	 * Waits for an element to be visible
 	 */
-	async waitForElement(selector: string, timeout: number = 30000): Promise<void> {
-		await this.page.waitForSelector(selector, { timeout });
+	async waitForElement(selector: string): Promise<void> {
+		await this.page.waitForSelector(selector);
 	}
 
 	/**
@@ -179,15 +179,15 @@ export abstract class BasePage {
 	/**
 	 * Waits for a success flash message to appear
 	 */
-	async waitForSuccessFlashMessage(timeout: number = 10000): Promise<void> {
-		await this.successFlashMessage.waitFor({ state: 'visible', timeout });
+	async waitForSuccessFlashMessage(): Promise<void> {
+		await this.successFlashMessage.waitFor({ state: 'visible' });
 	}
 
 	/**
 	 * Waits for an error flash message to appear
 	 */
-	async waitForErrorFlashMessage(timeout: number = 10000): Promise<void> {
-		await this.errorFlashMessage.waitFor({ state: 'visible', timeout });
+	async waitForErrorFlashMessage(): Promise<void> {
+		await this.errorFlashMessage.waitFor({ state: 'visible' });
 	}
 
 	// Cookie management (deprecated - use cookieBar component methods instead)

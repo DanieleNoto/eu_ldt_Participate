@@ -93,3 +93,4 @@ tls.key
 **/**/admin-state.json
 **/**/user-state.json
 **/**/account-deletion-user-state.json
+**/decidim_application/vendor/**

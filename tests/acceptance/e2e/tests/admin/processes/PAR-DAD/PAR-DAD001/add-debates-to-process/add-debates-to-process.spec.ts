@@ -4,6 +4,7 @@ import { expect, test } from '@playwright/test';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { NewDebatesComponentPage } from '@pages/pages/admin/processes/detail/components/NewDebatesComponentPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -19,6 +20,11 @@ import { STORAGE_STATE } from '@utils/constants';
  * - There are processes available on the platform
  * - The debate allows citizen participation (not blocked or restricted by permissions)
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'ADMIN');
+});
 test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 	// Use admin storage state for authentication
 	test.use({ storageState: STORAGE_STATE.ADMIN });

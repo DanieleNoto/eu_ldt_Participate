@@ -86,7 +86,7 @@ export class ConvocationPage extends AuthenticatedPage {
 	 */
 	async isTitleConvocationPage(): Promise<boolean> {
 		const title = await this.getPageTitle();
-		return title.trim() === 'Convocation Page';
+		return title.trim() === 'Page';
 	}
 
 	// Verification methods
@@ -95,7 +95,7 @@ export class ConvocationPage extends AuthenticatedPage {
 	 * Verifies that the page title is "Convocation Page"
 	 */
 	async expectTitleToBeConvocationPage(): Promise<void> {
-		await expect(this.pageTitle).toHaveText('Convocation Page');
+		await expect(this.pageTitle).toHaveText('Page');
 	}
 
 	/**
@@ -147,20 +147,5 @@ export class ConvocationPage extends AuthenticatedPage {
 		const richTextLoaded = await this.richTextDisplay.isVisible();
 
 		return editorLoaded && richTextLoaded;
-	}
-
-	// Debug methods
-
-	/**
-	 * Debug method to log page information
-	 */
-	async debugPageInfo(): Promise<void> {
-		console.log('=== Convocation Page Debug ===');
-		console.log('URL:', this.getPage().url());
-		console.log('Page title:', await this.getPageTitle());
-		console.log('Has content:', await this.hasContent());
-		console.log('Content:', await this.getPageContent());
-		console.log('Is title "Convocation Page":', await this.isTitleConvocationPage());
-		console.log('==============================');
 	}
 }

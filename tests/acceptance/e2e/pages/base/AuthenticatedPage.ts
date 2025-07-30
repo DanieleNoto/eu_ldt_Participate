@@ -153,20 +153,6 @@ export abstract class AuthenticatedPage extends BasePage {
 	}
 
 	/**
-	 * Waits for success notification to appear
-	 */
-	async waitForSuccessNotification(timeout: number = 10000): Promise<void> {
-		await this.waitForSuccessFlashMessage(timeout);
-	}
-
-	/**
-	 * Waits for error notification to appear
-	 */
-	async waitForErrorNotification(timeout: number = 10000): Promise<void> {
-		await this.waitForErrorFlashMessage(timeout);
-	}
-
-	/**
 	 * Waits for user to be fully authenticated (header loaded)
 	 */
 	async waitForAuthenticationComplete(): Promise<void> {

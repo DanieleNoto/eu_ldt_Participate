@@ -1,6 +1,7 @@
 import { HomePage } from '@pages/pages/public/HomePage';
 import { PrivacyPolicyPage } from '@pages/pages/public/PrivacyPolicyPage';
 import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -13,6 +14,11 @@ import { STORAGE_STATE } from '@utils/constants';
  *
  * Note: The Terms of Service page is currently in development and shows placeholder content.
  */
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'USER');
+});
 test.describe('[PAR-DAAP001] – Access information on data collection and usage', () => {
 	test.use({ storageState: STORAGE_STATE.USER });
 
@@ -28,7 +34,7 @@ test.describe('[PAR-DAAP001] – Access information on data collection and usage
 	test.describe('Main Flow', () => {
 		test('should allow citizen to view terms of service information', async () => {
 			await test.step("1. USER: Navigates to the platform's homepage or dashboard", async () => {
-				// Navigate to homepage (already done in beforeEach)
+				await homePage.navigateToHomePage();
 				await homePage.expectToBeOnHomePage();
 				console.log('Successfully navigated to homepage');
 			});
@@ -68,7 +74,7 @@ test.describe('[PAR-DAAP001] – Access information on data collection and usage
 
 			await test.step('5. USER: Closes the Privacy Policy page or navigates back to the previous page', async () => {
 				// Close the Privacy Policy page
-				await privacyPolicyPage.closePrivacyPolicyPage();
+				await homePage.navigateToHomePage();
 				await homePage.expectToBeOnHomePage();
 				console.log('Successfully navigated back to homepage');
 			});

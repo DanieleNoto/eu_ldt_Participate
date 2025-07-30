@@ -111,9 +111,9 @@ export class DebatesPage extends BaseAdminPage {
 
 		for (let i = 0; i < count; i++) {
 			const rowTitle = (await this.getDebateTitleByIndex(i)).toLowerCase();
-			title.toLowerCase().trim();
+
 			// Check if this row contains the target title
-			if (rowTitle.includes(title)) {
+			if (rowTitle.includes(title.toLowerCase().trim())) {
 				const row = this.tableRows.nth(i);
 
 				// Check if title is clickable (has a link)
