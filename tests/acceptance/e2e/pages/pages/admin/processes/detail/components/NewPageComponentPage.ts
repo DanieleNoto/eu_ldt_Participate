@@ -8,10 +8,8 @@ import { BaseAdminPage } from '../../../BaseAdminPage';
  */
 export class NewPageComponentPage extends BaseAdminPage {
 	// Main page elements
-	private readonly pageWrapper: Locator;
 	private readonly pageTitle: Locator;
-	private readonly form: Locator;
-
+	
 	// Order position field
 	private readonly orderPositionInput: Locator;
 
@@ -22,9 +20,7 @@ export class NewPageComponentPage extends BaseAdminPage {
 		super(page);
 
 		// Main page elements
-		this.pageWrapper = page.locator('.item_show__wrapper');
 		this.pageTitle = page.locator('.item_show__header-title h1');
-		this.form = page.locator('form.new_component');
 
 		// Order position field
 		this.orderPositionInput = page.locator('#component_weight');
@@ -191,15 +187,5 @@ export class NewPageComponentPage extends BaseAdminPage {
 
 	async expectSubmitButtonToBeDisabled() {
 		await expect(this.submitButton).toBeDisabled();
-	}
-
-	// Debug methods
-	async debugFormState() {
-		console.log('=== New Page Component Form Debug State ===');
-		console.log('URL:', this.getPage().url());
-		console.log('Page title:', await this.getPageTitle());
-		console.log('Order position:', await this.getOrderPosition());
-		console.log('Submit button enabled:', await this.isSubmitButtonEnabled());
-		console.log('===========================================');
 	}
 }

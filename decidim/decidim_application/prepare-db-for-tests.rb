@@ -1,20 +1,12 @@
-# Configurazione variabili di default
-admin_email = ENV["SYSTEM_ADMIN_EMAIL"] || "admin@example.org"
-admin_password = ENV["SYSTEM_ADMIN_PASSWORD"] || "decidim123456789"
-
 organization_name = ENV["SYSTEM_ORG_NAME"] || "EU LDT Participate Tool"
 organization_host = ENV["SYSTEM_ORG_HOST"] || "localhost"
 organization_reference_prefix = ENV["SYSTEM_ORG_PREFIX"] || "EU-LDT"
 
-user_email = ENV["DEFAULT_USER_EMAIL"] || "user@example.org"
-user_to_delete_email = ENV["DEFAULT_USER_TO_DELETE_EMAIL"] || "user2@example.org"
-user_password = ENV["DEFAULT_USER_PASSWORD"] || "decidim123456789"
 
 puts "--- Starting data preparation ---"
 
 begin
 
-# --- Prima crea l'organizzazione ---
 puts "--- Creating organization ---"
 
 begin
@@ -25,7 +17,7 @@ begin
     o.default_locale = "en"
     o.available_locales = ["en"]
     o.tos_version = Time.current
-    
+
     # Basic settings
     o.force_users_to_authenticate_before_access_organization = false
     o.users_registration_mode = "enabled"
@@ -33,16 +25,16 @@ begin
     o.time_zone = "UTC"
     o.badges_enabled = true
     o.comments_max_length = 1000
-    
+
     # Authorization settings
     o.available_authorizations = %w[id_documents postal_letter csv_census]
-    
+
     # Initialize as empty arrays/hashes for complex settings
     o.secondary_hosts = []
     o.colors = {}
     o.file_upload_settings = {}
     o.content_security_policy = {}
-    
+
     # String fields (can be empty)
     o.header_snippets = ""
     o.cta_button_text = ""
@@ -52,7 +44,7 @@ begin
     o.smtp_settings = ""
     o.omniauth_settings = {}
     o.admin_terms_of_service_body = ""
-    
+
     # Boolean fields
     o.enable_omnipresent_banner = false
     o.highlighted_content_banner_enabled = false
@@ -61,7 +53,7 @@ begin
     o.rich_text_editor_in_public_views = false
     o.enable_machine_translations = false
     o.enable_participatory_space_filters = true
-    
+
     # Banner fields (can be empty)
     o.omnipresent_banner_title = ""
     o.omnipresent_banner_short_description = ""
@@ -72,14 +64,14 @@ begin
     o.highlighted_content_banner_action_subtitle = ""
     o.highlighted_content_banner_action_url = ""
   end
-  
+
   # Update complex settings after organization is created
   if org.persisted?
     org.update!(
       colors: {
-        "primary" => "#53bf40",
-        "secondary" => "#4053bf", 
-        "tertiary" => "#bf4053"
+        "primary" => "#004494",
+        "secondary" => "#FFD617",
+        "tertiary" => "#C21D76"
       },
       file_upload_settings: {
         "allowed_file_extensions" => {
@@ -109,7 +101,8 @@ end
 
 puts "--- Organization #{organization_name} created successfully with ID: #{org.id} ---"
 
-puts "--- Data preparation completed successfully ---"
+
+puts "--- Basic data preparation completed successfully ---"
 
 rescue => e
   puts "--- Failed to prepare default data. ---"
@@ -126,28 +119,120 @@ puts "--- Checking if fake data already exists ---"
 existing_users_count = Decidim::User.where(organization: org).count
 existing_processes_count = Decidim::ParticipatoryProcess.where(organization: org).count
 existing_proposals_count = Decidim::Proposals::Proposal.joins(:component)
-                            .where(component: { participatory_space: { decidim_organization_id: org.id } }).count rescue 0
+    .where(component: { participatory_space: { decidim_organization_id: org.id } }).count rescue 0
 
-# I tuoi utenti base sono 3, se ce ne sono molti di più significa che i seeds sono già stati eseguiti
+
+puts "--- Fake data already exists (#{existing_users_count} users, #{existing_processes_count} processes, #{existing_proposals_count} proposals). ---"
 if existing_users_count > 5 && existing_processes_count > 3 && existing_proposals_count > 10
-  puts "--- Fake data already exists (#{existing_users_count} users, #{existing_processes_count} processes, #{existing_proposals_count} proposals). Skipping seeds generation. ---"
+  puts "--- Skipping seeds generation. ---"
 else
   puts "--- Generating fake data with Decidim seeds ---"
-  puts "--- This may take a few minutes... ---"
-  
-  begin
-    # Opzionale: riduci il numero di record generati
-    original_number = ENV.fetch("DECIDIM_SEED_RECORDS", "5")
-    ENV["DECIDIM_SEED_RECORDS"] = "2" # Riduci da 5 a 2 per velocizzare
+  puts "--- This may take an hour... ---"
 
+  begin
     Decidim.seed!
-    
-    # Ripristina il valore originale
-    ENV["DECIDIM_SEED_RECORDS"] = original_number
-    
     puts "--- Decidim seeds completed successfully ---"
   rescue => e
     puts "--- Error running Decidim seeds: #{e.message} ---"
     puts e.backtrace.join("\n")
   end
+end
+
+
+# --- Generate dynamic moderation test data ---
+puts "--- Generating moderation test data ---"
+
+begin
+  users = Decidim::User.where(organization: org).limit(10)
+  processes = Decidim::ParticipatoryProcess.where(organization: org).limit(5)
+  components = Decidim::Component.where(participatory_space: processes, manifest_name: "proposals")
+  proposals = Decidim::Proposals::Proposal.where(component: components).limit(10)
+  proposal_ids = proposals.pluck(:id)
+  comments = Decidim::Comments::Comment.where(
+    decidim_commentable_type: "Decidim::Proposals::Proposal",
+    decidim_commentable_id: proposal_ids
+  ).limit(10)
+
+  if users.any? && processes.any? && proposals.any?
+    # Create user moderations
+    user_to_moderate = users.first
+    user_moderation = Decidim::UserModeration.find_or_create_by(
+      decidim_user_id: user_to_moderate.id
+    ) do |um|
+      um.report_count = 0
+    end
+
+    # Create user report
+    reporter_user = users.second || users.first
+    Decidim::UserReport.find_or_create_by(
+      user_moderation_id: user_moderation.id,
+      user_id: reporter_user.id
+    ) do |ur|
+      ur.reason = "spam"
+      ur.details = "Test user report generated by seeds"
+    end
+
+    # Create proposal moderations and reports
+    proposals.limit(3).each_with_index do |proposal, index|
+      process = processes.first
+
+      moderation = Decidim::Moderation.find_or_create_by(
+        decidim_participatory_space_id: process.id,
+        decidim_reportable_type: "Decidim::Proposals::Proposal",
+        decidim_reportable_id: proposal.id,
+        decidim_participatory_space_type: "Decidim::ParticipatoryProcess"
+      ) do |m|
+        m.report_count = index == 0 ? 0 : 1
+        m.hidden_at = index == 0 ? Time.current : nil
+        m.reported_content = "#{proposal.title['en'] || proposal.title.values.first}\n#{proposal.body['en'] || proposal.body.values.first}"
+      end
+
+      # Create report for this moderation
+      reporting_user = users.sample
+      Decidim::Report.find_or_create_by(
+        decidim_moderation_id: moderation.id,
+        decidim_user_id: reporting_user.id
+      ) do |r|
+        r.reason = ["spam", "offensive", "irrelevant"].sample
+        r.details = "Test report #{index + 1} generated by seeds"
+        r.locale = "en"
+      end
+    end
+
+    # Create comment moderations and reports if comments exist
+    if comments.any?
+      comments.limit(2).each_with_index do |comment, index|
+        process = processes.first
+
+        moderation = Decidim::Moderation.find_or_create_by(
+          decidim_participatory_space_id: process.id,
+          decidim_reportable_type: "Decidim::Comments::Comment",
+          decidim_reportable_id: comment.id,
+          decidim_participatory_space_type: "Decidim::ParticipatoryProcess"
+        ) do |m|
+          m.report_count = 1
+          m.reported_content = "#{comment.author.name}\n#{comment.body['en'] || comment.body.values.first}"
+        end
+
+        # Create report for this comment moderation
+        reporting_user = users.sample
+        Decidim::Report.find_or_create_by(
+          decidim_moderation_id: moderation.id,
+          decidim_user_id: reporting_user.id
+        ) do |r|
+          r.reason = ["spam", "offensive"].sample
+          r.details = "Test comment report #{index + 1} generated by seeds"
+          r.locale = "en"
+        end
+      end
+    end
+
+    puts "--- Moderation test data generated successfully ---"
+  else
+    puts "--- Warning: Not enough seeded data to create moderation test data ---"
+  end
+
+rescue => e
+  puts "--- Error generating moderation test data: #{e.message} ---"
+  puts e.backtrace.join("\n")
 end

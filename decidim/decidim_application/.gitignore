@@ -51,3 +51,5 @@
 
 # Ignore Tailwind configuration
 tailwind.config.js
+
+/vendor/**
