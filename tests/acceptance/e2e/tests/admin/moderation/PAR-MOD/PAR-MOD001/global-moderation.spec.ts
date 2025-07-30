@@ -436,9 +436,7 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 					await expect(hiddenStatus.first()).toBeVisible();
 					console.log('✓ The reported content has been hidden successfully');
 				} else {
-					console.log(
-						'✓ The moderation action was completed (hidden status verification skipped in test environment)'
-					);
+					throw new Error('Failed to verify that the reported content has been hidden');
 				}
 
 				console.log('✓ The moderation status has been updated');
