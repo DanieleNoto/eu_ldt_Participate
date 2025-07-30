@@ -1,0 +1,36 @@
+# Ignore files that shouldn't be copied to Docker context
+node_modules
+vendor/bundle
+tmp
+log
+storage
+.git
+.gitignore
+README.md
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Test files
+test
+spec
+tests
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Coverage
+coverage
+
+# Cache
+.cache
