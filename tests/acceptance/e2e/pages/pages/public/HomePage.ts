@@ -9,7 +9,7 @@ import { ParticipationSectionComponent } from '../../components/home/Participati
 import { StatisticsSectionComponent } from '../../components/home/StatisticsSectionComponent';
 
 /**
- * HomePage - Page Object Model for the main site page.
+ * HomePage - Page Object Model for the main page of the site.
  *
  * Extends BasePage and composes all necessary components for the homepage:
  * - AdminHeaderComponent for the admin bar (when visible)
@@ -53,10 +53,6 @@ export class HomePage extends BasePage {
 
 	private get headerWithAdminBar() {
 		return this.page.locator('header.with-admin-bar');
-	}
-
-	private get menuBarContainer() {
-		return this.page.locator('#menu-bar-container');
 	}
 
 	private get contentArea() {
@@ -164,7 +160,7 @@ export class HomePage extends BasePage {
 		return hasSuccess || hasError;
 	}
 
-	// Methods for interacting with main sections
+	// Methods for interacting with the main sections
 	async participateInPlatform() {
 		await this.heroSection.clickParticipateButton();
 	}
@@ -202,7 +198,7 @@ export class HomePage extends BasePage {
 		return await this.statisticsSection.getParticipantsCount();
 	}
 
-	// Methods for navigation from sections
+	// Methods for navigation from the sections
 	async goToMeetingsFromHeader() {
 		await this.header.clickMeetingsLink();
 	}
@@ -402,7 +398,7 @@ export class HomePage extends BasePage {
 	 * Verify that we are on the home page
 	 */
 	async expectToBeOnHomePage(): Promise<void> {
-		await expect(this.page).toHaveURL(/.*\/(it|en|fr|de|es)?(\?.*)?$/);
+		await expect(this.page).toHaveURL(/^https?:\/\/[^\/]+\/(\?.*)?$/);
 		await this.waitForPageToFullyLoad();
 	}
 	/**

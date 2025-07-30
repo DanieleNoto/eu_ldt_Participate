@@ -108,9 +108,6 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 				await debateDetailPage.getPage().waitForTimeout(1000);
 				await debateDetailPage.getPage().waitForLoadState('networkidle');
 
-				// Debug endorsement information
-				await debateDetailPage.debugEndorsementInfo();
-
 				// Check that the debate is now liked by the user
 				const isNowLiked = await debateDetailPage.isDebateLikedByCurrentUser();
 				console.log('Final: Is now liked by user:', isNowLiked);
