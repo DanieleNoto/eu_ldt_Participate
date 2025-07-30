@@ -3,7 +3,7 @@ import { Page } from '@playwright/test';
 export class FooterComponent {
 	constructor(private page: Page) {}
 
-	// Selettori per le sezioni del footer
+	// Selectors for footer sections
 	private get mainFooter() {
 		return this.page.locator('.main-footer');
 	}
@@ -20,13 +20,13 @@ export class FooterComponent {
 		return this.page.locator('.mini-footer');
 	}
 
-	// Selettori per i link di navigazione
+	// Selectors for navigation links
 	private get decidimNav() {
 		return this.page.locator('nav[aria-label="Decidim"]');
 	}
 
 	private get accountNav() {
-		return this.page.locator('nav[aria-label="Il mio account"]');
+		return this.page.locator('nav[aria-label="My account"]');
 	}
 
 	private get resourcesNav() {
@@ -45,7 +45,7 @@ export class FooterComponent {
 		return this.page.locator('nav[aria-label="Social media"]');
 	}
 
-	// Selettori per il language chooser
+	// Selectors for the language chooser
 	private get languageChooserButton() {
 		return this.page.locator('#trigger-dropdown-language-chooser');
 	}
@@ -54,7 +54,7 @@ export class FooterComponent {
 		return this.page.locator('#dropdown-menu-language-chooser');
 	}
 
-	// Selettori per i link specifici
+	// Selectors for specific links
 	private get createAccountLink() {
 		return this.page.locator('a[href*="sign_up"]').first();
 	}
@@ -84,14 +84,14 @@ export class FooterComponent {
 	}
 
 	private get decidimLogo() {
-		return this.page.locator('.mini-footer img[alt="Logo Decidim"]');
+		return this.page.locator('.mini-footer img[alt="Decidim Logo"]');
 	}
 
 	private get creativeCommonsLink() {
 		return this.page.locator('a[href*="creativecommons"]');
 	}
 
-	// Metodi per verificare la visibilità
+	// Methods to check visibility
 	async isFooterVisible(): Promise<boolean> {
 		return await this.mainFooter.isVisible();
 	}
@@ -100,7 +100,7 @@ export class FooterComponent {
 		return await this.miniFooter.isVisible();
 	}
 
-	// Metodi per i link di navigazione
+	// Methods for navigation links
 	async clickCreateAccount() {
 		await this.createAccountLink.click();
 	}
@@ -129,7 +129,7 @@ export class FooterComponent {
 		await this.cookieSettingsButton.first().click();
 	}
 
-	// Metodi per il language chooser
+	// Methods for the language chooser
 	async openLanguageChooser() {
 		await this.languageChooserButton.click();
 	}
@@ -148,7 +148,7 @@ export class FooterComponent {
 		return await this.languageChooserButton.isVisible();
 	}
 
-	// Metodi per ottenere testi
+	// Methods to get texts
 	async getFooterDescription(): Promise<string> {
 		return (await this.footerTop.locator('.prose p').first().textContent()) || '';
 	}
@@ -172,7 +172,7 @@ export class FooterComponent {
 		return await nav.locator('ul li a').allTextContents();
 	}
 
-	// Metodi per il mini footer
+	// Methods for the mini footer
 	async clickDecidimLogo() {
 		await this.decidimLogo.click();
 	}
@@ -181,7 +181,7 @@ export class FooterComponent {
 		await this.creativeCommonsLink.click();
 	}
 
-	// Metodi di utilità
+	// Utility methods
 	async waitForFooterToLoad() {
 		await this.mainFooter.waitFor({ state: 'visible' });
 	}

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e 
+set -e
 
 # Remove old server PID file if it exists
 if [ -f tmp/pids/server.pid ]; then

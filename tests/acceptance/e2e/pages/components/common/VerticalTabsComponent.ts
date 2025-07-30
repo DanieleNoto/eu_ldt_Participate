@@ -1,12 +1,12 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component per gestire i tab verticali della pagina account
+ * Component to manage the vertical tabs of the account page
  */
 export class VerticalTabsComponent {
 	constructor(private page: Page) {}
 
-	// Selettori principali
+	// Main selectors
 	private get tabsContainer() {
 		return this.page.locator('.vertical-tabs');
 	}
@@ -23,7 +23,7 @@ export class VerticalTabsComponent {
 		return this.page.locator('#dropdown-trigger-profile');
 	}
 
-	// Selettori per i singoli tab
+	// Selectors for individual tabs
 	private get accountTab() {
 		return this.page.locator('a[href*="/account"]');
 	}
@@ -44,7 +44,7 @@ export class VerticalTabsComponent {
 		return this.page.locator('a[href*="/account/delete"]');
 	}
 
-	// Metodi di verifica
+	// Verification methods
 	async isTabsContainerVisible(): Promise<boolean> {
 		return await this.tabsContainer.isVisible();
 	}
@@ -63,7 +63,7 @@ export class VerticalTabsComponent {
 		return await activeTab.isVisible();
 	}
 
-	// Metodi di navigazione
+	// Navigation methods
 	async openTabsDropdown() {
 		await this.dropdownTrigger.click();
 	}
@@ -106,7 +106,7 @@ export class VerticalTabsComponent {
 		await this.deleteAccountTab.click();
 	}
 
-	// Metodi di verifica per la visibilità dei tab
+	// Verification methods for tab visibility
 	async isAccountTabVisible(): Promise<boolean> {
 		return await this.accountTab.isVisible();
 	}
@@ -127,7 +127,7 @@ export class VerticalTabsComponent {
 		return await this.deleteAccountTab.isVisible();
 	}
 
-	// Metodi utility
+	// Utility methods
 	async getAllTabTexts(): Promise<string[]> {
 		const tabs = this.page.locator('#dropdown-menu-profile a');
 		const count = await tabs.count();

@@ -1,13 +1,13 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component per i filtri e la ricerca nella sezione processi admin.
- * Gestisce i filtri dropdown e il campo di ricerca.
+ * Component for filters and search in the admin processes section.
+ * Manages dropdown filters and the search field.
  */
 export class AdminProcessFiltersComponent {
 	constructor(private page: Page) {}
 
-	// Selettori principali
+	// Main selectors
 	private get filtersSection() {
 		return this.page.locator('.filters__section');
 	}
@@ -24,7 +24,7 @@ export class AdminProcessFiltersComponent {
 		return this.filterDropdown.locator('.submenu.is-dropdown-submenu');
 	}
 
-	// Selettori per il campo di ricerca
+	// Selectors for the search field
 	private get searchSection() {
 		return this.filtersSection.locator('.fcell.search');
 	}
@@ -41,7 +41,7 @@ export class AdminProcessFiltersComponent {
 		return this.searchForm.locator('button[type="submit"]');
 	}
 
-	// Selettori per i filtri specifici
+	// Selectors for specific filters
 	private get privateSpaceFilter() {
 		return this.filterSubmenu.locator('a').filter({ hasText: 'Privato' }).first();
 	}
@@ -58,12 +58,12 @@ export class AdminProcessFiltersComponent {
 		return this.filterSubmenu.locator('a').filter({ hasText: 'Non pubblicato' });
 	}
 
-	// Selettori per i tag dei filtri applicati
+	// Selectors for applied filter tags
 	private get appliedFiltersSection() {
 		return this.page.locator('[data-applied-filters-tags]');
 	}
 
-	// Metodi di verifica
+	// Verification methods
 	async isFiltersSectionVisible(): Promise<boolean> {
 		return await this.filtersSection.isVisible();
 	}
@@ -84,7 +84,7 @@ export class AdminProcessFiltersComponent {
 		return await this.searchButton.isVisible();
 	}
 
-	// Metodi per il campo di ricerca
+	// Methods for the search field
 	async getSearchPlaceholder(): Promise<string> {
 		return (await this.searchInput.getAttribute('placeholder')) || '';
 	}
@@ -110,7 +110,7 @@ export class AdminProcessFiltersComponent {
 		await this.submitSearch();
 	}
 
-	// Metodi per i filtri dropdown
+	// Methods for dropdown filters
 	async getFilterButtonText(): Promise<string> {
 		return (await this.filterButton.textContent()) || '';
 	}
@@ -128,7 +128,7 @@ export class AdminProcessFiltersComponent {
 		return await this.filterSubmenu.isVisible();
 	}
 
-	// Metodi per applicare filtri specifici
+	// Methods to apply specific filters
 	async filterByPrivateSpace(): Promise<void> {
 		await this.openFilterDropdown();
 		await this.privateSpaceFilter.click();
@@ -149,7 +149,7 @@ export class AdminProcessFiltersComponent {
 		await this.unpublishedFilter.click();
 	}
 
-	// Metodi per ottenere informazioni sui filtri
+	// Methods to get filter information
 	async getAvailableFilters(): Promise<string[]> {
 		await this.openFilterDropdown();
 		const filterItems = await this.filterSubmenu.locator('a').all();
@@ -166,7 +166,7 @@ export class AdminProcessFiltersComponent {
 		return filterTexts;
 	}
 
-	// Metodi per i filtri applicati
+	// Methods for applied filters
 	async hasAppliedFilters(): Promise<boolean> {
 		const tags = await this.appliedFiltersSection.locator('[data-filter-tag]').count();
 		return tags > 0;
@@ -193,7 +193,7 @@ export class AdminProcessFiltersComponent {
 		}
 	}
 
-	// Metodi per verificare il form di ricerca
+	// Methods to check the search form
 	async getSearchFormAction(): Promise<string> {
 		return (await this.searchForm.getAttribute('action')) || '';
 	}
@@ -202,7 +202,7 @@ export class AdminProcessFiltersComponent {
 		return (await this.searchForm.getAttribute('method')) || '';
 	}
 
-	// Verifica se il componente è completamente caricato
+	// Check if the component is fully loaded
 	async isComponentFullyLoaded(): Promise<boolean> {
 		const filtersVisible = await this.isFiltersSectionVisible();
 		const dropdownVisible = await this.isFilterDropdownVisible();

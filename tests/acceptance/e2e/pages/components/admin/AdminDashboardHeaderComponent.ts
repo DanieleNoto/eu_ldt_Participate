@@ -1,13 +1,13 @@
 import { Page } from '@playwright/test';
 
 /**
- * Component per la breadcrumb e il titolo della dashboard admin.
- * Gestisce la navigazione breadcrumb e il titolo della pagina.
+ * Component for the breadcrumb and title of the admin dashboard.
+ * Manages breadcrumb navigation and the page title.
  */
 export class AdminDashboardHeaderComponent {
 	constructor(private page: Page) {}
 
-	// Selettori principali
+	// Main selectors
 	private get processTitle() {
 		return this.page.locator('.process-title');
 	}
@@ -32,7 +32,7 @@ export class AdminDashboardHeaderComponent {
 		return this.page.locator('[data-callout-wrapper]');
 	}
 
-	// Metodi di verifica
+	// Verification methods
 	async isBreadcrumbVisible(): Promise<boolean> {
 		return await this.processTitle.isVisible();
 	}
@@ -49,7 +49,7 @@ export class AdminDashboardHeaderComponent {
 		return await this.dashboardTitle.isVisible();
 	}
 
-	// Metodi per ottenere testo
+	// Methods to get text
 	async getDashboardTitle(): Promise<string> {
 		return (await this.dashboardTitle.textContent()) || '';
 	}
@@ -62,12 +62,12 @@ export class AdminDashboardHeaderComponent {
 		return (await this.homeLink.getAttribute('href')) || '';
 	}
 
-	// Metodi di interazione
+	// Interaction methods
 	async clickHomeIcon(): Promise<void> {
 		await this.homeLink.click();
 	}
 
-	// Metodi per verificare lo stato della breadcrumb
+	// Methods to check breadcrumb state
 	async isBreadcrumbFullyLoaded(): Promise<boolean> {
 		const breadcrumbVisible = await this.isBreadcrumbVisible();
 		const homeIconVisible = await this.isHomeIconVisible();
@@ -75,7 +75,7 @@ export class AdminDashboardHeaderComponent {
 		return breadcrumbVisible && homeIconVisible;
 	}
 
-	// Metodi per verificare lo stato del header
+	// Methods to check header state
 	async isHeaderFullyLoaded(): Promise<boolean> {
 		const headerVisible = await this.isDashboardHeaderVisible();
 		const titleVisible = await this.isDashboardTitleVisible();
@@ -83,7 +83,7 @@ export class AdminDashboardHeaderComponent {
 		return headerVisible && titleVisible;
 	}
 
-	// Metodi per verificare la presenza di callout/notifiche
+	// Methods to check for callout/notifications presence
 	async hasCalloutNotifications(): Promise<boolean> {
 		return await this.calloutWrapper.isVisible();
 	}
@@ -95,7 +95,7 @@ export class AdminDashboardHeaderComponent {
 		return '';
 	}
 
-	// Verifica se l'intera sezione header è caricata
+	// Check if the entire header section is loaded
 	async isComponentFullyLoaded(): Promise<boolean> {
 		const breadcrumbLoaded = await this.isBreadcrumbFullyLoaded();
 		const headerLoaded = await this.isHeaderFullyLoaded();

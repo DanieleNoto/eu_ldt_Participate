@@ -93,30 +93,30 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 			await test.step('Result.', async () => {
 				const index = await debatesPage.getIndexByTitle(debateName);
 
-				// Gestisci l'apertura della nuova tab quando si clicca sul preview
+				// Handle opening of the new tab when clicking on preview
 				const [newPage] = await Promise.all([
 					debatesPage.getPage().waitForEvent('popup'),
 					debatesPage.clickPreviewButtonByIndex(index)
 				]);
 
-				// Attendi che la nuova pagina sia completamente caricata
+				// Wait for the new page to be fully loaded
 				await newPage.waitForLoadState('networkidle');
 
-				// Verifica che la sezione di successo con l'annuncio della chiusura sia presente nella nuova tab
+				// Verify that the success section with the closure announcement is present in the new tab
 				const successFlashSection = newPage.locator('.flash.success[data-announcement]');
 				await expect(successFlashSection).toBeVisible();
 
-				// Verifica il titolo che contiene informazioni sulla chiusura e le conclusioni
+				// Verify the title containing closure and conclusions information
 				const conclusionHeaderLocator = successFlashSection.locator('.flash__title');
 				await expect(conclusionHeaderLocator).toBeVisible();
 				await expect(conclusionHeaderLocator).toContainText('conclusions');
 
-				// Verifica che il messaggio contenga il testo della conclusione
+				// Verify that the message contains the conclusion text
 				const conclusionMessageLocator = successFlashSection.locator('.flash__message');
 				await expect(conclusionMessageLocator).toBeVisible();
 				await expect(conclusionMessageLocator).toContainText(conclusionText);
 
-				// Chiudi la nuova tab
+				// Close the new tab
 				await newPage.close();
 			});
 		});

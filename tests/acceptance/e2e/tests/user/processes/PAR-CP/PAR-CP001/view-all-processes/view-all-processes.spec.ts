@@ -38,26 +38,26 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 			await test.step('2. System: Displays a list of all processes, categorized as ongoing, upcoming, or completed. The list includes basic information, such as title, short description, and status.', async () => {
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
 
-				// Verifica che ci siano processi visualizzati
+				// Verify that there are processes displayed
 				const count = await processesOverviewPage.getProcessesCount();
 				expect(count).toBeGreaterThan(0);
 
-				// Ottiene i titoli dei processi per debug
+				// Get process titles for debug
 				const titles = await processesOverviewPage.getAllProcessTitles();
-				console.log('Processi disponibili:', titles);
+				console.log('Available processes:', titles);
 			});
 			await test.step('3. System: Provides filtering options for citizens to easily find processes of interest.', async () => {
 				await processesOverviewPage.expectProcessesFilterToBeVisible();
 			});
 			await test.step('4. System: Allows the citizen to click on a specific process for more details', async () => {
-				// Seleziona il primo processo disponibile
+				// Select the first available process
 				await processesOverviewPage.navigateToProcessByIndex(0);
 
-				// Verifica di essere nella pagina di dettaglio del processo
+				// Verify being on the process detail page
 				await expect(processDetailPage.getPage()).toHaveURL(/\/processes\/.*$/);
 			});
 			await test.step('Result. The citizen has an overview of all available processes and can easily navigate to more detailed information about a specific process.', async () => {
-				// Verifica che la pagina di dettaglio mostri informazioni sul processo
+				// Verify that the process detail page shows process information
 				await processDetailPage.expectToBeOnProcessDetailPage();
 			});
 		});
@@ -77,42 +77,42 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 				await processesOverviewPage.expectProcessesFilterToBeVisible();
 			});
 			await test.step('3.1 User: Applies filters to narrow down the list of processes.', async () => {
-				// Registra il numero di processi prima del filtro
+				// Record the number of processes before filtering
 				const countBefore = await processesOverviewPage.getProcessesCount();
-				console.log('Numero di processi prima del filtro:', countBefore);
+				console.log('Number of processes before filtering:', countBefore);
 
-				// Applica un filtro per data (ad esempio, processi attivi)
+				// Apply a date filter (e.g., active processes)
 				await processesOverviewPage.filterByDate('active');
 
-				// Attendi che i risultati vengano aggiornati
+				// Wait for the results to update
 				await processesOverviewPage.getPage().waitForLoadState('networkidle');
 			});
 			await test.step('3.2 System: Displays an updated list of processes based on the filters.', async () => {
-				// Verifica che il filtro sia stato applicato
+				// Verify that the filter was applied
 				const currentFilter = await processesOverviewPage.getSelectedDateFilter();
 				expect(currentFilter).toBe('active');
 
-				// Verifica se ci sono processi mostrati dopo il filtro
+				// Verify if there are processes shown after filtering
 				const countAfter = await processesOverviewPage.getProcessesCount();
-				console.log('Numero di processi dopo il filtro:', countAfter);
+				console.log('Number of processes after filtering:', countAfter);
 
-				// Ottiene i titoli dei processi filtrati
+				// Get the titles of filtered processes
 				if (countAfter > 0) {
 					const filteredTitles = await processesOverviewPage.getAllProcessTitles();
-					console.log('Processi attivi:', filteredTitles);
+					console.log('Active processes:', filteredTitles);
 				}
 			});
 			await test.step('Result. The citizen can easily find relevant processes based on their preferences.', async () => {
-				// Resetta i filtri
+				// Reset filters
 				await processesOverviewPage.resetAllFilters();
 
-				// Verifica che il filtro sia stato resettato
+				// Verify that the filter was reset
 				const currentFilter = await processesOverviewPage.getSelectedDateFilter();
 				expect(currentFilter).toBe('all');
 
-				// Verifica che ci siano di nuovo tutti i processi
+				// Verify that all processes are shown again
 				const countAfterReset = await processesOverviewPage.getProcessesCount();
-				console.log('Numero di processi dopo il reset dei filtri:', countAfterReset);
+				console.log('Number of processes after resetting filters:', countAfterReset);
 			});
 		});
 	});

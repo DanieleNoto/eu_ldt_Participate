@@ -152,7 +152,7 @@ test.describe('Cookie Compliance and Admin Monitoring', () => {
 
 			for (const scenario of consentScenarios) {
 				// Navigate to fresh page
-				await cookieBar.navigateToHomePageWithoutContext();
+				await cookieBar.navigateToHomePage();
 
 				// Execute consent action
 				await scenario.action();

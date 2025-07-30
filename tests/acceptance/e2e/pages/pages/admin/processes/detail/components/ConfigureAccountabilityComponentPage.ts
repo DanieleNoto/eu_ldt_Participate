@@ -11,13 +11,11 @@ export class ConfigureAccountabilityComponentPage extends BaseAdminPage {
 		return this.page;
 	}
 
-	// Navigazione
 	async expectToBeOnEditComponentPage(): Promise<void> {
 		await expect(this.page).toHaveURL(/\/admin\/participatory_processes\/.+\/components\/.+/);
 		await expect(this.page.getByRole('heading', { name: 'Edit component' }).first()).toBeVisible();
 	}
 
-	// Interazioni campi principali
 	async fillName(name: string): Promise<void> {
 		await this.page.fill('#component_name_en', name);
 	}
@@ -50,7 +48,6 @@ export class ConfigureAccountabilityComponentPage extends BaseAdminPage {
 	}
 
 	async fillIntro(introHtml: string): Promise<void> {
-		// L'input hidden contiene il valore HTML dell'intro
 		await this.page.fill('input[name="component[settings][intro_en]"]', introHtml);
 	}
 
@@ -75,7 +72,6 @@ export class ConfigureAccountabilityComponentPage extends BaseAdminPage {
 		await this.waitForLoadState();
 	}
 
-	// Validazioni
 	async expectFormValidationError(): Promise<void> {
 		const error = this.page.locator('.form-error');
 		await expect(error.first()).toBeVisible();
