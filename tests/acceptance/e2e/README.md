@@ -4,27 +4,27 @@ This directory contains end-to-end (E2E) tests for the EU LDT Use Cases and Scen
 
 ## Prerequisites
 
-* [Node.js](https://nodejs.org/) (LTS version specified in project root `.nvmrc`)
-* [NVM](https://github.com/nvm-sh/nvm) - Node Version Manager (recommended)
-* [npm](https://www.npmjs.com/)
+- [Node.js](https://nodejs.org/) (LTS version specified in project root `.nvmrc`)
+- [NVM](https://github.com/nvm-sh/nvm) - Node Version Manager (recommended)
+- [npm](https://www.npmjs.com/)
 
 ## Setup
 
 1. **Navigate to the project root and setup Node.js version:**
 
-   ```bash
-   cd ../../../  # Navigate to project root
-   nvm install   # Install the Node.js version specified in .nvmrc
-   nvm use       # Use the correct Node.js version
-   ```
+    ```bash
+    cd ../../../  # Navigate to project root
+    nvm install   # Install the Node.js version specified in .nvmrc
+    nvm use       # Use the correct Node.js version
+    ```
 
 2. **Navigate to E2E directory and install dependencies:**
 
-   ```bash
-   cd tests/acceptance/e2e
-   npm install
-   npx playwright install --with-deps
-   ```
+    ```bash
+    cd tests/acceptance/e2e
+    npm install
+    npx playwright install --with-deps
+    ```
 
 ## Running Tests
 
@@ -50,9 +50,9 @@ npm run report          # Show HTML report
 
 Tests use environment-specific configuration files:
 
-* `.env.development` - Local development settings
-* `.env.ci` - CI/CD pipeline settings  
-* `.env.production` - Production environment settings
+- `.env.development` - Local development settings
+- `.env.ci` - CI/CD pipeline settings
+- `.env.production` - Production environment settings
 
 The target application URL is configured via `FE_BASE_URL` environment variable (defaults to `http://localhost:3000`).
 
@@ -85,6 +85,6 @@ Refer to the [Playwright documentation](https://playwright.dev/docs/intro) and p
 
 ## Resources
 
-* [Playwright Documentation](https://playwright.dev/docs/intro)
-* [Node.js](https://nodejs.org/)
-* [npm](https://www.npmjs.com/)
+- [Playwright Documentation](https://playwright.dev/docs/intro)
+- [Node.js](https://nodejs.org/)
+- [npm](https://www.npmjs.com/)
