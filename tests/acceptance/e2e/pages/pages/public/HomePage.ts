@@ -19,11 +19,8 @@ import { StatisticsSectionComponent } from '../../components/home/StatisticsSect
  *
  * Supports both anonymous and authenticated users, including admins.
  * Provides methods for navigation, section verification, and flash message management using the public API of BasePage.
- * Supports both anonymous and authenticated users, including admins.
- * Provides methods for navigation, section verification, and flash message management using the public API of BasePage.
  */
 export class HomePage extends BasePage {
-	// Page components (header is inherited from BasePage)
 	// Page components (header is inherited from BasePage)
 	public adminHeader: AdminHeaderComponent;
 	public footer: FooterComponent;
