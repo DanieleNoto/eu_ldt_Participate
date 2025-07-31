@@ -1,0 +1,96 @@
+import { HomePage } from '@pages/pages/public/HomePage';
+import { ConversationsPage } from '@pages/pages/user/conversations/ConversationsPage';
+import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
+
+/**
+ * Test suite for Allows citizens to view all their conversations within the system, providing an overview of past and ongoing private communications with other users.
+ *
+ * User Story: As a Citizen, I want to view all my conversations so that I can easily access my message history and keep track of ongoing discussions with other users.
+ *
+ * Requirements: PAR R12f, PAR R13
+ *
+ * Prerequisites:
+ *
+ * - The citizen has an active account on the platform and is logged in.
+ *
+ */
+
+test.describe('[PAR-UPM002] – View all conversations', () => {
+	let homePage: HomePage;
+	let conversationsPage: ConversationsPage;
+
+	test.beforeEach(async ({ page }) => {
+		homePage = new HomePage(page);
+		conversationsPage = new ConversationsPage(page);
+		await homePage.navigateToHomePage();
+	});
+
+	test.describe('Alternative Flow: No Existing Conversations', () => {
+		test('should display appropriate message when no conversations exist', async ({ page }) => {
+			// This test should be run with a user that has no conversations
+			await test.step('0. Setup.', async () => {
+				await ensureLoggedIn(page, 'USER_WITHOUT_MESSAGES');
+				// Navigate to the application
+				await homePage.navigateToHomePage();
+			});
+			await test.step('1. User: Navigates to the "Conversations" section from the main dashboard.', async () => {
+				// Navigate to conversations section
+				await homePage.header.goToConversations();
+				await homePage.waitForLoadState('load');
+
+				// Verify we're on the conversations page
+				await conversationsPage.expectToBeOnConversationsPage();
+			});
+
+			await test.step('2.1. System: Detects that there are no conversations available.', async () => {
+				// Wait for the page to load completely
+				await conversationsPage.waitForConversationsToLoad();
+
+				// Check if there are no conversations
+				const conversationCount = await conversationsPage.getConversationCount();
+
+				// Verify no conversations are displayed
+				expect(conversationCount).toBe(0);
+			});
+
+			await test.step('2.2. System: Displays a message indicating that there are no active conversations and suggests starting a new one.', async () => {
+				// Since we don't have the exact selectors for the "no conversations" message,
+				// we'll verify what we can observe:
+
+				// 1. Verify no conversation items are present
+				const conversationCount = await conversationsPage.getConversationCount();
+				expect(conversationCount).toBe(0);
+
+				// 2. Verify the "New conversation" button is still available
+				await expect(conversationsPage.newConversationButton).toBeVisible();
+
+				// 3. The page should still show the conversations title but no conversation items
+				await expect(conversationsPage.conversationsTitle).toBeVisible();
+				await expect(conversationsPage.conversationItems).toHaveCount(0);
+
+				// 4. Check if there's any empty state message (this might need adjustment based on actual implementation)
+				// We'll look for common empty state indicators
+				const emptyStateMessage = page
+					.locator('text=/no.*conversations?/i, text=/start.*conversation/i, text=/empty/i')
+					.first();
+
+				// If an empty state message exists, verify it's visible
+				await expect(emptyStateMessage).toBeVisible();
+				console.log('✅ Empty state message found and verified');
+			});
+
+			await test.step('Result: The citizen was informed, so they can start a new conversation..', async () => {
+				// Final verification of the alternative flow
+
+				// Ensure the user can still start a new conversation
+				await expect(conversationsPage.newConversationButton).toBeVisible();
+				await expect(conversationsPage.newConversationButton).toBeEnabled();
+
+				console.log(
+					'✅ Alternative flow completed successfully: User was properly informed that no conversations are available and can start a new one'
+				);
+			});
+		});
+	});
+});
