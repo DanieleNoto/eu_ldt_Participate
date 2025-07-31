@@ -15,7 +15,7 @@ Rails.application.configure do
     policy.font_src    :self, :https, :data
     policy.img_src     :self, :https, :data
     policy.object_src  :none
-    
+
     # Allow scripts from self and webpack dev server
     if Rails.env.development?
       policy.script_src :self, :unsafe_inline, :unsafe_eval, "http://0.0.0.0:3035", "ws://0.0.0.0:3035"
