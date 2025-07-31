@@ -1,4 +1,5 @@
 import { BasePage } from '@pages/base/BasePage';
+import { LastActivityComponent } from '@pages/components/home/LastActivityComponent';
 import { Page, expect } from '@playwright/test';
 import { AdminHeaderComponent } from '../../components/admin/AdminHeaderComponent';
 import { FooterComponent } from '../../components/common/FooterComponent';
@@ -18,11 +19,8 @@ import { StatisticsSectionComponent } from '../../components/home/StatisticsSect
  *
  * Supports both anonymous and authenticated users, including admins.
  * Provides methods for navigation, section verification, and flash message management using the public API of BasePage.
- * Supports both anonymous and authenticated users, including admins.
- * Provides methods for navigation, section verification, and flash message management using the public API of BasePage.
  */
 export class HomePage extends BasePage {
-	// Page components (header is inherited from BasePage)
 	// Page components (header is inherited from BasePage)
 	public adminHeader: AdminHeaderComponent;
 	public footer: FooterComponent;
@@ -31,6 +29,7 @@ export class HomePage extends BasePage {
 	public participationSection: ParticipationSectionComponent;
 	public statisticsSection: StatisticsSectionComponent;
 	public ctaSection: CallToActionSectionComponent;
+	public lastActivitySection: LastActivityComponent;
 
 	constructor(page: Page) {
 		super(page);
@@ -43,6 +42,7 @@ export class HomePage extends BasePage {
 		this.participationSection = new ParticipationSectionComponent(page);
 		this.statisticsSection = new StatisticsSectionComponent(page);
 		this.ctaSection = new CallToActionSectionComponent(page);
+		this.lastActivitySection = new LastActivityComponent(page);
 	}
 
 	// Selectors for the main page structure
@@ -305,6 +305,9 @@ export class HomePage extends BasePage {
 
 	async scrollToParticipation() {
 		await this.participationSection.scrollToSection();
+	}
+	async scrollToLastActivity() {
+		await this.lastActivitySection.scrollToSection();
 	}
 
 	async scrollToStatistics() {
