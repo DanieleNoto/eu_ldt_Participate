@@ -94,7 +94,6 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
-        
 
     grafana:
         image: grafana/grafana:11.0.0
