@@ -1,6 +1,4 @@
 import { HomePage } from '@pages/pages/public/HomePage';
-import { AccountPage } from '@pages/pages/user/account/AccountPage';
-import { NotificationFrequency, NotificationSettingsPage } from '@pages/pages/user/account/NotificationSettingsPage';
 import { ConversationDetailPage } from '@pages/pages/user/conversations/ConversationDetailPage';
 import { ConversationsPage } from '@pages/pages/user/conversations/ConversationsPage';
 import test, { expect } from '@playwright/test';
@@ -26,23 +24,12 @@ test.beforeAll(async ({ browser }) => {
 });
 test.describe('[PAR-UPM002] – View all conversations', () => {
 	test.use({ storageState: STORAGE_STATE.USER });
-	let notificationSettings = {
-		ownActivityToggle: true,
-		followedToggle: true,
-		newsletterToggle: true,
-		publicContactToggle: true,
-		frequency: NotificationFrequency.Daily
-	};
-	let notificationSettingsPage: NotificationSettingsPage;
 	let homePage: HomePage;
-	let accountPage: AccountPage;
 	let conversationsPage: ConversationsPage;
 	let conversationDetailPage: ConversationDetailPage;
 
 	test.beforeEach(async ({ page }) => {
-		notificationSettingsPage = new NotificationSettingsPage(page);
 		homePage = new HomePage(page);
-		accountPage = new AccountPage(page);
 		conversationsPage = new ConversationsPage(page);
 		conversationDetailPage = new ConversationDetailPage(page);
 		await homePage.navigateToHomePage();
