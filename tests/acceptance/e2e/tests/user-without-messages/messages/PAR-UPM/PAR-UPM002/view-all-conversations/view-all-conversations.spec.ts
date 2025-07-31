@@ -50,14 +50,6 @@ test.describe('[PAR-UPM002] – View all conversations', () => {
 				// Check if there are no conversations
 				const conversationCount = await conversationsPage.getConversationCount();
 
-				// If there are conversations, skip this test as it's meant for users with no conversations
-				if (conversationCount > 0) {
-					test.skip(
-						true,
-						'This test requires a user with no existing conversations. Current user has conversations available.'
-					);
-				}
-
 				// Verify no conversations are displayed
 				expect(conversationCount).toBe(0);
 			});
