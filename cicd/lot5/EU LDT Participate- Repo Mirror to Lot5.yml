@@ -4,12 +4,10 @@ trigger:
   branches:
     include:
       - main
-
   tags:
     include:
-      - '*'  # This activates the pipeline with any tag
+      - '*'  # Cualquier tag dispara el pipeline
 
-# User defined parameters
 variables:
 - group: 'TOOL3 - PT - KV'
 
@@ -17,17 +15,32 @@ jobs:
 - job: MirrorRepoToLot5
   displayName: MirrorRepoToLot5
   steps:
-    - checkout: self
-      persistCredentials: true
-    - task: CmdLine@2
-      displayName: "Set Git Params"
-    - task: swellaby.mirror-git-repository.mirror-git-repository-vsts-task.mirror-git-repository-vsts-task@1
-      displayName: 'Mirror Git Repository'
+    - checkout: none  # No se necesita clonar el repositorio actual
+
+    - task: Bash@3
+      displayName: 'Mirror completo del repositorio origen al destino (con limpieza de refs especiales)'
       inputs:
-        sourceGitRepositoryUri: 'https://dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate'
-        sourceGitRepositoryPersonalAccessToken: '$(PAT-LOT5-REPO-SYNC)'
-        sourceGitRepositoryCloneDirectoryName: 'tmpDir'
-        sourceVerifySSLCertificate: false
-        destinationGitRepositoryUri: 'https://dev.azure.com/EULDT-Toolbox/EU%20LDT%20Toolbox/_git/EU%20LDT%20Participate'
-        destinationGitRepositoryPersonalAccessToken: '$(PAT-LOT5-REPO-SYNC)'
-        destinationVerifySSLCertificate: false
+        targetType: inline
+        script: |
+          set -e
+          git config --global http.sslVerify false
+
+          echo "Clonando todo el repositorio origen con --mirror..."
+          git clone --mirror https://$(PAT-LOT5-REPO-SYNC)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate source-repo
+
+          cd source-repo
+
+          echo "Eliminando refs de pull request (refs/pull/*)..."
+          for ref in $(git for-each-ref --format='%(refname)' refs/pull/ 2>/dev/null); do
+            echo "  Eliminando $ref"
+            git update-ref -d "$ref"
+          done
+
+          echo "Configurando remote destino..."
+          #git remote set-url origin https://$(PAT-LOT5-REPO-SYNC-CLONACION)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Toolbox/_git/EU%20LDT%20Participate
+          git remote set-url origin https://$(PAT-LOT5-REPO-SYNC)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Toolbox/_git/EU%20LDT%20Participate
+
+          echo "Empujando todos los refs al destino con --mirror..."
+          git push --mirror
+
+          echo "Repositorios sincronizados exitosamente."
