@@ -9,6 +9,7 @@ export class ProfilePage extends BasePage {
 	readonly profileDescription: Locator;
 	readonly messageButton: Locator;
 	readonly followButton: Locator;
+	readonly unfollowButton: Locator;
 	readonly reportButton: Locator;
 	readonly activityTab: Locator;
 	readonly badgesTab: Locator;
@@ -29,6 +30,7 @@ export class ProfilePage extends BasePage {
 		this.profileDescription = page.locator('.profile__description');
 		this.messageButton = page.locator('a[href*="/conversations/new"]:has-text("Message")');
 		this.followButton = page.locator('a[id*="follow_user"]:has-text("Follow")');
+		this.unfollowButton = page.locator('a[id*="follow_user"]:has-text("Stop following")');
 		this.reportButton = page.locator('button[data-dialog-open="flagUserModal"]:has-text("Report")');
 		this.activityTab = page.locator('a[href*="/activity"]:has-text("Activity")');
 		this.badgesTab = page.locator('a[href*="/badges"]:has-text("Badges")');
@@ -126,9 +128,8 @@ export class ProfilePage extends BasePage {
 	 * Click on the "Stop Following" button
 	 */
 	async clickUnfollowButton() {
-		const unfollowButton = this.page.locator('a[id*="follow_user"]:has-text("Stop following")');
-		await unfollowButton.waitFor({ state: 'visible' });
-		await unfollowButton.click();
+		await this.unfollowButton.waitFor({ state: 'visible' });
+		await this.unfollowButton.click();
 		console.log('Click unfollow');
 		await this.waitForLoadState('networkidle');
 	}
