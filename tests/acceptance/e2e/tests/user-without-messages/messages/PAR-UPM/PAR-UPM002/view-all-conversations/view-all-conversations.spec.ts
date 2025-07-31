@@ -85,7 +85,7 @@ test.describe('[PAR-UPM002] – View all conversations', () => {
 
 				// If an empty state message exists, verify it's visible
 				try {
-					await expect(emptyStateMessage).toBeVisible({ timeout: 2000 });
+					await expect(emptyStateMessage).toBeVisible();
 					console.log('✅ Empty state message found and verified');
 				} catch {
 					// If no specific empty state message is found, that's also acceptable
