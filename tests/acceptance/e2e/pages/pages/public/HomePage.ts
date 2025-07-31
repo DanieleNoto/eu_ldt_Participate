@@ -18,8 +18,11 @@ import { StatisticsSectionComponent } from '../../components/home/StatisticsSect
  *
  * Supports both anonymous and authenticated users, including admins.
  * Provides methods for navigation, section verification, and flash message management using the public API of BasePage.
+ * Supports both anonymous and authenticated users, including admins.
+ * Provides methods for navigation, section verification, and flash message management using the public API of BasePage.
  */
 export class HomePage extends BasePage {
+	// Page components (header is inherited from BasePage)
 	// Page components (header is inherited from BasePage)
 	public adminHeader: AdminHeaderComponent;
 	public footer: FooterComponent;
@@ -53,10 +56,6 @@ export class HomePage extends BasePage {
 
 	private get headerWithAdminBar() {
 		return this.page.locator('header.with-admin-bar');
-	}
-
-	private get menuBarContainer() {
-		return this.page.locator('#menu-bar-container');
 	}
 
 	private get contentArea() {
@@ -333,6 +332,10 @@ export class HomePage extends BasePage {
 		return await this.homeMenuSection.locator('a[href*="/processes"]').click();
 	}
 
+	async goToCalendarFromHomeMenu() {
+		return await this.homeMenuSection.locator('a[href*="/calendar"]').click();
+	}
+
 	// Methods for cookie settings
 	async openCookieSettingsFromFooter() {
 		await this.footer.clickCookieSettings();
@@ -398,7 +401,7 @@ export class HomePage extends BasePage {
 	 * Verify that we are on the home page
 	 */
 	async expectToBeOnHomePage(): Promise<void> {
-		await expect(this.page).toHaveURL(/^\/(\?.*)?$/);
+		await expect(this.page).toHaveURL(/^https?:\/\/[^\/]+\/(\?.*)?$/);
 		await this.waitForPageToFullyLoad();
 	}
 	/**

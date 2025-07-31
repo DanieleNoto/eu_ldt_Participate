@@ -31,6 +31,7 @@ export abstract class BasePage {
 
 	/**
 	 * Takes a screenshot of the current page
+	 * Takes a screenshot of the current page
 	 */
 	async takeScreenshot(name: string): Promise<void> {
 		await this.page.screenshot({
@@ -41,6 +42,7 @@ export abstract class BasePage {
 
 	/**
 	 * Waits for an element to be visible
+	 * Waits for an element to be visible
 	 */
 	async waitForElement(selector: string): Promise<void> {
 		await this.page.waitForSelector(selector);
@@ -48,12 +50,14 @@ export abstract class BasePage {
 
 	/**
 	 * Fills an input field
+	 * Fills an input field
 	 */
 	async fillInput(selector: string, value: string): Promise<void> {
 		await this.page.fill(selector, value);
 	}
 
 	/**
+	 * Clicks on an element
 	 * Clicks on an element
 	 */
 	async clickElement(selector: string): Promise<void> {
@@ -69,12 +73,15 @@ export abstract class BasePage {
 
 	/**
 	 * Checks if an element is visible
+	 * Checks if an element is visible
 	 */
 	async isElementVisible(selector: string): Promise<boolean> {
 		return await this.page.isVisible(selector);
 	}
 
 	/**
+	 * Automatically handles the cookie bar if present
+	 * Accepts all cookies by default
 	 * Automatically handles the cookie bar if present
 	 * Accepts all cookies by default
 	 */
@@ -90,6 +97,7 @@ export abstract class BasePage {
 
 	/**
 	 * Navigates to a URL and automatically handles the cookie bar
+	 * Navigates to a URL and automatically handles the cookie bar
 	 */
 	async navigateToAndHandleCookies(acceptType: 'all' | 'essential' = 'all'): Promise<void> {
 		await this.navigateTo('/');
@@ -98,6 +106,7 @@ export abstract class BasePage {
 	}
 
 	/**
+	 * Checks if the cookie bar is present
 	 * Checks if the cookie bar is present
 	 */
 	async isCookieBarPresent(): Promise<boolean> {
@@ -140,12 +149,14 @@ export abstract class BasePage {
 
 	/**
 	 * Checks for the presence of a success flash message
+	 * Checks for the presence of a success flash message
 	 */
 	async hasSuccessFlashMessage(): Promise<boolean> {
 		return await this.successFlashMessage.isVisible();
 	}
 
 	/**
+	 * Checks for the presence of an error flash message
 	 * Checks for the presence of an error flash message
 	 */
 	async hasErrorFlashMessage(): Promise<boolean> {
@@ -154,6 +165,7 @@ export abstract class BasePage {
 
 	/**
 	 * Gets the text of the success flash message
+	 * Gets the text of the success flash message
 	 */
 	async getSuccessFlashMessageText(): Promise<string> {
 		return (await this.successFlashMessage.locator('.flash__message').textContent()) || '';
@@ -161,12 +173,14 @@ export abstract class BasePage {
 
 	/**
 	 * Gets the text of the error flash message
+	 * Gets the text of the error flash message
 	 */
 	async getErrorFlashMessageText(): Promise<string> {
 		return (await this.errorFlashMessage.locator('.flash__message').textContent()) || '';
 	}
 
 	/**
+	 * Closes the flash message if present
 	 * Closes the flash message if present
 	 */
 	async dismissFlashMessage(): Promise<void> {
@@ -178,12 +192,14 @@ export abstract class BasePage {
 
 	/**
 	 * Waits for a success flash message to appear
+	 * Waits for a success flash message to appear
 	 */
 	async waitForSuccessFlashMessage(): Promise<void> {
 		await this.successFlashMessage.waitFor({ state: 'visible' });
 	}
 
 	/**
+	 * Waits for an error flash message to appear
 	 * Waits for an error flash message to appear
 	 */
 	async waitForErrorFlashMessage(): Promise<void> {

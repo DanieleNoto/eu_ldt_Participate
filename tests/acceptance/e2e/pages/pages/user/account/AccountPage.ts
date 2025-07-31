@@ -1,7 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
-import { HeaderComponent } from '../../components/common/HeaderComponent';
-import { VerticalTabsComponent } from '../../components/common/VerticalTabsComponent';
-import { NotificationSettingsPage } from './NotificationSettingsPage';
+import { HeaderComponent } from '../../../components/common/HeaderComponent';
+import { VerticalTabsComponent } from '../../../components/common/VerticalTabsComponent';
+import { NotificationSettingsPage } from '../NotificationSettingsPage';
 
 export class AccountPage {
 	private page: Page;

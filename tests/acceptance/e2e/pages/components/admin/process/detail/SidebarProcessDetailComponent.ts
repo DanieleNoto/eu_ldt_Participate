@@ -9,7 +9,7 @@ export class SidebarProcessDetailComponent {
 
 	// Main sidebar container
 	private readonly sidebarMenu: Locator;
-	private readonly adminSidebarSettings: Locator;
+	
 
 	// Desktop menu
 	private readonly desktopMenu: Locator;
@@ -34,7 +34,6 @@ export class SidebarProcessDetailComponent {
 
 		// Main containers
 		this.sidebarMenu = page.locator('.sidebar-menu');
-		this.adminSidebarSettings = page.locator('#admin-sidebar-menu-settings');
 
 		// Desktop and mobile versions
 		this.desktopMenu = page.locator('.sidebar-menu .hidden.md\\:block ul').first();
@@ -273,17 +272,5 @@ export class SidebarProcessDetailComponent {
 		// Check that mobile menu has proper ARIA attributes
 		await expect(this.mobileDropdownMenu).toHaveAttribute('role', 'menu');
 		await expect(this.mobileDropdownMenu).toHaveAttribute('aria-labelledby');
-	}
-
-	// Debug methods
-	async debugSidebarState(): Promise<void> {
-		console.log('=== Sidebar Debug State ===');
-		console.log('Sidebar visible:', await this.isSidebarVisible());
-		console.log('Desktop menu visible:', await this.isDesktopMenuVisible());
-		console.log('Mobile dropdown visible:', await this.isMobileDropdownVisible());
-		console.log('Mobile menu expanded:', await this.isMobileMenuExpanded());
-		console.log('Current active section:', await this.getCurrentActiveSection());
-		console.log('Current URL:', this.page.url());
-		console.log('===========================');
 	}
 }
