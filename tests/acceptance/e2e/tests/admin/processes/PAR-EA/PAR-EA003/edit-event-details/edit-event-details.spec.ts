@@ -42,6 +42,16 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 	});
 	test.describe('Main Flow', () => {
 		test('should allow admin to edit event details', async () => {
+			// Variables to store updated values for verification
+			let updatedTitle: string;
+			let updatedDescription: string;
+			let updatedMeetingType: 'online' | 'in_person' | 'hybrid';
+			let updatedStartDate: string;
+			let updatedStartTime: string;
+			let updatedEndTime: string;
+			let updatedOnlineMeetingUrl: string;
+			let updatedLocationHints: string;
+			let updatedRegistrationType: 'on_this_platform' | 'registration_disabled' | 'on_different_platform';
 			await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
 				await processAdminPage.navigateToProcesses();
 				await processAdminPage.getPage().waitForLoadState('networkidle');
@@ -93,37 +103,39 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 			});
 			await test.step('9. Admin: Update meeting details: Title, Description, Type (in person or online), Start Time, Duration, Location, Registration type, Online Meeting URL (only for online meeting)', async () => {
 				// Update meeting title
-				const newTitle = `Updated Meeting Title - ${Date.now()}`;
-				await formMeetingPage.fillTitle(newTitle);
+				updatedTitle = `Updated Meeting Title - ${Date.now()}`;
+				await formMeetingPage.fillTitle(updatedTitle);
 
 				// Update meeting description
-				const newDescription = `Updated meeting description with new details - ${Date.now()}`;
-				await formMeetingPage.fillDescription(newDescription);
+				updatedDescription = `Updated meeting description with new details - ${Date.now()}`;
+				await formMeetingPage.fillDescription(updatedDescription);
 
 				// Change meeting type to online
-				await formMeetingPage.selectMeetingType('online');
+				updatedMeetingType = 'online';
+				await formMeetingPage.selectMeetingType(updatedMeetingType);
 
 				// Update start time (set to tomorrow)
 				const tomorrow = new Date();
 				tomorrow.setDate(tomorrow.getDate() + 1);
-				const startDate = tomorrow.toISOString().split('T')[0]; // YYYY-MM-DD
-				const startTime = '14:00'; // 2 PM
-				await formMeetingPage.setStartDateTime(startDate, startTime);
+				updatedStartDate = tomorrow.toISOString().split('T')[0]; // YYYY-MM-DD
+				updatedStartTime = '14:00'; // 2 PM
+				await formMeetingPage.setStartDateTime(updatedStartDate, updatedStartTime);
 
 				// Update end time (3 hours after start)
-				const endTime = '17:00'; // 5 PM
-				await formMeetingPage.setEndDateTime(startDate, endTime);
+				updatedEndTime = '17:00'; // 5 PM
+				await formMeetingPage.setEndDateTime(updatedStartDate, updatedEndTime);
 
 				// Update online meeting URL
-				const meetingUrl = 'https://meet.jit.si/updated-meeting-room';
-				await formMeetingPage.fillOnlineMeetingUrl(meetingUrl);
+				updatedOnlineMeetingUrl = 'https://meet.jit.si/updated-meeting-room';
+				await formMeetingPage.fillOnlineMeetingUrl(updatedOnlineMeetingUrl);
 
 				// Update location hints
-				const locationHints = 'Meeting password: 123456';
-				await formMeetingPage.fillLocationHints(locationHints);
+				updatedLocationHints = 'Meeting password: 123456';
+				await formMeetingPage.fillLocationHints(updatedLocationHints);
 
 				// Set registration type to "on this platform"
-				await formMeetingPage.selectRegistrationType('on_this_platform');
+				updatedRegistrationType = 'on_this_platform';
+				await formMeetingPage.selectRegistrationType(updatedRegistrationType);
 
 				// Enable comments
 				await formMeetingPage.setCommentsEnabled(true);
@@ -152,14 +164,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 					.getPage()
 					.locator('.flash.success, .alert.success, [role="alert"]');
 
-				// Wait for potential success message to appear
-				try {
-					await expect(successMessage).toBeVisible({ timeout: 5000 });
-				} catch {
-					// If no explicit success message, verify we're back to meetings list
-					const isOnMeetingsPage = await meetingsPage.isOnMeetingsPage();
-					expect(isOnMeetingsPage).toBe(true);
-				}
+				await expect(successMessage).toBeVisible();
 			});
 
 			await test.step('Result.', async () => {
@@ -174,6 +179,40 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 				// Meeting should still exist in the list
 				const meetingCount = await meetingsPage.getMeetingCount();
 				expect(meetingCount).toBeGreaterThan(0);
+
+				// Find and edit the meeting we just updated by title to verify changes were saved
+				const meetingIndex = await meetingsPage.findMeetingByTitle(updatedTitle);
+				expect(meetingIndex).toBeGreaterThanOrEqual(0);
+
+				// Click edit on the meeting we just updated
+				await meetingsPage.clickEdit(meetingIndex);
+				await meetingsPage.getPage().waitForLoadState('networkidle');
+
+				// Verify the edit form loads
+				await formMeetingPage.verifyEditMeetingPageVisible();
+
+				// Verify all the updated values are correctly saved in the form
+				const currentTitle = await formMeetingPage.getTitle();
+				expect(currentTitle).toBe(updatedTitle);
+
+				const currentDescription = await formMeetingPage.getDescription();
+				expect(currentDescription).toContain(updatedDescription);
+
+				const currentMeetingType = await formMeetingPage.getMeetingType();
+				expect(currentMeetingType).toBe(updatedMeetingType);
+
+				const currentRegistrationType = await formMeetingPage.getRegistrationType();
+				expect(currentRegistrationType).toBe(updatedRegistrationType);
+
+				const currentOnlineMeetingUrl = await formMeetingPage.getOnlineMeetingUrl();
+				expect(currentOnlineMeetingUrl).toBe(updatedOnlineMeetingUrl);
+
+				const currentLocationHints = await formMeetingPage.getLocationHints();
+				expect(currentLocationHints).toBe(updatedLocationHints);
+
+				// Verify comments are enabled
+				const commentsEnabled = await formMeetingPage.getCommentsEnabledValue();
+				expect(commentsEnabled).toBe(true);
 			});
 		});
 	});

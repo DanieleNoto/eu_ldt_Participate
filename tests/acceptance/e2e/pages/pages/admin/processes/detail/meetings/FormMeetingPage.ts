@@ -13,7 +13,6 @@ import { BaseAdminPage } from '../../../BaseAdminPage';
  * Used for both creating new meetings and editing existing ones.
  */
 export class FormMeetingPage extends BaseAdminPage {
-
 	constructor(page: Page) {
 		super(page);
 	}
@@ -165,7 +164,7 @@ export class FormMeetingPage extends BaseAdminPage {
 	}
 
 	async getDescription(): Promise<string> {
-		return await this.descriptionEditor.textContent() || '';
+		return (await this.descriptionEditor.textContent()) || '';
 	}
 
 	async selectMeetingType(type: 'in_person' | 'online' | 'hybrid') {
@@ -230,7 +229,9 @@ export class FormMeetingPage extends BaseAdminPage {
 		await this.registrationUrlField.fill(url);
 	}
 
-	async selectIframeEmbedType(type: 'none' | 'embed_in_meeting_page' | 'open_in_live_event_page' | 'open_in_new_tab') {
+	async selectIframeEmbedType(
+		type: 'none' | 'embed_in_meeting_page' | 'open_in_live_event_page' | 'open_in_new_tab'
+	) {
 		await this.iframeEmbedTypeSelect.selectOption(type);
 	}
 
@@ -240,19 +241,19 @@ export class FormMeetingPage extends BaseAdminPage {
 
 	// Checkbox interactions
 	async setPrivateMeeting(isPrivate: boolean) {
-		if (isPrivate !== await this.privateMeetingCheckbox.isChecked()) {
+		if (isPrivate !== (await this.privateMeetingCheckbox.isChecked())) {
 			await this.privateMeetingCheckbox.click();
 		}
 	}
 
 	async setTransparent(isTransparent: boolean) {
-		if (isTransparent !== await this.transparentCheckbox.isChecked()) {
+		if (isTransparent !== (await this.transparentCheckbox.isChecked())) {
 			await this.transparentCheckbox.click();
 		}
 	}
 
 	async setCommentsEnabled(enabled: boolean) {
-		if (enabled !== await this.commentsEnabledCheckbox.isChecked()) {
+		if (enabled !== (await this.commentsEnabledCheckbox.isChecked())) {
 			await this.commentsEnabledCheckbox.click();
 			// Wait for conditional fields to show/hide
 			await this.page.waitForTimeout(500);
@@ -277,14 +278,14 @@ export class FormMeetingPage extends BaseAdminPage {
 	// Service management
 	async addService(title: string, description: string) {
 		await this.addServiceButton.click();
-		
+
 		// Find the newly added service form
 		const serviceCards = this.page.locator('.meeting-service');
 		const newServiceCard = serviceCards.last();
-		
+
 		const titleInput = newServiceCard.locator('input[id*="_title_en"]');
 		const descriptionTextarea = newServiceCard.locator('textarea[id*="_description_en"]');
-		
+
 		await titleInput.fill(title);
 		await descriptionTextarea.fill(description);
 	}
@@ -358,21 +359,21 @@ export class FormMeetingPage extends BaseAdminPage {
 	// Validation helpers
 	async hasValidationErrors(): Promise<boolean> {
 		const errorElements = this.page.locator('.form-error[role="alert"]:visible');
-		return await errorElements.count() > 0;
+		return (await errorElements.count()) > 0;
 	}
 
 	async getValidationErrors(): Promise<string[]> {
 		const errorElements = this.page.locator('.form-error[role="alert"]:visible');
 		const errors: string[] = [];
 		const count = await errorElements.count();
-		
+
 		for (let i = 0; i < count; i++) {
 			const errorText = await errorElements.nth(i).textContent();
 			if (errorText) {
 				errors.push(errorText.trim());
 			}
 		}
-		
+
 		return errors;
 	}
 
@@ -384,7 +385,9 @@ export class FormMeetingPage extends BaseAdminPage {
 	// Success message verification
 	async verifyUpdateSuccess() {
 		// Look for success flash message or URL change indicating successful update
-		const successMessage = this.page.locator('.flash.success, .alert-success, [role="alert"]:has-text("successfully")');
+		const successMessage = this.page.locator(
+			'.flash.success, .alert-success, [role="alert"]:has-text("successfully")'
+		);
 		await expect(successMessage.first()).toBeVisible({ timeout: 5000 });
 	}
 
@@ -407,5 +410,34 @@ export class FormMeetingPage extends BaseAdminPage {
 
 	async areCommentsFieldsVisible(): Promise<boolean> {
 		return await this.commentsStartTimeField.isVisible();
+	}
+
+	// Additional getter methods for field values
+	async getRegistrationType(): Promise<string> {
+		return await this.registrationTypeSelect.inputValue();
+	}
+
+	async getOnlineMeetingUrl(): Promise<string> {
+		return await this.onlineMeetingUrlField.inputValue();
+	}
+
+	async getLocationHints(): Promise<string> {
+		return await this.locationHintsField.inputValue();
+	}
+
+	async getStartDateTimeValue(): Promise<{ startDate: string; startTime: string }> {
+		const startDate = await this.startDateInput.inputValue();
+		const startTime = await this.startTimeInput.inputValue();
+		return { startDate, startTime };
+	}
+
+	async getEndDateTimeValue(): Promise<{ endDate: string; endTime: string }> {
+		const endDate = await this.endDateInput.inputValue();
+		const endTime = await this.endTimeInput.inputValue();
+		return { endDate, endTime };
+	}
+
+	async getCommentsEnabledValue(): Promise<boolean> {
+		return await this.commentsEnabledCheckbox.isChecked();
 	}
 }
