@@ -86,11 +86,21 @@ tls.crt
 tls.key
 
 # Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-**/**/admin-state.json
-**/**/user-state.json
-**/**/account-deletion-user-state.json
-**/decidim_application/vendor/**
+frontend/test-results/**
+frontend/playwright-report/**
+frontend/blob-report/**
+frontend/playwright/.cache/**
+backend/test-results/**
+backend/playwright-report/**
+backend/blob-report/**
+backend/playwright/.cache/**
+tests/acceptance/e2e/test-results/**
+tests/acceptance/e2e/playwright-report/**
+tests/acceptance/e2e/blob-report/**
+tests/acceptance/e2e/playwright/.cache/**
+# State files generici Playwright
+**/admin-state.json
+**/user-state.json
+**/account-deletion-user-state.json
+# Decidim upgrade marker
+**/.decidim_upgrade_completed
