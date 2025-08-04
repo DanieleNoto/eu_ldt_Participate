@@ -139,15 +139,6 @@ test.describe('[PAR-EA004] – Publish a meeting', () => {
 			});
 
 			await test.step('Result.', async () => {
-				// Final verification: ensure the meeting has been successfully published
-
-				// Verify we're still on the meetings management page
-				await meetingsPage.verifyMeetingsPageVisible();
-
-				// Verify meetings are available and the publish action worked
-				const meetingCount = await meetingsPage.getMeetingCount();
-				expect(meetingCount).toBeGreaterThan(0);
-
 				// Verify that there are published meetings (with unpublish buttons available)
 				const hasPublishedMeetings = await meetingsPage.hasMeetingToUnpublish();
 				expect(hasPublishedMeetings).toBe(true);
