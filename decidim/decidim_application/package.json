@@ -10,7 +10,8 @@
 		"@fullcalendar/list": "^6.1.18",
 		"@fullcalendar/timegrid": "^6.1.18",
 		"frappe-gantt": "^0.6.1",
-		"graphql": "^16.11.0"
+		"graphql": "^16.11.0",
+		"markdown-it": "^14.1.0"
 	},
 	"version": "0.1.0",
 	"devDependencies": {
@@ -27,7 +28,7 @@
 	],
 	"resolutions": {
 		"uc.micro": "^2.1.0",
-		"markdown-it": "^13.0.0",
+		"markdown-it": "^14.1.0",
 		"punycode": "^2.3.1"
 	}
 }
