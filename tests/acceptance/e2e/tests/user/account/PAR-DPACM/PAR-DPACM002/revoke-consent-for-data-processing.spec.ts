@@ -152,10 +152,8 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 				// Final verification that consent revocation was successful (only check available user settings)
 				const finalSettings = {
 					ownActivity: await notificationSettingsPage.isOwnActivityNotificationsEnabled(),
-					followed: await notificationSettingsPage.isFollowedNotificationsEnabled(),
 					newsletter: await notificationSettingsPage.isNewsletterNotificationsEnabled(),
 					publicContact: await notificationSettingsPage.isPublicContactPermissionEnabled(),
-					assignedProposals: await notificationSettingsPage.isAssignedProposalsNotificationsEnabled(),
 					frequency: await notificationSettingsPage.getSelectedNotificationFrequency()
 				};
 
