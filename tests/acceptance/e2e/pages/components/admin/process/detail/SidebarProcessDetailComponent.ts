@@ -9,7 +9,6 @@ export class SidebarProcessDetailComponent {
 
 	// Main sidebar container
 	private readonly sidebarMenu: Locator;
-	
 
 	// Desktop menu
 	private readonly desktopMenu: Locator;
@@ -25,6 +24,7 @@ export class SidebarProcessDetailComponent {
 	private readonly componentsLink: Locator;
 	private readonly categoriesLink: Locator;
 	private readonly attachmentsLink: Locator;
+	private readonly meetingsLink: Locator;
 	private readonly processAdminsLink: Locator;
 	private readonly moderationsLink: Locator;
 	private readonly privateParticipantsLink: Locator;
@@ -48,7 +48,7 @@ export class SidebarProcessDetailComponent {
 		this.phasesLink = page.locator('a[href*="/steps"]:has-text("Phases")');
 		this.componentsLink = page.locator('a[href*="/components"]:has-text("Components")');
 		this.categoriesLink = page.locator('a[href*="/categories"]:has-text("Categories")');
-		this.attachmentsLink = page.locator('a[href*="/attachments"]:has-text("Attachments")');
+		this.meetingsLink = page.locator('a:has-text("Meetings")');
 		this.processAdminsLink = page.locator('a[href*="/user_roles"]:has-text("Process admins")');
 		this.moderationsLink = page.locator('a[href*="/moderations"]:has-text("Moderations")');
 		this.privateParticipantsLink = page.locator(
@@ -107,6 +107,10 @@ export class SidebarProcessDetailComponent {
 
 	async navigateToComponents(): Promise<void> {
 		await this.componentsLink.first().click();
+		await this.page.waitForLoadState('networkidle');
+	}
+	async navigateToMeetings(): Promise<void> {
+		await this.meetingsLink.first().click();
 		await this.page.waitForLoadState('networkidle');
 	}
 
