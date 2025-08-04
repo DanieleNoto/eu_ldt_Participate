@@ -196,11 +196,13 @@ export class FormMeetingPage extends BaseAdminPage {
 
 	// Date and time methods
 	async setStartDateTime(date: string, time: string) {
+		await this.startDateInput.click();
 		await this.startDateInput.fill(date);
 		await this.startTimeInput.fill(time);
 	}
 
 	async setEndDateTime(date: string, time: string) {
+		await this.endDateInput.click();
 		await this.endDateInput.fill(date);
 		await this.endTimeInput.fill(time);
 	}
@@ -219,7 +221,7 @@ export class FormMeetingPage extends BaseAdminPage {
 		await this.categorySelect.selectOption(categoryValue);
 	}
 
-	async selectRegistrationType(type: 'registration_disabled' | 'on_this_platform' | 'on_different_platform') {
+	async selectRegistrationType(type: 'registration_disabled' | 'on_this_platform' | 'on_different_platform' | '') {
 		await this.registrationTypeSelect.selectOption(type);
 		// Wait for conditional fields to show/hide
 		await this.page.waitForTimeout(500);

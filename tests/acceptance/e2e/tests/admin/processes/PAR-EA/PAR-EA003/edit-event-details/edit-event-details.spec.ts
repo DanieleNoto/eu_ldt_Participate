@@ -217,85 +217,188 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 		});
 	});
 	test.describe('Alternative Flow', () => {
-		test('should handle validation failures. Start at point 11', async () => {
-			// First navigate to edit a meeting to set up the test context
+		test('should handle validation failures for all meeting types', async ({ page }) => {
 			await processAdminPage.navigateToProcesses();
+			await processAdminPage.getPage().waitForLoadState('load');
 			await processAdminPage.editFirstProcess();
+			await processAdminPage.getPage().waitForLoadState('load');
 			await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
+			meetingsPage = new MeetingsPage(page);
+			await meetingsPage.verifyMeetingsPageVisible();
 			await meetingsPage.clickEdit(0);
+			await meetingsPage.getPage().waitForLoadState('networkidle');
 
-			await test.step('11.1. System: Validates the input fields for completeness.', async () => {
-				// Clear required fields to trigger validation errors
-				await formMeetingPage.fillTitle(''); // Clear title (required field)
-
-				// Clear select fields by directly manipulating them
-				await formMeetingPage.getPage().locator('#meeting_type_of_meeting').selectOption('');
-				await formMeetingPage.getPage().locator('#meeting_registration_type').selectOption('');
-			});
-
-			await test.step('11.2. System: Detects missing or invalid fields.', async () => {
-				// Try to submit form with invalid data
-				await formMeetingPage.submitForm();
-
-				// Verify validation errors are displayed
-				const hasValidationErrors = await formMeetingPage.hasValidationErrors();
-				expect(hasValidationErrors).toBe(true);
-
-				// Check for specific error messages on required fields
-				const titleError = formMeetingPage.getPage().locator('#meeting_title_en').locator('~ .form-error');
-				const typeError = formMeetingPage
-					.getPage()
-					.locator('#meeting_type_of_meeting')
-					.locator('~ .form-error');
-				const registrationError = formMeetingPage
-					.getPage()
-					.locator('#meeting_registration_type')
-					.locator('~ .form-error');
-
-				await expect(typeError).toBeVisible();
-				await expect(registrationError).toBeVisible();
-			});
-
-			await test.step('11.3. Admin: Corrects the errors in the input fields.', async () => {
-				// Fill in the required fields with valid data
-				await formMeetingPage.fillTitle('Corrected Meeting Title');
-				await formMeetingPage.selectMeetingType('online');
-				await formMeetingPage.selectRegistrationType('on_this_platform');
-
-				// Add other required fields
-				const tomorrow = new Date();
-				tomorrow.setDate(tomorrow.getDate() + 1);
-				const startDate = tomorrow.toISOString().split('T')[0];
-				await formMeetingPage.setStartDateTime(startDate, '14:00');
-				await formMeetingPage.setEndDateTime(startDate, '17:00');
-			});
-
-			await test.step('11.4. Admin: Attempts to save the event again.', async () => {
-				// Submit the form again with corrected data
-				await formMeetingPage.submitForm();
-				await formMeetingPage.getPage().waitForLoadState('networkidle');
-			});
-
-			await test.step('11.4. System: Revalidates the corrected fields.', async () => {
-				// Verify no validation errors after correction
-				const hasValidationErrors = await formMeetingPage.hasValidationErrors();
-				expect(hasValidationErrors).toBe(false);
-
-				// Verify successful submission (redirected away from form or success message)
-				const currentUrl = await formMeetingPage.getCurrentUrl();
-				expect(currentUrl).toMatch(/\/admin.*\/meetings/);
-			});
-
-			await test.step('Result.', async () => {
-				// Verify the meeting was successfully saved after error correction
-				if (!(await meetingsPage.isOnMeetingsPage())) {
-					await meetingsPage.navigateToMeetings();
+			const meetingTypes = [
+				{
+					type: 'online',
+					requiredFields: [
+						{
+							name: 'title',
+							selector: '#meeting_title_en',
+							fill: async v => await formMeetingPage.fillTitle(v),
+							valid: 'Valid Title'
+						},
+						{
+							name: 'type_of_meeting',
+							selector: '#meeting_type_of_meeting',
+							fill: async v => await formMeetingPage.selectMeetingType(v),
+							valid: 'online'
+						},
+						{
+							name: 'registration_type',
+							selector: '#meeting_registration_type',
+							fill: async v => await formMeetingPage.selectRegistrationType(v),
+							valid: 'on_this_platform'
+						}
+					]
+				},
+				{
+					type: 'in_person',
+					requiredFields: [
+						{
+							name: 'title',
+							selector: '#meeting_title_en',
+							fill: async v => await formMeetingPage.fillTitle(v),
+							valid: 'Valid Title'
+						},
+						{
+							name: 'type_of_meeting',
+							selector: '#meeting_type_of_meeting',
+							fill: async v => await formMeetingPage.selectMeetingType(v),
+							valid: 'in_person'
+						},
+						{
+							name: 'registration_type',
+							selector: '#meeting_registration_type',
+							fill: async v => await formMeetingPage.selectRegistrationType(v),
+							valid: 'on_this_platform'
+						},
+						{
+							name: 'address',
+							selector: '#meeting_address',
+							fill: async v => await formMeetingPage.fillAddress(v),
+							valid: 'Test Address'
+						},
+						{
+							name: 'location_en',
+							selector: '#meeting_location_en',
+							fill: async v => await formMeetingPage.fillLocation(v),
+							valid: 'Test Location'
+						}
+					]
+				},
+				{
+					type: 'hybrid',
+					requiredFields: [
+						{
+							name: 'title',
+							selector: '#meeting_title_en',
+							fill: async v => await formMeetingPage.fillTitle(v),
+							valid: 'Valid Title'
+						},
+						{
+							name: 'type_of_meeting',
+							selector: '#meeting_type_of_meeting',
+							fill: async v => await formMeetingPage.selectMeetingType(v),
+							valid: 'hybrid'
+						},
+						{
+							name: 'registration_type',
+							selector: '#meeting_registration_type',
+							fill: async v => await formMeetingPage.selectRegistrationType(v),
+							valid: 'on_this_platform'
+						},
+						{
+							name: 'address',
+							selector: '#meeting_address',
+							fill: async v => await formMeetingPage.fillAddress(v),
+							valid: 'Test Address'
+						},
+						{
+							name: 'location_en',
+							selector: '#meeting_location_en',
+							fill: async v => await formMeetingPage.fillLocation(v),
+							valid: 'Test Location'
+						}
+					]
 				}
+			];
 
-				await meetingsPage.waitForMeetingsLoad();
-				const meetingCount = await meetingsPage.getMeetingCount();
-				expect(meetingCount).toBeGreaterThan(0);
-			});
+			// getValidDate is now imported from utils
+
+			for (const { type, requiredFields } of meetingTypes) {
+				await test.step(`Alternative flow for meeting type: ${type}`, async () => {
+					// First, fill all required fields with valid values
+					for (const field of requiredFields) {
+						await field.fill(field.valid);
+					}
+					// Use TypeScript literal values for meeting type
+					if (type === 'online') {
+						await formMeetingPage.selectMeetingType('online');
+					} else if (type === 'in_person') {
+						await formMeetingPage.selectMeetingType('in_person');
+					} else {
+						await formMeetingPage.selectMeetingType('hybrid');
+					}
+					await formMeetingPage.selectRegistrationType('on_this_platform');
+
+					for (const field of requiredFields) {
+						// Clear only the current field
+						await field.fill('');
+						await formMeetingPage.submitForm();
+						const page = formMeetingPage.getPage();
+						// Look for a visible error next to or inside the field label
+						const errorSpanVisible = page.locator(`${field.selector} ~ span.form-error.is-visible`);
+						const errorSpanGeneric = page.locator(`${field.selector} ~ span.form-error`);
+						const errorSmallVisible = page.locator(
+							`label[for="${field.selector.replace('#', '')}"] small.form-error.is-visible`
+						);
+						const errorSmallGeneric = page.locator(
+							`label[for="${field.selector.replace('#', '')}"] small.form-error`
+						);
+						let errorFound = false;
+						if ((await errorSpanVisible.count()) > 0 && (await errorSpanVisible.isVisible())) {
+							await expect(errorSpanVisible).toBeVisible();
+							errorFound = true;
+						} else if ((await errorSpanGeneric.count()) > 0 && (await errorSpanGeneric.isVisible())) {
+							await expect(errorSpanGeneric).toBeVisible();
+							errorFound = true;
+						} else if ((await errorSmallVisible.count()) > 0 && (await errorSmallVisible.isVisible())) {
+							await expect(errorSmallVisible).toBeVisible();
+							errorFound = true;
+						} else if ((await errorSmallGeneric.count()) > 0 && (await errorSmallGeneric.isVisible())) {
+							await expect(errorSmallGeneric).toBeVisible();
+							errorFound = true;
+						}
+						expect(errorFound).toBe(true);
+						// Fix the field
+						await field.fill(field.valid);
+						await formMeetingPage.submitForm();
+						// If the page returned to the meetings list, reopen the meeting
+						const currentUrl = await formMeetingPage.getCurrentUrl();
+						if (/\/admin.*\/meetings/.test(currentUrl)) {
+							await meetingsPage.clickEdit(0);
+							await formMeetingPage.getPage().waitForLoadState('networkidle');
+						}
+						// After fixing, no error should be visible
+						if ((await errorSpanVisible.count()) > 0) {
+							await expect(errorSpanVisible).not.toBeVisible();
+						}
+						if ((await errorSpanGeneric.count()) > 0) {
+							await expect(errorSpanGeneric).not.toBeVisible();
+						}
+						if ((await errorSmallVisible.count()) > 0) {
+							await expect(errorSmallVisible).not.toBeVisible();
+						}
+						if ((await errorSmallGeneric.count()) > 0) {
+							await expect(errorSmallGeneric).not.toBeVisible();
+						}
+					}
+					// At the end, all fields should be valid
+					const hasValidationErrors = await formMeetingPage.hasValidationErrors();
+					expect(hasValidationErrors).toBe(false);
+				});
+			}
 		});
 	});
 });
