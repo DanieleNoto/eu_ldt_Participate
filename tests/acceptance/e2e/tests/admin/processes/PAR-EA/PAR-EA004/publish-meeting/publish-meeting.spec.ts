@@ -112,16 +112,29 @@ test.describe('[PAR-EA004] – Publish a meeting', () => {
 				const meetingCount = await meetingsPage.getMeetingCount();
 				expect(meetingCount).toBeGreaterThan(0);
 
-				// The meeting should now show an "unpublish" button instead of "publish"
-				// (indicating it's now published)
-				const hasUnpublishButton = await meetingsPage.hasMeetingToUnpublish();
-				expect(hasUnpublishButton).toBe(true);
+				// Get the title of the meeting just published
+				const publishedMeetingTitle = await meetingsPage.getMeetingTitle(0);
+				// Find the index of the meeting with this title
+				let publishedIndex = -1;
+				const totalMeetings = await meetingsPage.getMeetingCount();
+				for (let i = 0; i < totalMeetings; i++) {
+					const title = await meetingsPage.getMeetingTitle(i);
+					if (title.trim() === publishedMeetingTitle.trim()) {
+						publishedIndex = i;
+						break;
+					}
+				}
+				expect(publishedIndex).toBeGreaterThanOrEqual(0);
+				// The meeting should now show an "unpublish" button for this specific meeting
+				await meetingsPage.verifyUnpublishButtonVisible(publishedIndex);
 			});
 			await test.step('9. System: Notifies the City Administrator that the meeting has been successfully published.', async () => {
 				// Look for success notification or flash message
 				const successMessage = meetingsPage
 					.getPage()
-					.locator('.flash.success, .alert-success, [role="alert"]:has-text(/published|success/i)');
+					.locator(
+						'.flash.success, .alert-success, [role="alert"]:has-text("Meeting successfully published.")'
+					);
 
 				await expect(successMessage.first()).toBeVisible();
 			});
