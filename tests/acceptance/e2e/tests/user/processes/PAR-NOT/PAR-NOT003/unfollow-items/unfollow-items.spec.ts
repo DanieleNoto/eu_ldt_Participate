@@ -90,7 +90,6 @@ test.describe('[PAR-NOT003] – Unfollow items', () => {
 
 			await test.step('3. User: Clicks the "Stop following" button to follow the selected item, space, or participant.', async () => {
 				let buttonText = await profilePage.followButton.textContent();
-				console.log(buttonText);
 				if (buttonText.includes('Follow')) {
 					// If already following, we might want to unfollow
 					await profilePage.clickFollowButton();

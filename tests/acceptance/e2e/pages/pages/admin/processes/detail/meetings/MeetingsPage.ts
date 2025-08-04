@@ -157,8 +157,72 @@ export class MeetingsPage extends BaseAdminPage {
 
 	async getMeetingTitle(index: number): Promise<string> {
 		const row = this.tableRows.nth(index);
-		const titleCell = row.locator('td').first();
-		return (await titleCell.textContent()) || '';
+		// The title is always in the second column (index 1)
+		const titleCell = row.locator('td').nth(1);
+		const titleText = await titleCell.textContent();
+		return titleText?.trim() || '';
+	}
+
+	async findMeetingByTitle(title: string): Promise<number> {
+		const meetingCount = await this.getMeetingCount();
+		let editableIndex = 0; // Counter for editable meetings only
+
+		for (let i = 0; i < meetingCount; i++) {
+			const row = this.tableRows.nth(i);
+			const titleCell = row.locator('td').nth(1);
+
+			// Check if this meeting is editable (has a link in the title cell)
+			const titleLink = titleCell.locator('a');
+			const hasLink = (await titleLink.count()) > 0;
+
+			if (hasLink) {
+				// For editable meetings, get the link text
+				const linkText = await titleLink.textContent();
+				if (linkText && linkText.includes(title)) {
+					return editableIndex; // Return the relative index among editable meetings
+				}
+				editableIndex++; // Increment counter for editable meetings
+			}
+			// Skip non-editable meetings in the count
+		}
+		return -1; // Not found
+	} // Helper method to check if a meeting is editable (has link in title)
+	async isMeetingEditable(index: number): Promise<boolean> {
+		const row = this.tableRows.nth(index);
+		const titleCell = row.locator('td').nth(1);
+		const titleLink = titleCell.locator('a');
+		return (await titleLink.count()) > 0;
+	}
+
+	// Debug method to understand table structure
+	async debugTableStructure(rowIndex: number = 0): Promise<void> {
+		const row = this.tableRows.nth(rowIndex);
+		const cells = row.locator('td');
+		const cellCount = await cells.count();
+
+		console.log(`Table row ${rowIndex} has ${cellCount} cells:`);
+		for (let i = 0; i < cellCount; i++) {
+			const cell = cells.nth(i);
+			const cellContent = await cell.textContent();
+			const hasLinks = await cell.locator('a').count();
+			const cellClass = (await cell.getAttribute('class')) || '';
+
+			console.log(`  Cell ${i}: "${cellContent?.trim()}" (${hasLinks} links, class: "${cellClass}")`);
+
+			// Show links in this cell if any
+			if (hasLinks > 0) {
+				for (let j = 0; j < hasLinks; j++) {
+					const link = cell.locator('a').nth(j);
+					const linkText = await link.textContent();
+					const linkTitle = (await link.getAttribute('title')) || '';
+					console.log(`    Link ${j}: "${linkText?.trim()}" (title: "${linkTitle}")`);
+				}
+			}
+		}
+
+		// Show if this meeting is editable
+		const isEditable = await this.isMeetingEditable(rowIndex);
+		console.log(`  Meeting ${rowIndex} is ${isEditable ? 'EDITABLE' : 'NOT editable'}`);
 	}
 
 	async getMeetingStatus(index: number): Promise<string> {

@@ -1,6 +1,4 @@
 import { HomePage } from '@pages/pages/public/HomePage';
-import { ConversationDetailPage } from '@pages/pages/user/conversations/ConversationDetailPage';
-import { ConversationsPage } from '@pages/pages/user/conversations/ConversationsPage';
 import { ProfilePage } from '@pages/pages/user/ProfilePage';
 import test, { expect } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
@@ -28,14 +26,10 @@ test.describe('[PAR-NOT002] – Follow items', () => {
 
 	let homePage: HomePage;
 	let profilePage: ProfilePage;
-	let conversationsPage: ConversationsPage;
-	let conversationDetailPage: ConversationDetailPage;
 
 	test.beforeEach(async ({ page }) => {
 		homePage = new HomePage(page);
 		profilePage = new ProfilePage(page);
-		conversationsPage = new ConversationsPage(page);
-		conversationDetailPage = new ConversationDetailPage(page);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {
@@ -95,7 +89,7 @@ test.describe('[PAR-NOT002] – Follow items', () => {
 
 			await test.step('3. User: Clicks the "Follow" button to follow the selected item, space, or participant.', async () => {
 				let buttonText = await profilePage.followButton.textContent();
-				console.log(buttonText);
+
 				if (buttonText.includes('Stop following')) {
 					// If already following, we might want to unfollow
 					await profilePage.clickUnfollowButton();
