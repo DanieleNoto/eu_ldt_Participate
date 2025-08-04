@@ -31,11 +31,11 @@ export class MeetingsPage extends BaseAdminPage {
 	}
 
 	private get publishButtons() {
-		return this.page.locator('a[title="Publish"]');
+		return this.page.locator('a[title="Publish"]:visible');
 	}
 
 	private get unpublishButtons() {
-		return this.page.locator('a[title="Unpublish"]');
+		return this.page.locator('a[title="Unpublish"]:visible');
 	}
 
 	private get editButtons() {
@@ -83,21 +83,30 @@ export class MeetingsPage extends BaseAdminPage {
 		const publishButton = this.publishButtons.nth(meetingIndex);
 		await publishButton.click();
 		// Wait for the page to refresh or update after publish action
-		await this.page.waitForLoadState('load');
+		await this.waitForLoadState('load');
 	}
 
 	async clickFirstPublish() {
-		const firstPublishButton = this.publishButtons.first();
+		const firstPublishButton = this.page.locator('a[title="Publish"]:visible').first();
 		await firstPublishButton.click();
 		// Wait for the page to refresh or update after publish action
-		await this.page.waitForLoadState('load');
+		await this.waitForLoadState('load');
 	}
 
 	async clickUnpublish(meetingIndex: number = 0) {
 		const unpublishButton = this.unpublishButtons.nth(meetingIndex);
 		await unpublishButton.click();
 		// Wait for the page to refresh or update after unpublish action
-		await this.page.waitForLoadState('load');
+		await this.waitForLoadState('load');
+	}
+	async clickFirstUnpublish() {
+		const unpublishButton = this.page.locator('a[title="Unpublish"]:visible').first();
+		await unpublishButton.click();
+		// Wait for the page to refresh or update after unpublish action
+		await this.waitForLoadState('load');
+		const okButton = this.page.locator('button[data-confirm-ok]');
+		await okButton.click();
+		await this.waitForLoadState('load');
 	}
 
 	// Verification methods
@@ -224,7 +233,7 @@ export class MeetingsPage extends BaseAdminPage {
 
 	async waitForMeetingsLoad() {
 		await this.meetingsTable.waitFor({ state: 'visible' });
-		await this.page.waitForLoadState('load'); // Additional wait for content to load
+		await this.waitForLoadState('load'); // Additional wait for content to load
 	}
 
 	async verifyPageTitle() {
