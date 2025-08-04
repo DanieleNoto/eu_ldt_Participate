@@ -391,7 +391,7 @@ Decidim.configure do |config|
   # Allow webpack dev server in development
   if Rails.env.development?
     config.content_security_policies_extra["script-src"] += %w(http://localhost:3035)
-    config.content_security_policies_extra["style-src"] += %w(http://localhost:3035) 
+    config.content_security_policies_extra["style-src"] += %w(http://localhost:3035)
     config.content_security_policies_extra["connect-src"] += %w(http://localhost:3035 ws://localhost:3035)
     config.content_security_policies_extra["font-src"] += %w(http://localhost:3035)
   end
