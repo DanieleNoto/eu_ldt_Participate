@@ -123,19 +123,7 @@ test.describe('[PAR-EA004] – Publish a meeting', () => {
 					.getPage()
 					.locator('.flash.success, .alert-success, [role="alert"]:has-text(/published|success/i)');
 
-				try {
-					// Wait for potential success message to appear
-					await expect(successMessage.first()).toBeVisible();
-				} catch {
-					// If no explicit success message, verify the action completed successfully
-					// by checking that the meetings page is still functioning correctly
-					const isOnMeetingsPage = await meetingsPage.isOnMeetingsPage();
-					expect(isOnMeetingsPage).toBe(true);
-
-					// And that we have meetings with publish/unpublish actions available
-					const meetingCount = await meetingsPage.getMeetingCount();
-					expect(meetingCount).toBeGreaterThan(0);
-				}
+				await expect(successMessage.first()).toBeVisible();
 			});
 
 			await test.step('Result.', async () => {
