@@ -35,6 +35,7 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 
 	test.describe('Main Flow', () => {
 		test('should allow citizen to revoke consent for data processing activities', async ({ page }) => {
+			let notificationSettings;
 			await test.step('1. USER: Navigates to their "Notification Settings" section within their profile.', async () => {
 				// Navigate to account page first
 				await homePage.header.navigateToMyAccount();
@@ -60,7 +61,7 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 				await notificationSettingsPage.verifyFrequencyRadioButtonsPresent();
 
 				// Get and display current notification settings (only for available user toggles)
-				const currentSettings = {
+				notificationSettings = {
 					ownActivity: await notificationSettingsPage.isOwnActivityNotificationsEnabled(),
 					followed: await notificationSettingsPage.isFollowedNotificationsEnabled(),
 					newsletter: await notificationSettingsPage.isNewsletterNotificationsEnabled(),
@@ -68,30 +69,22 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 					assignedProposals: await notificationSettingsPage.isAssignedProposalsNotificationsEnabled(),
 					frequency: await notificationSettingsPage.getSelectedNotificationFrequency()
 				};
-				console.log('Current notification settings:', currentSettings);
+				console.log('Current notification settings:', notificationSettings);
 
 				console.log('All consent options are displayed correctly');
 			});
 
 			await test.step('3. USER: Reviews the list of active consents', async () => {
-				// Get current notification settings for review (only available user settings)
-				const settings = {
-					ownActivity: await notificationSettingsPage.isOwnActivityNotificationsEnabled(),
-					followed: await notificationSettingsPage.isFollowedNotificationsEnabled(),
-					newsletter: await notificationSettingsPage.isNewsletterNotificationsEnabled(),
-					publicContact: await notificationSettingsPage.isPublicContactPermissionEnabled(),
-					assignedProposals: await notificationSettingsPage.isAssignedProposalsNotificationsEnabled(),
-					frequency: await notificationSettingsPage.getSelectedNotificationFrequency()
-				};
-				console.log('User reviews current consent settings:', settings);
+				// Use the same notificationSettings variable from previous step
+				console.log('User reviews current consent settings:', notificationSettings);
 
 				// Verify that settings can be read
-				expect(typeof settings.ownActivity).toBe('boolean');
-				expect(typeof settings.followed).toBe('boolean');
-				expect(typeof settings.newsletter).toBe('boolean');
-				expect(typeof settings.publicContact).toBe('boolean');
-				expect(typeof settings.assignedProposals).toBe('boolean');
-				expect(settings.frequency).not.toBe('');
+				expect(typeof notificationSettings.ownActivity).toBe('boolean');
+				expect(typeof notificationSettings.followed).toBe('boolean');
+				expect(typeof notificationSettings.newsletter).toBe('boolean');
+				expect(typeof notificationSettings.publicContact).toBe('boolean');
+				expect(typeof notificationSettings.assignedProposals).toBe('boolean');
+				expect(notificationSettings.frequency).not.toBe('');
 
 				console.log('User successfully reviewed all consent settings');
 			});
@@ -133,10 +126,8 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 				// Verify that the changes were saved successfully (only check available user settings)
 				const updatedSettings = {
 					ownActivity: await notificationSettingsPage.isOwnActivityNotificationsEnabled(),
-					followed: await notificationSettingsPage.isFollowedNotificationsEnabled(),
 					newsletter: await notificationSettingsPage.isNewsletterNotificationsEnabled(),
 					publicContact: await notificationSettingsPage.isPublicContactPermissionEnabled(),
-					assignedProposals: await notificationSettingsPage.isAssignedProposalsNotificationsEnabled(),
 					frequency: await notificationSettingsPage.getSelectedNotificationFrequency()
 				};
 
