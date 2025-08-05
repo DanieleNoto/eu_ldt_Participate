@@ -38,7 +38,7 @@ WORKDIR /code
 RUN mkdir -p tmp/pids public/uploads log
 
 # Copy package files FIRST for better Docker layer caching
-COPY package.json yarn.lock* ./
+COPY package.json package-lock.json ./
 COPY Gemfile Gemfile.lock ./
 
 # Install Ruby gems (cached layer)
@@ -47,16 +47,13 @@ RUN bundle config set --local deployment 'false' && \
   bundle install
 
 # Install Node.js dependencies (cached layer)
-RUN yarn install --frozen-lockfile --network-timeout 100000
+RUN npm ci 
 
 # NOW copy the application code
 COPY . .
 
 # Copy entrypoint and fix line endings + permissions
 COPY docker-entrypoint.sh /code/docker-entrypoint.sh
-RUN sed -i 's/\r$//' /code/docker-entrypoint.sh && \
-  chmod +x /code/docker-entrypoint.sh && \
-  chmod +x /bin/*
 
 # Expose port
 EXPOSE 3000

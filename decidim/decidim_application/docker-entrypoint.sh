@@ -1,7 +1,6 @@
 # Check if we need to update dependencies (only if files changed)
 echo "--- Checking for dependency updates ---"
 BUNDLE_UPDATED=false
-YARN_UPDATED=false
 
 # Check if Gemfile changed
 if [ ! -f vendor/bundle/.bundle-timestamp ] || [ Gemfile -nt vendor/bundle/.bundle-timestamp ] || [ Gemfile.lock -nt vendor/bundle/.bundle-timestamp ]; then
@@ -26,16 +25,6 @@ until redis-cli -h redis -p 6379 ping; do
 done
 echo "--- Redis is ready ---"
 
-# Check if package.json changed
-if [ ! -f node_modules/.yarn-timestamp ] || [ package.json -nt node_modules/.yarn-timestamp ] || [ yarn.lock -nt node_modules/.yarn-timestamp ]; then
-  echo "--- Package.json changed, updating Node.js packages ---"
-  yarn install --frozen-lockfile
-  mkdir -p node_modules
-  touch node_modules/.yarn-timestamp
-  YARN_UPDATED=true
-else
-  echo "--- Node.js packages up to date ---"
-fi
 
 # Database setup
 if [ "$RAILS_ENV" = "development" ]; then
@@ -72,7 +61,7 @@ if [ "$RAILS_ENV" = "development" ]; then
   echo "--- Assets will be served by shakapacker-dev-server ---"
 
   # Only run data preparation if dependencies were updated or FORCE_DATA_SETUP is set
-  if { [ "$BUNDLE_UPDATED" = "true" ] || [ "$YARN_UPDATED" = "true" ] || [ "$FORCE_DATA_SETUP" = "true" ] || [ ! -f tmp/.data-prepared ]; } && [ "$FORCE_DB_RESET" = "true" ]; then
+  if { [ "$BUNDLE_UPDATED" = "true" ]  || [ "$FORCE_DATA_SETUP" = "true" ] || [ ! -f tmp/.data-prepared ]; } && [ "$FORCE_DB_RESET" = "true" ]; then
     echo "--- Setting up default data ---"
     mkdir -p tmp
     bin/rails runner prepare-db-for-tests.rb \
