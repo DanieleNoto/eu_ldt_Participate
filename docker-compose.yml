@@ -40,7 +40,7 @@ services:
             db:
                 condition: service_started
         healthcheck:
-            test: ['CMD-SHELL', 'nc -z 0.0.0.0 3000 || exit 1']
+            test: ['CMD', 'test', '-d', 'node_modules']
             interval: 10s
             timeout: 5s
             retries: 30
