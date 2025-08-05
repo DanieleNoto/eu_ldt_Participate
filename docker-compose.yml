@@ -22,7 +22,7 @@ services:
             - SHAKAPACKER_DEV_SERVER_PORT=3035
             - SHAKAPACKER_DEV_SERVER_ENABLED=true
             # CSP Configuration for development
-            - RAILS_CSP_DEVELOPMENT=false
+            - RAILS_CSP_DEVELOPMENT=true
             # Uncomment these only when you need to force reset/setup
             # - FORCE_DB_RESET=true
             # - FORCE_DATA_SETUP=true
@@ -71,15 +71,15 @@ services:
             retries: 5
     shakapacker:
         build: ./decidim/decidim_application/
-        command: bash /code/shakapacker-entrypoint.sh
+        command: bash -c "cd /code && bundle install && yarn install && bundle exec bin/shakapacker-dev-server"
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
             - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
         depends_on:
-            decidim:
-                condition: service_healthy
+            - db
+            - redis
         networks:
             - private
         ports:

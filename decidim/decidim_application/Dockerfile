@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y nodejs
 WORKDIR /code
 
 # Copy package files FIRST for better Docker layer caching
-COPY package.json package-lock.json* ./
+COPY package.json ./
 COPY Gemfile ./
 
 # Install Ruby gems (cached layer)
@@ -44,7 +44,7 @@ RUN bundle config set --local deployment 'false' && \
   bundle install
 
 # Install Node.js dependencies (cached layer)
-RUN npm ci --network-timeout 100000
+RUN yarn install --network-timeout 100000
 
 # NOW copy the application code
 COPY . .

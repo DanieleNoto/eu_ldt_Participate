@@ -71,8 +71,10 @@ fi
 
 # Asset compilation and data setup
 if [ "$RAILS_ENV" = "development" ]; then
-  echo "--- Development environment detected, skipping asset precompilation ---"
-  echo "--- Assets will be served by shakapacker-dev-server ---"
+  echo "--- Development environment detected, compiling assets ---"
+  # Compile assets to ensure they're available even if shakapacker-dev-server isn't responsive
+  bin/rails shakapacker:compile
+  echo "--- Assets will also be served by shakapacker-dev-server ---"
 
   # Only run data preparation if dependencies were updated or FORCE_DATA_SETUP is set
   if { [ "$BUNDLE_UPDATED" = "true" ]  || [ "$FORCE_DATA_SETUP" = "true" ] || [ ! -f tmp/.data-prepared ]; } && [ "$FORCE_DB_RESET" = "true" ]; then
