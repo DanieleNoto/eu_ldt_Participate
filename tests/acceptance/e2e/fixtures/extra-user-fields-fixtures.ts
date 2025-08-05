@@ -1,4 +1,4 @@
-import { UserFieldsData } from '../pages/pages/user/UserExtraFieldsPage';
+import { UserFieldsData } from '../pages/pages/user/account/UserExtraFieldsPage';
 
 // Test data generators for different scenarios
 export class ExtraUserFieldsTestDataGenerator {

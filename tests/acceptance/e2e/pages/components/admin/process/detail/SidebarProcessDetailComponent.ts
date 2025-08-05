@@ -9,7 +9,6 @@ export class SidebarProcessDetailComponent {
 
 	// Main sidebar container
 	private readonly sidebarMenu: Locator;
-	private readonly adminSidebarSettings: Locator;
 
 	// Desktop menu
 	private readonly desktopMenu: Locator;
@@ -25,6 +24,7 @@ export class SidebarProcessDetailComponent {
 	private readonly componentsLink: Locator;
 	private readonly categoriesLink: Locator;
 	private readonly attachmentsLink: Locator;
+	private readonly meetingsLink: Locator;
 	private readonly processAdminsLink: Locator;
 	private readonly moderationsLink: Locator;
 	private readonly privateParticipantsLink: Locator;
@@ -34,7 +34,6 @@ export class SidebarProcessDetailComponent {
 
 		// Main containers
 		this.sidebarMenu = page.locator('.sidebar-menu');
-		this.adminSidebarSettings = page.locator('#admin-sidebar-menu-settings');
 
 		// Desktop and mobile versions
 		this.desktopMenu = page.locator('.sidebar-menu .hidden.md\\:block ul').first();
@@ -49,7 +48,7 @@ export class SidebarProcessDetailComponent {
 		this.phasesLink = page.locator('a[href*="/steps"]:has-text("Phases")');
 		this.componentsLink = page.locator('a[href*="/components"]:has-text("Components")');
 		this.categoriesLink = page.locator('a[href*="/categories"]:has-text("Categories")');
-		this.attachmentsLink = page.locator('a[href*="/attachments"]:has-text("Attachments")');
+		this.meetingsLink = page.locator('a:has-text("Meetings")');
 		this.processAdminsLink = page.locator('a[href*="/user_roles"]:has-text("Process admins")');
 		this.moderationsLink = page.locator('a[href*="/moderations"]:has-text("Moderations")');
 		this.privateParticipantsLink = page.locator(
@@ -108,6 +107,10 @@ export class SidebarProcessDetailComponent {
 
 	async navigateToComponents(): Promise<void> {
 		await this.componentsLink.first().click();
+		await this.page.waitForLoadState('networkidle');
+	}
+	async navigateToMeetings(): Promise<void> {
+		await this.meetingsLink.first().click();
 		await this.page.waitForLoadState('networkidle');
 	}
 
@@ -273,17 +276,5 @@ export class SidebarProcessDetailComponent {
 		// Check that mobile menu has proper ARIA attributes
 		await expect(this.mobileDropdownMenu).toHaveAttribute('role', 'menu');
 		await expect(this.mobileDropdownMenu).toHaveAttribute('aria-labelledby');
-	}
-
-	// Debug methods
-	async debugSidebarState(): Promise<void> {
-		console.log('=== Sidebar Debug State ===');
-		console.log('Sidebar visible:', await this.isSidebarVisible());
-		console.log('Desktop menu visible:', await this.isDesktopMenuVisible());
-		console.log('Mobile dropdown visible:', await this.isMobileDropdownVisible());
-		console.log('Mobile menu expanded:', await this.isMobileMenuExpanded());
-		console.log('Current active section:', await this.getCurrentActiveSection());
-		console.log('Current URL:', this.page.url());
-		console.log('===========================');
 	}
 }

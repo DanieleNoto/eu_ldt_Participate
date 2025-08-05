@@ -4,13 +4,8 @@ import path = require('path');
 export const STORAGE_STATE = {
 	USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/user-state.json'),
 	ADMIN: path.resolve(__dirname, '../../../acceptance/e2e/auth/admin-state.json'),
-	ACCOUNT_DELETION_USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/account-deletion-user-state.json')
-} as const;
-
-export const TEST_TIMEOUTS = {
-	DEFAULT: 30000,
-	LONG: 60000,
-	NAVIGATION: 120000
+	ACCOUNT_DELETION_USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/account-deletion-user-state.json'),
+	USER_WITHOUT_MESSAGES: path.resolve(__dirname, '../../../acceptance/e2e/auth/user-without-messages-state.json')
 } as const;
 
 export const TEST_SELECTORS = {
@@ -59,6 +54,12 @@ export const TEST_SELECTORS = {
 	SUCCESS_MESSAGE: '[data-testid="success-message"]',
 	ERROR_MESSAGE: '[data-testid="error-message"]',
 	ADMIN_BAR: '#admin-bar'
+} as const;
+
+export const TEST_ASSETS = {
+	TEST_IMAGE: path.resolve(__dirname, '../test-assets/test.jpg'),
+	TEST_CSV: path.resolve(__dirname, '../test-assets/private-participants.csv'),
+	NOT_VALID_FILE: path.resolve(__dirname, '../test-assets/not.valid.file')
 } as const;
 
 export const BASE_URLS = {

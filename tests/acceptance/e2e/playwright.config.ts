@@ -63,12 +63,17 @@ export default defineConfig({
 			teardown: 'admin-cleanup'
 		},
 
-		// Cleanup project
-		// {
-		//     name: 'user-cleanup',
-		//     testMatch: 'auth/user-auth.cleanup.ts'
-		// },
-		// Cleanup project
+		// Cleanup user project
+		{
+			name: 'user-cleanup',
+			testMatch: '../**/auth/user-auth.cleanup.ts'
+		},
+		// Cleanup user without messages project
+		{
+			name: 'user-without-messages-cleanup',
+			testMatch: 'tests/**/auth/user-without-messages-auth.cleanup.ts'
+		},
+		// Cleanup admin project
 		{
 			name: 'admin-cleanup',
 			testMatch: 'auth/admin-auth.cleanup.ts'
@@ -128,8 +133,14 @@ export default defineConfig({
 				'**/tests/user/**/*.spec.ts',
 				'../admin/**/*.spec.ts',
 				'tests/admin/**/*.spec.ts',
-				'**/tests/admin/**/*.spec.ts'
+				'**/tests/admin/**/*.spec.ts',
+				'tests/user-to-delete/**/*.spec.ts'
 			]
+		},
+		// User without messages tests
+		{
+			name: 'user-without-messages-tests',
+			testMatch: 'tests/user-without-messages/**/*.spec.ts'
 		}
 
 		// {

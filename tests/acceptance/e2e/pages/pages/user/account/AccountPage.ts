@@ -1,7 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
-import { LocalizationUtils } from '../../../utils/localization.utils';
-import { HeaderComponent } from '../../components/common/HeaderComponent';
-import { VerticalTabsComponent } from '../../components/common/VerticalTabsComponent';
+import { LocalizationUtils } from '../../../../utils/localization.utils';
+import { HeaderComponent } from '../../../components/common/HeaderComponent';
+import { VerticalTabsComponent } from '../../../components/common/VerticalTabsComponent';
 
 export class AccountPage {
 	private page: Page;

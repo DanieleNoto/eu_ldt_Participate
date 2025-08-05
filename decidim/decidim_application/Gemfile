@@ -8,6 +8,7 @@ ruby RUBY_VERSION
 DECIDIM_VERSION = "0.30.1"
 
 gem "decidim", DECIDIM_VERSION
+gem "decidim-calendar", git: "https://github.com/decidim-ice/decidim-module-calendar"
 gem "decidim-conferences", DECIDIM_VERSION
 gem "decidim-design", DECIDIM_VERSION
 gem "decidim-initiatives", DECIDIM_VERSION
