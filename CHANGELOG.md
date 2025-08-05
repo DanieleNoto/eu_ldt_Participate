@@ -1,6 +1,7 @@
 # Changelog from D03.04.Jul to HEAD
- 
+
 ## feat
+
 - general improvements
 - added status check change
 - added missing throw error
@@ -52,9 +53,11 @@
 - added missing tests for terms of use
 
 ## PR Merge
+
 - [PAR-NOT005] ��� Manage notification settings- [PAR-NOT004] ��� Mark notifications as reads- [PAR-NOT001] ��� View notifications- [PAR-EP007] ��� Add in personal calendar- [PAR-EP006] ��� View calendar- [PAR-EP003] ��� Share events- [PAR-EP002] ��� View meeting details- [PAR-EP001] ��� View all meetings related to specific process- refactor: new fake data implementation- [PAR-MOD002] - Process Moderation- [PAR-MOD001] - Global Moderation- Correccion Fichero Participate- Repo Mirror to Lot5.yml- Update Lot5- feat: add Makefile for automated setup and enhance README with development instructions- [PAR-INI03] Initializate project (Grafana/Matomo)- Resolucion de problema- Ajustamos variable correctamente del LOT5- [PAR-PPM006] ��� Delete category in process- [PAR-PPM005] ��� Edit category in process- [PAR-PPM004] ��� Manage categories in process- [PAR-PPM003] ��� Configure available components- [PAR-PPM002] ��� Manage process phases- [PAR-DAAP001] - View privacy policy page- Updated EU LDT Participate- Repo Mirror to Lot5.yml- Added EU LDT Participate- Repo Mirror to Lot5.yml
 
 ## refactor
+
 - fixed shakapacker not working correctly
 - remove unused navigation methods from PrivacyPolicyPage and streamline test steps
 - clean up comments and improve readability in process creation tests
@@ -85,6 +88,7 @@
 - add db init setup and update delete user tests
 
 ## fix
+
 - update URL expectation in HomePage to support full URL validation
 - update default admin and user credentials in Makefile
 - add missing newline at end of development.rb
@@ -103,12 +107,13 @@
 - ensure title comparison is case-insensitive and trimmed in debates page
 
 ## file_changes
+
 - Added EU LDT Participate- Repo Mirror to Lot5.yml
 
-
 # Changelog from D03.04.Jun to D03.04.Jul
- 
+
 ## feat
+
 - add delete admins tests
 - add edit functionality for process administrators and related tests
 - add test to manage process admins
@@ -143,16 +148,18 @@
 - added missing tests
 
 ## PR Merge
+
 - [PAR-PPR003] ��� Delete an existing process administrator- [PAR-PPP001] ��� Manage private participants (Only If the process is private)- [PAR-PPM008] - Added QA Tests- [PAR-PPA003] | Delete an existing attachment- PAR-PPA001 | PAR-PPA002- PAR-CP002 | View and participate in a specific process- PAR-CP001 | Visualize all processes in the system- PAR-DAD006 | Mention user in a message- PAR-DAD/PAR-DAD005 | test: add endorsement tests- PAR-DAD004 | test: add close debate tests- test: user patecipate to a debates- [PAR-DPACM001] - Added QA Tests- test: add create-debates page tests- test: add add-debates page tests- test: add public convocation page tests- test: add convocation page tests- PAR-DAAP003- ci: added testing pipeline and refactor test base structure
 
-
 # Changelog from Initial commit to D03.05.Jun
- 
+
 ## fix
+
 - small fix for test execution
 - small fix for test execution
 
 ## feat
+
 - added skip on tests folder for snyk
 - added skip on tests folder for snyk
 - added skip on tests folder for snyk
@@ -187,9 +194,5 @@
 - startup base project
 
 ## PR Merge
+
 - [PAR-PPM001] ��� Create new process- [PAR-PIM003] ��� Update personal information- [PAR-PIM001] ��� Configure form for additional personal data on first login- Startup Participate project
-
-
-
-
-

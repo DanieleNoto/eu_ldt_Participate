@@ -1,7 +1,6 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { TEST_ASSETS } from '@utils/constants';
 
-
 /**
  * Page Object Model for the file upload modal in the admin process area.
  * Handles file selection, cancel, and save actions.

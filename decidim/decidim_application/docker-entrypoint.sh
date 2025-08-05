@@ -1,30 +1,44 @@
+# Remove old server PID file if it exists
+if [ -f tmp/pids/server.pid ]; then
+  rm tmp/pids/server.pid
+  echo "--- Removed old server PID file ---"
+fi
+
 # Check if we need to update dependencies (only if files changed)
 echo "--- Checking for dependency updates ---"
 BUNDLE_UPDATED=false
+YARN_UPDATED=false
 
-# Check if Gemfile changed
+# Check if Gemfile changed or gems are missing
 if [ ! -f vendor/bundle/.bundle-timestamp ] || [ Gemfile -nt vendor/bundle/.bundle-timestamp ] || [ Gemfile.lock -nt vendor/bundle/.bundle-timestamp ]; then
   echo "--- Gemfile changed, updating Ruby gems ---"
-  bundle install
+  # Try bundle install, if it fails due to dependency conflicts, regenerate Gemfile.lock
+  if ! bundle install; then
+    echo "--- Bundle install failed, regenerating Gemfile.lock ---"
+    rm -f Gemfile.lock
+    bundle install
+  fi
   mkdir -p vendor/bundle
   touch vendor/bundle/.bundle-timestamp
   BUNDLE_UPDATED=true
 else
-  echo "--- Ruby gems up to date ---"
+  echo "--- Checking if gems are available ---"
+  # Check if bundle can load gems, if not, force bundle install
+  if ! bundle check > /dev/null 2>&1; then
+    echo "--- Gems missing, forcing bundle install ---"
+    # Try bundle install, if it fails due to dependency conflicts, regenerate Gemfile.lock
+    if ! bundle install; then
+      echo "--- Bundle install failed, regenerating Gemfile.lock ---"
+      rm -f Gemfile.lock
+      bundle install
+    fi
+    mkdir -p vendor/bundle
+    touch vendor/bundle/.bundle-timestamp
+    BUNDLE_UPDATED=true
+  else
+    echo "--- Ruby gems up to date ---"
+  fi
 fi
-
-# Remove old server PID file if it exists
-if [ -f tmp/pids/server.pid ]; then
-  rm tmp/pids/server.pid
-fi
-
-echo "--- Testing Redis connection ---"
-until redis-cli -h redis -p 6379 ping; do
-  echo "Waiting for Redis to be ready..."
-  sleep 2
-done
-echo "--- Redis is ready ---"
-
 
 # Database setup
 if [ "$RAILS_ENV" = "development" ]; then

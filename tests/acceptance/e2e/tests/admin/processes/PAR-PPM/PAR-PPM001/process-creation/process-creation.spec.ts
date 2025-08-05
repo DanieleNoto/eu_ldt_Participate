@@ -39,8 +39,6 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 		test('should successfully create a public participatory process with all required information', async ({
 			page
 		}) => {
-			
-
 			await test.step('1. User: Logs into the platform and navigates to the "New Process" section.', async () => {
 				await processAdminPage.navigateToNewProcess();
 			});

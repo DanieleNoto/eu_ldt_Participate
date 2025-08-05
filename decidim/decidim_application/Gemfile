@@ -20,7 +20,7 @@ gem "bootsnap", "~> 1.4"
 
 gem "puma", ">= 6.3.1"
 
-# gem "decidim-extra_user_fields", git: "https://github.com/PopulateTools/decidim-module-extra_user_fields.git", branch: "release/0.28-stable"
+gem "decidim-extra_user_fields", git: "https://github.com/PopulateTools/decidim-module-extra_user_fields.git", branch: "release/0.28-stable"
 
 group :development, :test do
   gem "byebug", "~> 11.0", platform: :mri

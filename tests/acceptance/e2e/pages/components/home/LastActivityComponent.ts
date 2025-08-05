@@ -169,13 +169,13 @@ export class LastActivityComponent {
 		// Wait for the author link to be available with a reasonable timeout
 		try {
 			await authorLink.waitFor({ state: 'attached', timeout: 5000 });
-			
+
 			const linkCount = await authorLink.count();
 			if (linkCount > 0) {
 				// Get the href before clicking for debugging
 				const href = await authorLink.getAttribute('href');
 				console.log(`Attempting to click author link with href: ${href}`);
-				
+
 				// Use force click to handle any visibility/overlay issues
 				await authorLink.click({ force: true, timeout: 10000 });
 			} else {
@@ -244,13 +244,13 @@ export class LastActivityComponent {
 		for (let i = 0; i < activityCount; i++) {
 			const hasAuthor = await this.hasAuthorAvatar(i);
 			console.log(`Activity ${i}: has author avatar = ${hasAuthor}`);
-			
+
 			if (hasAuthor) {
 				// Additional check to ensure the author link is actually clickable
 				const activity = this.activityItems.nth(i);
 				const authorLink = activity.locator('.author__avatar-container a[href*="profiles/"]');
 				const linkCount = await authorLink.count();
-				
+
 				if (linkCount > 0) {
 					const href = await authorLink.getAttribute('href');
 					console.log(`Activity ${i}: author link found with href = ${href}`);
@@ -261,7 +261,9 @@ export class LastActivityComponent {
 			}
 		}
 
-		console.log(`Found ${activitiesWithAuthors.length} activities with clickable author avatars: [${activitiesWithAuthors.join(', ')}]`);
+		console.log(
+			`Found ${activitiesWithAuthors.length} activities with clickable author avatars: [${activitiesWithAuthors.join(', ')}]`
+		);
 		return activitiesWithAuthors;
 	}
 
