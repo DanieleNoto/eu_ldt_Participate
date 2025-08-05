@@ -10,12 +10,11 @@ GIT
 
 GIT
   remote: https://github.com/decidim-ice/decidim-module-calendar
-  revision: 2a577525500c5580be9867d65b384b9f88bc5ef5
-  branch: release/0.29-stable
+  revision: b92974a56b0b55a9e7282047170709a8ca513c55
   specs:
-    decidim-calendar (0.29.0)
-      decidim-admin (>= 0.29.2, < 0.30)
-      decidim-core (>= 0.29.2, < 0.30)
+    decidim-calendar (0.30.0)
+      decidim-admin (>= 0.30, < 0.31)
+      decidim-core (>= 0.30, < 0.31)
 
 GEM
   remote: https://rubygems.org/
@@ -860,6 +859,7 @@ DEPENDENCIES
   brakeman (~> 7.0)
   byebug (~> 11.0)
   decidim (= 0.30.1)
+  decidim-calendar!
   decidim-conferences (= 0.30.1)
   decidim-design (= 0.30.1)
   decidim-dev (= 0.30.1)

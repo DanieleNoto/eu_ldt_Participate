@@ -39,8 +39,6 @@ services:
                 condition: service_started
             db:
                 condition: service_started
-            shakapacker:
-                condition: service_healthy
         healthcheck:
             test: ['CMD', 'test', '-d', 'node_modules']
             interval: 5s
@@ -67,22 +65,20 @@ services:
         networks:
             - private
         healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
+            test: ['CMD', 'redis-cli', 'ping']
             interval: 5s
             timeout: 3s
             retries: 5
     shakapacker:
         build: ./decidim/decidim_application/
-        command: bash -c "sed -i 's/\r$$//' bin/shakapacker-dev-server && mkdir -p tmp && bundle exec bin/shakapacker-dev-server"
+        command: bash /code/shakapacker-entrypoint.sh
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
             - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
         depends_on:
-            db:
-                condition: service_started
-            redis:
+            decidim:
                 condition: service_healthy
         networks:
             - private
@@ -97,7 +93,7 @@ services:
             - SHAKAPACKER_DEV_SERVER_PORT=3035
             - SHAKAPACKER_DEV_SERVER_PUBLIC=0.0.0.0:3035
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:3035"]
+            test: ['CMD', 'curl', '-f', 'http://localhost:3035']
             interval: 15s
             timeout: 10s
             retries: 20
