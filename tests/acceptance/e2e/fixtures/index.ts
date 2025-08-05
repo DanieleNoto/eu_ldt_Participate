@@ -10,4 +10,4 @@ export type {
 	ProcessGeneralInfo,
 	ProcessMetadataInfo
 } from '../pages/pages/admin/processes/ProcessAdminPage';
-export type { UserFieldsData } from '../pages/pages/user/UserExtraFieldsPage';
+export type { UserFieldsData } from '../pages/pages/user/account/UserExtraFieldsPage';

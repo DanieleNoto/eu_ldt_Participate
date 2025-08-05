@@ -117,7 +117,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				const isExpanded = await firstAccordionButton.getAttribute('aria-expanded');
 				if (isExpanded === 'false') {
 					await firstAccordionButton.click();
-					await page.waitForTimeout(300);
+					await firstQuestion.locator('.editor-input').waitFor();
 				}
 
 				// Fill question 1 - Short answer
@@ -141,7 +141,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				const isSecondExpanded = await secondAccordionButton.getAttribute('aria-expanded');
 				if (isSecondExpanded === 'false') {
 					await secondAccordionButton.click();
-					await page.waitForTimeout(300);
+					await secondQuestion.locator('.editor-input').waitFor();
 				}
 
 				// Fill second question details
@@ -154,11 +154,11 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				await secondQuestion.getByLabel('TypeShort answer Long answer').selectOption('single_option');
 
 				// Wait for answer options section to become visible
-				await page.waitForTimeout(500);
+				await secondQuestion.getByRole('button', { name: 'Add answer option' }).waitFor();
 
 				// Add exactly 3 answer options with proper text
 				await secondQuestion.getByRole('button', { name: 'Add answer option' }).click();
-				await page.waitForTimeout(300);
+				await secondQuestion.locator('.questionnaire-question-answer-option').last().waitFor();
 				await secondQuestion
 					.locator('.questionnaire-question-answer-option')
 					.last()
@@ -166,7 +166,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 					.fill('Email');
 
 				await secondQuestion.getByRole('button', { name: 'Add answer option' }).click();
-				await page.waitForTimeout(300);
+				await secondQuestion.locator('.questionnaire-question-answer-option').last().waitFor();
 				await secondQuestion
 					.locator('.questionnaire-question-answer-option')
 					.last()
@@ -174,7 +174,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 					.fill('Phone');
 
 				await secondQuestion.getByRole('button', { name: 'Add answer option' }).click();
-				await page.waitForTimeout(300);
+				await secondQuestion.locator('.questionnaire-question-answer-option').last().waitFor();
 				await secondQuestion
 					.locator('.questionnaire-question-answer-option')
 					.last()
@@ -195,7 +195,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				const isThirdExpanded = await thirdAccordionButton.getAttribute('aria-expanded');
 				if (isThirdExpanded === 'false') {
 					await thirdAccordionButton.click();
-					await page.waitForTimeout(300);
+					await thirdQuestion.locator('.editor-input').waitFor();
 				}
 
 				// Fill third question details
@@ -228,7 +228,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				const isTitleExpanded = await titleAccordionButton.getAttribute('aria-expanded');
 				if (isTitleExpanded === 'false') {
 					await titleAccordionButton.click();
-					await page.waitForTimeout(300);
+					await titleDescriptionElement.locator('.editor-input').waitFor();
 				}
 
 				await titleDescriptionElement.getByRole('textbox', { name: 'Title' }).fill('Additional Information');

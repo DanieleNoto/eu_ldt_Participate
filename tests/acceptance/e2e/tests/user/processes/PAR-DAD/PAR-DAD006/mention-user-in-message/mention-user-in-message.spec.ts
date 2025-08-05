@@ -71,9 +71,6 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				await debateDetailPage.clickCommentButton();
 			});
 			await test.step('8. User: Types a message in the provided text box and uses the "@" symbol to mention a specific user.', async () => {
-				// Debug initial state
-				await debateDetailPage.debugTributeState();
-
 				// First click in the textarea to make sure it is active
 				const textarea = debateDetailPage.getPage().locator('textarea[data-tribute="true"]:visible');
 				await textarea.click();
@@ -222,9 +219,6 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				await debateDetailPage.clickCommentButton();
 			});
 			await test.step('8a. User: Types the "@" symbol and begins typing the user\'s name.', async () => {
-				// Debug initial state
-				await debateDetailPage.debugTributeState();
-
 				// First click in the textarea to make sure it is active
 				const textarea = debateDetailPage.getPage().locator('textarea[data-tribute="true"]:visible');
 				await textarea.click();

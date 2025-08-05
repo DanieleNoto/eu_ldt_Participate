@@ -1243,38 +1243,6 @@ export class DebateDetailPage {
 		expect(actualCount).toBe(expectedCount);
 	}
 
-	/**
-	 * Debug method to log endorsement information
-	 */
-	async debugEndorsementInfo(): Promise<void> {
-		console.log('=== DEBUG ENDORSEMENT INFO ===');
-
-		const isDropdownVisible = await this.endorsersListDropdown.isVisible();
-		console.log('Dropdown initially visible:', isDropdownVisible);
-
-		if (!isDropdownVisible) {
-			await this.clickEndorsementDropdown();
-			await this.endorsersListDropdown.waitFor({ state: 'visible' });
-		}
-
-		const endorserElements = this.endorsersListGrid.locator('span.author[data-author="true"]');
-		const count = await endorserElements.count();
-		console.log('Endorser elements count:', count);
-
-		const allElements = this.endorsersListGrid.locator('*');
-		const allCount = await allElements.count();
-		console.log('All elements in grid:', allCount);
-
-		const endorsersListHTML = await this.endorsersListGrid.innerHTML();
-		console.log('Grid HTML:', endorsersListHTML);
-
-		if (!isDropdownVisible) {
-			await this.page.click('body');
-		}
-
-		console.log('=== END DEBUG ===');
-	}
-
 	// === END ENDORSEMENT/LIKE METHODS ===
 
 	/**
