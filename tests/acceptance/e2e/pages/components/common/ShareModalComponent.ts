@@ -9,7 +9,6 @@ export class ShareModalComponent {
 
 	// Modal container and dialog
 	private readonly modalDialog: Locator;
-	private readonly modalContent: Locator;
 	private readonly closeButton: Locator;
 	private readonly modalTitle: Locator;
 
@@ -21,7 +20,6 @@ export class ShareModalComponent {
 	private readonly telegramShareLink: Locator;
 
 	// Copy to clipboard section
-	private readonly shareInputContainer: Locator;
 	private readonly shareUrlInput: Locator;
 	private readonly copyButton: Locator;
 
@@ -30,7 +28,6 @@ export class ShareModalComponent {
 
 		// Modal container and dialog
 		this.modalDialog = this.page.locator('#socialShare[role="dialog"]');
-		this.modalContent = this.page.locator('#socialShare-content.share-modal');
 		this.closeButton = this.page.locator('button[data-dialog-close="socialShare"]');
 		this.modalTitle = this.page.locator('#dialog-title-socialShare');
 
@@ -42,7 +39,6 @@ export class ShareModalComponent {
 		this.telegramShareLink = this.page.locator('.share-modal__list a[data-site="telegram"]');
 
 		// Copy to clipboard section
-		this.shareInputContainer = this.page.locator('.share-modal__input');
 		this.shareUrlInput = this.page.locator('#urlShareLink');
 		this.copyButton = this.page.locator('button[data-clipboard-copy="#urlShareLink"]');
 	}

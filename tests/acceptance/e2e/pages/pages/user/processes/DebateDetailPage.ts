@@ -304,48 +304,17 @@ export class DebateDetailPage {
 		// Scroll into view if needed
 		await this.shareButton.scrollIntoViewIfNeeded();
 
-		// Try multiple click approaches to ensure the event is properly triggered
-		try {
-			// First attempt: Normal click
-			await this.shareButton.click();
-			await this.page.waitForTimeout(1000);
-
-			// Check if modal appeared
-			const isModalVisible = await this.shareModal.isModalVisible();
-			if (isModalVisible) {
-				return;
-			}
-		} catch (error) {
-			console.log('Normal click failed, trying alternative approaches');
-		}
-
-		// Second attempt: Dispatch click event directly
-		await this.page.evaluate(() => {
-			const shareButton = document.querySelector('button[data-dialog-open="socialShare"]') as HTMLButtonElement;
-			if (shareButton) {
-				shareButton.dispatchEvent(
-					new MouseEvent('click', {
-						view: window,
-						bubbles: true,
-						cancelable: true
-					})
-				);
-			}
+		// Wait for any JavaScript event handlers to be properly attached
+		// This ensures Decidim's modal system is fully initialized
+		await this.page.waitForFunction(() => {
+			const button = document.querySelector('button[data-dialog-open="socialShare"]') as HTMLButtonElement;
+			return button && button.offsetParent !== null; // Element is visible and interactive
 		});
 
-		await this.page.waitForTimeout(1000);
+		// Single robust click with force option to bypass any overlapping elements
+		await this.shareButton.click({ force: true });
 
-		// Check if modal appeared after direct event dispatch
-		const isModalVisible = await this.shareModal.isModalVisible();
-		if (isModalVisible) {
-			return;
-		}
-
-		// Third attempt: Focus and press Enter
-		await this.shareButton.focus();
-		await this.page.keyboard.press('Enter');
-
-		// Wait for the modal to appear
+		// Wait for the modal to appear with proper timeout handling
 		await this.shareModal.waitForModalToBeVisible();
 	}
 
