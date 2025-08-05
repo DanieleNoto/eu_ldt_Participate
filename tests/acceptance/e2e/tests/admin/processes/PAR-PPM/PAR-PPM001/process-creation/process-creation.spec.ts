@@ -39,8 +39,6 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 		test('should successfully create a public participatory process with all required information', async ({
 			page
 		}) => {
-			// Set a longer timeout for this complex test
-
 			await test.step('1. User: Logs into the platform and navigates to the "New Process" section.', async () => {
 				await processAdminPage.navigateToNewProcess();
 			});
@@ -48,7 +46,6 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 				const isOnNewProcessPage = await processAdminPage.isOnNewProcessPage();
 				expect(isOnNewProcessPage).toBe(true);
 
-				// Verify essential form elements are visible with increased timeout
 				const titleTextbox = await processAdminPage.getTitleTextbox();
 				await expect(titleTextbox).toBeVisible();
 
@@ -78,7 +75,6 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 				await page.waitForLoadState('networkidle');
 
 				await processAdminPage.fillGeneralInfo(validProcessData.general);
-				// console.log('Essential fields filled - skipping all rich text fields');
 			});
 
 			await test.step('3.2. User: Fill Duration Info', async () => {

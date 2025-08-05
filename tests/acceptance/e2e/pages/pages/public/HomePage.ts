@@ -1,4 +1,5 @@
 import { BasePage } from '@pages/base/BasePage';
+import { LastActivityComponent } from '@pages/components/home/LastActivityComponent';
 import { Page, expect } from '@playwright/test';
 import { AdminHeaderComponent } from '../../components/admin/AdminHeaderComponent';
 import { FooterComponent } from '../../components/common/FooterComponent';
@@ -11,7 +12,7 @@ import { StatisticsSectionComponent } from '../../components/home/StatisticsSect
 /**
  * HomePage - Page Object Model for the main page of the site.
  *
- * Extends BasePage and composes all the necessary components for the homepage:
+ * Extends BasePage and composes all necessary components for the homepage:
  * - AdminHeaderComponent for the admin bar (when visible)
  * - Footer, OfflineMessage, and homepage sections
  * - Integrates HeaderComponent and CookieBarComponent from BasePage
@@ -28,11 +29,12 @@ export class HomePage extends BasePage {
 	public participationSection: ParticipationSectionComponent;
 	public statisticsSection: StatisticsSectionComponent;
 	public ctaSection: CallToActionSectionComponent;
+	public lastActivitySection: LastActivityComponent;
 
 	constructor(page: Page) {
 		super(page);
 
-		// Component initialization (header already initialized in BasePage)
+		// Initialization of components (header already initialized in BasePage)
 		this.adminHeader = new AdminHeaderComponent(page);
 		this.footer = new FooterComponent(page);
 		this.offlineMessage = new OfflineMessageComponent(page);
@@ -40,6 +42,7 @@ export class HomePage extends BasePage {
 		this.participationSection = new ParticipationSectionComponent(page);
 		this.statisticsSection = new StatisticsSectionComponent(page);
 		this.ctaSection = new CallToActionSectionComponent(page);
+		this.lastActivitySection = new LastActivityComponent(page);
 	}
 
 	// Selectors for the main page structure
@@ -53,10 +56,6 @@ export class HomePage extends BasePage {
 
 	private get headerWithAdminBar() {
 		return this.page.locator('header.with-admin-bar');
-	}
-
-	private get menuBarContainer() {
-		return this.page.locator('#menu-bar-container');
 	}
 
 	private get contentArea() {
@@ -140,7 +139,7 @@ export class HomePage extends BasePage {
 		return await this.adminHeader.isEditOrganizationButtonVisible();
 	}
 
-	// Methods for handling flash messages (uses public methods from BasePage)
+	// Methods for managing flash messages (uses public methods from BasePage)
 	async isSuccessFlashMessageVisible(): Promise<boolean> {
 		return await this.hasSuccessFlashMessage();
 	}
@@ -274,7 +273,7 @@ export class HomePage extends BasePage {
 		await this.heroSection.waitForHeroToLoad();
 	}
 
-	// Methods to verify the completeness of the page
+	// Methods to verify page completeness
 	async isHomePageCompletelyLoaded(): Promise<boolean> {
 		const layout = await this.isPageLayoutValid();
 		const header = await this.isHeaderSectionVisible();
@@ -307,6 +306,9 @@ export class HomePage extends BasePage {
 	async scrollToParticipation() {
 		await this.participationSection.scrollToSection();
 	}
+	async scrollToLastActivity() {
+		await this.lastActivitySection.scrollToSection();
+	}
 
 	async scrollToStatistics() {
 		await this.statisticsSection.scrollToSection();
@@ -333,6 +335,10 @@ export class HomePage extends BasePage {
 		return await this.homeMenuSection.locator('a[href*="/processes"]').click();
 	}
 
+	async goToCalendarFromHomeMenu() {
+		return await this.homeMenuSection.locator('a[href*="/calendar"]').click();
+	}
+
 	// Methods for cookie settings
 	async openCookieSettingsFromFooter() {
 		await this.footer.clickCookieSettings();
@@ -349,7 +355,7 @@ export class HomePage extends BasePage {
 
 	// Utility methods for admin
 	async isCurrentUserAdmin(): Promise<boolean> {
-		// Checks if the current user has admin privileges by checking for the presence of the admin bar
+		// Checks if the current user has admin privileges by checking for the admin bar
 		return await this.isAdminHeaderVisible();
 	}
 
@@ -398,7 +404,7 @@ export class HomePage extends BasePage {
 	 * Verify that we are on the home page
 	 */
 	async expectToBeOnHomePage(): Promise<void> {
-		await expect(this.page).toHaveURL(/^\/(\?.*)?$/);
+		await expect(this.page).toHaveURL(/^https?:\/\/[^\/]+\/(\?.*)?$/);
 		await this.waitForPageToFullyLoad();
 	}
 	/**

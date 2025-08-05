@@ -285,14 +285,4 @@ export class ManagePageComponentPage extends BaseAdminPage {
 	async expectUpdateButtonToBeDisabled() {
 		await expect(this.updateButton).toBeDisabled();
 	}
-
-	// Debug methods
-	async debugFormState() {
-		console.log('=== Manage Page Component Form Debug State ===');
-		console.log('URL:', this.getPage().url());
-		console.log('Title:', await this.getTitle());
-		console.log('Body content length:', (await this.getBody()).length);
-		console.log('Update button enabled:', await this.updateButton.isEnabled());
-		console.log('===============================================');
-	}
 }

@@ -1,8 +1,8 @@
 import { TEST_USERS } from '@config/test-users';
 import { ExtraUserFieldsTestDataGenerator } from '@fixtures/extra-user-fields-fixtures';
 import { HomePage } from '@pages/pages/public/HomePage';
-import { AccountPage } from '@pages/pages/user/AccountPage';
-import { UserExtraFieldsPage, UserFieldsData } from '@pages/pages/user/UserExtraFieldsPage';
+import { AccountPage } from '@pages/pages/user/account/AccountPage';
+import { UserExtraFieldsPage, UserFieldsData } from '@pages/pages/user/account/UserExtraFieldsPage';
 import test, { expect } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';

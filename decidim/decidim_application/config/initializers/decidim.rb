@@ -380,7 +380,21 @@ Decidim.configure do |config|
 
   # Defines additional content security policies following the structure
   # Read more: https://docs.decidim.org/en/develop/configure/initializer#_content_security_policy
-  config.content_security_policies_extra = {}
+  config.content_security_policies_extra = {
+    "default-src" => %w('self' https:),
+    "script-src" => %w('self' 'unsafe-inline' 'unsafe-eval'),
+    "style-src" => %w('self' 'unsafe-inline'),
+    "connect-src" => %w('self'),
+    "font-src" => %w('self'),
+  }
+
+  # Allow webpack dev server in development
+  if Rails.env.development?
+    config.content_security_policies_extra["script-src"] += %w(http://localhost:3035)
+    config.content_security_policies_extra["style-src"] += %w(http://localhost:3035)
+    config.content_security_policies_extra["connect-src"] += %w(http://localhost:3035 ws://localhost:3035)
+    config.content_security_policies_extra["font-src"] += %w(http://localhost:3035)
+  end
 
   # Admin admin password configurations
   Rails.application.secrets.dig(:decidim, :admin_password, :strong).tap do |strong_pw|

@@ -1,6 +1,6 @@
 # Define start tag parameters
 param (
-    [string]$startTag = "D03.04.Jun",  # Default value if parameter not provided
+    [string]$startTag = "D03.04.Jul",  # Default value if parameter not provided
     [string]$outputFile = "CHANGELOG.md"  # Default output filename
 )
 
