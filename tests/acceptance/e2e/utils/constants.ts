@@ -8,7 +8,6 @@ export const STORAGE_STATE = {
 	USER_WITHOUT_MESSAGES: path.resolve(__dirname, '../../../acceptance/e2e/auth/user-without-messages-state.json')
 } as const;
 
-
 export const TEST_SELECTORS = {
 	LOGIN: {
 		EMAIL_INPUT: '#session_user_email',

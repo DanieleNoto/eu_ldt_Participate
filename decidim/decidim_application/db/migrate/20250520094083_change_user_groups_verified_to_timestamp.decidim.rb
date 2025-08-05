@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # This migration comes from decidim (originally 20170128112958)
+# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:39 UTC
 class ChangeUserGroupsVerifiedToTimestamp < ActiveRecord::Migration[5.0]
   def change
     ActiveRecord::Base.transaction do

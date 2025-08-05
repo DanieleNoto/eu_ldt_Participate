@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # This migration comes from decidim_meetings (originally 20240130135858)
+# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:03:04 UTC
 class AddWithdrawnFieldsOnMeetings < ActiveRecord::Migration[6.1]
   class CustomMeeting < Decidim::Meetings::ApplicationRecord
     self.table_name = "decidim_meetings_meetings"

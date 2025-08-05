@@ -3,26 +3,35 @@ echo "--- Checking for dependency updates ---"
 BUNDLE_UPDATED=false
 YARN_UPDATED=false
 
-# Check if Gemfile changed
+# Check if Gemfile changed or gems are missing
 if [ ! -f vendor/bundle/.bundle-timestamp ] || [ Gemfile -nt vendor/bundle/.bundle-timestamp ] || [ Gemfile.lock -nt vendor/bundle/.bundle-timestamp ]; then
   echo "--- Gemfile changed, updating Ruby gems ---"
-  bundle install
+  # Try bundle install, if it fails due to dependency conflicts, regenerate Gemfile.lock
+  if ! bundle install; then
+    echo "--- Bundle install failed, regenerating Gemfile.lock ---"
+    rm -f Gemfile.lock
+    bundle install
+  fi
   mkdir -p vendor/bundle
   touch vendor/bundle/.bundle-timestamp
   BUNDLE_UPDATED=true
 else
-  echo "--- Ruby gems up to date ---"
-fi
-
-# Check if package.json changed
-if [ ! -f node_modules/.yarn-timestamp ] || [ package.json -nt node_modules/.yarn-timestamp ] || [ yarn.lock -nt node_modules/.yarn-timestamp ]; then
-  echo "--- Package.json changed, updating Node.js packages ---"
-  yarn install --frozen-lockfile
-  mkdir -p node_modules
-  touch node_modules/.yarn-timestamp
-  YARN_UPDATED=true
-else
-  echo "--- Node.js packages up to date ---"
+  echo "--- Checking if gems are available ---"
+  # Check if bundle can load gems, if not, force bundle install
+  if ! bundle check > /dev/null 2>&1; then
+    echo "--- Gems missing, forcing bundle install ---"
+    # Try bundle install, if it fails due to dependency conflicts, regenerate Gemfile.lock
+    if ! bundle install; then
+      echo "--- Bundle install failed, regenerating Gemfile.lock ---"
+      rm -f Gemfile.lock
+      bundle install
+    fi
+    mkdir -p vendor/bundle
+    touch vendor/bundle/.bundle-timestamp
+    BUNDLE_UPDATED=true
+  else
+    echo "--- Ruby gems up to date ---"
+  fi
 fi
 
 # Database setup
@@ -76,6 +85,20 @@ else
   echo "--- Not in development environment, skipping data preparation ---"
   echo "RAILS_ENV is currently: $RAILS_ENV"
 fi
+
+# if [ "$RAILS_ENV" = "development" ]; then
+#   echo "--- Development environment detected, skipping asset precompilation ---"
+#   echo "--- Assets will be served by shakapacker-dev-server ---"
+#   echo "--- Development environment detected, setting up default data ---"
+#   bin/rails runner prepare-db-for-tests.rb \
+#     && echo "--- Default data prepared successfully. ---" \
+#     || echo "--- Failed to prepare default data. ---"
+# else
+#   echo "--- Production environment detected, precompiling assets ---"
+#   bin/rails assets:precompile
+#   echo "--- Not in development environment or RAILS_ENV not set to 'development', skipping data preparation ---"
+#   echo "RAILS_ENV is currently: $RAILS_ENV"
+# fi
 
 echo "--- Starting Rails server ---"
 mkdir -p tmp

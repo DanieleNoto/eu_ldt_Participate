@@ -9,7 +9,7 @@ import { BaseAdminPage } from '../../../BaseAdminPage';
 export class NewPageComponentPage extends BaseAdminPage {
 	// Main page elements
 	private readonly pageTitle: Locator;
-	
+
 	// Order position field
 	private readonly orderPositionInput: Locator;
 

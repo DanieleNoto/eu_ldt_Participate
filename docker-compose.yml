@@ -1,6 +1,6 @@
 services:
     decidim:
-        #image: decidim/decidim-dev:0.29.3
+        #image: decidim/decidim-dev:0.30.1
         build: ./decidim/decidim_application/
         ports:
             - '3000:3000'
@@ -39,8 +39,6 @@ services:
                 condition: service_started
             db:
                 condition: service_started
-            shakapacker:
-                condition: service_healthy
         healthcheck:
             test: ['CMD', 'test', '-d', 'node_modules']
             interval: 5s
@@ -66,17 +64,22 @@ services:
             - redis_data:/data
         networks:
             - private
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 5s
+            timeout: 3s
+            retries: 5
     shakapacker:
         build: ./decidim/decidim_application/
-        command: bash -c "bundle install && yarn install && bundle exec bin/shakapacker-dev-server"
+        command: bash /code/shakapacker-entrypoint.sh
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
             - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
         depends_on:
-            - db
-            - redis
+            decidim:
+                condition: service_healthy
         networks:
             - private
         ports:
@@ -90,10 +93,11 @@ services:
             - SHAKAPACKER_DEV_SERVER_PORT=3035
             - SHAKAPACKER_DEV_SERVER_PUBLIC=0.0.0.0:3035
         healthcheck:
-            test: ['CMD', 'test', '-f', '/code/bin/shakapacker-dev-server']
-            interval: 10s
-            timeout: 5s
-            retries: 5
+            test: ['CMD', 'curl', '-f', 'http://localhost:3035']
+            interval: 15s
+            timeout: 10s
+            retries: 20
+            start_period: 30s
 
     grafana:
         image: grafana/grafana:11.0.0

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # This migration comes from decidim_debates (originally 20181003081235)
+# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:54 UTC
 class FixUserGroupsIdsOnDebates < ActiveRecord::Migration[5.2]
   class UserGroup < ApplicationRecord
     self.table_name = :decidim_users
