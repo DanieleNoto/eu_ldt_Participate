@@ -79,6 +79,11 @@ export default defineConfig({
 			name: 'user-without-messages-cleanup',
 			testMatch: 'tests/**/auth/user-without-messages-auth.cleanup.ts'
 		},
+		// Cleanup admin project
+		{
+			name: 'admin-cleanup',
+			testMatch: 'auth/admin-auth.cleanup.ts'
+		},
 
 		// User tests with authenticated state
 		{
@@ -134,7 +139,8 @@ export default defineConfig({
 				'**/tests/user/**/*.spec.ts',
 				'../admin/**/*.spec.ts',
 				'tests/admin/**/*.spec.ts',
-				'**/tests/admin/**/*.spec.ts'
+				'**/tests/admin/**/*.spec.ts',
+				'tests/user-to-delete/**/*.spec.ts'
 			]
 		},
 		// User without messages tests
