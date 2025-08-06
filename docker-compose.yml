@@ -41,9 +41,9 @@ services:
                 condition: service_started
         healthcheck:
             test: ['CMD', 'test', '-d', 'node_modules']
-            interval: 5s
-            timeout: 3s
-            retries: 20
+            interval: 10s
+            timeout: 5s
+            retries: 30
     db:
         image: postgres:16
         env_file:
@@ -71,15 +71,15 @@ services:
             retries: 5
     shakapacker:
         build: ./decidim/decidim_application/
-        command: bash /code/shakapacker-entrypoint.sh
+        command: bash -c "cd /code && bundle install && yarn install && bundle exec bin/shakapacker-dev-server"
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
             - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
         depends_on:
-            decidim:
-                condition: service_healthy
+            - db
+            - redis
         networks:
             - private
         ports:

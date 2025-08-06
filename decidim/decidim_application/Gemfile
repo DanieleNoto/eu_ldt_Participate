@@ -9,6 +9,8 @@ DECIDIM_VERSION = "0.30.1"
 
 gem "decidim", DECIDIM_VERSION
 gem "decidim-calendar", git: "https://github.com/decidim-ice/decidim-module-calendar"
+# Temporarily disable AI module due to Redis configuration issues
+# gem "decidim-ai", DECIDIM_VERSION
 gem "decidim-conferences", DECIDIM_VERSION
 gem "decidim-design", DECIDIM_VERSION
 gem "decidim-initiatives", DECIDIM_VERSION

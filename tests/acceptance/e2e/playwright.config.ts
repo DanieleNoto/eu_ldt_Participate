@@ -54,7 +54,8 @@ export default defineConfig({
 		// Setup project for user authentication
 		{
 			name: 'user-setup',
-			testMatch: 'auth/user-auth.setup.ts'
+			testMatch: 'auth/user-auth.setup.ts',
+			teardown: 'user-cleanup'
 		},
 		// Setup project for admin authentication
 		{
@@ -77,6 +78,11 @@ export default defineConfig({
 		{
 			name: 'admin-cleanup',
 			testMatch: 'auth/admin-auth.cleanup.ts'
+		},
+		// Cleanup user without messages project
+		{
+			name: 'user-without-messages-cleanup',
+			testMatch: 'tests/**/auth/user-without-messages-auth.cleanup.ts'
 		},
 
 		// User tests with authenticated state

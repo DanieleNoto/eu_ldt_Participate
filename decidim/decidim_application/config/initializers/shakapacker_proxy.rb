@@ -50,8 +50,8 @@ if Rails.env.development?
           end
           
           # Set proper content length for the response body
-          body = response.body
-          headers['Content-Length'] = body.bytesize.to_s
+          body = response.body || ""
+          headers['Content-Length'] = body.bytesize.to_s if body
           
           [response.code.to_i, headers, [body]]
         rescue => e
