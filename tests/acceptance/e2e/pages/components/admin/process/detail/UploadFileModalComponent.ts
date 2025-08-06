@@ -1,5 +1,5 @@
 import { Locator, Page, expect } from '@playwright/test';
-import path = require('path');
+import { TEST_ASSETS } from '@utils/constants';
 
 /**
  * Page Object Model for the file upload modal in the admin process area.
@@ -15,9 +15,6 @@ export class UploadFileModalComponent {
 	private readonly saveButton: Locator;
 	private readonly removeButton: Locator;
 	private readonly dropzoneItems: Locator;
-	private readonly TEST_IMAGE_PATH = path.resolve(__dirname, '../../../../../test-assets/test.jpg');
-	private readonly TEST_CSV_PATH = path.resolve(__dirname, '../../../../../test-assets/private-participants.csv');
-	private readonly NOT_VALID_TEST_IMAGE_PATH = path.resolve(__dirname, '../../../../../test-assets/not.valid.file');
 
 	constructor(page: Page) {
 		this.page = page;
@@ -65,7 +62,7 @@ export class UploadFileModalComponent {
 	 * @returns Promise that resolves when the file is uploaded
 	 */
 	async uploadTestCsv(): Promise<void> {
-		await this.selectFile(this.TEST_CSV_PATH);
+		await this.selectFile(TEST_ASSETS.TEST_CSV);
 		// Wait for upload processing (optional timeout adjustment if needed)
 		await this.page.waitForTimeout(1500);
 	}
@@ -75,7 +72,7 @@ export class UploadFileModalComponent {
 	 * @returns Promise that resolves when the file is uploaded
 	 */
 	async uploadTestImage(): Promise<void> {
-		await this.selectFile(this.TEST_IMAGE_PATH);
+		await this.selectFile(TEST_ASSETS.TEST_IMAGE);
 		// Wait for upload processing (optional timeout adjustment if needed)
 		await this.page.waitForTimeout(1500);
 	}
@@ -85,7 +82,7 @@ export class UploadFileModalComponent {
 	 * @returns Promise that resolves when the file is uploaded
 	 */
 	async uploadNotValidTestImage(): Promise<void> {
-		await this.selectFile(this.NOT_VALID_TEST_IMAGE_PATH);
+		await this.selectFile(TEST_ASSETS.NOT_VALID_FILE);
 		// Wait for upload processing (optional timeout adjustment if needed)
 		await this.page.waitForTimeout(1500);
 	}

@@ -25,6 +25,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	// Help elements
 	private readonly helpButton: Locator;
 	private readonly debatesLink: Locator;
+	private readonly meetingsLink: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -48,6 +49,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		// Help elements
 		this.helpButton = page.locator('#floating-helper-tip button');
 		this.debatesLink = page.locator('a[href$="/debates"]:visible').first();
+		this.meetingsLink = page.locator('a[href$="/meetings"]:visible').first();
 	}
 
 	// Navigation methods
@@ -89,6 +91,15 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	async navigateToDebatesPage(): Promise<void> {
 		// Find and click the debates page link
 		await this.debatesLink.click();
+		await this.waitForLoadState('networkidle');
+	}
+
+	/**
+	 * Navigates to the meetings page from the link
+	 */
+	async navigateToMeetingsPage(): Promise<void> {
+		// Find and click the meetings page link
+		await this.meetingsLink.click();
 		await this.waitForLoadState('networkidle');
 	}
 
@@ -278,26 +289,5 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		const triggerLoaded = await this.navDropdownTrigger.isVisible();
 
 		return navLoaded && triggerLoaded;
-	}
-
-	// Debug methods
-
-	/**
-	 * Debug method to log process and component information
-	 */
-	async debugProcessInfo(): Promise<void> {
-		console.log('=== Process Detail Debug ===');
-		console.log('URL:', this.getPage().url());
-		console.log('Process title:', await this.getProcessTitle());
-		console.log('Process slogan:', await this.getProcessSlogan());
-
-		const components = await this.getAvailableComponents();
-		console.log('Available components:', components);
-		console.log('Has convocation page:', await this.hasConvocationPage());
-
-		if (await this.hasConvocationPage()) {
-			console.log('Convocation page URL:', await this.getConvocationPageUrl());
-		}
-		console.log('============================');
 	}
 }

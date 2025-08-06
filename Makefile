@@ -1,7 +1,7 @@
 # EU LDT Participate - Development Makefile
 # This Makefile automates the setup and testing of the EU LDT Participate platform
 
-.PHONY: help setup install-deps check-prerequisites setup-node setup-decidim setup-playwright setup-frontend setup-backend
+.PHONY: help setup install-deps check-env check-prerequisites setup-node setup-decidim setup-playwright setup-frontend setup-backend
 .PHONY: start stop restart logs test test-playwright test-frontend test-backend test-all clean
 .PHONY: dev-decidim dev-frontend dev-backend dev-all status check-services
 
@@ -15,7 +15,7 @@ RED := \033[0;31m
 NC := \033[0m # No Color
 
 # Configuration
-COMPOSE_FILE := decidim/decidim_application/docker-compose.yml
+COMPOSE_FILE := docker-compose.yml
 DECIDIM_URL := http://localhost:3000
 FRONTEND_URL := http://localhost:5001
 BACKEND_URL := http://localhost:8080
@@ -41,7 +41,23 @@ help: ## Show this help message
 	@echo "$(YELLOW)Available targets:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-20s$(NC) %s\n", $$1, $$2}'
 
-check-prerequisites: ## Check if required tools are installed
+check-env: ## Check if .env file exists and create from .env.example if needed
+	@echo "$(YELLOW)Checking .env file...$(NC)"
+	@if [ ! -f .env ]; then \
+		if [ -f .env.example ]; then \
+			echo "$(YELLOW).env file not found, creating from .env.example...$(NC)"; \
+			cp .env.example .env; \
+			echo "$(GREEN)✓ .env file created from .env.example$(NC)"; \
+			echo "$(YELLOW)Please review and update .env file with your configuration$(NC)"; \
+		else \
+			echo "$(RED)Error: Neither .env nor .env.example file found$(NC)"; \
+			exit 1; \
+		fi; \
+	else \
+		echo "$(GREEN)✓ .env file exists$(NC)"; \
+	fi
+
+check-prerequisites: check-env ## Check if required tools are installed
 	@echo "$(YELLOW)Checking prerequisites...$(NC)"
 	@command -v docker >/dev/null 2>&1 || { echo "$(RED)Error: Docker is required but not installed.$(NC)"; exit 1; }
 	@command -v docker compose >/dev/null 2>&1 || { echo "$(RED)Error: Docker Compose is required but not installed.$(NC)"; exit 1; }
@@ -76,9 +92,7 @@ setup-backend: install-deps ## Setup backend dependencies
 
 setup-decidim: check-prerequisites ## Setup Decidim with Docker Compose
 	@echo "$(YELLOW)Setting up Decidim...$(NC)"
-	@chmod +x decidim/decidim_application/docker-entrypoint.sh
-	@chmod +x decidim/decidim_application/bin/*
-	@cd decidim/decidim_application && docker compose build
+	@docker compose build
 	@echo "$(GREEN)✓ Decidim setup completed$(NC)"
 
 setup: setup-node install-deps setup-playwright setup-frontend setup-backend setup-decidim ## Complete environment setup
@@ -90,24 +104,25 @@ setup: setup-node install-deps setup-playwright setup-frontend setup-backend set
 
 start: ## Start all services
 	@echo "$(YELLOW)Starting Decidim services...$(NC)"
-	@cd decidim/decidim_application && docker compose up -d
+	@docker compose up -d
 	@echo "$(GREEN)✓ Decidim services started$(NC)"
 	@echo "$(YELLOW)Decidim will be available at: $(DECIDIM_URL)$(NC)"
-	@echo "$(YELLOW)Default admin credentials: admin@admin.com / decidim123456789$(NC)"
+	@echo "$(YELLOW)Default admin credentials: admin@example.org / decidim123456789$(NC)"
+	@echo "$(YELLOW)Default user credentials: user@example.org / decidim123456789$(NC)"
 
 stop: ## Stop all services
 	@echo "$(YELLOW)Stopping Decidim services...$(NC)"
-	@cd decidim/decidim_application && docker compose down
+	@docker compose down
 	@echo "$(GREEN)✓ Decidim services stopped$(NC)"
 
 restart: stop start ## Restart all services
 
 logs: ## View Decidim logs
-	@cd decidim/decidim_application && docker compose logs -f decidim
+	@docker compose logs -f decidim
 
 status: ## Check status of all services
 	@echo "$(YELLOW)Checking service status...$(NC)"
-	@cd decidim/decidim_application && docker compose ps
+	@docker compose ps
 
 check-services: ## Check if services are responding
 	@echo "$(YELLOW)Checking service health...$(NC)"
@@ -160,7 +175,7 @@ report-playwright: ## Show Playwright test report
 
 clean: stop ## Clean up containers and dependencies
 	@echo "$(YELLOW)Cleaning up...$(NC)"
-	@cd decidim/decidim_application && docker compose down -v --remove-orphans
+	@docker compose down -v --remove-orphans
 	@docker system prune -f
 	@echo "$(GREEN)✓ Cleanup completed$(NC)"
 

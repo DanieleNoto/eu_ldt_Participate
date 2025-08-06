@@ -9,9 +9,14 @@ RUN apt-get update && apt-get install -y \
   gnupg \
   ca-certificates \
   build-essential \
+  libssl-dev \
+  libreadline-dev \
+  zlib1g-dev \
   sudo \
   lsb-release \
   apt-transport-https \
+  redis-tools \
+  netcat-openbsd \
   && rm -rf /var/lib/apt/lists/*
 
 # Add NodeSource GPG key
@@ -26,9 +31,26 @@ RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesourc
 # Install Node.js
 RUN apt-get update && apt-get install -y nodejs
 
-RUN node --version && npm --version && ruby --version && bundle --version
+# Set working directory
+WORKDIR /code
 
-# Copy entrypoint and ensure it is executable
+# Copy package files FIRST for better Docker layer caching
+COPY package.json ./
+COPY Gemfile ./
+
+# Install Ruby gems (cached layer)
+RUN bundle config set --local deployment 'false' && \
+  bundle config set --local path '/usr/local/bundle' && \
+  bundle install
+
+# Install Node.js dependencies (cached layer)
+RUN yarn install --network-timeout 100000
+
+# NOW copy the application code
+COPY . .
+
+# Copy entrypoint and fix line endings + permissions
 COPY docker-entrypoint.sh /code/docker-entrypoint.sh
-RUN chmod +x /code/docker-entrypoint.sh
-RUN chmod +x /bin/*
+
+# Expose port
+EXPOSE 3000
