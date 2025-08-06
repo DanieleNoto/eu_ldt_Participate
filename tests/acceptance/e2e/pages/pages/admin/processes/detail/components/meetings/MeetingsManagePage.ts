@@ -7,8 +7,6 @@ import { BaseAdminPage } from '../../../../BaseAdminPage';
  */
 export class MeetingsManagePage extends BaseAdminPage {
 	// Main page elements
-	private readonly pageWrapper: Locator;
-	private readonly card: Locator;
 	private readonly pageTitle: Locator;
 
 	// Header elements
@@ -30,8 +28,6 @@ export class MeetingsManagePage extends BaseAdminPage {
 	private readonly exportAnswersPdf: Locator;
 
 	// Filter elements
-	private readonly filtersSection: Locator;
-	private readonly filterDropdown: Locator;
 	private readonly filterButton: Locator;
 
 	// Filter submenu items
@@ -39,7 +35,6 @@ export class MeetingsManagePage extends BaseAdminPage {
 	private readonly inPersonFilter: Locator;
 	private readonly onlineFilter: Locator;
 	private readonly hybridFilter: Locator;
-	private readonly taxonomyFilter: Locator;
 	private readonly stateFilter: Locator;
 	private readonly closedFilter: Locator;
 	private readonly openFilter: Locator;
@@ -52,15 +47,11 @@ export class MeetingsManagePage extends BaseAdminPage {
 	private readonly userGroupOriginFilter: Locator;
 
 	// Search elements
-	private readonly searchForm: Locator;
 	private readonly searchInput: Locator;
 	private readonly searchButton: Locator;
-	private readonly appliedFiltersSection: Locator;
 
 	// Table elements
-	private readonly meetingsTable: Locator;
 	private readonly tableHeaders: Locator;
-	private readonly tableBody: Locator;
 	private readonly meetingRows: Locator;
 
 	// Table header columns
@@ -69,9 +60,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 	private readonly startDateHeader: Locator;
 	private readonly endDateHeader: Locator;
 	private readonly closedHeader: Locator;
-	private readonly mapHeader: Locator;
 	private readonly taxonomiesHeader: Locator;
-	private readonly actionsHeader: Locator;
 
 	// Footer elements
 	private readonly deletedMeetingsLink: Locator;
@@ -80,8 +69,6 @@ export class MeetingsManagePage extends BaseAdminPage {
 		super(page);
 
 		// Main page elements
-		this.pageWrapper = page.locator('.item_show__wrapper');
-		this.card = page.locator('.card').first();
 		this.pageTitle = page.locator('.item_show__header-title h1, h1.item_show__header-title');
 
 		// Header elements
@@ -103,8 +90,6 @@ export class MeetingsManagePage extends BaseAdminPage {
 		this.exportAnswersPdf = page.locator('a[href*="exports.FormPDF?id=answers"]');
 
 		// Filter elements
-		this.filtersSection = page.locator('.filters__section');
-		this.filterDropdown = page.locator('.dropdown.menu[data-dropdown-menu]');
 		this.filterButton = page.locator('a.dropdown.button:has-text("Filter")');
 
 		// Filter submenu items
@@ -112,7 +97,6 @@ export class MeetingsManagePage extends BaseAdminPage {
 		this.inPersonFilter = page.locator('a[href*="with_any_type%5D=in_person"]');
 		this.onlineFilter = page.locator('a[href*="with_any_type%5D=online"]');
 		this.hybridFilter = page.locator('a[href*="with_any_type%5D=hybrid"]');
-		this.taxonomyFilter = page.locator('a:has-text("Taxonomy")');
 		this.stateFilter = page.locator('a[aria-label="State"]');
 		this.closedFilter = page.locator('a[href*="closed_at_present%5D=true"]');
 		this.openFilter = page.locator('a[href*="closed_at_present%5D=false"]');
@@ -125,15 +109,11 @@ export class MeetingsManagePage extends BaseAdminPage {
 		this.userGroupOriginFilter = page.locator('a[href*="with_any_origin%5D=user_group"]');
 
 		// Search elements
-		this.searchForm = page.locator('form.decidim/meetings/meeting_search');
 		this.searchInput = page.locator('input[name="q[id_string_or_title_cont]"]');
 		this.searchButton = page.locator('button[type="submit"][aria-label="Search"]');
-		this.appliedFiltersSection = page.locator('[data-applied-filters-tags]');
 
 		// Table elements
-		this.meetingsTable = page.locator('.table-list');
 		this.tableHeaders = page.locator('.table-list thead th');
-		this.tableBody = page.locator('.table-list tbody');
 		this.meetingRows = page.locator('.table-list tbody tr');
 
 		// Table header columns
@@ -142,9 +122,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 		this.startDateHeader = page.locator('th:has(a[href*="q%5Bs%5D=start_time"])');
 		this.endDateHeader = page.locator('th:has(a[href*="q%5Bs%5D=end_time"])');
 		this.closedHeader = page.locator('th:has(a[href*="q%5Bs%5D=closed"])');
-		this.mapHeader = page.locator('th:has-text("Map")');
 		this.taxonomiesHeader = page.locator('th:has(a[href*="q%5Bs%5D=scope_name"])');
-		this.actionsHeader = page.locator('th:has-text("Actions")');
 
 		// Footer elements
 		this.deletedMeetingsLink = page.locator('a[href*="manage_trash"]:has-text("View deleted meetings")');

@@ -96,6 +96,9 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 
 	test.describe('Main Flow', () => {
 		test('should allow admin to unpublish a meeting to temporarily hide it from public view', async () => {
+			let initialPublishedMeetingsCount = 0;
+			let meetingToUnpublish: string | null = null;
+
 			await test.step('1. User: Navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -148,6 +151,19 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 				// Verify the page shows meetings
 				const meetingsCount = await meetingsManagePage.getMeetingsCount();
 				expect(meetingsCount).toBeGreaterThan(0);
+
+				// Count initial published meetings for later comparison
+				const allMeetings = await meetingsManagePage.getAllMeetingsData();
+				for (const meeting of allMeetings) {
+					const hasUnpublishPermission = await meetingsManagePage.hasActionPermission(
+						meeting.id,
+						'unpublish'
+					);
+					if (hasUnpublishPermission) {
+						initialPublishedMeetingsCount++;
+					}
+				}
+				expect(initialPublishedMeetingsCount).toBeGreaterThan(0);
 			});
 
 			await test.step('7. User: Finds a specific meeting and clicks on the "Unpublish" button to hide it from public view', async () => {
@@ -155,8 +171,6 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 				const allMeetings = await meetingsManagePage.getAllMeetingsData();
 
 				// Find a meeting that has unpublish permission (published meetings)
-				let meetingToUnpublish: string | null = null;
-
 				for (const meeting of allMeetings) {
 					const hasUnpublishPermission = await meetingsManagePage.hasActionPermission(
 						meeting.id,
@@ -198,10 +212,29 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 			});
 
 			await test.step('9. System: Notifies the City Administrator that the meeting has been successfully unpublished', async () => {
-				// The unpublishMeeting method already handles the confirmation dialog and waits for the action to complete
-				// We can verify the state change by checking that at least one meeting is now unpublished
+				// Verify the specific meeting that was unpublished no longer has unpublish permission
+				const hasUnpublishPermission = await meetingsManagePage.hasActionPermission(
+					meetingToUnpublish!,
+					'unpublish'
+				);
+				expect(hasUnpublishPermission).toBe(false);
+
+				// Count current published meetings to verify the count decreased by exactly 1
 				const allMeetings = await meetingsManagePage.getAllMeetingsData();
-				expect(allMeetings.length).toBeGreaterThan(0);
+				let currentPublishedMeetingsCount = 0;
+
+				for (const meeting of allMeetings) {
+					const hasMeetingUnpublishPermission = await meetingsManagePage.hasActionPermission(
+						meeting.id,
+						'unpublish'
+					);
+					if (hasMeetingUnpublishPermission) {
+						currentPublishedMeetingsCount++;
+					}
+				}
+
+				// Verify that the count of published meetings decreased by exactly 1
+				expect(currentPublishedMeetingsCount).toBe(initialPublishedMeetingsCount - 1);
 			});
 
 			await test.step('Result: The meeting is no longer publicly visible, and participants cannot register or view the meeting details until it is republished', async () => {
