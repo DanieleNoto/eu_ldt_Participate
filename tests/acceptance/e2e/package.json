@@ -10,6 +10,7 @@
 		"test-ui-port0:ci": "cross-env ENV=ci npx playwright test --ui-port=0",
 		"test-ui-port0:dev": "cross-env ENV=development npx playwright test --ui-port=0",
 		"test-ui-port0:prod": "cross-env ENV=production npx playwright test --ui-port=0",
+		"setup:auth": "set FE_BASE_URL=http://localhost:3000 && npx playwright test --project user-setup --project admin-setup",
 		"report": "playwright show-report"
 	},
 	"keywords": [],

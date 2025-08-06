@@ -1,7 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
-import { LocalizationUtils } from '../../../../utils/localization.utils';
 import { HeaderComponent } from '../../../components/common/HeaderComponent';
 import { VerticalTabsComponent } from '../../../components/common/VerticalTabsComponent';
+import { NotificationSettingsPage } from '../NotificationSettingsPage';
 
 export class AccountPage {
 	private page: Page;
@@ -366,48 +366,19 @@ export class AccountPage {
 	}
 
 	/**
-	 * Example method showing how to use LocalizationUtils for potentially localized fields
-	 * This demonstrates the pattern for any page object that might have localized fields
+	 * Get the notification settings page instance
 	 */
-	async testLocalizationSupport(): Promise<{
-		currentLocale: string;
-		hasLocalizedFields: boolean;
-		supportedLocales: string[];
-	}> {
-		const currentLocale = LocalizationUtils.getCurrentLocale(this.page);
-
-		// Example: Check if user form fields might be localized
-		// (In reality, user account fields are usually not localized, but this shows the pattern)
-		const testFieldNames = [
-			'user_about', // Example of a field that might be localized
-			'user_profile_description' // Another example
-		];
-
-		let hasLocalizedFields = false;
-		const supportedLocales: string[] = [];
-
-		// Test if any fields have localized versions
-		for (const fieldName of testFieldNames) {
-			const availableLocales = await LocalizationUtils.getAvailableLocales(this.page, fieldName);
-			if (availableLocales.length > 1) {
-				hasLocalizedFields = true;
-				supportedLocales.push(...availableLocales);
-			}
-		} // Remove duplicates
-		const uniqueLocales = Array.from(new Set(supportedLocales));
-
-		return {
-			currentLocale,
-			hasLocalizedFields,
-			supportedLocales: uniqueLocales
-		};
+	getNotificationSettingsPage(): NotificationSettingsPage {
+		return new NotificationSettingsPage(this.page);
 	}
 
 	/**
-	 * Navigate to account page with specific locale
+	 * Navigate to notification settings page and return the page instance
 	 */
-	async navigateToAccountPageWithLocale(locale: string): Promise<void> {
-		await LocalizationUtils.navigateWithLocale(this.page, '/account', locale);
-		await this.waitForPageLoad();
+	async navigateToNotificationSettings(): Promise<NotificationSettingsPage> {
+		await this.verticalTabs.navigateToNotificationSettings();
+		const notificationSettingsPage = new NotificationSettingsPage(this.page);
+		await notificationSettingsPage.waitForPageLoad();
+		return notificationSettingsPage;
 	}
 }
