@@ -9,7 +9,6 @@ export class ShareModalComponent {
 
 	// Modal container and dialog
 	private readonly modalDialog: Locator;
-	private readonly modalContent: Locator;
 	private readonly closeButton: Locator;
 	private readonly modalTitle: Locator;
 
@@ -21,7 +20,6 @@ export class ShareModalComponent {
 	private readonly telegramShareLink: Locator;
 
 	// Copy to clipboard section
-	private readonly shareInputContainer: Locator;
 	private readonly shareUrlInput: Locator;
 	private readonly copyButton: Locator;
 
@@ -30,7 +28,6 @@ export class ShareModalComponent {
 
 		// Modal container and dialog
 		this.modalDialog = this.page.locator('#socialShare[role="dialog"]');
-		this.modalContent = this.page.locator('#socialShare-content.share-modal');
 		this.closeButton = this.page.locator('button[data-dialog-close="socialShare"]');
 		this.modalTitle = this.page.locator('#dialog-title-socialShare');
 
@@ -42,7 +39,6 @@ export class ShareModalComponent {
 		this.telegramShareLink = this.page.locator('.share-modal__list a[data-site="telegram"]');
 
 		// Copy to clipboard section
-		this.shareInputContainer = this.page.locator('.share-modal__input');
 		this.shareUrlInput = this.page.locator('#urlShareLink');
 		this.copyButton = this.page.locator('button[data-clipboard-copy="#urlShareLink"]');
 	}
@@ -349,5 +345,63 @@ export class ShareModalComponent {
 			whatsapp: whatsappUrl,
 			telegram: telegramUrl
 		});
+	}
+
+	async closeModal() {
+		await this.page.click('[data-dialog-close="socialShare"]');
+	}
+
+	async shareToX() {
+		await this.page.click('[data-site="x"]');
+	}
+
+	async shareToFacebook() {
+		await this.page.click('[data-site="facebook"]');
+	}
+
+	async shareToWhatsApp() {
+		await this.page.click('[data-site="whatsapp"]');
+	}
+
+	async shareToTelegram() {
+		await this.page.click('[data-site="telegram"]');
+	}
+
+	async copyShareLink() {
+		await this.page.click('[data-clipboard-copy="#urlShareLink"]');
+	}
+
+	async getShareLinkValue(): Promise<string> {
+		return await this.page.getAttribute('#urlShareLink', 'value');
+	}
+
+	async expectModalVisible() {
+		await this.page.waitForSelector('#socialShare-content', { state: 'visible' });
+	}
+
+	async expectShareToXSuccess() {
+		await this.page.waitForSelector('[data-site="x"]', { state: 'attached' });
+	}
+
+	async expectShareToFacebookSuccess() {
+		await this.page.waitForSelector('[data-site="facebook"]', { state: 'attached' });
+	}
+
+	async expectShareToWhatsAppSuccess() {
+		await this.page.waitForSelector('[data-site="whatsapp"]', { state: 'attached' });
+	}
+
+	async expectShareToTelegramSuccess() {
+		await this.page.waitForSelector('[data-site="telegram"]', { state: 'attached' });
+	}
+
+	async expectClipboardCopySuccess() {
+		const copiedMessage = await this.page.getAttribute(
+			'[data-clipboard-copy="#urlShareLink"]',
+			'data-clipboard-copy-message'
+		);
+		if (copiedMessage !== 'The link was successfully copied to clipboard.') {
+			throw new Error('Clipboard copy failed');
+		}
 	}
 }

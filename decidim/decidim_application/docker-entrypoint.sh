@@ -1,3 +1,9 @@
+# Remove old server PID file if it exists
+if [ -f tmp/pids/server.pid ]; then
+  rm tmp/pids/server.pid
+  echo "--- Removed old server PID file ---"
+fi
+
 # Check if we need to update dependencies (only if files changed)
 echo "--- Checking for dependency updates ---"
 BUNDLE_UPDATED=false
@@ -65,11 +71,13 @@ fi
 
 # Asset compilation and data setup
 if [ "$RAILS_ENV" = "development" ]; then
-  echo "--- Development environment detected, skipping asset precompilation ---"
-  echo "--- Assets will be served by shakapacker-dev-server ---"
+  echo "--- Development environment detected, compiling assets ---"
+  # Compile assets to ensure they're available even if shakapacker-dev-server isn't responsive
+  bin/rails shakapacker:compile
+  echo "--- Assets will also be served by shakapacker-dev-server ---"
 
   # Only run data preparation if dependencies were updated or FORCE_DATA_SETUP is set
-  if { [ "$BUNDLE_UPDATED" = "true" ] || [ "$YARN_UPDATED" = "true" ] || [ "$FORCE_DATA_SETUP" = "true" ] || [ ! -f tmp/.data-prepared ]; } && [ "$FORCE_DB_RESET" = "true" ]; then
+  if { [ "$BUNDLE_UPDATED" = "true" ]  || [ "$FORCE_DATA_SETUP" = "true" ] || [ ! -f tmp/.data-prepared ]; } && [ "$FORCE_DB_RESET" = "true" ]; then
     echo "--- Setting up default data ---"
     mkdir -p tmp
     bin/rails runner prepare-db-for-tests.rb \
@@ -85,16 +93,6 @@ else
   echo "--- Not in development environment, skipping data preparation ---"
   echo "RAILS_ENV is currently: $RAILS_ENV"
 fi
-
-echo "--- Installing Node.js packages ---"
-yarn install
-
-echo "--- Testing Redis connection ---"
-until redis-cli -h redis -p 6379 ping; do
-  echo "Waiting for Redis to be ready..."
-  sleep 2
-done
-echo "--- Redis is ready ---"
 
 echo "--- Starting Rails server ---"
 mkdir -p tmp
