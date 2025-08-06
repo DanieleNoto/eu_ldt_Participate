@@ -1,4 +1,4 @@
-name: Lot5RepoSync-Tool1
+name: Lot5RepoSync-Tool3
 
 trigger:
   branches:
@@ -6,7 +6,7 @@ trigger:
       - main
   tags:
     include:
-      - '*'  # Cualquier tag dispara el pipeline
+      - '*'  # This activates the pipeline with any tag
 
 variables:
 - group: 'TOOL3 - PT - KV'
@@ -15,32 +15,32 @@ jobs:
 - job: MirrorRepoToLot5
   displayName: MirrorRepoToLot5
   steps:
-    - checkout: none  # No se necesita clonar el repositorio actual
+    - checkout: none  # Its not necesary
 
     - task: Bash@3
-      displayName: 'Mirror completo del repositorio origen al destino (con limpieza de refs especiales)'
+      displayName: 'Full mirror from source repository to destination (with special ref cleanup)'
       inputs:
         targetType: inline
         script: |
           set -e
           git config --global http.sslVerify false
 
-          echo "Clonando todo el repositorio origen con --mirror..."
+          echo "Cloning the entire source repository with --mirror..."
           git clone --mirror https://$(PAT-LOT5-REPO-SYNC)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate source-repo
 
           cd source-repo
 
-          echo "Eliminando refs de pull request (refs/pull/*)..."
+          echo "Removing pull request refs (refs/pull/*)..."
           for ref in $(git for-each-ref --format='%(refname)' refs/pull/ 2>/dev/null); do
             echo "  Eliminando $ref"
             git update-ref -d "$ref"
           done
 
-          echo "Configurando remote destino..."
+          echo "Configuring remote destination..."
           #git remote set-url origin https://$(PAT-LOT5-REPO-SYNC-CLONACION)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Toolbox/_git/EU%20LDT%20Participate
           git remote set-url origin https://$(PAT-LOT5-REPO-SYNC)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Toolbox/_git/EU%20LDT%20Participate
 
-          echo "Empujando todos los refs al destino con --mirror..."
+          echo "Pushing all refs to the destination with --mirror..."
           git push --mirror
 
-          echo "Repositorios sincronizados exitosamente."
+          echo "Repositories synchronized successfully."
