@@ -1,3 +1,4 @@
+import { TEST_USERS } from '@config/test-users';
 import { LoginPage } from '@pages/pages/auth/LoginPage';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { Page, Browser } from '@playwright/test';
@@ -69,6 +70,9 @@ async function _login(page: Page, userType: keyof typeof STORAGE_STATE) {
 			break;
 		case 'ACCOUNT_DELETION_USER':
 			await loginPage.loginAsUserToDelete();
+			break;
+		case 'USER_WITHOUT_MESSAGES':
+			await loginPage.login(TEST_USERS.USER_WITHOUT_MESSAGES.email, TEST_USERS.USER_WITHOUT_MESSAGES.password);
 			break;
 		default:
 			throw new Error(`Unknown user type: ${userType}`);

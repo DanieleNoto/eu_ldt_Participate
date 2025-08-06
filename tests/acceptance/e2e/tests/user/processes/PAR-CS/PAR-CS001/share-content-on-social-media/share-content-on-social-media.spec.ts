@@ -86,7 +86,7 @@ test.describe('[PAR-CS001] – Share content on social media', () => {
 				// Get count of available social options
 				const socialOptionsCount = await debateDetailPage.shareModal.getSocialOptionsCount();
 				console.log('Number of social media platforms available:', socialOptionsCount);
-				expect(socialOptionsCount).toBeGreaterThanOrEqual(4); // Facebook, X, WhatsApp, Telegram
+				expect(socialOptionsCount).toBe(4); // Facebook, X, WhatsApp, Telegram
 			});
 
 			await test.step('4. User: Selects the social media platform they wish to share the content on', async () => {
