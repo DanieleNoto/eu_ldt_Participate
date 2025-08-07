@@ -1,7 +1,7 @@
 # EU LDT Participate - Development Makefile
 # This Makefile automates the setup and testing of the EU LDT Participate platform
 
-.PHONY: help setup install-deps check-env check-prerequisites setup-node setup-decidim setup-playwright setup-frontend setup-backend
+.PHONY: help setup install-deps check-env check-prerequisites setup-node setup-decidim setup-playwright setup-frontend setup-backend setup-jitsi
 .PHONY: start setup-initial-environment stop restart logs test test-playwright test-frontend test-backend test-all clean
 .PHONY: dev-decidim dev-frontend dev-backend dev-all status check-services
 
@@ -90,12 +90,17 @@ setup-backend: install-deps ## Setup backend dependencies
 	@cd backend && npm install
 	@echo "$(GREEN)✓ Backend setup completed$(NC)"
 
+setup-jitsi: ## Setup Jitsi configuration directories
+	@echo "$(YELLOW)Setting up Jitsi configuration directories...$(NC)"
+	@mkdir -p jitsi-meet-cfg/{web,prosody,jicofo,jvb}
+	@echo "$(GREEN)✓ Jitsi configuration directories created$(NC)"
+
 setup-decidim: check-prerequisites ## Setup Decidim with Docker Compose
 	@echo "$(YELLOW)Setting up Decidim...$(NC)"
 	@docker compose build
 	@echo "$(GREEN)✓ Decidim setup completed$(NC)"
 
-setup: setup-node install-deps setup-playwright setup-frontend setup-backend setup-decidim ## Complete environment setup
+setup: setup-node install-deps setup-playwright setup-frontend setup-backend setup-jitsi setup-decidim ## Complete environment setup
 	@echo "$(GREEN)🎉 Complete environment setup finished!$(NC)"
 	@echo "$(YELLOW)Next steps:$(NC)"
 	@echo "  1. Run 'make setup-initial-environment' for first time setup with DB reset and data initialization"
@@ -196,7 +201,7 @@ clean-deps: ## Remove all node_modules directories
 reset: clean clean-deps setup ## Complete reset and setup
 
 # Development workflow shortcuts
-quick-setup: check-prerequisites setup-node install-deps setup-decidim ## Quick setup without Playwright
+quick-setup: check-prerequisites setup-node install-deps setup-jitsi setup-decidim ## Quick setup without Playwright
 	@echo "$(GREEN)Quick setup completed! Run 'make start' to begin.$(NC)"
 
 ci-test: setup test-all ## CI/CD pipeline test target
