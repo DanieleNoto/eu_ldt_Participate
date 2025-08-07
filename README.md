@@ -71,26 +71,26 @@ The project uses **`.gitattributes`** and **`.editorconfig`** files to ensure co
 
 ### Windows-Specific Setup
 
-If you're on Windows, **before cloning** or if you already have the repository, configure Git to handle line endings correctly:
+If you're on Windows, follow these steps:
 
-```bash
-git config core.autocrlf false
-git config core.eol lf
-# If you already have the repository cloned:
-git add --renormalize .
-git reset --hard HEAD
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://EULDT-Toolbox@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate
+   cd eu-ldt-participate
+   ```
 
-- Install [Chocolatey](https://chocolatey.org/) if not present.
-- Install Make: `choco install make`
-- Install [nvm-windows](https://github.com/coreybutler/nvm-windows) and ensure it is in your PATH.
+2. **Configure Git to handle line endings correctly:**
+   ```bash
+   git config core.autocrlf false
+   git config core.eol lf
+   git add --renormalize .
+   git reset --hard HEAD
+   ```
 
-### Initial Cloning
-
-```bash
-git clone https://EULDT-Toolbox@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate
-cd eu-ldt-participate
-```
+3. **Install required tools:**
+   - Install [Chocolatey](https://chocolatey.org/) if not present.
+   - Install Make: `choco install make`
+   - Install [nvm-windows](https://github.com/coreybutler/nvm-windows) and ensure it is in your PATH.
 
 ## Setup and Configuration
 
