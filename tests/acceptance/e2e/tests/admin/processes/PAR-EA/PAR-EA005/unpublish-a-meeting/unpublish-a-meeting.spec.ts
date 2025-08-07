@@ -193,25 +193,19 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 			});
 
 			await test.step('8. System: Updates the meeting status to "Unpublished"', async () => {
-				// Verify that the meeting was successfully unpublished by checking if it no longer has unpublish permission
-				// and now has publish permission instead
-				const allMeetings = await meetingsManagePage.getAllMeetingsData();
-
-				// Check if any meeting now has publish permission (meaning it was unpublished)
-				let hasUnpublishedMeeting = false;
-				for (const meeting of allMeetings) {
-					const hasPublishPermission = await meetingsManagePage.hasActionPermission(meeting.id, 'unpublish');
-					if (!hasPublishPermission) {
-						// Meeting no longer has unpublish permission, meaning it was unpublished
-						hasUnpublishedMeeting = true;
-						break;
-					}
-				}
-
-				expect(hasUnpublishedMeeting).toBe(true);
+				// Verify that the meeting was successfully unpublished by checking it no longer has unpublish permission
+				const hasUnpublishPermission = await meetingsManagePage.hasActionPermission(
+					meetingToUnpublish!,
+					'unpublish'
+				);
+				expect(hasUnpublishPermission).toBe(false);
 			});
 
 			await test.step('9. System: Notifies the City Administrator that the meeting has been successfully unpublished', async () => {
+				// This step represents the system notification that the meeting has been unpublished
+			});
+
+			await test.step('Result: The meeting is no longer publicly visible, and participants cannot register or view the meeting details until it is republished', async () => {
 				// Verify the specific meeting that was unpublished no longer has unpublish permission
 				const hasUnpublishPermission = await meetingsManagePage.hasActionPermission(
 					meetingToUnpublish!,
@@ -235,14 +229,10 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 
 				// Verify that the count of published meetings decreased by exactly 1
 				expect(currentPublishedMeetingsCount).toBe(initialPublishedMeetingsCount - 1);
-			});
 
-			await test.step('Result: The meeting is no longer publicly visible, and participants cannot register or view the meeting details until it is republished', async () => {
 				// Verify that we have meetings and at least one should be in an unpublished state
 				const meetingsCount = await meetingsManagePage.getMeetingsCount();
 				expect(meetingsCount).toBeGreaterThan(0);
-
-				// The meeting status change is verified in step 8, confirming the meeting is unpublished
 			});
 		});
 	});
