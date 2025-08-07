@@ -7,9 +7,7 @@ import { BaseAdminPage } from '../../../../BaseAdminPage';
  */
 export class MeetingAgendaPage extends BaseAdminPage {
 	// Main page elements
-	private readonly pageWrapper: Locator;
 	private readonly pageTitle: Locator;
-	private readonly form: Locator;
 
 	// Meeting info section
 	private readonly meetingTitle: Locator;
@@ -21,27 +19,17 @@ export class MeetingAgendaPage extends BaseAdminPage {
 	private readonly visibleCheckbox: Locator;
 
 	// Agenda items section
-	private readonly agendaItemsSection: Locator;
-	private readonly agendaItemsList: Locator;
 	private readonly addAgendaItemButton: Locator;
 
 	// Agenda item template selectors (for dynamic items)
-	private readonly agendaItemTemplate: Locator;
 	private readonly agendaItemCards: Locator;
-
-	// Agenda sub-items template
-	private readonly agendaSubItemTemplate: Locator;
 
 	// Form actions
 	private readonly createButton: Locator;
-	private readonly stickyActionsContainer: Locator;
 
 	// Upload modal elements
-	private readonly uploadModal: Locator;
 	private readonly uploadModalCloseButton: Locator;
 	private readonly uploadFileInput: Locator;
-	private readonly uploadDropzone: Locator;
-	private readonly uploadSelectFileButton: Locator;
 	private readonly uploadCancelButton: Locator;
 	private readonly uploadSaveButton: Locator;
 
@@ -49,9 +37,7 @@ export class MeetingAgendaPage extends BaseAdminPage {
 		super(page);
 
 		// Main page elements
-		this.pageWrapper = page.locator('.item_show__wrapper');
 		this.pageTitle = page.locator('.item_show__header-title h1');
-		this.form = page.locator('form.new_agenda, form.edit_agenda');
 
 		// Meeting info section
 		this.meetingTitle = page.locator('.card-title u');
@@ -63,27 +49,17 @@ export class MeetingAgendaPage extends BaseAdminPage {
 		this.visibleCheckbox = page.locator('#meeting_agenda_visible');
 
 		// Agenda items section
-		this.agendaItemsSection = page.locator('.meeting-agenda-items');
-		this.agendaItemsList = page.locator('.meeting-agenda-items-list');
 		this.addAgendaItemButton = page.locator('button.add-agenda-item');
 
 		// Dynamic agenda item elements
-		this.agendaItemTemplate = page.locator('script.decidim-template').first();
 		this.agendaItemCards = page.locator('.meeting-agenda-item');
-
-		// Agenda sub-items template
-		this.agendaSubItemTemplate = page.locator('#agenda-item-child-template-dummy');
 
 		// Form actions
 		this.createButton = page.locator('button[type="submit"][name="commit"]');
-		this.stickyActionsContainer = page.locator('.item__edit-sticky');
 
 		// Upload modal elements
-		this.uploadModal = page.locator('[data-dialog]');
 		this.uploadModalCloseButton = page.locator('[data-dialog-close]');
 		this.uploadFileInput = page.locator('input[type="file"][name="editor_image[file]"]');
-		this.uploadDropzone = page.locator('[data-dropzone]');
-		this.uploadSelectFileButton = page.locator('label.button__secondary[for*="files-upload"]');
 		this.uploadCancelButton = page.locator('[data-dropzone-cancel]');
 		this.uploadSaveButton = page.locator('[data-dropzone-save]');
 	}

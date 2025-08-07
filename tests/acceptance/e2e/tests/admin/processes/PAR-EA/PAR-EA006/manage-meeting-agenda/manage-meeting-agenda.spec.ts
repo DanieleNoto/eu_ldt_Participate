@@ -5,7 +5,6 @@ import { MeetingAgendaPage } from '@pages/pages/admin/processes/detail/component
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
 /**
@@ -306,6 +305,8 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 
 	test.describe('Alternative Flow: Cancel', () => {
 		test('should allow user to cancel agenda management without saving changes', async () => {
+			let initialMeetingsCount: number;
+
 			await test.step('Start at point 1-10', async () => {
 				// Navigate to agenda management
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -317,6 +318,9 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				const meetingComponents = await componentsPage.findComponentsByType('meetings');
 				await componentsPage.manageComponent(meetingComponents[0]);
 				await meetingsManagePage.waitForMeetingsPageLoad();
+
+				// Store initial meetings count before making any changes
+				initialMeetingsCount = await meetingsManagePage.getMeetingsCount();
 
 				const meetingWithAgenda = await findMeetingWithAgendaAccess();
 				if (meetingWithAgenda) {
@@ -356,7 +360,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 			await test.step('Result: The user cancels the action, and no data is saved. The system returns to the previous page', async () => {
 				// Verify we're back on the meetings page and the agenda was not saved
 				const meetingsCount = await meetingsManagePage.getMeetingsCount();
-				expect(meetingsCount).toBeGreaterThan(0);
+				expect(meetingsCount).toBe(initialMeetingsCount);
 				console.log('Successfully cancelled agenda management and returned to meetings page');
 			});
 		});
@@ -387,7 +391,19 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				// Clear any existing agenda content first to create validation errors
 				await meetingAgendaPage.fillAgendaTitle(''); // Empty title should cause validation error
 
-				// Try to submit form with missing required fields
+				// Add agenda items with invalid/missing data to test validation
+				await meetingAgendaPage.addAgendaItem();
+				await meetingAgendaPage.fillAgendaItemTitle(0, ''); // Empty agenda item title
+				await meetingAgendaPage.fillAgendaItemDuration(0, 0); // Invalid duration (0 minutes)
+				await meetingAgendaPage.fillAgendaItemDescription(0, ''); // Empty description
+
+				// Add another item with different validation issues
+				await meetingAgendaPage.addAgendaItem();
+				await meetingAgendaPage.fillAgendaItemTitle(1, 'Valid Title'); // Valid title
+				await meetingAgendaPage.fillAgendaItemDuration(1, -5); // Negative duration (invalid)
+				// Leave description empty for this item
+
+				// Try to submit form with missing/invalid required fields
 				await meetingAgendaPage.createAgenda();
 				await meetingAgendaPage.getPage().waitForLoadState('networkidle');
 			});
@@ -414,14 +430,31 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 					return;
 				}
 
-				// Fill required fields to fix validation errors
+				// Fix the main agenda title
 				await meetingAgendaPage.fillAgendaTitle('Corrected Agenda Title');
 				await meetingAgendaPage.setVisibility(true);
 
-				// Add at least one agenda item
+				// Correct the first agenda item
+				await meetingAgendaPage.fillAgendaItemTitle(0, 'Opening and Welcome');
+				await meetingAgendaPage.fillAgendaItemDuration(0, 15);
+				await meetingAgendaPage.fillAgendaItemDescription(
+					0,
+					'Welcome participants and introduce the meeting objectives'
+				);
+
+				// Correct the second agenda item
+				await meetingAgendaPage.fillAgendaItemTitle(1, 'Main Discussion Topic');
+				await meetingAgendaPage.fillAgendaItemDuration(1, 45);
+				await meetingAgendaPage.fillAgendaItemDescription(
+					1,
+					'In-depth discussion about the main topic of the meeting'
+				);
+
+				// Add a third properly filled agenda item
 				await meetingAgendaPage.addAgendaItem();
-				await meetingAgendaPage.fillAgendaItemTitle(0, 'Corrected Agenda Item');
-				await meetingAgendaPage.fillAgendaItemDuration(0, 30);
+				await meetingAgendaPage.fillAgendaItemTitle(2, 'Closing Remarks');
+				await meetingAgendaPage.fillAgendaItemDuration(2, 10);
+				await meetingAgendaPage.fillAgendaItemDescription(2, 'Summary of decisions and next steps');
 			});
 
 			await test.step('11.4. User: Attempts to save the event again', async () => {
