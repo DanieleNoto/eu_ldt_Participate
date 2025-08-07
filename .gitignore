@@ -113,3 +113,6 @@ tests/acceptance/e2e/playwright/.cache/**
 **/account-deletion-user-state.json
 # Decidim upgrade marker
 **/.decidim_upgrade_completed
+
+# Jitsi configuration directories
+jitsi-meet-cfg/
