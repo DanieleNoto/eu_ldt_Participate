@@ -23,9 +23,9 @@ services:
             - SHAKAPACKER_DEV_SERVER_ENABLED=true
             # CSP Configuration for development
             - RAILS_CSP_DEVELOPMENT=true
-            # Uncomment these only when you need to force reset/setup
-            # - FORCE_DB_RESET=true
-            # - FORCE_DATA_SETUP=true
+            # Database reset and setup flags (controlled by make commands)
+            - FORCE_DB_RESET=${FORCE_DB_RESET:-false}
+            - FORCE_DATA_SETUP=${FORCE_DATA_SETUP:-false}
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle

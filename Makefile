@@ -2,7 +2,7 @@
 # This Makefile automates the setup and testing of the EU LDT Participate platform
 
 .PHONY: help setup install-deps check-env check-prerequisites setup-node setup-decidim setup-playwright setup-frontend setup-backend
-.PHONY: start stop restart logs test test-playwright test-frontend test-backend test-all clean
+.PHONY: start setup-initial-environment stop restart logs test test-playwright test-frontend test-backend test-all clean
 .PHONY: dev-decidim dev-frontend dev-backend dev-all status check-services
 
 # Default target
@@ -98,14 +98,23 @@ setup-decidim: check-prerequisites ## Setup Decidim with Docker Compose
 setup: setup-node install-deps setup-playwright setup-frontend setup-backend setup-decidim ## Complete environment setup
 	@echo "$(GREEN)🎉 Complete environment setup finished!$(NC)"
 	@echo "$(YELLOW)Next steps:$(NC)"
-	@echo "  1. Run 'make start' to start all services"
-	@echo "  2. Run 'make test-all' to run all tests"
-	@echo "  3. Access Decidim at $(DECIDIM_URL)"
+	@echo "  1. Run 'make setup-initial-environment' for first time setup with DB reset and data initialization"
+	@echo "  2. Or run 'make start' for regular startup"
+	@echo "  3. Run 'make test-all' to run all tests"
+	@echo "  4. Access Decidim at $(DECIDIM_URL)"
 
 start: ## Start all services
 	@echo "$(YELLOW)Starting Decidim services...$(NC)"
-	@docker compose up -d
+	@export FORCE_DB_RESET=false FORCE_DATA_SETUP=false && docker compose up -d
 	@echo "$(GREEN)✓ Decidim services started$(NC)"
+	@echo "$(YELLOW)Decidim will be available at: $(DECIDIM_URL)$(NC)"
+	@echo "$(YELLOW)Default admin credentials: admin@example.org / decidim123456789$(NC)"
+	@echo "$(YELLOW)Default user credentials: user@example.org / decidim123456789$(NC)"
+
+setup-initial-environment: ## Start all services with database reset and initial data setup
+	@echo "$(YELLOW)Starting Decidim services with database reset and initial data setup...$(NC)"
+	@export FORCE_DB_RESET=true FORCE_DATA_SETUP=true && docker compose up -d
+	@echo "$(GREEN)✓ Decidim services started with fresh database and initial data$(NC)"
 	@echo "$(YELLOW)Decidim will be available at: $(DECIDIM_URL)$(NC)"
 	@echo "$(YELLOW)Default admin credentials: admin@example.org / decidim123456789$(NC)"
 	@echo "$(YELLOW)Default user credentials: user@example.org / decidim123456789$(NC)"
