@@ -20,7 +20,9 @@
 - **Code Quality:** Shared linting, formatting, and testing configurations enforce coding standards and prevent regressions.
 - **Observability:** Preconfigured Grafana dashboards and Matomo reports provide actionable insights into platform usage and performance.
 
-## Monorepo Structure
+## Architecture
+
+### Monorepo Structure
 
 ```bash
 ├── cicd/                          # CI/CD pipelines and workflows
@@ -37,13 +39,11 @@
 └── docs/                          # High-level documentation (architecture, setup, troubleshooting)
 ```
 
-## Getting Started
-
-## Cross-Platform Compatibility
+### Cross-Platform Compatibility
 
 This project is designed to work seamlessly across Linux, macOS, WSL, and native Windows environments.
 
-### Line Ending Handling
+#### Line Ending Handling
 
 The project uses **`.gitattributes`** and **`.editorconfig`** files to ensure consistent line endings across all platforms:
 
@@ -57,6 +57,8 @@ The project uses **`.gitattributes`** and **`.editorconfig`** files to ensure co
 - ✅ **Docker containers**: Always receive files with correct line endings
 - ✅ **Git operations**: Automatic line ending normalization
 
+## Installation
+
 ### Prerequisites
 
 - **Operating System**: Linux, macOS, or Windows (WSL recommended, but native Windows is now supported)
@@ -67,107 +69,7 @@ The project uses **`.gitattributes`** and **`.editorconfig`** files to ensure co
 - [nvm-windows](https://github.com/coreybutler/nvm-windows) - Node Version Manager for Windows (native Windows only)
 - [Helm](https://helm.sh/) and [kubectl](https://kubernetes.io/) for Kubernetes deployments
 
-### Local Development Setup
-
-> **🚀 Recommended: Use Makefile for automated setup**
->
-> The project includes a comprehensive Makefile that automates the entire development environment setup. This is the recommended approach for both new and experienced developers.
-
-#### Option A: Automated Setup with Makefile (Recommended)
-
-First, start Docker if you don't have it started yet, then clone the repository and navigate to the project root:
-
-```bash
-git clone https://EULDT-Toolbox@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate
-cd eu-ldt-participate
-```
-
-**Windows users:**
-
-- Install [Chocolatey](https://chocolatey.org/) if not present.
-- Install Make: `choco install make`
-- Install [nvm-windows](https://github.com/coreybutler/nvm-windows) and ensure it is in your PATH.
-
-> **⚠️ Important for Windows users:** Before cloning or if you already have the repository, run these Git configuration commands to ensure proper line ending handling:
->
-> ```bash
-> git config core.autocrlf false
-> git config core.eol lf
-> git add --renormalize .
-> git reset --hard HEAD
-> ```
->
-> **📝 Note:** This project uses `.gitattributes` to automatically handle line ending conversion. The commands above ensure your local Git configuration is properly aligned with the project's line ending requirements.
-
-**Linux/macOS/WSL users:**
-
-- Ensure you have GNU Make and [nvm](https://github.com/nvm-sh/nvm) installed.
-
-Then use the Makefile for complete automated setup (works on Linux, macOS, WSL, and Windows):
-
-```bash
-# Show all available commands
-make help
-
-# Complete environment setup (includes NVM/nvm-windows, dependencies, Playwright, Decidim)
-make setup
-
-# Alternative: Quick setup without Playwright (faster)
-make quick-setup
-
-# Start all services
-make start
-
-# Run all tests
-make test-all
-```
-
-**Key Makefile Commands (cross-platform):**
-
-```bash
-# Setup & Environment
-make setup                # Complete automated environment setup
-make quick-setup          # Fast setup without Playwright
-make validate-env         # Check if all tools are properly installed
-make info                 # Show project information and structure
-
-# Service Management
-make start                # Start Decidim services
-make stop                 # Stop all services
-make restart              # Restart services
-make status               # Check service status
-make logs                 # View Decidim logs
-
-# Development
-make dev-decidim          # Start Decidim
-make dev-frontend         # Start frontend development server
-make dev-backend          # Start backend development server
-make dev-all              # Instructions for all development servers
-
-# Testing
-make test                 # Run Playwright E2E tests
-make test-all             # Run all tests (backend, frontend, E2E)
-make test-playwright      # Run Playwright E2E tests
-make test-playwright-ui   # Run Playwright with UI
-make test-frontend        # Run frontend unit tests
-make test-backend         # Run backend unit tests
-make report-playwright    # Show Playwright test report
-
-# Utilities
-make clean                # Clean up containers and data
-make reset                # Complete reset and setup
-make urls                 # Show all service URLs
-```
-
-Now that you have everything running, go to the section **Use the application**
-
-#### Option B: Manual Setup (Advanced Users)
-
-If you prefer manual control over the setup process, follow these steps:
-
-##### 1. Initial Setup
-
-**Windows users - Git Configuration (Important First Step):**
+### Windows-Specific Setup
 
 If you're on Windows, **before cloning** or if you already have the repository, configure Git to handle line endings correctly:
 
@@ -179,16 +81,102 @@ git add --renormalize .
 git reset --hard HEAD
 ```
 
-This ensures compatibility with the project's `.gitattributes` configuration and prevents Docker execution issues.
+- Install [Chocolatey](https://chocolatey.org/) if not present.
+- Install Make: `choco install make`
+- Install [nvm-windows](https://github.com/coreybutler/nvm-windows) and ensure it is in your PATH.
 
-First, clone the repository and navigate to the project root:
+### Initial Cloning
 
 ```bash
 git clone https://EULDT-Toolbox@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate
 cd eu-ldt-participate
 ```
 
-##### 2. Node.js Version Management
+## Setup and Configuration
+
+There are two ways to set up the project: using the Makefile (recommended) or manually.
+
+### Option A: Automated Setup with Makefile (Recommended)
+
+> **🚀 The project includes a comprehensive Makefile that automates the entire development environment setup.**
+
+**Linux/macOS/WSL users:** Ensure you have GNU Make and [nvm](https://github.com/nvm-sh/nvm) installed.
+
+#### Initial Setup
+
+```bash
+# Show all available commands
+make help
+
+# Complete environment setup (includes NVM/nvm-windows, dependencies, Playwright, Decidim)
+make setup
+
+# Alternative: Quick setup without Playwright (faster)
+make quick-setup
+```
+
+#### First-Time Database Setup
+
+After completing the installation, you need to initialize the database and load sample data:
+
+```bash
+# Setup the initial environment with database reset and data setup
+make setup-initial-environment
+```
+
+This command will:
+1. Start all services
+2. Reset the database completely
+3. Set up initial data including default users
+
+Use this command when:
+- Setting up the project for the first time
+- Needing a clean database state
+- After significant database schema changes
+
+#### Key Makefile Commands
+
+```bash
+# Setup & Environment
+make setup                      # Complete automated environment setup
+make quick-setup                # Fast setup without Playwright
+make validate-env               # Check if all tools are properly installed
+make info                       # Show project information and structure
+make setup-initial-environment  # Start services with database reset and data setup
+
+# Service Management
+make start                      # Start Decidim services (without database reset)
+make stop                       # Stop all services
+make restart                    # Restart services
+make status                     # Check service status
+make logs                       # View Decidim logs
+
+# Development
+make dev-decidim                # Start Decidim
+make dev-frontend               # Start frontend development server
+make dev-backend                # Start backend development server
+make dev-all                    # Instructions for all development servers
+
+# Testing
+make test                       # Run Playwright E2E tests
+make test-all                   # Run all tests (backend, frontend, E2E)
+make test-playwright            # Run Playwright E2E tests
+make test-playwright-ui         # Run Playwright with UI
+make test-frontend              # Run frontend unit tests
+make test-backend               # Run backend unit tests
+make report-playwright          # Show Playwright test report
+
+# Utilities
+make clean                      # Clean up containers and data
+make reset                      # Complete reset and setup
+make urls                       # Show all service URLs
+```
+
+### Option B: Manual Setup (Advanced Users)
+
+If you prefer manual control over the setup process, follow these steps:
+
+#### 1. Node.js Version Management
 
 This project uses NVM to ensure consistent Node.js versions across different environments. The required Node.js version is specified in the `.nvmrc` file.
 
@@ -198,7 +186,7 @@ nvm install
 nvm use
 ```
 
-##### 3. Install Root Dependencies
+#### 2. Install Root Dependencies
 
 Install the monorepo dependencies:
 
@@ -206,7 +194,7 @@ Install the monorepo dependencies:
 npm install
 ```
 
-##### 4. Playwright E2E Tests Setup
+#### 3. Playwright E2E Tests Setup
 
 Navigate to the Playwright tests directory and install dependencies:
 
@@ -243,7 +231,7 @@ npm run test-ui-port0   # UI mode on random port
 npm run report
 ```
 
-##### 5. Decidim Setup with Docker Compose
+#### 4. Decidim Setup with Docker Compose
 
 Decidim is the core civic participation framework. To run it locally:
 
@@ -261,7 +249,13 @@ docker-compose logs -f decidim
 docker-compose down
 ```
 
-##### 6. How to use application
+## Usage
+
+### Available Services
+
+Once the setup is complete, the following services will be available:
+
+#### Main Application
 
 The Decidim application will be available at `http://localhost:3000`.
 
@@ -280,14 +274,13 @@ The Decidim application will be available at `http://localhost:3000`.
 - Email: `user2@example.org`
 - Password: `decidim123456789`
 
-**Services included:**
+#### Supporting Services
 
-- **Decidim App**: Main application (`http://localhost:3000`)
 - **PostgreSQL**: Database service
 - **Redis**: Cache and session storage
 - **Shakapacker**: Asset compilation service (`http://localhost:3035`)
 
-##### 6.1. Analytics Services Configuration
+### Analytics Services
 
 The project includes analytics infrastructure with Grafana and Matomo services:
 
@@ -311,20 +304,11 @@ The project includes analytics infrastructure with Grafana and Matomo services:
     4. Create admin user and configure site tracking
 - **Purpose**: Web analytics and user behavior tracking
 
-**Additional Analytics Services:**
-
-- **MariaDB**: Database backend for Matomo (`localhost:3306`)
-
-To start analytics services along with Decidim:
-
-```bash
-cd decidim/decidim_application
-docker-compose up -d
-```
-
 All analytics services are included in the main docker-compose configuration and will start automatically.
 
-##### 7. Frontend Chatbot Setup
+### Frontend and Backend Development
+
+#### Frontend Chatbot Setup
 
 Navigate to the frontend directory and install dependencies:
 
@@ -334,7 +318,7 @@ npm install
 npm run dev
 ```
 
-##### 8. Backend Chatbot Setup
+#### Backend Chatbot Setup
 
 Navigate to the backend directory and install dependencies:
 
@@ -344,23 +328,23 @@ npm install
 npm run dev
 ```
 
-### Development Workflow
+## Development Workflow
 
-#### Using Makefile (Recommended)
+### Using Makefile (Recommended)
 
 ```bash
 # First-time setup
 make setup
+make setup-initial-environment  # First run with database reset and data setup
 
 # Daily development workflow
-make start                    # Start Decidim
+make start                    # Start Decidim (without database reset)
 make test-all                # Run all tests
 make dev-frontend            # Start frontend (in separate terminal)
 make dev-backend             # Start backend (in separate terminal)
-make dev-backend             # Start backend (in separate terminal)
 ```
 
-#### Manual Commands
+### Manual Commands
 
 1. **Start Decidim**: `cd decidim/decidim_application && docker-compose up -d`
 2. **Run Playwright Tests**: `cd tests/acceptance/e2e && npm run test:dev`
