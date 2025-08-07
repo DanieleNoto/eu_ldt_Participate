@@ -515,14 +515,39 @@ export class MeetingsManagePage extends BaseAdminPage {
 		const row = this.getMeetingRow(meetingId);
 		const deleteButton = row.locator('a.action-icon--delete');
 
-		// Handle confirmation dialog
-		this.page.on('dialog', async dialog => {
-			if (dialog.type() === 'confirm') {
-				await dialog.accept();
-			}
-		});
-
+		// Click the soft delete button
 		await deleteButton.click();
+
+		// Wait for the confirmation modal to appear
+		const confirmModal = this.page.locator('#confirm-modal');
+		await confirmModal.waitFor({ state: 'visible' });
+
+		// Click the OK button to confirm the delete action
+		const confirmButton = confirmModal.locator('button[data-confirm-ok]');
+		await confirmButton.click();
+
+		// Wait for the modal to disappear and the action to complete
+		await confirmModal.waitFor({ state: 'hidden' });
+		await this.page.waitForLoadState('networkidle');
+	}
+
+	async cancelDeleteMeeting(meetingId: string) {
+		const row = this.getMeetingRow(meetingId);
+		const deleteButton = row.locator('a.action-icon--delete');
+
+		// Click the soft delete button to open the confirmation modal
+		await deleteButton.click();
+
+		// Wait for the confirmation modal to appear
+		const confirmModal = this.page.locator('#confirm-modal');
+		await confirmModal.waitFor({ state: 'visible' });
+
+		// Click the Cancel button to abort the delete action
+		const cancelButton = confirmModal.locator('button[data-confirm-cancel]');
+		await cancelButton.click();
+
+		// Wait for the modal to disappear without deleting
+		await confirmModal.waitFor({ state: 'hidden' });
 		await this.page.waitForLoadState('networkidle');
 	}
 
@@ -611,7 +636,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 
 	// URL expectations
 	async expectToBeOnMeetingsPage() {
-		await expect(this.page).toHaveURL(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\/?$/);
+		await expect(this.page).toHaveURL(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\/meetings\/?$/);
 	}
 
 	async expectToBeOnNewMeetingPage() {
