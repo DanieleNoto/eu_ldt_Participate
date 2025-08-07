@@ -3,8 +3,9 @@ import { FastifyBaseLogger } from 'fastify';
 import { v4 as uuidv4 } from 'uuid';
 import { build } from './app';
 import appConfig from './config/config';
-import { createDBConnection, runSeeders } from './utils/database';
+import { createDBConnection } from './utils/database';
 import logger from './utils/logger';
+import { runMigrations, runSeeders } from './utils/database.migrations';
 
 const start = async () => {
 	let app;
@@ -14,6 +15,7 @@ const start = async () => {
 		// IMPORTANT: Do not change the order of these executions! database connection must be established before app creation!
 		// Otherwise, the app automation logic will not work properly.
 		await createDBConnection();
+		await runMigrations();
 		await runSeeders();
 
 		app = await build({
@@ -38,6 +40,7 @@ const start = async () => {
 
 		await app.listen({ port: appConfig.port, host: '0.0.0.0' });
 		app.log.info(`Server running on port ${appConfig.port}`);
+		return app;
 	} catch (err) {
 		app?.log.error(err);
 		process.exit(1);

@@ -1,0 +1,59 @@
+{
+	"root": {
+		"id": "root",
+		"questionKey": "root",
+		"children": [
+			{ "id": "billing", "labelKey": "billing" },
+			{ "id": "technical", "labelKey": "technical" },
+			{ "id": "general", "labelKey": "general" }
+		]
+	},
+	"billing": {
+		"id": "billing",
+		"questionKey": "billing",
+		"answerKey": "billing",
+		"children": [
+			{ "id": "invoice", "labelKey": "invoice" },
+			{ "id": "payment", "labelKey": "payment" }
+		]
+	},
+	"technical": {
+		"id": "technical",
+		"questionKey": "technical",
+		"answerKey": "technical",
+		"children": [
+			{ "id": "error", "labelKey": "error" },
+			{ "id": "performance", "labelKey": "performance" }
+		]
+	},
+	"general": {
+		"id": "general",
+		"questionKey": "general",
+		"answerKey": "general",
+		"children": []
+	},
+	"invoice": {
+		"id": "invoice",
+		"questionKey": "invoice",
+		"answerKey": "invoice",
+		"children": []
+	},
+	"payment": {
+		"id": "payment",
+		"questionKey": "payment",
+		"answerKey": "payment",
+		"children": []
+	},
+	"error": {
+		"id": "error",
+		"questionKey": "error",
+		"answerKey": "error",
+		"children": []
+	},
+	"performance": {
+		"id": "performance",
+		"questionKey": "performance",
+		"answerKey": "performance",
+		"children": []
+	}
+}
