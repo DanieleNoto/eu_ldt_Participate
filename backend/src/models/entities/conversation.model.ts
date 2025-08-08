@@ -1,7 +1,22 @@
+/* eslint-disable brace-style */
+import { Optional } from 'sequelize';
 import { Column, CreatedAt, DataType, IsUUID, Model, PrimaryKey, Table } from 'sequelize-typescript';
 
+export interface ConversationAttributes {
+	id: string;
+	conversationId: string;
+	nodeId: string;
+	message: string;
+	createdAt?: Date;
+}
+
+export type ConversationCreationAttributes = Optional<ConversationAttributes, 'id' | 'createdAt'>;
+
 @Table({ tableName: 'conversations' })
-export default class Conversation extends Model<Conversation> {
+export default class Conversation
+	extends Model<ConversationAttributes, ConversationCreationAttributes>
+	implements ConversationAttributes
+{
 	@IsUUID(4)
 	@PrimaryKey
 	@Column({ type: DataType.UUID, defaultValue: DataType.UUIDV4, primaryKey: true, field: 'id' })

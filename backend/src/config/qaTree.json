@@ -15,7 +15,9 @@
 		"children": [
 			{ "id": "invoice", "labelKey": "invoice" },
 			{ "id": "payment", "labelKey": "payment" }
-		]
+		],
+		"handlerId": "logNode",
+		"handlerParams": { "level": "info" }
 	},
 	"technical": {
 		"id": "technical",
@@ -24,7 +26,8 @@
 		"children": [
 			{ "id": "error", "labelKey": "error" },
 			{ "id": "performance", "labelKey": "performance" }
-		]
+		],
+		"handlerId": "logNode"
 	},
 	"general": {
 		"id": "general",
@@ -36,7 +39,8 @@
 		"id": "invoice",
 		"questionKey": "invoice",
 		"answerKey": "invoice",
-		"children": []
+		"children": [],
+		"handlerId": "logNode"
 	},
 	"payment": {
 		"id": "payment",
@@ -48,12 +52,14 @@
 		"id": "error",
 		"questionKey": "error",
 		"answerKey": "error",
-		"children": []
+		"children": [],
+		"handlerId": "logNode"
 	},
 	"performance": {
 		"id": "performance",
 		"questionKey": "performance",
 		"answerKey": "performance",
-		"children": []
+		"children": [],
+		"handlerId": "logNode"
 	}
 }

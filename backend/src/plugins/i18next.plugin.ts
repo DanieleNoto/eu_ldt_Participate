@@ -18,27 +18,12 @@ export default fp(async function (fastify, opts) {
 			}
 		});
 
-	fastify.decorate('i18n', i18next);
-
-	await fastify.register(middleware.plugin, {
+	fastify.register(middleware.plugin, {
 		i18next
 	});
 
-	fastify.addHook('onRequest', (request, reply, done) => {
-		if (!request.i18n) {
-			request.i18n = i18next;
-		}
-		done();
+	fastify.addHook('onRequest', async (request, reply) => {
+		request.i18n = i18next.cloneInstance();
+		request.i18n.changeLanguage(request.language);
 	});
-
-	// fastify.addHook('onRequest', (request, reply, done) => {
-	// 	// Rileva la lingua dalla request
-	// 	const lng = middleware.LanguageDetector.detect(request);
-	//
-	// 	// Crea un'istanza i18n per questa request
-	// 	request.i18n = i18next.cloneInstance();
-	// 	request.i18n.changeLanguage(lng);
-	//
-	// 	done();
-	// });
 });

@@ -1,17 +1,22 @@
 import fs from 'fs';
 import path from 'path';
-
-export interface QANode {
-  id: string;
-  questionKey: string;
-  answerKey?: string;
-  children: Array<{ id: string; labelKey: string }>;
-  handler?: string;
-}
+import { z } from 'zod';
 
 const TREE_PATH = path.join(__dirname, '..', 'config', 'qaTree.json');
 
-export function loadTree(): Record<string, QANode> {
-  const raw = fs.readFileSync(TREE_PATH, 'utf-8');
-  return JSON.parse(raw) as Record<string, QANode>;
-}
+const NodeSchema = z.object({
+	id: z.string(),
+	questionKey: z.string(),
+	answerKey: z.string().optional(),
+	children: z.array(z.object({ id: z.string(), labelKey: z.string() })),
+	handlerId: z.string().optional(),
+	handlerParams: z.unknown().optional()
+});
+const TreeSchema = z.record(NodeSchema);
+
+export type QANode = z.infer<typeof NodeSchema>;
+export const loadTree = () => {
+	const raw = fs.readFileSync(TREE_PATH, 'utf-8');
+	const parsed = TreeSchema.parse(JSON.parse(raw));
+	return parsed;
+};

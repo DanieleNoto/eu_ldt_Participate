@@ -1,0 +1,928 @@
+openapi: 3.0.3
+info:
+  title: EU LDT Participate Chatbot API
+  description: BE Project of EU LDT Participate chatbot
+  version: 1.0.0
+components:
+  schemas: {}
+paths:
+  /api/v1/chat/:
+    post:
+      tags:
+        - chat
+      description: Create a new chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                conversationId:
+                  type: string
+                  format: uuid
+                nodeId:
+                  type: string
+              additionalProperties: false
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversationId:
+                    type: string
+                    format: uuid
+                  answer:
+                    type: string
+                  suggestions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        text:
+                          type: string
+                      required:
+                        - id
+                        - text
+                      additionalProperties: false
+                  isLeaf:
+                    type: boolean
+                  options:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        action:
+                          type: string
+                        label:
+                          type: string
+                      required:
+                        - action
+                        - label
+                      additionalProperties: false
+                required:
+                  - conversationId
+                  - answer
+                  - suggestions
+                  - isLeaf
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+  /api/v1/health:
+    get:
+      tags:
+        - health
+      description: Retrieve all health
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  checks:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                      external_api:
+                        type: string
+                      internal_component:
+                        type: string
+                    required:
+                      - database
+                      - external_api
+                      - internal_component
+                    additionalProperties: false
+                required:
+                  - status
+                  - checks
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+  /api/v1/health/ready:
+    get:
+      tags:
+        - health
+      description: Retrieve all health
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  checks:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                      external_api:
+                        type: string
+                      internal_component:
+                        type: string
+                    required:
+                      - database
+                      - external_api
+                      - internal_component
+                    additionalProperties: false
+                required:
+                  - status
+                  - checks
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+  /api/v1/health/live:
+    get:
+      tags:
+        - health
+      description: Retrieve all health
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  checks:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                      external_api:
+                        type: string
+                      internal_component:
+                        type: string
+                    required:
+                      - database
+                      - external_api
+                      - internal_component
+                    additionalProperties: false
+                required:
+                  - status
+                  - checks
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+  /api/v1/products:
+    get:
+      tags:
+        - products
+      description: Retrieve a products
+      parameters:
+        - schema:
+            type: number
+            nullable: true
+            default: 0
+          in: query
+          name: page
+          required: false
+          description: "<b>Page number</b>: The <i>current</i> page number. Defaults to `0`"
+        - schema:
+            type: number
+            nullable: true
+            default: 10
+          in: query
+          name: size
+          required: false
+          description: <b>Page size</b>. Defaults to `10`
+        - schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+                nullable: true
+                default: []
+              - type: array
+                items:
+                  type: object
+                  properties:
+                    field:
+                      type: string
+                    query:
+                      type: array
+                      items:
+                        type: string
+                      nullable: true
+                      default: []
+                    not:
+                      type: boolean
+                      nullable: true
+                      default: false
+                  required:
+                    - field
+                  additionalProperties: false
+            nullable: true
+          in: query
+          name: search
+          required: false
+          description: '<b>Search options:</b><ul>  <li>Example: <code>name::Tomas</code>,
+            or [{ field: "name", query: ["Tomas"] }]</li>  <li>or
+            <code>!name::Tomas</code>, or [{ field: "name", query: ["Tomas"],
+            not: true }]</li></ul>'
+        - schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+                nullable: true
+                default: []
+              - type: array
+                items:
+                  type: object
+                  properties:
+                    field:
+                      type: string
+                    direction:
+                      type: string
+                      enum:
+                        - ASC
+                        - DESC
+                  required:
+                    - field
+                    - direction
+                  additionalProperties: false
+            nullable: true
+          in: query
+          name: sort
+          required: false
+          description: '<b>Sorting options:</b><ul>  <li>Example: <code>name::ASC</code>,
+            <code>age::DESC</code>, or [{ field: "id", direction: "ASC"
+            }]</li></ul>'
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                      additionalProperties: false
+                  metadata:
+                    type: object
+                    properties:
+                      total:
+                        type: number
+                      page:
+                        type: number
+                      size:
+                        type: number
+                      sort:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            field:
+                              type: string
+                            direction:
+                              type: string
+                              enum:
+                                - DESC
+                                - ASC
+                          required:
+                            - field
+                            - direction
+                          additionalProperties: false
+                    required:
+                      - total
+                      - page
+                      - size
+                      - sort
+                    additionalProperties: false
+                required:
+                  - content
+                  - metadata
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+    post:
+      tags:
+        - products
+      description: Create a new products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+              additionalProperties: false
+        required: true
+      responses:
+        "201":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Product: create executed successfully"
+                  id:
+                    type: string
+                    format: uuid
+                  createdAt:
+                    type: string
+                    format: date-time
+                    default: {}
+                required:
+                  - id
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+  /api/v1/products/{id}:
+    get:
+      tags:
+        - products
+      description: Retrieve a products
+      parameters:
+        - schema:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: string
+          in: query
+          name: include
+          required: false
+        - schema:
+            type: string
+            format: uuid
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                required:
+                  - id
+                  - name
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+    put:
+      tags:
+        - products
+      description: Update a products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              additionalProperties: false
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Product: update executed successfully"
+                  id:
+                    type: string
+                    format: uuid
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    default: {}
+                required:
+                  - id
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+    delete:
+      tags:
+        - products
+      description: Delete a products
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: true
+                  message:
+                    type: string
+                    default: "Product: delete executed successfully"
+                  id:
+                    type: string
+                    format: uuid
+                required:
+                  - id
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+servers:
+  - url: http://localhost:3000
+    description: Development server

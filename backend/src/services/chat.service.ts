@@ -1,3 +1,5 @@
+import { FastifyRequest } from 'fastify';
+import { execute } from '../handlers/chat.registry';
 import Conversation from '../models/entities/conversation.model';
 import { loadTree, QANode } from '../utils/qaTree';
 
@@ -11,16 +13,20 @@ export class ChatService {
 	/**
 	 * Handle chat request: logs a new conversation entry and returns bot response
 	 */
-	async handleRequest(conversationId: string, nodeId: string | undefined, request: any) {
+	async handleRequest(conversationId: string, nodeId: string | undefined, request: FastifyRequest) {
 		const root = this._tree['root'];
 		const node = nodeId && this._tree[nodeId] ? this._tree[nodeId] : root;
 
 		// Invoke handler if defined on request context
-		if (node.handler && typeof request[node.handler] === 'function') {
-			request[node.handler](node.id);
+		if (node.handlerId) {
+			await execute(node.handlerId, {
+				nodeId: node.id,
+				conversationId,
+				params: node.handlerParams,
+				request
+			});
 		}
 
-		// Prepare data payload for versioned model
 		const payload = {
 			conversationId,
 			nodeId: node.id,

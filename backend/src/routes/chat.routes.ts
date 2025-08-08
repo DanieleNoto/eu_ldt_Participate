@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { ChatRequestSchema, ChatResponseSchema } from 'src/schemas/chat.schema';
+import { ChatRequestSchema, ChatResponseSchema } from '../schemas/chat.schema';
 import ChatController from '../controllers/chat.controller';
 import { HttpMethod } from '../enums/http-methods.enum';
 import { registerRoute } from './base/base.routes';

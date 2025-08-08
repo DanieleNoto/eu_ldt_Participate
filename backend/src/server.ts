@@ -1,11 +1,13 @@
-import * as fs from 'node:fs';
 import { FastifyBaseLogger } from 'fastify';
+// eslint-disable-next-line import/order
+import * as fs from 'node:fs';
 import { v4 as uuidv4 } from 'uuid';
 import { build } from './app';
 import appConfig from './config/config';
+import { startChatBuiltins } from './handlers/chat.builtins';
 import { createDBConnection } from './utils/database';
-import logger from './utils/logger';
 import { runMigrations, runSeeders } from './utils/database.migrations';
+import logger from './utils/logger';
 
 const start = async () => {
 	let app;
@@ -17,6 +19,7 @@ const start = async () => {
 		await createDBConnection();
 		await runMigrations();
 		await runSeeders();
+		await startChatBuiltins();
 
 		app = await build({
 			requestIdLogLabel: 'transactionId',
