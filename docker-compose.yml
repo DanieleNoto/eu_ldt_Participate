@@ -26,6 +26,15 @@ services:
             # Database reset and setup flags (controlled by make commands)
             - FORCE_DB_RESET=${FORCE_DB_RESET:-false}
             - FORCE_DATA_SETUP=${FORCE_DATA_SETUP:-false}
+            # SMTP configuration
+            - SMTP_ADDRESS=${SMTP_ADDRESS}
+            - SMTP_PORT=${SMTP_PORT}
+            - SMTP_USER_NAME=${SMTP_USER_NAME}
+            - SMTP_PASSWORD=${SMTP_PASSWORD}
+            - SMTP_DOMAIN=${SMTP_DOMAIN}
+            - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
+            - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
+            - SMTP_OPENSSL_VERIFY_MODE=${SMTP_OPENSSL_VERIFY_MODE}
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
