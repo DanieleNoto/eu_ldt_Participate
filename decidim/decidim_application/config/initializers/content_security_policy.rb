@@ -18,9 +18,9 @@ Rails.application.configure do
 
     # Allow scripts from self and webpack dev server
     if Rails.env.development?
-      policy.script_src :self, :unsafe_inline, :unsafe_eval, "http://0.0.0.0:3035", "ws://0.0.0.0:3035"
-      policy.style_src  :self, :unsafe_inline, "http://0.0.0.0:3035"
-      policy.connect_src :self, "http://0.0.0.0:3035", "ws://0.0.0.0:3035"
+      policy.script_src :self, :unsafe_eval, :unsafe_inline, "http://localhost:3035", "http://0.0.0.0:3035", "ws://localhost:3035", "ws://0.0.0.0:3035"
+      policy.style_src  :self, :unsafe_inline, "http://localhost:3035", "http://0.0.0.0:3035"
+      policy.connect_src :self, "http://localhost:3035", "http://0.0.0.0:3035", "ws://localhost:3035", "ws://0.0.0.0:3035"
     else
       policy.script_src :self
       policy.style_src  :self, :unsafe_inline
@@ -28,9 +28,15 @@ Rails.application.configure do
     end
   end
 
-  # Generate session nonces for permitted importmap and inline scripts
-  config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
-  config.content_security_policy_nonce_directives = %w(script-src)
+  # Don't use nonces in development to allow unsafe-inline
+  if Rails.env.development?
+    config.content_security_policy_nonce_generator = nil
+    config.content_security_policy_nonce_directives = []
+  else
+    # Generate session nonces for permitted importmap and inline scripts in production
+    config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
+    config.content_security_policy_nonce_directives = %w(script-src)
+  end
 
   # Report violations without enforcing the policy.
   # config.content_security_policy_report_only = true
