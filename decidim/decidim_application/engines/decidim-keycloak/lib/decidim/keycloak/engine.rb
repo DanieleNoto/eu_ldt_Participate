@@ -20,7 +20,13 @@ module Decidim
 
             env["omniauth.strategy"].options[:client_id] = config[:client_id]
             env["omniauth.strategy"].options[:client_secret] = config[:client_secret]
-            env["omniauth.strategy"].options[:client_options] = { site: config[:site], realm: config[:realm] }
+            env["omniauth.strategy"].options[:client_options] = {
+              site: config[:site],
+              realm: config[:realm],
+              authorize_url: "/realms/#{config[:realm]}/protocol/openid-connect/auth",
+              token_url: "/realms/#{config[:realm]}/protocol/openid-connect/token",
+              userinfo_endpoint: "/realms/#{config[:realm]}/protocol/openid-connect/userinfo"
+            }
           }
         end
       end
