@@ -67,12 +67,12 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: tool7-shared-claim
+  name: tool3-shared-claim
 spec:
   accessModes:
     - ReadWriteMany
   storageClassName: azurefile-csi
-  volumeName: tool7-shared
+  volumeName: tool3-shared
   resources:
     requests:
       storage: 5Gi
