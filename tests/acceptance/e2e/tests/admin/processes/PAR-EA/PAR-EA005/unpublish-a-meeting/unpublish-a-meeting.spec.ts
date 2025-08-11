@@ -6,6 +6,7 @@ import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage'
 import test, { expect } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
+import { findProcessWithMeetings } from '../../../helpers/process-helpers';
 
 /**
  * Test suite for unpublishing meetings to temporarily hide them from public view.
@@ -42,58 +43,6 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 		await adminHomePage.navigateToAdminHomePage();
 	});
 
-	/**
-	 * Helper method to find and navigate to a process that has meetings component
-	 */
-	async function findProcessWithMeetings(): Promise<boolean> {
-		// Navigate to processes section
-		await adminHomePage.navigateViaAdminNav('processes');
-		await processAdminPage.waitForLoadState('networkidle');
-
-		// Get the count of available processes
-		const processCount = await processAdminPage.getProcessCount();
-
-		for (let i = 0; i < processCount && i < 5; i++) {
-			// Limit to first 5 processes for efficiency
-			try {
-				// Navigate back to processes list if not on first iteration
-				if (i > 0) {
-					await adminHomePage.navigateViaAdminNav('processes');
-					await processAdminPage.waitForLoadState('networkidle');
-				}
-
-				// Edit the process at index i
-				await processAdminPage.processTable.editProcess(await getProcessNameAtIndex(i));
-				await processAdminPage.getPage().waitForLoadState('networkidle');
-
-				// Navigate to components section
-				await updateProcessAdminPage.navigateToComponents();
-				await componentsPage.waitForComponentsPageLoad();
-
-				// Check if this process has meetings component
-				const components = await componentsPage.getComponentTypes();
-				const hasMeetings = components.some(type => type.toLowerCase().includes('meeting'));
-
-				if (hasMeetings) {
-					console.log(`Found process with meetings component at index ${i}`);
-					return true;
-				}
-			} catch (error) {
-				console.log(`Error checking process at index ${i}:`, error.message);
-				continue;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Helper method to get process name at specific index
-	 */
-	async function getProcessNameAtIndex(index: number): Promise<string> {
-		const processTitles = await processAdminPage.processTable.getProcessTitles();
-		return processTitles[index] || `Process ${index}`;
-	}
-
 	test.describe('Main Flow', () => {
 		test('should allow admin to unpublish a meeting to temporarily hide it from public view', async () => {
 			await test.step('1. User: Navigates to the "Processes" section', async () => {
@@ -113,8 +62,12 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 			});
 
 			await test.step('3. User: Selects the process that want to update', async () => {
-				// Find a process with meetings component
-				const foundProcessWithMeetings = await findProcessWithMeetings();
+				const foundProcessWithMeetings = await findProcessWithMeetings(
+					adminHomePage,
+					processAdminPage,
+					updateProcessAdminPage,
+					componentsPage
+				);
 				expect(foundProcessWithMeetings).toBe(true);
 			});
 

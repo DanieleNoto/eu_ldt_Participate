@@ -6,6 +6,7 @@ import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage'
 import test, { expect } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
+import { findProcessWithMeetings } from '../../../helpers/process-helpers';
 
 /**
  * Test suite for canceling events and notifying attendees.
@@ -41,60 +42,9 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 		await adminHomePage.navigateToAdminHomePage();
 	});
 
-	/**
-	 * Helper method to find and navigate to a process that has meetings component
-	 */
-	async function findProcessWithMeetings(): Promise<boolean> {
-		// Navigate to processes section
-		await adminHomePage.navigateViaAdminNav('processes');
-		await processAdminPage.waitForLoadState('networkidle');
-
-		// Get the count of available processes
-		const processCount = await processAdminPage.getProcessCount();
-
-		for (let i = 0; i < processCount && i < 5; i++) {
-			// Limit to first 5 processes for efficiency
-			try {
-				// Navigate back to processes list if not on first iteration
-				if (i > 0) {
-					await adminHomePage.navigateViaAdminNav('processes');
-					await processAdminPage.waitForLoadState('networkidle');
-				}
-
-				// Edit the process at index i
-				await processAdminPage.processTable.editProcess(await getProcessNameAtIndex(i));
-				await processAdminPage.getPage().waitForLoadState('networkidle');
-
-				// Navigate to components section
-				await updateProcessAdminPage.navigateToComponents();
-				await componentsPage.waitForComponentsPageLoad();
-
-				// Check if this process has meetings component
-				const components = await componentsPage.getComponentTypes();
-				const hasMeetings = components.some(type => type.toLowerCase().includes('meeting'));
-
-				if (hasMeetings) {
-					console.log(`Found process with meetings component at index ${i}`);
-					return true;
-				}
-			} catch (error) {
-				console.log(`Error checking process at index ${i}:`, error.message);
-				continue;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Helper method to get process name at specific index
-	 */
-	async function getProcessNameAtIndex(index: number): Promise<string> {
-		const processTitles = await processAdminPage.processTable.getProcessTitles();
-		return processTitles[index] || `Process ${index}`;
-	}
-
 	test.describe('Main Flow', () => {
 		test('should allow admin to cancel an event and remove it from the schedule', async () => {
+			let initialMeetingsCount: number; // capture before deletion
 			await test.step('1. User: Navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -113,7 +63,12 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Find a process with meetings component
-				const foundProcessWithMeetings = await findProcessWithMeetings();
+				const foundProcessWithMeetings = await findProcessWithMeetings(
+					adminHomePage,
+					processAdminPage,
+					updateProcessAdminPage,
+					componentsPage
+				);
 				expect(foundProcessWithMeetings).toBe(true);
 			});
 
@@ -146,8 +101,8 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 				await meetingsManagePage.expectToBeOnMeetingsPage();
 
 				// Verify the page shows meetings
-				const meetingsCount = await meetingsManagePage.getMeetingsCount();
-				expect(meetingsCount).toBeGreaterThan(0);
+				initialMeetingsCount = await meetingsManagePage.getMeetingsCount();
+				expect(initialMeetingsCount).toBeGreaterThan(0);
 			});
 
 			await test.step('7. User: Clicks on the "Soft delete" button to delete the meeting', async () => {
@@ -173,19 +128,18 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 					);
 				}
 
-				// Soft delete the meeting (includes confirmation dialog handling)
-				await meetingsManagePage.softDeleteMeeting(meetingToDelete);
+				// Soft delete the meeting
+				await meetingsManagePage.softDeleteMeeting(meetingToDelete, { confirm: true });
 			});
 
 			await test.step('8. System: Display a dialog asking to confirm the action', async () => {
-				// Note: The softDeleteMeeting method handles the confirmation dialog automatically
-				// The dialog appears and is confirmed as part of the softDeleteMeeting operation
-				console.log('Confirmation dialog is handled within the softDeleteMeeting method');
+				// The confirmation modal was displayed and we passed confirm: true
+				console.log('Confirmation dialog displayed and will be confirmed (confirm: true)');
 			});
 
 			await test.step('9. User: Click on "Ok"', async () => {
-				// Note: The confirmation is handled automatically within softDeleteMeeting method
-				console.log('Confirmation is handled automatically in the softDeleteMeeting method');
+				// Confirmation handled via confirm: true parameter
+				console.log('Deletion confirmed via softDeleteMeeting({ confirm: true })');
 			});
 
 			await test.step('10. System: Delete the meeting', async () => {
@@ -206,22 +160,30 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 			await test.step('Result: The meeting is deleted and no more visible', async () => {
 				// Verify that the meetings list is updated and the deleted meeting is no longer visible
 				const finalMeetingsCount = await meetingsManagePage.getMeetingsCount();
-				console.log(`Final meetings count: ${finalMeetingsCount}`);
+				console.log(
+					`Initial meetings count: ${initialMeetingsCount} | Final meetings count: ${finalMeetingsCount}`
+				);
 
-				// The meeting should be removed from the visible list
-				expect(finalMeetingsCount).toBeGreaterThanOrEqual(0);
+				// Expect exactly one less meeting (soft delete of single meeting)
+				expect(finalMeetingsCount).toBe(initialMeetingsCount - 1);
 			});
 		});
 	});
 
 	test.describe('Alternative Flow: Cancel', () => {
 		test('should allow user to cancel the deletion operation', async () => {
+			let meetingToDelete: string | null = null;
 			await test.step('Start at point 9: Navigate to deletion confirmation', async () => {
 				// Navigate to processes and find meeting to delete
 				await adminHomePage.navigateViaAdminNav('processes');
 				await processAdminPage.waitForLoadState('networkidle');
 
-				const foundProcessWithMeetings = await findProcessWithMeetings();
+				const foundProcessWithMeetings = await findProcessWithMeetings(
+					adminHomePage,
+					processAdminPage,
+					updateProcessAdminPage,
+					componentsPage
+				);
 				expect(foundProcessWithMeetings).toBe(true);
 
 				// Navigate to meetings and start deletion
@@ -229,9 +191,8 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 				await componentsPage.manageComponent(meetingComponents[0]);
 				await meetingsManagePage.waitForMeetingsPageLoad();
 
-				// Get a meeting to delete and start the process
+				// Get a meeting to delete and start the process (but cancel later)
 				const allMeetings = await meetingsManagePage.getAllMeetingsData();
-				let meetingToDelete: string | null = null;
 
 				for (const meeting of allMeetings) {
 					const hasDeletePermission = await meetingsManagePage.hasActionPermission(meeting.id, 'delete');
@@ -241,34 +202,28 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 					}
 				}
 
-				if (meetingToDelete) {
-					await meetingsManagePage.softDeleteMeeting(meetingToDelete);
+				if (!meetingToDelete) {
+					throw new Error('No deletable meeting found for cancellation test');
 				}
+
+				// Trigger delete but do NOT confirm
+				await meetingsManagePage.softDeleteMeeting(meetingToDelete, { confirm: false });
 			});
 
 			await test.step('9.1. User: Decides to abort the cancellation flow', async () => {
-				// For this alternative flow, we need to simulate the cancellation scenario
-				// Since softDeleteMeeting automatically handles the confirmation,
-				// this step demonstrates the concept of canceling before confirmation
-				console.log('User would cancel the deletion at the confirmation dialog');
-
-				// Navigate back to verify we're still on the meetings page
+				// We already chose to cancel; ensure we are still on meetings page
 				await meetingsManagePage.expectToBeOnMeetingsPage();
 			});
 
 			await test.step('9.2. System: Exits without saving changes', async () => {
-				// Verify we're still on the meetings management page
-				await meetingsManagePage.expectToBeOnMeetingsPage();
-				console.log('System maintains current state without changes');
+				// Meeting should still exist
+				// Re-fetch to ensure presence
+				const allMeetingsAfter = await meetingsManagePage.getAllMeetingsData();
+				expect(allMeetingsAfter.some(m => m.id === meetingToDelete)).toBeTruthy();
 			});
 
 			await test.step('Result: The user cancels the action, and no data is saved. The system returns to the previous page', async () => {
-				// Verify we're back on the meetings management page
 				await meetingsManagePage.expectToBeOnMeetingsPage();
-
-				// Verify no meetings were deleted
-				const meetingsCount = await meetingsManagePage.getMeetingsCount();
-				expect(meetingsCount).toBeGreaterThan(0);
 			});
 		});
 	});
