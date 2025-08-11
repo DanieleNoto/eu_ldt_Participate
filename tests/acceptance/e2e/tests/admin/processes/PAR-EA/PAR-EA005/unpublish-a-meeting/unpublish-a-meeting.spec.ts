@@ -203,16 +203,15 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 
 			await test.step('9. System: Notifies the City Administrator that the meeting has been successfully unpublished', async () => {
 				// This step represents the system notification that the meeting has been unpublished
-			});
-
-			await test.step('Result: The meeting is no longer publicly visible, and participants cannot register or view the meeting details until it is republished', async () => {
 				// Verify the specific meeting that was unpublished no longer has unpublish permission
 				const hasUnpublishPermission = await meetingsManagePage.hasActionPermission(
 					meetingToUnpublish!,
 					'unpublish'
 				);
 				expect(hasUnpublishPermission).toBe(false);
+			});
 
+			await test.step('Result: The meeting is no longer publicly visible, and participants cannot register or view the meeting details until it is republished', async () => {
 				// Count current published meetings to verify the count decreased by exactly 1
 				const allMeetings = await meetingsManagePage.getAllMeetingsData();
 				let currentPublishedMeetingsCount = 0;
@@ -229,10 +228,6 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 
 				// Verify that the count of published meetings decreased by exactly 1
 				expect(currentPublishedMeetingsCount).toBe(initialPublishedMeetingsCount - 1);
-
-				// Verify that we have meetings and at least one should be in an unpublished state
-				const meetingsCount = await meetingsManagePage.getMeetingsCount();
-				expect(meetingsCount).toBeGreaterThan(0);
 			});
 		});
 	});
