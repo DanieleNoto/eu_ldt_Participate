@@ -208,7 +208,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				for (let i = initialItemsCount - 1; i >= 0; i--) {
 					await meetingAgendaPage.removeAgendaItem(i);
 					// Wait for the item count to decrease
-					await page.waitForTimeout(500);
+					await page.waitForTimeout(100);
 				}
 
 				// Verify all items are removed
