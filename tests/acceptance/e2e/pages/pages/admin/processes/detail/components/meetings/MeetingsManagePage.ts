@@ -489,18 +489,30 @@ export class MeetingsManagePage extends BaseAdminPage {
 		await this.page.waitForLoadState('networkidle');
 	}
 
-	async softDeleteMeeting(meetingId: string) {
+	async softDeleteMeeting(meetingId: string, opts: { confirm?: boolean } = { confirm: true }) {
+		const { confirm = true } = opts;
 		const row = this.getMeetingRow(meetingId);
 		const deleteButton = row.locator('a.action-icon--delete');
 
-		// Handle confirmation dialog
-		this.page.on('dialog', async dialog => {
-			if (dialog.type() === 'confirm') {
-				await dialog.accept();
-			}
-		});
-
+		// Click the soft delete button
 		await deleteButton.click();
+
+		// Wait for the confirmation modal to appear
+		const confirmModal = this.page.locator('#confirm-modal');
+		await confirmModal.waitFor({ state: 'visible' });
+
+		if (confirm) {
+			// Confirm deletion
+			const confirmButton = confirmModal.locator('button[data-confirm-ok]');
+			await confirmButton.click();
+		} else {
+			// Cancel deletion
+			const cancelButton = confirmModal.locator('button[data-confirm-cancel]');
+			await cancelButton.click();
+		}
+
+		// Wait for the modal to disappear and the action to complete or abort
+		await confirmModal.waitFor({ state: 'hidden' });
 		await this.page.waitForLoadState('networkidle');
 	}
 
@@ -589,7 +601,10 @@ export class MeetingsManagePage extends BaseAdminPage {
 
 	// URL expectations
 	async expectToBeOnMeetingsPage() {
-		await expect(this.page).toHaveURL(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\/?$/);
+		// Accept: .../manage, .../manage/, .../manage/meetings, .../manage/meetings/
+		await expect(this.page).toHaveURL(
+			/\/admin\/participatory_processes\/.*\/components\/.*\/manage(?:\/meetings)?\/?$/
+		);
 	}
 
 	async expectToBeOnNewMeetingPage() {
