@@ -20,6 +20,6 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
-            name: tool3-be
+            name: tool3-frontend
             port:
               number: 80
