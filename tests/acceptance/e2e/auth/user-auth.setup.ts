@@ -1,5 +1,5 @@
 import { test as setup } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
+import { setupAuthForTest } from '@utils/auth-helper';
 
 /**
  * Global setup for user authentication.
@@ -7,6 +7,6 @@ import { ensureLoggedIn } from '@utils/auth-helper';
  */
 
 // Setup authentication for normal user
-setup('authenticate as user', async ({ page }) => {
-	await ensureLoggedIn(page, 'USER');
+setup('authenticate as user', async ({ browser }) => {
+	await setupAuthForTest(browser, 'USER');
 });

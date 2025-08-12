@@ -97,6 +97,16 @@ export class ComponentsPage extends BaseAdminPage {
 		return (await this.pageTitle.textContent()) || '';
 	}
 
+	// Get page instance for direct page operations
+	getPage(): Page {
+		return this.page;
+	}
+
+	// Convenience method for waiting for load state
+	async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle' = 'networkidle') {
+		await this.page.waitForLoadState(state);
+	}
+
 	// Add component dropdown methods
 	async isAddComponentDropdownVisible(): Promise<boolean> {
 		return await this.addComponentDropdown.isVisible();
@@ -206,18 +216,20 @@ export class ComponentsPage extends BaseAdminPage {
 	}
 
 	async getComponentNames(): Promise<string[]> {
-		const nameLinks = this.componentRows.locator('td:first-child a');
+		const nameLinks = this.componentRows.locator('td:nth-child(2) a');
 		return await nameLinks.allTextContents();
 	}
 
 	async getComponentTypes(): Promise<string[]> {
-		const typeColumns = this.componentRows.locator('td:nth-child(2)');
+		const typeColumns = this.componentRows.locator('td:nth-child(3)');
 		return await typeColumns.allTextContents();
 	}
 
 	// Component row methods
 	getComponentRow(componentName: string): Locator {
-		return this.componentRows.filter({ hasText: new RegExp(`.*${componentName}.*`) }).first();
+		return this.componentRows
+			.filter({ has: this.page.locator('td:nth-child(2) a', { hasText: componentName }) })
+			.first();
 	}
 
 	getComponentRowByIndex(index: number): Locator {
@@ -352,9 +364,17 @@ export class ComponentsPage extends BaseAdminPage {
 
 		for (let i = 0; i < count; i++) {
 			const row = this.componentRows.nth(i);
-			const name = (await row.locator('td:first-child a').textContent()) || '';
-			const type = (await row.locator('td:nth-child(2)').textContent()) || '';
-			const published = await this.isComponentPublished(name.trim());
+			// Component name is in the second column (td:nth-child(2)) within an anchor tag
+			const nameElement = row.locator('td:nth-child(2) a');
+			const name = (await nameElement.textContent()) || '';
+
+			// Component type is in the third column (td:nth-child(3))
+			const typeElement = row.locator('td:nth-child(3)');
+			const type = (await typeElement.textContent()) || '';
+
+			// Check if component is published by looking for the unpublish action button
+			const unpublishButton = row.locator('a.action-icon--unpublish');
+			const published = await unpublishButton.isVisible();
 
 			components.push({
 				name: name.trim(),

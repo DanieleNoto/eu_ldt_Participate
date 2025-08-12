@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tool3-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/forwarded-for-header: "X-Forwarded-For"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: part-int.ldttoolbox.app
+    http:
+      paths:
+      - path: /(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: tool3-frontend
+            port:
+              number: 80

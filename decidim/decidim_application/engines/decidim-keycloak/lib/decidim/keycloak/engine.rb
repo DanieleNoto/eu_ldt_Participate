@@ -1,0 +1,88 @@
+# frozen_string_literal: true
+
+require "omniauth/strategies/keycloak-openid"
+
+module Decidim
+  module Keycloak
+    # This is the engine that runs on the public interface of keycloak.
+    class Engine < ::Rails::Engine
+      isolate_namespace Decidim::Keycloak
+
+      initializer "decidim.keycloak.middleware" do |app|
+        omniauth_config = Rails.application.secrets[:omniauth]
+        next if omniauth_config[:keycloakopenid].blank?
+
+        app.config.middleware.use OmniAuth::Builder do
+          provider :keycloak_openid, 
+            client_id: "dummy",
+            client_secret: "dummy",
+            client_options: {
+              site: "https://dummy.com",
+              base_url: ""
+            },
+            setup: lambda { |env|
+            request = Rack::Request.new(env)
+            organization = Decidim::Organization.find_by(host: request.host)
+            config = organization.enabled_omniauth_providers[:keycloakopenid]
+            
+            base_url = config[:site].chomp('/')
+            realm = config[:realm]
+            
+            # Force override all strategy options
+            strategy = env["omniauth.strategy"]
+            strategy.options[:client_id] = config[:client_id]
+            strategy.options[:client_secret] = config[:client_secret]
+            strategy.options[:realm] = realm
+            strategy.options[:client_options] = {
+              site: base_url,
+              realm: realm,
+              base_url: "",  # This tells the gem NOT to use /auth prefix for modern Keycloak
+              authorize_url: "/realms/#{realm}/protocol/openid-connect/auth",
+              token_url: "/realms/#{realm}/protocol/openid-connect/token",
+              userinfo_endpoint: "/realms/#{realm}/protocol/openid-connect/userinfo",
+              jwks_uri: "/realms/#{realm}/protocol/openid-connect/certs"
+            }
+            
+            # Additional JWT options to handle verification issues
+            strategy.options[:jwt_options] = {
+              # Skip some JWT verification in development due to potential SSL issues
+              verify_iss: Rails.env.production?,
+              verify_aud: Rails.env.production?,
+              verify_sub: true,
+              verify_expiration: true,
+              verify_not_before: true,
+              verify_iat: true,
+              verify_jti: false,
+              leeway: 30 # 30 seconds leeway for clock skew
+            }
+          }
+          
+          # Add error handling callback
+          on_failure do |env|
+            Rails.logger.error "OmniAuth Keycloak failure: #{env['omniauth.error']}"
+            Rails.logger.error "Error type: #{env['omniauth.error.type']}"
+            Rails.logger.error "Error strategy: #{env['omniauth.error.strategy']}"
+          end
+        end
+      end
+
+      config.to_prepare do
+        class OmniAuth::Strategies::KeycloakOpenId
+          uid { raw_info["preferred_username"] }
+
+          info do
+            {
+              nickname: raw_info["preferred_username"],
+              name: raw_info["name"],
+              email: raw_info["email"]
+            }
+          end
+        end
+      end
+
+      initializer "decidim_keycloak.webpacker.assets_path" do
+        Decidim.register_assets_path File.expand_path("app/packs", root)
+      end
+    end
+  end
+end
