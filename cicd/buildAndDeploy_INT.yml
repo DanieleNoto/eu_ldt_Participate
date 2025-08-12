@@ -143,6 +143,18 @@ jobs:
         command: 'apply'
         arguments: '-f infrastructure/int/storage/file-storage.yml'
 
+    - task: Kubernetes@1
+      displayName: "Apply SecretsMap (Tool3)"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/secretsMap.yml'
+
+
 #-------------------------------------------------------------------------------------------
 #CONFIGURACION BACKEND
     - task: Kubernetes@1
