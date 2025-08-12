@@ -380,12 +380,18 @@ Decidim.configure do |config|
 
   # Defines additional content security policies following the structure
   # Read more: https://docs.decidim.org/en/develop/configure/initializer#_content_security_policy
+  
+  # Get embeddable services from environment variable for CSP frame-src
+  embeddable_services = ENV.fetch("MEETINGS_EMBEDDABLE_SERVICES", "www.youtube.com www.twitch.tv meet.jit.si").split(" ")
+  frame_src_hosts = %w('self') + embeddable_services
+  
   config.content_security_policies_extra = {
     "default-src" => %w('self' https:),
     "script-src" => %w('self' 'unsafe-inline' 'unsafe-eval'),
     "style-src" => %w('self' 'unsafe-inline'),
     "connect-src" => %w('self'),
     "font-src" => %w('self'),
+    "frame-src" => frame_src_hosts,
   }
 
   # Allow webpack dev server in development

@@ -1,10 +1,6 @@
 # frozen_string_literal: true
-Rails.application.config.after_initialize do
-  Decidim::Meetings::AdminEngine.routes.draw do
-    resources :meetings do
-      member do
-        get :generate_jitsi_url
-      end
-    end
-  end
+
+# Global route for Jitsi URL generation - simpler and more reliable
+Rails.application.routes.draw do
+  post "/generate-jitsi-url", to: "jitsi_url#generate", as: :generate_jitsi_url
 end

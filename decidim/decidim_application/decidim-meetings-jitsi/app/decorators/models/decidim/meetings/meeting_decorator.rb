@@ -12,8 +12,8 @@ Decidim::Meetings::Meeting.class_eval do
   # Remove trailing slash from the server URL if present
     jitsi_server = jitsi_server.chomp("/")
     
-  # Use the meeting ID if it exists, otherwise generate a random ID
-    room_identifier = id&.to_s || SecureRandom.hex(8)
+  # Always generate a random ID for the room
+    room_identifier = SecureRandom.hex(4)
     room_name = "#{jitsi_prefix}#{room_identifier}".parameterize
     
     "#{jitsi_server}/#{room_name}"

@@ -1,18 +1,23 @@
-<% if form.object.respond_to?(:jitsi_generator_enabled?) && form.object.jitsi_generator_enabled? %>
-  <div class="field jitsi-generator-section" id="jitsi-generator-section" style="display: none;">
-    <div class="button-group">
+<% component = meeting.try(:component) || form.object.try(:component) %>
+<% if component&.settings&.enable_jitsi_generator %>
+  <div class="row column jitsi-generator-section" id="jitsi-generator-section" style="display: none;">
+    <div class="mb-2">
+      <label class="text-sm font-medium text-gray-700 mb-2 block">
+        Jitsi Meeting Generator
+      </label>
+      <p class="help-text mb-3">
+        Generate a Jitsi meeting URL automatically for this online meeting
+      </p>
       <button type="button" 
-              class="button button--sm button--secondary generate-jitsi-url"
+              class="button button__sm button__secondary generate-jitsi-url"
               data-meeting-id="<%= meeting.persisted? ? meeting.id : '' %>"
-              data-jitsi-server="<%= form.object.jitsi_server_url %>"
-              data-jitsi-prefix="<%= form.object.jitsi_room_prefix %>">
-        <i class="icon--video-camera"></i>
-        <%= t("generate_jitsi_url", scope: "decidim.meetings.admin.meetings.form") %>
+              data-jitsi-server="<%= component.settings.jitsi_server_url %>"
+              data-jitsi-prefix="<%= component.settings.jitsi_room_prefix %>">
+        <svg width="1em" height="1em" role="img" aria-hidden="true">
+          <use href="/decidim-packs/media/images/remixicon.symbol-e643e553623ffcd49f94.svg#ri-video-line"></use>
+        </svg>
+        Generate Jitsi URL
       </button>
-      
-      <small class="help-text">
-        <%= t("jitsi_help_text", scope: "decidim.meetings.admin.meetings.form") %>
-      </small>
     </div>
   </div>
 
@@ -20,23 +25,24 @@
     document.addEventListener('DOMContentLoaded', function() {
       const generateBtn = document.querySelector('.generate-jitsi-url');
       const onlineUrlInput = document.querySelector('#meeting_online_meeting_url');
-      const onlineCheckbox = document.querySelector('#meeting_online');
+      const meetingTypeSelect = document.querySelector('#meeting_type_of_meeting');
       const jitsiSection = document.querySelector('#jitsi-generator-section');
       
-      // Mostra/nascondi sezione Jitsi quando cambia checkbox online
+      // Show/hide Jitsi section when meeting type changes
       function toggleJitsiSection() {
-        if (onlineCheckbox && jitsiSection) {
-          jitsiSection.style.display = onlineCheckbox.checked ? 'block' : 'none';
+        if (meetingTypeSelect && jitsiSection) {
+          const isOnline = meetingTypeSelect.value === 'online' || meetingTypeSelect.value === 'hybrid';
+          jitsiSection.style.display = isOnline ? 'block' : 'none';
         }
       }
       
-      if (onlineCheckbox) {
-        onlineCheckbox.addEventListener('change', toggleJitsiSection);
-        // Chiamata iniziale per impostare lo stato corretto
+      if (meetingTypeSelect) {
+        meetingTypeSelect.addEventListener('change', toggleJitsiSection);
+        // Initial call to set the correct state
         toggleJitsiSection();
       }
       
-      // Gestisce click bottone genera URL
+      // Handle click on generate URL button
       if (generateBtn) {
         generateBtn.addEventListener('click', function(e) {
           e.preventDefault();
@@ -46,19 +52,23 @@
           const jitsiPrefix = this.dataset.jitsiPrefix || 'decidim-meeting-';
           
           if (meetingId) {
-            // Meeting esistente: chiamata AJAX
-            fetch(`/admin/meetings/${meetingId}/generate_jitsi_url`, {
-              method: 'GET',
+            // Existing meeting: AJAX call to the global route
+            const generateUrlPath = `/generate-jitsi-url`;
+            
+            fetch(generateUrlPath, {
+              method: 'POST',
               headers: {
                 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-              }
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: `meeting_id=${meetingId}`
             })
             .then(response => response.json())
             .then(data => {
               if (data.success && onlineUrlInput) {
                 onlineUrlInput.value = data.url;
-                // Mostra messaggio di successo se disponibile
+                // Show success message if available
                 if (data.message) {
                   console.log(data.message);
                 }
@@ -68,10 +78,10 @@
             })
             .catch(error => {
               console.error('Error:', error);
-              alert('Errore nella generazione dell\'URL Jitsi');
+              alert('Error generating Jitsi URL');
             });
           } else {
-            // Nuovo meeting: genera lato client
+            // New meeting: generate client-side
             const roomId = Math.random().toString(36).substring(2, 10);
             const cleanServer = jitsiServer.replace(/\/$/, '');
             const jitsiUrl = `${cleanServer}/${jitsiPrefix}${roomId}`;
