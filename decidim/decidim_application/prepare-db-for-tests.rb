@@ -41,7 +41,7 @@ begin
     o.cta_button_path = ""
     o.welcome_notification_subject = ""
     o.welcome_notification_body = ""
-    o.smtp_settings = ""
+    o.smtp_settings = {}
     o.omniauth_settings = {}
     o.admin_terms_of_service_body = ""
 
