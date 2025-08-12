@@ -1,0 +1,87 @@
+<% if form.object.respond_to?(:jitsi_generator_enabled?) && form.object.jitsi_generator_enabled? %>
+  <div class="field jitsi-generator-section" id="jitsi-generator-section" style="display: none;">
+    <div class="button-group">
+      <button type="button" 
+              class="button button--sm button--secondary generate-jitsi-url"
+              data-meeting-id="<%= meeting.persisted? ? meeting.id : '' %>"
+              data-jitsi-server="<%= form.object.jitsi_server_url %>"
+              data-jitsi-prefix="<%= form.object.jitsi_room_prefix %>">
+        <i class="icon--video-camera"></i>
+        <%= t("generate_jitsi_url", scope: "decidim.meetings.admin.meetings.form") %>
+      </button>
+      
+      <small class="help-text">
+        <%= t("jitsi_help_text", scope: "decidim.meetings.admin.meetings.form") %>
+      </small>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const generateBtn = document.querySelector('.generate-jitsi-url');
+      const onlineUrlInput = document.querySelector('#meeting_online_meeting_url');
+      const onlineCheckbox = document.querySelector('#meeting_online');
+      const jitsiSection = document.querySelector('#jitsi-generator-section');
+      
+      // Mostra/nascondi sezione Jitsi quando cambia checkbox online
+      function toggleJitsiSection() {
+        if (onlineCheckbox && jitsiSection) {
+          jitsiSection.style.display = onlineCheckbox.checked ? 'block' : 'none';
+        }
+      }
+      
+      if (onlineCheckbox) {
+        onlineCheckbox.addEventListener('change', toggleJitsiSection);
+        // Chiamata iniziale per impostare lo stato corretto
+        toggleJitsiSection();
+      }
+      
+      // Gestisce click bottone genera URL
+      if (generateBtn) {
+        generateBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const meetingId = this.dataset.meetingId;
+          const jitsiServer = this.dataset.jitsiServer || 'https://meet.jit.si';
+          const jitsiPrefix = this.dataset.jitsiPrefix || 'decidim-meeting-';
+          
+          if (meetingId) {
+            // Meeting esistente: chiamata AJAX
+            fetch(`/admin/meetings/${meetingId}/generate_jitsi_url`, {
+              method: 'GET',
+              headers: {
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+              }
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success && onlineUrlInput) {
+                onlineUrlInput.value = data.url;
+                // Mostra messaggio di successo se disponibile
+                if (data.message) {
+                  console.log(data.message);
+                }
+              } else if (data.message) {
+                alert(data.message);
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('Errore nella generazione dell\'URL Jitsi');
+            });
+          } else {
+            // Nuovo meeting: genera lato client
+            const roomId = Math.random().toString(36).substring(2, 10);
+            const cleanServer = jitsiServer.replace(/\/$/, '');
+            const jitsiUrl = `${cleanServer}/${jitsiPrefix}${roomId}`;
+            
+            if (onlineUrlInput) {
+              onlineUrlInput.value = jitsiUrl;
+            }
+          }
+        });
+      }
+    });
+  </script>
+<% end %>

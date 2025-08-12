@@ -34,3 +34,5 @@ group :development do
   gem "listen", "~> 3.1"
   gem "web-console", "~> 4.2"
 end
+
+gem 'decidim-meetings-jitsi', path: 'decidim-meetings-jitsi'
