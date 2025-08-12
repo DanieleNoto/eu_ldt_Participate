@@ -386,6 +386,95 @@ paths:
                   - statusCode
                   - error
                 additionalProperties: false
+  /api/v1/support/send:
+    post:
+      tags:
+        - support
+      description: Create a new support
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                conversationId:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+                message:
+                  type: string
+                  minLength: 1
+              required:
+                - conversationId
+                - message
+        required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                required:
+                  - response
+                additionalProperties: false
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                    items: {}
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                    items: {}
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                  error:
+                    type: string
+                  details:
+                    type: array
+                    items: {}
+                required:
+                  - statusCode
+                  - error
+                additionalProperties: false
 servers:
   - url: http://localhost:3000
     description: Development server

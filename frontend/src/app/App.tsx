@@ -9,6 +9,7 @@ import { setAppIsLoaded, setAppIsStandalone } from './store/main/main-slice';
 import { selectAppIsLoaded } from './store/main/main-slice.selectors';
 import StandardLayout from './theme/layouts/standard/StandardLayout';
 // import AuthProvider from './shared/providers/AuthProvider';
+import { Chatbot } from './shared/components/Chatbot';
 
 const ReactQueryDevtoolsProduction = lazy(() =>
 	import('@tanstack/react-query-devtools/build/modern/production.js').then(d => ({
@@ -56,6 +57,9 @@ const App = ({ standalone }: { standalone: boolean }) => {
 								<ReactQueryDevtoolsProduction />
 							</React.Suspense>
 						)}
+						<div style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1000 }}>
+							<Chatbot />
+						</div>
 					</StandardLayout>
 			)}
 		</ErrorBoundary>

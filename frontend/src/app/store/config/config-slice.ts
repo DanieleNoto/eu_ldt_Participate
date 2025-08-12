@@ -21,6 +21,7 @@ export interface FlatAppConfig {
 	'frontend.appBasePath': string;
 	'logger.level': LevelWithSilentOrString;
 	'dateFns.format': string;
+	'dateFns.locale': DateFnsConfig['locale'];
 	'toastr.delay': number;
 	'toastr.vertical': ToastrVerticalPosition;
 	'toastr.horizontal': ToastrHorizontalPosition;
@@ -41,7 +42,7 @@ export interface ConfigState {
 	/** Toastr (toast notification) configuration. */
 	toastr: Partial<ToastrConfig>;
 	/** Date-fns configuration for date formatting. */
-	dateFns: DateFnsConfig;
+	dateFns: DateFnsConfig; // now only contains serializable values
 }
 
 // Initial state using the default configurations.
@@ -52,7 +53,7 @@ const initialState: ConfigSliceState = {
 		backend: { api: API_CONFIG },
 		logger: loggerConfig,
 		toastr: toastrConfig,
-		dateFns: dateFnsConfig,
+		dateFns: dateFnsConfig
 	}
 };
 
