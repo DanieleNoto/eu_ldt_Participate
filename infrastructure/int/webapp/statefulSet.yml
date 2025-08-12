@@ -28,8 +28,8 @@ spec:
         - name: acr-secret
       containers:
       - name: tool3-be
-        image: euldtshared.azurecr.io/eu-ldt-dsr-int:_%CONTAINER_IMAGE_TOOL_BE_TAG%_
-#        image: mcr.microsoft.com/k8se/quickstart:latest
+#        image: euldtshared.azurecr.io/eu-ldt-dsr-int:_%CONTAINER_IMAGE_TOOL_BE_TAG%_
+        image: mcr.microsoft.com/k8se/quickstart:latest
         imagePullPolicy: Always
         resources:
           limits:
