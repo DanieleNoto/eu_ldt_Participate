@@ -5,7 +5,6 @@ import { FastifyInstance } from 'fastify';
 import { HttpMethod } from '../../../src/enums/http-methods.enum';
 import { StatusEnum } from '../../../src/enums/status.enum';
 import logger from '../../../src/utils/logger';
-import { ProductRequestSchema } from '../../../src/schemas/product.schema';
 
 export interface RouteSchema {
 	method: HttpMethod;
@@ -193,8 +192,4 @@ const createEntity = async (
 
 	const result = await response.json();
 	return { [`${entityType.toLowerCase()}Id`]: result.id };
-};
-
-export const createParentProduct = async (app: FastifyInstance, childType: string): Promise<Record<string, string>> => {
-	return createEntity(app, 'Product', ProductRequestSchema, '/products', `Test Case for ${childType}`);
 };
