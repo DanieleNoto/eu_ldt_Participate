@@ -37,7 +37,7 @@ const start = async () => {
 				fs.writeFileSync('./api_documentation.yml', swagger);
 				app.log.info('Swagger API doc generated');
 			} catch (error) {
-				app.log.error('Swagger API doc generation failed:', error);
+				app.log.error({ msg: 'Swagger API doc generation failed', error });
 			}
 		}
 

@@ -12,9 +12,10 @@ const NodeSchema = z.object({
 	handlerId: z.string().optional(),
 	handlerParams: z.unknown().optional()
 });
-const TreeSchema = z.record(NodeSchema);
+const TreeSchema = z.record(z.string(), NodeSchema);
 
 export type QANode = z.infer<typeof NodeSchema>;
+export type QATree = Record<string, QANode>;
 export const loadTree = () => {
 	const raw = fs.readFileSync(TREE_PATH, 'utf-8');
 	const parsed = TreeSchema.parse(JSON.parse(raw));

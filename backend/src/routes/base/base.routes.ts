@@ -1,19 +1,19 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema, RouteOptions } from 'fastify';
 import { z } from 'zod';
+import { AnyZodSchema, ResponseSchemas } from '../../schemas/base/base-crud.schema';
 import { BaseController } from '../../controllers/base/base.controller';
 import { HttpMethod } from '../../enums/http-methods.enum';
 import { ErrorResponseSchema } from '../../schemas/base/base.schema';
 import { startupRoute } from '../../utils/startup-routes';
-import { ResponseSchemas } from '../../schemas/base/base-crud.schema';
 
 export interface InstanceRouteConfig<C extends BaseController> extends FastifySchema {
 	app: FastifyInstance;
 	parentPath?: string;
 	resourceName: string;
 	controller: C;
-	paramsSchema?: z.AnyZodObject;
-	querySchema?: z.AnyZodObject;
-	bodySchema?: z.AnyZodObject;
+	paramsSchema?: AnyZodSchema;
+	querySchema?: AnyZodSchema;
+	bodySchema?: AnyZodSchema;
 	responseSchema?: ResponseSchemas;
 	requireBody?: boolean;
 	requireParams?: boolean;
@@ -55,9 +55,12 @@ export const registerRoute = <C extends BaseController>(routeConfig: RouteConfig
 
 	//if (![HttpMethod.GET].includes(routeConfig.method) && routeConfig.bodySchema) {
 	if (![HttpMethod.GET, HttpMethod.DELETE].includes(routeConfig.method) || routeConfig.requireBody) {
-		options.schema.body = routeConfig.returnPartialBody
-			? routeConfig.bodySchema?.partial()
-			: routeConfig.bodySchema;
+		const bodySchema = routeConfig.bodySchema;
+		if (routeConfig.returnPartialBody && bodySchema instanceof z.ZodObject) {
+			options.schema.body = (bodySchema as z.ZodObject<z.ZodRawShape>).partial();
+		} else {
+			options.schema.body = bodySchema;
+		}
 	}
 
 	if (routeConfig.requireParams) {

@@ -169,9 +169,9 @@ describe('base-crud.schema.ts', () => {
 		it('should use default format when not provided', () => {
 			const schema = ExportQueryParams;
 
-			// Use Zod to extract default from schema
-			type ExportQueryParamsType = z.infer<typeof schema>;
-			const defaultFormat = schema.shape.format._def.defaultValue();
+			// Extract default via parse
+			const parsed = schema.parse({});
+			const defaultFormat = parsed.format;
 			expect(defaultFormat).toBe(FileType.JSON);
 
 			const result = schema.parse({});
@@ -203,9 +203,10 @@ describe('base-crud.schema.ts', () => {
 		it('should set default values for page and size', () => {
 			const schema = pageSearchAndFilterQueryParams;
 
-			// Use Zod to extract defaults from schema
-			const defaultPage = schema.shape.page._def.defaultValue();
-			const defaultSize = schema.shape.size._def.defaultValue();
+			// Extract defaults via parse
+			const parsed = schema.parse({});
+			const defaultPage = parsed.page;
+			const defaultSize = parsed.size;
 
 			expect(defaultPage).toBe(0);
 			expect(defaultSize).toBe(10);

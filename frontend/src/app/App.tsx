@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from './store/hook';
 import { setAppIsLoaded, setAppIsStandalone } from './store/main/main-slice';
 import { selectAppIsLoaded } from './store/main/main-slice.selectors';
 import StandardLayout from './theme/layouts/standard/StandardLayout';
-import AuthProvider from './shared/providers/AuthProvider';
+// import AuthProvider from './shared/providers/AuthProvider';
 
 const ReactQueryDevtoolsProduction = lazy(() =>
 	import('@tanstack/react-query-devtools/build/modern/production.js').then(d => ({
@@ -48,7 +48,6 @@ const App = ({ standalone }: { standalone: boolean }) => {
 				// exceptional declaration of AuthProvider in App to use appIsLoaded
 				// all provider must be in MainProvider
 				// IMPORTANT: config.json load may happens after the providers
-				<AuthProvider>
 					<StandardLayout standalone={standalone}>
 						<Router routes={routes()} />
 						<ToastrRender />
@@ -58,7 +57,6 @@ const App = ({ standalone }: { standalone: boolean }) => {
 							</React.Suspense>
 						)}
 					</StandardLayout>
-				</AuthProvider>
 			)}
 		</ErrorBoundary>
 	);

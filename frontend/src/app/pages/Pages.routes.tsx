@@ -8,21 +8,12 @@ const Dashboard = lazy(() => import('./dashboard/Dashboard'));
 
 const pagesRoutes: RouteObject[] = [
 	{
-		path: 'dashboard',
+		path: '',
 		element: (
 			<LazyRoute>
 				<Dashboard />
 			</LazyRoute>
 		)
-	},
-	{
-		path: 'example',
-		element: (
-			<LazyRoute>
-				<Example />
-			</LazyRoute>
-		),
-		children: exampleRoutes
 	}
 ];
 

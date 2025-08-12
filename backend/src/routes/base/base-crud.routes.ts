@@ -47,7 +47,7 @@ export const registerCrudRoutes = <
 			...instanceRouteConfig,
 			method: HttpMethod.PUT,
 			path: '/:id',
-			bodySchema: instanceRouteConfig.bodySchema?.partial(),
+			returnPartialBody: true,
 			requireParams: true,
 			response: {
 				200: instanceRouteConfig.responseSchema.update

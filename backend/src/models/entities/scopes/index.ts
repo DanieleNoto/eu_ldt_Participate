@@ -45,13 +45,13 @@ export const loadScopes = async (): Promise<void> => {
 				setupScopes(/*scopeDefinition.entity*/);
 				logger.info(`Scopes defination applied from ${file}`);
 			} catch (error) {
-				logger.error(`Error loading scope file ${file}:`, error);
+				logger.error({ msg: `Error loading scope file ${file}:`, error });
 			}
 		}
 
 		logger.info('All scopes loaded successfully');
 	} catch (error) {
-		logger.error('Error loading scopes:', error);
+		logger.error({ msg: 'Error loading scopes:', error });
 		throw error;
 	}
 };

@@ -20,9 +20,9 @@ paths:
                 conversationId:
                   type: string
                   format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
                 nodeId:
                   type: string
-              additionalProperties: false
       responses:
         "200":
           description: Default Response
@@ -34,6 +34,7 @@ paths:
                   conversationId:
                     type: string
                     format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
                   answer:
                     type: string
                   suggestions:
@@ -83,6 +84,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -100,6 +102,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -117,6 +120,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -167,6 +171,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -184,6 +189,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -201,6 +207,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -251,6 +258,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -268,6 +276,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -285,6 +294,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -335,6 +345,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -352,6 +363,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -369,6 +381,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -380,81 +393,103 @@ paths:
       description: Retrieve a products
       parameters:
         - schema:
-            type: number
-            nullable: true
             default: 0
+            anyOf:
+              - type: number
+              - nullable: true
+                enum:
+                  - null
           in: query
           name: page
           required: false
           description: "<b>Page number</b>: The <i>current</i> page number. Defaults to `0`"
         - schema:
-            type: number
-            nullable: true
             default: 10
+            anyOf:
+              - type: number
+              - nullable: true
+                enum:
+                  - null
           in: query
           name: size
           required: false
           description: <b>Page size</b>. Defaults to `10`
         - schema:
             anyOf:
-              - type: array
-                items:
-                  type: string
-                nullable: true
-                default: []
-              - type: array
-                items:
-                  type: object
-                  properties:
-                    field:
-                      type: string
-                    query:
-                      type: array
-                      items:
-                        type: string
-                      nullable: true
-                      default: []
-                    not:
-                      type: boolean
-                      nullable: true
-                      default: false
-                  required:
-                    - field
-                  additionalProperties: false
-            nullable: true
+              - anyOf:
+                  - default: []
+                    anyOf:
+                      - type: array
+                        items:
+                          type: string
+                      - nullable: true
+                        enum:
+                          - null
+                  - type: array
+                    items:
+                      type: object
+                      properties:
+                        field:
+                          type: string
+                        query:
+                          default: []
+                          anyOf:
+                            - type: array
+                              items:
+                                type: string
+                            - nullable: true
+                              enum:
+                                - null
+                        not:
+                          default: false
+                          anyOf:
+                            - type: boolean
+                            - nullable: true
+                              enum:
+                                - null
+                      required:
+                        - field
+              - nullable: true
+                enum:
+                  - null
           in: query
           name: search
-          required: false
+          required: true
           description: '<b>Search options:</b><ul>  <li>Example: <code>name::Tomas</code>,
             or [{ field: "name", query: ["Tomas"] }]</li>  <li>or
             <code>!name::Tomas</code>, or [{ field: "name", query: ["Tomas"],
             not: true }]</li></ul>'
         - schema:
             anyOf:
-              - type: array
-                items:
-                  type: string
-                nullable: true
-                default: []
-              - type: array
-                items:
-                  type: object
-                  properties:
-                    field:
-                      type: string
-                    direction:
-                      type: string
-                      enum:
-                        - ASC
-                        - DESC
-                  required:
-                    - field
-                    - direction
-                  additionalProperties: false
-            nullable: true
+              - anyOf:
+                  - default: []
+                    anyOf:
+                      - type: array
+                        items:
+                          type: string
+                      - nullable: true
+                        enum:
+                          - null
+                  - type: array
+                    items:
+                      type: object
+                      properties:
+                        field:
+                          type: string
+                        direction:
+                          type: string
+                          enum:
+                            - ASC
+                            - DESC
+                      required:
+                        - field
+                        - direction
+              - nullable: true
+                enum:
+                  - null
           in: query
           name: sort
-          required: false
+          required: true
           description: '<b>Sorting options:</b><ul>  <li>Example: <code>name::ASC</code>,
             <code>age::DESC</code>, or [{ field: "id", direction: "ASC"
             }]</li></ul>'
@@ -474,6 +509,7 @@ paths:
                         id:
                           type: string
                           format: uuid
+                          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
                         name:
                           type: string
                       required:
@@ -528,6 +564,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -545,6 +582,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -562,6 +600,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -580,7 +619,6 @@ paths:
                   type: string
               required:
                 - name
-              additionalProperties: false
         required: true
       responses:
         "201":
@@ -591,20 +629,24 @@ paths:
                 type: object
                 properties:
                   success:
-                    type: boolean
                     default: true
+                    type: boolean
                   message:
-                    type: string
                     default: "Product: create executed successfully"
+                    type: string
                   id:
                     type: string
                     format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
                   createdAt:
+                    default: 2025-08-12T15:55:08.630Z
                     type: string
                     format: date-time
-                    default: {}
                 required:
+                  - success
+                  - message
                   - id
+                  - createdAt
                 additionalProperties: false
         "400":
           description: Default Response
@@ -619,6 +661,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -636,6 +679,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -653,6 +697,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -675,6 +720,7 @@ paths:
         - schema:
             type: string
             format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
           in: path
           name: id
           required: true
@@ -689,6 +735,7 @@ paths:
                   id:
                     type: string
                     format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
                   name:
                     type: string
                 required:
@@ -708,6 +755,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -725,6 +773,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -742,6 +791,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -758,11 +808,11 @@ paths:
               properties:
                 name:
                   type: string
-              additionalProperties: false
       parameters:
         - schema:
             type: string
             format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
           in: path
           name: id
           required: true
@@ -775,20 +825,24 @@ paths:
                 type: object
                 properties:
                   success:
-                    type: boolean
                     default: true
+                    type: boolean
                   message:
-                    type: string
                     default: "Product: update executed successfully"
+                    type: string
                   id:
                     type: string
                     format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
                   updatedAt:
+                    default: 2025-08-12T15:55:08.631Z
                     type: string
                     format: date-time
-                    default: {}
                 required:
+                  - success
+                  - message
                   - id
+                  - updatedAt
                 additionalProperties: false
         "400":
           description: Default Response
@@ -803,6 +857,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -820,6 +875,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -837,6 +893,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -849,6 +906,7 @@ paths:
         - schema:
             type: string
             format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
           in: path
           name: id
           required: true
@@ -861,15 +919,18 @@ paths:
                 type: object
                 properties:
                   success:
-                    type: boolean
                     default: true
+                    type: boolean
                   message:
-                    type: string
                     default: "Product: delete executed successfully"
+                    type: string
                   id:
                     type: string
                     format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
                 required:
+                  - success
+                  - message
                   - id
                 additionalProperties: false
         "400":
@@ -885,6 +946,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -902,6 +964,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error
@@ -919,6 +982,7 @@ paths:
                     type: string
                   details:
                     type: array
+                    items: {}
                 required:
                   - statusCode
                   - error

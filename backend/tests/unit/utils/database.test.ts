@@ -1,5 +1,6 @@
 // Code Coverage
-import { createDBConnection, isSQLite, ofString, runSeeders } from '../../../src/utils/database';
+import { createDBConnection, isSQLite, ofString } from '../../../src/utils/database';
+import { runSeeders } from '../../../src/utils/database.migrations';
 
 jest.mock('../../../src/config/database', () => ({
 	sequelize: { authenticate: jest.fn(), sync: jest.fn(), getQueryInterface: jest.fn() }

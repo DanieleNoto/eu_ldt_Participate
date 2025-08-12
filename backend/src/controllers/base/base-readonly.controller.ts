@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { Model } from 'sequelize-typescript';
 import { Identifier } from 'sequelize/types/model';
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { AnyZodSchema } from '../../schemas/base/base-crud.schema';
 import { BaseReadonlyService } from '../../services/base/base-readonly.service';
 import { BaseController } from './base.controller';
 
@@ -22,8 +23,8 @@ export abstract class BaseReadonlyController<
 	 * Handles retrieving all resources.
 	 */
 	async getAll(
-		querySchema: z.AnyZodObject | undefined,
-		responseSchema: z.AnyZodObject | undefined,
+		querySchema: AnyZodSchema | undefined,
+		responseSchema: AnyZodSchema | undefined,
 		req: FastifyRequest,
 		reply: FastifyReply
 	) {
@@ -52,8 +53,8 @@ export abstract class BaseReadonlyController<
 	 * Handles retrieving a resource by ID.
 	 */
 	async getById(
-		querySchema: z.AnyZodObject | null,
-		responseSchema: z.AnyZodObject | undefined,
+		querySchema: AnyZodSchema | null,
+		responseSchema: AnyZodSchema | undefined,
 		req: FastifyRequest /*<{ Params: { id: ID } }>*/,
 		reply: FastifyReply
 	) {

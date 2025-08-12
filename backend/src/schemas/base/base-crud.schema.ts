@@ -80,28 +80,33 @@ export const IdSchema = z.object({
 	id: z.string().uuid('Invalid UUID')
 });
 
+// Generic schema type to represent any Zod schema object (replacement for deprecated AnyZodObject)
+export type AnyZodSchema = z.ZodTypeAny;
+
 export interface RequestSchemas {
-	create?: z.AnyZodObject;
-	update?: z.AnyZodObject;
-	delete?: z.AnyZodObject;
-	fetch?: z.AnyZodObject;
-	fetchAll?: z.AnyZodObject;
-	clone?: z.AnyZodObject;
+	create?: AnyZodSchema;
+	update?: AnyZodSchema;
+	delete?: AnyZodSchema;
+	fetch?: AnyZodSchema;
+	fetchAll?: AnyZodSchema;
+	clone?: AnyZodSchema;
 }
 
 export interface ResponseSchemas {
-	fetch?: z.AnyZodObject;
-	fetchAll?: z.AnyZodObject;
-	create?: z.AnyZodObject;
-	update?: z.AnyZodObject;
-	delete?: z.AnyZodObject;
-	clone?: z.AnyZodObject;
-	export?: z.AnyZodObject;
-	revert?: z.AnyZodObject;
+	fetch?: AnyZodSchema;
+	fetchAll?: AnyZodSchema;
+	create?: AnyZodSchema;
+	update?: AnyZodSchema;
+	delete?: AnyZodSchema;
+	clone?: AnyZodSchema;
+	export?: AnyZodSchema;
+	revert?: AnyZodSchema;
 }
 
 export const auditVersionSchema = z.object({
-	status: z.nativeEnum(StatusEnum).default(StatusEnum.DRAFT),
+	status: z
+		.enum([StatusEnum.DRAFT, StatusEnum.ACTIVE, StatusEnum.COMPLETED, StatusEnum.DELETED])
+		.default(StatusEnum.DRAFT),
 	version: z.number(),
 	author: z.string(),
 	createdAt: z.coerce.date(),
@@ -133,7 +138,7 @@ export const IncludeQueryParams = z.object({
 });
 
 export const ExportQueryParams = IncludeQueryParams.extend({
-	format: z.nativeEnum(FileType).default(FileType.JSON)
+	format: z.enum([FileType.PDF, FileType.JSON, FileType.CSV, FileType.XLSX]).default(FileType.JSON)
 });
 
 export const pageSearchAndFilterQueryParams = z.object({

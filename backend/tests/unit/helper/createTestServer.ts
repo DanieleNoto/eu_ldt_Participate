@@ -49,14 +49,14 @@ export const closeTestServer = async (): Promise<void> => {
 
 		logger.info('Test server closed and all resources cleaned up');
 	} catch (error) {
-		logger.error('Error closing test server', error);
+		logger.error({ msg: 'Error closing test server', error });
 
 		if (app) {
 			try {
 				await app.close();
 				app = null;
 			} catch (closeError) {
-				logger.error('Error force closing test server', closeError);
+				logger.error({ msg: 'Error force closing test server', error: closeError });
 			}
 		}
 

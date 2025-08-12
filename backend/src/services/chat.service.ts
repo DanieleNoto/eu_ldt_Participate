@@ -1,10 +1,10 @@
 import { FastifyRequest } from 'fastify';
 import { execute } from '../handlers/chat.registry';
 import Conversation from '../models/entities/conversation.model';
-import { loadTree, QANode } from '../utils/qaTree';
+import { loadTree, QATree } from '../utils/qaTree';
 
 export class ChatService {
-	private _tree: Record<string, QANode>;
+	private _tree: QATree;
 
 	constructor() {
 		this._tree = loadTree();
@@ -39,7 +39,7 @@ export class ChatService {
 
 		// Generate response
 		const answer = request.i18n.t(node.answerKey || node.questionKey);
-		const suggestions = node.children.map(({ id, labelKey }) => ({
+		const suggestions = node.children.map(({ id, labelKey }: { id: string; labelKey: string }) => ({
 			id,
 			text: request.i18n.t(labelKey)
 		}));

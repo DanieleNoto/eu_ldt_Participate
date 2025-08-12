@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { Model } from 'sequelize-typescript';
 import { Identifier } from 'sequelize/types/model';
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { AnyZodSchema } from '../../schemas/base/base-crud.schema';
 import { ValidationError } from '../../utils/errors';
 import { BaseCrudService } from '../../services/base/base-crud.service';
 import { BaseController } from './base.controller';
@@ -23,7 +24,7 @@ export abstract class BaseCrudController<
 	/**
 	 * Handles creating a new resource.
 	 */
-	async create(responseSchema: z.AnyZodObject, req: FastifyRequest /*<{ Body: Entity }>*/, reply: FastifyReply) {
+	async create(responseSchema: AnyZodSchema, req: FastifyRequest /*<{ Body: Entity }>*/, reply: FastifyReply) {
 		try {
 			const data = BaseController.validateBody<Entity>(this.getRequestSchema(), req, reply);
 			if (!data) {
@@ -47,7 +48,7 @@ export abstract class BaseCrudController<
 	 * Handles updating a resource by ID.
 	 */
 	async update(
-		responseSchema: z.AnyZodObject,
+		responseSchema: AnyZodSchema,
 		req: FastifyRequest /*<{ Params: { id: ID }; Body: Partial<Entity> }>*/,
 		reply: FastifyReply
 	) {
@@ -78,8 +79,8 @@ export abstract class BaseCrudController<
 	 * Handles deleting a resource by ID.
 	 */
 	async delete(
-		querySchema: z.AnyZodObject | undefined,
-		responseSchema: z.AnyZodObject | undefined,
+		querySchema: AnyZodSchema | undefined,
+		responseSchema: AnyZodSchema | undefined,
 		req: FastifyRequest /*<{ Params: { id: ID } }>*/,
 		reply: FastifyReply
 	) {
@@ -87,11 +88,11 @@ export abstract class BaseCrudController<
 		if (!params) return;
 
 		const query = req.query as any;
-		const queryParams = querySchema?.parse(query);
+		const queryParams = querySchema?.parse(query) as any;
 
 		try {
 			const entity = await this.service.delete(params.id, {
-				includeDependencies: queryParams?.includeDependencies === true
+				includeDependencies: (queryParams as any)?.includeDependencies === true
 			});
 			if (!entity) return BaseController.sendError(reply, null, 404, 'Resource not found');
 
@@ -106,5 +107,4 @@ export abstract class BaseCrudController<
 			);
 		}
 	}
-
 }

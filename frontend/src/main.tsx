@@ -1,5 +1,6 @@
 import App from '@app/App';
 import { RUNTIME_APP_CONFIG } from '@app/App.config';
+import MainProvider from '@app/MainProvider';
 import '@src/i18n';
 import '@theme/styles/global.css';
 import { StrictMode } from 'react';
@@ -15,7 +16,9 @@ fetch('/config/config.json')
 			createRoot(root).render(
 				<StrictMode>
 					<BrowserRouter>
-						<App standalone={true} />
+						<MainProvider>
+							<App standalone={true} />
+						</MainProvider>
 					</BrowserRouter>
 				</StrictMode>
 			);
