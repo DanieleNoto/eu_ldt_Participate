@@ -17,7 +17,7 @@ data:
   OAUTH2_BASE_URL: '_%OAUTH2_BASE_URL%_'
   OAUTH2_CALLBACK_URL: '_%OAUTH2_CALLBACK_URL%_'
   FRONTEND_URL: '_%FRONTEND_URL%_'
-  setup.json: |
-    {
-      "apiBaseUrl": "_%TOOL3_API_BASE_URL%_/api"
-    }
+ # setup.json: |
+ #   {
+ #     "apiBaseUrl": "_%TOOL3_API_BASE_URL%_/api"
+ #   }
