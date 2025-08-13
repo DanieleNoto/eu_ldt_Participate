@@ -1,6 +1,19 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: tool3-config
+  name: tool1-config
 data:
-  sample_key : samplevalue
+  postgres_user: _%TOOL1-PG-USER%_
+  pg_jdbc_url: jdbc:postgresql://${TOOL1_PG_SERVICE_HOST}:5432/default
+  DB_DIALECT : postgres
+  DB_HOST : tool1-0
+  DB_USERNAME : _%TOOL1-APP-PG-USER%_
+  DB_PORT : "5432"
+  DB_NAME : playvisualise
+  USE_SWAGGER: "true"
+  AUTH_PROVIDER: 'TOOL5'
+  OAUTH2_REALM: 'LDT'
+  OAUTH2_CLIENT_ID: 'tool1'
+  OAUTH2_BASE_URL: '_%OAUTH2_BASE_URL%_'
+  OAUTH2_CALLBACK_URL: '_%OAUTH2_CALLBACK_URL%_'
+  FRONTEND_URL: '_%FRONTEND_URL%_'

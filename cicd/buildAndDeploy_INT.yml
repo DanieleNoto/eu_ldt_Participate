@@ -14,32 +14,6 @@ variables:
 - group: 'Toolbox Shared Infrastructure - INTEGRATION'
 
 jobs:
-#- job: buildAndPushDockerfile
-#  displayName: "Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION"
-#  variables:
-#      tag: '$(Build.BuildId)' 
-#  steps:
-#    - task: replacetokens@5
-#      displayName: "Replace tokens Backend"
-#      inputs:
-#        rootDirectory: tool7-backend-ts
-#        targetFiles: Dockerfile*
-#        tokenPattern: custom
-#        tokenPrefix: __
-#        tokenSuffix: __
-#        writeBOM: false
-#        verbosity: detailed
-#        actionOnNoFiles: warn
-
-#    - task: Docker@2
-#      displayName: Build and push backend
-#      inputs:
-#        command: buildAndPush
-#        repository: eu-ldt-dsr-int
-#        dockerfile: tool7-backend-ts/Dockerfile
-#        containerRegistry: EU-LDT-Toolbox-ACR-Shared
-#        tags: |
-#          $(tag)
     
 - job: deployment
 #  dependsOn: buildAndPushDockerfile
