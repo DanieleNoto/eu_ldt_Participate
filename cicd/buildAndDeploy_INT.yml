@@ -186,7 +186,7 @@ jobs:
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
         command: 'apply'
-        arguments: '-f infrastructure/int/frontend/configMap.yml'
+        arguments: '-f infrastructure/int/tool3-fe-config-configmap.yaml'
 
     - task: Kubernetes@1
       displayName: "Apply Deployment - (Tool3)"
