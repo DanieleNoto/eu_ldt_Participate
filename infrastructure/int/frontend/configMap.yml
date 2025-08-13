@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: tool1-fe-config
-  namespace: playvisualise
+  namespace: participate
 data:
   setup.json: |
     {
