@@ -1,6 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: tool3-frontend-config
+  name: tool1-fe-config
+  namespace: playvisualise
 data:
-  sample_key : samplevalue
+  setup.json: |
+    {
+      "apiBaseUrl": "_%TOOL1_API_BASE_URL%_/api"
+    }
