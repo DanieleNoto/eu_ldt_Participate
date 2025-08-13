@@ -65,7 +65,7 @@ jobs:
       displayName: "Apply Namespaces (Tool3)"
       inputs:
         connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
         azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
@@ -75,7 +75,7 @@ jobs:
 #      displayName: "Set ACR Pull Secret (Tool1)"
 #      inputs:
 #        connectionType: 'Azure Resource Manager'
-#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
 #        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
 #        kubernetesCluster: 'eu-ldt-tool-01-participate-aks-int'
 #        namespace: 'participate'
@@ -87,7 +87,7 @@ jobs:
 #      displayName: "Set Shared Storage Secret (Tool1)"
 #      inputs:
 #        connectionType: 'Azure Resource Manager'
-#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
 #        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
 #        kubernetesCluster: 'eu-ldt-tool-01-participate-aks-int'
 #        namespace: 'participate'
@@ -98,7 +98,7 @@ jobs:
       displayName: "Apply File Storage (Tool1)"
       inputs:
         connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
         azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
@@ -108,7 +108,7 @@ jobs:
       displayName: "Apply ConfigMap (Tool3)"
       inputs:
         connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
         azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
@@ -118,7 +118,7 @@ jobs:
       displayName: "Apply SecretsMap (Tool3)"
       inputs:
         connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
         azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
@@ -128,7 +128,7 @@ jobs:
       displayName: "Apply Frontend ConfigMap (Tool3)"
       inputs:
         connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
         azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
@@ -138,7 +138,7 @@ jobs:
       displayName: "Apply Deployment (Tool1)"
       inputs:
         connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
         azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
@@ -148,7 +148,7 @@ jobs:
       displayName: "Apply Service (Tool3)"
       inputs:
         connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
         azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
@@ -158,7 +158,7 @@ jobs:
       displayName: "Apply Ingress (Tool3)"
       inputs:
         connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
         azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
