@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: tool1-fe-config
+  name: tool3-fe-config
   namespace: participate
 data:
   setup.json: |
     {
-      "apiBaseUrl": "_%TOOL1_API_BASE_URL%_/api"
+      "apiBaseUrl": "_%TOOL3_API_BASE_URL%_/api"
     }
