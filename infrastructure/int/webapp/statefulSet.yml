@@ -39,17 +39,19 @@ spec:
             cpu: "200m"
             memory: "1536M"
         ports:
-        - containerPort: 8080
-          name: backend
+        - containerPort: 3000
+          name: http-api
         envFrom:                  
         - configMapRef:
             name: tool3-config
         - secretRef:
             name: tool3-secrets
-        volumeMounts:
-        - name: tool3sharedstorage
-          mountPath: /mnt/shared
-          readOnly: false
+        env:
+        - name: DB_DIALECT
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config  
+              key: DB_DIALECT
 #        livenessProbe:
 #          httpGet:
 #            path: /health
@@ -67,8 +69,79 @@ spec:
 #            port: 9000
 #          failureThreshold: 60
 #          periodSeconds: 10
+      - name: tool3-fe
+#        image: euldtshared.azurecr.io/eu-ldt-dsr-int:_%CONTAINER_IMAGE_TOOL_BE_TAG%_
+        image: mcr.microsoft.com/k8se/quickstart:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "400m"
+            memory: "1536M"
+          requests:
+            cpu: "200m"
+            memory: "1536M"
+        ports:
+        - containerPort: 8080
+          name: http-front
+        volumeMounts:
+        - name: fe-config-volume
+          mountPath: /usr/share/nginx/html/setup.json
+          subPath: setup.json
+#        livenessProbe:
+#          httpGet:
+#            path: /health
+#            port: 9000
+#          initialDelaySeconds: 3
+#          periodSeconds: 3
+#        readinessProbe:
+#          tcpSocket:
+#            port: 8443
+#          initialDelaySeconds: 30
+#          periodSeconds: 10
+#        startupProbe:
+#          httpGet:
+#            path: /health/up
+#            port: 9000
+#          failureThreshold: 60
+#          periodSeconds: 10      
+      - name: tool3-pg
+        image: docker.io/library/postgres:17.3
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tool3-secrets
+              key: postgres_password
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        volumeMounts:
+        - name: tool3pgstorage
+          mountPath: /var/lib/postgresql/data
       volumes:
-      - name: tool3sharedstorage
+      - name: tool3pgstorage
         persistentVolumeClaim:
-          claimName: tool3-shared-claim
+          claimName: postgres-pvc
+      - name: fe-config-volume
+        configMap:
+          name: tool3-fe-config
+          items:
+          - key: setup.json
+            path: setup.json
 
