@@ -1,23 +1,29 @@
-name: Tool3-Build&DeployINT-$(date:yyyyMMdd)$(rev:.r)
+name: Tool3-BuildAndDeploy-INT-$(date:yyyyMMdd)$(rev:.r)
 
-#trigger:
-#- main
+trigger:
+- main
 #pr:
 #- main
 
 pool:
   vmImage: 'ubuntu-latest'
-  
-  variables:
-  - group: 'TOOL3 - PV - INT'
-  - group: 'Tool 3 - Resources Configuration - INT'
-  - group: 'Toolbox Shared Infrastructure - INTEGRATION'
+
+variables:
+- group: 'Tool 3 - Tool parameters - INT'
+- group: 'Tool 3 - Resources Configuration - INT'
+- group: 'Toolbox Shared Infrastructure - INTEGRATION'
+
+jobs:
+    
+- job: deployment
+#  dependsOn: buildAndPushDockerfile
+  displayName: Kubectl Tool3 deployment
   steps:
     - task: replacetokens@5
       displayName: "Replace tokens Tools"
       inputs:
         rootDirectory: infrastructure/int
-        targetFiles: 'statefulSet.yml,configMap.yml,secretsMap.yml,tool1-fe-config-configmap.yaml'
+        targetFiles: 'webapp/statefulSet.yml'
         tokenPattern: custom
         tokenPrefix: _%
         tokenSuffix: '%_'
@@ -38,31 +44,70 @@ pool:
         namespace: 'participate'
         command: 'apply'
         arguments: '-f infrastructure/int/namespace.yml'
+#ASR: Añadimos la eliminacion del ACR Pull Secret para volver a generarlo
+    - task: Kubernetes@1
+      displayName: "Delete ACR Pull Secret if exists (Tool3)"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'delete'
+        arguments: secret acr-secret --ignore-not-found=true
+#-------------------------------------------------------------------------------
+    - task: Kubernetes@1
+      displayName: "Set ACR Pull Secret (Tool3)"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'create'
+        arguments: secret docker-registry acr-secret --docker-server=euldtshared.azurecr.io --docker-username=$(TF-SP-CLIENT-ID) --docker-password=$(TF-SP-CLIENT-SECRET)
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
+
+  #ASR: Añadimos la eliminacion del Shared Storage Secret para volver a generarlo
+    - task: Kubernetes@1
+      displayName: "Delete existing storage-secret if it exists"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'delete'
+        arguments: secret storage-secret --ignore-not-found=true
+
+    - task: Kubernetes@1
+      displayName: "Create Shared Storage Secret (Tool3)"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'create'
+        arguments: secret generic storage-secret --from-literal=azurestorageaccountname=euldtsharedtfstateint --from-literal=azurestorageaccountkey=$(STORAGE-ACCOUNT-KEY)
+        secretType: 'generic'
+
 #    - task: Kubernetes@1
-#      displayName: "Set ACR Pull Secret (Tool1)"
+#      displayName: "Set Shared Storage Secret (Tool7)"
 #      inputs:
 #        connectionType: 'Azure Resource Manager'
 #        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
 #        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-#        kubernetesCluster: 'eu-ldt-tool-01-participate-aks-int'
-#        namespace: 'participate'
-#        command: 'create'
-#        arguments: secret docker-registry acr-secret --docker-server=euldtshared.azurecr.io --docker-username=$(TF-SP-CLIENT-ID) --docker-password=$(TF-SP-CLIENT-SECRET)
-#        secretType: 'dockerRegistry'
-#        containerRegistryType: 'Azure Container Registry'
-#    - task: Kubernetes@1
-#      displayName: "Set Shared Storage Secret (Tool1)"
-#      inputs:
-#        connectionType: 'Azure Resource Manager'
-#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-#        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-#        kubernetesCluster: 'eu-ldt-tool-01-participate-aks-int'
+#        kubernetesCluster: 'eu-ldt-tool-07-participate-aks-int'
 #        namespace: 'participate'
 #        command: 'create'
 #        arguments: secret generic storage-secret --from-literal=azurestorageaccountname=euldtsharedtfstateint --from-literal=azurestorageaccountkey=$(STORAGE-ACCOUNT-KEY)
 #        secretType: 'generic'
+#--------------------------------------------------------------------------------------------------------
+
     - task: Kubernetes@1
-      displayName: "Apply File Storage (Tool1)"
+      displayName: "Apply File Storage (Tool3)"
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -71,16 +116,7 @@ pool:
         namespace: 'participate'
         command: 'apply'
         arguments: '-f infrastructure/int/storage/file-storage.yml'
-    - task: Kubernetes@1
-      displayName: "Apply ConfigMap (Tool3)"
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-        namespace: 'participate'
-        command: 'apply'
-        arguments: '-f infrastructure/int/configMap.yml'
+
     - task: Kubernetes@1
       displayName: "Apply SecretsMap (Tool3)"
       inputs:
@@ -91,8 +127,12 @@ pool:
         namespace: 'participate'
         command: 'apply'
         arguments: '-f infrastructure/int/secretsMap.yml'
+
+
+#-------------------------------------------------------------------------------------------
+#CONFIGURACION BACKEND
     - task: Kubernetes@1
-      displayName: "Apply Frontend ConfigMap (Tool3)"
+      displayName: "Apply ConfigMap (Tool3) Backend"
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -100,9 +140,45 @@ pool:
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
         command: 'apply'
-        arguments: '-f infrastructure/int/frontend.yml'
+        arguments: '-f infrastructure/int/backend/configMap.yml'
+    
+    #- task: Kubernetes@1
+    #  displayName: "Apply ConfigMap - DB (Tool7) Backend"
+    #  inputs:
+    #    connectionType: 'Azure Resource Manager'
+    #    azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+    #    azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+    #    kubernetesCluster: 'eu-ldt-tool-07-participate-aks-int'
+    #    namespace: 'participate'
+    #    command: 'apply'
+    #    arguments: '-f infrastructure/int/backend/configMapDB.yml'
+
+    #- task: Kubernetes@1
+    #  displayName: "Apply Secrets - BE (Tool7)"
+    #  inputs:
+    #    connectionType: 'Azure Resource Manager'
+    #    azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+    #    azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+    #    kubernetesCluster: 'eu-ldt-tool-07-participate-aks-int'
+    #    namespace: 'participate'
+    #    command: 'apply'
+    #    arguments: '-f infrastructure/int/backend/secrets.yaml'
+
+    #- task: Kubernetes@1
+    #  displayName: "Apply Secrets - DB (Tool7) Backend"
+    #  inputs:
+    #    connectionType: 'Azure Resource Manager'
+    #    azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+    #    azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+    #    kubernetesCluster: 'eu-ldt-tool-07-participate-aks-int'
+    #    namespace: 'participate'
+    #    command: 'apply'
+    #    arguments: '-f infrastructure/int/backend/db-secrets.yaml'
+
+#------------------------------------------------------------------------------------------------
+# CONFIGURACION FRONTEND    
     - task: Kubernetes@1
-      displayName: "Apply Deployment (Tool3)"
+      displayName: "Apply ConfigMap (Tool3) Frontend"
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -110,17 +186,31 @@ pool:
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
         command: 'apply'
-        arguments: '-f infrastructure/int/statefulSet.yml'
+        arguments: '-f infrastructure/int/frontend/configMap.yml'
+
     - task: Kubernetes@1
-      displayName: "Apply Service (Tool3)"
+      displayName: "Apply Deployment - WebApp (Tool3) Frontend"
       inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-        namespace: 'participate'
-        command: 'apply'
-        arguments: '-f infrastructure/int/service.yml'
+          connectionType: 'Azure Resource Manager'
+          azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+          azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+          kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+          namespace: 'participate'              
+          command: 'apply'
+          arguments: '-f infrastructure/int/webapp/statefulSet.yml'
+
+    - task: Kubernetes@1
+      displayName: "Apply Service - FE (Tool3) Frontend"
+      inputs:
+          connectionType: 'Azure Resource Manager'
+          azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+          azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+          kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+          namespace: 'participate'   
+          command: 'apply'
+          arguments: '-f infrastructure/int/frontend/service.yml'
+
+#-------------------------------------------------------------------------------------------------  
     - task: Kubernetes@1
       displayName: "Apply Ingress (Tool3)"
       inputs:
