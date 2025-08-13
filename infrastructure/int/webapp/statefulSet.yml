@@ -139,9 +139,9 @@ spec:
         persistentVolumeClaim:
           claimName: postgres-pvc
       - name: fe-config-volume
-        configMap:
-          name: tool3-fe-config
-          items:
-          - key: setup.json
-            path: setup.json
+   #     configMap:
+   #       name: tool3-fe-config
+   #       items:
+   #       - key: setup.json
+   #         path: setup.json
 
