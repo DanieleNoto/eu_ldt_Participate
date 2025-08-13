@@ -11,55 +11,140 @@
 	"billing": {
 		"id": "billing",
 		"questionKey": "billing",
-		"answerKey": "billing",
-		"children": [
-			{ "id": "invoice", "labelKey": "invoice" },
-			{ "id": "payment", "labelKey": "payment" }
-		],
+		"answerKey": "billing_faq_intro",
+		"children": [],
 		"handlerId": "logNode",
-		"handlerParams": { "level": "info" }
+		"handlerParams": { "level": "info" },
+		"faqs": [
+			{ "id": "billing_faq_1", "questionKey": "billing_faq_1_question", "answerKey": "billing_faq_1_answer" },
+			{ "id": "billing_faq_2", "questionKey": "billing_faq_2_question", "answerKey": "billing_faq_2_answer" },
+			{ "id": "billing_faq_3", "questionKey": "billing_faq_3_question", "answerKey": "billing_faq_3_answer" },
+			{ "id": "billing_faq_4", "questionKey": "billing_faq_4_question", "answerKey": "billing_faq_4_answer" }
+		],
+		"additionalSuggestions": [
+			{ "id": "technical", "labelKey": "technical" },
+			{ "id": "general", "labelKey": "general" }
+		]
 	},
 	"technical": {
 		"id": "technical",
 		"questionKey": "technical",
-		"answerKey": "technical",
-		"children": [
-			{ "id": "error", "labelKey": "error" },
-			{ "id": "performance", "labelKey": "performance" }
+		"answerKey": "technical_faq_intro",
+		"children": [],
+		"handlerId": "logNode",
+		"faqs": [
+			{
+				"id": "technical_faq_1",
+				"questionKey": "technical_faq_1_question",
+				"answerKey": "technical_faq_1_answer"
+			},
+			{
+				"id": "technical_faq_2",
+				"questionKey": "technical_faq_2_question",
+				"answerKey": "technical_faq_2_answer"
+			},
+			{
+				"id": "technical_faq_3",
+				"questionKey": "technical_faq_3_question",
+				"answerKey": "technical_faq_3_answer"
+			},
+			{
+				"id": "technical_faq_4",
+				"questionKey": "technical_faq_4_question",
+				"answerKey": "technical_faq_4_answer"
+			}
 		],
-		"handlerId": "logNode"
+		"additionalSuggestions": [
+			{ "id": "billing", "labelKey": "billing" },
+			{ "id": "general", "labelKey": "general" }
+		]
 	},
 	"general": {
 		"id": "general",
 		"questionKey": "general",
-		"answerKey": "general",
+		"answerKey": "general_faq_intro",
+		"children": [],
+		"faqs": [
+			{ "id": "general_faq_1", "questionKey": "general_faq_1_question", "answerKey": "general_faq_1_answer" },
+			{ "id": "general_faq_2", "questionKey": "general_faq_2_question", "answerKey": "general_faq_2_answer" },
+			{ "id": "general_faq_3", "questionKey": "general_faq_3_question", "answerKey": "general_faq_3_answer" },
+			{ "id": "general_faq_4", "questionKey": "general_faq_4_question", "answerKey": "general_faq_4_answer" }
+		],
+		"additionalSuggestions": [
+			{ "id": "billing", "labelKey": "billing" },
+			{ "id": "technical", "labelKey": "technical" }
+		]
+	},
+	"billing_faq_1": {
+		"id": "billing_faq_1",
+		"questionKey": "billing_faq_1_question",
+		"answerKey": "billing_faq_1_answer",
 		"children": []
 	},
-	"invoice": {
-		"id": "invoice",
-		"questionKey": "invoice",
-		"answerKey": "invoice",
-		"children": [],
-		"handlerId": "logNode"
-	},
-	"payment": {
-		"id": "payment",
-		"questionKey": "payment",
-		"answerKey": "payment",
+	"billing_faq_2": {
+		"id": "billing_faq_2",
+		"questionKey": "billing_faq_2_question",
+		"answerKey": "billing_faq_2_answer",
 		"children": []
 	},
-	"error": {
-		"id": "error",
-		"questionKey": "error",
-		"answerKey": "error",
-		"children": [],
-		"handlerId": "logNode"
+	"billing_faq_3": {
+		"id": "billing_faq_3",
+		"questionKey": "billing_faq_3_question",
+		"answerKey": "billing_faq_3_answer",
+		"children": []
 	},
-	"performance": {
-		"id": "performance",
-		"questionKey": "performance",
-		"answerKey": "performance",
-		"children": [],
-		"handlerId": "logNode"
+	"billing_faq_4": {
+		"id": "billing_faq_4",
+		"questionKey": "billing_faq_4_question",
+		"answerKey": "billing_faq_4_answer",
+		"children": []
+	},
+	"technical_faq_1": {
+		"id": "technical_faq_1",
+		"questionKey": "technical_faq_1_question",
+		"answerKey": "technical_faq_1_answer",
+		"children": []
+	},
+	"technical_faq_2": {
+		"id": "technical_faq_2",
+		"questionKey": "technical_faq_2_question",
+		"answerKey": "technical_faq_2_answer",
+		"children": []
+	},
+	"technical_faq_3": {
+		"id": "technical_faq_3",
+		"questionKey": "technical_faq_3_question",
+		"answerKey": "technical_faq_3_answer",
+		"children": []
+	},
+	"technical_faq_4": {
+		"id": "technical_faq_4",
+		"questionKey": "technical_faq_4_question",
+		"answerKey": "technical_faq_4_answer",
+		"children": []
+	},
+	"general_faq_1": {
+		"id": "general_faq_1",
+		"questionKey": "general_faq_1_question",
+		"answerKey": "general_faq_1_answer",
+		"children": []
+	},
+	"general_faq_2": {
+		"id": "general_faq_2",
+		"questionKey": "general_faq_2_question",
+		"answerKey": "general_faq_2_answer",
+		"children": []
+	},
+	"general_faq_3": {
+		"id": "general_faq_3",
+		"questionKey": "general_faq_3_question",
+		"answerKey": "general_faq_3_answer",
+		"children": []
+	},
+	"general_faq_4": {
+		"id": "general_faq_4",
+		"questionKey": "general_faq_4_question",
+		"answerKey": "general_faq_4_answer",
+		"children": []
 	}
 }

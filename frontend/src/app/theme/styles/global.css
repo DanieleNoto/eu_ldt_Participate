@@ -1,5 +1,5 @@
-@import 'tailwindcss' prefix(uc);
-
+/* stylelint-disable */
+@import 'tailwindcss';
 :root {
 	font-family: 'Open Sans', sans-serif;
 	--max-viewport-height: calc(100vh - 120px);

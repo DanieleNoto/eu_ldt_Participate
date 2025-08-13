@@ -10,7 +10,24 @@ const NodeSchema = z.object({
 	answerKey: z.string().optional(),
 	children: z.array(z.object({ id: z.string(), labelKey: z.string() })),
 	handlerId: z.string().optional(),
-	handlerParams: z.unknown().optional()
+	handlerParams: z.unknown().optional(),
+	faqs: z
+		.array(
+			z.object({
+				id: z.string(),
+				questionKey: z.string(),
+				answerKey: z.string()
+			})
+		)
+		.optional(),
+	additionalSuggestions: z
+		.array(
+			z.object({
+				id: z.string(),
+				labelKey: z.string()
+			})
+		)
+		.optional()
 });
 const TreeSchema = z.record(z.string(), NodeSchema);
 

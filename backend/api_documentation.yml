@@ -50,6 +50,22 @@ paths:
                         - id
                         - text
                       additionalProperties: false
+                  faqs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        question:
+                          type: string
+                        answer:
+                          type: string
+                      required:
+                        - id
+                        - question
+                        - answer
+                      additionalProperties: false
                   isLeaf:
                     type: boolean
                   options:

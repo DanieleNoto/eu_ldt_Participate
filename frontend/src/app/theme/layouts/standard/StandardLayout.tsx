@@ -19,7 +19,7 @@ export const StandardLayout = ({ children, standalone = false }: StandardLayoutP
 	const isMenuActive = useAppSelector(selectAppIsMenuActive);
 
 	return (
-		<div className="uc:max-h-screen uc:bg-gray-100">
+		<div className="max-h-screen bg-gray-100">
 			{standalone && (
 				<>
 					<AppHeader></AppHeader>
@@ -28,25 +28,25 @@ export const StandardLayout = ({ children, standalone = false }: StandardLayoutP
 			)}
 
 			<div
-				className={`uc:flex uc:max-h-(--max-viewport-height) uc:gap-2 uc:px-4 uc:py-2 `}
+				className={`flex max-h-(--max-viewport-height) gap-2 px-4 py-2 `}
 				role="region"
 				aria-label="Main content area"
 			>
-				<div className="uc:flex uc:flex-col uc:items-center">{isMainMenuActive && <MainMenu />}</div>
-				<div className={`uc:flex uc:flex-col uc:w-full  ${section ? 'uc:bg-white uc:rounded-xl' : ''}`}>
+				<div className="flex flex-col items-center">{isMainMenuActive && <MainMenu />}</div>
+				<div className={`flex flex-col w-full  ${section ? 'bg-white rounded-xl' : ''}`}>
 					<Section />
 
 					{/* Sidebar */}
-					<div className="uc:flex uc:overflow-hidden uc:mt-2">
+					<div className="flex overflow-hidden mt-2">
 						{isMenuActive && (
-							<aside className={`uc:w-64 uc:flex uc:flex-col  ${section ? 'uc:p-2' : 'uc:px-2'}`}>
+							<aside className={`w-64 flex flex-col  ${section ? 'p-2' : 'px-2'}`}>
 								<Menu menuId="main-menu"></Menu>
 							</aside>
 						)}
 
 						{/* Main Content Area */}
 						<main
-							className={`uc:flex uc:flex-col uc:flex-1 uc:overflow-y-auto uc:bg-[#FFFFFF] uc:rounded-xl ${section ? 'uc:min-h-(--max-viewport-content-section-height)' : 'uc:min-h-(--max-viewport-content-height)'}`}
+							className={`flex flex-col flex-1 overflow-y-auto bg-[#FFFFFF] rounded-xl ${section ? 'min-h-(--max-viewport-content-section-height)' : 'min-h-(--max-viewport-content-height)'}`}
 						>
 							{children}
 						</main>

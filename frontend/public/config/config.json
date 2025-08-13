@@ -1,5 +1,5 @@
 {
-	"backend.baseUrl": "localhost:3000",
+	"backend.baseUrl": "http://localhost:3000",
 	"frontend.appBasePath": "localhost:5001",
 	"logger.level": "debug",
 	"dateFns.locale": "it",

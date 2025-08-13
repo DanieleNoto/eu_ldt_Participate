@@ -50,7 +50,7 @@ describe('MainMenu Component', () => {
 		);
 
 		const activeLink = screen.getByTestId('main-menu-link-0');
-		expect(activeLink).toHaveClass('uc:bg-[#FBE186]');
+		expect(activeLink).toHaveClass('bg-[#FBE186]');
 	});
 
 	test('applies the inactive class when a link is not active', () => {
@@ -61,6 +61,6 @@ describe('MainMenu Component', () => {
 		);
 
 		const inactiveLink = screen.getByTestId('main-menu-link-1');
-		expect(inactiveLink).not.toHaveClass('uc:bg-[#F6F8FA]');
+		expect(inactiveLink).not.toHaveClass('bg-[#F6F8FA]');
 	});
 });

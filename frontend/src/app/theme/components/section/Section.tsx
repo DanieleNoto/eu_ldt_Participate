@@ -33,13 +33,13 @@ const Section = () => {
 	return (
 		section && (
 			<>
-				<div className="uc:flex uc:justify-between uc:px-6 uc:my-4 uc:items-center uc:text-[#2F3538]">
-					<div className="uc:flex uc:gap-4 uc:items-center">
+				<div className="flex justify-between px-6 my-4 items-center text-[#2F3538]">
+					<div className="flex gap-4 items-center">
 						<ArrowBackIcon
 							onClick={() => navigate(section.parentLink ?? '')}
 							sx={{ fontSize: 24, cursor: 'pointer', color: '#171D1E' }}
 						/>
-						<div className="uc:text-[22px] uc:font-semibold">{t(section.sectionTitle || '')} </div>
+						<div className="text-[22px] font-semibold">{t(section.sectionTitle || '')} </div>
 					</div>
 					{sectionActions.length > 0 && <VerticalDotsAction menuAction={sectionActions} />}
 				</div>

@@ -39,12 +39,32 @@ export class ChatService {
 
 		// Generate response
 		const answer = request.i18n.t(node.answerKey || node.questionKey);
-		const suggestions = node.children.map(({ id, labelKey }: { id: string; labelKey: string }) => ({
+
+		// Build suggestions from children or additionalSuggestions
+		let suggestions = node.children.map(({ id, labelKey }: { id: string; labelKey: string }) => ({
 			id,
 			text: request.i18n.t(labelKey)
 		}));
-		const isLeaf = node.children.length === 0;
 
-		return { conversationId: convId, answer, suggestions, isLeaf };
+		// If we have FAQs and additionalSuggestions, use the additionalSuggestions for topic switching
+		if (node.faqs && node.faqs.length > 0 && node.additionalSuggestions) {
+			suggestions = node.additionalSuggestions.map(({ id, labelKey }: { id: string; labelKey: string }) => ({
+				id,
+				text: request.i18n.t(labelKey)
+			}));
+		}
+
+		// Add FAQs if available
+		const faqs = node.faqs
+			? node.faqs.map(faq => ({
+					id: faq.id,
+					question: request.i18n.t(faq.questionKey),
+					answer: request.i18n.t(faq.answerKey)
+				}))
+			: [];
+
+		const isLeaf = node.children.length === 0 && !node.faqs?.length;
+
+		return { conversationId: convId, answer, suggestions, faqs, isLeaf };
 	}
 }

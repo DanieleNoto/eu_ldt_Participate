@@ -15,6 +15,7 @@ class ChatController extends BaseController {
 			conversationId: cid,
 			answer,
 			suggestions,
+			faqs,
 			isLeaf
 		} = await this._chatService.handleRequest(convId, nodeId, request);
 
@@ -22,6 +23,7 @@ class ChatController extends BaseController {
 			conversationId: cid,
 			answer,
 			suggestions,
+			faqs,
 			isLeaf,
 			options: isLeaf
 				? [
@@ -35,6 +37,5 @@ class ChatController extends BaseController {
 		return reply.send(response);
 	}
 }
-
 
 export default new ChatController();

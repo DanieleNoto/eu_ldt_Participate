@@ -41,7 +41,7 @@ const ToastrRender = (): JSX.Element => {
 						severity={toast[1].options?.status}
 						sx={{ width: '100%', display: 'flex', alignItems: 'center' }}
 					>
-						<p className="uc:font-medium uc:text-[16px]">{toast[1].title}</p>
+						<p className="font-medium text-[16px]">{toast[1].title}</p>
 						<p>{toast[1].text}</p>
 					</Alert>
 				</Snackbar>

@@ -9,7 +9,7 @@ const AppHeader = (): JSX.Element => {
 		<>
 			<header
 				aria-label="Tool header applicazione"
-				className="uc:bg-white uc:min-h-[64px] uc:flex uc:justify-between uc:items-center uc:px-4"
+				className="bg-white min-h-[64px] flex justify-between items-center px-4"
 				data-testid="app-header"
 			>
 				<img src={logo} alt={t('header.logo')} data-testid="app-header-logo" />
