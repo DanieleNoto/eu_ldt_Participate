@@ -4,3 +4,7 @@ metadata:
   name: tool3-config
 data:
   sample_key : samplevalue
+  setup.json: |
+    {
+      "apiBaseUrl": "_%TOOL3_API_BASE_URL%_/api"
+    }
