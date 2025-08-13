@@ -1,4 +1,4 @@
-name: Tool1-Build&DeployINT-$(date:yyyyMMdd)$(rev:.r)
+name: Tool3-Build&DeployINT-$(date:yyyyMMdd)$(rev:.r)
 
 #trigger:
 #- main
