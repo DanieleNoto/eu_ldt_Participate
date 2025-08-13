@@ -7,40 +7,7 @@ name: Tool3-Build&DeployINT-$(date:yyyyMMdd)$(rev:.r)
 
 pool:
   vmImage: 'ubuntu-latest'
-
-variables:
-  tag: '$(Build.BuildId)'
-
-jobs:
-- job: buildAndPushDockerfileINT
-  displayName: "Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION"
-  variables:
-  - group: 'TOOL3 - PV - INT'
-  - group: 'Tool 3 - Resources Configuration - INT'
-  steps:
-    - task: Docker@2
-      displayName: Build and push backend
-      inputs:
-        command: buildAndPush
-        repository: eu-ldt-pv-int
-        dockerfile: backend/Dockerfile
-        containerRegistry: EU-LDT-Toolbox-ACR-Shared
-        tags: |
-          be-$(tag)
-
-    - task: Docker@2
-      displayName: Build and push frontend
-      inputs:
-        command: buildAndPush
-        repository: eu-ldt-pv-int
-        dockerfile: frontend/Dockerfile
-        containerRegistry: EU-LDT-Toolbox-ACR-Shared
-        tags: |
-          fe-$(tag)
-
-- job: deploymentINT
-  dependsOn: buildAndPushDockerfileINT
-  displayName: "Kubectl Tool3 deployment - INTEGRATION"
+  
   variables:
   - group: 'TOOL3 - PV - INT'
   - group: 'Tool 3 - Resources Configuration - INT'
