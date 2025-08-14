@@ -4,7 +4,7 @@ metadata:
   name: tool3-config
 data:
   sample_key : samplevalue
-  postgres_user: _%TOOL3-PG-USER%_
+  postgres_user: admin
   pg_jdbc_url: jdbc:postgresql://${TOOL3_PG_SERVICE_HOST}:5432/default
   DB_DIALECT : postgres
   DB_HOST : tool3-0
