@@ -8,7 +8,7 @@ data:
   pg_jdbc_url: jdbc:postgresql://${TOOL3_PG_SERVICE_HOST}:5432/default
   DB_DIALECT : postgres
   DB_HOST : tool3-0
-  DB_USERNAME : _%TOOL1-APP-PG-USER%_
+  DB_USERNAME : _%TOOL3-APP-PG-USER%_
   DB_PORT : "5432"
   DB_NAME : participate
   USE_SWAGGER: "true"
