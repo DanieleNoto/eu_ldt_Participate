@@ -70,7 +70,7 @@ spec:
       folderName: shared
     nodeStageSecretRef:
       name: storage-secret
-      namespace: integratedenvironment
+      namespace: participate
   mountOptions:
     - dir_mode=0777
     - file_mode=0777
