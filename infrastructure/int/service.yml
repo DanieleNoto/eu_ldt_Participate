@@ -16,11 +16,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: tool3-fe
+  name: tool3-ie
 spec:
   type: ClusterIP
   ports:
-  - targetPort: 8080
+  - targetPort: 3000
     port: 80   
   selector:
     app: tool3
@@ -28,11 +28,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: tool3-api
+  name: tool3-ie-fe
 spec:
   type: ClusterIP
   ports:
-  - targetPort: 3000
-    port: 80     
+  - targetPort: 8080
+    port: 80   
   selector:
     app: tool3
