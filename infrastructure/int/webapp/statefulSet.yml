@@ -27,9 +27,8 @@ spec:
       imagePullSecrets:
         - name: acr-secret
       containers:
-      - name: tool3-be
-#        image: euldtshared.azurecr.io/eu-ldt-dsr-int:_%CONTAINER_IMAGE_TOOL_BE_TAG%_
-        image: mcr.microsoft.com/k8se/quickstart:latest
+      - name: tool3
+        image: euldtshared.azurecr.io/eu-ldt-ie-int:_%CONTAINER_IMAGE_TOOL_TAG%_
         imagePullPolicy: Always
         resources:
           limits:
@@ -40,38 +39,64 @@ spec:
             memory: "1536M"
         ports:
         - containerPort: 3000
-          name: http-api
-        envFrom:                  
-        - configMapRef:
-            name: tool3-config
-        - secretRef:
-            name: tool3-secrets
+          name: http-web
+        volumeMounts:
+        - name: tool3sharedstorage
+          mountPath: /mnt/shared
+          readOnly: false
         env:
+        - name: HOST
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: host
+        - name: DB_MIGRATE
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_migrate
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_port
         - name: DB_DIALECT
           valueFrom:
             configMapKeyRef:
-              name: tool3-config  
-              key: DB_DIALECT
-#        livenessProbe:
-#          httpGet:
-#            path: /health
-#            port: 9000
-#          initialDelaySeconds: 3
-#          periodSeconds: 3
-#        readinessProbe:
-#          tcpSocket:
-#            port: 8443
-#          initialDelaySeconds: 30
-#          periodSeconds: 10
-#        startupProbe:
-#          httpGet:
-#            path: /health/up
-#            port: 9000
-#          failureThreshold: 60
-#          periodSeconds: 10
+              name: tool3-config        
+              key: postgres_dialect
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_host
+        - name: DB_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_user
+        - name: DB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_schema
+        - name: DB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config
+              key: postgres_password
+        - name: BOOTSTRAP_API_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config
+              key: bootstrap_api_key
+        - name: CLIENT_SECRET_ENCRYPTION_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config
+              key: client_secret_encryption_key
       - name: tool3-fe
-#        image: euldtshared.azurecr.io/eu-ldt-dsr-int:_%CONTAINER_IMAGE_TOOL_BE_TAG%_
-        image: mcr.microsoft.com/k8se/quickstart:latest
+        image: euldtshared.azurecr.io/eu-ldt-ie-int-fe:_%CONTAINER_IMAGE_TOOL_TAG%_
         imagePullPolicy: Always
         resources:
           limits:
@@ -80,30 +105,15 @@ spec:
           requests:
             cpu: "200m"
             memory: "1536M"
+        env:
+        - name: VITE_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: vite_api_url
         ports:
-        - containerPort: 8081
-          name: http-front
-        volumeMounts:
-        - name: fe-config-volume
-          mountPath: /usr/share/nginx/html/setup.json
-          subPath: setup.json
-#        livenessProbe:
-#          httpGet:
-#            path: /health
-#            port: 9000
-#          initialDelaySeconds: 3
-#          periodSeconds: 3
-#        readinessProbe:
-#          tcpSocket:
-#            port: 8443
-#          initialDelaySeconds: 30
-#          periodSeconds: 10
-#        startupProbe:
-#          httpGet:
-#            path: /health/up
-#            port: 9000
-#          failureThreshold: 60
-#          periodSeconds: 10      
+        - containerPort: 8080
+          name: http
       - name: tool3-pg
         image: docker.io/library/postgres:17.3
         imagePullPolicy: IfNotPresent
@@ -124,8 +134,8 @@ spec:
               key: postgres_user
         - name: POSTGRES_PASSWORD
           valueFrom:
-            secretKeyRef:
-              name: tool3-secrets
+            configMapKeyRef:
+              name: tool3-config
               key: postgres_password
         - name: POD_IP
           valueFrom:
@@ -138,10 +148,7 @@ spec:
       - name: tool3pgstorage
         persistentVolumeClaim:
           claimName: postgres-pvc
-      - name: fe-config-volume
-#        configMap:
-#         name: tool3-config
-#        items:
-#        - key: setup.json
-#          path: setup.json
-
+      - name: tool3sharedstorage
+        persistentVolumeClaim:
+          claimName: tool3-shared-claim
+        
