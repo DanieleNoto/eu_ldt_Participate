@@ -75,7 +75,7 @@ jobs:
       displayName: "Replace tokens Tools"
       inputs:
         rootDirectory: infrastructure/int
-        targetFiles: 'webapp/statefulSet.yml,backend/configMap.yml,secretsMap.yml,frontend/configMap.yaml'
+        targetFiles: 'webapp/statefulSet.yml,configMap.yml,secretsMap.yml'
         tokenPattern: custom
         tokenPrefix: _%
         tokenSuffix: '%_'
