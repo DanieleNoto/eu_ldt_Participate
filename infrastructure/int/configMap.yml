@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: tool3-config
 data:
-  postgres_user: _%TOOL3-PG-USER%_
+  postgres_user: admin
   postgres_schema: _%TOOL3-PG-SCHEME%_
   postgres_dialect: _%TOOL3-PG-DIALECT%_
   postgres_port: ${TOOL3_PG_SERVICE_PORT}
