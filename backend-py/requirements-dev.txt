@@ -1,0 +1,15 @@
+allure-behave==2.14.3
+behave==1.2.6
+black==25.1.0
+commitizen==4.2.2
+coverage==7.6.11
+faker==24.8.0
+kafka-python==2.2.15
+locust==2.32.9
+minio==7.2.15
+pact-python==2.3.1
+playwright==1.50.0
+pre-commit==4.1.0
+pytest-playwright==0.7.0
+python-dotenv==1.1.1
+ruff==0.9.6
