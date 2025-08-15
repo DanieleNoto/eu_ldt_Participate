@@ -21,7 +21,7 @@ spec:
   type: ClusterIP
   ports:
   - targetPort: 3000
-    port: 3000  
+    port: 80 
   selector:
     app: tool3
 ---
@@ -32,7 +32,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - targetPort: 8081
-    port: 8081   
+  - targetPort: 8080
+    port: 8080   
   selector:
     app: tool3
