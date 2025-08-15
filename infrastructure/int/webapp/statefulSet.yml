@@ -28,7 +28,8 @@ spec:
         - name: acr-secret
       containers:
       - name: tool3
-        image: euldtshared.azurecr.io/eu-ldt-ie-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+        image: mcr.microsoft.com/k8se/quickstart:latest
+      #  image: euldtshared.azurecr.io/eu-ldt-ie-int:_%CONTAINER_IMAGE_TOOL_TAG%_
         imagePullPolicy: Always
         resources:
           limits:
@@ -96,7 +97,8 @@ spec:
               name: tool3-config
               key: client_secret_encryption_key
       - name: tool3-fe
-        image: euldtshared.azurecr.io/eu-ldt-ie-int-fe:_%CONTAINER_IMAGE_TOOL_TAG%_
+        image: mcr.microsoft.com/k8se/quickstart:latest
+       #  image: euldtshared.azurecr.io/eu-ldt-ie-int-fe:_%CONTAINER_IMAGE_TOOL_TAG%_
         imagePullPolicy: Always
         resources:
           limits:

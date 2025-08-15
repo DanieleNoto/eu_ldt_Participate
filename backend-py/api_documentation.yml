@@ -1,0 +1,1526 @@
+components:
+  schemas:
+    AuthTokenRequest:
+      properties:
+        client_id:
+          description: The client identifier
+          title: Client Id
+          type: string
+        client_secret:
+          description: The secret associated with the client
+          title: Client Secret
+          type: string
+        grant_type:
+          description: The grant type used for authentication
+          title: Grant Type
+          type: string
+        scope:
+          description: The scope of the requested token
+          title: Scope
+          type: string
+      required:
+      - client_id
+      - grant_type
+      - client_secret
+      - scope
+      title: AuthTokenRequest
+      type: object
+    Body_login_for_access_token_api_v1_token_post:
+      properties:
+        password:
+          title: Password
+          type: string
+        username:
+          title: Username
+          type: string
+      required:
+      - username
+      - password
+      title: Body_login_for_access_token_api_v1_token_post
+      type: object
+    DataSourceAddDTO:
+      properties:
+        connection_string:
+          title: Connection String
+          type: string
+        name:
+          title: Name
+          type: string
+        password:
+          title: Password
+          type: string
+        type:
+          title: Type
+          type: string
+        user:
+          title: User
+          type: string
+      required:
+      - name
+      - connection_string
+      - user
+      - password
+      - type
+      title: DataSourceAddDTO
+      type: object
+    DataSourceDTO:
+      properties:
+        connection_string:
+          title: Connection String
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        id:
+          title: Id
+          type: integer
+        is_deleted:
+          title: Is Deleted
+          type: boolean
+        is_hidden:
+          title: Is Hidden
+          type: boolean
+        name:
+          title: Name
+          type: string
+        password:
+          title: Password
+          type: string
+        type:
+          title: Type
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        user:
+          title: User
+          type: string
+      required:
+      - name
+      - connection_string
+      - user
+      - password
+      - id
+      - type
+      - created_at
+      - updated_at
+      - is_deleted
+      - is_hidden
+      title: DataSourceDTO
+      type: object
+    DataSourceEditDTO:
+      properties:
+        connection_string:
+          title: Connection String
+          type: string
+        name:
+          title: Name
+          type: string
+        password:
+          title: Password
+          type: string
+        user:
+          title: User
+          type: string
+      required:
+      - name
+      - connection_string
+      - user
+      - password
+      title: DataSourceEditDTO
+      type: object
+    EntityDTO:
+      additionalProperties: true
+      properties:
+        id:
+          title: Id
+          type: string
+        name:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Name
+        type:
+          title: Type
+          type: string
+      required:
+      - id
+      - type
+      title: EntityDTO
+      type: object
+    EntityTypeListResponse:
+      properties:
+        id:
+          title: Id
+          type: string
+        type:
+          title: Type
+          type: string
+        typeList:
+          items:
+            type: string
+          title: Typelist
+          type: array
+      required:
+      - id
+      - type
+      - typeList
+      title: EntityTypeListResponse
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    Role:
+      properties:
+        role_name:
+          title: Role Name
+          type: string
+        state:
+          title: State
+          type: boolean
+      required:
+      - role_name
+      - state
+      title: Role
+      type: object
+    TenantsResponse:
+      properties:
+        tenants:
+          items:
+            type: string
+          title: Tenants
+          type: array
+      required:
+      - tenants
+      title: TenantsResponse
+      type: object
+    Token:
+      properties:
+        access_token:
+          title: Access Token
+          type: string
+        token_type:
+          title: Token Type
+          type: string
+      required:
+      - access_token
+      - token_type
+      title: Token
+      type: object
+    UserRolesRequest:
+      properties:
+        roles:
+          items:
+            $ref: '#/components/schemas/Role'
+          title: Roles
+          type: array
+        user_id:
+          title: User Id
+          type: string
+      required:
+      - user_id
+      - roles
+      title: UserRolesRequest
+      type: object
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+  securitySchemes:
+    HTTPBearer:
+      scheme: bearer
+      type: http
+info:
+  description: The EU LDT Data Platform is a comprehensive solution designed to manage,
+    integrate, and analyse contextual data across municipalities, enabling seamless
+    connectivity between diverse data sources and systems. This platform serves as
+    the backbone for data storage, ingestion, and processing, ensuring that information
+    is accessible, standardized, and ready to be utilized in various applications
+    such as decision-making, simulation, monitoring, and visualization. By leveraging
+    cutting-edge technologies and adhering to NGSI-LD standards, the EU LDT Data Platform
+    empowers stakeholders to efficiently handle the complexity of modern data ecosystems.
+  title: EU LDT Data Platform API
+  version: '1.0'
+openapi: 3.0.2
+paths:
+  /api/v1/dstg/datastorage:
+    post:
+      operationId: store_data_route_api_v1_dstg_datastorage_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSourceAddDTO'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceDTO'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Store Data
+      tags:
+      - Data Source
+  /api/v1/dstg/datastorage/list:
+    get:
+      operationId: get_datastorage_list_route_api_v1_dstg_datastorage_list_get
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by name
+          title: Name
+      - description: Filter by type
+        in: query
+        name: type
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by type
+          title: Type
+      - description: Filter by user
+        in: query
+        name: user
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by user
+          title: User
+      - description: Number of items per page
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: Number of items per page
+          title: Limit
+          type: integer
+      - description: Pagination offset
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Pagination offset
+          title: Offset
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DataSourceDTO'
+                title: Response Get Datastorage List Route Api V1 Dstg Datastorage
+                  List Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get DataStorage List with Filter and Pagination
+      tags:
+      - Data Source
+  /api/v1/dstg/datastorage/test-connection:
+    post:
+      operationId: test_connection_route_api_v1_dstg_datastorage_test_connection_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSourceAddDTO'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Test DataStorage Connection
+      tags:
+      - Data Source
+  /api/v1/dstg/datastorage/{id}:
+    delete:
+      operationId: delete_data_storage_route_api_v1_dstg_datastorage__id__delete
+      parameters:
+      - description: The ID of the data storage to delete
+        in: path
+        name: id
+        required: true
+        schema:
+          description: The ID of the data storage to delete
+          title: Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceDTO'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Logically Delete a DataStorage by ID
+      tags:
+      - Data Source
+    put:
+      operationId: update_data_storage_route_api_v1_dstg_datastorage__id__put
+      parameters:
+      - description: ID of the data storage to update
+        in: path
+        name: id
+        required: true
+        schema:
+          description: ID of the data storage to update
+          title: Id
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSourceEditDTO'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceDTO'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update a DataStorage by ID
+      tags:
+      - Data Source
+  /api/v1/dstg/role:
+    post:
+      operationId: assign_roles_route_api_v1_dstg_role_post
+      parameters:
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRolesRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Assign Roles to a User
+      tags:
+      - Data Source
+  /api/v1/dstg/roles:
+    get:
+      operationId: get_roles_external_api_v1_dstg_roles_get
+      parameters:
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get roles from external identity service
+      tags:
+      - Data Source
+  /api/v1/dstg/users:
+    get:
+      operationId: get_users_external_api_v1_dstg_users_get
+      parameters:
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get users from external identity service
+      tags:
+      - Data Source
+  /api/v1/entities:
+    get:
+      operationId: get_entities_api_v1_entities_get
+      parameters:
+      - in: query
+        name: type
+        required: false
+        schema:
+          default: ''
+          title: Type
+          type: string
+      - in: query
+        name: accept
+        required: false
+        schema:
+          default: application/ld+json
+          title: Accept
+          type: string
+      - in: query
+        name: geoproperty
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geoproperty
+      - in: query
+        name: georel
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Georel
+      - in: query
+        name: geometry
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geometry
+      - in: query
+        name: coordinates
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Coordinates
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      - in: header
+        name: link
+        required: false
+        schema:
+          default: ''
+          title: Link
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Entities
+      tags:
+      - Entities
+    options:
+      operationId: options_entities_api_v1_entities_options
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Options Entities
+      tags:
+      - Entities
+    post:
+      operationId: create_entity_api_v1_entities_post
+      parameters:
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              '@context':
+              - https://raw.githubusercontent.com/ScorpioBroker/ScorpioBroker/new_ci/testcontext.json
+              - https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld
+              complexproperty:
+                type: Property
+                value:
+                  some:
+                    more: values
+              floatproperty:
+                type: Property
+                value: 123.456
+              id: urn:test:testentity1
+              intproperty:
+                type: Property
+                value: 123
+              listproperty:
+                type: ListProperty
+                valueList:
+                - 100
+                - 200
+                - 300
+              location:
+                type: GeoProperty
+                value:
+                  coordinates:
+                  - -8.50000005
+                  - 41.2
+                  type: Point
+              name:
+                type: Property
+                value: teststring
+              passenger:
+                objectList:
+                - object: urn:ngsi-ld:Person:Alice
+                - object: urn:ngsi-ld:Person:Bob
+                objectType: Person
+                type: ListRelationship
+              testrelationship:
+                object: urn:testref1
+                type: Relationship
+              type: TestType
+              vocabproperty:
+                type: VocabProperty
+                vocab: x
+            schema:
+              $ref: '#/components/schemas/EntityDTO'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Entity
+      tags:
+      - Entities
+  /api/v1/entities/{entity_id}:
+    delete:
+      operationId: delete_entity_api_v1_entities__entity_id__delete
+      parameters:
+      - in: path
+        name: entity_id
+        required: true
+        schema:
+          title: Entity Id
+          type: string
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Entity
+      tags:
+      - Entities
+    get:
+      operationId: get_entity_api_v1_entities__entity_id__get
+      parameters:
+      - in: path
+        name: entity_id
+        required: true
+        schema:
+          title: Entity Id
+          type: string
+      - in: query
+        name: accept
+        required: false
+        schema:
+          default: application/ld+json
+          title: Accept
+          type: string
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      - in: header
+        name: link
+        required: false
+        schema:
+          default: ''
+          title: Link
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Entity
+      tags:
+      - Entities
+    patch:
+      operationId: merge_entity_api_v1_entities__entity_id__patch
+      parameters:
+      - in: path
+        name: entity_id
+        required: true
+        schema:
+          title: Entity Id
+          type: string
+      - in: header
+        name: link
+        required: false
+        schema:
+          default: ''
+          title: Link
+          type: string
+      - in: header
+        name: attribute
+        required: false
+        schema:
+          default: ''
+          title: Attribute
+          type: string
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              title: Updated Attributes
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Merge Entity
+      tags:
+      - Entities
+    put:
+      operationId: replace_entity_api_v1_entities__entity_id__put
+      parameters:
+      - in: path
+        name: entity_id
+        required: true
+        schema:
+          title: Entity Id
+          type: string
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              title: Entity Data
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Replace Entity
+      tags:
+      - Entities
+  /api/v1/entities/{entity_id}/attrs:
+    patch:
+      operationId: update_attribute_api_v1_entities__entity_id__attrs_patch
+      parameters:
+      - in: path
+        name: entity_id
+        required: true
+        schema:
+          title: Entity Id
+          type: string
+      - in: header
+        name: attribute
+        required: false
+        schema:
+          default: ''
+          title: Attribute
+          type: string
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              newAttributeValue:
+                type: Property
+                value: start_process
+            schema:
+              additionalProperties: true
+              title: Command Data
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Attribute
+      tags:
+      - Entities
+    post:
+      operationId: append_entity_api_v1_entities__entity_id__attrs_post
+      parameters:
+      - in: path
+        name: entity_id
+        required: true
+        schema:
+          title: Entity Id
+          type: string
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              newtestproperty:
+                object: urn:testref1:updated
+                type: Relationship
+            schema:
+              additionalProperties: true
+              title: Entity
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Append Entity
+      tags:
+      - Entities
+  /api/v1/entities/{entity_id}/auth:
+    get:
+      operationId: get_entity_auth_api_v1_entities__entity_id__auth_get
+      parameters:
+      - in: path
+        name: entity_id
+        required: true
+        schema:
+          title: Entity Id
+          type: string
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      - in: header
+        name: link
+        required: false
+        schema:
+          default: ''
+          title: Link
+          type: string
+      - in: header
+        name: accept
+        required: false
+        schema:
+          default: application/ld+json
+          title: Accept
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Entity Auth
+      tags:
+      - Entities
+  /api/v1/entityOperations/delete:
+    post:
+      operationId: batch_delete_entities_api_v1_entityOperations_delete_post
+      parameters:
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+            - urn:ngsi-ld:Device:001
+            - urn:ngsi-ld:Device:002
+            schema:
+              items:
+                type: string
+              title: Entity Ids
+              type: array
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Batch Delete Entities
+      tags:
+      - Entity Operations
+  /api/v1/entityOperations/update:
+    post:
+      operationId: batch_update_entities_api_v1_entityOperations_update_post
+      parameters:
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+            - id: urn:ngsi-ld:Device:001
+              temperature:
+                type: Property
+                value: 22.5
+            - humidity:
+                type: Property
+                value: 55
+              id: urn:ngsi-ld:Device:002
+            schema:
+              items:
+                additionalProperties: true
+                type: object
+              title: Entities Data
+              type: array
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Batch Update Entities
+      tags:
+      - Entity Operations
+  /api/v1/identity/token:
+    post:
+      operationId: get_auth_token_route_api_v1_identity_token_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthTokenRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Request authentication token
+      tags:
+      - Data Source
+  /api/v1/temporal/entities:
+    get:
+      operationId: get_temporal_entities_api_v1_temporal_entities_get
+      parameters:
+      - in: query
+        name: type
+        required: false
+        schema:
+          default: ''
+          title: Type
+          type: string
+      - in: query
+        name: accept
+        required: false
+        schema:
+          default: application/ld+json
+          title: Accept
+          type: string
+      - in: query
+        name: geoproperty
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geoproperty
+      - in: query
+        name: georel
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Georel
+      - in: query
+        name: geometry
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geometry
+      - in: query
+        name: coordinates
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Coordinates
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      - in: header
+        name: link
+        required: false
+        schema:
+          default: ''
+          title: Link
+          type: string
+      - in: header
+        name: options
+        required: false
+        schema:
+          default: sysAttrs
+          title: Options
+          type: string
+      - in: header
+        name: last-n
+        required: false
+        schema:
+          default: 100
+          title: Last-N
+          type: integer
+      - in: header
+        name: aggrMethods
+        required: false
+        schema:
+          default: ''
+          title: Aggrmethods
+          type: string
+      - in: header
+        name: timeproperty
+        required: false
+        schema:
+          default: modifiedAt
+          title: Timeproperty
+          type: string
+      - in: header
+        name: aggrPeriodDuration
+        required: false
+        schema:
+          default: ''
+          title: Aggrperiodduration
+          type: string
+      - in: header
+        name: timerel
+        required: false
+        schema:
+          default: ''
+          title: Timerel
+          type: string
+      - in: header
+        name: timeAt
+        required: false
+        schema:
+          default: ''
+          title: Timeat
+          type: string
+      - in: header
+        name: endTimeAt
+        required: false
+        schema:
+          default: ''
+          title: Endtimeat
+          type: string
+      - in: header
+        name: attrs
+        required: false
+        schema:
+          default: ''
+          title: Attrs
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Temporal Entities
+      tags:
+      - Temporals
+    post:
+      operationId: create_temporal_entity_api_v1_temporal_entities_post
+      parameters:
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              brandName:
+              - instanceId: urn:ngsi-ld:2044b133-9659-4406-ab84-5017088942fc
+                type: Property
+                value: Mercedes
+              id: urn:test:testbatchentity1005
+              speed:
+              - instanceId: urn:ngsi-ld:8b969313-81e9-4488-93ad-75d4cf0232d7
+                observedAt: '2022-09-10T13:21:24.000Z'
+                type: Property
+                value: 91
+              - instanceId: urn:ngsi-ld:38b3a5cc-5c8b-4557-8a39-8b66d0b2a52b
+                observedAt: '2022-09-10T12:21:24.000Z'
+                type: Property
+                value: 80
+              type: Vehicle
+            schema:
+              $ref: '#/components/schemas/EntityDTO'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Temporal Entity
+      tags:
+      - Temporals
+  /api/v1/temporal/entities/{entity_id}:
+    delete:
+      operationId: delete_temporal_entity_api_v1_temporal_entities__entity_id__delete
+      parameters:
+      - in: path
+        name: entity_id
+        required: true
+        schema:
+          title: Entity Id
+          type: string
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Temporal Entity
+      tags:
+      - Temporals
+    get:
+      operationId: get_temporal_entity_api_v1_temporal_entities__entity_id__get
+      parameters:
+      - in: path
+        name: entity_id
+        required: true
+        schema:
+          title: Entity Id
+          type: string
+      - in: query
+        name: type
+        required: false
+        schema:
+          default: ''
+          title: Type
+          type: string
+      - in: query
+        name: accept
+        required: false
+        schema:
+          default: application/ld+json
+          title: Accept
+          type: string
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      - in: header
+        name: link
+        required: false
+        schema:
+          default: ''
+          title: Link
+          type: string
+      - in: header
+        name: options
+        required: false
+        schema:
+          default: sysAttrs
+          title: Options
+          type: string
+      - in: header
+        name: last-n
+        required: false
+        schema:
+          default: 100
+          title: Last-N
+          type: integer
+      - in: header
+        name: aggrMethods
+        required: false
+        schema:
+          default: ''
+          title: Aggrmethods
+          type: string
+      - in: header
+        name: timeproperty
+        required: false
+        schema:
+          default: modifiedAt
+          title: Timeproperty
+          type: string
+      - in: header
+        name: aggrPeriodDuration
+        required: false
+        schema:
+          default: ''
+          title: Aggrperiodduration
+          type: string
+      - in: header
+        name: timerel
+        required: false
+        schema:
+          default: ''
+          title: Timerel
+          type: string
+      - in: header
+        name: timeAt
+        required: false
+        schema:
+          default: ''
+          title: Timeat
+          type: string
+      - in: header
+        name: endTimeAt
+        required: false
+        schema:
+          default: ''
+          title: Endtimeat
+          type: string
+      - in: header
+        name: attrs
+        required: false
+        schema:
+          default: ''
+          title: Attrs
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Temporal Entity
+      tags:
+      - Temporals
+  /api/v1/tenants:
+    get:
+      operationId: get_tenants_api_v1_tenants_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantsResponse'
+          description: Successful Response
+      summary: Get Tenants
+      tags:
+      - Tenants
+  /api/v1/token:
+    post:
+      operationId: login_for_access_token_api_v1_token_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_login_for_access_token_api_v1_token_post'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Login For Access Token
+      tags:
+      - Authentication
+  /api/v1/types:
+    get:
+      operationId: get_types_api_v1_types_get
+      parameters:
+      - in: header
+        name: scope
+        required: false
+        schema:
+          default: ''
+          title: Scope
+          type: string
+      - in: header
+        name: Link
+        required: false
+        schema:
+          default: ''
+          title: Link
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityTypeListResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Types
+      tags:
+      - Types
