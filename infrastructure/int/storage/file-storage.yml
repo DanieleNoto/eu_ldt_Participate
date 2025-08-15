@@ -71,15 +71,15 @@ spec:
     nodeStageSecretRef:
       name: storage-secret
       namespace: participate
-  mountOptions:
-    - dir_mode=0777
-    - file_mode=0777
-    - uid=0
-    - gid=0
-    - mfsymlinks
-    - cache=strict
-    - nosharesock
-    - nobrl
+  #mountOptions:
+  #  - dir_mode=0777
+  #  - file_mode=0777
+  #  - uid=0
+  #  - gid=0
+  #  - mfsymlinks
+  #  - cache=strict
+  #  - nosharesock
+  #  - nobrl
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
