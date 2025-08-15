@@ -68,18 +68,18 @@ spec:
       resourceGroup: EU-LDT-Toolbox-Shared-int  # optional, only set this when storage account is not in the same resource group as agent node
       shareName: tool3-shared-files
       folderName: shared
-    nodeStageSecretRef:
-      name: storage-secret
-      namespace: participate
-  #mountOptions:
-  #  - dir_mode=0777
-  #  - file_mode=0777
-  #  - uid=0
-  #  - gid=0
-  #  - mfsymlinks
-  #  - cache=strict
-  #  - nosharesock
-  #  - nobrl
+#    nodeStageSecretRef:
+#      name: storage-secret
+#      namespace: participate
+#      mountOptions:
+#        - dir_mode=0444
+#        - file_mode=0444
+#        - uid=0
+#        - gid=0
+#        - mfsymlinks
+#        - cache=strict
+#        - nosharesock
+#        - nobrl
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
