@@ -4,7 +4,7 @@ metadata:
   name: tool3-config
 data:
   postgres_user: admin
-  postgres_password: _%TOOL0-PG-PASSWORD%_
+  postgres_password: _%TOOL3-PG-PASSWORD%_
   postgres_migrate: _%TOOL3-PG-MIGRATE%_
   pg_jdbc_url: jdbc:postgresql://${TOOL3_PG_SERVICE_HOST}:5432/default
   DB_DIALECT : postgres
