@@ -107,15 +107,76 @@ spec:
           requests:
             cpu: "200m"
             memory: "1536M"
-        env:
-        - name: VITE_API_URL
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config        
-              key: vite_api_url
+    #    env:
+    #    - name: VITE_API_URL
+    #      valueFrom:
+    #        configMapKeyRef:
+    #          name: tool3-config        
+    #          key: vite_api_url
         ports:
         - containerPort: 8080
           name: http
+
+
+
+        volumeMounts:
+        - name: tool3sharedstorage
+          mountPath: /mnt/shared
+          readOnly: false
+        env:
+        - name: HOST
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: host
+        - name: DB_MIGRATE
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_migrate
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_port
+        - name: DB_DIALECT
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_dialect
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_host
+        - name: DB_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_user
+        - name: DB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config        
+              key: postgres_schema
+        - name: DB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config
+              key: postgres_password
+        - name: BOOTSTRAP_API_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config
+              key: bootstrap_api_key
+        - name: CLIENT_SECRET_ENCRYPTION_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: tool3-config
+              key: client_secret_encryption_key
+
+
+          
       - name: tool3-pg
         image: docker.io/library/postgres:17.3
         imagePullPolicy: IfNotPresent
