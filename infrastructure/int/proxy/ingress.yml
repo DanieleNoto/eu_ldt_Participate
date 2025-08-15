@@ -20,9 +20,9 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
-            name: tool3-ie
+            name: tool3
             port:
-              number: 80
+              number: 3000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -47,6 +47,6 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
-            name: tool3-ie-fe
+            name: tool3-fe
             port:
               number: 80
