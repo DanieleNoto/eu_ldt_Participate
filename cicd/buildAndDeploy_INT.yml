@@ -43,16 +43,16 @@ jobs:
 #        writeBOM: false
 #        verbosity: detailed
 #        actionOnNoFiles: warn
-
-    - task: replacetokens@5
-      displayName: "Replace tokens in Secrets YAMLs"
-      inputs:
-        rootDirectory: infrastructure/int/secrets
-        targetFiles: '*.yml'
-        tokenPattern: default
-        writeBOM: false
-        verbosity: detailed
-
+#
+#    - task: replacetokens@5
+#      displayName: "Replace tokens in Secrets YAMLs"
+#      inputs:
+#        rootDirectory: infrastructure/int/secrets
+#        targetFiles: '*.yml'
+#        tokenPattern: default
+#        writeBOM: false
+#        verbosity: detailed
+#
     - task: Docker@2
       displayName: Build and push backend
       inputs:
