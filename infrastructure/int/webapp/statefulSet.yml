@@ -119,10 +119,10 @@ spec:
 
 
 
-#        volumeMounts:
-#        - name: tool3sharedstorage
-#          mountPath: /mnt/shared
-#          readOnly: false
+        volumeMounts:
+        - name: tool3sharedstorage
+          mountPath: /mnt/shared
+          readOnly: false
        
           
       - name: tool3-pg
