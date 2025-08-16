@@ -118,12 +118,12 @@ spec:
           name: http
 
 
-
-        volumeMounts:
-        - name: tool3sharedstorage
-          mountPath: /mnt/shared
-          readOnly: false
-       
+#
+#        volumeMounts:
+#        - name: tool3sharedstorage
+#          mountPath: /mnt/shared
+#          readOnly: false
+#       
           
 #      - name: tool3-pg
 #        image: docker.io/library/postgres:17.3
@@ -156,9 +156,9 @@ spec:
 #        - name: tool3pgstorage
 #          mountPath: /var/lib/postgresql/data
       volumes:
-      - name: tool3pgstorage
-        persistentVolumeClaim:
-          claimName: postgres-pvc
+#      - name: tool3pgstorage
+#        persistentVolumeClaim:
+#          claimName: postgres-pvc
       - name: tool3sharedstorage
         persistentVolumeClaim:
           claimName: tool3-shared-claim
