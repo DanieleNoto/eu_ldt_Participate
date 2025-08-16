@@ -51,8 +51,8 @@ spec:
                 name: http
 
             - name: tool3-back
-              image: mcr.microsoft.com/k8se/quickstart:latest
-                #  image: euldtshared.azurecr.io/eu-ldt-ie-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                #                image: mcr.microsoft.com/k8se/quickstart:latest
+              image: euldtshared.azurecr.io/eu-ldt-ie-int:_%CONTAINER_IMAGE_TOOL_TAG%_
             
               imagePullPolicy: IfNotPresent
               resources:
