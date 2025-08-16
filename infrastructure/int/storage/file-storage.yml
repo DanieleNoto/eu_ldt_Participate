@@ -1,19 +1,19 @@
-#kind: PersistentVolume
-#apiVersion: v1
-#metadata:
-#  name: postgres-pv
-#  labels:
-#    type: local
-#    app: tool3
-#spec:
-#  storageClassName: "standard"
-#  capacity:
-#    storage: 1Gi
-#  accessModes:
-#    - ReadWriteMany
-#  persistentVolumeReclaimPolicy: Retain
-#  hostPath:
-#    path: "/opt/postgres"
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: postgres-pv
+  labels:
+    type: local
+    app: tool3
+spec:
+  storageClassName: "standard"
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/opt/postgres"
 #---
 #apiVersion: v1
 #kind: PersistentVolumeClaim
@@ -50,15 +50,15 @@
 #parameters:
 #  skuName: Standard_LRS
 ---
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  annotations:
-    pv.kubernetes.io/provisioned-by: file.csi.azure.com
-  name: tool3-shared
-spec:
-  capacity:
-    storage: 5Gi
+#apiVersion: v1
+#kind: PersistentVolume
+#metadata:
+#  annotations:
+#    pv.kubernetes.io/provisioned-by: file.csi.azure.com
+#  name: tool3-shared
+#spec:
+#  capacity:
+#    storage: 5Gi
 #  accessModes:
 #    - ReadWriteMany
 #  persistentVolumeReclaimPolicy: Retain
