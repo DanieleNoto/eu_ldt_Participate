@@ -17,32 +17,32 @@ variables:
 
 jobs:
 
-#- job: buildAndPushDockerfile
-#  displayName: "Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION"
-#  variables:
-#      tag: '$(Build.BuildId)' 
-#  steps:
-#    - task: replacetokens@5
-#      displayName: "Replace tokens Backend"
-#      inputs:
-#        rootDirectory: backend-py
-#        targetFiles: Dockerfile*
-#        tokenPattern: custom
-#        tokenPrefix: _TOKEN_
-#        tokenSuffix: _TOKEN_
-#        writeBOM: false
-#        verbosity: detailed
-#        actionOnNoFiles: warn
-#    
-#    - task: Docker@2
-#      displayName: Build and push backend
-#      inputs:
-#        command: buildAndPush
-#        repository: eu-ldt-dpl-backend-$(ENVIRONMENT_NAME)
-#        dockerfile: backend-py/Dockerfile
-#        containerRegistry: EU-LDT-Toolbox-ACR-Shared
-#        tags: |
-#            $(ENVIRONMENT_NAME)-$(tag)
+- job: buildAndPushDockerfile
+  displayName: "Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION"
+  variables:
+      tag: '$(Build.BuildId)' 
+  steps:
+    - task: replacetokens@5
+      displayName: "Replace tokens Backend"
+      inputs:
+        rootDirectory: backend-py
+        targetFiles: Dockerfile*
+        tokenPattern: custom
+        tokenPrefix: _TOKEN_
+        tokenSuffix: _TOKEN_
+        writeBOM: false
+        verbosity: detailed
+        actionOnNoFiles: warn
+    
+    - task: Docker@2
+      displayName: Build and push backend
+      inputs:
+        command: buildAndPush
+        repository: eu-ldt-dpl-backend-$(ENVIRONMENT_NAME)
+        dockerfile: backend-py/Dockerfile
+        containerRegistry: EU-LDT-Toolbox-ACR-Shared
+        tags: |
+            $(ENVIRONMENT_NAME)-$(tag)
 #
 #
 #    - task: replacetokens@5
@@ -252,8 +252,8 @@ jobs:
         namespace: 'participate'   
         command: 'apply'
         arguments: '-f infrastructure/int/backend/service.yml'
-  
-  
+
+
     - task: Kubernetes@1
       displayName: "Apply Service - FE (Tool3)"
       inputs:
