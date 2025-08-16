@@ -45,7 +45,7 @@ spec:
     #          name: tool3-config        
     #          key: vite_api_url
               ports:
-              - containerPort: 8081
+              - containerPort: 8080
                 name: http
 
             - name: tool3-back
