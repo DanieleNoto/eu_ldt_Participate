@@ -28,7 +28,7 @@ spec:
         - name: acr-secret
       containers:
             - name: tool3-front
-              image: mcr.microsoft.com/k8se/quickstart:latest
+              image: euldtshared.azurecr.io/eu-ldt-ie-int:_%CONTAINER_IMAGE_TOOL_TAG%_
               args: ["--port", "8080"]
               #  image: euldtshared.azurecr.io/eu-ldt-ie-int-fe:_%CONTAINER_IMAGE_TOOL_TAG%_
               imagePullPolicy: IfNotPresent
