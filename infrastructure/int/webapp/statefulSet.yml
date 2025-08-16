@@ -41,10 +41,10 @@ spec:
         ports:
         - containerPort: 3000
           name: http-web
-        volumeMounts:
-        - name: tool3sharedstorage
-          mountPath: /mnt/shared
-          readOnly: false
+#        volumeMounts:
+#        - name: tool3sharedstorage
+#          mountPath: /mnt/shared
+#          readOnly: false
 #        env:
 #        - name: HOST
 #          valueFrom:
@@ -155,11 +155,11 @@ spec:
 #        volumeMounts:
 #        - name: tool3pgstorage
 #          mountPath: /var/lib/postgresql/data
-      volumes:
+#      volumes:
 #      - name: tool3pgstorage
 #        persistentVolumeClaim:
 #          claimName: postgres-pvc
-      - name: tool3sharedstorage
-        persistentVolumeClaim:
-          claimName: tool3-shared-claim
+#      - name: tool3sharedstorage
+#        persistentVolumeClaim:
+#          claimName: tool3-shared-claim
         
