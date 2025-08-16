@@ -47,32 +47,33 @@ jobs:
   dependsOn: buildAndPushDockerfile
   displayName: Kubectl Tool3 deployment
   steps:
-      - task: replacetokens@5
-        displayName: 'Replace tokens Tools (BE)'
-        inputs:
-            rootDirectory: infrastructure/int/backend
-            targetFiles: 'db-secrets.yaml,secrets.yaml,configMap.yml,configMapDB.yml'
-            tokenPattern: custom
-            tokenPrefix: _%
-            tokenSuffix: '%_'
-            writeBOM: false
-            verbosity: detailed
-            actionOnNoFiles: warn 
-      - task: replacetokens@5
-        displayName: 'Replace tokens Tools (WebApp)'
-        inputs:
-            rootDirectory: infrastructure/int
-            targetFiles: 'webapp/statefulSet.yml,configMap.yml,secretsMap.yml'
-            tokenPattern: custom
-            tokenPrefix: _%
-            tokenSuffix: '%_'
-            writeBOM: false
-            verbosity: detailed
-            actionOnNoFiles: wa
-      - task: KubectlInstaller@0
-        displayName: 'Kubectl Install'
-        inputs:
-            kubectlVersion: 'latest'
+  
+- task: replacetokens@5
+  displayName: 'Replace tokens Tools (BE)'
+  inputs:
+      rootDirectory: infrastructure/int/backend
+      targetFiles: 'db-secrets.yaml,secrets.yaml,configMap.yml,configMapDB.yml'
+      tokenPattern: custom
+      tokenPrefix: _%
+      tokenSuffix: '%_'
+      writeBOM: false
+      verbosity: detailed
+      actionOnNoFiles: warn 
+- task: replacetokens@5
+  displayName: 'Replace tokens Tools (WebApp)'
+  inputs:
+      rootDirectory: infrastructure/int
+      targetFiles: 'webapp/statefulSet.yml,configMap.yml,secretsMap.yml'
+      tokenPattern: custom
+      tokenPrefix: _%
+      tokenSuffix: '%_'
+      writeBOM: false
+      verbosity: detailed
+      actionOnNoFiles: wa
+- task: KubectlInstaller@0
+  displayName: 'Kubectl Install'
+  inputs:
+      kubectlVersion: 'latest'
 
 
 - task: Kubernetes@1
@@ -245,7 +246,7 @@ jobs:
     command: 'apply'
     arguments: '-f infrastructure/int/frontend/service.yml'
 
-    
+
 
 - task: Kubernetes@1
   displayName: "Apply Ingress (Tool3)"
