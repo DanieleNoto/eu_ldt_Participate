@@ -43,28 +43,28 @@ jobs:
         containerRegistry: EU-LDT-Toolbox-ACR-Shared
         tags: |
             $(ENVIRONMENT_NAME)-$(tag)
-#
-#
-#    - task: replacetokens@5
-#      displayName: "Replace tokens in Secrets YAMLs"
-#      inputs:
-#        rootDirectory: infrastructure/int/secrets
-#        targetFiles: '*.yml'
-#        tokenPattern: default
-#        writeBOM: false
-#        verbosity: detailed
-#
-#
-#    
-#    - task: Docker@2
-#      displayName: Build and push frontend
-#      inputs:
-#        command: buildAndPush
-#        repository: eu-ldt-ie-int-fe
-#        dockerfile: tool3-frontend/Dockerfile
-#        containerRegistry: EU-LDT-Toolbox-ACR-Shared
-#        tags: |
-#          $(tag)
+
+
+    - task: replacetokens@5
+      displayName: "Replace tokens in Secrets YAMLs"
+      inputs:
+        rootDirectory: infrastructure/int/secrets
+        targetFiles: '*.yml'
+        tokenPattern: default
+        writeBOM: false
+        verbosity: detailed
+
+
+    
+    - task: Docker@2
+      displayName: Build and push frontend
+      inputs:
+        command: buildAndPush
+        repository: eu-ldt-ie-int-fe
+        dockerfile: tool3-frontend/Dockerfile
+        containerRegistry: EU-LDT-Toolbox-ACR-Shared
+        tags: |
+          $(tag)
 
 
 - job: deployment
