@@ -32,12 +32,12 @@ spec:
               #  image: euldtshared.azurecr.io/eu-ldt-ie-int-fe:_%CONTAINER_IMAGE_TOOL_TAG%_
               imagePullPolicy: Always
               resources:
-              limits:
-              cpu: "400m"
-              memory: "1536M"
-              requests:
-                cpu: "200m"
-                memory: "1536M"
+                limits:
+                  cpu: "400m"
+                  memory: "1536M"
+                requests:
+                  cpu: "200m"
+                  memory: "1536M"
               #    env:
               #    - name: VITE_API_URL
     #      valueFrom:
@@ -53,14 +53,14 @@ spec:
                 #  image: euldtshared.azurecr.io/eu-ldt-ie-int:_%CONTAINER_IMAGE_TOOL_TAG%_
               imagePullPolicy: Always
               resources:
-              limits:
-              cpu: "400m"
-              memory: "1536M"
-              requests:
-                cpu: "200m"
-                memory: "1536M"
-                ports:
-                - containerPort: 3000
+                limits:
+                  cpu: "400m"
+                  memory: "1536M"
+                requests:
+                  cpu: "200m"
+                  memory: "1536M"
+              ports:
+              - containerPort: 3000
                   name: http-web
 #        volumeMounts:
 #        - name: tool3sharedstorage
