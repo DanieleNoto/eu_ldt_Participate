@@ -5,14 +5,14 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: tool3 # has to match .spec.template.metadata.labels
-  serviceName: tool3
+      app: tool03 # has to match .spec.template.metadata.labels
+  serviceName: tool03
   replicas: 1 # by default is 1
   minReadySeconds: 10 # by default is 0
   template:
     metadata:
       labels:
-        app: tool3 # has to match .spec.selector.matchLabels
+        app: tool03 # has to match .spec.selector.matchLabels
     spec:
 #      updateStrategy:
 #        type: RollingUpdate
@@ -23,24 +23,45 @@ spec:
 #          # maxSurge is an optional field that specifies the maximum number of Pods that can be created over the desired number of Pods.
 #          maxSurge: 1 # The value can be an absolute number (for example, 5) or a percentage of desired Pods (for example, 10%). 
       terminationGracePeriodSeconds: 10
-      hostname: tool3
+      hostname: tool03
       imagePullSecrets:
         - name: acr-secret
       containers:
-      - name: tool3-back
-        image: mcr.microsoft.com/k8se/quickstart:latest
-      #  image: euldtshared.azurecr.io/eu-ldt-ie-int:_%CONTAINER_IMAGE_TOOL_TAG%_
-        imagePullPolicy: Always
-        resources:
-          limits:
-            cpu: "400m"
-            memory: "1536M"
-          requests:
-            cpu: "200m"
-            memory: "1536M"
-        ports:
-        - containerPort: 3000
-          name: http-web
+            - name: tool3-front
+              image: mcr.microsoft.com/k8se/quickstart:latest
+              #  image: euldtshared.azurecr.io/eu-ldt-ie-int-fe:_%CONTAINER_IMAGE_TOOL_TAG%_
+              imagePullPolicy: Always
+              resources:
+              limits:
+              cpu: "400m"
+              memory: "1536M"
+              requests:
+                cpu: "200m"
+                memory: "1536M"
+              #    env:
+              #    - name: VITE_API_URL
+    #      valueFrom:
+    #        configMapKeyRef:
+    #          name: tool3-config        
+    #          key: vite_api_url
+              ports:
+              - containerPort: 8080
+                name: http
+
+            - name: tool3-back
+              image: mcr.microsoft.com/k8se/quickstart:latest
+                #  image: euldtshared.azurecr.io/eu-ldt-ie-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+              imagePullPolicy: Always
+              resources:
+              limits:
+              cpu: "400m"
+              memory: "1536M"
+              requests:
+                cpu: "200m"
+                memory: "1536M"
+                ports:
+                - containerPort: 3000
+                  name: http-web
 #        volumeMounts:
 #        - name: tool3sharedstorage
 #          mountPath: /mnt/shared
@@ -96,26 +117,7 @@ spec:
 #            configMapKeyRef:
 #              name: tool3-config
 #              key: client_secret_encryption_key
-      - name: tool3-front
-        image: mcr.microsoft.com/k8se/quickstart:latest
-       #  image: euldtshared.azurecr.io/eu-ldt-ie-int-fe:_%CONTAINER_IMAGE_TOOL_TAG%_
-        imagePullPolicy: Always
-        resources:
-          limits:
-            cpu: "400m"
-            memory: "1536M"
-          requests:
-            cpu: "200m"
-            memory: "1536M"
-    #    env:
-    #    - name: VITE_API_URL
-    #      valueFrom:
-    #        configMapKeyRef:
-    #          name: tool3-config        
-    #          key: vite_api_url
-        ports:
-        - containerPort: 8080
-          name: http
+
 
 
 #
