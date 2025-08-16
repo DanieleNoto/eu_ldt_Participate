@@ -23,7 +23,7 @@ spec:
 #          # maxSurge is an optional field that specifies the maximum number of Pods that can be created over the desired number of Pods.
 #          maxSurge: 1 # The value can be an absolute number (for example, 5) or a percentage of desired Pods (for example, 10%). 
       terminationGracePeriodSeconds: 10
-      hostname: tool03
+      hostname: tool3
       imagePullSecrets:
         - name: acr-secret
       containers:
