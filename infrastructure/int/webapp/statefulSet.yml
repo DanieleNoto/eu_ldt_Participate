@@ -38,6 +38,9 @@ spec:
                 requests:
                   cpu: "200m"
                   memory: "1536M"
+                env:
+                - name: port
+                  value: "8080"
               #    env:
               #    - name: VITE_API_URL
     #      valueFrom:
