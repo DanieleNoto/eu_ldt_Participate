@@ -61,7 +61,7 @@ spec:
                   memory: "1536M"
               ports:
               - containerPort: 3000
-                  name: http-web
+                name: http-web
 #        volumeMounts:
 #        - name: tool3sharedstorage
 #          mountPath: /mnt/shared
