@@ -5,14 +5,14 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: tool03 # has to match .spec.template.metadata.labels
+      app: tool3 # has to match .spec.template.metadata.labels
   serviceName: tool3
   replicas: 1 # by default is 1
   minReadySeconds: 10 # by default is 0
   template:
     metadata:
       labels:
-        app: tool03 # has to match .spec.selector.matchLabels
+        app: tool3 # has to match .spec.selector.matchLabels
     spec:
 #      updateStrategy:
 #        type: RollingUpdate
