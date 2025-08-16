@@ -1,5 +1,5 @@
-#kind: PersistentVolume
-#apiVersion: v1
+kind: PersistentVolume
+apiVersion: v1
 #metadata:
 #  name: postgres-pv
 #  labels:
@@ -88,11 +88,11 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: tool3-shared-claim
-#spec:
-#  accessModes:
-#    - ReadWriteMany
-#  storageClassName: azurefile-csi
-#  volumeName: tool3-shared
-#  resources:
-#    requests:
-#      storage: 5Gi
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azurefile-csi
+  volumeName: tool3-shared
+  resources:
+    requests:
+      storage: 5Gi
