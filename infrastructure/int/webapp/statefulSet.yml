@@ -27,7 +27,7 @@ spec:
       imagePullSecrets:
         - name: acr-secret
       containers:
-      - name: tool3
+      - name: tool3-be
         image: mcr.microsoft.com/k8se/quickstart:latest
       #  image: euldtshared.azurecr.io/eu-ldt-ie-int:_%CONTAINER_IMAGE_TOOL_TAG%_
         imagePullPolicy: Always
@@ -45,57 +45,57 @@ spec:
         - name: tool3sharedstorage
           mountPath: /mnt/shared
           readOnly: false
-        env:
-        - name: HOST
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config        
-              key: host
-        - name: DB_MIGRATE
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config        
-              key: postgres_migrate
-        - name: DB_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config        
-              key: postgres_port
-        - name: DB_DIALECT
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config        
-              key: postgres_dialect
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config        
-              key: postgres_host
-        - name: DB_USERNAME
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config        
-              key: postgres_user
-        - name: DB_DATABASE
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config        
-              key: postgres_schema
-        - name: DB_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config
-              key: postgres_password
-        - name: BOOTSTRAP_API_KEY
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config
-              key: bootstrap_api_key
-        - name: CLIENT_SECRET_ENCRYPTION_KEY
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config
-              key: client_secret_encryption_key
+#        env:
+#        - name: HOST
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: host
+#        - name: DB_MIGRATE
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_migrate
+#        - name: DB_PORT
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_port
+#        - name: DB_DIALECT
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_dialect
+#        - name: DB_HOST
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_host
+#        - name: DB_USERNAME
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_user
+#        - name: DB_DATABASE
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_schema
+#        - name: DB_PASSWORD
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config
+#              key: postgres_password
+#        - name: BOOTSTRAP_API_KEY
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config
+#              key: bootstrap_api_key
+#        - name: CLIENT_SECRET_ENCRYPTION_KEY
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config
+#              key: client_secret_encryption_key
       - name: tool3-fe
         image: mcr.microsoft.com/k8se/quickstart:latest
        #  image: euldtshared.azurecr.io/eu-ldt-ie-int-fe:_%CONTAINER_IMAGE_TOOL_TAG%_
@@ -137,21 +137,21 @@ spec:
             memory: "256Mi"
         ports:
         - containerPort: 5432
-        env:
-        - name: POSTGRES_USER
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config        
-              key: postgres_user
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              name: tool3-config
-              key: postgres_password
-        - name: POD_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
+#        env:
+#        - name: POSTGRES_USER
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_user
+#        - name: POSTGRES_PASSWORD
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config
+#              key: postgres_password
+#        - name: POD_IP
+#          valueFrom:
+#            fieldRef:
+#              fieldPath: status.podIP
         volumeMounts:
         - name: tool3pgstorage
           mountPath: /var/lib/postgresql/data
