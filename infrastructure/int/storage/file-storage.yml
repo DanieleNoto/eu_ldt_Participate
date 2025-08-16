@@ -84,10 +84,10 @@
 #        - nosharesock
 #        - nobrl
 ---
-#apiVersion: v1
-#kind: PersistentVolumeClaim
-#metadata:
-#  name: tool3-shared-claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tool3-shared-claim
 #spec:
 #  accessModes:
 #    - ReadWriteMany
