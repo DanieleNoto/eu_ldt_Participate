@@ -29,6 +29,7 @@ spec:
       containers:
             - name: tool3-front
               image: mcr.microsoft.com/k8se/quickstart:latest
+              args: ["--port", "8080"]
               #  image: euldtshared.azurecr.io/eu-ldt-ie-int-fe:_%CONTAINER_IMAGE_TOOL_TAG%_
               imagePullPolicy: IfNotPresent
               resources:
@@ -38,9 +39,9 @@ spec:
                 requests:
                   cpu: "200m"
                   memory: "1536M"
-              env:
-                - name: PORT
-                  value: "8080"
+             # env:
+              #  - name: PORT
+              #    value: "8080"
               #    env:
               #    - name: VITE_API_URL
     #      valueFrom:
@@ -54,6 +55,7 @@ spec:
             - name: tool3-back
               image: mcr.microsoft.com/k8se/quickstart:latest
                 #  image: euldtshared.azurecr.io/eu-ldt-ie-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+            
               imagePullPolicy: IfNotPresent
               resources:
                 limits:
