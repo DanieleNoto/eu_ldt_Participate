@@ -38,7 +38,7 @@ jobs:
       displayName: Build and push backend
       inputs:
         command: buildAndPush
-        repository: eu-ldt-dpl-backend-$(ENVIRONMENT_NAME)
+        repository: eu-ldt-pv-int
         dockerfile: backend-py/Dockerfile
         containerRegistry: EU-LDT-Toolbox-ACR-Shared
         tags: |
