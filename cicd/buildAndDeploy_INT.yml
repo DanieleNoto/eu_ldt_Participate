@@ -19,11 +19,11 @@ variables:
 jobs:
 
 
-- job: buildAndPushDockerfile
-  displayName: "Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION"
-  variables:
-      tag: '$(Build.BuildId)' 
-  steps:
+#- job: buildAndPushDockerfile
+#  displayName: "Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION"
+#  variables:
+#      tag: '$(Build.BuildId)' 
+#  steps:
 
 
 ##ASR: Añadimos la eliminacion del ACR Pull Secret para volver a generarlo
@@ -51,17 +51,17 @@ jobs:
 #        secretType: 'dockerRegistry'
 #        containerRegistryType: 'Azure Container Registry'
 
-    - task: replacetokens@5
-      displayName: "Replace tokens Backend"
-      inputs:
-        rootDirectory: backend-py
-        targetFiles: Dockerfile*
-        tokenPattern: custom
-        tokenPrefix: _TOKEN_
-        tokenSuffix: _TOKEN_
-        writeBOM: false
-        verbosity: detailed
-        actionOnNoFiles: warn
+ #   - task: replacetokens@5
+ #     displayName: "Replace tokens Backend"
+ #     inputs:
+ #       rootDirectory: backend-py
+ #       targetFiles: Dockerfile*
+ #       tokenPattern: custom
+ #       tokenPrefix: _TOKEN_
+ #       tokenSuffix: _TOKEN_
+ #       writeBOM: false
+ #       verbosity: detailed
+ #       actionOnNoFiles: warn
     
 #    - task: Docker@2
 #      displayName: Build and push backend
