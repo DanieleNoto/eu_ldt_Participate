@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class JitsiUrlController < Decidim::Admin::ApplicationController
+  # Default constants for Jitsi
+  JITSI_DEFAULT_SERVER_URL = "https://meet.jit.si"
+  JITSI_DEFAULT_ROOM_PREFIX = "decidim-meeting-"
+
   before_action :load_meeting
   before_action :set_component_context
 
@@ -75,8 +79,8 @@ class JitsiUrlController < Decidim::Admin::ApplicationController
       meeting.generate_jitsi_url
     else
       settings = meeting.component&.settings
-      jitsi_server = (settings&.jitsi_server_url.presence || "https://meet.jit.si").chomp("/")
-      prefix = settings&.jitsi_room_prefix.presence || "decidim-meeting-"
+      jitsi_server = (settings&.jitsi_server_url.presence || JITSI_DEFAULT_SERVER_URL).chomp("/")
+      prefix = settings&.jitsi_room_prefix.presence || JITSI_DEFAULT_ROOM_PREFIX
       room_identifier = SecureRandom.hex(4)
       room_name = "#{prefix}#{room_identifier}".parameterize
       "#{jitsi_server}/#{room_name}"

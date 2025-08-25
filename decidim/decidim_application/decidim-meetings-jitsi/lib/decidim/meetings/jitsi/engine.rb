@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "constants"
+
 module Decidim
   module Meetings
     module Jitsi
@@ -16,8 +18,8 @@ module Decidim
   # Add Jitsi settings to the existing meetings component
         initializer "decidim_meetings_jitsi.setup" do
           Decidim.find_component_manifest(:meetings).settings(:global) do |settings|
-            settings.attribute :jitsi_server_url, type: :string, default: "https://meet.jit.si"
-            settings.attribute :jitsi_room_prefix, type: :string, default: "decidim-meeting-"
+            settings.attribute :jitsi_server_url, type: :string, default: Decidim::Meetings::Jitsi::JITSI_DEFAULT_SERVER_URL
+            settings.attribute :jitsi_room_prefix, type: :string, default: Decidim::Meetings::Jitsi::JITSI_DEFAULT_ROOM_PREFIX
             settings.attribute :enable_jitsi_generator, type: :boolean, default: true
           end
         end

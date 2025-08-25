@@ -2,18 +2,21 @@
 
 # Decorator to extend the admin form with Jitsi helpers
 Decidim::Meetings::Admin::MeetingForm.class_eval do
+  # Default constants for Jitsi
+  JITSI_DEFAULT_SERVER_URL = "https://meet.jit.si"
+  JITSI_DEFAULT_ROOM_PREFIX = "decidim-meeting-"
+
   # Helper to get the Jitsi server URL from the component settings
   def jitsi_server_url
-    return "https://meet.jit.si" unless current_component&.settings
-    
-    current_component.settings.jitsi_server_url || "https://meet.jit.si"
+    return JITSI_DEFAULT_SERVER_URL unless current_component&.settings
+    current_component.settings.jitsi_server_url.presence || JITSI_DEFAULT_SERVER_URL
   end
 
   # Helper to get the Jitsi room prefix
   def jitsi_room_prefix
-    return "decidim-meeting-" unless current_component&.settings
+    return JITSI_DEFAULT_ROOM_PREFIX unless current_component&.settings
     
-    current_component.settings.jitsi_room_prefix || "decidim-meeting-"
+    current_component.settings.jitsi_room_prefix.presence || JITSI_DEFAULT_ROOM_PREFIX
   end
 
   # Checks if the Jitsi generator is enabled
