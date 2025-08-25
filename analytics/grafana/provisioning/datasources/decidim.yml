@@ -11,8 +11,12 @@ datasources:
       password: ${DATABASE_PASSWORD}
     jsonData:
       sslmode: disable
-      postgresVersion: 1600
+      postgresVersion: 1400
       timescaledb: false
+      maxOpenConns: 100
+      maxIdleConns: 100
+      maxIdleConnsAuto: true
+      connMaxLifetime: 14400
     isDefault: true
     uid: decidim_postgres
     editable: true
