@@ -130,7 +130,7 @@ services:
         volumes:
             - grafana_data:/var/lib/grafana
             - ./analytics/grafana/provisioning:/etc/grafana/provisioning
-            - ./analytics/grafana/dashboards:/etc/grafana/provisioning/dashboards
+            - ./analytics/grafana/dashboards:/var/lib/grafana/dashboards
         networks:
             - private
         depends_on:
