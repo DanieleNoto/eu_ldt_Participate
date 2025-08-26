@@ -1,6 +1,22 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: tool3-frontend-config
+    name: part-frontend-config
+    namespace: participate
 data:
-  sample_key : samplevalue
+    config.json: |
+        {
+          "backend.baseUrl": "https://part-int.ldttoolbox.app",
+          "frontend.appBasePath": "https://part-int.ldttoolbox.app",
+          "logger.level": "debug",
+          "toastr.horizontal": "center",
+          "toastr.vertical": "top",
+          "toastr.delay": 2000,
+          "auth.authority": "https://im-int.ldttoolbox.app/realms/LDT",
+          "auth.client_id": "tool3",
+          "auth.redirect_uri": "https://part-int.ldttoolbox.app/auth/callback",
+          "auth.post_logout_redirect_uri": "https://part-int.ldttoolbox.app/auth/logout",
+          "auth.silent_redirect_uri": "https://part-int.ldttoolbox.app/",
+          "auth.post_login_redirect_path": "/auth/login-successful",
+          "auth.storageKey": "oidc.user:https://im-int.ldttoolbox.app/realms/LDT:tool3"
+        }

@@ -1,19 +1,28 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: tool1-config
+  name: tool3-config
 data:
-  postgres_user: _%TOOL1-PG-USER%_
-  pg_jdbc_url: jdbc:postgresql://${TOOL1_PG_SERVICE_HOST}:5432/default
+  postgres_user: admin
+  postgres_password: _%TOOL3-PG-PASSWORD%_
+  postgres_migrate: _%TOOL3-PG-MIGRATE%_
+  pg_jdbc_url: jdbc:postgresql://${TOOL3_PG_SERVICE_HOST}:5432/default
   DB_DIALECT : postgres
-  DB_HOST : tool1-0
-  DB_USERNAME : _%TOOL1-APP-PG-USER%_
+  DB_HOST : tool3-0
+  DB_USERNAME : _%TOOL3-APP-PG-USER%_
   DB_PORT : "5432"
-  DB_NAME : playvisualise
+  DB_NAME : participate
   USE_SWAGGER: "true"
   AUTH_PROVIDER: 'TOOL5'
   OAUTH2_REALM: 'LDT'
-  OAUTH2_CLIENT_ID: 'tool1'
+  OAUTH2_CLIENT_ID: 'tool3'
   OAUTH2_BASE_URL: '_%OAUTH2_BASE_URL%_'
   OAUTH2_CALLBACK_URL: '_%OAUTH2_CALLBACK_URL%_'
   FRONTEND_URL: '_%FRONTEND_URL%_'
+  host: 'part-int.ldttoolbox.app'
+  setup.json: |
+    {
+      "apiBaseUrl": "_%TOOL3_API_BASE_URL%_/api"
+    }
+
+    # test coment
