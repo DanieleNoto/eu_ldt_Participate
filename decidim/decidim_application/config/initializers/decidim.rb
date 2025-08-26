@@ -400,6 +400,18 @@ Decidim.configure do |config|
     config.content_security_policies_extra["style-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
     config.content_security_policies_extra["connect-src"] += %w(http://localhost:3035 ws://localhost:3035 http://0.0.0.0:3035 ws://0.0.0.0:3035)
     config.content_security_policies_extra["font-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
+    
+    # Allow Matomo analytics in development
+    if ENV['MATOMO_URL'].present?
+      matomo_host = URI.parse(ENV['MATOMO_URL']).host
+      matomo_port = URI.parse(ENV['MATOMO_URL']).port
+      matomo_full = "http://#{matomo_host}:#{matomo_port}"
+      
+      config.content_security_policies_extra["script-src"] += [matomo_full]
+      config.content_security_policies_extra["connect-src"] += [matomo_full]
+      config.content_security_policies_extra["img-src"] ||= %w('self' data:)
+      config.content_security_policies_extra["img-src"] += [matomo_full]
+    end
   end
 
   # Admin admin password configurations
