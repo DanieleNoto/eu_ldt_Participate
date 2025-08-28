@@ -77,6 +77,74 @@ module Decidim
               email: raw_info["email"]
             }
           end
+
+          # Override extra to include additional user information from Keycloak
+          def extra
+            hash = {}
+            hash[:raw_info] = raw_info if raw_info
+            hash[:id_info] = id_info if respond_to?(:id_info) && id_info
+            hash[:id_token] = access_token.params['id_token'] if access_token.params['id_token']
+            
+            # Add Keycloak roles to the extra hash for Decidim to use
+            if raw_info && raw_info['resource_access']
+              hash[:keycloak_roles] = raw_info['resource_access']
+              hash[:keycloak_realm_roles] = raw_info['realm_access']&.dig('roles') || []
+            end
+            
+            # Store admin role information for later use in Decidim callbacks
+            if raw_info && raw_info['resource_access'] && raw_info['resource_access']['Tool3']
+              tool3_roles = raw_info['resource_access']['Tool3']['roles'] || []
+              hash[:is_decidim_admin] = tool3_roles.include?('Admin')
+            else
+              hash[:is_decidim_admin] = false
+            end
+            
+            hash
+          end
+        end
+      end
+
+      # Add callback for admin role synchronization using Decidim's OmniAuth callbacks
+      initializer "decidim_keycloak.sync_admin_roles" do
+        # Hook into Decidim's OmniAuth callbacks that fire during user registration/authentication
+        ActiveSupport.on_load(:after_initialize) do
+          # Override the Decidim OmniAuth registration controller to sync admin roles
+          Decidim::Devise::OmniauthRegistrationsController.class_eval do
+            # Override create method to handle admin role sync after successful auth
+            alias_method :original_create, :create
+            
+            def create
+              # Store OmniAuth auth data before calling original create
+              auth_data = request.env["omniauth.auth"]
+              
+              # Call original create method
+              result = original_create
+              
+              # After successful authentication, sync admin roles if this was Keycloak auth
+              if auth_data&.provider == "keycloakopenid" && current_user
+                sync_keycloak_admin_role(current_user, auth_data)
+              end
+              
+              result
+            end
+            
+            private
+            
+            def sync_keycloak_admin_role(user, auth_data)
+              begin
+                if auth_data.extra && auth_data.extra['is_decidim_admin']
+                  user.update!(admin: true)
+                else
+                  # Optionally remove admin role if user no longer has it in Keycloak
+                  if user.admin?
+                    user.update!(admin: false)
+                  end
+                end
+              rescue => e
+                Rails.logger.error "Error syncing Keycloak admin role: #{e.message}"
+              end
+            end
+          end
         end
       end
 
