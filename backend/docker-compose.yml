@@ -4,8 +4,8 @@ services:
     container_name: postgres
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=12345
-      - POSTGRES_DB=eu_ldt_starter
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=decidim_application_development
     ports:
       - "5432:5432"
     volumes:

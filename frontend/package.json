@@ -39,6 +39,7 @@
 	},
 	"devDependencies": {
 		"@module-federation/vite": "^1.7.1",
+		"@playwright/test": "^1.55.0",
 		"@tailwindcss/postcss": "^4.1.11",
 		"@tanstack/eslint-plugin-query": "^5.83.1",
 		"@testing-library/jest-dom": "^6.6.4",
