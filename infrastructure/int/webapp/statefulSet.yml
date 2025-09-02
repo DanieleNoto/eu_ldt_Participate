@@ -14,6 +14,7 @@ spec:
       labels:
         app: tool3 # has to match .spec.selector.matchLabels
     spec:
+      automountServiceAccountToken: false
 #      updateStrategy:
 #        type: RollingUpdate
 #        rollingUpdate:
