@@ -70,8 +70,8 @@ begin
     org.update!(
       colors: {
         "primary" => "#004494",
-        "secondary" => "#FFD617",
-        "tertiary" => "#C21D76"
+        "secondary" => "#004494",
+        "tertiary" => "#FFE77E"
       },
       file_upload_settings: {
         "allowed_file_extensions" => {
