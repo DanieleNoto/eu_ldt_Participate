@@ -49,6 +49,8 @@ if [ "$RAILS_ENV" = "development" ]; then
     bin/rails db:create
     bin/rails decidim_calendar:install:migrations
     bin/rails decidim_calendar:webpacker:install
+    bin/rails decidim_decidim_awesome:install:migrations
+    bin/rails decidim_decidim_awesome:webpacker:install
     bin/rails db:migrate
     echo "--- Database dropped, created and migrated ---"
   else
@@ -56,6 +58,8 @@ if [ "$RAILS_ENV" = "development" ]; then
     bin/rails db:create || true
     bin/rails decidim_calendar:install:migrations
     bin/rails decidim_calendar:webpacker:install
+    bin/rails decidim_decidim_awesome:install:migrations
+    bin/rails decidim_decidim_awesome:webpacker:install
     echo "--- Running database migrations ---"
     bin/rails db:migrate
     echo "--- Database setup completed ---"
@@ -65,6 +69,8 @@ else
   bin/rails db:create || true
   bin/rails decidim_calendar:install:migrations
   bin/rails decidim_calendar:webpacker:install
+  bin/rails decidim_decidim_awesome:install:migrations
+  bin/rails decidim_decidim_awesome:webpacker:install
   echo "--- Running database migrations ---"
   bin/rails db:migrate
 fi
