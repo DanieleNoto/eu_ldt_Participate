@@ -1,7 +1,10 @@
 organization_name = ENV["SYSTEM_ORG_NAME"] || "EU LDT Participate Tool"
+organization_desc = ENV["SYSTEM_ORG_DESC"] || "EU LDT Participate Tool - Citizen Participation Platform"
 organization_host = ENV["SYSTEM_ORG_HOST"] || "localhost"
 organization_reference_prefix = ENV["SYSTEM_ORG_PREFIX"] || "EU-LDT"
-
+organization_color_primary = ENV["SYSTEM_ORG_COLOR_PRIMARY"] || "#004494"
+organization_color_secondary = ENV["SYSTEM_ORG_COLOR_SECONDARY"] || "#004494"
+organization_color_tertiary = ENV["SYSTEM_ORG_COLOR_TERTIARY"] || "#FFE77E"
 
 puts "--- Starting data preparation ---"
 
@@ -11,86 +14,25 @@ puts "--- Creating organization ---"
 
 begin
   org = Decidim::Organization.find_or_create_by!(host: organization_host) do |o|
-    # Essential attributes
-    o.name = { "en" => organization_name }
-    o.reference_prefix = organization_reference_prefix
-    o.default_locale = "en"
-    o.available_locales = ["en"]
-    o.tos_version = Time.current
-
-    # Basic settings
-    o.force_users_to_authenticate_before_access_organization = false
-    o.users_registration_mode = "enabled"
-    o.description = { "en" => "EU LDT Participate Tool - Citizen Participation Platform" }
-    o.time_zone = "UTC"
-    o.badges_enabled = true
-    o.comments_max_length = 1000
-
-    # Authorization settings
-    o.available_authorizations = %w[id_documents postal_letter csv_census]
-
-    # Initialize as empty arrays/hashes for complex settings
-    o.secondary_hosts = []
-    o.colors = {}
-    o.file_upload_settings = {}
-    o.content_security_policy = {}
-
-    # String fields (can be empty)
-    o.header_snippets = ""
-    o.cta_button_text = ""
-    o.cta_button_path = ""
-    o.welcome_notification_subject = ""
-    o.welcome_notification_body = ""
-    o.smtp_settings = {}
-    o.omniauth_settings = {}
-    o.admin_terms_of_service_body = ""
-
-    # Boolean fields
-    o.enable_omnipresent_banner = false
-    o.highlighted_content_banner_enabled = false
-    o.send_welcome_notification = false
-    o.user_groups_enabled = true
-    o.rich_text_editor_in_public_views = false
-    o.enable_machine_translations = false
-    o.enable_participatory_space_filters = true
-
-    # Banner fields (can be empty)
-    o.omnipresent_banner_title = ""
-    o.omnipresent_banner_short_description = ""
-    o.omnipresent_banner_url = ""
-    o.highlighted_content_banner_title = ""
-    o.highlighted_content_banner_short_description = ""
-    o.highlighted_content_banner_action_title = ""
-    o.highlighted_content_banner_action_subtitle = ""
-    o.highlighted_content_banner_action_url = ""
+  # Minimal attributes: keep only those from ENV and essentials
+  o.name = { "en" => organization_name }
+  o.reference_prefix = organization_reference_prefix
+  # Available locales required by user: English, French, Spanish, German
+  o.available_locales = %w[en fr es de]
+  o.description = { "en" => organization_desc }
+  o.default_locale = "en"
+  o.tos_version = Time.current
   end
 
   # Update complex settings after organization is created
   if org.persisted?
+    # Only update colors which are driven by ENV; keep other settings minimal
     org.update!(
       colors: {
-        "primary" => "#004494",
-        "secondary" => "#004494",
-        "tertiary" => "#FFE77E"
-      },
-      file_upload_settings: {
-        "allowed_file_extensions" => {
-          "default" => %w[jpg jpeg png webp pdf rtf txt],
-          "image" => %w[jpg jpeg png webp],
-          "admin" => %w[jpg jpeg png webp pdf doc docx xls xlsx ppt pptx ppx rtf txt odt ott odf otg ods ots csv json md]
-        },
-        "allowed_content_types" => {
-          "default" => %w[image/* application/pdf application/rtf text/plain],
-          "admin" => %w[image/* application/pdf application/rtf application/json text/markdown text/plain text/csv]
-        },
-        "maximum_file_size" => {
-          "default" => 10.0,
-          "avatar" => 5.0
-        }
-      },
-      external_domain_allowlist: ["decidim.org", "github.com"],
-      machine_translation_display_priority: "original",
-      extra_user_fields: { "enabled" => false }
+        "primary" => organization_color_primary,
+        "secondary" => organization_color_secondary,
+        "tertiary" => organization_color_tertiary
+      }
     )
   end
 rescue => e
