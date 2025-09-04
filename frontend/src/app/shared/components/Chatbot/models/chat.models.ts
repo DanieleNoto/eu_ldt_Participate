@@ -58,3 +58,9 @@ export interface Message {
 	from: 'bot' | 'user';
 	text: string;
 }
+
+export interface ChatRequestModel {
+	conversationId?: string;
+	nodeId?: string;
+	language?: string;
+}

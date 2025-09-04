@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>EU Chatbot Web Component Test</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				margin: 20px;
+				background-color: #f5f5f5;
+			}
+			.container {
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 20px;
+				background: white;
+				border-radius: 8px;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+			}
+			h1 {
+				color: #333;
+				text-align: center;
+			}
+			.chatbot-container {
+				margin: 20px 0;
+				padding: 20px;
+				position: relative;
+				background: transparent;
+			}
+			.language-selector {
+				background: white;
+				padding: 10px;
+				border-radius: 8px;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+				min-width: 120px;
+			}
+			.language-selector label {
+				display: block;
+				font-size: 12px;
+				color: #666;
+				margin-bottom: 4px;
+				font-weight: 500;
+			}
+			.language-selector select {
+				width: 100%;
+				padding: 6px 8px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				background: white;
+				font-size: 14px;
+				cursor: pointer;
+				outline: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>EU LDT Participate - Chatbot Web Component</h1>
+
+			<div class="chatbot-container">
+				<h3>Chatbot with External Language Selector</h3>
+				<p>
+					The chatbot will appear in the bottom-right corner. Use the language dropdown (also in the
+					bottom-right) to change the language.
+				</p>
+				<eu-chatbot language="en"></eu-chatbot>
+				<br />
+				<div class="language-selector">
+					<label>Language</label>
+					<select id="languageSelector">
+						<option value="en">English</option>
+						<option value="es">Español</option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<!-- Load the web component -->
+		<script type="module" src="/src/app/standalone-chatbot.tsx"></script>
+
+		<!-- External language selector script -->
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				const selector = document.getElementById('languageSelector');
+				const chatbot = document.querySelector('eu-chatbot');
+
+				selector.addEventListener('change', function (e) {
+					const newLanguage = e.target.value;
+
+					chatbot.setAttribute('language', newLanguage);
+
+					if (chatbot.changeLanguage) {
+						chatbot.changeLanguage(newLanguage);
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 export const ChatRequestSchema = z.object({
 	conversationId: z.string().uuid().optional(),
-	nodeId: z.string().optional()
+	nodeId: z.string().optional(),
+	language: z.string().min(2).max(5).optional().default('en')
 });
 
 export const SuggestionSchema = z.object({ id: z.string(), text: z.string() });

@@ -1,7 +1,7 @@
-import App from './App';
+import ChatbotWebComponent from './shared/components/Chatbot/ChatbotWebComponent';
 
 const Remote = () => {
-	return <App standalone={false} />;
+	return <ChatbotWebComponent />;
 };
 
 export default Remote;

@@ -2,13 +2,12 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { v4 as uuidv4 } from 'uuid';
 import { ChatRequestSchema, ChatResponseSchema } from '../schemas/chat.schema';
 import { ChatService } from '../services/chat.service';
-import { BaseController } from './base/base.controller';
 
-class ChatController extends BaseController {
+class ChatController {
 	private _chatService = new ChatService();
 
 	async chat(request: FastifyRequest, reply: FastifyReply) {
-		const { conversationId, nodeId } = ChatRequestSchema.parse(request.body);
+		const { conversationId, nodeId, language } = ChatRequestSchema.parse(request.body);
 		const convId = conversationId ?? uuidv4();
 
 		const {
@@ -17,7 +16,7 @@ class ChatController extends BaseController {
 			suggestions,
 			faqs,
 			isLeaf
-		} = await this._chatService.handleRequest(convId, nodeId, request);
+		} = await this._chatService.handleRequest(convId, nodeId, language, request);
 
 		const response = {
 			conversationId: cid,

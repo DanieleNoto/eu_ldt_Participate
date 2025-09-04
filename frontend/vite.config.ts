@@ -1,40 +1,24 @@
-import { federation } from '@module-federation/vite';
-import tailwindcss from '@tailwindcss/vite';
-import react from '@vitejs/plugin-react';
-// eslint-disable-next-line import/order
 import path from 'path';
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
-// https://vite.dev/config/
 export default defineConfig({
-	plugins: [
-		react(),
-		tailwindcss(),
-		federation({
-			filename: 'remoteEntry.js',
-			name: 'remote',
-			exposes: {
-				'./remote-routes': './src/app/RemoteRoot.tsx'
-			},
-			remotes: {},
-			shared: {
-				react: {
-					singleton: true
-				},
-				'react-dom': {
-					singleton: true
-				},
-				'react-router': {
-					singleton: true
-				}
-			}
-		})
-	],
+	plugins: [react(), tailwindcss()],
 	build: {
 		target: 'esnext',
-		modulePreload: false,
-		minify: false,
-		assetsDir: ''
+		lib: {
+			entry: path.resolve(__dirname, 'src/app/standalone-chatbot.tsx'),
+			name: 'EUChatbot',
+			fileName: 'eu-chatbot',
+			formats: ['es', 'umd']
+		},
+		rollupOptions: {
+			external: [],
+			output: {
+				globals: {}
+			}
+		}
 	},
 	resolve: {
 		alias: {

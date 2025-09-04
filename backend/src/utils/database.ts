@@ -1,7 +1,6 @@
 import { exit } from 'process';
 import { DataType } from 'sequelize-typescript';
 import { sequelize } from '../config/database';
-import { loadScopes } from '../models/entities/scopes';
 import logger from './logger';
 
 const needSync = async () => {
@@ -33,10 +32,6 @@ export const createDBConnection = async () => {
 			});
 			logger.info('end database sync');
 		}
-
-		logger.info('start load model scopes');
-		await loadScopes();
-		logger.info('end load model scopes');
 
 		logger.info('Database connection established successfully.');
 	} catch (error) {

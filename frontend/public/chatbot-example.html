@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>EU LDT Participate Chatbot - Integration Example</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				margin: 40px;
+				background-color: #f5f5f5;
+			}
+			.container {
+				max-width: 800px;
+				margin: 0 auto;
+				background: white;
+				padding: 20px;
+				border-radius: 8px;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			}
+			.controls {
+				margin-bottom: 20px;
+				padding: 15px;
+				background: #f8f9fa;
+				border-radius: 4px;
+			}
+			.controls label {
+				display: inline-block;
+				margin-right: 10px;
+				font-weight: bold;
+			}
+			.controls select {
+				padding: 5px 10px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+			}
+			.event-log {
+				margin-top: 20px;
+				padding: 15px;
+				background: #e9ecef;
+				border-radius: 4px;
+				max-height: 200px;
+				overflow-y: auto;
+			}
+			.event-log h3 {
+				margin-top: 0;
+			}
+			.event {
+				padding: 5px;
+				margin: 5px 0;
+				background: white;
+				border-radius: 3px;
+				font-size: 14px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>EU LDT Participate Chatbot Integration Example</h1>
+			<p>This page demonstrates how to integrate the EU LDT Participate chatbot as a web component.</p>
+
+			<div class="controls">
+				<label for="language-select">Language:</label>
+				<select id="language-select">
+					<option value="en">English</option>
+					<option value="es">Spanish</option>
+					<option value="fr">French</option>
+					<option value="de">German</option>
+					<option value="it">Italian</option>
+				</select>
+			</div>
+
+			<p>
+				The chatbot should appear as a floating button in the bottom-right corner. You can change the language
+				using the dropdown above.
+			</p>
+
+			<div class="event-log">
+				<h3>Event Log</h3>
+				<div id="event-list">
+					<div class="event">Page loaded - chatbot initialized with default language (en)</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Load the chatbot web component -->
+		<script type="module">
+			try {
+				// Load the Module Federation container
+				const container = await import('http://localhost:5001/remoteEntry.js');
+
+				// Initialize the container
+				await container.init({});
+
+				// Get and load the chatbot element wrapper
+				const chatbotWrapperFactory = await container.get('./chatbot-element');
+				const ChatbotWrapper = await chatbotWrapperFactory();
+
+				logEvent('Chatbot module loaded and initialized successfully');
+			} catch (error) {
+				logEvent('Failed to load chatbot module: ' + error.message);
+				// eslint-disable-next-line no-console
+				console.error('Chatbot loading error:', error);
+			}
+		</script>
+
+		<!-- The actual chatbot custom element -->
+		<eu-chatbot language="en" id="chatbot"></eu-chatbot>
+
+		<script>
+			const chatbot = document.getElementById('chatbot');
+			const languageSelect = document.getElementById('language-select');
+			const eventList = document.getElementById('event-list');
+
+			function logEvent(message) {
+				const eventDiv = document.createElement('div');
+				eventDiv.className = 'event';
+				eventDiv.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+				eventList.appendChild(eventDiv);
+				eventList.scrollTop = eventList.scrollHeight;
+			}
+
+			// Handle language changes
+			languageSelect.addEventListener('change', event => {
+				const newLanguage = event.target.value;
+				chatbot.setAttribute('language', newLanguage);
+				logEvent(`Language changed to: ${newLanguage}`);
+			});
+
+			// Listen for chatbot events
+			document.addEventListener('supportSent', event => {
+				logEvent(`Support request sent at: ${event.detail.timestamp}`);
+			});
+
+			// Log when chatbot is ready
+			if (customElements.get('eu-chatbot')) {
+				logEvent('Chatbot custom element is available');
+			} else {
+				customElements.whenDefined('eu-chatbot').then(() => {
+					logEvent('Chatbot custom element registered');
+				});
+			}
+		</script>
+	</body>
+</html>

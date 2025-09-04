@@ -1,14 +1,13 @@
 import nodemailer from 'nodemailer';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { SupportRequestSchema, SupportResponseSchema } from '../schemas/chat.schema';
-import { BaseController } from './base/base.controller';
 
 interface SmtpAuth {
 	user: string;
 	pass: string;
 }
 
-class SupportController extends BaseController {
+class SupportController {
 	async send(request: FastifyRequest, reply: FastifyReply) {
 		const { conversationId, message } = SupportRequestSchema.parse(request.body);
 

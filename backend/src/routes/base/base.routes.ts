@@ -1,94 +1,39 @@
-import { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema, RouteOptions } from 'fastify';
-import { z } from 'zod';
-import { AnyZodSchema, ResponseSchemas } from '../../schemas/base/base-crud.schema';
-import { BaseController } from '../../controllers/base/base.controller';
+import { FastifyInstance, FastifyRequest, FastifyReply, RouteOptions } from 'fastify';
 import { HttpMethod } from '../../enums/http-methods.enum';
-import { ErrorResponseSchema } from '../../schemas/base/base.schema';
-import { startupRoute } from '../../utils/startup-routes';
 
-export interface InstanceRouteConfig<C extends BaseController> extends FastifySchema {
+interface RegisterRouteOptions {
 	app: FastifyInstance;
-	parentPath?: string;
 	resourceName: string;
-	controller: C;
-	paramsSchema?: AnyZodSchema;
-	querySchema?: AnyZodSchema;
-	bodySchema?: AnyZodSchema;
-	responseSchema?: ResponseSchemas;
-	requireBody?: boolean;
-	requireParams?: boolean;
-	requireQueries?: boolean;
-	description?: string;
-}
-
-export interface RouteConfig<C extends BaseController> extends InstanceRouteConfig<C> {
+	controller: object;
 	method: HttpMethod;
-	description?: string;
 	path?: string;
-	response?: Record<string, unknown>;
-	controllerMethod: (req: FastifyRequest, reply: FastifyReply) => Promise<unknown>;
-	returnPartialBody?: boolean;
+	bodySchema?: object;
+	response?: Record<number, object>;
+	controllerMethod: (request: FastifyRequest, reply: FastifyReply) => Promise<unknown>;
 }
 
-const defaultError = {
-	400: ErrorResponseSchema, // Bad request (validation error)
-	404: ErrorResponseSchema, // Resource not found
-	500: ErrorResponseSchema // Internal server error
-};
+export const registerRoute = (options: RegisterRouteOptions) => {
+	const { app, resourceName, method, path = '/', bodySchema, response, controllerMethod } = options;
 
-export const registerRoute = <C extends BaseController>(routeConfig: RouteConfig<C>) => {
-	// Logs the route registration
-	startupRoute(routeConfig.app);
+	const fullPath = `/${resourceName}${path}`;
 
-	// Merging delle options
-	const options = {
-		schema: {
-			description: routeConfig.description || getDescription(routeConfig),
-			tags: [routeConfig.resourceName],
-			// headers: defaultHeadersSchema,
-			response: {
-				...defaultError,
-				...routeConfig.response
-			}
-		} as FastifySchema
+	const routeOptions: RouteOptions = {
+		method: method.toLowerCase() as 'GET' | 'POST' | 'PUT' | 'DELETE',
+		url: fullPath,
+		handler: controllerMethod
 	};
 
-	//if (![HttpMethod.GET].includes(routeConfig.method) && routeConfig.bodySchema) {
-	if (![HttpMethod.GET, HttpMethod.DELETE].includes(routeConfig.method) || routeConfig.requireBody) {
-		const bodySchema = routeConfig.bodySchema;
-		if (routeConfig.returnPartialBody && bodySchema instanceof z.ZodObject) {
-			options.schema.body = (bodySchema as z.ZodObject<z.ZodRawShape>).partial();
-		} else {
-			options.schema.body = bodySchema;
+	if (bodySchema || response) {
+		routeOptions.schema = {};
+
+		if (bodySchema) {
+			routeOptions.schema.body = bodySchema;
+		}
+
+		if (response) {
+			routeOptions.schema.response = response;
 		}
 	}
 
-	if (routeConfig.requireParams) {
-		options.schema.params = routeConfig.paramsSchema;
-	}
-
-	if (routeConfig.requireQueries) {
-		options.schema.querystring = routeConfig.querySchema;
-	}
-
-	const route = {
-		method: routeConfig.method,
-		url: `${routeConfig.parentPath || ''}/${routeConfig.resourceName}${routeConfig.path || ''}`,
-		schema: options.schema,
-		handler: routeConfig.controllerMethod,
-		routeConfig
-	} as RouteOptions;
-
-	routeConfig.app.route(route);
-};
-
-const getDescription = <C extends BaseController>(routeConfig: RouteConfig<C>) => {
-	const actions = {
-		get: routeConfig.paramsSchema ? 'Retrieve a' : 'Retrieve all',
-		post: 'Create a new',
-		put: 'Update a',
-		patch: 'Partial update a',
-		delete: 'Delete a'
-	};
-	return `${actions[routeConfig.method.toLowerCase() as keyof typeof actions] || 'Handle'} ${routeConfig.resourceName}`;
+	app.route(routeOptions);
 };

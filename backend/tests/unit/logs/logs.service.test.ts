@@ -1,19 +1,8 @@
 // Code Coverage
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { closeTestServer, createTestServer } from '../helper/createTestServer';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { formatLog } from '../../../src/utils/logger';
 
 describe('Logs-check service test', () => {
-	let app: FastifyInstance;
-	beforeAll(async () => {
-		app = await createTestServer();
-		await app.ready();
-	}, 30000);
-
-	afterAll(async () => {
-		await closeTestServer();
-	});
-
 	test('The two logs must match', async () => {
 		const req = {
 			id: 'req-123',

@@ -13,9 +13,19 @@ export class ChatService {
 	/**
 	 * Handle chat request: logs a new conversation entry and returns bot response
 	 */
-	async handleRequest(conversationId: string, nodeId: string | undefined, request: FastifyRequest) {
+	async handleRequest(
+		conversationId: string,
+		nodeId: string | undefined,
+		language: string = 'en',
+		request: FastifyRequest
+	) {
 		const root = this._tree['root'];
 		const node = nodeId && this._tree[nodeId] ? this._tree[nodeId] : root;
+
+		// Set the language for this request
+		if (request.i18n && typeof request.i18n.changeLanguage === 'function') {
+			request.i18n.changeLanguage(language);
+		}
 
 		// Invoke handler if defined on request context
 		if (node.handlerId) {
