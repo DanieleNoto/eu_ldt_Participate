@@ -39,12 +39,34 @@ const mockUseApiRequest = useApiRequest as jest.MockedFunction<typeof useApiRequ
 // Setup i18n for tests
 i18n.init({
 	lng: 'en',
+	fallbackLng: 'en',
+	defaultNS: 'common',
+	ns: ['common'],
 	resources: {
 		en: {
-			translation: {
-				root: "Hello, I'm the virtual assistant of the EU LDT Participate tool. I'll help you manage your needs in the best way possible. Select one of the following topics to start a discussion:"
+			common: {
+				chatbot: {
+					title: "Chat",
+					openHelpAssistant: "Open help assistant",
+					closeHelpAssistant: "Close help assistant",
+					goBackToFaqList: "Go back to FAQ list",
+					chatWithVirtualAssistant: "Chat with the virtual assistant",
+					suggestions: "Suggestions",
+					hereArePossibleAnswers: "Here are possible answers related to the question:",
+					ifYouNeedMoreHelp: "If you need more help:",
+					askSupport: "Ask support",
+					orSelectAnotherTopic: "Or select another topic:",
+					describeYourIssue: "Describe your issue",
+					typeHere: "Type here...",
+					cancel: "Cancel",
+					send: "Send",
+					supportRequestSent: "Support request sent. Our team will contact you."
+				}
 			}
 		}
+	},
+	interpolation: {
+		escapeValue: false
 	}
 });
 
@@ -153,7 +175,11 @@ describe('Chatbot Component', () => {
 			
 			await waitFor(() => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalledWith({
-					body: { conversationId: undefined }
+					body: { 
+						conversationId: undefined,
+						nodeId: undefined,
+						language: 'en'
+					}
 				});
 			});
 		});
@@ -226,7 +252,8 @@ describe('Chatbot Component', () => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalledWith({
 					body: { 
 						conversationId: 'test-conversation-1',
-						nodeId: 'sug1'
+						nodeId: 'sug1',
+						language: 'en'
 					}
 				});
 			});

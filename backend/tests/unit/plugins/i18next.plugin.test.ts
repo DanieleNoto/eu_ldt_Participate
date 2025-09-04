@@ -45,7 +45,7 @@ describe('i18next Plugin', () => {
 		expect(mockI18next.use).toHaveBeenCalledWith(backend);
 		expect(mockI18next.init).toHaveBeenCalledWith({
 			fallbackLng: 'en',
-			preload: ['en'],
+			preload: ['en', 'es'],
 			backend: {
 				loadPath: expect.stringContaining('i18n')
 			}

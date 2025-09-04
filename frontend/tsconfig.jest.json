@@ -5,6 +5,7 @@
 		"types": ["jest", "@testing-library/jest-dom"],
 		"esModuleInterop": true,
 		"moduleResolution": "node",
+		"resolveJsonModule": true,
 		"baseUrl": "./",
 		"paths": {
 			"@app/*": ["src/app/*"],

@@ -2,6 +2,7 @@ export default {
 	preset: 'ts-jest',
 	testEnvironment: 'jsdom',
 	moduleNameMapper: {
+		'@theme/styles/global\\.css$': '<rootDir>/src/tests/unit/__mocks__/cssMock.ts',
 		'\\.(css|less|sass|scss)$': 'identity-obj-proxy',
 		'\\.(gif|ttf|eot|svg|png)$': '<rootDir>/src/tests/unit/__mocks__/fileMock.ts',
 		'^@/(.*)$': '<rootDir>/src/$1',
