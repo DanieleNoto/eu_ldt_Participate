@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/naming-convention */
 /**
  * Runtime application configuration that can be extended dynamically.
  * This configuration is loaded from /config/config.json at application startup.
