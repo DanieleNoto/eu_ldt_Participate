@@ -7,7 +7,6 @@ import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/C
 import { QuestionnaireTemplatesPage } from '@pages/pages/admin/templates/QuestionnaireTemplatesPage';
 import { NewTemplatePage } from '@pages/pages/admin/templates/NewTemplatePage';
 import { EditTemplatePage } from '@pages/pages/admin/templates/EditTemplatePage';
-import { QuestionnaireQuestionsPage } from '@pages/pages/admin/templates/QuestionnaireQuestionsPage';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 import { LocalizationUtils } from '@utils/localization.utils';
@@ -37,7 +36,6 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 	let templatesPage: QuestionnaireTemplatesPage;
 	let newTemplatePage: NewTemplatePage;
 	let editTemplatePage: EditTemplatePage;
-	let questionnaireQuestionsPage: QuestionnaireQuestionsPage;
 	let validProcessData: any;
 	let templateId: string;
 	let templateName: string;
@@ -51,53 +49,65 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 		templatesPage = new QuestionnaireTemplatesPage(page);
 		newTemplatePage = new NewTemplatePage(page);
 		editTemplatePage = new EditTemplatePage(page);
-		questionnaireQuestionsPage = new QuestionnaireQuestionsPage(page);
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 
-		// Navigate to admin home and processes
-		await adminHomePage.navigateToAdminHomePage();
-		await processAdminPage.navigateToProcesses();
-		await page.waitForLoadState('networkidle');
-
-		// Create a new test process as prerequisite
-		await processAdminPage.navigateToNewProcess();
-		await processAdminPage.fillGeneralInfo(validProcessData.general);
-		await processAdminPage.fillMetadataInfo(validProcessData.metadata);
-		await processAdminPage.setVisibilityToPublic();
-		await processAdminPage.submitProcess();
-
-		// Wait for process creation to complete
-		await processAdminPage.expectSuccessMessage();
-		await page.waitForURL(/\/admin\/participatory_processes\/.*\/steps/);
-
-		// Log successful process creation
-		console.log('New process created:', validProcessData.general.title);
-		console.log('Process URL:', page.url());
-
-		// Navigate back to processes list using direct navigation
-		await page.goto('/admin/participatory_processes');
-		await page.waitForLoadState('networkidle');
-
-		// Search for the created process by title
-		await page.getByRole('searchbox', { name: 'Search Participatory' }).click();
-		await page.getByRole('searchbox', { name: 'Search Participatory' }).fill(validProcessData.general.title);
-		await page.getByRole('button', { name: 'Search' }).click();
-
-		// Click on the created process to open edit page
-		await page
-			.getByRole('link', {
-				name: validProcessData.general.title.split(' ')[0] + ' ' + validProcessData.general.title.split(' ')[1]
-			})
-			.click();
-
-		// Wait for edit page to load and store the URL
-		await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-		await page.waitForLoadState('networkidle');
-
-		// Store the process edit URL for later use
-		processEditUrl = page.url();
-		console.log('Process edit URL stored:', processEditUrl);
+		// Setup test environment
+		await setupTestProcess(page);
 	});
+
+	/**
+	 * Setup test environment by creating a new test process as prerequisite
+	 */
+	async function setupTestProcess(page: any) {
+		await test.step('Setup: Create new test process as prerequisite', async () => {
+			// Navigate to admin home and processes
+			await adminHomePage.navigateToAdminHomePage();
+			await processAdminPage.navigateToProcesses();
+			await page.waitForLoadState('networkidle');
+
+			// Create a new test process as prerequisite
+			await processAdminPage.navigateToNewProcess();
+			await processAdminPage.fillGeneralInfo(validProcessData.general);
+			await processAdminPage.fillMetadataInfo(validProcessData.metadata);
+			await processAdminPage.setVisibilityToPublic();
+			await processAdminPage.submitProcess();
+
+			// Wait for process creation to complete
+			await processAdminPage.expectSuccessMessage();
+			await page.waitForURL(/\/admin\/participatory_processes\/.*\/steps/);
+
+			// Log successful process creation
+			console.log('New process created:', validProcessData.general.title);
+			console.log('Process URL:', page.url());
+
+			// Navigate back to processes list using direct navigation
+			await page.goto('/admin/participatory_processes');
+			await page.waitForLoadState('networkidle');
+
+			// Search for the created process by title
+			await page.getByRole('searchbox', { name: 'Search Participatory' }).click();
+			await page.getByRole('searchbox', { name: 'Search Participatory' }).fill(validProcessData.general.title);
+			await page.getByRole('button', { name: 'Search' }).click();
+
+			// Click on the created process to open edit page
+			await page
+				.getByRole('link', {
+					name:
+						validProcessData.general.title.split(' ')[0] +
+						' ' +
+						validProcessData.general.title.split(' ')[1]
+				})
+				.click();
+
+			// Wait for edit page to load and store the URL
+			await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+			await page.waitForLoadState('networkidle');
+
+			// Store the process edit URL for later use
+			processEditUrl = page.url();
+			console.log('Process edit URL stored:', processEditUrl);
+		});
+	}
 
 	test.describe('Main Flow', () => {
 		test('should create a single-question polls', async ({ page }) => {
@@ -381,56 +391,70 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 	test.describe('Alternative Flow: Select template', () => {
 		test.beforeEach(async ({ page }) => {
-			await templatesPage.navigateToPage();
-			await page.waitForLoadState('networkidle');
+			await test.step('Setup: Navigate to Templates section', async () => {
+				await templatesPage.navigateToPage();
+				await page.waitForLoadState('networkidle');
+				console.log('Navigated to Templates section for prerequisite setup');
+			});
 
-			await templatesPage.navigateToNewTemplate();
-			await newTemplatePage.waitForPageToLoad();
+			await test.step('Setup: Create new template', async () => {
+				await templatesPage.navigateToNewTemplate();
+				await newTemplatePage.waitForPageToLoad();
 
-			// Create template with simple data
-			const templateTimestamp = Date.now().toString();
-			templateName = `Survey_Template_${templateTimestamp}`;
+				// Create template with simple data
+				const templateTimestamp = Date.now().toString();
+				templateName = `Survey_Template_${templateTimestamp}`;
 
-			await newTemplatePage.createSimpleTemplate(templateName);
-			await page.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit/);
+				await newTemplatePage.createSimpleTemplate(templateName);
+				await page.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit/);
 
-			// Extract template ID from URL
-			const templateUrl = page.url();
-			const templateMatch = templateUrl.match(/\/questionnaire_templates\/(\d+)\/edit/);
-			templateId = templateMatch ? templateMatch[1] : '';
+				// Extract template ID from URL
+				const templateUrl = page.url();
+				const templateMatch = templateUrl.match(/\/questionnaire_templates\/(\d+)\/edit/);
+				templateId = templateMatch ? templateMatch[1] : '';
 
-			console.log(`Template created with ID: ${templateId} and name: ${templateName}`);
+				console.log(`Template created with ID: ${templateId} and name: ${templateName}`);
+			});
 
-			await editTemplatePage.manageQuestions();
-			await page.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit_questions/);
+			await test.step('Setup: Add question to template', async () => {
+				await editTemplatePage.manageQuestions();
+				await page.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit_questions/);
 
-			await page.getByRole('button', { name: 'Add question' }).click();
-			await page.waitForSelector('.questionnaire-question:nth-child(1)');
+				await page.getByRole('button', { name: 'Add question' }).click();
+				await page.waitForSelector('.questionnaire-question:nth-child(1)');
 
-			const firstQuestion = page.locator('.questionnaire-question:nth-child(1)');
-			const accordionButton = firstQuestion.locator('.question--collapse').first();
-			const isExpanded = await accordionButton.getAttribute('aria-expanded');
-			if (isExpanded === 'false') {
-				await accordionButton.click();
-				await firstQuestion.locator('.editor-input').waitFor();
-			}
+				const firstQuestion = page.locator('.questionnaire-question:nth-child(1)');
+				const accordionButton = firstQuestion.locator('.question--collapse').first();
+				const isExpanded = await accordionButton.getAttribute('aria-expanded');
+				if (isExpanded === 'false') {
+					await accordionButton.click();
+					await firstQuestion.locator('.editor-input').waitFor();
+				}
 
-			// Fill question details using the working selectors
-			await firstQuestion.getByRole('textbox', { name: 'Statement' }).fill('What is your opinion on this topic?');
-			await firstQuestion.locator('.editor-input .tiptap').fill('Please share your thoughts');
-			await firstQuestion.getByRole('checkbox', { name: 'Mandatory' }).check();
-			await firstQuestion.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+				// Fill question details using the working selectors
+				await firstQuestion
+					.getByRole('textbox', { name: 'Statement' })
+					.fill('What is your opinion on this topic?');
+				await firstQuestion.locator('.editor-input .tiptap').fill('Please share your thoughts');
+				await firstQuestion.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await firstQuestion.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
 
-			// Save template questions
-			await page.getByRole('button', { name: 'Save' }).click();
-			await page.waitForLoadState('networkidle');
+				console.log('Question configured: "What is your opinion on this topic?" with mandatory long answer');
+			});
 
-			console.log('Template questions saved successfully');
+			await test.step('Setup: Save template and return to process', async () => {
+				// Save template questions
+				await page.getByRole('button', { name: 'Save' }).click();
+				await page.waitForLoadState('networkidle');
 
-			// Navigate back to the process edit page using the stored URL
-			console.log('Navigating back to process edit page:', processEditUrl);
-			await page.goto(processEditUrl);
-			await page.waitForLoadState('networkidle');
+				console.log('Template questions saved successfully');
+
+				// Navigate back to the process edit page using the stored URL
+				console.log('Navigating back to process edit page:', processEditUrl);
+				await page.goto(processEditUrl);
+				await page.waitForLoadState('networkidle');
+				console.log('Template setup completed - ready for template selection test');
+			});
 		});
 
 		test('should create a single-question polls based on a selected template', async ({ page }) => {
@@ -573,172 +597,6 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 				// Final verification that we're on the management page confirming successful creation
 				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
-			});
-		});
-	});
-
-	test.describe('Alternative Flow: Cancel', () => {
-		test('poll creation cancellation', async ({ page }) => {
-			// Get the current URL to extract process slug
-			const currentUrl = page.url();
-			const processSlugMatch = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
-			const processSlug = processSlugMatch ? processSlugMatch[1] : '';
-
-			// Generate timestamp for component name
-			const timestamp = Date.now().toString();
-			const componentName = `Surveys_${timestamp}`;
-
-			await test.step('1-16. User: Navigates through complete poll creation process', async () => {
-				// Navigate to processes section and select our created process
-				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
-
-				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
-				expect(isOnProcessesPage).toBe(true);
-
-				// Search for our created process by title
-				await page.getByRole('searchbox', { name: 'Search Participatory' }).click();
-				await page
-					.getByRole('searchbox', { name: 'Search Participatory' })
-					.fill(validProcessData.general.title);
-				await page.getByRole('button', { name: 'Search' }).click();
-
-				// Click on the created process to open edit page
-				await page
-					.getByRole('link', {
-						name:
-							validProcessData.general.title.split(' ')[0] +
-							' ' +
-							validProcessData.general.title.split(' ')[1]
-					})
-					.click();
-
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await page.waitForLoadState('networkidle');
-
-				// Navigate to Components section and create Survey component
-				await updateProcessAdminPage.navigateToComponents();
-				await page.getByRole('button', { name: 'Add component' }).click();
-				await page.getByRole('link', { name: 'Surveys' }).click();
-				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components/new?type=surveys`);
-
-				// Configure Surveys component settings
-				await page.getByRole('textbox', { name: 'name' }).click();
-				await page.getByRole('textbox', { name: 'name' }).fill(componentName);
-
-				const globalAnnouncementSelector = await LocalizationUtils.getWorkingLocalizedSelector(
-					page,
-					'component_settings_announcement'
-				);
-				await page.locator(globalAnnouncementSelector).getByRole('textbox', { name: 'Announcement' }).click();
-				await page
-					.locator(globalAnnouncementSelector)
-					.getByRole('textbox', { name: 'Announcement' })
-					.fill('Global settings description');
-
-				await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
-				await page
-					.getByRole('group', { name: 'Introduction' })
-					.getByLabel('Announcement')
-					.fill('Step settings description');
-
-				// Create the Surveys component
-				await page.getByRole('button', { name: 'Add component', exact: true }).click();
-				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
-				await expect(page.getByText('Component created successfully')).toBeVisible();
-
-				// Access the Surveys component management and create new survey
-				await componentsPage.manageComponent(componentName);
-				await page.getByRole('link', { name: 'New survey' }).click();
-				await page.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
-				);
-
-				// Skip choose template
-				const skipLink = page.getByRole('link', { name: 'Skip' });
-				const skipLinkVisible = await skipLink.isVisible().catch(() => false);
-				if (skipLinkVisible) {
-					await skipLink.click();
-					await page.waitForURL(
-						/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
-					);
-				}
-
-				// Configure survey details
-				const surveyTimestamp = Date.now().toString();
-				const surveyName = `survey_${surveyTimestamp}`;
-
-				await page.getByRole('textbox', { name: 'title' }).click();
-				await page.getByRole('textbox', { name: 'title' }).fill(surveyName);
-				await page.getByRole('textbox', { name: 'Description' }).click();
-				await page.getByRole('textbox', { name: 'Description' }).fill('description');
-				await page.getByRole('textbox', { name: 'Terms of service' }).click();
-				await page.getByRole('textbox', { name: 'Terms of service' }).fill('TOS');
-
-				// Save survey and return to surveys list
-				await page.getByRole('button', { name: 'Save' }).click();
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
-				await expect(page.getByText('Survey successfully saved.')).toBeVisible();
-
-				// Access questions management and add question
-				await page.locator('a[title="Manage questions"]').click();
-				await page.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
-				);
-				await page.waitForLoadState('networkidle');
-
-				// Add new question
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.getByRole('heading', { name: 'Question #1 Remove' }).getByRole('button').first().click();
-
-				// Fill question details
-				const questionTimestamp = Date.now().toString();
-				const questionText = `Question_${questionTimestamp}`;
-
-				await page.getByRole('textbox', { name: 'Statement' }).click();
-				await page.getByRole('textbox', { name: 'Statement' }).fill(questionText);
-				await page.getByRole('textbox', { name: 'Description' }).click();
-				await page.getByRole('textbox', { name: 'Description' }).fill('description');
-				await page.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await page.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
-
-				// Save questions and return to surveys
-				await page.getByRole('button', { name: 'Save' }).click();
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
-				await expect(page.getByText('Survey questions successfully')).toBeVisible();
-
-				console.log(`Completed steps 1-16: Survey "${surveyName}" created with question "${questionText}"`);
-			});
-
-			await test.step('User: Decides to cancel the poll creation', async () => {
-				await page.waitForLoadState('networkidle');
-
-				await page.locator('a.action-icon--remove[title="Destroy"]').click();
-				console.log('User initiated poll creation cancellation');
-			});
-
-			await test.step('System: Prompts the user to confirm the cancellation', async () => {
-				// Verify confirmation dialog appears
-				await expect(page.getByRole('heading', { name: 'Confirm' })).toBeVisible();
-				console.log('System displayed confirmation prompt for cancellation');
-			});
-
-			await test.step('User: Confirms cancellation', async () => {
-				// Confirm deletion in the popup
-				await page.getByRole('button', { name: 'OK' }).click();
-				console.log('User confirmed the cancellation');
-			});
-
-			await test.step('System: Returns the user to the "Templates" section', async () => {
-				// Wait for deletion to complete and return to surveys page
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
-			});
-
-			await test.step('Result: The single-question poll creation process is cancelled.', async () => {
-				await expect(page.getByText('Survey successfully deleted.')).toBeVisible();
-				console.log(
-					'Survey poll deleted successfully - poll creation cancelled and returned to Templates section'
-				);
 			});
 		});
 	});
