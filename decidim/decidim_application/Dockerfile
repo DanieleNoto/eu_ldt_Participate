@@ -53,6 +53,24 @@ COPY . .
 
 # Copy entrypoint and fix line endings + permissions
 COPY docker-entrypoint.sh /code/docker-entrypoint.sh
+RUN chmod +x /code/docker-entrypoint.sh
+
+# Reinstall gems after copying full code (needed for git dependencies)
+RUN bundle install
+
+# Install webpack globally and in the project
+RUN npm install -g webpack webpack-cli && \
+    cd /code && \
+    npm install webpack webpack-cli --save-dev
+
+# Precompile assets for production
+RUN if [ "$RAILS_ENV" = "production" ]; then \
+    echo "Precompiling assets for production" && \
+    SECRET_KEY_BASE=temp_key_for_asset_precompilation \
+    RAILS_ENV=production \
+    NODE_ENV=production \
+    bundle exec rails assets:precompile; \
+    fi
 
 # Expose port
 EXPOSE 3000

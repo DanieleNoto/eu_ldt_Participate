@@ -63,6 +63,16 @@ if [ "$RAILS_ENV" = "development" ]; then
   # Compile assets to ensure they're available even if shakapacker-dev-server isn't responsive
   bin/rails shakapacker:compile
   echo "--- Assets will also be served by shakapacker-dev-server ---"
+elif [ "$RAILS_ENV" = "production" ]; then
+  echo "--- Production environment detected, using precompiled assets ---"
+  # Assets were precompiled during docker build, just verify they exist
+  if [ ! -d "public/assets" ] || [ -z "$(ls -A public/assets 2>/dev/null)" ]; then
+    echo "--- WARNING: No precompiled assets found, attempting to compile... ---"
+    # Attempt to compile assets but don't fail if it doesn't work
+    bin/rails assets:precompile || echo "--- WARNING: Asset compilation failed, but continuing anyway ---"
+  else
+    echo "--- Precompiled assets found, ready to serve ---"
+  fi
 else
   echo "--- Non-development environment detected, precompiling assets ---"
   bin/rails assets:precompile
@@ -78,6 +88,8 @@ if [ "$FORCE_DATA_SETUP" = "true" ] || ( [ "$RAILS_ENV" = "development" ] && ( [
     touch tmp/.data-prepared
   else
     echo "--- Failed to prepare default data. ---"
+    echo "--- Running database checks ---"
+    bin/rails runner "puts \"Organizations: #{Decidim::Organization.count}\"; puts \"Users: #{Decidim::User.count}\"; puts \"First organization: #{Decidim::Organization.first&.name rescue 'None'}\""
   fi
 else
   echo "--- Default data already prepared, skipping ---"
