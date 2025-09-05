@@ -41,39 +41,21 @@ else
 fi
 
 # Database setup
-if [ "$RAILS_ENV" = "development" ]; then
-  # Only drop DB if FORCE_DB_RESET is set
-  if [ "$FORCE_DB_RESET" = "true" ]; then
-    echo "--- FORCE_DB_RESET=true, dropping and recreating database ---"
-    bin/rails db:drop DISABLE_DATABASE_ENVIRONMENT_CHECK=1 || true
-    bin/rails db:create
-    bin/rails decidim_calendar:install:migrations
-    bin/rails decidim_calendar:webpacker:install
-    bin/rails decidim_decidim_awesome:install:migrations
-    bin/rails decidim_decidim_awesome:webpacker:install
-    bin/rails db:migrate
-    echo "--- Database dropped, created and migrated ---"
-  else
-    echo "--- Creating database (if it doesn't exist) ---"
-    bin/rails db:create || true
-    bin/rails decidim_calendar:install:migrations
-    bin/rails decidim_calendar:webpacker:install
-    bin/rails decidim_decidim_awesome:install:migrations
-    bin/rails decidim_decidim_awesome:webpacker:install
-    echo "--- Running database migrations ---"
-    bin/rails db:migrate
-    echo "--- Database setup completed ---"
-  fi
-else
-  echo "--- Creating database (if it doesn't exist) ---"
-  bin/rails db:create || true
-  bin/rails decidim_calendar:install:migrations
-  bin/rails decidim_calendar:webpacker:install
-  bin/rails decidim_decidim_awesome:install:migrations
-  bin/rails decidim_decidim_awesome:webpacker:install
-  echo "--- Running database migrations ---"
-  bin/rails db:migrate
+# If FORCE_DB_RESET=true we always drop and recreate the DB regardless of RAILS_ENV.
+if [ "$FORCE_DB_RESET" = "true" ]; then
+  echo "--- FORCE_DB_RESET=true, dropping database (any env) ---"
+  bin/rails db:drop DISABLE_DATABASE_ENVIRONMENT_CHECK=1 || true
+  echo "--- Database dropped ---"
 fi
+
+bin/rails db:create
+bin/rails decidim_calendar:install:migrations
+bin/rails decidim_calendar:webpacker:install
+bin/rails decidim_decidim_awesome:install:migrations
+bin/rails decidim_decidim_awesome:webpacker:install
+bin/rails db:migrate
+
+echo "--- Database created and migrated ---"
 
 # Asset compilation and data setup
 if [ "$RAILS_ENV" = "development" ]; then
@@ -81,23 +63,24 @@ if [ "$RAILS_ENV" = "development" ]; then
   # Compile assets to ensure they're available even if shakapacker-dev-server isn't responsive
   bin/rails shakapacker:compile
   echo "--- Assets will also be served by shakapacker-dev-server ---"
+else
+  echo "--- Non-development environment detected, precompiling assets ---"
+  bin/rails assets:precompile
+fi
 
-  # Only run data preparation if dependencies were updated or FORCE_DATA_SETUP is set
-  if { [ "$BUNDLE_UPDATED" = "true" ]  || [ "$FORCE_DATA_SETUP" = "true" ] || [ ! -f tmp/.data-prepared ]; } && [ "$FORCE_DB_RESET" = "true" ]; then
-    echo "--- Setting up default data ---"
-    mkdir -p tmp
-    bin/rails runner prepare-db-for-tests.rb \
-      && echo "--- Default data prepared successfully. ---" \
-      && touch tmp/.data-prepared \
-      || echo "--- Failed to prepare default data. ---"
+# Data setup: run prepare-db-for-tests.rb when requested via FORCE_DATA_SETUP
+# or when in development and dependencies changed / data not prepared yet.
+if [ "$FORCE_DATA_SETUP" = "true" ] || ( [ "$RAILS_ENV" = "development" ] && ( [ "$BUNDLE_UPDATED" = "true" ] || [ ! -f tmp/.data-prepared ] ) ); then
+  echo "--- Preparing default data (FORCE_DATA_SETUP triggered or dev with changes) ---"
+  mkdir -p tmp
+  if bin/rails runner prepare-db-for-tests.rb ; then
+    echo "--- Default data prepared successfully. ---"
+    touch tmp/.data-prepared
   else
-    echo "--- Default data already prepared, skipping ---"
+    echo "--- Failed to prepare default data. ---"
   fi
 else
-  echo "--- Production environment detected, precompiling assets ---"
-  bin/rails assets:precompile
-  echo "--- Not in development environment, skipping data preparation ---"
-  echo "RAILS_ENV is currently: $RAILS_ENV"
+  echo "--- Default data already prepared, skipping ---"
 fi
 
 echo "--- Starting Rails server ---"
