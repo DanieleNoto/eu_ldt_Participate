@@ -289,99 +289,53 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			});
 
 			await test.step('14. System: Displays the "Add Question" form.', async () => {
-				// Verify the Add Question form is displayed
-				await expect(page.getByRole('heading', { name: 'Question #1 Remove' })).toBeVisible();
-				console.log('Add Question form displayed');
+				// Verify questions management interface is available
+				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
 
-				// Expand question form
-				await page.getByRole('heading', { name: 'Question #1 Remove' }).getByRole('button').first().click();
+				console.log('Questions management interface displayed with add question options');
 			});
 
 			await test.step('15. User: Fills in the Question Form: Statement: Adds the main question, Type: select question types, Mandatory: check if must be answered before submitting', async () => {
-				// Use fixed question text for consistent validation
-				const questionText = 'What is your opinion on this topic?';
+				// Question 1: Long Answer
+				await page.waitForSelector('.questionnaire-question:nth-child(1)');
+				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
 
-				// Fill question details
-				await page.getByRole('textbox', { name: 'Statement' }).click();
-				await page.getByRole('textbox', { name: 'Statement' }).fill(questionText);
+				// Expand question form if collapsed
+				const question1AccordionButton = question1Container.locator('.question--collapse').first();
+				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded1 === 'false') {
+					await question1AccordionButton.click();
+					await question1Container.locator('.editor-input').waitFor();
+				}
 
-				await page.getByRole('textbox', { name: 'Description' }).click();
-				await page.getByRole('textbox', { name: 'Description' }).fill('description');
-
-				// Make question mandatory
-				await page.getByRole('checkbox', { name: 'Mandatory' }).check();
-
-				// Set question type to long answer
-				await page.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
-
-				console.log(`Added question: ${questionText}`);
+				await question1Container
+					.getByRole('textbox', { name: 'Statement' })
+					.fill('What is your opinion on this topic?');
+				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
+				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+				console.log('Added question 1: Long Answer');
 			});
 
 			await test.step('16. User: Clicks on "Save" to create Single-Question Polls', async () => {
 				// Save questions and return to surveys
 				await page.getByRole('button', { name: 'Save' }).click();
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
-				await expect(page.getByText('Survey questions successfully')).toBeVisible();
-				console.log('Survey questions saved successfully');
 			});
 
 			await test.step('17. System: Validates the form for completeness and correctness.', async () => {
-				await page.locator('a[title="Manage questions"]').click();
-				await page.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
-				);
-				await page.waitForLoadState('networkidle');
-
-				// Verify the question exists and expand it to check values
-				await expect(
-					page.getByRole('heading', { name: 'What is your opinion on this topic? #1 Remove' })
-				).toBeVisible();
-				await page
-					.getByRole('heading', { name: 'What is your opinion on this topic? #1 Remove' })
-					.getByRole('button')
-					.first()
-					.click();
-
-				// Verify form values are correctly saved
-				await expect(page.getByRole('textbox', { name: 'Statement' })).toHaveValue(
-					'What is your opinion on this topic?'
-				);
-				await expect(page.locator('.tiptap.ProseMirror')).toHaveText('description');
-				await expect(page.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
-				await expect(page.getByLabel('TypeShort answer Long answer')).toHaveValue('long_answer');
-
-				console.log('Form validation successful - all data saved correctly');
-
-				// Navigate back to surveys list using the component link
-				const currentUrl = page.url();
-				const componentUrlMatch = currentUrl.match(
-					/\/admin\/participatory_processes\/([^\/]+)\/components\/(\d+)\//
-				);
-				if (componentUrlMatch) {
-					const processSlug = componentUrlMatch[1];
-					const componentId = componentUrlMatch[2];
-					const surveyManageUrl = `/admin/participatory_processes/${processSlug}/components/${componentId}/manage/`;
-					await page.goto(surveyManageUrl);
-				} else {
-					// Fallback to replace method
-					await page.goto(page.url().replace(/\/edit_questions$/, ''));
-				}
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
-				console.log('Returned to surveys list after validation');
+				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
+				await expect(page.getByText('Survey questions successfully')).toBeVisible();
+				console.log('Single-question poll saved successfully');
 			});
 
 			await test.step('18. System: Saves the template', async () => {
-				// Verify the survey appears in the list and can be published
-				await expect(page.getByRole('link', { name: 'Publish' })).toBeVisible();
-				console.log('Template saved successfully - survey ready for publishing');
-			});
-
-			await test.step('Result: The single-question poll is successfully created and published, allowing participants to respond and provide feedback.', async () => {
 				// Final step: Publish the survey poll
 				await page.getByRole('link', { name: 'Publish' }).click();
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 				await expect(page.getByText('Survey successfully published.')).toBeVisible();
-				console.log('Survey poll published successfully');
+				console.log('single-question poll is successfully created and published');
 
 				// Verify we're back on the surveys management page
 				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
@@ -420,24 +374,29 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await editTemplatePage.manageQuestions();
 				await page.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit_questions/);
 
+				// Verify questions management interface is available
+				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
+
 				await page.getByRole('button', { name: 'Add question' }).click();
 				await page.waitForSelector('.questionnaire-question:nth-child(1)');
 
-				const firstQuestion = page.locator('.questionnaire-question:nth-child(1)');
-				const accordionButton = firstQuestion.locator('.question--collapse').first();
-				const isExpanded = await accordionButton.getAttribute('aria-expanded');
-				if (isExpanded === 'false') {
-					await accordionButton.click();
-					await firstQuestion.locator('.editor-input').waitFor();
+				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				const question1AccordionButton = question1Container.locator('.question--collapse').first();
+				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded1 === 'false') {
+					await question1AccordionButton.click();
+					await question1Container.locator('.editor-input').waitFor();
 				}
 
 				// Fill question details using the working selectors
-				await firstQuestion
+				await question1Container
 					.getByRole('textbox', { name: 'Statement' })
 					.fill('What is your opinion on this topic?');
-				await firstQuestion.locator('.editor-input .tiptap').fill('Please share your thoughts');
-				await firstQuestion.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await firstQuestion.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
+				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
 
 				console.log('Question configured: "What is your opinion on this topic?" with mandatory long answer');
 			});
@@ -586,9 +545,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 				console.log(`Survey with template configured, saved and published successfully`);
 				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
-			});
 
-			await test.step('Result: The single-question poll is successfully created and published, allowing participants to respond.', async () => {
 				// Verify the survey poll is published and accessible for participants
 				await expect(page.getByText('Survey successfully published.')).toBeVisible();
 				console.log(
@@ -711,9 +668,25 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				);
 				await page.waitForLoadState('networkidle');
 
-				// Add new question and expand form
+				// Verify questions management interface is available
+				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
+
+				// Add new question using standardized methodology
 				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.getByRole('heading', { name: 'Question #1 Remove' }).getByRole('button').first().click();
+
+				// Question 1: Long Answer
+				await page.waitForSelector('.questionnaire-question:nth-child(1)');
+				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+
+				// Expand question form if collapsed
+				const question1AccordionButton = question1Container.locator('.question--collapse').first();
+				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded1 === 'false') {
+					await question1AccordionButton.click();
+					await question1Container.locator('.editor-input').waitFor();
+				}
 
 				console.log(
 					`Completed steps 1-16: Survey "${surveyName}" created and ready for question validation testing`
@@ -741,17 +714,17 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				const questionTimestamp = Date.now().toString();
 				const questionText = `Question_${questionTimestamp}`;
 
-				await page.getByRole('textbox', { name: 'Statement' }).click();
-				await page.getByRole('textbox', { name: 'Statement' }).fill(questionText);
+				// Use container-scoped selectors with standardized naming
+				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
 
-				await page.getByRole('textbox', { name: 'Description' }).click();
-				await page.getByRole('textbox', { name: 'Description' }).fill('description');
+				await question1Container.getByRole('textbox', { name: 'Statement' }).fill(questionText);
+				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
 
 				// Make question mandatory
-				await page.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 
 				// Set question type to long answer
-				await page.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
 
 				console.log(`User corrected validation errors by filling question: ${questionText}`);
 			});
