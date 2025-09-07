@@ -289,16 +289,12 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			});
 
 			await test.step('14. System: Displays the "Add Question" form.', async () => {
-				// Verify the Add Question form is displayed
-				await expect(page.getByRole('heading', { name: /Question #1/ })).toBeVisible();
-				console.log('Add Question form displayed');
+				// Verify questions management interface is available
+				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
 
-				// Expand question form
-				await page
-					.getByRole('heading', { name: /Question #1/ })
-					.getByRole('button')
-					.first()
-					.click();
+				console.log('Questions management interface displayed with add question options');
 			});
 
 			await test.step('15. User: Fills in the Question Form: Statement: Adds the main question, Type: select question types, Mandatory: check if must be answered before submitting', async () => {
@@ -687,6 +683,11 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			await test.step('Setup: Add questions to template', async () => {
 				await editTemplatePage.manageQuestions();
 				await page.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit_questions/);
+
+				// Verify questions management interface is available
+				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
 
 				// Question 1: Long Answer
 				await page.getByRole('button', { name: 'Add question' }).click();
@@ -1282,6 +1283,11 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
 				);
 				await page.waitForLoadState('networkidle');
+
+				// Verify questions management interface is available
+				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
 
 				// Question 1: Long Answer
 				await page.getByRole('button', { name: 'Add question' }).click();
