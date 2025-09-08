@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jitsi-config
+  namespace: participate
+data:
+  # General configuration
+  DOCKER_HOST_ADDRESS: "127.0.0.1"
+  PUBLIC_URL: "https://localhost:8443"
+  TZ: "Europe/Rome"
+  
+  # XMPP configuration
+  XMPP_DOMAIN: "meet.jitsi"
+  XMPP_SERVER: "jitsi-prosody"
+  XMPP_BOSH_URL_BASE: "http://jitsi-prosody:5280"
+  XMPP_AUTH_DOMAIN: "auth.meet.jitsi"
+  XMPP_MUC_DOMAIN: "muc.meet.jitsi"
+  XMPP_INTERNAL_MUC_DOMAIN: "internal-muc.meet.jitsi"
+  XMPP_GUEST_DOMAIN: "guest.meet.jitsi"
+  XMPP_RECORDER_DOMAIN: "recorder.meet.jitsi"
+  XMPP_MODULES: ""
+  
+  # JVB configuration
+  JVB_BREWERY_MUC: "jvbbrewery"
+  JVB_AUTH_USER: "jvb"
+  JVB_PORT: "10000"
+  JVB_STUN_SERVERS: "stun.l.google.com:19302,stun1.l.google.com:19302"
+  JVB_ENABLE_APIS: "rest,colibri"
+  
+  # Jicofo configuration
+  JICOFO_AUTH_USER: "focus"
+  
+  # Authentication configuration
+  ENABLE_AUTH: "1"
+  ENABLE_GUESTS: "1"
+  AUTH_TYPE: "jwt"
+  
+  # JWT configuration
+  JITSI_APP_ID: "decidim_app"
+  JITSI_JWT_ALGORITHM: "HS256"

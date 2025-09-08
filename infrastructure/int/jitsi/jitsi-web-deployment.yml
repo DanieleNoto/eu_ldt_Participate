@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jitsi-web
+  namespace: participate
+  labels:
+    app: jitsi
+    component: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jitsi
+      component: web
+  template:
+    metadata:
+      labels:
+        app: jitsi
+        component: web
+    spec:
+      containers:
+      - name: web
+        image: jitsi/web:stable-8960
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        envFrom:
+        - configMapRef:
+            name: jitsi-config
+        - secretRef:
+            name: jitsi-secrets
+        volumeMounts:
+        - name: web-config
+          mountPath: /config
+      volumes:
+      - name: web-config
+        persistentVolumeClaim:
+          claimName: jitsi-web-pvc
