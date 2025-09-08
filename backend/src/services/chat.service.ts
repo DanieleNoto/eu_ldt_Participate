@@ -4,7 +4,7 @@ import Conversation from '../models/entities/conversation.model';
 import { loadTree, QATree } from '../utils/qaTree';
 
 export class ChatService {
-	private _tree: QATree;
+	private readonly _tree: QATree;
 
 	constructor() {
 		this._tree = loadTree();
@@ -16,8 +16,8 @@ export class ChatService {
 	async handleRequest(
 		conversationId: string,
 		nodeId: string | undefined,
-		language: string = 'en',
-		request: FastifyRequest
+		request: FastifyRequest,
+		language: string = 'en'
 	) {
 		const root = this._tree['root'];
 		const node = nodeId && this._tree[nodeId] ? this._tree[nodeId] : root;

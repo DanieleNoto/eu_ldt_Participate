@@ -61,7 +61,7 @@ class ChatbotWebElement extends HTMLElement {
 			this._unmount();
 		}
 
-		const language = this.getAttribute('language') || 'en';
+		const language = this.getAttribute('language') ?? 'en';
 		
 		try {
 			this._root = createRoot(this);

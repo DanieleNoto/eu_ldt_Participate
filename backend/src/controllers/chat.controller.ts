@@ -4,7 +4,7 @@ import { ChatRequestSchema, ChatResponseSchema } from '../schemas/chat.schema';
 import { ChatService } from '../services/chat.service';
 
 class ChatController {
-	private _chatService = new ChatService();
+	private readonly _chatService = new ChatService();
 
 	async chat(request: FastifyRequest, reply: FastifyReply) {
 		const { conversationId, nodeId, language } = ChatRequestSchema.parse(request.body);
@@ -16,7 +16,7 @@ class ChatController {
 			suggestions,
 			faqs,
 			isLeaf
-		} = await this._chatService.handleRequest(convId, nodeId, language, request);
+		} = await this._chatService.handleRequest(convId, nodeId, request, language);
 
 		const response = {
 			conversationId: cid,

@@ -1,6 +1,5 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { Root } from 'react-dom/client';
+import { createRoot, Root } from 'react-dom/client';
 import ChatbotWebComponent from './shared/components/Chatbot/ChatbotWebComponent';
 
 class ChatbotCustomElement extends HTMLElement {
@@ -51,7 +50,7 @@ class ChatbotCustomElement extends HTMLElement {
 	private _render() {
 		if (!this._root) return;
 		
-		const language = this.getAttribute('language') || 'en';
+		const language = this.getAttribute('language') ?? 'en';
 		
 		try {
 			this._root.render(

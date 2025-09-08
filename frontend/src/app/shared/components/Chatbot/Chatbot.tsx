@@ -17,6 +17,21 @@ import {
 	ChatRequestModel
 } from './models/chat.models';
 
+// Avatar component for chat messages
+interface AvatarProps {
+	size?: number;
+}
+
+const Avatar: React.FC<AvatarProps> = ({ size = 36 }) => (
+	<div
+		className={`flex items-center justify-center rounded-full bg-[#3F51B5] text-white shrink-0`}
+		style={{ width: size, height: size }}
+		aria-hidden="true"
+	>
+		<PersonIcon style={{ fontSize: Math.round(size * 0.67) }} />
+	</div>
+);
+
 interface ChatbotProps {
 	onSupportSent?: () => void;
 	className?: string;
@@ -223,41 +238,27 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 		}
 	};
 
-	// Helper avatar (matches Figma design with person icon)
-	const Avatar = ({ size = 36 }: { size?: number }) => (
-		<div
-			className={`flex items-center justify-center rounded-full bg-[#3F51B5] text-white shrink-0`}
-			style={{ width: size, height: size }}
-			aria-hidden="true"
-		>
-			<PersonIcon style={{ fontSize: Math.round(size * 0.67) }} />
-		</div>
-	);
-
 	// Early return: floating button when closed
 	if (!open) {
 		return (
-			<>
-				<button
-					ref={fabRef}
-					className="fixed bottom-5 right-5 w-14 h-14 rounded-full bg-[#3F51B5] text-white shadow-lg shadow-black/25 flex items-center justify-center hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition z-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
-					aria-label={t('chatbot.openHelpAssistant')}
-					onClick={() => setOpen(true)}
-				>
-					<ChatBubbleOutlineIcon fontSize="medium" />
-				</button>
-			</>
+			<button
+				ref={fabRef}
+				className="fixed bottom-5 right-5 w-14 h-14 rounded-full bg-[#3F51B5] text-white shadow-lg shadow-black/25 flex items-center justify-center hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition z-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
+				aria-label={t('chatbot.openHelpAssistant')}
+				onClick={() => setOpen(true)}
+			>
+				<ChatBubbleOutlineIcon fontSize="medium" />
+			</button>
 		);
 	}
 
 	const lastBotMessage = [...messages].reverse().find(m => m.from === 'bot');
 	return (
 		<div className="fixed bottom-24 right-5 z-50">
-			<div
+			<dialog
 				className={`flex flex-col w-[430px] h-[600px] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] ${className || ''}`}
-				role="dialog"
-				aria-modal="true"
 				aria-labelledby="chatbot-header-title"
+				open
 			>
 				{/* Header - conditional based on FAQ detail mode */}
 				<div className="flex items-center gap-3 h-[72px] px-6 py-3 border-b border-[#D2D7DB] bg-white relative">
@@ -321,9 +322,9 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 									{t('chatbot.ifYouNeedMoreHelp')}
 								</div>
 								<button
-								onClick={startSupport}
-								disabled={supportMode || loading}
-								className="self-start px-6 py-2.5 h-10 text-[14px] font-bold tracking-[0.1px] rounded-lg border border-[#6F797A] bg-white text-[#004494] hover:bg-[#F6F8FA] focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition disabled:opacity-50"
+									onClick={startSupport}
+									disabled={supportMode || loading}
+									className="self-start px-6 py-2.5 h-10 text-[14px] font-bold tracking-[0.1px] rounded-lg border border-[#6F797A] bg-white text-[#004494] hover:bg-[#F6F8FA] focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition disabled:opacity-50"
 									style={{ fontFamily: "'Open Sans', sans-serif" }}
 								>
 									{t('chatbot.askSupport')}
@@ -563,7 +564,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 						)}
 					</div>
 				)}
-			</div>
+			</dialog>
 		</div>
 	);
 };
