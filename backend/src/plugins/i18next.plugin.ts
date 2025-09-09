@@ -12,7 +12,7 @@ export default fp(async function (fastify, opts) {
 		.use(backend)
 		.init({
 			fallbackLng: 'en',
-			preload: ['en', 'es'],
+			preload: ['en', 'es', 'fr', 'de'],
 			backend: {
 				loadPath: path.join(__dirname, '..', 'i18n', '{{lng}}', 'translation.json')
 			}

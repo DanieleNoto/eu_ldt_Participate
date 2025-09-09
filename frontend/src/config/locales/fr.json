@@ -1,0 +1,19 @@
+{
+	"chatbot": {
+		"title": "Chat",
+		"openHelpAssistant": "Ouvrir l'assistant d'aide",
+		"closeHelpAssistant": "Fermer l'assistant d'aide",
+		"goBackToFaqList": "Retourner à la liste des questions fréquentes",
+		"chatWithVirtualAssistant": "Discuter avec l'assistant virtuel",
+		"suggestions": "Suggestions",
+		"hereArePossibleAnswers": "Voici les réponses possibles liées à la question :",
+		"ifYouNeedMoreHelp": "Si vous avez besoin de plus d'aide :",
+		"askSupport": "Demander de l'aide",
+		"orSelectAnotherTopic": "Ou sélectionnez un autre sujet :",
+		"describeYourIssue": "Décrivez votre problème",
+		"typeHere": "Écrivez ici...",
+		"cancel": "Annuler",
+		"send": "Envoyer",
+		"supportRequestSent": "Demande d'assistance envoyée. Notre équipe vous contactera."
+	}
+}

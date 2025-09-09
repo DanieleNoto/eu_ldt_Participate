@@ -119,14 +119,26 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 		initializationRef.current = false;
 	};
 
+	const scrollToBottom = () => {
+		setTimeout(() => {
+			try {
+				if (bottomRef.current) {
+					const chatContainer = bottomRef.current.closest('[role="log"], .overflow-y-auto');
+					if (chatContainer) {
+						chatContainer.scrollTo({
+							top: chatContainer.scrollHeight,
+							behavior: 'smooth'
+						});
+					}
+				}
+			} catch (e) {}
+		}, 100); // Increased delay slightly for better visual timing
+	};
+
 	const startSupport = () => {
 		setSupportMode(true);
 		setSupportText('');
-		setTimeout(() => {
-			try {
-				bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-			} catch (e) {}
-		}, 50);
+		scrollToBottom();
 	};
 
 	const closeChat = () => {
@@ -189,7 +201,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 	}, [open]);
 
 	useEffect(() => {
-		bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+		scrollToBottom();
 	}, [messages]);
 
 	const handleSuggestionClick = (s: Suggestion) => {
@@ -217,11 +229,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 		setPreviousFaqs([]);
 		setPreviousSuggestions([]);
 
-		setTimeout(() => {
-			try {
-				bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-			} catch (e) {}
-		}, 50);
+		scrollToBottom();
 	};
 
 	const handleOption = (action: string) => {
@@ -243,7 +251,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 		return (
 			<button
 				ref={fabRef}
-				className="fixed bottom-5 right-5 w-14 h-14 rounded-full bg-[#3F51B5] text-white shadow-lg shadow-black/25 flex items-center justify-center hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition z-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
+				className="fixed bottom-5 right-5 w-14 h-14 rounded-full bg-[#3F51B5] text-white shadow-lg shadow-black/25 flex items-center justify-center hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 z-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
 				aria-label={t('chatbot.openHelpAssistant')}
 				onClick={() => setOpen(true)}
 			>
@@ -254,17 +262,17 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 
 	const lastBotMessage = [...messages].reverse().find(m => m.from === 'bot');
 	return (
-		<div className="fixed bottom-24 right-5 z-50">
-			<dialog
-				className={`flex flex-col w-[430px] h-[600px] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] ${className || ''}`}
-				aria-labelledby="chatbot-header-title"
-				open
-			>
+		   <dialog
+			   style={{position: 'fixed', left: 'auto', right: 20, bottom: 24, zIndex: 9999, padding: 0, margin: 0}}
+			   className={`flex flex-col w-[430px] max-w-[95vw] h-[600px] max-h-[95vh] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className || ''}`}
+			   aria-labelledby="chatbot-header-title"
+			   open
+		   >
 				{/* Header - conditional based on FAQ detail mode */}
 				<div className="flex items-center gap-3 h-[72px] px-6 py-3 border-b border-[#D2D7DB] bg-white relative">
 					{faqDetailMode && (
 						<button
-							className="w-12 h-12 flex items-center justify-center text-[#696F72] hover:bg-black/5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 -ml-2"
+							className="w-12 h-12 flex items-center justify-center text-[#696F72] hover:bg-black/5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 -ml-2 transition-all duration-200 hover:scale-110"
 							aria-label={t('chatbot.goBackToFaqList')}
 							onClick={goBackFromFaqDetail}
 						>
@@ -280,7 +288,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 					</h2>
 					<button
 						ref={closeBtnRef}
-						className="w-8 h-8 flex items-center justify-center text-[#696F72] hover:bg-black/5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
+						className="w-8 h-8 flex items-center justify-center text-[#696F72] hover:bg-black/5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-110"
 						aria-label={t('chatbot.closeHelpAssistant')}
 						onClick={closeChat}
 					>
@@ -290,8 +298,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 
 				{/* Conditional content based on FAQ detail mode */}
 				{faqDetailMode && selectedFaq ? (
-					/* FAQ Detail View - matches Figma design exactly */
-					<div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+					<div style={{height: 'calc(600px - 72px - 80px)', maxHeight: 'calc(95vh - 72px - 80px)'}} className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6">
 						{/* Bot message introducing the question */}
 						<div className="flex items-start gap-4 w-full">
 							<Avatar size={36} />
@@ -336,7 +343,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 						{faqMessages.map(m => (
 							<div
 								key={m.id}
-								className={`flex items-start gap-4 w-full ${m.from === 'user' ? 'flex-row-reverse' : ''}`}
+								className={`flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-300 ${m.from === 'user' ? 'flex-row-reverse' : ''}`}
 							>
 								<Avatar size={36} />
 								<div
@@ -352,8 +359,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 					</div>
 				) : (
 					/* Regular chat view */
-					<div
-						className="flex-1 overflow-y-auto px-6 py-4 space-y-6"
+					<div style={{height: 'calc(600px - 72px - 80px)', maxHeight: 'calc(95vh - 72px - 80px)'}} className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6"
 						role="log"
 						aria-live="polite"
 						aria-relevant="additions text"
@@ -406,7 +412,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 							const showSuggestions = isLastBotMessage && suggestions.length > 0;
 
 							return (
-								<div key={m.id} className="flex flex-col gap-4">
+								<div key={m.id} className="flex flex-col gap-4 animate-in slide-in-from-bottom-2 duration-300">
 									<div
 										className={`flex items-start gap-4 w-full ${m.from === 'user' ? 'flex-row-reverse' : ''}`}
 									>
@@ -421,7 +427,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 
 									{/* Show FAQ list after bot message */}
 									{showFaqs && (
-										<div className="flex items-start gap-4 w-full">
+										<div className="flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-400">
 											<div className="w-9 flex-shrink-0" />{' '}
 											{/* Spacer for alignment with avatar */}
 											<ul className="flex flex-col gap-2 list-disc pl-6">
@@ -430,7 +436,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 														<button
 															disabled={loading}
 															onClick={() => handleFaqClick(faq)}
-															className="text-left text-[16px] font-bold leading-[24px] tracking-[0.5px] text-[#004494] underline hover:text-[#003366] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition"
+															className="text-left text-[16px] font-bold leading-[24px] tracking-[0.5px] text-[#004494] underline hover:text-[#003366] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200"
 															style={{ fontFamily: "'Open Sans', sans-serif" }}
 														>
 															{faq.question}
@@ -443,7 +449,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 
 									{/* Show suggestion chips after the FAQ list or when no FAQs */}
 									{showSuggestions && (
-										<div className="flex items-start gap-4 w-full">
+										<div className="flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-500">
 											<div className="w-9 flex-shrink-0" />{' '}
 											{/* Spacer for alignment with avatar */}
 											<div className="flex flex-col gap-3">
@@ -465,7 +471,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 															key={s.id}
 															disabled={loading}
 															onClick={() => handleSuggestionClick(s)}
-															className="px-4 py-1.5 h-8 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition"
+															className="px-4 py-1.5 h-8 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
 															style={{ fontFamily: "'Open Sans', sans-serif" }}
 														>
 															{s.text}
@@ -503,13 +509,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 							<>
 								{/* Option buttons (restart/support) - only show these, not suggestion chips */}
 								{options && (
-									<div className="flex flex-wrap gap-2">
+									<div className="flex flex-wrap gap-2 animate-in slide-in-from-bottom-2 duration-300">
 										{options.map(o => (
 											<button
 												key={o.action}
 												disabled={loading}
 												onClick={() => handleOption(o.action)}
-												className="px-3 py-1.5 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition"
+												className="px-3 py-1.5 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
 												style={{ fontFamily: "'Open Sans', sans-serif" }}
 											>
 												{o.label}
@@ -546,7 +552,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 										type="button"
 										onClick={() => setSupportMode(false)}
 										disabled={loading}
-										className="px-5 py-2 rounded-lg border border-[#BFC8CA] bg-white text-[14px] tracking-[0.1px] text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
+										className="px-5 py-2 rounded-lg border border-[#BFC8CA] bg-white text-[14px] tracking-[0.1px] text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
 										style={{ fontFamily: "'Open Sans', sans-serif" }}
 									>
 										{t('chatbot.cancel')}
@@ -554,7 +560,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 									<button
 										type="submit"
 										disabled={loading || !supportText.trim()}
-										className="px-5 py-2 rounded-lg bg-[#004494] text-white text-[14px] tracking-[0.1px] font-medium hover:brightness-110 disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#004494]/40"
+										className="px-5 py-2 rounded-lg bg-[#004494] text-white text-[14px] tracking-[0.1px] font-medium hover:brightness-110 disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#004494]/40 transition-all duration-200 hover:scale-105 hover:shadow-lg"
 										style={{ fontFamily: "'Open Sans', sans-serif" }}
 									>
 										{t('chatbot.send')}
@@ -564,9 +570,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 						)}
 					</div>
 				)}
-			</dialog>
-		</div>
-	);
+		   </dialog>
+	   );
 };
 
 export default Chatbot;

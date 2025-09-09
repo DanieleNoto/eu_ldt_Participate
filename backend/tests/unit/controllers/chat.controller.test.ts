@@ -74,8 +74,8 @@ describe('ChatController', () => {
 			expect(mockChatServiceInstance.handleRequest).toHaveBeenCalledWith(
 				'123e4567-e89b-12d3-a456-426614174000',
 				'node-1',
-				'en',
-				mockRequest
+				mockRequest,
+				'en'
 			);
 
 			expect(mockReply.send).toHaveBeenCalledWith({
@@ -110,8 +110,8 @@ describe('ChatController', () => {
 			expect(mockChatServiceInstance.handleRequest).toHaveBeenCalledWith(
 				'123e4567-e89b-12d3-a456-426614174000',
 				'node-1',
-				'en',
-				mockRequest
+				mockRequest,
+				'en'
 			);
 
 			expect(mockReply.send).toHaveBeenCalledWith({
@@ -221,8 +221,8 @@ describe('ChatController', () => {
 			expect(mockChatServiceInstance.handleRequest).toHaveBeenCalledWith(
 				'123e4567-e89b-12d3-a456-426614174000',
 				undefined,
-				'en',
-				mockRequest
+				mockRequest,
+				'en'
 			);
 
 			expect(mockReply.send).toHaveBeenCalledWith({
@@ -261,8 +261,8 @@ describe('ChatController', () => {
 			expect(mockChatServiceInstance.handleRequest).toHaveBeenCalledWith(
 				'123e4567-e89b-12d3-a456-426614174000',
 				'node-1',
-				'es',
-				mockRequest
+				mockRequest,
+				'es'
 			);
 
 			expect(mockReply.send).toHaveBeenCalledWith({
@@ -291,8 +291,8 @@ describe('ChatController', () => {
 			expect(mockChatServiceInstance.handleRequest).toHaveBeenCalledWith(
 				'123e4567-e89b-12d3-a456-426614174000',
 				'error-node',
-				'en',
-				mockRequest
+				mockRequest,
+				'en'
 			);
 		});
 	});

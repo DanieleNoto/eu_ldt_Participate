@@ -100,8 +100,8 @@ describe('ChatService', () => {
 			const result = await chatService.handleRequest(
 				'test-conv-id',
 				undefined,
-				'en',
-				mockRequest as FastifyRequest
+				mockRequest as FastifyRequest,
+				'en'
 			);
 
 			expect(result).toEqual({
@@ -126,8 +126,8 @@ describe('ChatService', () => {
 			const result = await chatService.handleRequest(
 				'test-conv-id',
 				'node1',
-				'en',
-				mockRequest as FastifyRequest
+				mockRequest as FastifyRequest,
+				'en'
 			);
 
 			expect(result).toEqual({
@@ -152,7 +152,7 @@ describe('ChatService', () => {
 		});
 
 		it('should execute handler when handlerId is present', async () => {
-			await chatService.handleRequest('test-conv-id', 'node2', 'en', mockRequest as FastifyRequest);
+			await chatService.handleRequest('test-conv-id', 'node2', mockRequest as FastifyRequest, 'en');
 
 			expect(mockExecute).toHaveBeenCalledWith('testHandler', {
 				nodeId: 'node2',
@@ -166,8 +166,8 @@ describe('ChatService', () => {
 			const result = await chatService.handleRequest(
 				'test-conv-id',
 				'leafNode',
-				'en',
-				mockRequest as FastifyRequest
+				mockRequest as FastifyRequest,
+				'en'
 			);
 
 			expect(result.isLeaf).toBe(true);
@@ -179,8 +179,8 @@ describe('ChatService', () => {
 			const result = await chatService.handleRequest(
 				'test-conv-id',
 				'non-existent-node',
-				'en',
-				mockRequest as FastifyRequest
+				mockRequest as FastifyRequest,
+				'en'
 			);
 
 			expect(result).toEqual({
@@ -227,8 +227,8 @@ describe('ChatService', () => {
 			const result = await chatService.handleRequest(
 				'test-conv-id',
 				'node1',
-				'en',
-				mockRequest as FastifyRequest
+				mockRequest as FastifyRequest,
+				'en'
 			);
 
 			expect(result.suggestions).toEqual([
@@ -248,8 +248,8 @@ describe('ChatService', () => {
 			const result = await chatService.handleRequest(
 				'test-conv-id',
 				'testNode',
-				'en',
-				mockRequest as FastifyRequest
+				mockRequest as FastifyRequest,
+				'en'
 			);
 
 			expect(result.answer).toBe('test.question');
@@ -259,7 +259,7 @@ describe('ChatService', () => {
 			mockConversation.create = jest.fn().mockRejectedValue(new Error('Database error'));
 
 			await expect(
-				chatService.handleRequest('test-conv-id', 'root', 'en', mockRequest as FastifyRequest)
+				chatService.handleRequest('test-conv-id', 'root', mockRequest as FastifyRequest, 'en')
 			).rejects.toThrow('Database error');
 		});
 
@@ -267,7 +267,7 @@ describe('ChatService', () => {
 			mockExecute.mockRejectedValue(new Error('Handler error'));
 
 			await expect(
-				chatService.handleRequest('test-conv-id', 'node2', 'en', mockRequest as FastifyRequest)
+				chatService.handleRequest('test-conv-id', 'node2', mockRequest as FastifyRequest, 'en')
 			).rejects.toThrow('Handler error');
 
 			expect(mockExecute).toHaveBeenCalled();
@@ -279,8 +279,8 @@ describe('ChatService', () => {
 			const result = await chatService.handleRequest(
 				'test-conv-id',
 				'node1',
-				'en',
-				mockRequest as FastifyRequest
+				mockRequest as FastifyRequest,
+				'en'
 			);
 
 			expect(result.faqs).toEqual([]);
@@ -293,8 +293,8 @@ describe('ChatService', () => {
 			const result = await chatService.handleRequest(
 				'test-conv-id',
 				'node1',
-				'en',
-				mockRequest as FastifyRequest
+				mockRequest as FastifyRequest,
+				'en'
 			);
 
 			expect(result.answer).toBe('node1.answer');
