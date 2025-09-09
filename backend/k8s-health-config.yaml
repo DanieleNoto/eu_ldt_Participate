@@ -1,0 +1,286 @@
+# Kubernetes Health Check Configuration
+# This file provides templates for integrating the health monitoring system with Kubernetes
+
+---
+# Deployment with Health Checks
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: euldt-participate-backend
+  namespace: default
+  labels:
+    app: euldt-participate-backend
+    component: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: euldt-participate-backend
+  template:
+    metadata:
+      labels:
+        app: euldt-participate-backend
+        component: backend
+    spec:
+      containers:
+      - name: backend
+        image: euldt-participate-backend:latest
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DATABASE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: host
+        - name: DATABASE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: username
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: password
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: url
+        # Health Check Configuration
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        # Startup probe for slower initial startup
+        startupProbe:
+          httpGet:
+            path: /health/live
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 30
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+# Service for Backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: euldt-participate-backend-service
+  namespace: default
+  labels:
+    app: euldt-participate-backend
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  selector:
+    app: euldt-participate-backend
+
+---
+# ServiceMonitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: euldt-participate-backend-health
+  namespace: default
+  labels:
+    app: euldt-participate-backend
+spec:
+  selector:
+    matchLabels:
+      app: euldt-participate-backend
+  endpoints:
+  - port: http
+    path: /health
+    interval: 30s
+    scrapeTimeout: 10s
+    honorLabels: true
+    metricRelabelings:
+    - sourceLabels: [__name__]
+      regex: 'health_check_.*'
+      targetLabel: __name__
+      replacement: 'euldt_${1}'
+
+---
+# PrometheusRule for Alerting
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: euldt-participate-backend-alerts
+  namespace: default
+  labels:
+    app: euldt-participate-backend
+spec:
+  groups:
+  - name: euldt-participate-backend.rules
+    rules:
+    - alert: BackendServiceDown
+      expr: up{job="euldt-participate-backend-health"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "EU LDT Participate Backend service is down"
+        description: "The EU LDT Participate Backend service has been down for more than 1 minute."
+    
+    - alert: BackendServiceUnhealthy
+      expr: health_check_status != 1
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "EU LDT Participate Backend service is unhealthy"
+        description: "The EU LDT Participate Backend service health check is failing."
+    
+    - alert: DatabaseConnectionIssue
+      expr: health_check_database_status != 1
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Database connection issue"
+        description: "The backend service cannot connect to the database."
+    
+    - alert: RedisConnectionIssue
+      expr: health_check_redis_status != 1
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Redis connection issue"
+        description: "The backend service cannot connect to Redis."
+
+---
+# HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: euldt-participate-backend-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: euldt-participate-backend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+
+---
+# PodDisruptionBudget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: euldt-participate-backend-pdb
+  namespace: default
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: euldt-participate-backend
+
+---
+# Network Policy (Optional - for additional security)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: euldt-participate-backend-netpol
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: euldt-participate-backend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 3000
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: database
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53

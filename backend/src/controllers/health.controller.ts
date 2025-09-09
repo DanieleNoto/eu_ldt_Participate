@@ -28,6 +28,22 @@ class HealthController extends BaseController {
 			fnc: this.service.live
 		});
 	}
+
+	async serviceStatuses(req: FastifyRequest<{}>, reply: FastifyReply) {
+		await BaseController.execute({
+			req,
+			reply,
+			fnc: this.service.getServiceStatuses
+		});
+	}
+
+	async kubernetes(req: FastifyRequest<{}>, reply: FastifyReply) {
+		await BaseController.execute({
+			req,
+			reply,
+			fnc: this.service.getKubernetesHealthCheck
+		});
+	}
 }
 
 export default new HealthController();
