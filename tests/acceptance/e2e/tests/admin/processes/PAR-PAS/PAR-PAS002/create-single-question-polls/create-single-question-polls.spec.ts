@@ -253,6 +253,12 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await expect(page.getByRole('textbox', { name: 'title' })).toBeVisible();
 				await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible();
 
+				// Verify that the fields are empty as expected for a new questionnaire
+				await expect(page.getByRole('textbox', { name: 'title' })).toHaveValue('');
+
+				const descriptionField = page.getByRole('textbox', { name: 'Description' }).first();
+				await expect(descriptionField).toHaveText('');
+
 				console.log('Empty questionnaire form displayed with survey configuration options');
 			});
 
