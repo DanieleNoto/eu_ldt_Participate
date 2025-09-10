@@ -524,6 +524,16 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			});
 
 			await test.step('10.2. System: Create the new questionnaire based on selected template and displays options for adding survey elements', async () => {
+				// Verify the empty questionnaire form is displayed initially
+				await expect(page.getByRole('textbox', { name: 'title' })).toBeVisible();
+				await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible();
+
+				// Verify that the fields are empty as expected for a new questionnaire from template
+				await expect(page.getByRole('textbox', { name: 'title' })).toHaveValue('');
+
+				const descriptionField = page.getByRole('textbox', { name: 'Description' }).first();
+				await expect(descriptionField).toHaveText('');
+
 				// Generate timestamp for survey name
 				const surveyTimestamp = Date.now().toString();
 				const surveyName = `survey_template_${surveyTimestamp}`;
@@ -681,6 +691,16 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				}
 
 				// Configure survey details
+				// First verify that the questionnaire form is empty as expected
+				await expect(page.getByRole('textbox', { name: 'title' })).toBeVisible();
+				await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible();
+
+				// Verify that the fields are empty as expected for a new questionnaire
+				await expect(page.getByRole('textbox', { name: 'title' })).toHaveValue('');
+
+				const descriptionField = page.getByRole('textbox', { name: 'Description' }).first();
+				await expect(descriptionField).toHaveText('');
+
 				const surveyTimestamp = Date.now().toString();
 				const surveyName = `survey_${surveyTimestamp}`;
 
