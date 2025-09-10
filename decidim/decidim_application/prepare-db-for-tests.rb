@@ -48,63 +48,69 @@ begin
 
   # Create basic users for the organization to allow seeds to work properly
   puts "--- Creating basic users ---"
-  begin
-    # Create system admin user (for /system access)
-    puts "--- Creating system user... ---"
-    system_user = Decidim::User.find_or_create_by!(
-      email: "system@example.org",
-      organization: org
-    ) do |user|
-      user.name = "System Administrator"
-      user.nickname = "system"
-      user.password = "decidim123456789"
-      user.password_confirmation = "decidim123456789"
-      user.confirmed_at = Time.current
-      user.admin = true
-      user.tos_agreement = true
-    end
-    puts "--- System user created: #{system_user.email} (for /system access) ---"
+  # Only create basic users when not running in the development environment.
+  # Detect via Rails.env if available, or fall back to ENV['RAILS_ENV'].
+  if (defined?(Rails) && Rails.env.development?) || ENV["RAILS_ENV"] == "development"
+    puts "--- Skipping creation of basic users because environment is development ---"
+  else
+    begin
+      # Create system admin user (for /system access)
+      puts "--- Creating system user... ---"
+      system_user = Decidim::User.find_or_create_by!(
+        email: "system@example.org",
+        organization: org
+      ) do |user|
+        user.name = "System Administrator"
+        user.nickname = "system"
+        user.password = "decidim123456789"
+        user.password_confirmation = "decidim123456789"
+        user.confirmed_at = Time.current
+        user.admin = true
+        user.tos_agreement = true
+      end
+      puts "--- System user created: #{system_user.email} (for /system access) ---"
 
-    # Create organization admin user
-    puts "--- Creating admin user... ---"
-    admin_user = Decidim::User.find_or_create_by!(
-      email: "admin@example.org",
-      organization: org
-    ) do |user|
-      user.name = "Organization Admin"
-      user.nickname = "admin"
-      user.password = "decidim123456789"
-      user.password_confirmation = "decidim123456789"
-      user.confirmed_at = Time.current
-      user.admin = true
-      user.tos_agreement = true
-    end
-    puts "--- Admin user created: #{admin_user.email} ---"
+      # Create organization admin user
+      puts "--- Creating admin user... ---"
+      admin_user = Decidim::User.find_or_create_by!(
+        email: "admin@example.org",
+        organization: org
+      ) do |user|
+        user.name = "Organization Admin"
+        user.nickname = "admin"
+        user.password = "decidim123456789"
+        user.password_confirmation = "decidim123456789"
+        user.confirmed_at = Time.current
+        user.admin = true
+        user.tos_agreement = true
+      end
+      puts "--- Admin user created: #{admin_user.email} ---"
 
-    # Create regular user
-    puts "--- Creating regular user... ---"
-    regular_user = Decidim::User.find_or_create_by!(
-      email: "user@example.org",
-      organization: org
-    ) do |user|
-      user.name = "Regular User"
-      user.nickname = "user"
-      user.password = "decidim123456789"
-      user.password_confirmation = "decidim123456789"
-      user.confirmed_at = Time.current
-      user.admin = false
-      user.tos_agreement = true
+      # Create regular user
+      puts "--- Creating regular user... ---"
+      regular_user = Decidim::User.find_or_create_by!(
+        email: "user@example.org",
+        organization: org
+      ) do |user|
+        user.name = "Regular User"
+        user.nickname = "user"
+        user.password = "decidim123456789"
+        user.password_confirmation = "decidim123456789"
+        user.confirmed_at = Time.current
+        user.admin = false
+        user.tos_agreement = true
+      end
+      puts "--- Regular user created: #{regular_user.email} ---"
+    rescue => e
+      puts "--- Error creating basic users: #{e.message} ---"
+      puts "--- User creation failed with: #{e.class} ---"
+      if e.respond_to?(:record) && e.record.respond_to?(:errors)
+        puts "--- Validation errors: #{e.record.errors.full_messages} ---"
+      end
+      puts "--- Backtrace: ---"
+      puts e.backtrace.first(10).join("\n")
+      # Don't exit, continue with seed attempts
     end
-    puts "--- Regular user created: #{regular_user.email} ---"
-  rescue => e
-    puts "--- Error creating basic users: #{e.message} ---"
-    puts "--- User creation failed with: #{e.class} ---"
-    if e.respond_to?(:record) && e.record.respond_to?(:errors)
-      puts "--- Validation errors: #{e.record.errors.full_messages} ---"
-    end
-    puts "--- Backtrace: ---"
-    puts e.backtrace.first(10).join("\n")
-    # Don't exit, continue with seed attempts
   end
 
   puts "--- Basic data preparation completed successfully ---"
