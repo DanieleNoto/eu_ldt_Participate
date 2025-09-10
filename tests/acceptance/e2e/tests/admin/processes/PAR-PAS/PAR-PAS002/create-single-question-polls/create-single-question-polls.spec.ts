@@ -80,33 +80,53 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			console.log('New process created:', validProcessData.general.title);
 			console.log('Process URL:', page.url());
 
-			// Navigate back to processes list using direct navigation
-			await page.goto('/admin/participatory_processes');
-			await page.waitForLoadState('networkidle');
+			// Store the process slug for later use (extract from current URL)
+			const currentUrl = page.url();
+			const processSlugMatch = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
+			const processSlug = processSlugMatch ? processSlugMatch[1] : '';
 
-			// Search for the created process by title
-			await page.getByRole('searchbox', { name: 'Search Participatory' }).click();
-			await page.getByRole('searchbox', { name: 'Search Participatory' }).fill(validProcessData.general.title);
-			await page.getByRole('button', { name: 'Search' }).click();
-
-			// Click on the created process to open edit page
-			await page
-				.getByRole('link', {
-					name:
-						validProcessData.general.title.split(' ')[0] +
-						' ' +
-						validProcessData.general.title.split(' ')[1]
-				})
-				.click();
-
-			// Wait for edit page to load and store the URL
-			await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+			// Navigate to the process edit page directly and store URL
+			await page.goto(`/admin/participatory_processes/${processSlug}/edit`);
 			await page.waitForLoadState('networkidle');
 
 			// Store the process edit URL for later use
 			processEditUrl = page.url();
 			console.log('Process edit URL stored:', processEditUrl);
 		});
+	}
+
+	/**
+	 * Helper function to search and select a process by title
+	 */
+	async function searchAndSelectProcess(page: any, processTitle: string) {
+		const processSearchParticipatory = page.getByRole('searchbox', { name: 'Search Participatory' });
+		await processSearchParticipatory.click();
+		await processSearchParticipatory.fill(processTitle);
+		await page.getByRole('button', { name: 'Search' }).click();
+
+		// Click on the created process to open edit page
+		await page
+			.getByRole('link', {
+				name: processTitle.split(' ')[0] + ' ' + processTitle.split(' ')[1]
+			})
+			.click();
+	}
+
+	/**
+	 * Helper function to configure step settings announcement
+	 */
+	async function configureStepAnnouncement(page: any, announcementText: string) {
+		await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
+		await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').fill(announcementText);
+	}
+
+	/**
+	 * Helper function to verify published survey questions count
+	 */
+	async function verifyPublishedQuestionsCount(page: any, expectedCount: number, flowDescription: string) {
+		// Verify the cell with the expected count is visible to confirm the survey was created
+		await expect(page.getByRole('cell', { name: expectedCount.toString(), exact: true })).toBeVisible();
+		console.log(`Verified ${flowDescription}: ${expectedCount} question(s) published as expected`);
 	}
 
 	test.describe('Main Flow', () => {
@@ -119,6 +139,9 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			// Generate timestamp for component name
 			const timestamp = Date.now().toString();
 			const componentName = `Surveys_${timestamp}`;
+
+			// Track the number of questions added during the test
+			let questionsCount = 0;
 
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
@@ -139,22 +162,8 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			});
 
 			await test.step('3. User: Selects the process that want to update.', async () => {
-				// Search for our created process by title
-				await page.getByRole('searchbox', { name: 'Search Participatory' }).click();
-				await page
-					.getByRole('searchbox', { name: 'Search Participatory' })
-					.fill(validProcessData.general.title);
-				await page.getByRole('button', { name: 'Search' }).click();
-
-				// Click on the created process to open edit page
-				await page
-					.getByRole('link', {
-						name:
-							validProcessData.general.title.split(' ')[0] +
-							' ' +
-							validProcessData.general.title.split(' ')[1]
-					})
-					.click();
+				// Search for our created process by title and select it
+				await searchAndSelectProcess(page, validProcessData.general.title);
 				console.log('Selected process to update');
 			});
 
@@ -206,11 +215,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 					.fill('Global settings description');
 
 				// Fill step settings announcement
-				await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
-				await page
-					.getByRole('group', { name: 'Introduction' })
-					.getByLabel('Announcement')
-					.fill('Step settings description');
+				await configureStepAnnouncement(page, 'Step settings description');
 
 				// Click Add component button to create the surveys component
 				await page.getByRole('button', { name: 'Add component', exact: true }).click();
@@ -247,6 +252,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				// Verify the empty questionnaire form is displayed with survey configuration options
 				await expect(page.getByRole('textbox', { name: 'title' })).toBeVisible();
 				await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible();
+
 				console.log('Empty questionnaire form displayed with survey configuration options');
 			});
 
@@ -315,8 +321,14 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 					.fill('What is your opinion on this topic?');
 				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
 				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
 				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
-				console.log('Added question 1: Long Answer');
+
+				// Increment questions counter
+				questionsCount++;
+				console.log(
+					`Added question 1: Long Answer with 500 character limit (Total questions: ${questionsCount})`
+				);
 			});
 
 			await test.step('16. User: Clicks on "Save" to create Single-Question Polls', async () => {
@@ -335,6 +347,10 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await page.getByRole('link', { name: 'Publish' }).click();
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 				await expect(page.getByText('Survey successfully published.')).toBeVisible();
+
+				// Verify that the survey was actually created with the correct number of questions (dynamic count)
+				await verifyPublishedQuestionsCount(page, questionsCount, 'survey creation');
+
 				console.log('single-question poll is successfully created and published');
 
 				// Verify we're back on the surveys management page
@@ -396,6 +412,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 					.fill('What is your opinion on this topic?');
 				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
 				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
 				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
 
 				console.log('Question configured: "What is your opinion on this topic?" with mandatory long answer');
@@ -426,6 +443,9 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			const timestamp = Date.now().toString();
 			const componentName = `Surveys_Template_${timestamp}`;
 
+			// Track the number of questions expected from template (1 question was added in beforeEach)
+			const expectedQuestionsFromTemplate = 1;
+
 			await test.step('1-9. User: Navigates through process setup and creates Survey component with template selection', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -435,22 +455,8 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
 
-				// Search for our created process by title
-				await page.getByRole('searchbox', { name: 'Search Participatory' }).click();
-				await page
-					.getByRole('searchbox', { name: 'Search Participatory' })
-					.fill(validProcessData.general.title);
-				await page.getByRole('button', { name: 'Search' }).click();
-
-				// Click on the created process to open edit page
-				await page
-					.getByRole('link', {
-						name:
-							validProcessData.general.title.split(' ')[0] +
-							' ' +
-							validProcessData.general.title.split(' ')[1]
-					})
-					.click();
+				// Search for our created process by title and select it
+				await searchAndSelectProcess(page, validProcessData.general.title);
 
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
 				await page.waitForLoadState('networkidle');
@@ -477,11 +483,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 					.getByRole('textbox', { name: 'Announcement' })
 					.fill('Global settings description');
 
-				await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
-				await page
-					.getByRole('group', { name: 'Introduction' })
-					.getByLabel('Announcement')
-					.fill('Step settings description');
+				await configureStepAnnouncement(page, 'Step settings description');
 
 				// Create the Surveys component
 				await page.getByRole('button', { name: 'Add component', exact: true }).click();
@@ -535,6 +537,52 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
 				await expect(page.getByText('Survey successfully saved.')).toBeVisible();
 
+				// Verify that the template question was imported correctly
+				await page.locator('a[title="Manage questions"]').click();
+				await page.waitForURL(
+					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
+				);
+				await page.waitForLoadState('networkidle');
+
+				// Verify the imported question from template is present
+				await expect(page.locator('.questionnaire-question:nth-child(1)')).toBeVisible();
+
+				// Verify the question content matches what was configured in the template
+				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				const question1AccordionButton = question1Container.locator('.question--collapse').first();
+				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded1 === 'false') {
+					await question1AccordionButton.click();
+					await question1Container.locator('.editor-input').waitFor();
+				}
+
+				// Verify the question statement matches the template
+				await expect(question1Container.getByRole('textbox', { name: 'Statement' })).toHaveValue(
+					'What is your opinion on this topic?'
+				);
+
+				// Verify the question description matches the template
+				const descriptionText = await question1Container.locator('.editor-input .tiptap').innerText();
+				expect(descriptionText.trim()).toBe('Please share your thoughts');
+
+				// Verify question type is Long Answer as configured in template
+				await expect(question1Container.getByLabel('TypeShort answer Long answer')).toHaveValue('long_answer');
+
+				// Verify mandatory checkbox is checked as configured in template
+				await expect(question1Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
+
+				// Verify character limit is set to 500 as configured in template
+				await expect(
+					question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' })
+				).toHaveValue('500');
+
+				console.log('Verified template question imported correctly');
+
+				// Return to surveys list for publishing
+				await page.getByRole('button', { name: 'Save' }).click();
+				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
+				await expect(page.getByText('Survey questions successfully')).toBeVisible();
+
 				// Verify template questions are pre-populated and publish (Steps 17-18 equivalent)
 				await expect(page.getByRole('link', { name: 'Publish' })).toBeVisible();
 
@@ -543,14 +591,10 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 				await expect(page.getByText('Survey successfully published.')).toBeVisible();
 
-				console.log(`Survey with template configured, saved and published successfully`);
-				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
+				// Verify that the survey was actually created with the correct number of questions (from template)
+				await verifyPublishedQuestionsCount(page, expectedQuestionsFromTemplate, 'template survey creation');
 
-				// Verify the survey poll is published and accessible for participants
-				await expect(page.getByText('Survey successfully published.')).toBeVisible();
-				console.log(
-					'Single-question poll successfully created from template and published for participant responses'
-				);
+				console.log(`Survey with template configured, saved and published successfully`);
 
 				// Final verification that we're on the management page confirming successful creation
 				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
@@ -569,6 +613,9 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			const timestamp = Date.now().toString();
 			const componentName = `Surveys_${timestamp}`;
 
+			// Track the number of questions added during validation flow
+			let questionsCount = 0;
+
 			await test.step('1-16. User: Navigates through complete poll creation process up to question creation', async () => {
 				// Navigate to processes section and select our created process
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -577,22 +624,8 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
 
-				// Search for our created process by title
-				await page.getByRole('searchbox', { name: 'Search Participatory' }).click();
-				await page
-					.getByRole('searchbox', { name: 'Search Participatory' })
-					.fill(validProcessData.general.title);
-				await page.getByRole('button', { name: 'Search' }).click();
-
-				// Click on the created process to open edit page
-				await page
-					.getByRole('link', {
-						name:
-							validProcessData.general.title.split(' ')[0] +
-							' ' +
-							validProcessData.general.title.split(' ')[1]
-					})
-					.click();
+				// Search for our created process by title and select it
+				await searchAndSelectProcess(page, validProcessData.general.title);
 
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
 				await page.waitForLoadState('networkidle');
@@ -617,11 +650,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 					.getByRole('textbox', { name: 'Announcement' })
 					.fill('Global settings description');
 
-				await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
-				await page
-					.getByRole('group', { name: 'Introduction' })
-					.getByLabel('Announcement')
-					.fill('Step settings description');
+				await configureStepAnnouncement(page, 'Step settings description');
 
 				// Create the Surveys component
 				await page.getByRole('button', { name: 'Add component', exact: true }).click();
@@ -673,10 +702,10 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
 				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
 
-				// Add new question using standardized methodology
+				// Add new question
 				await page.getByRole('button', { name: 'Add question' }).click();
 
-				// Question 1: Long Answer
+				// Question 1: Single Option
 				await page.waitForSelector('.questionnaire-question:nth-child(1)');
 				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
 
@@ -688,12 +717,39 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 					await question1Container.locator('.editor-input').waitFor();
 				}
 
-				console.log(
-					`Completed steps 1-16: Survey "${surveyName}" created and ready for question validation testing`
-				);
+				// Change question type from default to single option
+				await page
+					.getByRole('option', { name: 'Question #1 Remove Statement' })
+					.getByLabel('TypeShort answer Long answer')
+					.selectOption('single_option');
+
+				console.log(`Completed steps 1-16: Survey "${surveyName}" ready for question validation testing`);
 			});
 
 			await test.step('17.1. System: Validates the input fields for completeness', async () => {
+				// Verify that required fields are empty before attempting to save
+				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+
+				// Verify that the main question statement field is empty
+				const allStatementFields = question1Container.getByRole('textbox', { name: 'Statement' });
+				await expect(allStatementFields.first()).toHaveValue('');
+
+				// Verify that the two option fields are empty
+				await expect(
+					question1Container
+						.locator('.questionnaire-question-answer-option')
+						.first()
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('');
+				await expect(
+					question1Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(1)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('');
+
+				console.log('Verified that required fields are empty before attempting validation');
+
 				// Test validation by trying to save empty form
 				await page.getByRole('button', { name: 'Save' }).click();
 				await page.waitForURL(
@@ -703,30 +759,68 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			});
 
 			await test.step('17.2. System: Detects missing or invalid fields', async () => {
-				// Verify validation error messages
+				// Verify validation error messages for required fields
 				await expect(page.getByText('There was a problem saving')).toBeVisible();
-				await expect(page.getByText('cannot be blank')).toBeVisible();
-				console.log('System detected missing or invalid fields and displayed validation errors');
+
+				// Verify specific validation errors for the required Statement fields:
+				// 1. Question Statement field is required
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.first()
+				).toBeVisible();
+
+				// 2. Option A Statement field is required
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(1)
+				).toBeVisible();
+
+				// 3. Option B Statement field is required
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(2)
+				).toBeVisible();
+
+				console.log('System detected missing required Statement fields');
 			});
 
 			await test.step('17.3. User: Corrects the errors in the input fields', async () => {
 				// Fill question details properly to correct validation errors
-				const questionTimestamp = Date.now().toString();
-				const questionText = `Question_${questionTimestamp}`;
-
-				// Use container-scoped selectors with standardized naming
 				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
 
-				await question1Container.getByRole('textbox', { name: 'Statement' }).fill(questionText);
-				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
+				// Fill the main question statement field
+				const allStatementFields = question1Container.getByRole('textbox', { name: 'Statement' });
+				await allStatementFields.first().fill('Which option do you prefer?');
 
-				// Make question mandatory
-				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question1Container.locator('.editor-input .tiptap').fill('Select one of the available options');
 
-				// Set question type to long answer
-				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+				// Set question type to single option
+				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('single_option');
 
-				console.log(`User corrected validation errors by filling question: ${questionText}`);
+				// Fill the default two answer options that are automatically created
+				await question1Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question1Container
+					.locator('.questionnaire-question-answer-option')
+					.first()
+					.getByRole('textbox', { name: 'Statement' })
+					.fill('Option A');
+				await question1Container
+					.locator('.questionnaire-question-answer-option')
+					.nth(1)
+					.getByRole('textbox', { name: 'Statement' })
+					.fill('Option B');
+
+				// Increment questions counter
+				questionsCount++;
+				console.log(
+					`User corrected validation errors by filling required fields (Total questions: ${questionsCount})`
+				);
 			});
 
 			await test.step('17.4. User: Attempts to save the poll again', async () => {
@@ -744,6 +838,9 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await page.getByRole('link', { name: 'Publish' }).click();
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 				await expect(page.getByText('Survey successfully published.')).toBeVisible();
+
+				// Verify that the survey was actually created with the correct number of questions (after validation)
+				await verifyPublishedQuestionsCount(page, questionsCount, 'validation flow survey creation');
 
 				console.log('System revalidated corrected fields successfully and poll was saved and published');
 				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
