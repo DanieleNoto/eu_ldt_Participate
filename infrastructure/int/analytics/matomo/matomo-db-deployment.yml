@@ -12,9 +12,19 @@ spec:
             labels:
                 app: matomo-db
         spec:
+            automountServiceAccountToken: false
             containers:
                 - name: mariadb
                   image: mariadb:11
+                  resources:
+                      requests:
+                          memory: '256Mi'
+                          cpu: '250m'
+                          ephemeral-storage: '1Gi'
+                      limits:
+                          memory: '512Mi'
+                          cpu: '500m'
+                          ephemeral-storage: '2Gi'
                   env:
                       - name: MYSQL_ROOT_PASSWORD
                         valueFrom:
@@ -39,7 +49,7 @@ spec:
                   volumeMounts:
                       - name: matomo-db-data
                         mountPath: /var/lib/mysql
-            volumes:
-                - name: matomo-db-data
-                  persistentVolumeClaim:
-                      claimName: matomo-db-pvc
+        volumes:
+            - name: matomo-db-data
+              persistentVolumeClaim:
+                  claimName: matomo-db-pvc

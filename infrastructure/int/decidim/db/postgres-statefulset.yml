@@ -6,46 +6,56 @@ metadata:
     labels:
         app: decidim-postgres
 spec:
-    serviceName: decidim-postgres
-    replicas: 1
-    selector:
-        matchLabels:
-            app: decidim-postgres
-    template:
-        metadata:
-            labels:
+        serviceName: decidim-postgres
+        replicas: 1
+        selector:
+            matchLabels:
                 app: decidim-postgres
-        spec:
-            containers:
-                - name: postgres
-                  image: postgres:16
-                  ports:
-                      - containerPort: 5432
-                  env:
-                      - name: POSTGRES_DB
-                        valueFrom:
-                            configMapKeyRef:
-                                name: decidim-config
-                                key: DATABASE_NAME
-                      - name: POSTGRES_USER
-                        valueFrom:
-                            configMapKeyRef:
-                                name: decidim-config
-                                key: DATABASE_USERNAME
-                      - name: POSTGRES_PASSWORD
-                        valueFrom:
-                            secretKeyRef:
-                                name: decidim-secrets
-                                key: DATABASE_PASSWORD
-                  volumeMounts:
-                      - name: postgres-data
-                        mountPath: /var/lib/postgresql/data
-                  readinessProbe:
-                      exec:
-                          command: ['sh', '-c', 'pg_isready -U $POSTGRES_USER']
-                      initialDelaySeconds: 5
-                      periodSeconds: 10
-            terminationGracePeriodSeconds: 30
+        template:
+                metadata:
+                    labels:
+                        app: decidim-postgres
+                spec:
+                        automountServiceAccountToken: false
+                        containers:
+                                - name: postgres
+                                  image: postgres:16
+                                  resources:
+                                    requests:
+                                        memory: "512Mi"
+                                        cpu: "500m"
+                                        ephemeral-storage: "2Gi"
+                                    limits:
+                                        memory: "1Gi"
+                                        cpu: "1"
+                                        ephemeral-storage: "5Gi"
+                                  ports:
+                                        - containerPort: 5432
+                                  env:
+                                        - name: POSTGRES_DB
+                                          valueFrom:
+                                                configMapKeyRef:
+                                                    name: decidim-config
+                                                    key: DATABASE_NAME
+                                        - name: POSTGRES_USER
+                                          valueFrom:
+                                                configMapKeyRef:
+                                                    name: decidim-config
+                                                    key: DATABASE_USERNAME
+                                        - name: POSTGRES_PASSWORD
+                                          valueFrom:
+                                                secretKeyRef:
+                                                    name: decidim-secrets
+                                                    key: DATABASE_PASSWORD
+                                  volumeMounts:
+                                        - name: postgres-data
+                                          mountPath: /var/lib/postgresql/data
+                                  readinessProbe:
+                                        exec:
+                                            command: ['sh', '-c', 'pg_isready -U $POSTGRES_USER']
+                                        initialDelaySeconds: 5
+                                        periodSeconds: 10
+                terminationGracePeriodSeconds: 30
     volumeClaimTemplates:
         - metadata:
               name: postgres-data

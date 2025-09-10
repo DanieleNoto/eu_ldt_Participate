@@ -12,6 +12,8 @@ spec:
             labels:
                 app: grafana
         spec:
+            # Disable automatic mounting of the service account token for improved security
+            automountServiceAccountToken: false
             containers:
                 - name: grafana
                   image: grafana/grafana:11.0.0
@@ -22,6 +24,15 @@ spec:
                             name: grafana-config
                       - secretRef:
                             name: grafana-secrets
+                  resources:
+                    requests:
+                      memory: "256Mi"
+                      cpu: "250m"
+                      ephemeral-storage: "1Gi"
+                    limits:
+                      memory: "512Mi"
+                      cpu: "500m"
+                      ephemeral-storage: "2Gi"
                   volumeMounts:
                       - name: grafana-data
                         mountPath: /var/lib/grafana
