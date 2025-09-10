@@ -80,33 +80,53 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			console.log('New process created:', validProcessData.general.title);
 			console.log('Process URL:', page.url());
 
-			// Navigate back to processes list using direct navigation
-			await page.goto('/admin/participatory_processes');
-			await page.waitForLoadState('networkidle');
+			// Store the process slug for later use (extract from current URL)
+			const currentUrl = page.url();
+			const processSlugMatch = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
+			const processSlug = processSlugMatch ? processSlugMatch[1] : '';
 
-			// Search for the created process by title
-			await page.getByRole('searchbox', { name: 'Search Participatory' }).click();
-			await page.getByRole('searchbox', { name: 'Search Participatory' }).fill(validProcessData.general.title);
-			await page.getByRole('button', { name: 'Search' }).click();
-
-			// Click on the created process to open edit page
-			await page
-				.getByRole('link', {
-					name:
-						validProcessData.general.title.split(' ')[0] +
-						' ' +
-						validProcessData.general.title.split(' ')[1]
-				})
-				.click();
-
-			// Wait for edit page to load and store the URL
-			await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+			// Navigate to the process edit page directly and store URL
+			await page.goto(`/admin/participatory_processes/${processSlug}/edit`);
 			await page.waitForLoadState('networkidle');
 
 			// Store the process edit URL for later use
 			processEditUrl = page.url();
 			console.log('Process edit URL stored:', processEditUrl);
 		});
+	}
+
+	/**
+	 * Helper function to search and select a process by title
+	 */
+	async function searchAndSelectProcess(page: any, processTitle: string) {
+		const processSearchParticipatory = page.getByRole('searchbox', { name: 'Search Participatory' });
+		await processSearchParticipatory.click();
+		await processSearchParticipatory.fill(processTitle);
+		await page.getByRole('button', { name: 'Search' }).click();
+
+		// Click on the created process to open edit page
+		await page
+			.getByRole('link', {
+				name: processTitle.split(' ')[0] + ' ' + processTitle.split(' ')[1]
+			})
+			.click();
+	}
+
+	/**
+	 * Helper function to configure step settings announcement
+	 */
+	async function configureStepAnnouncement(page: any, announcementText: string) {
+		await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
+		await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').fill(announcementText);
+	}
+
+	/**
+	 * Helper function to verify published survey questions count
+	 */
+	async function verifyPublishedQuestionsCount(page: any, expectedCount: number, flowDescription: string) {
+		// Verify the cell with the expected count is visible to confirm the survey was created
+		await expect(page.getByRole('cell', { name: expectedCount.toString(), exact: true })).toBeVisible();
+		console.log(`Verified ${flowDescription}: ${expectedCount} question(s) published as expected`);
 	}
 
 	test.describe('Main Flow', () => {
@@ -119,6 +139,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			// Generate timestamp for component name
 			const timestamp = Date.now().toString();
 			const componentName = `Surveys_${timestamp}`;
+
+			// Track the number of questions added during the test
+			let questionsCount = 0;
 
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
@@ -139,22 +162,8 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			});
 
 			await test.step('3. User: Selects the process that want to update.', async () => {
-				// Search for our created process by title
-				await page.getByRole('searchbox', { name: 'Search Participatory' }).click();
-				await page
-					.getByRole('searchbox', { name: 'Search Participatory' })
-					.fill(validProcessData.general.title);
-				await page.getByRole('button', { name: 'Search' }).click();
-
-				// Click on the created process to open edit page
-				await page
-					.getByRole('link', {
-						name:
-							validProcessData.general.title.split(' ')[0] +
-							' ' +
-							validProcessData.general.title.split(' ')[1]
-					})
-					.click();
+				// Search for our created process by title and select it
+				await searchAndSelectProcess(page, validProcessData.general.title);
 				console.log('Selected process to update');
 			});
 
@@ -206,11 +215,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.fill('Global settings description');
 
 				// Fill step settings announcement
-				await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
-				await page
-					.getByRole('group', { name: 'Introduction' })
-					.getByLabel('Announcement')
-					.fill('Step settings description');
+				await configureStepAnnouncement(page, 'Step settings description');
 
 				// Click Add component button to create the surveys component
 				await page.getByRole('button', { name: 'Add component', exact: true }).click();
@@ -247,6 +252,13 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Verify the empty questionnaire form is displayed with survey configuration options
 				await expect(page.getByRole('textbox', { name: 'title' })).toBeVisible();
 				await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible();
+
+				// Verify that the fields are empty as expected for a new questionnaire
+				await expect(page.getByRole('textbox', { name: 'title' })).toHaveValue('');
+
+				const descriptionField = page.getByRole('textbox', { name: 'Description' }).first();
+				await expect(descriptionField).toHaveText('');
+
 				console.log('Empty questionnaire form displayed with survey configuration options');
 			});
 
@@ -315,7 +327,11 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.fill('What is your opinion on this topic?');
 				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
 				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
 				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+
+				// Increment questions counter
+				questionsCount++;
 				console.log('Added question 1: Long Answer');
 
 				// Question 2: Short Answer
@@ -336,6 +352,11 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.fill('What is your opinion on this other topic?');
 				await question2Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
 				await question2Container.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question2Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('250');
+				await question2Container.getByLabel('TypeShort answer Long answer').selectOption('short_answer');
+
+				// Increment questions counter
+				questionsCount++;
 				console.log('Added question 2: Short Answer');
 
 				// Question 3: Single Option
@@ -368,6 +389,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.nth(1)
 					.getByRole('textbox', { name: 'Statement' })
 					.fill('Green');
+
+				// Increment questions counter
+				questionsCount++;
 				console.log('Added question 3: Single Option');
 
 				// Question 4: Multiple Option
@@ -420,6 +444,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 				// Set maximum choices to 2
 				await question4Container.getByLabel('Maximum number of choices').selectOption('2');
+
+				// Increment questions counter
+				questionsCount++;
 				console.log('Added question 4: Multiple Option');
 
 				// Question 5: Sorting
@@ -454,6 +481,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.nth(1)
 					.getByRole('textbox', { name: 'Statement' })
 					.fill('Motorcycle');
+
+				// Increment questions counter
+				questionsCount++;
 				console.log('Added question 5: Sorting');
 
 				// Question 6: Files
@@ -479,6 +509,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					);
 				await question6Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question6Container.getByLabel('TypeShort answer Long answer').selectOption('files');
+
+				// Increment questions counter
+				questionsCount++;
 				console.log('Added question 6: Files');
 
 				// Question 7: Matrix (single option)
@@ -558,6 +591,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.last()
 					.getByRole('textbox', { name: 'Statement' })
 					.fill('Follow-up or implementation of decisions');
+
+				// Increment questions counter
+				questionsCount++;
 				console.log('Added question 7: Matrix (single option)');
 
 				// Question 8: Matrix (Multiple option)
@@ -624,9 +660,12 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.last()
 					.getByRole('textbox', { name: 'Statement' })
 					.fill('Well-structured sessions');
+
+				// Increment questions counter
+				questionsCount++;
 				console.log('Added question 8: Matrix (Multiple option)');
 
-				console.log('Successfully created detailed survey with 8 different question types');
+				console.log(`Successfully created detailed survey with ${questionsCount} different question types`);
 			});
 
 			await test.step('16. User: Clicks on "Save" to create Detailed Survey with Multiple Question Types', async () => {
@@ -647,6 +686,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await expect(page.getByText('Survey successfully published.')).toBeVisible();
 				console.log('Detailed survey successfully created and published');
 
+				// Verify that the survey was actually created with the correct number of questions (dynamic count)
+				await verifyPublishedQuestionsCount(page, questionsCount, 'detailed survey creation');
+
 				// Verify we're back on the surveys management page
 				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 			});
@@ -654,7 +696,13 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 	});
 
 	test.describe('Alternative Flow: Select template', () => {
+		// Declare template questions counter
+		let templateQuestionsCount = 0;
+
 		test.beforeEach(async ({ page }) => {
+			// Track the number of questions added during template setup
+			templateQuestionsCount = 0;
+
 			await test.step('Setup: Navigate to Templates section', async () => {
 				await templatesPage.navigateToPage();
 				await page.waitForLoadState('networkidle');
@@ -707,7 +755,11 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.fill('What is your opinion on this topic?');
 				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
 				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
 				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+
+				// Increment template questions counter
+				templateQuestionsCount++;
 				console.log('Added question 1: Long Answer');
 
 				// Question 2: Short Answer
@@ -728,6 +780,11 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.fill('What is your opinion on this other topic?');
 				await question2Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
 				await question2Container.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question2Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('250');
+				await question2Container.getByLabel('TypeShort answer Long answer').selectOption('short_answer');
+
+				// Increment template questions counter
+				templateQuestionsCount++;
 				console.log('Added question 2: Short Answer');
 
 				// Question 3: Single Option
@@ -760,6 +817,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.nth(1)
 					.getByRole('textbox', { name: 'Statement' })
 					.fill('Green');
+
+				// Increment template questions counter
+				templateQuestionsCount++;
 				console.log('Added question 3: Single Option');
 
 				// Question 4: Multiple Option
@@ -812,6 +872,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 				// Set maximum choices to 2
 				await question4Container.getByLabel('Maximum number of choices').selectOption('2');
+
+				// Increment template questions counter
+				templateQuestionsCount++;
 				console.log('Added question 4: Multiple Option');
 
 				// Question 5: Sorting
@@ -846,6 +909,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.nth(1)
 					.getByRole('textbox', { name: 'Statement' })
 					.fill('Motorcycle');
+
+				// Increment template questions counter
+				templateQuestionsCount++;
 				console.log('Added question 5: Sorting');
 
 				// Question 6: Files
@@ -871,6 +937,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					);
 				await question6Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question6Container.getByLabel('TypeShort answer Long answer').selectOption('files');
+
+				// Increment template questions counter
+				templateQuestionsCount++;
 				console.log('Added question 6: Files');
 
 				// Question 7: Matrix (single option)
@@ -950,6 +1019,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.last()
 					.getByRole('textbox', { name: 'Statement' })
 					.fill('Follow-up or implementation of decisions');
+
+				// Increment template questions counter
+				templateQuestionsCount++;
 				console.log('Added question 7: Matrix (single option)');
 
 				// Question 8: Matrix (Multiple option)
@@ -1016,9 +1088,14 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.last()
 					.getByRole('textbox', { name: 'Statement' })
 					.fill('Well-structured sessions');
+
+				// Increment template questions counter
+				templateQuestionsCount++;
 				console.log('Added question 8: Matrix (Multiple option)');
 
-				console.log('Successfully created template with 8 different question types');
+				console.log(
+					`Successfully created detailed survey with ${templateQuestionsCount} different question types`
+				);
 			});
 
 			await test.step('Setup: Save template and return to process', async () => {
@@ -1048,6 +1125,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			const timestamp = Date.now().toString();
 			const componentName = `Surveys_Template_${timestamp}`;
 
+			// Track the number of questions expected from template (8 questions were added in beforeEach)
+			const expectedQuestionsFromTemplate = 8;
+
 			await test.step('1-9. User: Navigates through process setup and creates Survey component with template selection', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -1057,22 +1137,8 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
 
-				// Search for our created process by title
-				await page.getByRole('searchbox', { name: 'Search Participatory' }).click();
-				await page
-					.getByRole('searchbox', { name: 'Search Participatory' })
-					.fill(validProcessData.general.title);
-				await page.getByRole('button', { name: 'Search' }).click();
-
-				// Click on the created process to open edit page
-				await page
-					.getByRole('link', {
-						name:
-							validProcessData.general.title.split(' ')[0] +
-							' ' +
-							validProcessData.general.title.split(' ')[1]
-					})
-					.click();
+				// Search for our created process by title and select it
+				await searchAndSelectProcess(page, validProcessData.general.title);
 
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
 				await page.waitForLoadState('networkidle');
@@ -1099,11 +1165,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.getByRole('textbox', { name: 'Announcement' })
 					.fill('Global settings description');
 
-				await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
-				await page
-					.getByRole('group', { name: 'Introduction' })
-					.getByLabel('Announcement')
-					.fill('Step settings description');
+				await configureStepAnnouncement(page, 'Step settings description');
 
 				// Create the Surveys component
 				await page.getByRole('button', { name: 'Add component', exact: true }).click();
@@ -1138,6 +1200,16 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			});
 
 			await test.step('10.2. System: Create the new questionnaire based on selected template and displays options for adding survey elements', async () => {
+				// Verify the empty questionnaire form is displayed initially
+				await expect(page.getByRole('textbox', { name: 'title' })).toBeVisible();
+				await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible();
+
+				// Verify that the fields are empty as expected for a new questionnaire from template
+				await expect(page.getByRole('textbox', { name: 'title' })).toHaveValue('');
+
+				const descriptionField = page.getByRole('textbox', { name: 'Description' }).first();
+				await expect(descriptionField).toHaveText('');
+
 				// Generate timestamp for survey name
 				const surveyTimestamp = Date.now().toString();
 				const surveyName = `survey_template_${surveyTimestamp}`;
@@ -1157,6 +1229,307 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
 				await expect(page.getByText('Survey successfully saved.')).toBeVisible();
 
+				// Verify that the template question was imported correctly
+				await page.locator('a[title="Manage questions"]').click();
+				await page.waitForURL(
+					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
+				);
+				await page.waitForLoadState('networkidle');
+
+				// Verify the imported questions from template are present
+				await expect(page.locator('.questionnaire-question:nth-child(1)')).toBeVisible();
+				await expect(page.locator('.questionnaire-question:nth-child(2)')).toBeVisible();
+				await expect(page.locator('.questionnaire-question:nth-child(3)')).toBeVisible();
+				await expect(page.locator('.questionnaire-question:nth-child(4)')).toBeVisible();
+				await expect(page.locator('.questionnaire-question:nth-child(5)')).toBeVisible();
+				await expect(page.locator('.questionnaire-question:nth-child(6)')).toBeVisible();
+				await expect(page.locator('.questionnaire-question:nth-child(7)')).toBeVisible();
+				await expect(page.locator('.questionnaire-question:nth-child(8)')).toBeVisible();
+
+				// Verify Question 1: Long Answer
+				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				const question1AccordionButton = question1Container.locator('.question--collapse').first();
+				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded1 === 'false') {
+					await question1AccordionButton.click();
+					await question1Container.locator('.editor-input').waitFor();
+				}
+
+				await expect(question1Container.getByRole('textbox', { name: 'Statement' })).toHaveValue(
+					'What is your opinion on this topic?'
+				);
+				const descriptionText1 = await question1Container.locator('.editor-input .tiptap').innerText();
+				expect(descriptionText1.trim()).toBe('Please share your thoughts');
+				await expect(question1Container.getByLabel('TypeShort answer Long answer')).toHaveValue('long_answer');
+				await expect(question1Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
+				await expect(
+					question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' })
+				).toHaveValue('500');
+
+				// Verify Question 2: Short Answer
+				const question2Container = page.locator('.questionnaire-question:nth-child(2)');
+				const question2AccordionButton = question2Container.locator('.question--collapse').first();
+				const isExpanded2 = await question2AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded2 === 'false') {
+					await question2AccordionButton.click();
+					await question2Container.locator('.editor-input').waitFor();
+				}
+
+				await expect(question2Container.getByRole('textbox', { name: 'Statement' })).toHaveValue(
+					'What is your opinion on this other topic?'
+				);
+				const descriptionText2 = await question2Container.locator('.editor-input .tiptap').innerText();
+				expect(descriptionText2.trim()).toBe('Please share your thoughts');
+				await expect(question2Container.getByLabel('TypeShort answer Long answer')).toHaveValue('short_answer');
+				await expect(question2Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
+				await expect(
+					question2Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' })
+				).toHaveValue('250');
+
+				// Verify Question 3: Single Option
+				const question3Container = page.locator('.questionnaire-question:nth-child(3)');
+				const question3AccordionButton = question3Container.locator('.question--collapse').first();
+				const isExpanded3 = await question3AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded3 === 'false') {
+					await question3AccordionButton.click();
+					await question3Container.locator('.editor-input').waitFor();
+				}
+
+				await expect(question3Container.getByRole('textbox', { name: 'Statement' }).first()).toHaveValue(
+					'What color do you prefer?'
+				);
+				const descriptionText3 = await question3Container.locator('.editor-input .tiptap').innerText();
+				expect(descriptionText3.trim()).toBe('select one of the available options');
+				await expect(question3Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
+					'single_option'
+				);
+				await expect(question3Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
+				// Verify answer options
+				await expect(
+					question3Container
+						.locator('.questionnaire-question-answer-option')
+						.first()
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Blue');
+				await expect(
+					question3Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(1)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Green');
+
+				// Verify Question 4: Multiple Option
+				const question4Container = page.locator('.questionnaire-question:nth-child(4)');
+				const question4AccordionButton = question4Container.locator('.question--collapse').first();
+				const isExpanded4 = await question4AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded4 === 'false') {
+					await question4AccordionButton.click();
+					await question4Container.locator('.editor-input').waitFor();
+				}
+
+				await expect(question4Container.getByRole('textbox', { name: 'Statement' }).first()).toHaveValue(
+					'Which pets do you prefer?'
+				);
+				const descriptionText4 = await question4Container.locator('.editor-input .tiptap').innerText();
+				expect(descriptionText4.trim()).toBe('select two of the available options');
+				await expect(question4Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
+					'multiple_option'
+				);
+				await expect(question4Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
+				await expect(question4Container.getByLabel('Maximum number of choices')).toHaveValue('2');
+				// Verify answer options
+				await expect(
+					question4Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(0)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Cat');
+				await expect(
+					question4Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(1)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Dog');
+				await expect(
+					question4Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(2)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Parrot');
+				await expect(
+					question4Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(3)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Fish');
+
+				// Verify Question 5: Sorting
+				const question5Container = page.locator('.questionnaire-question:nth-child(5)');
+				const question5AccordionButton = question5Container.locator('.question--collapse').first();
+				const isExpanded5 = await question5AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded5 === 'false') {
+					await question5AccordionButton.click();
+					await question5Container.locator('.editor-input').waitFor();
+				}
+
+				await expect(question5Container.getByRole('textbox', { name: 'Statement' }).first()).toHaveValue(
+					'What kind of vehicle do you prefer?'
+				);
+				const descriptionText5 = await question5Container.locator('.editor-input .tiptap').innerText();
+				expect(descriptionText5.trim()).toBe('select an option');
+				await expect(question5Container.getByLabel('TypeShort answer Long answer')).toHaveValue('sorting');
+				await expect(question5Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
+				// Verify answer options
+				await expect(
+					question5Container
+						.locator('.questionnaire-question-answer-option')
+						.first()
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Car');
+				await expect(
+					question5Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(1)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Motorcycle');
+
+				// Verify Question 6: Files
+				const question6Container = page.locator('.questionnaire-question:nth-child(6)');
+				const question6AccordionButton = question6Container.locator('.question--collapse').first();
+				const isExpanded6 = await question6AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded6 === 'false') {
+					await question6AccordionButton.click();
+					await question6Container.locator('.editor-input').waitFor();
+				}
+
+				await expect(question6Container.getByRole('textbox', { name: 'Statement' })).toHaveValue(
+					'You have a file to share with us?'
+				);
+				const descriptionText6 = await question6Container.locator('.editor-input .tiptap').innerText();
+				expect(descriptionText6.trim()).toBe(
+					'Share with us a file, notes, document, photos, that might be relevant for the next assemblies!'
+				);
+				await expect(question6Container.getByLabel('TypeShort answer Long answer')).toHaveValue('files');
+				await expect(question6Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
+
+				// Verify Question 7: Matrix (single option)
+				const question7Container = page.locator('.questionnaire-question:nth-child(7)');
+				const question7AccordionButton = question7Container.locator('.question--collapse').first();
+				const isExpanded7 = await question7AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded7 === 'false') {
+					await question7AccordionButton.click();
+					await question7Container.locator('.editor-input').waitFor();
+				}
+
+				await expect(question7Container.getByRole('textbox', { name: 'Statement' }).first()).toHaveValue(
+					'How would you rate your overall experience with the local assemblies?'
+				);
+				const descriptionText7 = await question7Container.locator('.editor-input .tiptap').innerText();
+				expect(descriptionText7.trim()).toBe('Rate your experience regarding different aspects!');
+				await expect(question7Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
+					'matrix_single'
+				);
+				await expect(question7Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
+				// Verify matrix rows
+				const allMatrixRows7 = question7Container.locator(
+					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+				);
+				await expect(allMatrixRows7.nth(0)).toHaveValue('Very Positive');
+				await expect(allMatrixRows7.nth(1)).toHaveValue('Positive');
+				await expect(allMatrixRows7.nth(2)).toHaveValue('Neutral');
+				await expect(allMatrixRows7.nth(3)).toHaveValue('Negative');
+				await expect(allMatrixRows7.nth(4)).toHaveValue('Very Negative');
+				// Verify answer options
+				await expect(
+					question7Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(0)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Clarity on how decisions are made');
+				await expect(
+					question7Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(1)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Time for everyone to speak');
+				await expect(
+					question7Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(2)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Clarity on complex issues');
+				await expect(
+					question7Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(3)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Meetings frequency');
+				await expect(
+					question7Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(4)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Follow-up or implementation of decisions');
+
+				// Verify Question 8: Matrix (Multiple option)
+				const question8Container = page.locator('.questionnaire-question:nth-child(8)');
+				const question8AccordionButton = question8Container.locator('.question--collapse').first();
+				const isExpanded8 = await question8AccordionButton.getAttribute('aria-expanded');
+				if (isExpanded8 === 'false') {
+					await question8AccordionButton.click();
+					await question8Container.locator('.editor-input').waitFor();
+				}
+
+				await expect(question8Container.getByRole('textbox', { name: 'Statement' }).first()).toHaveValue(
+					'Which of the following aspects did you find valuable during the community event?'
+				);
+				const descriptionText8 = await question8Container.locator('.editor-input .tiptap').innerText();
+				expect(descriptionText8.trim()).toBe('Select all that apply for each area');
+				await expect(question8Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
+					'matrix_multiple'
+				);
+				await expect(question8Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
+				// Verify matrix rows
+				const allMatrixRows8 = question8Container.locator(
+					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+				);
+				await expect(allMatrixRows8.nth(0)).toHaveValue('Networking opportunities');
+				await expect(allMatrixRows8.nth(1)).toHaveValue('Information provided');
+				await expect(allMatrixRows8.nth(2)).toHaveValue('Event organization');
+				await expect(allMatrixRows8.nth(3)).toHaveValue('Location and facilities');
+				// Verify answer options
+				await expect(
+					question8Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(0)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Useful contacts');
+				await expect(
+					question8Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(1)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Practical knowledge gained');
+				await expect(
+					question8Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(2)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Enjoyable atmosphere');
+				await expect(
+					question8Container
+						.locator('.questionnaire-question-answer-option')
+						.nth(3)
+						.getByRole('textbox', { name: 'Statement' })
+				).toHaveValue('Well-structured sessions');
+
+				console.log('Verified template question imported correctly');
+
+				// Return to surveys list for publishing
+				await page.getByRole('button', { name: 'Save' }).click();
+				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
+				await expect(page.getByText('Survey questions successfully')).toBeVisible();
+
 				// Verify template questions are pre-populated and publish (Steps 17-18 equivalent)
 				await expect(page.getByRole('link', { name: 'Publish' })).toBeVisible();
 
@@ -1165,8 +1538,10 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 				await expect(page.getByText('Survey successfully published.')).toBeVisible();
 
-				// Result: The detailed survey with multiple question types is successfully created and published, allowing participants to respond
-				console.log('Detailed survey successfully created and published');
+				// Verify that the survey was actually created with the correct number of questions (from template)
+				await verifyPublishedQuestionsCount(page, expectedQuestionsFromTemplate, 'template survey creation');
+
+				console.log('Detailed survey with template configured, saved and published successfully');
 
 				// Final verification that we're on the management page confirming successful creation
 				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
@@ -1175,11 +1550,17 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 	});
 
 	test.describe('Alternative Flow: Fields Validation Fail', () => {
+		// Track the number of questions added during the test
+		let questionsCount = 0;
+
 		test('should detect and handle validation errors during poll creation', async ({ page }) => {
 			// Get the current URL to extract process slug
 			const currentUrl = page.url();
 			const processSlugMatch = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
 			const processSlug = processSlugMatch ? processSlugMatch[1] : '';
+
+			// Reset questions counter
+			questionsCount = 0;
 
 			// Generate timestamp for component name
 			const timestamp = Date.now().toString();
@@ -1193,22 +1574,8 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
 
-				// Search for our created process by title
-				await page.getByRole('searchbox', { name: 'Search Participatory' }).click();
-				await page
-					.getByRole('searchbox', { name: 'Search Participatory' })
-					.fill(validProcessData.general.title);
-				await page.getByRole('button', { name: 'Search' }).click();
-
-				// Click on the created process to open edit page
-				await page
-					.getByRole('link', {
-						name:
-							validProcessData.general.title.split(' ')[0] +
-							' ' +
-							validProcessData.general.title.split(' ')[1]
-					})
-					.click();
+				// Search for our created process by title and select it
+				await searchAndSelectProcess(page, validProcessData.general.title);
 
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
 				await page.waitForLoadState('networkidle');
@@ -1233,11 +1600,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.getByRole('textbox', { name: 'Announcement' })
 					.fill('Global settings description');
 
-				await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
-				await page
-					.getByRole('group', { name: 'Introduction' })
-					.getByLabel('Announcement')
-					.fill('Step settings description');
+				await configureStepAnnouncement(page, 'Step settings description');
 
 				// Create the Surveys component
 				await page.getByRole('button', { name: 'Add component', exact: true }).click();
@@ -1262,6 +1625,16 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				}
 
 				// Configure survey details
+				// First verify that the questionnaire form is empty as expected
+				await expect(page.getByRole('textbox', { name: 'title' })).toBeVisible();
+				await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible();
+
+				// Verify that the fields are empty as expected for a new questionnaire
+				await expect(page.getByRole('textbox', { name: 'title' })).toHaveValue('');
+
+				const descriptionField = page.getByRole('textbox', { name: 'Description' }).first();
+				await expect(descriptionField).toHaveText('');
+
 				const surveyTimestamp = Date.now().toString();
 				const surveyName = `survey_${surveyTimestamp}`;
 
@@ -1307,10 +1680,13 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.fill('What is your opinion on this topic?');
 				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
 				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
 				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+
+				questionsCount++;
 				console.log('Added question 1: Long Answer');
 
-				// Question 2: Short Answer
+				// Question 2: Short Answer (without mandatory check)
 				await page.getByRole('button', { name: 'Add question' }).click();
 				await page.waitForSelector('.questionnaire-question:nth-child(2)');
 				const question2Container = page.locator('.questionnaire-question:nth-child(2)');
@@ -1327,7 +1703,10 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.getByRole('textbox', { name: 'Statement' })
 					.fill('What is your opinion on this other topic?');
 				await question2Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
-				await question2Container.getByRole('checkbox', { name: 'Mandatory' }).check();
+				await question2Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('250');
+				await question2Container.getByLabel('TypeShort answer Long answer').selectOption('short_answer');
+
+				questionsCount++;
 				console.log('Added question 2: Short Answer');
 
 				// Question 3: Single Option (answers left empty intentionally)
@@ -1343,13 +1722,18 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					await question3Container.locator('.editor-input').waitFor();
 				}
 
-				await question3Container.getByRole('textbox', { name: 'Statement' }).fill('What color do you prefer?');
+				await question3Container
+					.getByRole('textbox', { name: 'Statement' })
+					.first()
+					.fill('What color do you prefer?');
 				await question3Container.locator('.editor-input .tiptap').fill('select one of the available options');
 				await question3Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question3Container.getByLabel('TypeShort answer Long answer').selectOption('single_option');
 
 				// Leave the default two answer options empty for validation testing
 				await question3Container.locator('.questionnaire-question-answer-option').first().waitFor();
+
+				questionsCount++;
 				console.log('Added question 3: Single Option');
 
 				// Question 4: Multiple Option (answers left empty intentionally)
@@ -1365,7 +1749,10 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					await question4Container.locator('.editor-input').waitFor();
 				}
 
-				await question4Container.getByRole('textbox', { name: 'Statement' }).fill('Which pets do you prefer?');
+				await question4Container
+					.getByRole('textbox', { name: 'Statement' })
+					.first()
+					.fill('Which pets do you prefer?');
 				await question4Container.locator('.editor-input .tiptap').fill('select two of the available options');
 				await question4Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question4Container.getByLabel('TypeShort answer Long answer').selectOption('multiple_option');
@@ -1379,6 +1766,8 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 				// Set maximum choices to 2
 				await question4Container.getByLabel('Maximum number of choices').selectOption('2');
+
+				questionsCount++;
 				console.log('Added question 4: Multiple Option');
 
 				// Question 5: Sorting (answers left empty intentionally)
@@ -1396,6 +1785,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 				await question5Container
 					.getByRole('textbox', { name: 'Statement' })
+					.first()
 					.fill('What kind of vehicle do you prefer?');
 				await question5Container.locator('.editor-input .tiptap').fill('select an option');
 				await question5Container.getByRole('checkbox', { name: 'Mandatory' }).check();
@@ -1403,6 +1793,8 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 				// Leave the default two answer options empty for validation testing
 				await question5Container.locator('.questionnaire-question-answer-option').first().waitFor();
+
+				questionsCount++;
 				console.log('Added question 5: Sorting');
 
 				// Question 6: Files
@@ -1428,6 +1820,8 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					);
 				await question6Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question6Container.getByLabel('TypeShort answer Long answer').selectOption('files');
+
+				questionsCount++;
 				console.log('Added question 6: Files');
 
 				// Question 7: Matrix (single option) - rows and answers left empty intentionally
@@ -1445,6 +1839,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 				await question7Container
 					.getByRole('textbox', { name: 'Statement' })
+					.first()
 					.fill('How would you rate your overall experience with the local assemblies?');
 				await question7Container
 					.locator('.editor-input .tiptap')
@@ -1471,6 +1866,8 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question7Container.locator('.questionnaire-question-answer-option').last().waitFor();
 				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
 				await question7Container.locator('.questionnaire-question-answer-option').last().waitFor();
+
+				questionsCount++;
 				console.log('Added question 7: Matrix (single option)');
 
 				// Question 8: Matrix (Multiple option) - rows and answers left empty intentionally
@@ -1488,6 +1885,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 				await question8Container
 					.getByRole('textbox', { name: 'Statement' })
+					.first()
 					.fill('Which of the following aspects did you find valuable during the community event?');
 				await question8Container.locator('.editor-input .tiptap').fill('Select all that apply for each area');
 				await question8Container.getByRole('checkbox', { name: 'Mandatory' }).check();
@@ -1509,10 +1907,12 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question8Container.locator('.questionnaire-question-answer-option').last().waitFor();
 				await question8Container.getByRole('button', { name: 'Add answer option' }).click();
 				await question8Container.locator('.questionnaire-question-answer-option').last().waitFor();
+
+				questionsCount++;
 				console.log('Added question 8: Matrix (Multiple option)');
 
 				console.log(
-					`Completed steps 1-16: Survey "${surveyName}" created with 8 questions ready for validation testing`
+					`Completed steps 1-16: Survey "${surveyName}" created with ${questionsCount} questions ready for validation testing`
 				);
 			});
 
@@ -1526,21 +1926,199 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			});
 
 			await test.step('17.2. System: Detects missing or invalid fields', async () => {
-				// Verify validation error messages for multiple field validation failures
+				// Verify validation error messages for required fields
 				await expect(page.getByText('There was a problem saving')).toBeVisible();
 
-				// Check for multiple "cannot be blank" errors from various empty fields:
-				// - Question 3: Single Option answers (2 empty fields)
-				// - Question 4: Multiple Option answers (4 empty fields)
-				// - Question 5: Sorting answers (2 empty fields)
-				// - Question 7: Matrix rows and answers (5+5 empty fields)
-				// - Question 8: Matrix rows and answers (4+4 empty fields)
-				const cannotBeBlankErrors = await page.getByText('cannot be blank').count();
-				expect(cannotBeBlankErrors).toBeGreaterThan(1);
+				// Verify specific validation errors for the required Statement fields:
 
-				console.log(
-					`System detected missing or invalid fields and displayed ${cannotBeBlankErrors} validation errors for empty required fields`
-				);
+				// Question 3: Single Option (2 answers fields blank)
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(0)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(1)
+				).toBeVisible();
+
+				// Question 4: Multiple Option (4 answers fields blank)
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(2)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(3)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(4)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(5)
+				).toBeVisible();
+
+				// Question 5: Sorting (2 answers fields blank)
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(6)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(7)
+				).toBeVisible();
+
+				// Question 7: Matrix Single Option (5 rows fields blank, 5 answers fields blank)
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(8)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(9)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(10)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(11)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(12)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(13)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(14)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(15)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(16)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(17)
+				).toBeVisible();
+
+				// Question 8: Matrix Multiple Option (4 rows fields blank, 4 answers fields blank)
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(18)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(19)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(20)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(21)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(22)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(23)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(24)
+				).toBeVisible();
+
+				await expect(
+					page
+						.locator('div')
+						.filter({ hasText: /^Statementcannot be blank$/ })
+						.nth(25)
+				).toBeVisible();
+
+				console.log(`System detected missing required Statement fields`);
 			});
 
 			await test.step('17.3. User: Corrects the errors in the input fields', async () => {
@@ -1688,6 +2266,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await page.getByRole('link', { name: 'Publish' }).click();
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 				await expect(page.getByText('Survey successfully published.')).toBeVisible();
+
+				// Verify that the survey was actually created with the correct number of questions (after validation)
+				await verifyPublishedQuestionsCount(page, questionsCount, 'validation flow survey creation');
 
 				console.log('System revalidated corrected fields successfully and poll was saved and published');
 				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
