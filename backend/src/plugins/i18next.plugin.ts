@@ -6,7 +6,7 @@ import middleware from 'i18next-http-middleware';
 // eslint-disable-next-line import/order
 import path from 'path';
 
-export default fp(async function (fastify, opts) {
+export default fp(async function (fastify) {
 	await i18next
 		.use(middleware.LanguageDetector)
 		.use(backend)
@@ -22,7 +22,7 @@ export default fp(async function (fastify, opts) {
 		i18next
 	});
 
-	fastify.addHook('onRequest', async (request, reply) => {
+	fastify.addHook('onRequest', async request => {
 		request.i18n = i18next.cloneInstance();
 		request.i18n.changeLanguage(request.language);
 	});

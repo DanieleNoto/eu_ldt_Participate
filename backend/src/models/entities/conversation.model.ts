@@ -29,13 +29,13 @@ export default class Conversation extends Model<ConversationAttributes, Conversa
 	declare conversationId: string;
 
 	@Column({
-		type: DataType.STRING,
+		type: DataType.STRING(255),
 		allowNull: false
 	})
 	declare nodeId: string;
 
 	@Column({
-		type: DataType.TEXT,
+		type: DataType.STRING(1000),
 		allowNull: false
 	})
 	declare message: string;

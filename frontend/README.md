@@ -447,11 +447,25 @@ This project is set up to enforce best practices in code quality through:
 
 Application settings are managed via several configuration files:
 
-- API Configuration: src/config/api-config.ts defines endpoints and methods.
-- Logger Configuration: src/config/logger.config.ts for log level settings.
-- Date Formatting: src/config/dateFns.config.ts for date-related configurations.
-- Toastr (Toast Notifications): src/config/toastr.config.ts for notification settings.
-- Environment-specific configurations are loaded at runtime into the RUNTIME_APP_CONFIG object, ensuring flexibility and ease of deployment.
+- **API Configuration**: `src/config/api-config.ts` defines endpoints and methods.
+- **Logger Configuration**: `src/config/logger.config.ts` for log level settings.
+- **Date Formatting**: `src/config/dateFns.config.ts` for date-related configurations.
+- **Toastr (Toast Notifications)**: `src/config/toastr.config.ts` for notification settings.
+- **Chatbot Configuration**: `src/config/chatbot.config.ts` for simplified chatbot setup with environment variable support.
+
+### Environment Variables
+
+The chatbot configuration supports the following environment variable:
+
+- `BACKEND_URL`: Backend API base URL (default: `http://localhost:3000`)
+
+To configure the backend URL:
+
+1. Copy `.env.example` to `.env.local`
+2. Modify the `BACKEND_URL` value as needed for your environment
+3. The application will automatically use this value at runtime
+
+Environment-specific configurations are loaded at runtime, ensuring flexibility and ease of deployment.
 
 ## Additional Information
 

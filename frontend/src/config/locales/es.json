@@ -1,10 +1,10 @@
 {
 	"chatbot": {
 		"title": "Chat",
-		"openHelpAssistant": "Abrir asistente de ayuda",
-		"closeHelpAssistant": "Cerrar asistente de ayuda",
+		"openHelpAssistant": "Abrir el asistente de ayuda",
+		"closeHelpAssistant": "Cerrar el asistente de ayuda",
 		"goBackToFaqList": "Volver a la lista de preguntas frecuentes",
-		"chatWithVirtualAssistant": "Chatear con el asistente virtual",
+		"chatWithVirtualAssistant": "Chatear con el asistente de ayuda",
 		"suggestions": "Sugerencias",
 		"hereArePossibleAnswers": "Aquí están las posibles respuestas relacionadas con la pregunta:",
 		"ifYouNeedMoreHelp": "Si necesitas más ayuda:",

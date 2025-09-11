@@ -18,7 +18,7 @@ export const registerRoute = (options: RegisterRouteOptions) => {
 	const fullPath = `/${resourceName}${path}`;
 
 	const routeOptions: RouteOptions = {
-		method: method.toLowerCase() as 'GET' | 'POST' | 'PUT' | 'DELETE',
+		method: method.toLowerCase() as 'GET' | 'POST',
 		url: fullPath,
 		handler: controllerMethod
 	};

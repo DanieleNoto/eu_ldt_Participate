@@ -3,6 +3,7 @@ import { configureStore, createSlice } from '@reduxjs/toolkit';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { ReactNode } from 'react';
 import { Provider } from 'react-redux';
+import { chatbotConfig } from '@config/chatbot.config';
 import { PALETTE } from './theme/styles/palette';
 import { ToastrProvider } from './shared/toastr/context/ToastrContext';
 import '../i18n';
@@ -11,36 +12,7 @@ import '../i18n';
 const configSlice = createSlice({
 	name: 'config',
 	initialState: {
-		config: {
-			backend: {
-				baseUrl: 'http://localhost:3000',
-				api: [
-					{
-						name: 'chatMessage',
-						url: '/api/v1/chat/',
-						method: 'post',
-						headers: {
-							'Content-Type': 'application/json'
-						}
-					},
-					{
-						name: 'supportSend',
-						url: '/api/v1/support/send',
-						method: 'post',
-						headers: {
-							'Content-Type': 'application/json'
-						}
-					}
-				]
-			},
-			toastr: {
-				duration: 5000
-			},
-			logger: {
-				level: 'info'
-			},
-			appName: 'EU LDT Participate Chatbot'
-		}
+		config: chatbotConfig
 	},
 	reducers: {}
 });
