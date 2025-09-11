@@ -37,6 +37,7 @@ WORKDIR /code
 # Copy package files FIRST for better Docker layer caching
 COPY package.json ./
 COPY Gemfile ./
+COPY engines/ ./engines/
 
 # Install Ruby gems (cached layer)
 RUN bundle config set --local deployment 'false' && \

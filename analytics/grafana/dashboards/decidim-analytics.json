@@ -78,7 +78,7 @@
 					"editorMode": "code",
 					"format": "table",
 					"rawQuery": true,
-					"rawSql": "SELECT COUNT(*) as value FROM decidim_participatory_processes;",
+					"rawSql": "SELECT COUNT(*) as value FROM decidim_participatory_processes WHERE deleted_at IS NULL;",
 					"refId": "A"
 				}
 			],
@@ -142,7 +142,7 @@
 					"editorMode": "code",
 					"format": "table",
 					"rawQuery": true,
-					"rawSql": "SELECT COUNT(*) as value FROM decidim_assemblies;",
+					"rawSql": "SELECT COUNT(*) as value FROM decidim_assemblies WHERE deleted_at IS NULL;",
 					"refId": "A"
 				}
 			],
@@ -210,7 +210,7 @@
 					"editorMode": "code",
 					"format": "table",
 					"rawQuery": true,
-					"rawSql": "SELECT id, slug, (title->>'en') as title FROM decidim_participatory_processes ORDER BY id DESC LIMIT 10;",
+					"rawSql": "SELECT id, slug, COALESCE(title->>'en', title->>'it', title->>'fr', title->>'de', title->>'es', title::text) as title FROM decidim_participatory_processes WHERE deleted_at IS NULL ORDER BY id DESC LIMIT 10;",
 					"refId": "A"
 				}
 			],
@@ -278,7 +278,7 @@
 					"editorMode": "code",
 					"format": "table",
 					"rawQuery": true,
-					"rawSql": "SELECT id, (title->>'en') as title, created_at FROM decidim_proposals_proposals ORDER BY created_at DESC LIMIT 10;",
+					"rawSql": "SELECT id, COALESCE(title->>'en', title->>'it', title->>'fr', title->>'de', title->>'es', title::text) as title, created_at FROM decidim_proposals_proposals WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 10;",
 					"refId": "A"
 				}
 			],
@@ -375,7 +375,7 @@
 					"editorMode": "code",
 					"format": "time_series",
 					"rawQuery": true,
-					"rawSql": "SELECT DATE_TRUNC('day', created_at) as time, COUNT(*) as value FROM decidim_users WHERE created_at >= NOW() - INTERVAL '30 days' GROUP BY DATE_TRUNC('day', created_at) ORDER BY time;",
+					"rawSql": "SELECT DATE_TRUNC('day', created_at) as time, COUNT(*) as value FROM decidim_users WHERE created_at >= NOW() - INTERVAL '30 days' AND deleted_at IS NULL AND type = 'Decidim::User' GROUP BY DATE_TRUNC('day', created_at) ORDER BY time;",
 					"refId": "A"
 				}
 			],

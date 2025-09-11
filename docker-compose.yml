@@ -18,6 +18,10 @@ services:
             - NODE_ENV=${NODE_ENV}
             - DECIDIM_MAILER_SENDER=${DECIDIM_MAILER_SENDER}
             - QUEUE_ADAPTER=${QUEUE_ADAPTER}
+            - OMNIAUTH_KEYCLOAK_CLIENT_ID=${OMNIAUTH_KEYCLOAK_CLIENT_ID}
+            - OMNIAUTH_KEYCLOAK_CLIENT_SECRET=${OMNIAUTH_KEYCLOAK_CLIENT_SECRET}
+            - OMNIAUTH_KEYCLOAK_SITE=${OMNIAUTH_KEYCLOAK_SITE}
+            - OMNIAUTH_KEYCLOAK_REALM=${OMNIAUTH_KEYCLOAK_REALM}
             - SHAKAPACKER_DEV_SERVER_HOST=0.0.0.0
             - SHAKAPACKER_DEV_SERVER_PORT=3035
             - SHAKAPACKER_DEV_SERVER_ENABLED=true
@@ -26,6 +30,15 @@ services:
             # Database reset and setup flags (controlled by make commands)
             - FORCE_DB_RESET=${FORCE_DB_RESET:-false}
             - FORCE_DATA_SETUP=${FORCE_DATA_SETUP:-false}
+            # SMTP configuration
+            - SMTP_ADDRESS=${SMTP_ADDRESS}
+            - SMTP_PORT=${SMTP_PORT}
+            - SMTP_USER_NAME=${SMTP_USER_NAME}
+            - SMTP_PASSWORD=${SMTP_PASSWORD}
+            - SMTP_DOMAIN=${SMTP_DOMAIN}
+            - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
+            - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
+            - SMTP_OPENSSL_VERIFY_MODE=${SMTP_OPENSSL_VERIFY_MODE}
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
@@ -117,7 +130,7 @@ services:
         volumes:
             - grafana_data:/var/lib/grafana
             - ./analytics/grafana/provisioning:/etc/grafana/provisioning
-            - ./analytics/grafana/dashboards:/etc/grafana/provisioning/dashboards
+            - ./analytics/grafana/dashboards:/var/lib/grafana/dashboards
         networks:
             - private
         depends_on:

@@ -1,0 +1,12 @@
+---
+en:
+  decidim:
+    system:
+      organizations:
+        omniauth_settings:
+          keycloakopenid:
+            client_id: Client ID
+            client_options: Client options
+            client_secret: Client secret
+            realm: Realm
+            site: Site
