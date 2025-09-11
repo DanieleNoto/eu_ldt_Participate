@@ -31,12 +31,67 @@ After deployment, add the following entry to your `/etc/hosts` file:
 
 Then you can access Jitsi at: https://jitsi.participate.local
 
-## Configuration
+# Jitsi Meet for Kubernetes
 
-The main configuration parameters are stored in the `jitsi-configmap.yml` file. You can modify this file to change Jitsi's behavior.
+This directory contains Kubernetes manifests to deploy Jitsi Meet in a Kubernetes cluster.
 
-Sensitive information like passwords are stored in the `jitsi-secrets.yml` file.
+## Components
 
-## Integration with Decidim
+The deployment includes:
 
-To integrate Jitsi with Decidim, make sure the Decidim application can access the Jitsi instance at the configured URL.
+- Prosody (XMPP server)
+- Jicofo (conference focus)
+- JVB (video bridge)
+- Web (frontend)
+
+## Deploying
+
+Use the helper script to apply resources in the correct order:
+
+```bash
+./apply-jitsi-k8s.sh
+```
+
+## Configuration and tokenization
+
+Configuration values are stored in `jitsi-configmap.yml`. Sensitive values are kept in `jitsi-secrets.yml`.
+
+To avoid hardcoding, many values have been replaced with placeholder tokens of the form `_%TOOL3_JITSI_<KEY>%_`.
+
+Files updated:
+
+- `infrastructure/int/jitsi/jitsi-configmap.yml` — tokens used for configuration values (e.g. `_%TOOL3_JITSI_XMPP_DOMAIN%_`).
+- `infrastructure/int/jitsi/jitsi-secrets.yml` — tokens in `stringData` for sensitive values.
+
+How to replace tokens before applying manifests:
+
+- CI / pipeline: render tokens using your CI templating tools or `envsubst` with environment variables.
+- Kubernetes: create the required Secrets in-cluster with the real values, then apply ConfigMaps/Deployments that reference those Secrets.
+- Helm/Kustomize: use values files or secret generators to produce final manifests.
+- Vault/SOPS: store secrets in a manager and render manifests at deploy time.
+
+Quick local example with `envsubst`:
+
+```bash
+# export required variables
+export TOOL3_JITSI_XMPP_DOMAIN=jitsi.participate.local
+export TOOL3_JITSI_XMPP_BOSH_URL_BASE=https://jitsi.participate.local/http-bind
+# render and apply
+envsubst < infrastructure/int/jitsi/jitsi-configmap.yml | kubectl apply -n participate -f -
+```
+
+## Access
+
+For local testing you can add a hosts entry:
+
+```
+127.0.0.1 jitsi.participate.local
+```
+
+Then open https://jitsi.participate.local in your browser.
+
+If you want, I can:
+
+- Validate the YAML files for syntax correctness.
+- Add example Deployment snippets showing how to mount Secrets via `envFrom`.
+- Provide a small `render-manifests.sh` helper script that runs `envsubst` for local development.
