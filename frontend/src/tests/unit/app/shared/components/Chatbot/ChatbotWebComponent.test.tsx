@@ -22,10 +22,7 @@ jest.mock('@src/i18n', () => ({
 	}
 }));
 
-// Mock global CSS import
-jest.mock('@theme/styles/global.css', () => ({}));
-
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import ChatbotWebComponent from '@app/shared/components/Chatbot/ChatbotWebComponent';
 
 // Mock dependencies
@@ -74,7 +71,9 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should render chatbot after config is loaded', async () => {
-		render(<ChatbotWebComponent />);
+		await act(async () => {
+			render(<ChatbotWebComponent />);
+		});
 
 		await waitFor(() => {
 			expect(screen.getByTestId('chatbot')).toBeInTheDocument();
@@ -84,7 +83,9 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should pass language prop to chatbot', async () => {
-		render(<ChatbotWebComponent language="fr" />);
+		await act(async () => {
+			render(<ChatbotWebComponent language="fr" />);
+		});
 
 		await waitFor(() => {
 			expect(screen.getByTestId('chatbot')).toHaveAttribute('data-language', 'fr');
@@ -92,7 +93,9 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should pass className prop to chatbot', async () => {
-		render(<ChatbotWebComponent className="custom-class" />);
+		await act(async () => {
+			render(<ChatbotWebComponent className="custom-class" />);
+		});
 
 		await waitFor(() => {
 			expect(screen.getByTestId('chatbot')).toHaveAttribute('data-class', 'custom-class');
@@ -101,7 +104,9 @@ describe('ChatbotWebComponent', () => {
 
 	it('should pass onSupportSent callback to chatbot', async () => {
 		const mockCallback = jest.fn();
-		render(<ChatbotWebComponent onSupportSent={mockCallback} />);
+		await act(async () => {
+			render(<ChatbotWebComponent onSupportSent={mockCallback} />);
+		});
 
 		await waitFor(() => {
 			expect(screen.getByTestId('chatbot')).toBeInTheDocument();
@@ -113,7 +118,9 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should use default language "en" when no language prop provided', async () => {
-		render(<ChatbotWebComponent />);
+		await act(async () => {
+			render(<ChatbotWebComponent />);
+		});
 
 		await waitFor(() => {
 			expect(screen.getByTestId('chatbot')).toHaveAttribute('data-language', 'en');
@@ -125,7 +132,9 @@ describe('ChatbotWebComponent', () => {
 		
 		const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-		render(<ChatbotWebComponent />);
+		await act(async () => {
+			render(<ChatbotWebComponent />);
+		});
 
 		await waitFor(() => {
 			expect(screen.getByTestId('chatbot')).toBeInTheDocument();
@@ -146,7 +155,9 @@ describe('ChatbotWebComponent', () => {
 		
 		const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-		render(<ChatbotWebComponent />);
+		await act(async () => {
+			render(<ChatbotWebComponent />);
+		});
 
 		await waitFor(() => {
 			expect(screen.getByTestId('chatbot')).toBeInTheDocument();
@@ -157,7 +168,9 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should render chatbot in fixed position container', async () => {
-		render(<ChatbotWebComponent />);
+		await act(async () => {
+			render(<ChatbotWebComponent />);
+		});
 
 		await waitFor(() => {
 			const container = screen.getByTestId('chatbot').parentElement;
@@ -171,7 +184,9 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should wrap chatbot in SimplifiedMainProvider', async () => {
-		render(<ChatbotWebComponent />);
+		await act(async () => {
+			render(<ChatbotWebComponent />);
+		});
 
 		await waitFor(() => {
 			expect(screen.getByTestId('simplified-main-provider')).toBeInTheDocument();

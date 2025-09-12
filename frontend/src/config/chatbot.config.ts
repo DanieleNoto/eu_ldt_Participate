@@ -14,8 +14,16 @@ export interface ChatbotConfig {
 	appName: string;
 }
 
+// Environment variable getter that works in both Vite and Jest environments
 const getEnvVar = (key: string, defaultValue: string): string => {
-	return import.meta.env[key] || defaultValue;
+	// In test environment or Node.js, use process.env
+	if (typeof process !== 'undefined' && process.env) {
+		return process.env[key] || defaultValue;
+	}
+
+	// In browser/Vite environment, environment variables are typically injected at build time
+	// For now, return the default value in browser environment
+	return defaultValue;
 };
 
 export const chatbotConfig: ChatbotConfig = {

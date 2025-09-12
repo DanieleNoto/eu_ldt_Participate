@@ -39,7 +39,7 @@ describe('i18next Plugin', () => {
 	});
 
 	test('should initialize i18next with correct configuration', async () => {
-		await i18nextPlugin(mockFastify, {});
+		await i18nextPlugin(mockFastify);
 
 		expect(mockI18next.use).toHaveBeenCalledWith(middleware.LanguageDetector);
 		expect(mockI18next.use).toHaveBeenCalledWith(backend);
@@ -53,7 +53,7 @@ describe('i18next Plugin', () => {
 	});
 
 	test('should register middleware plugin with i18next instance', async () => {
-		await i18nextPlugin(mockFastify, {});
+		await i18nextPlugin(mockFastify);
 
 		expect(mockFastify.register).toHaveBeenCalledWith(middleware.plugin, {
 			i18next: mockI18next
@@ -61,7 +61,7 @@ describe('i18next Plugin', () => {
 	});
 
 	test('should add onRequest hook for language handling', async () => {
-		await i18nextPlugin(mockFastify, {});
+		await i18nextPlugin(mockFastify);
 
 		expect(mockFastify.addHook).toHaveBeenCalledWith('onRequest', expect.any(Function));
 	});
@@ -72,7 +72,7 @@ describe('i18next Plugin', () => {
 		};
 		mockI18next.cloneInstance.mockReturnValue(mockI18nInstance as any);
 
-		await i18nextPlugin(mockFastify, {});
+		await i18nextPlugin(mockFastify);
 
 		const onRequestHandler = mockFastify.addHook.mock.calls[0][1];
 		await (onRequestHandler as any).call(mockFastify, mockRequest, {} as any, {} as any);
@@ -89,7 +89,7 @@ describe('i18next Plugin', () => {
 		mockI18next.cloneInstance.mockReturnValue(mockI18nInstance as any);
 		mockRequest.language = 'fr';
 
-		await i18nextPlugin(mockFastify, {});
+		await i18nextPlugin(mockFastify);
 
 		const onRequestHandler = mockFastify.addHook.mock.calls[0][1];
 		await (onRequestHandler as any).call(mockFastify, mockRequest, {} as any, {} as any);
