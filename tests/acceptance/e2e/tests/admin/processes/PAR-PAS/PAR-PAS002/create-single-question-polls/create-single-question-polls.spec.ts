@@ -4,12 +4,12 @@ import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
+import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
 import { QuestionnaireTemplatesPage } from '@pages/pages/admin/templates/QuestionnaireTemplatesPage';
 import { NewTemplatePage } from '@pages/pages/admin/templates/NewTemplatePage';
 import { EditTemplatePage } from '@pages/pages/admin/templates/EditTemplatePage';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
-import { LocalizationUtils } from '@utils/localization.utils';
 
 /**
  * Create quick polls for immediate feedback
@@ -33,6 +33,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
 	let componentsPage: ComponentsPage;
+	let surveysManagePage: SurveysManagePage;
 	let templatesPage: QuestionnaireTemplatesPage;
 	let newTemplatePage: NewTemplatePage;
 	let editTemplatePage: EditTemplatePage;
@@ -46,87 +47,30 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 		processAdminPage = new ProcessAdminPage(page);
 		updateProcessAdminPage = new UpdateProcessAdminPage(page);
 		componentsPage = new ComponentsPage(page);
+		surveysManagePage = new SurveysManagePage(page);
 		templatesPage = new QuestionnaireTemplatesPage(page);
 		newTemplatePage = new NewTemplatePage(page);
 		editTemplatePage = new EditTemplatePage(page);
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 
 		// Setup test environment
-		await setupTestProcess(page);
+		await setupTestProcess();
 	});
 
 	/**
 	 * Setup test environment by creating a new test process as prerequisite
 	 */
-	async function setupTestProcess(page: any) {
+	async function setupTestProcess() {
 		await test.step('Setup: Create new test process as prerequisite', async () => {
-			// Navigate to admin home and processes
-			await adminHomePage.navigateToAdminHomePage();
-			await processAdminPage.navigateToProcesses();
-			await page.waitForLoadState('networkidle');
-
-			// Create a new test process as prerequisite
-			await processAdminPage.navigateToNewProcess();
-			await processAdminPage.fillGeneralInfo(validProcessData.general);
-			await processAdminPage.fillMetadataInfo(validProcessData.metadata);
-			await processAdminPage.setVisibilityToPublic();
-			await processAdminPage.submitProcess();
-
-			// Wait for process creation to complete
-			await processAdminPage.expectSuccessMessage();
-			await page.waitForURL(/\/admin\/participatory_processes\/.*\/steps/);
-
-			// Log successful process creation
-			console.log('New process created:', validProcessData.general.title);
-			console.log('Process URL:', page.url());
-
-			// Store the process slug for later use (extract from current URL)
-			const currentUrl = page.url();
-			const processSlugMatch = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
-			const processSlug = processSlugMatch ? processSlugMatch[1] : '';
-
-			// Navigate to the process edit page directly and store URL
-			await page.goto(`/admin/participatory_processes/${processSlug}/edit`);
-			await page.waitForLoadState('networkidle');
-
-			// Store the process edit URL for later use
-			processEditUrl = page.url();
-			console.log('Process edit URL stored:', processEditUrl);
+			const { processSlug: slug, processEditUrl: url } = await surveysManagePage.setupTestProcess(
+				validProcessData,
+				adminHomePage,
+				processAdminPage,
+				false // do not publish the process
+			);
+			processEditUrl = url;
+			console.log('Test process setup completed');
 		});
-	}
-
-	/**
-	 * Helper function to search and select a process by title
-	 */
-	async function searchAndSelectProcess(page: any, processTitle: string) {
-		const processSearchParticipatory = page.getByRole('searchbox', { name: 'Search Participatory' });
-		await processSearchParticipatory.click();
-		await processSearchParticipatory.fill(processTitle);
-		await page.getByRole('button', { name: 'Search' }).click();
-
-		// Click on the created process to open edit page
-		await page
-			.getByRole('link', {
-				name: processTitle.split(' ')[0] + ' ' + processTitle.split(' ')[1]
-			})
-			.click();
-	}
-
-	/**
-	 * Helper function to configure step settings announcement
-	 */
-	async function configureStepAnnouncement(page: any, announcementText: string) {
-		await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
-		await page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').fill(announcementText);
-	}
-
-	/**
-	 * Helper function to verify published survey questions count
-	 */
-	async function verifyPublishedQuestionsCount(page: any, expectedCount: number, flowDescription: string) {
-		// Verify the cell with the expected count is visible to confirm the survey was created
-		await expect(page.getByRole('cell', { name: expectedCount.toString(), exact: true })).toBeVisible();
-		console.log(`Verified ${flowDescription}: ${expectedCount} question(s) published as expected`);
 	}
 
 	test.describe('Main Flow', () => {
@@ -163,7 +107,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 			await test.step('3. User: Selects the process that want to update.', async () => {
 				// Search for our created process by title and select it
-				await searchAndSelectProcess(page, validProcessData.general.title);
+				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
 				console.log('Selected process to update');
 			});
 
@@ -182,119 +126,42 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			});
 
 			await test.step('6. User: Clicks on "Add Component" and select Survey.', async () => {
-				await page.getByRole('button', { name: 'Add component' }).click();
-				await page.getByRole('link', { name: 'Surveys' }).click();
-				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components/new?type=surveys`);
+				await surveysManagePage.addComponentAndSelectSurvey(componentsPage, processSlug);
 				console.log('Selected Survey component type');
 			});
 
 			await test.step('7. System: Displays the "Add Survey" form.', async () => {
 				// Verify the Add Survey form is displayed with required fields
-				await expect(page.getByRole('textbox', { name: 'name' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add component', exact: true })).toBeVisible();
-
-				// Verify we're on the correct URL for adding surveys component
-				expect(page.url()).toContain('/components/new?type=surveys');
+				await surveysManagePage.verifyAddSurveyFormDisplayed();
 				console.log('Add Survey form displayed with name field and add component button');
 			});
 
 			await test.step('8. User: Fulfil name and description input and click on "Add component" button.', async () => {
-				// Fill component name
-				await page.getByRole('textbox', { name: 'name' }).click();
-				await page.getByRole('textbox', { name: 'name' }).fill(componentName);
-
-				// Fill global settings announcement using dynamic localization
-				const globalAnnouncementSelector = await LocalizationUtils.getWorkingLocalizedSelector(
-					page,
-					'component_settings_announcement'
-				);
-				await page.locator(globalAnnouncementSelector).getByRole('textbox', { name: 'Announcement' }).click();
-				await page
-					.locator(globalAnnouncementSelector)
-					.getByRole('textbox', { name: 'Announcement' })
-					.fill('Global settings description');
-
-				// Fill step settings announcement
-				await configureStepAnnouncement(page, 'Step settings description');
-
-				// Click Add component button to create the surveys component
-				await page.getByRole('button', { name: 'Add component', exact: true }).click();
-				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
-
+				await surveysManagePage.fulfillSurveyFormAndCreateComponent(componentName, processSlug, false);
 				console.log(`Configured component settings and created component: ${componentName}`);
 			});
 
 			await test.step('9. System: Display the "Edit questionnaire" form and ask to user to select a template or Skip.', async () => {
-				// Access the Surveys component management
-				await componentsPage.manageComponent(componentName);
-
-				// Create new survey
-				await page.getByRole('link', { name: 'New survey' }).click();
-				await page.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
-				);
+				await surveysManagePage.accessComponentAndCreateNewSurvey(componentsPage, componentName);
+				await surveysManagePage.verifyTemplateSelectionDisplayed();
 			});
 
 			await test.step('10. User: Clicks "Skip".', async () => {
-				// Skip choose template
-				const skipLink = page.getByRole('link', { name: 'Skip' });
-				const skipLinkVisible = await skipLink.isVisible().catch(() => false);
-				if (skipLinkVisible) {
-					await skipLink.click();
-					await page.waitForURL(
-						/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
-					);
-					console.log('Clicked Skip to proceed without template');
-				}
+				await surveysManagePage.skipTemplateSelection();
 			});
 
 			await test.step('11. System: Create the new empty questionnaire and displays options for adding survey elements.', async () => {
-				// Verify the empty questionnaire form is displayed with survey configuration options
-				await expect(page.getByRole('textbox', { name: 'title' })).toBeVisible();
-				await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible();
-
-				// Verify that the fields are empty as expected for a new questionnaire
-				await expect(page.getByRole('textbox', { name: 'title' })).toHaveValue('');
-
-				const descriptionField = page.getByRole('textbox', { name: 'Description' }).first();
-				await expect(descriptionField).toHaveText('');
-
-				console.log('Empty questionnaire form displayed with survey configuration options');
+				await surveysManagePage.verifyEmptyQuestionnaireDisplayed();
 			});
 
 			await test.step('12. User: Fulfil name and description input', async () => {
-				// Generate timestamp for survey name
 				const surveyTimestamp = Date.now().toString();
 				const surveyName = `survey_${surveyTimestamp}`;
-
-				// Fill survey details
-				await page.getByRole('textbox', { name: 'title' }).click();
-				await page.getByRole('textbox', { name: 'title' }).fill(surveyName);
-
-				await page.getByRole('textbox', { name: 'Description' }).click();
-				await page.getByRole('textbox', { name: 'Description' }).fill('description');
-
-				await page.getByRole('textbox', { name: 'Terms of service' }).click();
-				await page.getByRole('textbox', { name: 'Terms of service' }).fill('TOS');
-
-				console.log(`Configured survey with title: ${surveyName}`);
-
-				// Save survey and return to surveys list
-				await page.getByRole('button', { name: 'Save' }).click();
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
-				await expect(page.getByText('Survey successfully saved.')).toBeVisible();
-				console.log('Survey saved successfully and returned to surveys list');
+				await surveysManagePage.fillSurveyDetailsAndSave(surveyName, 'description');
 			});
 
 			await test.step('13. User: Clicks "Add Question" to add question to the poll.', async () => {
-				// Click the Manage questions link
-				await page.locator('a[title="Manage questions"]').click();
-
-				await page.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
-				);
-				await page.waitForLoadState('networkidle');
-				console.log('Accessed questions management page');
+				await surveysManagePage.accessQuestionsManagement();
 
 				// Add new question
 				await page.getByRole('button', { name: 'Add question' }).click();
@@ -338,24 +205,19 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			});
 
 			await test.step('16. User: Clicks on "Save" to create Single-Question Polls', async () => {
-				// Save questions and return to surveys
-				await page.getByRole('button', { name: 'Save' }).click();
+				await surveysManagePage.clickSaveQuestions();
 			});
 
 			await test.step('17. System: Validates the form for completeness and correctness.', async () => {
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
-				await expect(page.getByText('Survey questions successfully')).toBeVisible();
-				console.log('Single-question poll saved successfully');
+				await surveysManagePage.verifySurveyQuestionsSaved();
 			});
 
 			await test.step('18. System: Saves the template', async () => {
 				// Final step: Publish the survey poll
-				await page.getByRole('link', { name: 'Publish' }).click();
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
-				await expect(page.getByText('Survey successfully published.')).toBeVisible();
+				await surveysManagePage.publishSurvey();
 
 				// Verify that the survey was actually created with the correct number of questions (dynamic count)
-				await verifyPublishedQuestionsCount(page, questionsCount, 'survey creation');
+				await surveysManagePage.verifyPublishedQuestionsCount(questionsCount, 'survey creation');
 
 				console.log('single-question poll is successfully created and published');
 
@@ -366,6 +228,8 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 	});
 
 	test.describe('Alternative Flow: Select template', () => {
+		let templateQuestionsCount = 0;
+
 		test.beforeEach(async ({ page }) => {
 			await test.step('Setup: Navigate to Templates section', async () => {
 				await templatesPage.navigateToPage();
@@ -421,6 +285,8 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
 				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
 
+				templateQuestionsCount++;
+
 				console.log('Question configured: "What is your opinion on this topic?" with mandatory long answer');
 			});
 
@@ -449,9 +315,6 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			const timestamp = Date.now().toString();
 			const componentName = `Surveys_Template_${timestamp}`;
 
-			// Track the number of questions expected from template (1 question was added in beforeEach)
-			const expectedQuestionsFromTemplate = 1;
-
 			await test.step('1-9. User: Navigates through process setup and creates Survey component with template selection', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -462,46 +325,25 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				expect(isOnProcessesPage).toBe(true);
 
 				// Search for our created process by title and select it
-				await searchAndSelectProcess(page, validProcessData.general.title);
+				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
 
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
 				await page.waitForLoadState('networkidle');
 
-				// Navigate to Components section
+				// Navigate to Components section and create Survey component
 				await updateProcessAdminPage.navigateToComponents();
 
-				// Add new Surveys component
-				await page.getByRole('button', { name: 'Add component' }).click();
-				await page.getByRole('link', { name: 'Surveys' }).click();
-				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components/new?type=surveys`);
+				// Clicks on "Add Component" and selects Survey
+				await surveysManagePage.addComponentAndSelectSurvey(componentsPage, processSlug);
+				// Displays the "Add Survey" form
+				await surveysManagePage.verifyAddSurveyFormDisplayed();
+				// Fulfil name and description input and click on "Add component" button
+				await surveysManagePage.fulfillSurveyFormAndCreateComponent(componentName, processSlug, false);
 
-				// Configure Surveys component settings
-				await page.getByRole('textbox', { name: 'name' }).click();
-				await page.getByRole('textbox', { name: 'name' }).fill(componentName);
-
-				const globalAnnouncementSelector = await LocalizationUtils.getWorkingLocalizedSelector(
-					page,
-					'component_settings_announcement'
-				);
-				await page.locator(globalAnnouncementSelector).getByRole('textbox', { name: 'Announcement' }).click();
-				await page
-					.locator(globalAnnouncementSelector)
-					.getByRole('textbox', { name: 'Announcement' })
-					.fill('Global settings description');
-
-				await configureStepAnnouncement(page, 'Step settings description');
-
-				// Create the Surveys component
-				await page.getByRole('button', { name: 'Add component', exact: true }).click();
-				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
 				await expect(page.getByText('Component created successfully')).toBeVisible();
 
-				// Access the Surveys component management and create new survey
-				await componentsPage.manageComponent(componentName);
-				await page.getByRole('link', { name: 'New survey' }).click();
-				await page.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
-				);
+				await surveysManagePage.accessComponentAndCreateNewSurvey(componentsPage, componentName);
+				await surveysManagePage.verifyTemplateSelectionDisplayed();
 
 				console.log(
 					`Completed steps 1-9: Survey component "${componentName}" created and ready for template selection`
@@ -524,41 +366,13 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			});
 
 			await test.step('10.2. System: Create the new questionnaire based on selected template and displays options for adding survey elements', async () => {
-				// Verify the empty questionnaire form is displayed initially
-				await expect(page.getByRole('textbox', { name: 'title' })).toBeVisible();
-				await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible();
+				await surveysManagePage.verifyEmptyQuestionnaireDisplayed();
 
-				// Verify that the fields are empty as expected for a new questionnaire from template
-				await expect(page.getByRole('textbox', { name: 'title' })).toHaveValue('');
-
-				const descriptionField = page.getByRole('textbox', { name: 'Description' }).first();
-				await expect(descriptionField).toHaveText('');
-
-				// Generate timestamp for survey name
 				const surveyTimestamp = Date.now().toString();
 				const surveyName = `survey_template_${surveyTimestamp}`;
+				await surveysManagePage.fillSurveyDetailsAndSave(surveyName, 'Survey created from template');
 
-				// Fill survey details (Step 12 equivalent)
-				await page.getByRole('textbox', { name: 'title' }).click();
-				await page.getByRole('textbox', { name: 'title' }).fill(surveyName);
-
-				await page.getByRole('textbox', { name: 'Description' }).click();
-				await page.getByRole('textbox', { name: 'Description' }).fill('Survey created from template');
-
-				await page.getByRole('textbox', { name: 'Terms of service' }).click();
-				await page.getByRole('textbox', { name: 'Terms of service' }).fill('TOS for template survey');
-
-				// Save survey and return to surveys list (Steps 13-16 equivalent)
-				await page.getByRole('button', { name: 'Save' }).click();
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
-				await expect(page.getByText('Survey successfully saved.')).toBeVisible();
-
-				// Verify that the template question was imported correctly
-				await page.locator('a[title="Manage questions"]').click();
-				await page.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
-				);
-				await page.waitForLoadState('networkidle');
+				await surveysManagePage.accessQuestionsManagement();
 
 				// Verify the imported question from template is present
 				await expect(page.locator('.questionnaire-question:nth-child(1)')).toBeVisible();
@@ -594,21 +408,20 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 				console.log('Verified template question imported correctly');
 
-				// Return to surveys list for publishing
-				await page.getByRole('button', { name: 'Save' }).click();
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
-				await expect(page.getByText('Survey questions successfully')).toBeVisible();
+				await surveysManagePage.clickSaveQuestions();
+				await surveysManagePage.verifySurveyQuestionsSaved();
 
 				// Verify template questions are pre-populated and publish (Steps 17-18 equivalent)
 				await expect(page.getByRole('link', { name: 'Publish' })).toBeVisible();
 
-				// Final step: Publish the survey poll (Result equivalent)
-				await page.getByRole('link', { name: 'Publish' }).click();
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
-				await expect(page.getByText('Survey successfully published.')).toBeVisible();
+				// Final step: Publish the survey poll
+				await surveysManagePage.publishSurvey();
 
 				// Verify that the survey was actually created with the correct number of questions (from template)
-				await verifyPublishedQuestionsCount(page, expectedQuestionsFromTemplate, 'template survey creation');
+				await surveysManagePage.verifyPublishedQuestionsCount(
+					templateQuestionsCount,
+					'template survey creation'
+				);
 
 				console.log(`Survey with template configured, saved and published successfully`);
 
@@ -641,87 +454,33 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				expect(isOnProcessesPage).toBe(true);
 
 				// Search for our created process by title and select it
-				await searchAndSelectProcess(page, validProcessData.general.title);
+				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
 
 				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
 				await page.waitForLoadState('networkidle');
 
 				// Navigate to Components section and create Survey component
 				await updateProcessAdminPage.navigateToComponents();
-				await page.getByRole('button', { name: 'Add component' }).click();
-				await page.getByRole('link', { name: 'Surveys' }).click();
-				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components/new?type=surveys`);
 
-				// Configure Surveys component settings
-				await page.getByRole('textbox', { name: 'name' }).click();
-				await page.getByRole('textbox', { name: 'name' }).fill(componentName);
+				// Clicks on "Add Component" and selects Survey
+				await surveysManagePage.addComponentAndSelectSurvey(componentsPage, processSlug);
+				// Displays the "Add Survey" form
+				await surveysManagePage.verifyAddSurveyFormDisplayed();
+				// Fulfil name and description input and click on "Add component" button
+				await surveysManagePage.fulfillSurveyFormAndCreateComponent(componentName, processSlug, false);
 
-				const globalAnnouncementSelector = await LocalizationUtils.getWorkingLocalizedSelector(
-					page,
-					'component_settings_announcement'
-				);
-				await page.locator(globalAnnouncementSelector).getByRole('textbox', { name: 'Announcement' }).click();
-				await page
-					.locator(globalAnnouncementSelector)
-					.getByRole('textbox', { name: 'Announcement' })
-					.fill('Global settings description');
-
-				await configureStepAnnouncement(page, 'Step settings description');
-
-				// Create the Surveys component
-				await page.getByRole('button', { name: 'Add component', exact: true }).click();
-				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
 				await expect(page.getByText('Component created successfully')).toBeVisible();
 
-				// Access the Surveys component management and create new survey
-				await componentsPage.manageComponent(componentName);
-				await page.getByRole('link', { name: 'New survey' }).click();
-				await page.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
-				);
-
-				// Skip choose template
-				const skipLink = page.getByRole('link', { name: 'Skip' });
-				const skipLinkVisible = await skipLink.isVisible().catch(() => false);
-				if (skipLinkVisible) {
-					await skipLink.click();
-					await page.waitForURL(
-						/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
-					);
-				}
-
-				// Configure survey details
-				// First verify that the questionnaire form is empty as expected
-				await expect(page.getByRole('textbox', { name: 'title' })).toBeVisible();
-				await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible();
-
-				// Verify that the fields are empty as expected for a new questionnaire
-				await expect(page.getByRole('textbox', { name: 'title' })).toHaveValue('');
-
-				const descriptionField = page.getByRole('textbox', { name: 'Description' }).first();
-				await expect(descriptionField).toHaveText('');
+				await surveysManagePage.accessComponentAndCreateNewSurvey(componentsPage, componentName);
+				await surveysManagePage.verifyTemplateSelectionDisplayed();
+				await surveysManagePage.skipTemplateSelection();
+				await surveysManagePage.verifyEmptyQuestionnaireDisplayed();
 
 				const surveyTimestamp = Date.now().toString();
 				const surveyName = `survey_${surveyTimestamp}`;
+				await surveysManagePage.fillSurveyDetailsAndSave(surveyName, 'description');
 
-				await page.getByRole('textbox', { name: 'title' }).click();
-				await page.getByRole('textbox', { name: 'title' }).fill(surveyName);
-				await page.getByRole('textbox', { name: 'Description' }).click();
-				await page.getByRole('textbox', { name: 'Description' }).fill('description');
-				await page.getByRole('textbox', { name: 'Terms of service' }).click();
-				await page.getByRole('textbox', { name: 'Terms of service' }).fill('TOS');
-
-				// Save survey and return to surveys list
-				await page.getByRole('button', { name: 'Save' }).click();
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
-				await expect(page.getByText('Survey successfully saved.')).toBeVisible();
-
-				// Access questions management and add question
-				await page.locator('a[title="Manage questions"]').click();
-				await page.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
-				);
-				await page.waitForLoadState('networkidle');
+				await surveysManagePage.accessQuestionsManagement();
 
 				// Verify questions management interface is available
 				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
@@ -793,7 +552,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await expect(
 					page
 						.locator('div')
-						.filter({ hasText: /^Statementcannot be blank$/ })
+						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.first()
 				).toBeVisible();
 
@@ -801,7 +560,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await expect(
 					page
 						.locator('div')
-						.filter({ hasText: /^Statementcannot be blank$/ })
+						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(1)
 				).toBeVisible();
 
@@ -809,7 +568,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await expect(
 					page
 						.locator('div')
-						.filter({ hasText: /^Statementcannot be blank$/ })
+						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(2)
 				).toBeVisible();
 
@@ -851,22 +610,19 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 			await test.step('17.4. User: Attempts to save the poll again', async () => {
 				// Save questions after corrections
-				await page.getByRole('button', { name: 'Save' }).click();
+				await surveysManagePage.clickSaveQuestions();
 				console.log('User attempted to save the poll again after corrections');
 			});
 
 			await test.step('17.5. System: Revalidates the corrected fields', async () => {
 				// Verify successful validation and save
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
-				await expect(page.getByText('Survey questions successfully')).toBeVisible();
+				await surveysManagePage.verifySurveyQuestionsSaved();
 
 				// Publish the survey poll to complete the flow
-				await page.getByRole('link', { name: 'Publish' }).click();
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
-				await expect(page.getByText('Survey successfully published.')).toBeVisible();
+				await surveysManagePage.publishSurvey();
 
 				// Verify that the survey was actually created with the correct number of questions (after validation)
-				await verifyPublishedQuestionsCount(page, questionsCount, 'validation flow survey creation');
+				await surveysManagePage.verifyPublishedQuestionsCount(questionsCount, 'survey creation');
 
 				console.log('System revalidated corrected fields successfully and poll was saved and published');
 				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);

@@ -31,6 +31,7 @@ In the Decidim admin panel, when configuring a Meetings component, you can set:
 ### Default Values
 
 The gem uses the following constants for default values:
+
 - `JITSI_DEFAULT_SERVER_URL = "https://meet.jit.si"`
 - `JITSI_DEFAULT_ROOM_PREFIX = "decidim-meeting-"`
 
@@ -45,6 +46,7 @@ gem "decidim-meetings-jitsi", path: "decidim-meetings-jitsi"
 ```
 
 And then execute:
+
 ```bash
 $ bundle install
 ```
