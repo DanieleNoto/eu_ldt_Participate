@@ -1,8 +1,14 @@
 import axios from 'axios';
 import Redis from 'ioredis';
 import { sequelize } from '../config/database';
-import { HealthStatus } from '../enums/health-status.enum';
-import { BaseService } from './base/base.service';
+import logger from '../utils/logger';
+
+// Health status constants
+const HealthStatus = {
+	HEALTHY: 'healthy',
+	UNHEALTHY: 'unhealthy',
+	DEGRADED: 'degraded'
+} as const;
 
 interface HealthCheck {
 	status: string;
@@ -20,7 +26,7 @@ interface ServiceHealthResult {
 
 const checkDatabase = async (): Promise<HealthCheck> => {
 	const startTime = Date.now();
-	let state = HealthStatus.HEALTHY;
+	let state: string = HealthStatus.HEALTHY;
 	let details = '';
 
 	try {
@@ -51,7 +57,7 @@ const checkDatabase = async (): Promise<HealthCheck> => {
 
 const checkRedis = async (): Promise<HealthCheck> => {
 	const startTime = Date.now();
-	let state = HealthStatus.HEALTHY;
+	let state: string = HealthStatus.HEALTHY;
 	let details = '';
 
 	try {
@@ -80,7 +86,7 @@ const checkRedis = async (): Promise<HealthCheck> => {
 
 const checkHttpService = async (url: string, serviceName: string, timeout: number = 5000): Promise<HealthCheck> => {
 	const startTime = Date.now();
-	let state = HealthStatus.HEALTHY;
+	let state: string = HealthStatus.HEALTHY;
 	let details = '';
 
 	try {
@@ -156,33 +162,6 @@ const checkShakapacker = async (): Promise<HealthCheck> => {
 };
 
 /**
- * Simulates a check on an external API.
- * In practice, you can perform an HTTP request with a short timeout.
- */
-const checkExternalAPI = async (): Promise<HealthCheck> => {
-	const startTime = Date.now();
-	try {
-		// Example: make a fast HTTP call (here simulated)
-		// const response = await fetch('https://external-api.example.com/ping', { timeout: 1000 });
-		// if (response.ok) return HealthStatus.HEALTHY;
-		// else return HealthStatus.DEGRADED;
-		return {
-			status: HealthStatus.HEALTHY,
-			timestamp: new Date().toISOString(),
-			responseTime: Date.now() - startTime,
-			details: 'External API check placeholder'
-		};
-	} catch (error) {
-		return {
-			status: HealthStatus.DEGRADED,
-			timestamp: new Date().toISOString(),
-			responseTime: Date.now() - startTime,
-			details: `External API error: ${(error as Error).message}`
-		};
-	}
-};
-
-/**
  * Simulates a check on a critical internal component.
  */
 const checkInternalComponent = async (): Promise<HealthCheck> => {
@@ -226,7 +205,7 @@ const getOverallStatus = (results: Record<string, HealthCheck>): string => {
 	return HealthStatus.HEALTHY;
 };
 
-class HealthService extends BaseService {
+class HealthService {
 	async health(): Promise<ServiceHealthResult> {
 		try {
 			// Execute various checks in parallel
@@ -238,7 +217,6 @@ class HealthService extends BaseService {
 				matomoStatus,
 				jitsiWebStatus,
 				shakapackerStatus,
-				externalStatus,
 				internalStatus
 			] = await Promise.allSettled([
 				checkDatabase(),
@@ -248,7 +226,6 @@ class HealthService extends BaseService {
 				checkMatomo(),
 				checkJitsiWeb(),
 				checkShakapacker(),
-				checkExternalAPI(),
 				checkInternalComponent()
 			]);
 
@@ -304,14 +281,6 @@ class HealthService extends BaseService {
 				shakapacker:
 					shakapackerStatus.status === 'fulfilled'
 						? shakapackerStatus.value
-						: {
-								status: HealthStatus.UNHEALTHY,
-								timestamp: new Date().toISOString(),
-								details: 'Health check failed to execute'
-							},
-				external_api:
-					externalStatus.status === 'fulfilled'
-						? externalStatus.value
 						: {
 								status: HealthStatus.UNHEALTHY,
 								timestamp: new Date().toISOString(),
@@ -426,6 +395,31 @@ class HealthService extends BaseService {
 			healthy: healthResult.status === HealthStatus.HEALTHY,
 			details: healthResult
 		};
+	}
+
+	/**
+	 * Log error with structured logging
+	 */
+	protected logError(options: { message: string; cause?: unknown }): void {
+		const { message, cause } = options;
+
+		const logData: Record<string, unknown> = {
+			message,
+			service: 'HealthService'
+		};
+
+		if (cause) {
+			logData.error =
+				cause instanceof Error
+					? {
+							name: cause.name,
+							message: cause.message,
+							stack: cause.stack
+						}
+					: cause;
+		}
+
+		logger.error(logData);
 	}
 }
 

@@ -2,7 +2,24 @@ import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
 
-const TREE_PATH = path.join(__dirname, '..', 'config', 'qaTree.json');
+// Handle both development and production paths
+const getTreePath = () => {
+	// In production (Docker), files are in /app/build/src/...
+	// In development, files are in src/...
+	const productionPath = path.join(__dirname, '..', 'config', 'qaTree.json');
+	const developmentPath = path.join(process.cwd(), 'src', 'config', 'qaTree.json');
+
+	// Try production path first, then development path
+	if (fs.existsSync(productionPath)) {
+		return productionPath;
+	} else if (fs.existsSync(developmentPath)) {
+		return developmentPath;
+	} else {
+		throw new Error(`qaTree.json not found. Tried paths: ${productionPath}, ${developmentPath}`);
+	}
+};
+
+const TREE_PATH = getTreePath();
 
 const NodeSchema = z.object({
 	id: z.string(),

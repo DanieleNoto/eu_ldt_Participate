@@ -110,6 +110,37 @@ services:
             retries: 20
             start_period: 30s
 
+    backend:
+        build: ./backend/
+        ports:
+            - '3002:3002'
+        env_file:
+            - ./backend/.env
+        environment:
+            - NODE_ENV=development
+            - REDIS_URL=redis://redis:6379/0
+            - DATABASE_URL=postgres://postgres:postgres@db:5432/decidim_application_development
+            - DB_HOST=db
+            - DB_PORT=5432
+            - GRAFANA_URL=http://grafana:3000
+            - DECIDIM_URL=http://decidim:3000
+            - MATOMO_URL=http://matomo:80
+            - JITSI_WEB_URL=http://jitsi-web:80
+            - SHAKAPACKER_URL=http://shakapacker:3035
+        volumes:
+            - ./backend:/app
+            - /app/node_modules
+        networks:
+            - private
+        depends_on:
+            - db
+            - redis
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:3002/api/v1/health']
+            interval: 30s
+            timeout: 10s
+            start_period: 40s
+            retries: 3
     grafana:
         image: grafana/grafana:11.0.0
         ports:

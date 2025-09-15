@@ -15,7 +15,14 @@ const needSync = async () => {
 	return !exists;
 };
 export const createDBConnection = async () => {
-	logger.info({ msg: 'Trying to connect to the database...' });
+	// Construct database URL for logging
+	const dbHost = process.env.DB_HOST || 'localhost';
+	const dbPort = process.env.DB_PORT || '5432';
+	const dbUsername = process.env.DB_USERNAME || 'postgres';
+	const dbName = process.env.DB_NAME || 'postgres';
+	const constructedDatabaseURL = `postgres://${dbUsername}:***@${dbHost}:${dbPort}/${dbName}`;
+
+	logger.info({ msg: 'Trying to connect to the database...', config: constructedDatabaseURL });
 	try {
 		logger.info('Authenticating database connection...');
 		await sequelize.authenticate();
@@ -40,5 +47,5 @@ export const createDBConnection = async () => {
 	}
 };
 
-export const isSQLite = process.env.DB_DIALECT === 'sqlite';
-export const ofString = isSQLite ? DataType.JSON : DataType.ARRAY(DataType.STRING);
+export const isSQLite = false; // Always postgres
+export const ofString = DataType.ARRAY(DataType.STRING); // Always use postgres array type

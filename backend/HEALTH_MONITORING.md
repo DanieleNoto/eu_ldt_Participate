@@ -39,7 +39,6 @@ The system monitors all services from docker-compose.yml:
 
 ### Additional Checks
 
-- **External API** - Placeholder for external service monitoring
 - **Internal Component** - Memory usage and internal metrics
 
 ## Health Check Endpoints

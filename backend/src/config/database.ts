@@ -17,13 +17,17 @@ export const createDatabaseConnection = () => {
 		return createInMemoryDB(storage, (process.env.DB_DIALECT || 'sqlite') as Dialect);
 	}
 
-	const options = {
-		dialect: (process.env.DB_DIALECT || 'postgres') as Dialect,
-		host: process.env.DB_HOST,
-		username: process.env.DB_USERNAME,
-		password: process.env.DB_PASSWORD,
-		port: process.env.DB_PORT as unknown as number,
-		database: process.env.DB_NAME,
+	// Construct database URL from individual environment variables
+	const dbHost = process.env.DB_HOST || 'localhost';
+	const dbPort = process.env.DB_PORT || '5432';
+	const dbUsername = process.env.DB_USERNAME || 'postgres';
+	const dbPassword = process.env.DB_PASSWORD || 'postgres';
+	const dbName = process.env.DB_NAME || 'postgres';
+
+	const constructedDatabaseURL = `postgres://${dbUsername}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`;
+
+	const instance = new Sequelize(constructedDatabaseURL, {
+		dialect: 'postgres',
 		pool: {
 			max: process.env.DB_MAX_POOL ? parseInt(process.env.DB_MAX_POOL, 10) : 10,
 			min: process.env.DB_MIN_POOL ? parseInt(process.env.DB_MIN_POOL, 10) : 2,
@@ -39,9 +43,9 @@ export const createDatabaseConnection = () => {
 		benchmark: true,
 		models: [modelsPath],
 		modelMatch
-	};
+	});
 
-	return new Sequelize(options);
+	return instance;
 };
 
 export const createInMemoryDB = (storage?: string, dialect?: Dialect) => {
