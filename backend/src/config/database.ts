@@ -17,8 +17,13 @@ export const createDatabaseConnection = () => {
 		return createInMemoryDB(storage, (process.env.DB_DIALECT || 'sqlite') as Dialect);
 	}
 
-	const instance = new Sequelize(process.env.DATABASE_URL as string, {
+	const options = {
 		dialect: (process.env.DB_DIALECT || 'postgres') as Dialect,
+		host: process.env.DB_HOST,
+		username: process.env.DB_USERNAME,
+		password: process.env.DB_PASSWORD,
+		port: process.env.DB_PORT as unknown as number,
+		database: process.env.DB_NAME,
 		pool: {
 			max: process.env.DB_MAX_POOL ? parseInt(process.env.DB_MAX_POOL, 10) : 10,
 			min: process.env.DB_MIN_POOL ? parseInt(process.env.DB_MIN_POOL, 10) : 2,
@@ -30,15 +35,13 @@ export const createDatabaseConnection = () => {
 			schema: process.env.DB_SCHEMA || 'public'
 		},
 		logging: process.env.NODE_ENV === 'development' ? logger.debug : false,
-
 		// show time execution of queries
 		benchmark: true,
-
 		models: [modelsPath],
 		modelMatch
-	});
+	};
 
-	return instance;
+	return new Sequelize(options);
 };
 
 export const createInMemoryDB = (storage?: string, dialect?: Dialect) => {

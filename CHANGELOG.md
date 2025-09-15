@@ -1,6 +1,7 @@
 # Changelog from D03.04.Aug to HEAD
- 
+
 ## feat
+
 - update sonar exclusions to enhance code analysis coverage
 - update sonar exclusions to enhance code analysis coverage
 - update sonar exclusions to improve code analysis accuracy
@@ -62,9 +63,11 @@
 - updated decidim to version 0.30.1 latest
 
 ## PR Merge
+
 - [ISSUE-AUG09] - First login keycloack admin- [PAR-RG001] ��� View reports and analytics | Configuration- ISSUE-AUG02: Fields up to 1 GB of data- [PAR-EA001] - Configure Jitsi- pipeline order execution changes- New update aggents for Ruby- Apply Install Java and delete warn Deprecated- images buildAndPush cancelled- more changes reverted- reverting last changes- secretid fixed- manage acr-secret- variable group added- container changes- image container changed- added acr-secret- new image apply to FE- change tool3-back image- port change attemp 6- port change attemp 3- port change attemp 2- format applied- Port changed for FE- services fixed in BuildandDeploy- Service ports fixed- Undo changes- dockerfile added- service endpoint name changed- New format applied- Applying new format- Applying new format- general troubleshouting Tool3- troubleshouting CrashLoopBackOff- app changes- ServiceName Issue- nested issue- storage changes- host name fixed- storage changes- fixec comment issue- storage modified- storage modified- storage shared added- containers order creation modified- change port tool3-front in ingress- Troubleshouthing - configuring less containers- postgresq volume excluded from statefulset- troubleshouting postgres- Env variables modified- ConfigMap Renamed- ConfigMap change- postgres key added- host key added in configMap- ConfigMap changes- VolumeMounts change- Ports numbers changed in Ingress- port changes in services configuration- service fe modified- port tool3-fe modified in Statefulset- Defautl Microsoft image applied- Folders tool3-ts created- replace token section commented- fixed missing directory- Push images- shared-files mount options changed- tool3-shared-volume mount options changed- tool3-shared-files changes- tool3-shared-files volume changes- namespace issue fixed- configuration from Tool0 copied- secrets added- change postgres user- change tcp port in fe- Backend service port changed- secret added to tool3-config- tool3-fe-config copied- configmap changes- configmap changes- configmap modified- volume fe data added in configmap- configmap FE fixed- variables updated- namespace fixed in ConfigMap Frontend- BuildandDeploy yaml renamed- BuildandDeploy configs- Deploy default image- Service Endpoint name changed- pipeline name changed- BuildandDeploy renamed- Update FE and Postgresql configurations- FE container and postgresql added- changed service port- renamed service name in ingress- renamed image name in statefullset- service changed in ingress.yml- [ISSUE] - Keycloak authentication- [PAR-MACT001] ��� Send mass email communications - CONFIGURATION- type StringData changed- Azure Endpoint modified- Added Apply SecretsMap in Deploy- host changed in ingress.yml- [PAR-EA008] - Cancel an event- [PAR-EA006] ��� Manage meeting agenda- [PAR-EA005] ��� Unpublish a meeting- ConfigMap backend modified- Service Connection renamed- Creation structure yaml files for infraestructure- [ISSUE-AUG08] Create a new make command- [PAR-INI04] - Configure Jitsi local instance- Delete comments in spanish- Update Version Ruby- [PAR-CS001] - Share content on social media platforms- [PAR-DPACM002] - Revoke consent for data processing- [PAR-PAS001] - Create survey template- [PAR-EA004] ��� Publish a meeting- [PAR-EA003] ��� Edit event details- [PAR-NOT003] ��� Unfollow items- [PAR-NOT002] ��� Follow items- [PAR-UPM001] ��� Send private messages- [PAR-UPM002] ��� View all conversations
 
 ## refactor
+
 - remove duplicated admin cleanup configuration from Playwright setup
 - simplify success message verification in publish meeting test
 - remove redundant final verification steps in publish meeting test
@@ -77,6 +80,7 @@
 - restored the module after decidim update
 
 ## fix
+
 - update postgresVersion to 1600 in Grafana datasource configuration
 - remove allowed_push_host metadata from gemspec
 - clean up Gemfile and ApplicationController formatting
@@ -94,8 +98,8 @@
 - fullcalendar js and css not working
 
 ## file_changes
-- added acr-secret- added postgres migrate key- renamed service name in ingress- renamed image name in statefullset- Added Apply SecretsMap in Deploy
 
+- added acr-secret- added postgres migrate key- renamed service name in ingress- renamed image name in statefullset- Added Apply SecretsMap in Deploy
 
 # Changelog from D03.04.Jul to D03.04.Aug
 
@@ -295,4 +299,3 @@
 ## PR Merge
 
 - [PAR-PPM001] ��� Create new process- [PAR-PIM003] ��� Update personal information- [PAR-PIM001] ��� Configure form for additional personal data on first login- Startup Participate project
-

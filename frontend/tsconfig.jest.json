@@ -4,7 +4,10 @@
 		"jsx": "react-jsx",
 		"types": ["jest", "@testing-library/jest-dom"],
 		"esModuleInterop": true,
+		"module": "ESNext",
+		"target": "ES2020",
 		"moduleResolution": "node",
+		"resolveJsonModule": true,
 		"baseUrl": "./",
 		"paths": {
 			"@app/*": ["src/app/*"],

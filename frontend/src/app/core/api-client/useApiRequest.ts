@@ -166,11 +166,12 @@ const useApiRequest = <T extends BaseModel, R = T, L = T[]>(options: RequestOpti
 		};
 
 		// Add body if provided (stringify if it's an object and not FormData).
-		if (options.body) {
-			if (typeof options.body === 'object' && !(options.body instanceof FormData)) {
-				fetchOptions.body = JSON.stringify(options.body);
+		const bodyToUse = overrideOptions?.body ?? options.body;
+		if (bodyToUse) {
+			if (typeof bodyToUse === 'object' && !(bodyToUse instanceof FormData)) {
+				fetchOptions.body = JSON.stringify(bodyToUse);
 			} else {
-				fetchOptions.body = options.body as BodyInit;
+				fetchOptions.body = bodyToUse as BodyInit;
 			}
 		}
 
@@ -237,7 +238,7 @@ const useApiRequest = <T extends BaseModel, R = T, L = T[]>(options: RequestOpti
 			}
 			return result as unknown as R;
 		} catch (error) {
-			logger.error('API Request error:', error);
+			logger.error({ msg: 'API Request error:', error });
 			throw error;
 		}
 	};
@@ -318,12 +319,29 @@ const useApiRequest = <T extends BaseModel, R = T, L = T[]>(options: RequestOpti
 
 			return result as unknown as L;
 		} catch (error) {
-			logger.error('API Request error:', error);
+			logger.error({ msg: 'API Request error:', error });
 			throw error;
 		}
 	};
 
-	return { request, requestBlob, requestList };
+	/**
+	 * The request function that builds and executes the API call with custom options.
+	 */
+	const requestWithOptions = async (customOptions: CustomRequestOptions): Promise<R> => {
+		try {
+			const rawData = await internalRequest(customOptions);
+			const result: T = options.model ? options.model.fromDto(rawData) : rawData;
+			if (options.postMapperSingle) {
+				return options.postMapperSingle(result);
+			}
+			return result as unknown as R;
+		} catch (error) {
+			logger.error({ msg: 'API Request error:', error });
+			throw error;
+		}
+	};
+
+	return { request, requestBlob, requestList, requestWithOptions };
 };
 
 export default useApiRequest;
