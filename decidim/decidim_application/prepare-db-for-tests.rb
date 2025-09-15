@@ -126,138 +126,139 @@ begin
 
 
   puts "--- Current data: #{existing_users_count} users, #{existing_processes_count} processes, #{existing_proposals_count} proposals ---"
-  if existing_users_count > 5 && existing_processes_count > 3 && existing_proposals_count > 10
-    puts "--- Sufficient data exists, skipping seeds generation ---"
-  else
-    puts "--- Generating fake data with Decidim seeds is disabled for now ---"
-    puts "--- Basic users have been created successfully ---"
-    Decidim.seed!
-    # Commented out due to compatibility issues with Decidim.current_organization
-    # puts "--- Generating fake data with Decidim seeds ---"
-    # puts "--- This may take some time... ---"
+  if ENV["RAILS_ENV"] == "development"
+    if existing_users_count > 5 && existing_processes_count > 3 && existing_proposals_count > 10
+      puts "--- Sufficient data exists, skipping seeds generation ---"
+    else
+      puts "--- Generating fake data with Decidim seeds is disabled for now ---"
+      puts "--- Basic users have been created successfully ---"
+      Decidim.seed!
+      # Commented out due to compatibility issues with Decidim.current_organization
+      # puts "--- Generating fake data with Decidim seeds ---"
+      # puts "--- This may take some time... ---"
 
-    # begin
-    #   # Set the organization context for seeds
-    #   Decidim.current_organization = org
-    #   
-    #   # Try to seed with better error handling
-    #   Decidim.seed!
-    #   puts "--- Decidim seeds completed successfully ---"
-    # rescue ActiveRecord::RecordInvalid => e
-    #   if e.message.include?("User must exist")
-    #     puts "--- Decidim.seed! failed due to missing users dependency ---"
-    #     puts "--- This is a known issue with Decidim 0.30.1 seeds ---"
-    #     puts "--- Create users manually via the web interface first ---"
-    #   else
-    #     puts "--- Error running Decidim seeds: #{e.message} ---"
-    #     puts e.backtrace.first(10).join("\n")
-    #   end
-    # rescue => e
-    #   puts "--- Error running Decidim seeds: #{e.message} ---"
-    #   puts e.backtrace.first(10).join("\n")
-    # ensure
-    #   # Reset organization context
-    #   Decidim.current_organization = nil
-    # end
-  end
+      # begin
+      #   # Set the organization context for seeds
+      #   Decidim.current_organization = org
+      #   
+      #   # Try to seed with better error handling
+      #   Decidim.seed!
+      #   puts "--- Decidim seeds completed successfully ---"
+      # rescue ActiveRecord::RecordInvalid => e
+      #   if e.message.include?("User must exist")
+      #     puts "--- Decidim.seed! failed due to missing users dependency ---"
+      #     puts "--- This is a known issue with Decidim 0.30.1 seeds ---"
+      #     puts "--- Create users manually via the web interface first ---"
+      #   else
+      #     puts "--- Error running Decidim seeds: #{e.message} ---"
+      #     puts e.backtrace.first(10).join("\n")
+      #   end
+      # rescue => e
+      #   puts "--- Error running Decidim seeds: #{e.message} ---"
+      #   puts e.backtrace.first(10).join("\n")
+      # ensure
+      #   # Reset organization context
+      #   Decidim.current_organization = nil
+      # end
+    end
+  
 
+    # --- Generate dynamic moderation test data ---
+    puts "--- Generating moderation test data ---"
 
-  # --- Generate dynamic moderation test data ---
-  puts "--- Generating moderation test data ---"
+    begin
+      users = Decidim::User.where(organization: org).limit(10)
+      processes = Decidim::ParticipatoryProcess.where(organization: org).limit(5)
+      components = Decidim::Component.where(participatory_space: processes, manifest_name: "proposals")
+      proposals = Decidim::Proposals::Proposal.where(component: components).limit(10)
+      proposal_ids = proposals.pluck(:id)
+      comments = Decidim::Comments::Comment.where(
+        decidim_commentable_type: "Decidim::Proposals::Proposal",
+        decidim_commentable_id: proposal_ids
+      ).limit(10)
 
-  begin
-    users = Decidim::User.where(organization: org).limit(10)
-    processes = Decidim::ParticipatoryProcess.where(organization: org).limit(5)
-    components = Decidim::Component.where(participatory_space: processes, manifest_name: "proposals")
-    proposals = Decidim::Proposals::Proposal.where(component: components).limit(10)
-    proposal_ids = proposals.pluck(:id)
-    comments = Decidim::Comments::Comment.where(
-      decidim_commentable_type: "Decidim::Proposals::Proposal",
-      decidim_commentable_id: proposal_ids
-    ).limit(10)
-
-    if users.any? && processes.any? && proposals.any?
-      # Create user moderations
-      user_to_moderate = users.first
-      user_moderation = Decidim::UserModeration.find_or_create_by(
-        decidim_user_id: user_to_moderate.id
-      ) do |um|
-        um.report_count = 0
-      end
-
-      # Create user report
-      reporter_user = users.second || users.first
-      Decidim::UserReport.find_or_create_by(
-        user_moderation_id: user_moderation.id,
-        user_id: reporter_user.id
-      ) do |ur|
-        ur.reason = "spam"
-        ur.details = "Test user report generated by seeds"
-      end
-
-      # Create proposal moderations and reports
-      proposals.limit(3).each_with_index do |proposal, index|
-        process = processes.first
-
-        moderation = Decidim::Moderation.find_or_create_by(
-          decidim_participatory_space_id: process.id,
-          decidim_reportable_type: "Decidim::Proposals::Proposal",
-          decidim_reportable_id: proposal.id,
-          decidim_participatory_space_type: "Decidim::ParticipatoryProcess"
-        ) do |m|
-          m.report_count = index == 0 ? 0 : 1
-          m.hidden_at = index == 0 ? Time.current : nil
-          m.reported_content = "#{proposal.title['en'] || proposal.title.values.first}\n#{proposal.body['en'] || proposal.body.values.first}"
+      if users.any? && processes.any? && proposals.any?
+        # Create user moderations
+        user_to_moderate = users.first
+        user_moderation = Decidim::UserModeration.find_or_create_by(
+          decidim_user_id: user_to_moderate.id
+        ) do |um|
+          um.report_count = 0
         end
 
-        # Create report for this moderation
-        reporting_user = users.sample
-        Decidim::Report.find_or_create_by(
-          decidim_moderation_id: moderation.id,
-          decidim_user_id: reporting_user.id
-        ) do |r|
-          r.reason = ["spam", "offensive", "irrelevant"].sample
-          r.details = "Test report #{index + 1} generated by seeds"
-          r.locale = "en"
+        # Create user report
+        reporter_user = users.second || users.first
+        Decidim::UserReport.find_or_create_by(
+          user_moderation_id: user_moderation.id,
+          user_id: reporter_user.id
+        ) do |ur|
+          ur.reason = "spam"
+          ur.details = "Test user report generated by seeds"
         end
-      end
 
-      # Create comment moderations and reports if comments exist
-      if comments.any?
-        comments.limit(2).each_with_index do |comment, index|
+        # Create proposal moderations and reports
+        proposals.limit(3).each_with_index do |proposal, index|
           process = processes.first
 
           moderation = Decidim::Moderation.find_or_create_by(
             decidim_participatory_space_id: process.id,
-            decidim_reportable_type: "Decidim::Comments::Comment",
-            decidim_reportable_id: comment.id,
+            decidim_reportable_type: "Decidim::Proposals::Proposal",
+            decidim_reportable_id: proposal.id,
             decidim_participatory_space_type: "Decidim::ParticipatoryProcess"
           ) do |m|
-            m.report_count = 1
-            m.reported_content = "#{comment.author.name}\n#{comment.body['en'] || comment.body.values.first}"
+            m.report_count = index == 0 ? 0 : 1
+            m.hidden_at = index == 0 ? Time.current : nil
+            m.reported_content = "#{proposal.title['en'] || proposal.title.values.first}\n#{proposal.body['en'] || proposal.body.values.first}"
           end
 
-          # Create report for this comment moderation
+          # Create report for this moderation
           reporting_user = users.sample
           Decidim::Report.find_or_create_by(
             decidim_moderation_id: moderation.id,
             decidim_user_id: reporting_user.id
           ) do |r|
-            r.reason = ["spam", "offensive"].sample
-            r.details = "Test comment report #{index + 1} generated by seeds"
+            r.reason = ["spam", "offensive", "irrelevant"].sample
+            r.details = "Test report #{index + 1} generated by seeds"
             r.locale = "en"
           end
         end
+
+        # Create comment moderations and reports if comments exist
+        if comments.any?
+          comments.limit(2).each_with_index do |comment, index|
+            process = processes.first
+
+            moderation = Decidim::Moderation.find_or_create_by(
+              decidim_participatory_space_id: process.id,
+              decidim_reportable_type: "Decidim::Comments::Comment",
+              decidim_reportable_id: comment.id,
+              decidim_participatory_space_type: "Decidim::ParticipatoryProcess"
+            ) do |m|
+              m.report_count = 1
+              m.reported_content = "#{comment.author.name}\n#{comment.body['en'] || comment.body.values.first}"
+            end
+
+            # Create report for this comment moderation
+            reporting_user = users.sample
+            Decidim::Report.find_or_create_by(
+              decidim_moderation_id: moderation.id,
+              decidim_user_id: reporting_user.id
+            ) do |r|
+              r.reason = ["spam", "offensive"].sample
+              r.details = "Test comment report #{index + 1} generated by seeds"
+              r.locale = "en"
+            end
+          end
+        end
+
+        puts "--- Moderation test data generated successfully ---"
+      else
+        puts "--- Warning: Not enough seeded data to create moderation test data ---"
       end
-
-      puts "--- Moderation test data generated successfully ---"
-    else
-      puts "--- Warning: Not enough seeded data to create moderation test data ---"
+    rescue => e
+      puts "--- Error generating moderation test data: #{e.message} ---"
+      puts e.backtrace.join("\n")
     end
-  rescue => e
-    puts "--- Error generating moderation test data: #{e.message} ---"
-    puts e.backtrace.join("\n")
   end
-
 # Closing the main begin block
 end
