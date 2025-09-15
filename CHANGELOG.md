@@ -1,4 +1,107 @@
-# Changelog from D03.04.Jul to HEAD
+# Changelog from D03.04.Aug to HEAD
+
+## feat
+
+- update sonar exclusions to enhance code analysis coverage
+- update sonar exclusions to enhance code analysis coverage
+- update sonar exclusions to improve code analysis accuracy
+- enhance Keycloak integration to include user roles and admin synchronization
+- fix decidim and shakapacker awesome dependencies
+- add Matomo analytics integration with middleware for HTML response injection
+- add grafana dashboards
+- update README to enhance feature descriptions and usage instructions
+- centralize Jitsi default constants and update references in controllers and decorators
+- add dependecy of new gem
+- add gem decidim-decidim_awesome
+- implement Jitsi URL generation with new controller and global route
+- add Jitsi integration for Decidim Meetings with URL generation and settings
+- update @fullcalendar packages to version 6.1.19
+- fixed keycloak authentication, fixed generated keycloak authentication URL
+- added process helper with utils, overall improvements
+- reduced timeout from 500ms to 100ms
+- removed redundand test, other improvements
+- forked and added keycloak module,fixed CSP errors, fixed webpack warnings
+- add SMTP configuration to .env.example and docker-compose.yml
+- removed unused declarations, improved test logic
+- optimized test logic
+- added missing test
+- improve Windows setup instructions for clarity and organization
+- restructure README for clarity and enhance setup instructions
+- enhance Makefile and docker-compose.yml for improved setup commands and database management
+- add Jitsi configuration and services to Docker Compose setup
+- improved meetings status check, removed unused variables
+- remove package-lock.json and update docker-compose configuration
+- fixed duplicate
+- improved share button click logic, removed unused code
+- change EOL from CRLF to LF
+- replaced timeouts with a better solution
+- removed unused props
+- cleaned up test code
+- update Ruby version specification to 3.2
+- update Ruby version to 3.2
+- update .decidim_upgrade_completed file
+- update dependencies and licenses in package-lock.json
+- update yarn.lock file
+- enhance meeting publish verification and success notification
+- add USER_WITHOUT_MESSAGES to test users and update auth-helper for login
+- update gitignore
+- update gitignore
+- added missing tests for managing meeting component agenda, improved auth helper
+- add test suite for publish a meeting
+- add test suite for edit event details
+- add test suite for unfollow items
+- add test suite for follow items
+- fixed wrong test
+- add send private message test suite
+- add view all conversation test suite
+- update content security policies and WebSocket configuration for improved compatibility
+- reformat YAML file for improved readability
+- added missing tests for unpublishing a meeting
+- added missing test for sharing to social media
+- added revoke consent for data processing test
+- added survey template creation tests and fixed shakapacker assets not being served correctly
+- updated decidim to version 0.30.1 latest
+
+## PR Merge
+
+- [ISSUE-AUG09] - First login keycloack admin- [PAR-RG001] ��� View reports and analytics | Configuration- ISSUE-AUG02: Fields up to 1 GB of data- [PAR-EA001] - Configure Jitsi- pipeline order execution changes- New update aggents for Ruby- Apply Install Java and delete warn Deprecated- images buildAndPush cancelled- more changes reverted- reverting last changes- secretid fixed- manage acr-secret- variable group added- container changes- image container changed- added acr-secret- new image apply to FE- change tool3-back image- port change attemp 6- port change attemp 3- port change attemp 2- format applied- Port changed for FE- services fixed in BuildandDeploy- Service ports fixed- Undo changes- dockerfile added- service endpoint name changed- New format applied- Applying new format- Applying new format- general troubleshouting Tool3- troubleshouting CrashLoopBackOff- app changes- ServiceName Issue- nested issue- storage changes- host name fixed- storage changes- fixec comment issue- storage modified- storage modified- storage shared added- containers order creation modified- change port tool3-front in ingress- Troubleshouthing - configuring less containers- postgresq volume excluded from statefulset- troubleshouting postgres- Env variables modified- ConfigMap Renamed- ConfigMap change- postgres key added- host key added in configMap- ConfigMap changes- VolumeMounts change- Ports numbers changed in Ingress- port changes in services configuration- service fe modified- port tool3-fe modified in Statefulset- Defautl Microsoft image applied- Folders tool3-ts created- replace token section commented- fixed missing directory- Push images- shared-files mount options changed- tool3-shared-volume mount options changed- tool3-shared-files changes- tool3-shared-files volume changes- namespace issue fixed- configuration from Tool0 copied- secrets added- change postgres user- change tcp port in fe- Backend service port changed- secret added to tool3-config- tool3-fe-config copied- configmap changes- configmap changes- configmap modified- volume fe data added in configmap- configmap FE fixed- variables updated- namespace fixed in ConfigMap Frontend- BuildandDeploy yaml renamed- BuildandDeploy configs- Deploy default image- Service Endpoint name changed- pipeline name changed- BuildandDeploy renamed- Update FE and Postgresql configurations- FE container and postgresql added- changed service port- renamed service name in ingress- renamed image name in statefullset- service changed in ingress.yml- [ISSUE] - Keycloak authentication- [PAR-MACT001] ��� Send mass email communications - CONFIGURATION- type StringData changed- Azure Endpoint modified- Added Apply SecretsMap in Deploy- host changed in ingress.yml- [PAR-EA008] - Cancel an event- [PAR-EA006] ��� Manage meeting agenda- [PAR-EA005] ��� Unpublish a meeting- ConfigMap backend modified- Service Connection renamed- Creation structure yaml files for infraestructure- [ISSUE-AUG08] Create a new make command- [PAR-INI04] - Configure Jitsi local instance- Delete comments in spanish- Update Version Ruby- [PAR-CS001] - Share content on social media platforms- [PAR-DPACM002] - Revoke consent for data processing- [PAR-PAS001] - Create survey template- [PAR-EA004] ��� Publish a meeting- [PAR-EA003] ��� Edit event details- [PAR-NOT003] ��� Unfollow items- [PAR-NOT002] ��� Follow items- [PAR-UPM001] ��� Send private messages- [PAR-UPM002] ��� View all conversations
+
+## refactor
+
+- remove duplicated admin cleanup configuration from Playwright setup
+- simplify success message verification in publish meeting test
+- remove redundant final verification steps in publish meeting test
+- enhance meeting form validation and add utility for date handling
+- add verification for updated event details in edit-event-details.spec.ts
+- remove unnecessary console log from unfollow items test
+- remove unused imports and variables in follow items test suite
+- remove redundant comments and improve code clarity in HomePage
+- remove unused imports and notification settings from view all conversations test
+- restored the module after decidim update
+
+## fix
+
+- update postgresVersion to 1600 in Grafana datasource configuration
+- remove allowed_push_host metadata from gemspec
+- clean up Gemfile and ApplicationController formatting
+- restored jitsi configuration
+- changed keycloak logo, changed keycloak auth URL
+- add check-env target to ensure .env file exists
+- update healthcheck command for decidim service
+- fixed project not starting after merge
+- update decidim 0.30 not working
+- remove unnecessary skip condition for no conversations test
+- simplify empty state message verification in view all conversations test
+- remove timeout from empty state message visibility check in conversation tests
+- remove extraneous comment from database migration commands
+- ensure database migrations are installed and run in both development and production environments
+- fullcalendar js and css not working
+
+## file_changes
+
+- added acr-secret- added postgres migrate key- renamed service name in ingress- renamed image name in statefullset- Added Apply SecretsMap in Deploy
+
+# Changelog from D03.04.Jul to D03.04.Aug
 
 ## feat
 

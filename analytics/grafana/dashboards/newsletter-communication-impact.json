@@ -1,0 +1,666 @@
+{
+	"annotations": {
+		"list": [
+			{
+				"builtIn": 1,
+				"datasource": {
+					"type": "grafana",
+					"uid": "-- Grafana --"
+				},
+				"enable": true,
+				"hide": true,
+				"iconColor": "rgba(0, 211, 255, 1)",
+				"name": "Annotations & Alerts",
+				"type": "dashboard"
+			}
+		]
+	},
+	"description": "Newsletter and Communication Impact Dashboard - Track message reach, response rates, and communication effectiveness",
+	"editable": true,
+	"fiscalYearStartMonth": 0,
+	"graphTooltip": 0,
+	"id": 21,
+	"links": [],
+	"panels": [
+		{
+			"collapsed": false,
+			"gridPos": {
+				"h": 1,
+				"w": 24,
+				"x": 0,
+				"y": 0
+			},
+			"id": 100,
+			"panels": [],
+			"title": "Newsletter Performance",
+			"type": "row"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 6,
+				"w": 6,
+				"x": 0,
+				"y": 1
+			},
+			"id": 1,
+			"options": {
+				"colorMode": "background",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"pluginVersion": "12.1.0",
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT COUNT(*) as value FROM decidim_newsletters WHERE sent_at >= NOW() - INTERVAL '$time_range days';",
+					"refId": "A"
+				}
+			],
+			"title": "Newsletters Sent",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 6,
+				"w": 6,
+				"x": 6,
+				"y": 1
+			},
+			"id": 2,
+			"options": {
+				"colorMode": "background",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"pluginVersion": "12.1.0",
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT COUNT(DISTINCT u.id) as value \nFROM decidim_users u \nINNER JOIN decidim_newsletters n ON TRUE\nWHERE u.deleted_at IS NULL \n  AND u.type = 'Decidim::User' \n  AND u.confirmed_at IS NOT NULL\n  AND u.newsletter_notifications_at IS NOT NULL\n  AND n.sent_at >= NOW() - INTERVAL '$time_range days';",
+					"refId": "A"
+				}
+			],
+			"title": "Newsletter Recipients",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "yellow",
+								"value": 10
+							},
+							{
+								"color": "green",
+								"value": 20
+							}
+						]
+					},
+					"unit": "percent"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 6,
+				"w": 6,
+				"x": 12,
+				"y": 1
+			},
+			"id": 3,
+			"options": {
+				"colorMode": "background",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"pluginVersion": "12.1.0",
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "WITH newsletter_activity AS (\n  SELECT \n    COUNT(DISTINCT CASE WHEN u.last_sign_in_at >= n.sent_at AND u.last_sign_in_at <= n.sent_at + INTERVAL '7 days' THEN u.id END) as active_after,\n    COUNT(DISTINCT u.id) as total_recipients\n  FROM decidim_newsletters n\n  CROSS JOIN decidim_users u\n  WHERE n.sent_at >= NOW() - INTERVAL '$time_range days'\n    AND u.deleted_at IS NULL \n    AND u.type = 'Decidim::User' \n    AND u.confirmed_at IS NOT NULL\n    AND u.newsletter_notifications_at IS NOT NULL\n)\nSELECT \n  CASE \n    WHEN total_recipients > 0 THEN ROUND((active_after * 100.0 / total_recipients), 2)\n    ELSE 0\n  END as value\nFROM newsletter_activity;",
+					"refId": "A"
+				}
+			],
+			"title": "Engagement Rate (7 days)",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 6,
+				"w": 6,
+				"x": 18,
+				"y": 1
+			},
+			"id": 4,
+			"options": {
+				"colorMode": "background",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"pluginVersion": "12.1.0",
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT COUNT(*) as value FROM (\n  SELECT DISTINCT u.id\n  FROM decidim_users u\n  INNER JOIN decidim_newsletters n ON TRUE\n  WHERE u.last_sign_in_at >= n.sent_at \n    AND u.last_sign_in_at <= n.sent_at + INTERVAL '24 hours'\n    AND n.sent_at >= NOW() - INTERVAL '$time_range days'\n    AND u.deleted_at IS NULL \n    AND u.type = 'Decidim::User'\n) immediate_response;",
+					"refId": "A"
+				}
+			],
+			"title": "Immediate Response (24h)",
+			"type": "stat"
+		},
+		{
+			"collapsed": false,
+			"gridPos": {
+				"h": 1,
+				"w": 24,
+				"x": 0,
+				"y": 7
+			},
+			"id": 101,
+			"panels": [],
+			"title": "Communication Impact Analysis",
+			"type": "row"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 10,
+						"gradientMode": "none",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "linear",
+						"lineWidth": 2,
+						"pointSize": 5,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": false,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "off"
+						}
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 9,
+				"w": 12,
+				"x": 0,
+				"y": 8
+			},
+			"id": 5,
+			"options": {
+				"legend": {
+					"calcs": [],
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": true
+				},
+				"tooltip": {
+					"mode": "multi",
+					"sort": "none"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "time_series",
+					"rawQuery": true,
+					"rawSql": "WITH communication_impact AS (\n  SELECT \n    DATE_TRUNC('day', n.sent_at) as time,\n    'Newsletters Sent' as metric,\n    COUNT(*) as value\n  FROM decidim_newsletters n\n  WHERE n.sent_at >= NOW() - INTERVAL '$time_range days'\n  GROUP BY DATE_TRUNC('day', n.sent_at)\n  \n  UNION ALL\n  \n  SELECT \n    DATE_TRUNC('day', u.last_sign_in_at) as time,\n    'User Logins' as metric,\n    COUNT(DISTINCT u.id) as value\n  FROM decidim_users u\n  WHERE u.last_sign_in_at >= NOW() - INTERVAL '$time_range days'\n    AND u.deleted_at IS NULL \n    AND u.type = 'Decidim::User'\n  GROUP BY DATE_TRUNC('day', u.last_sign_in_at)\n  \n  UNION ALL\n  \n  SELECT \n    DATE_TRUNC('day', created_at) as time,\n    'New Activity' as metric,\n    COUNT(*) as value\n  FROM (\n    SELECT created_at FROM decidim_proposals_proposals WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL '$time_range days'\n    UNION ALL\n    SELECT created_at FROM decidim_comments_comments WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL '$time_range days'\n  ) activities\n  GROUP BY DATE_TRUNC('day', created_at)\n)\nSELECT time, metric, SUM(value) as value\nFROM communication_impact\nGROUP BY time, metric\nORDER BY time;",
+					"refId": "A"
+				}
+			],
+			"title": "Communication Impact Timeline",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "bars",
+						"fillOpacity": 80,
+						"gradientMode": "none",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "linear",
+						"lineWidth": 1,
+						"pointSize": 5,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "never",
+						"spanNulls": false,
+						"stacking": {
+							"group": "A",
+							"mode": "normal"
+						},
+						"thresholdsStyle": {
+							"mode": "off"
+						}
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 9,
+				"w": 12,
+				"x": 12,
+				"y": 8
+			},
+			"id": 6,
+			"options": {
+				"legend": {
+					"calcs": [],
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": true
+				},
+				"tooltip": {
+					"mode": "multi",
+					"sort": "none"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "time_series",
+					"rawQuery": true,
+					"rawSql": "WITH weekly_response AS (\n  SELECT \n    DATE_TRUNC('week', n.sent_at) as time,\n    COUNT(DISTINCT CASE WHEN u.last_sign_in_at >= n.sent_at AND u.last_sign_in_at <= n.sent_at + INTERVAL '1 day' THEN u.id END) as \"Day 1 Response\",\n    COUNT(DISTINCT CASE WHEN u.last_sign_in_at >= n.sent_at AND u.last_sign_in_at <= n.sent_at + INTERVAL '3 days' THEN u.id END) as \"Day 3 Response\",\n    COUNT(DISTINCT CASE WHEN u.last_sign_in_at >= n.sent_at AND u.last_sign_in_at <= n.sent_at + INTERVAL '7 days' THEN u.id END) as \"Day 7 Response\"\n  FROM decidim_newsletters n\n  CROSS JOIN decidim_users u\n  WHERE n.sent_at >= NOW() - INTERVAL '$time_range days'\n    AND u.deleted_at IS NULL \n    AND u.type = 'Decidim::User' \n    AND u.confirmed_at IS NOT NULL\n    AND u.newsletter_notifications_at IS NOT NULL\n  GROUP BY DATE_TRUNC('week', n.sent_at)\n)\nSELECT \n  time,\n  'Day 1 Response' as metric,\n  \"Day 1 Response\" as value\nFROM weekly_response\nUNION ALL\nSELECT \n  time,\n  'Day 3 Response' as metric,\n  \"Day 3 Response\" as value\nFROM weekly_response\nUNION ALL\nSELECT \n  time,\n  'Day 7 Response' as metric,\n  \"Day 7 Response\" as value\nFROM weekly_response\nORDER BY time, metric;",
+					"refId": "A"
+				}
+			],
+			"title": "Response Timeline After Newsletter",
+			"type": "timeseries"
+		},
+		{
+			"collapsed": false,
+			"gridPos": {
+				"h": 1,
+				"w": 24,
+				"x": 0,
+				"y": 17
+			},
+			"id": 102,
+			"panels": [],
+			"title": "Detailed Analytics",
+			"type": "row"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"custom": {
+						"align": "auto",
+						"cellOptions": {
+							"type": "auto"
+						},
+						"inspect": false
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					}
+				},
+				"overrides": [
+					{
+						"matcher": {
+							"id": "byName",
+							"options": "response_rate"
+						},
+						"properties": [
+							{
+								"id": "custom.cellOptions",
+								"value": {
+									"type": "color-background"
+								}
+							},
+							{
+								"id": "color",
+								"value": {
+									"mode": "continuous-GrYlRd"
+								}
+							},
+							{
+								"id": "unit",
+								"value": "percent"
+							}
+						]
+					}
+				]
+			},
+			"gridPos": {
+				"h": 10,
+				"w": 24,
+				"x": 0,
+				"y": 18
+			},
+			"id": 7,
+			"options": {
+				"cellHeight": "sm",
+				"footer": {
+					"countRows": false,
+					"fields": "",
+					"reducer": ["sum"],
+					"show": false
+				},
+				"showHeader": true
+			},
+			"pluginVersion": "12.1.0",
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "WITH newsletter_performance AS (\n  SELECT \n    n.id,\n    COALESCE(n.subject->>'en', n.subject->>'it', n.subject->>'fr', n.subject->>'de', n.subject->>'es', n.subject::text) as subject,\n    n.sent_at,\n    u_author.name as author_name,\n    COUNT(DISTINCT u_recipient.id) as total_recipients,\n    COUNT(DISTINCT CASE WHEN u_recipient.last_sign_in_at >= n.sent_at AND u_recipient.last_sign_in_at <= n.sent_at + INTERVAL '24 hours' THEN u_recipient.id END) as day1_responses,\n    COUNT(DISTINCT CASE WHEN u_recipient.last_sign_in_at >= n.sent_at AND u_recipient.last_sign_in_at <= n.sent_at + INTERVAL '7 days' THEN u_recipient.id END) as week1_responses,\n    ROUND(\n      (COUNT(DISTINCT CASE WHEN u_recipient.last_sign_in_at >= n.sent_at AND u_recipient.last_sign_in_at <= n.sent_at + INTERVAL '7 days' THEN u_recipient.id END) * 100.0 / \n       NULLIF(COUNT(DISTINCT u_recipient.id), 0)), 2\n    ) as response_rate\n  FROM decidim_newsletters n\n  LEFT JOIN decidim_users u_author ON n.author_id = u_author.id\n  CROSS JOIN decidim_users u_recipient\n  WHERE n.sent_at >= NOW() - INTERVAL '$time_range days'\n    AND n.sent_at IS NOT NULL\n    AND u_recipient.deleted_at IS NULL \n    AND u_recipient.type = 'Decidim::User' \n    AND u_recipient.confirmed_at IS NOT NULL\n    AND u_recipient.newsletter_notifications_at IS NOT NULL\n  GROUP BY n.id, n.subject, n.sent_at, u_author.name\n)\nSELECT \n  subject,\n  author_name,\n  sent_at,\n  total_recipients,\n  day1_responses,\n  week1_responses,\n  response_rate\nFROM newsletter_performance\nWHERE total_recipients > 0\nORDER BY sent_at DESC;",
+					"refId": "A"
+				}
+			],
+			"title": "Newsletter Performance Details",
+			"type": "table"
+		}
+	],
+	"preload": false,
+	"schemaVersion": 41,
+	"tags": ["decidim", "communication", "newsletter", "effectiveness"],
+	"templating": {
+		"list": [
+			{
+				"current": {
+					"selected": false,
+					"text": "30",
+					"value": "30"
+				},
+				"hide": 0,
+				"includeAll": false,
+				"label": "Time Range (days)",
+				"multi": false,
+				"name": "time_range",
+				"options": [
+					{
+						"selected": false,
+						"text": "7",
+						"value": "7"
+					},
+					{
+						"selected": false,
+						"text": "14",
+						"value": "14"
+					},
+					{
+						"selected": true,
+						"text": "30",
+						"value": "30"
+					},
+					{
+						"selected": false,
+						"text": "60",
+						"value": "60"
+					},
+					{
+						"selected": false,
+						"text": "90",
+						"value": "90"
+					}
+				],
+				"query": "7,14,30,60,90",
+				"queryValue": "",
+				"skipUrlSync": false,
+				"type": "custom"
+			}
+		]
+	},
+	"time": {
+		"from": "now-30d",
+		"to": "now"
+	},
+	"timepicker": {},
+	"timezone": "browser",
+	"title": "Newsletter & Communication Impact",
+	"uid": "newsletter_communication_impact",
+	"version": 1
+}

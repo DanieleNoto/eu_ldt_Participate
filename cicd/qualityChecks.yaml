@@ -251,22 +251,35 @@ jobs:
           - task: UseRubyVersion@0
             inputs:
                 #versionSpec: '= 3.2'
-                versionSpec: '= 3.3.9'
+                #•versionSpec: '= 3.3.9'
+                versionSpec: '= 3.3'
 
           - script: |
                 ruby --version
                 gem --version
             displayName: 'Check Ruby/Gem availability'
 
+          #Install Java 21
+          - task: JavaToolInstaller@0
+            inputs:
+              versionSpec: '21'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
+
           - script: |
-                cd frontend
-                npm install @cyclonedx/cdxgen --no-save
-                npx cdxgen -r \
-                  -o $(System.DefaultWorkingDirectory)/sbom-js.json \
-                  --deep \
-                  --profile license-compliance
-                ls -la
-                ls -la $(System.DefaultWorkingDirectory)
+                set -e 
+                echo "Installing frontend..."
+                cd frontend && npm ci && cd ..
+                npm install @cyclonedx/cdxgen
+
+                npx @cyclonedx/cdxgen -o "$(System.DefaultWorkingDirectory)/sbom-js.json" frontend --deep --profile license-compliance
+                if [ -f "$(System.DefaultWorkingDirectory)/sbom-js.json" ]; then
+                  echo "✅ SBOM CREATE:"
+                  ls -lh $(System.DefaultWorkingDirectory)/sbom-js.json
+                else
+                  echo "❌ ERROR: sbom-js.json DONT CREATE"
+                  exit 1
+                fi
             displayName: 'Generate SBOM (JavaScript)'
 
           - script: |

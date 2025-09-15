@@ -1,0 +1,541 @@
+{
+	"annotations": {
+		"list": [
+			{
+				"builtIn": 1,
+				"datasource": {
+					"type": "grafana",
+					"uid": "-- Grafana --"
+				},
+				"enable": true,
+				"hide": true,
+				"iconColor": "rgba(0, 211, 255, 1)",
+				"name": "Annotations & Alerts",
+				"type": "dashboard"
+			}
+		]
+	},
+	"description": "Participation Demographics Analytics Dashboard for Decidim 0.30 - Analyzes user demographics, geographic distribution, and participation patterns.",
+	"editable": true,
+	"fiscalYearStartMonth": 0,
+	"graphTooltip": 0,
+	"id": 20,
+	"links": [],
+	"panels": [
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						}
+					},
+					"mappings": []
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 8,
+				"x": 0,
+				"y": 0
+			},
+			"id": 1,
+			"options": {
+				"legend": {
+					"displayMode": "list",
+					"placement": "right",
+					"showLegend": true
+				},
+				"pieType": "pie",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"tooltip": {
+					"mode": "single",
+					"sort": "none"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT \n  CASE \n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) < 25 THEN '< 25'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 25 AND 34 THEN '25-34'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 35 AND 44 THEN '35-44'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 45 AND 54 THEN '45-54'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 55 AND 64 THEN '55-64'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) >= 65 THEN '65+'\n    ELSE 'Unknown'\n  END as age_group,\n  COUNT(*) as value\nFROM decidim_users \nWHERE deleted_at IS NULL AND type = 'Decidim::User'\nGROUP BY \n  CASE \n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) < 25 THEN '< 25'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 25 AND 34 THEN '25-34'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 35 AND 44 THEN '35-44'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 45 AND 54 THEN '45-54'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 55 AND 64 THEN '55-64'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) >= 65 THEN '65+'\n    ELSE 'Unknown'\n  END\nORDER BY value DESC;",
+					"refId": "A"
+				}
+			],
+			"title": "User Age Distribution",
+			"type": "piechart"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						}
+					},
+					"mappings": []
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 8,
+				"x": 8,
+				"y": 0
+			},
+			"id": 2,
+			"options": {
+				"legend": {
+					"displayMode": "list",
+					"placement": "right",
+					"showLegend": true
+				},
+				"pieType": "pie",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"tooltip": {
+					"mode": "single",
+					"sort": "none"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT \n  COALESCE(s.name->>'en', s.name->>'it', s.name->>'fr', s.name->>'de', s.name->>'es', 'No Scope') as scope_name,\n  COUNT(DISTINCT u.id) as value\nFROM decidim_users u\nLEFT JOIN decidim_scopes s ON u.decidim_scope_id = s.id\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY \n  COALESCE(s.name->>'en', s.name->>'it', s.name->>'fr', s.name->>'de', s.name->>'es', 'No Scope')\nORDER BY value DESC\nLIMIT 10;",
+					"refId": "A"
+				}
+			],
+			"title": "Geographic Distribution (by Scope)",
+			"type": "piechart"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "bars",
+						"fillOpacity": 80,
+						"gradientMode": "none",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "linear",
+						"lineWidth": 1,
+						"pointSize": 5,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "off"
+						}
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					}
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 8,
+				"x": 16,
+				"y": 0
+			},
+			"id": 3,
+			"options": {
+				"legend": {
+					"calcs": [],
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": true
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "single",
+					"sort": "none"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "time_series",
+					"rawQuery": true,
+					"rawSql": "SELECT \n  DATE_TRUNC('month', created_at) as time,\n  COUNT(*) as \"New Registrations\"\nFROM decidim_users \nWHERE created_at >= NOW() - INTERVAL '12 months' \n  AND deleted_at IS NULL \n  AND type = 'Decidim::User'\nGROUP BY DATE_TRUNC('month', created_at)\nORDER BY time;",
+					"refId": "A"
+				}
+			],
+			"title": "Monthly Registration Trend",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"custom": {
+						"align": "auto",
+						"cellOptions": {
+							"type": "auto"
+						},
+						"inspect": false
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					}
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 0,
+				"y": 8
+			},
+			"id": 4,
+			"options": {
+				"cellHeight": "sm",
+				"footer": {
+					"countRows": false,
+					"fields": "",
+					"reducer": ["sum"],
+					"show": false
+				},
+				"showHeader": true
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT \n  COALESCE(s.name->>'en', s.name->>'it', s.name->>'fr', s.name->>'de', s.name->>'es', 'No Scope') as scope_name,\n  COUNT(DISTINCT u.id) as total_users,\n  COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) as active_users_30d,\n  COUNT(DISTINCT p.id) as proposals_created,\n  COUNT(DISTINCT comm.id) as comments_made,\n  ROUND(\n    (COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) * 100.0) / \n    NULLIF(COUNT(DISTINCT u.id), 0), 2\n  ) as activity_rate\nFROM decidim_users u\nLEFT JOIN decidim_scopes s ON u.decidim_scope_id = s.id\nLEFT JOIN decidim_proposals_proposals p ON u.id = p.decidim_author_id AND p.decidim_author_type = 'Decidim::User' AND p.deleted_at IS NULL\nLEFT JOIN decidim_comments_comments comm ON u.id = comm.decidim_author_id AND comm.decidim_author_type = 'Decidim::User' AND comm.deleted_at IS NULL\nLEFT JOIN (\n  SELECT DISTINCT decidim_author_id, created_at \n  FROM decidim_comments_comments \n  WHERE decidim_author_type = 'Decidim::User' AND deleted_at IS NULL\n) c ON u.id = c.decidim_author_id\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY \n  COALESCE(s.name->>'en', s.name->>'it', s.name->>'fr', s.name->>'de', s.name->>'es', 'No Scope')\nHAVING COUNT(DISTINCT u.id) > 0\nORDER BY total_users DESC\nLIMIT 10;",
+					"refId": "A"
+				}
+			],
+			"title": "Participation by Geographic Area",
+			"type": "table"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"custom": {
+						"align": "auto",
+						"cellOptions": {
+							"type": "auto"
+						},
+						"inspect": false
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					}
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 12,
+				"y": 8
+			},
+			"id": 5,
+			"options": {
+				"cellHeight": "sm",
+				"footer": {
+					"countRows": false,
+					"fields": "",
+					"reducer": ["sum"],
+					"show": false
+				},
+				"showHeader": true
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT \n  CASE \n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) < 25 THEN '< 25'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 25 AND 34 THEN '25-34'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 35 AND 44 THEN '35-44'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 45 AND 54 THEN '45-54'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 55 AND 64 THEN '55-64'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) >= 65 THEN '65+'\n    ELSE 'Unknown'\n  END as age_group,\n  COUNT(DISTINCT u.id) as total_users,\n  COUNT(DISTINCT p.id) as proposals_created,\n  COUNT(DISTINCT c.id) as comments_made,\n  ROUND(AVG(EXTRACT(days FROM NOW() - u.last_sign_in_at)), 1) as avg_days_since_login\nFROM decidim_users u\nLEFT JOIN decidim_proposals_proposals p ON u.id = p.decidim_author_id AND p.decidim_author_type = 'Decidim::User' AND p.deleted_at IS NULL\nLEFT JOIN decidim_comments_comments c ON u.id = c.decidim_author_id AND c.decidim_author_type = 'Decidim::User' AND c.deleted_at IS NULL\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY \n  CASE \n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) < 25 THEN '< 25'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 25 AND 34 THEN '25-34'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 35 AND 44 THEN '35-44'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 45 AND 54 THEN '45-54'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) BETWEEN 55 AND 64 THEN '55-64'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, date_of_birth)) >= 65 THEN '65+'\n    ELSE 'Unknown'\n  END\nORDER BY total_users DESC;",
+					"refId": "A"
+				}
+			],
+			"title": "Participation by Age Group",
+			"type": "table"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 10,
+						"gradientMode": "none",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "linear",
+						"lineWidth": 1,
+						"pointSize": 5,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "off"
+						}
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					}
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 0,
+				"y": 16
+			},
+			"id": 6,
+			"options": {
+				"legend": {
+					"calcs": [],
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": true
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "single",
+					"sort": "none"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "time_series",
+					"rawQuery": true,
+					"rawSql": "SELECT \n  DATE_TRUNC('week', u.last_sign_in_at) as time,\n  COUNT(DISTINCT u.id) as \"Active Users\"\nFROM decidim_users u\nWHERE u.last_sign_in_at >= NOW() - INTERVAL '12 weeks' \n  AND u.deleted_at IS NULL \n  AND u.type = 'Decidim::User'\nGROUP BY DATE_TRUNC('week', u.last_sign_in_at)\nORDER BY time;",
+					"refId": "A"
+				}
+			],
+			"title": "Weekly Active Users",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "percent"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 12,
+				"y": 16
+			},
+			"id": 7,
+			"options": {
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showThresholdLabels": false,
+				"showThresholdMarkers": true
+			},
+			"pluginVersion": "12.1.0-87021",
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT \n  ROUND(\n    (COUNT(CASE WHEN u.last_sign_in_at >= NOW() - INTERVAL '7 days' THEN 1 END) * 100.0) / \n    NULLIF(COUNT(*), 0), 2\n  ) as value\nFROM decidim_users u\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User';",
+					"refId": "A"
+				}
+			],
+			"title": "7-Day User Retention Rate",
+			"type": "gauge"
+		}
+	],
+	"refresh": "5m",
+	"schemaVersion": 41,
+	"tags": ["decidim", "demographics", "participation"],
+	"templating": { "list": [] },
+	"time": { "from": "now-30d", "to": "now" },
+	"timepicker": {},
+	"timezone": "browser",
+	"title": "Participation Demographics",
+	"uid": "decidim_demographics",
+	"version": 1
+}
