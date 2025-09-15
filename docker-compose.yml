@@ -42,7 +42,6 @@ services:
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
-            - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
         command: bash /code/docker-entrypoint.sh
         networks:
@@ -84,11 +83,10 @@ services:
             retries: 5
     shakapacker:
         build: ./decidim/decidim_application/
-        command: bash -c "cd /code && bundle install && yarn install && bundle exec bin/shakapacker-dev-server"
+        command: bash -c "cd /code && bundle exec bin/shakapacker-dev-server"
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
-            - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
         depends_on:
             - db
@@ -127,6 +125,27 @@ services:
             - DATABASE_NAME=${DATABASE_NAME}
             - DATABASE_USERNAME=${DATABASE_USERNAME}
             - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+            # OAuth/Keycloak configuration
+            - GF_AUTH_GENERIC_OAUTH_ENABLED=${GF_AUTH_GENERIC_OAUTH_ENABLED}
+            - GF_AUTH_GENERIC_OAUTH_NAME=${GF_AUTH_GENERIC_OAUTH_NAME}
+            - GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP=${GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP}
+            - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=${GF_AUTH_GENERIC_OAUTH_CLIENT_ID}
+            - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
+            - GF_AUTH_GENERIC_OAUTH_SCOPES=${GF_AUTH_GENERIC_OAUTH_SCOPES}
+            - GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_PATH=${GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_PATH}
+            - GF_AUTH_GENERIC_OAUTH_LOGIN_ATTRIBUTE_PATH=${GF_AUTH_GENERIC_OAUTH_LOGIN_ATTRIBUTE_PATH}
+            - GF_AUTH_GENERIC_OAUTH_NAME_ATTRIBUTE_PATH=${GF_AUTH_GENERIC_OAUTH_NAME_ATTRIBUTE_PATH}
+            - GF_AUTH_GENERIC_OAUTH_AUTH_URL=${GF_AUTH_GENERIC_OAUTH_AUTH_URL}
+            - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=${GF_AUTH_GENERIC_OAUTH_TOKEN_URL}
+            - GF_AUTH_GENERIC_OAUTH_API_URL=${GF_AUTH_GENERIC_OAUTH_API_URL}
+            - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH=${GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH}
+            - GF_AUTH_GENERIC_OAUTH_USE_REFRESH_TOKEN=${GF_AUTH_GENERIC_OAUTH_USE_REFRESH_TOKEN}
+            - GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH=${GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH}
+            - GF_AUTH_GENERIC_OAUTH_ALLOW_ASSIGN_GRAFANA_ADMIN=${GF_AUTH_GENERIC_OAUTH_ALLOW_ASSIGN_GRAFANA_ADMIN}
+            - GF_AUTH_GENERIC_OAUTH_SIGNOUT_REDIRECT_URL=${GF_AUTH_GENERIC_OAUTH_SIGNOUT_REDIRECT_URL}
+            - GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN=${GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN}
+            - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
+            - GF_SERVER_DOMAIN=${GF_SERVER_DOMAIN}
         volumes:
             - grafana_data:/var/lib/grafana
             - ./analytics/grafana/provisioning:/etc/grafana/provisioning

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: jitsi-jvb
+    namespace: participate
+    labels:
+        app: jitsi
+        component: jvb
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: jitsi
+            component: jvb
+    template:
+        metadata:
+            labels:
+                app: jitsi
+                component: jvb
+        spec:
+            automountServiceAccountToken: false
+            containers:
+                - name: jvb
+                  image: jitsi/jvb:stable-8960
+                  imagePullPolicy: IfNotPresent
+                  resources:
+                      requests:
+                          memory: '256Mi'
+                          cpu: '200m'
+                          ephemeral-storage: '512Mi'
+                      limits:
+                          memory: '512Mi'
+                          cpu: '500m'
+                          ephemeral-storage: '1Gi'
+                  ports:
+                      - name: udp
+                        containerPort: 10000
+                        protocol: UDP
+                  envFrom:
+                      - configMapRef:
+                            name: jitsi-config
+                      - secretRef:
+                            name: jitsi-secrets
+                  volumeMounts:
+                      - name: jvb-config
+                        mountPath: /config
+            volumes:
+                - name: jvb-config
+                  persistentVolumeClaim:
+                      claimName: jitsi-jvb-pvc

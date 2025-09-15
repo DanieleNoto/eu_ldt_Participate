@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: jitsi-jicofo
+    namespace: participate
+    labels:
+        app: jitsi
+        component: jicofo
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: jitsi
+            component: jicofo
+    template:
+        metadata:
+            labels:
+                app: jitsi
+                component: jicofo
+        spec:
+            automountServiceAccountToken: false
+            containers:
+                - name: jicofo
+                  image: jitsi/jicofo:stable-8960
+                  imagePullPolicy: IfNotPresent
+                  resources:
+                      requests:
+                          memory: '128Mi'
+                          cpu: '100m'
+                          ephemeral-storage: '512Mi'
+                      limits:
+                          memory: '256Mi'
+                          cpu: '250m'
+                          ephemeral-storage: '1Gi'
+                  envFrom:
+                      - configMapRef:
+                            name: jitsi-config
+                      - secretRef:
+                            name: jitsi-secrets
+                  volumeMounts:
+                      - name: jicofo-config
+                        mountPath: /config
+            volumes:
+                - name: jicofo-config
+                  persistentVolumeClaim:
+                      claimName: jitsi-jicofo-pvc
