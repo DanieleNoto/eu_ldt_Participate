@@ -10,7 +10,6 @@ import { NewTemplatePage } from '@pages/pages/admin/templates/NewTemplatePage';
 import { EditTemplatePage } from '@pages/pages/admin/templates/EditTemplatePage';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
-import { LocalizationUtils } from '@utils/localization.utils';
 
 /**
  * Enables creation of comprehensive surveys with various question types and validations
@@ -42,7 +41,6 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 	let templateId: string;
 	let templateName: string;
 	let processEditUrl: string;
-	let processSlug: string;
 
 	test.beforeEach(async ({ page }) => {
 		adminHomePage = new AdminHomePage(page);
@@ -70,7 +68,6 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				processAdminPage,
 				false // do not publish the process
 			);
-			processSlug = slug;
 			processEditUrl = url;
 			console.log('Test process setup completed');
 		});
