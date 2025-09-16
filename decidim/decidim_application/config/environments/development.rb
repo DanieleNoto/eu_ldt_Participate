@@ -59,7 +59,14 @@ Rails.application.configure do
   config.active_record.migration_error = :page_load
 
   # Highlight code that triggered database queries in logs.
-  config.active_record.verbose_query_logs = true
+  config.active_record.verbose_query_logs = false
+
+  # Set default log level to warn to reduce log spam
+  config.log_level = ENV.fetch('RAILS_LOG_LEVEL', :warn).to_sym
+  
+  # Add performance monitoring
+  config.active_record.query_log_tags_enabled = true
+  config.active_record.query_log_tags = [ :application, :controller, :action ]
 
   # Force enable Shakapacker dev server for development
   config.after_initialize do
