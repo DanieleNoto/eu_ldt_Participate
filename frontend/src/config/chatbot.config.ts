@@ -28,7 +28,7 @@ const getEnvVar = (key: string, defaultValue: string): string => {
 
 export const chatbotConfig: ChatbotConfig = {
 	backend: {
-		baseUrl: getEnvVar('BACKEND_URL', 'http://localhost:3000'),
+		baseUrl: getEnvVar('BACKEND_URL', 'http://localhost:3002'),
 		api: [
 			{
 				name: 'chatMessage',

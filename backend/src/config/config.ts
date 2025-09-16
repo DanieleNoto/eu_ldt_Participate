@@ -6,7 +6,6 @@ import { swaggerConfig } from './swagger';
 
 dotenv.config();
 
-
 interface Config {
 	port: number;
 	nodeEnv: string;
@@ -42,7 +41,7 @@ interface Config {
 
 // TODO [HIGH][20250205][piespedica]: Check config structure
 const appConfig: Config = {
-	port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
+	port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3002,
 	nodeEnv: process.env.NODE_ENV || 'development',
 	// jwtSecret: process.env.JWT_SECRET || 'changeme',
 	jwtConfig: {

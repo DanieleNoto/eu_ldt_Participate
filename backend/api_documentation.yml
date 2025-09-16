@@ -89,6 +89,191 @@ paths:
                   - suggestions
                   - isLeaf
                 additionalProperties: false
+  /api/v1/health/:
+    get:
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  checks:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        timestamp:
+                          type: string
+                        responseTime:
+                          type: number
+                        details:
+                          type: string
+                      required:
+                        - status
+                        - timestamp
+                      additionalProperties: false
+                  timestamp:
+                    type: string
+                  version:
+                    type: string
+                required:
+                  - status
+                  - checks
+                  - timestamp
+                additionalProperties: false
+  /api/v1/health/ready:
+    get:
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  checks:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        timestamp:
+                          type: string
+                        responseTime:
+                          type: number
+                        details:
+                          type: string
+                      required:
+                        - status
+                        - timestamp
+                      additionalProperties: false
+                  timestamp:
+                    type: string
+                  version:
+                    type: string
+                required:
+                  - status
+                  - checks
+                  - timestamp
+                additionalProperties: false
+  /api/v1/health/live:
+    get:
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  checks:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        timestamp:
+                          type: string
+                        responseTime:
+                          type: number
+                        details:
+                          type: string
+                      required:
+                        - status
+                        - timestamp
+                      additionalProperties: false
+                  timestamp:
+                    type: string
+                  version:
+                    type: string
+                required:
+                  - status
+                  - checks
+                  - timestamp
+                additionalProperties: false
+  /api/v1/health/services:
+    get:
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                    timestamp:
+                      type: string
+                    responseTime:
+                      type: number
+                    details:
+                      type: string
+                  required:
+                    - status
+                    - timestamp
+                  additionalProperties: false
+  /api/v1/health/kubernetes:
+    get:
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  healthy:
+                    type: boolean
+                  details:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                      checks:
+                        type: object
+                        additionalProperties:
+                          type: object
+                          properties:
+                            status:
+                              type: string
+                            timestamp:
+                              type: string
+                            responseTime:
+                              type: number
+                            details:
+                              type: string
+                          required:
+                            - status
+                            - timestamp
+                          additionalProperties: false
+                      timestamp:
+                        type: string
+                      version:
+                        type: string
+                    required:
+                      - status
+                      - checks
+                      - timestamp
+                    additionalProperties: false
+                required:
+                  - healthy
+                  - details
+                additionalProperties: false
   /api/v1/support/send:
     post:
       requestBody:

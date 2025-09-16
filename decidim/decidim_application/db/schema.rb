@@ -16,6 +16,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_13_140637) do
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
 
+  create_table "SequelizeData", primary_key: "name", id: { type: :string, limit: 255 }, force: :cascade do |t|
+  end
+
   create_table "active_hashcash_stamps", force: :cascade do |t|
     t.string "version", null: false
     t.integer "bits", null: false
@@ -59,6 +62,14 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_13_140637) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "conversations", id: :uuid, default: nil, force: :cascade do |t|
+    t.uuid "conversationId", null: false
+    t.string "nodeId", limit: 255, null: false
+    t.string "message", limit: 1000, null: false
+    t.timestamptz "createdAt", null: false
+    t.timestamptz "updatedAt", null: false
   end
 
   create_table "decidim_accountability_results", id: :serial, force: :cascade do |t|

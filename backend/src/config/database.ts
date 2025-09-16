@@ -19,11 +19,11 @@ export const createDatabaseConnection = () => {
 
 	const options = {
 		dialect: (process.env.DB_DIALECT || 'postgres') as Dialect,
-		host: process.env.DB_HOST,
-		username: process.env.DB_USERNAME,
-		password: process.env.DB_PASSWORD,
+		host: process.env.DATABASE_HOST,
+		username: process.env.DATABASE_USERNAME,
+		password: process.env.DATABASE_PASSWORD,
 		port: process.env.DB_PORT as unknown as number,
-		database: process.env.DB_NAME,
+		database: process.env.DATABASE_NAME,
 		pool: {
 			max: process.env.DB_MAX_POOL ? parseInt(process.env.DB_MAX_POOL, 10) : 10,
 			min: process.env.DB_MIN_POOL ? parseInt(process.env.DB_MIN_POOL, 10) : 2,
