@@ -5,19 +5,22 @@ metadata:
   labels:
     app: db
 spec:
-  serviceName: db
-  replicas: 1 # by default is 1
+  serviceName: "db"
+  replicas: 1
   selector:
     matchLabels:
       app: db
-
   template:
     metadata:
       labels:
         app: db
     spec:
       containers:
-        - env:
+        - name: db
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
             - name: CONFIG
               valueFrom:
                 configMapKeyRef:
@@ -43,298 +46,20 @@ spec:
                 configMapKeyRef:
                   key: DATABASE_USERNAME
                   name: home-adminlnx-temp1-env
-            - name: DECIDIM_FORCE_SSL
-              valueFrom:
-                configMapKeyRef:
-                  key: DECIDIM_FORCE_SSL
-                  name: home-adminlnx-temp1-env
-            - name: DECIDIM_MAILER_SENDER
-              valueFrom:
-                configMapKeyRef:
-                  key: DECIDIM_MAILER_SENDER
-                  name: home-adminlnx-temp1-env
-            - name: DOCKER_HOST_ADDRESS
-              valueFrom:
-                configMapKeyRef:
-                  key: DOCKER_HOST_ADDRESS
-                  name: home-adminlnx-temp1-env
-            - name: ENABLE_AUTH
-              valueFrom:
-                configMapKeyRef:
-                  key: ENABLE_AUTH
-                  name: home-adminlnx-temp1-env
-            - name: ENABLE_GUESTS
-              valueFrom:
-                configMapKeyRef:
-                  key: ENABLE_GUESTS
-                  name: home-adminlnx-temp1-env
-            - name: GF_SECURITY_ADMIN_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  key: GF_SECURITY_ADMIN_PASSWORD
-                  name: home-adminlnx-temp1-env
-            - name: GF_SECURITY_ADMIN_USER
-              valueFrom:
-                configMapKeyRef:
-                  key: GF_SECURITY_ADMIN_USER
-                  name: home-adminlnx-temp1-env
-            - name: JICOFO_AUTH_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  key: JICOFO_AUTH_PASSWORD
-                  name: home-adminlnx-temp1-env
-            - name: JICOFO_AUTH_USER
-              valueFrom:
-                configMapKeyRef:
-                  key: JICOFO_AUTH_USER
-                  name: home-adminlnx-temp1-env
-            - name: JITSI_HTTPS_PORT
-              valueFrom:
-                configMapKeyRef:
-                  key: JITSI_HTTPS_PORT
-                  name: home-adminlnx-temp1-env
-            - name: JITSI_HTTP_PORT
-              valueFrom:
-                configMapKeyRef:
-                  key: JITSI_HTTP_PORT
-                  name: home-adminlnx-temp1-env
-            - name: JITSI_UDP_PORT
-              valueFrom:
-                configMapKeyRef:
-                  key: JITSI_UDP_PORT
-                  name: home-adminlnx-temp1-env
-            - name: JVB_AUTH_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  key: JVB_AUTH_PASSWORD
-                  name: home-adminlnx-temp1-env
-            - name: JVB_AUTH_USER
-              valueFrom:
-                configMapKeyRef:
-                  key: JVB_AUTH_USER
-                  name: home-adminlnx-temp1-env
-            - name: JVB_BREWERY_MUC
-              valueFrom:
-                configMapKeyRef:
-                  key: JVB_BREWERY_MUC
-                  name: home-adminlnx-temp1-env
-            - name: JVB_ENABLE_APIS
-              valueFrom:
-                configMapKeyRef:
-                  key: JVB_ENABLE_APIS
-                  name: home-adminlnx-temp1-env
-            - name: JVB_PORT
-              valueFrom:
-                configMapKeyRef:
-                  key: JVB_PORT
-                  name: home-adminlnx-temp1-env
-            - name: JVB_STUN_SERVERS
-              valueFrom:
-                configMapKeyRef:
-                  key: JVB_STUN_SERVERS
-                  name: home-adminlnx-temp1-env
-            - name: KEYCLOAK_DISABLE_SSL_VERIFY
-              valueFrom:
-                configMapKeyRef:
-                  key: KEYCLOAK_DISABLE_SSL_VERIFY
-                  name: home-adminlnx-temp1-env
-            - name: MATOMO_DATABASE_ADAPTER
-              valueFrom:
-                configMapKeyRef:
-                  key: MATOMO_DATABASE_ADAPTER
-                  name: home-adminlnx-temp1-env
-            - name: MATOMO_DATABASE_DBNAME
-              valueFrom:
-                configMapKeyRef:
-                  key: MATOMO_DATABASE_DBNAME
-                  name: home-adminlnx-temp1-env
-            - name: MATOMO_DATABASE_HOST
-              valueFrom:
-                configMapKeyRef:
-                  key: MATOMO_DATABASE_HOST
-                  name: home-adminlnx-temp1-env
-            - name: MATOMO_DATABASE_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  key: MATOMO_DATABASE_PASSWORD
-                  name: home-adminlnx-temp1-env
-            - name: MATOMO_DATABASE_TABLES_PREFIX
-              valueFrom:
-                configMapKeyRef:
-                  key: MATOMO_DATABASE_TABLES_PREFIX
-                  name: home-adminlnx-temp1-env
-            - name: MATOMO_DATABASE_USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  key: MATOMO_DATABASE_USERNAME
-                  name: home-adminlnx-temp1-env
-            - name: NODE_ENV
-              valueFrom:
-                configMapKeyRef:
-                  key: NODE_ENV
-                  name: home-adminlnx-temp1-env
-            - name: OMNIAUTH_KEYCLOAK_CLIENT_ID
-              valueFrom:
-                configMapKeyRef:
-                  key: OMNIAUTH_KEYCLOAK_CLIENT_ID
-                  name: home-adminlnx-temp1-env
-            - name: OMNIAUTH_KEYCLOAK_CLIENT_SECRET
-              valueFrom:
-                configMapKeyRef:
-                  key: OMNIAUTH_KEYCLOAK_CLIENT_SECRET
-                  name: home-adminlnx-temp1-env
-            - name: OMNIAUTH_KEYCLOAK_REALM
-              valueFrom:
-                configMapKeyRef:
-                  key: OMNIAUTH_KEYCLOAK_REALM
-                  name: home-adminlnx-temp1-env
-            - name: OMNIAUTH_KEYCLOAK_SITE
-              valueFrom:
-                configMapKeyRef:
-                  key: OMNIAUTH_KEYCLOAK_SITE
-                  name: home-adminlnx-temp1-env
-            - name: POSTGRES_DATABASE
-            - name: POSTGRES_PASSWORD
-              value: supersecret 
-            - name: POSTGRES_USER
-              value: admin
-            - name: PUBLIC_URL
-              valueFrom:
-                configMapKeyRef:
-                  key: PUBLIC_URL
-                  name: home-adminlnx-temp1-env
-            - name: QUEUE_ADAPTER
-              valueFrom:
-                configMapKeyRef:
-                  key: QUEUE_ADAPTER
-                  name: home-adminlnx-temp1-env
-            - name: RAILS_ENV
-              valueFrom:
-                configMapKeyRef:
-                  key: RAILS_ENV
-                  name: home-adminlnx-temp1-env
-            - name: REDIS_URL
-              valueFrom:
-                configMapKeyRef:
-                  key: REDIS_URL
-                  name: home-adminlnx-temp1-env
-            - name: RESTART_POLICY
-              valueFrom:
-                configMapKeyRef:
-                  key: RESTART_POLICY
-                  name: home-adminlnx-temp1-env
-            - name: SECRET_KEY_BASE
-              valueFrom:
-                configMapKeyRef:
-                  key: SECRET_KEY_BASE
-                  name: home-adminlnx-temp1-env
-            - name: SHAKAPACKER_DEV_SERVER_HOST
-              valueFrom:
-                configMapKeyRef:
-                  key: SHAKAPACKER_DEV_SERVER_HOST
-                  name: home-adminlnx-temp1-env
-            - name: SMTP_ADDRESS
-              valueFrom:
-                configMapKeyRef:
-                  key: SMTP_ADDRESS
-                  name: home-adminlnx-temp1-env
-            - name: SMTP_AUTHENTICATION
-              valueFrom:
-                configMapKeyRef:
-                  key: SMTP_AUTHENTICATION
-                  name: home-adminlnx-temp1-env
-            - name: SMTP_DOMAIN
-              valueFrom:
-                configMapKeyRef:
-                  key: SMTP_DOMAIN
-                  name: home-adminlnx-temp1-env
-            - name: SMTP_ENABLE_STARTTLS_AUTO
-              valueFrom:
-                configMapKeyRef:
-                  key: SMTP_ENABLE_STARTTLS_AUTO
-                  name: home-adminlnx-temp1-env
-            - name: SMTP_OPENSSL_VERIFY_MODE
-              valueFrom:
-                configMapKeyRef:
-                  key: SMTP_OPENSSL_VERIFY_MODE
-                  name: home-adminlnx-temp1-env
-            - name: SMTP_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  key: SMTP_PASSWORD
-                  name: home-adminlnx-temp1-env
-            - name: SMTP_PORT
-              valueFrom:
-                configMapKeyRef:
-                  key: SMTP_PORT
-                  name: home-adminlnx-temp1-env
-            - name: SMTP_USER_NAME
-              valueFrom:
-                configMapKeyRef:
-                  key: SMTP_USER_NAME
-                  name: home-adminlnx-temp1-env
-            - name: TZ
-              valueFrom:
-                configMapKeyRef:
-                  key: TZ
-                  name: home-adminlnx-temp1-env
-            - name: XMPP_AUTH_DOMAIN
-              valueFrom:
-                configMapKeyRef:
-                  key: XMPP_AUTH_DOMAIN
-                  name: home-adminlnx-temp1-env
-            - name: XMPP_BOSH_URL_BASE
-              valueFrom:
-                configMapKeyRef:
-                  key: XMPP_BOSH_URL_BASE
-                  name: home-adminlnx-temp1-env
-            - name: XMPP_DOMAIN
-              valueFrom:
-                configMapKeyRef:
-                  key: XMPP_DOMAIN
-                  name: home-adminlnx-temp1-env
-            - name: XMPP_GUEST_DOMAIN
-              valueFrom:
-                configMapKeyRef:
-                  key: XMPP_GUEST_DOMAIN
-                  name: home-adminlnx-temp1-env
-            - name: XMPP_INTERNAL_MUC_DOMAIN
-              valueFrom:
-                configMapKeyRef:
-                  key: XMPP_INTERNAL_MUC_DOMAIN
-                  name: home-adminlnx-temp1-env
-            - name: XMPP_MODULES
-              valueFrom:
-                configMapKeyRef:
-                  key: XMPP_MODULES
-                  name: home-adminlnx-temp1-env
-            - name: XMPP_MUC_DOMAIN
-              valueFrom:
-                configMapKeyRef:
-                  key: XMPP_MUC_DOMAIN
-                  name: home-adminlnx-temp1-env
-            - name: XMPP_RECORDER_DOMAIN
-              valueFrom:
-                configMapKeyRef:
-                  key: XMPP_RECORDER_DOMAIN
-                  name: home-adminlnx-temp1-env
-            - name: XMPP_SERVER
-              valueFrom:
-                configMapKeyRef:
-                  key: XMPP_SERVER
-                  name: home-adminlnx-temp1-env
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
-          image: postgres:16
-          name: db
-          ports:
-            - containerPort: 5432
-              name: postgres
+            - name: POSTGRES_USER
+              value: admin
+            - name: POSTGRES_PASSWORD
+              value: supersecret
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
-      restartPolicy: Always
-      volumes:
-        - name: postgres-data
-          persistentVolumeClaim:
-            claimName: postgres-data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: jitsi-prosody
+  labels:
+    io.kompose.service: jitsi-prosody
+spec:
+  serviceName: jitsi-prosody
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: jitsi-prosody
+  template:
+    metadata:
+      labels:
+        io.kompose.service: jitsi-prosody
+        io.kompose.network/temp1-private: "true"
+    spec:
+      containers:
+        - name: jitsi-prosody
+          image: jitsi/prosody:stable-8960
+          env:
+            - name: JICOFO_AUTH_USER
+              value: "focus"
+            - name: JICOFO_AUTH_PASSWORD
+              value: supersecurepassword
+            - name: JICOFO_COMPONENT_SECRET
+              value: "focus2"
+            - name: JVB_AUTH_USER
+              value: jvb
+            - name: JVB_AUTH_PASSWORD
+              value: supersecurejvbpassword
+          ports:
+            - containerPort: 5222
+              protocol: TCP
+            - containerPort: 5347
+              protocol: TCP
+            - containerPort: 5280
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /config
+              name: jitsi-prosody-claim0
+            - mountPath: /prosody-plugins-custom
+              name: jitsi-prosody-claim1
+  volumeClaimTemplates:
+    - metadata:
+        name: jitsi-prosody-claim0
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 100Mi
+    - metadata:
+        name: jitsi-prosody-claim1
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 50Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jitsi-prosody
+  labels:
+    io.kompose.service: jitsi-prosody
+spec:
+  ports:
+    - name: "5222"
+      port: 5222
+      targetPort: 5222
+    - name: "5347"
+      port: 5347
+      targetPort: 5347
+    - name: "5280"
+      port: 5280
+      targetPort: 5280
+  selector:
+    io.kompose.service: jitsi-prosody
+  type: ClusterIP

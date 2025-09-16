@@ -1,0 +1,383 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: decidim
+  labels:
+    app: decidim
+spec:
+  serviceName: "decidim"  # requerido en StatefulSet
+  replicas: 1
+  selector:
+    matchLabels:
+      app: decidim
+  template:
+    metadata:
+      labels:
+        app: decidim
+    spec:
+      containers:
+
+        - name: decidim
+          image: euldtshared.azurecr.io/eu-ldt-part-int:$(Build.BuildId)
+          command: ["bash", "/code/docker-entrypoint.sh"]
+          env:
+            - name: CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  key: CONFIG
+                  name: home-adminlnx-temp1-env
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: DATABASE_HOST
+                  name: home-adminlnx-temp1-env
+            - name: DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DATABASE_NAME
+                  name: home-adminlnx-temp1-env
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: DATABASE_PASSWORD
+                  name: home-adminlnx-temp1-env
+            - name: DATABASE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DATABASE_USERNAME
+                  name: home-adminlnx-temp1-env
+            - name: DECIDIM_FORCE_SSL
+              valueFrom:
+                configMapKeyRef:
+                  key: DECIDIM_FORCE_SSL
+                  name: home-adminlnx-temp1-env
+            - name: DECIDIM_MAILER_SENDER
+              valueFrom:
+                configMapKeyRef:
+                  key: DECIDIM_MAILER_SENDER
+                  name: home-adminlnx-temp1-env
+            - name: DOCKER_HOST_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: DOCKER_HOST_ADDRESS
+                  name: home-adminlnx-temp1-env
+            - name: ENABLE_AUTH
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_AUTH
+                  name: home-adminlnx-temp1-env
+            - name: ENABLE_GUESTS
+              valueFrom:
+                configMapKeyRef:
+                  key: ENABLE_GUESTS
+                  name: home-adminlnx-temp1-env
+            - name: FORCE_DATA_SETUP
+              value: "false"
+            - name: FORCE_DB_RESET
+              value: "false"
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: GF_SECURITY_ADMIN_PASSWORD
+                  name: home-adminlnx-temp1-env
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: GF_SECURITY_ADMIN_USER
+                  name: home-adminlnx-temp1-env
+            - name: JICOFO_AUTH_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: JICOFO_AUTH_PASSWORD
+                  name: home-adminlnx-temp1-env
+            - name: JICOFO_AUTH_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: JICOFO_AUTH_USER
+                  name: home-adminlnx-temp1-env
+            - name: JITSI_HTTPS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: JITSI_HTTPS_PORT
+                  name: home-adminlnx-temp1-env
+            - name: JITSI_HTTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: JITSI_HTTP_PORT
+                  name: home-adminlnx-temp1-env
+            - name: JITSI_UDP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: JITSI_UDP_PORT
+                  name: home-adminlnx-temp1-env
+            - name: JVB_AUTH_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: JVB_AUTH_PASSWORD
+                  name: home-adminlnx-temp1-env
+            - name: JVB_AUTH_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: JVB_AUTH_USER
+                  name: home-adminlnx-temp1-env
+            - name: JVB_BREWERY_MUC
+              valueFrom:
+                configMapKeyRef:
+                  key: JVB_BREWERY_MUC
+                  name: home-adminlnx-temp1-env
+            - name: JVB_ENABLE_APIS
+              valueFrom:
+                configMapKeyRef:
+                  key: JVB_ENABLE_APIS
+                  name: home-adminlnx-temp1-env
+            - name: JVB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: JVB_PORT
+                  name: home-adminlnx-temp1-env
+            - name: JVB_STUN_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  key: JVB_STUN_SERVERS
+                  name: home-adminlnx-temp1-env
+            - name: KEYCLOAK_DISABLE_SSL_VERIFY
+              valueFrom:
+                configMapKeyRef:
+                  key: KEYCLOAK_DISABLE_SSL_VERIFY
+                  name: home-adminlnx-temp1-env
+            - name: MATOMO_DATABASE_ADAPTER
+              valueFrom:
+                configMapKeyRef:
+                  key: MATOMO_DATABASE_ADAPTER
+                  name: home-adminlnx-temp1-env
+            - name: MATOMO_DATABASE_DBNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: MATOMO_DATABASE_DBNAME
+                  name: home-adminlnx-temp1-env
+            - name: MATOMO_DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: MATOMO_DATABASE_HOST
+                  name: home-adminlnx-temp1-env
+            - name: MATOMO_DATABASE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: MATOMO_DATABASE_PASSWORD
+                  name: home-adminlnx-temp1-env
+            - name: MATOMO_DATABASE_TABLES_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  key: MATOMO_DATABASE_TABLES_PREFIX
+                  name: home-adminlnx-temp1-env
+            - name: MATOMO_DATABASE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: MATOMO_DATABASE_USERNAME
+                  name: home-adminlnx-temp1-env
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  key: NODE_ENV
+                  name: home-adminlnx-temp1-env
+            - name: OMNIAUTH_KEYCLOAK_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: OMNIAUTH_KEYCLOAK_CLIENT_ID
+                  name: home-adminlnx-temp1-env
+            - name: OMNIAUTH_KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  key: OMNIAUTH_KEYCLOAK_CLIENT_SECRET
+                  name: home-adminlnx-temp1-env
+            - name: OMNIAUTH_KEYCLOAK_REALM
+              valueFrom:
+                configMapKeyRef:
+                  key: OMNIAUTH_KEYCLOAK_REALM
+                  name: home-adminlnx-temp1-env
+            - name: OMNIAUTH_KEYCLOAK_SITE
+              valueFrom:
+                configMapKeyRef:
+                  key: OMNIAUTH_KEYCLOAK_SITE
+                  name: home-adminlnx-temp1-env
+            - name: PUBLIC_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: PUBLIC_URL
+                  name: home-adminlnx-temp1-env
+            - name: QUEUE_ADAPTER
+              valueFrom:
+                configMapKeyRef:
+                  key: QUEUE_ADAPTER
+                  name: home-adminlnx-temp1-env
+            - name: RAILS_CSP_DEVELOPMENT
+              value: "true"
+            - name: RAILS_ENV
+              valueFrom:
+                configMapKeyRef:
+                  key: RAILS_ENV
+                  name: home-adminlnx-temp1-env
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_URL
+                  name: home-adminlnx-temp1-env
+            - name: RESTART_POLICY
+              valueFrom:
+                configMapKeyRef:
+                  key: RESTART_POLICY
+                  name: home-adminlnx-temp1-env
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                configMapKeyRef:
+                  key: SECRET_KEY_BASE
+                  name: home-adminlnx-temp1-env
+            - name: SHAKAPACKER_DEV_SERVER_ENABLED
+              value: "true"
+            - name: SHAKAPACKER_DEV_SERVER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: SHAKAPACKER_DEV_SERVER_HOST
+                  name: home-adminlnx-temp1-env
+            - name: SHAKAPACKER_DEV_SERVER_PORT
+              value: "3035"
+            - name: SMTP_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_ADDRESS
+                  name: home-adminlnx-temp1-env
+            - name: SMTP_AUTHENTICATION
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_AUTHENTICATION
+                  name: home-adminlnx-temp1-env
+            - name: SMTP_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_DOMAIN
+                  name: home-adminlnx-temp1-env
+            - name: SMTP_ENABLE_STARTTLS_AUTO
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_ENABLE_STARTTLS_AUTO
+                  name: home-adminlnx-temp1-env
+            - name: SMTP_OPENSSL_VERIFY_MODE
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_OPENSSL_VERIFY_MODE
+                  name: home-adminlnx-temp1-env
+            - name: SMTP_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_PASSWORD
+                  name: home-adminlnx-temp1-env
+            - name: SMTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_PORT
+                  name: home-adminlnx-temp1-env
+            - name: SMTP_USER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: SMTP_USER_NAME
+                  name: home-adminlnx-temp1-env
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  key: TZ
+                  name: home-adminlnx-temp1-env
+            - name: XMPP_AUTH_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  key: XMPP_AUTH_DOMAIN
+                  name: home-adminlnx-temp1-env
+            - name: XMPP_BOSH_URL_BASE
+              valueFrom:
+                configMapKeyRef:
+                  key: XMPP_BOSH_URL_BASE
+                  name: home-adminlnx-temp1-env
+            - name: XMPP_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  key: XMPP_DOMAIN
+                  name: home-adminlnx-temp1-env
+            - name: XMPP_GUEST_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  key: XMPP_GUEST_DOMAIN
+                  name: home-adminlnx-temp1-env
+            - name: XMPP_INTERNAL_MUC_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  key: XMPP_INTERNAL_MUC_DOMAIN
+                  name: home-adminlnx-temp1-env
+            - name: XMPP_MODULES
+              valueFrom:
+                configMapKeyRef:
+                  key: XMPP_MODULES
+                  name: home-adminlnx-temp1-env
+            - name: XMPP_MUC_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  key: XMPP_MUC_DOMAIN
+                  name: home-adminlnx-temp1-env
+            - name: XMPP_RECORDER_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  key: XMPP_RECORDER_DOMAIN
+                  name: home-adminlnx-temp1-env
+
+            - name: XMPP_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  key: XMPP_SERVER
+                  name: home-adminlnx-temp1-env
+          ports:
+            - containerPort: 3000
+          livenessProbe:
+            exec:
+              command:
+                - test
+                - -d
+                - node_modules
+            failureThreshold: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          volumeMounts:
+            - mountPath: /code
+              name: decidim-pvc
+            - mountPath: /usr/local/bundle
+              name: bundle-cache
+            - mountPath: /app/vendor/bundle
+              name: vendor-bundle
+            - mountPath: /code/node_modules
+              name: node-modules
+  volumeClaimTemplates:
+    - metadata:
+        name: decidim-pvc
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: bundle-cache
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: vendor-bundle
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: node-modules
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
