@@ -78,12 +78,13 @@ COPY --from=builder /usr/local/bundle /usr/local/bundle
 COPY --from=builder /code/docker-entrypoint.sh /code/docker-entrypoint.sh
 RUN chmod +x /code/docker-entrypoint.sh
 
-ENV RAILS_ENV=${RAILS_ENV:-production}
-ENV NODE_ENV=${NODE_ENV:-production}
+ENV RAILS_ENV=production
+ENV NODE_ENV=production
 
 EXPOSE 3000
 
-# ENTRYPOINT ["/code/docker-entrypoint.sh"]
+ENTRYPOINT ["/code/docker-entrypoint.sh"]
+CMD ["rails", "server", "-b", "0.0.0.0", "-p", "3000"]
 
-CMD ["/code/docker-entrypoint.sh"]
+# CMD ["/code/docker-entrypoint.sh"]
 # Expose port
