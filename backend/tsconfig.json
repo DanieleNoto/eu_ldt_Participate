@@ -16,5 +16,8 @@
 		"emitDecoratorMetadata": true
 	},
 	"include": ["src/**/*", "db/**/*", "tests/**/*", "node_modules/sqlite3"],
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules"],
+	"ts-node": {
+		"files": true
+	}
 }

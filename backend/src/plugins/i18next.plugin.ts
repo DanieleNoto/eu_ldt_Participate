@@ -45,6 +45,6 @@ export default fp(async function (fastify) {
 	});
 
 	fastify.addHook('onRequest', async request => {
-		request.i18n = i18next;
+		(request as any).i18n = i18next;
 	});
 });

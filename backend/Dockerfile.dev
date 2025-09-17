@@ -1,0 +1,21 @@
+FROM node:18-alpine
+
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install ALL dependencies (including dev dependencies for development)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Expose the port
+EXPOSE 3002
+
+# For development, use nodemon with TypeScript
+CMD ["npm", "run", "dev"]

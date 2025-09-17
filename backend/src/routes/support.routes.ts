@@ -10,6 +10,8 @@ export default (app: FastifyInstance) => {
 			body: SupportRequestSchema,
 			response: { 200: SupportResponseSchema }
 		},
-		handler: SupportController.send.bind(SupportController)
+		handler: async (request, reply) => {
+			return await SupportController.send(request, reply);
+		}
 	});
 };
