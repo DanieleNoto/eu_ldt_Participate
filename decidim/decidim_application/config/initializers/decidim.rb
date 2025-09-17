@@ -380,20 +380,38 @@ Decidim.configure do |config|
 
   # Defines additional content security policies following the structure
   # Read more: https://docs.decidim.org/en/develop/configure/initializer#_content_security_policy
+  
+  # Get embeddable services from environment variable for CSP frame-src
+  embeddable_services = ENV.fetch("MEETINGS_EMBEDDABLE_SERVICES", "www.youtube.com www.twitch.tv meet.jit.si").split(" ")
+  frame_src_hosts = %w('self') + embeddable_services
+  
   config.content_security_policies_extra = {
     "default-src" => %w('self' https:),
     "script-src" => %w('self' 'unsafe-inline' 'unsafe-eval'),
     "style-src" => %w('self' 'unsafe-inline'),
     "connect-src" => %w('self'),
     "font-src" => %w('self'),
+    "frame-src" => frame_src_hosts,
   }
 
   # Allow webpack dev server in development
   if Rails.env.development?
-    config.content_security_policies_extra["script-src"] += %w(http://localhost:3035)
-    config.content_security_policies_extra["style-src"] += %w(http://localhost:3035)
-    config.content_security_policies_extra["connect-src"] += %w(http://localhost:3035 ws://localhost:3035)
-    config.content_security_policies_extra["font-src"] += %w(http://localhost:3035)
+    config.content_security_policies_extra["script-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
+    config.content_security_policies_extra["style-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
+    config.content_security_policies_extra["connect-src"] += %w(http://localhost:3035 ws://localhost:3035 http://0.0.0.0:3035 ws://0.0.0.0:3035)
+    config.content_security_policies_extra["font-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
+    
+    # Allow Matomo analytics in development
+    if ENV['MATOMO_URL'].present?
+      matomo_host = URI.parse(ENV['MATOMO_URL']).host
+      matomo_port = URI.parse(ENV['MATOMO_URL']).port
+      matomo_full = "http://#{matomo_host}:#{matomo_port}"
+      
+      config.content_security_policies_extra["script-src"] += [matomo_full]
+      config.content_security_policies_extra["connect-src"] += [matomo_full]
+      config.content_security_policies_extra["img-src"] ||= %w('self' data:)
+      config.content_security_policies_extra["img-src"] += [matomo_full]
+    end
   end
 
   # Admin admin password configurations

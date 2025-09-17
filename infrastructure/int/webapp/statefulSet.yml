@@ -1,0 +1,174 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tool3
+spec:
+  selector:
+    matchLabels:
+      app: tool3 # has to match .spec.template.metadata.labels
+  serviceName: tool3
+  replicas: 1 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: tool3 # has to match .spec.selector.matchLabels
+    spec:
+      automountServiceAccountToken: false
+#      updateStrategy:
+#        type: RollingUpdate
+#        rollingUpdate:
+#          # The default value is 25%.
+#          # maxUnavailable is an optional field that specifies the maximum number of Pods that can be unavailable during the update process.
+#          maxUnavailable: 0 # The value can be an absolute number (for example, 5) or a percentage of desired Pods (for example, 10%). 
+#          # maxSurge is an optional field that specifies the maximum number of Pods that can be created over the desired number of Pods.
+#          maxSurge: 1 # The value can be an absolute number (for example, 5) or a percentage of desired Pods (for example, 10%). 
+      terminationGracePeriodSeconds: 10
+      hostname: tool3
+      imagePullSecrets:
+        - name: acr-secret
+      containers:
+            - name: tool3-front
+              image: euldtshared.azurecr.io/eu-ldt-pv-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+              args: ["--port", "8080"]
+              #  image: euldtshared.azurecr.io/eu-ldt-ie-int-fe:_%CONTAINER_IMAGE_TOOL_TAG%_
+              imagePullPolicy: IfNotPresent
+              resources:
+                limits:
+                  cpu: "400m"
+                  memory: "1536M"
+                requests:
+                  cpu: "200m"
+                  memory: "1536M"
+             
+              #    env:
+              #    - name: VITE_API_URL
+    #      valueFrom:
+    #        configMapKeyRef:
+    #          name: tool3-config        
+    #          key: vite_api_url
+              ports:
+              - containerPort: 8080
+                name: http
+
+            - name: tool3-back
+                #                image: mcr.microsoft.com/k8se/quickstart:latest
+              image: euldtshared.azurecr.io/eu-ldt-pv-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+            
+              imagePullPolicy: IfNotPresent
+              resources:
+                limits:
+                  cpu: "400m"
+                  memory: "1536M"
+                requests:
+                  cpu: "200m"
+                  memory: "1536M"
+              env:
+              - name: PORT
+                value: "8080"
+              ports:
+              - containerPort: 3000
+                name: http-web
+#        volumeMounts:
+#        - name: tool3sharedstorage
+#          mountPath: /mnt/shared
+#          readOnly: false
+#        env:
+#        - name: HOST
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: host
+#        - name: DB_MIGRATE
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_migrate
+#        - name: DB_PORT
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_port
+#        - name: DB_DIALECT
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_dialect
+#        - name: DB_HOST
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_host
+#        - name: DB_USERNAME
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_user
+#        - name: DB_DATABASE
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_schema
+#        - name: DB_PASSWORD
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config
+#              key: postgres_password
+#        - name: BOOTSTRAP_API_KEY
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config
+#              key: bootstrap_api_key
+#        - name: CLIENT_SECRET_ENCRYPTION_KEY
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config
+#              key: client_secret_encryption_key
+
+
+
+#
+#        volumeMounts:
+#        - name: tool3sharedstorage
+#          mountPath: /mnt/shared
+#          readOnly: false
+#       
+          
+#      - name: tool3-pg
+#        image: docker.io/library/postgres:17.3
+#        imagePullPolicy: IfNotPresent
+#        resources:
+#          requests:
+#            cpu: "100m"
+#            memory: "128Mi"
+#          limits:
+#            cpu: "250m"
+#            memory: "256Mi"
+#        ports:
+#        - containerPort: 5432
+#        env:
+#        - name: POSTGRES_USER
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config        
+#              key: postgres_user
+#        - name: POSTGRES_PASSWORD
+#          valueFrom:
+#            configMapKeyRef:
+#              name: tool3-config
+#              key: postgres_password
+#        - name: POD_IP
+#          valueFrom:
+#            fieldRef:
+#              fieldPath: status.podIP
+#        volumeMounts:
+#        - name: tool3pgstorage
+#          mountPath: /var/lib/postgresql/data
+#      volumes:
+#      - name: tool3pgstorage
+#        persistentVolumeClaim:
+#          claimName: postgres-pvc
+#      - name: tool3sharedstorage
+#        persistentVolumeClaim:
+#          claimName: tool3-shared-claim
+        

@@ -1,0 +1,15 @@
+source "https://rubygems.org"
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+# Specify your gem's dependencies in decidim-meetings-jitsi.gemspec.
+gemspec
+
+gem "puma"
+
+gem "sqlite3"
+
+# JWT for secure Jitsi rooms - using version compatible with Decidim
+gem "jwt", "~> 3.0"
+
+# Start debugger with binding.b [https://github.com/ruby/debug]
+# gem "debug", ">= 1.0.0"
