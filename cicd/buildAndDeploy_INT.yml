@@ -19,9 +19,29 @@ variables:
 - group: 'TOOL3 - PT - KV'
 
 jobs:
+- job:    
+    - task: Kubernetes@1
+      displayName: "Decidim - Apply Services"
+      inputs:
+          connectionType: 'Azure Resource Manager'
+          azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+          azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+          kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+          namespace: 'participate'              
+          command: 'apply'
+          arguments: '-f infrastructure/int/decidim/decidim-service.yml'
 
-
-- job: buildAndPushDockerfile
+    # Apply Ingress for routing
+    - task: Kubernetes@1
+      displayName: "Apply Ingress (Tool3)"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/proxy/ingress.yml'ushDockerfile
   displayName: "Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION"
   variables:
       tag: '$(Build.BuildId)' 
@@ -39,6 +59,30 @@ jobs:
         verbosity: detailed
         actionOnNoFiles: warn
 
+    # Recreate ACR pull secret
+    - task: Kubernetes@1
+      displayName: "Delete ACR Pull Secret if exists (Tool3)"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'delete'
+        arguments: secret acr-secret --ignore-not-found=true
+
+    - task: Kubernetes@1
+      displayName: "Set ACR Pull Secret (Tool3)"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'create'
+        arguments: secret docker-registry acr-secret --docker-server=euldtshared.azurecr.io --docker-username=f703f14b-9128-4eb8-b78b-a819d3e66d32 --docker-password=y_LusONCFAN7Az6SI7lHCq4S0YwqZzV3t-
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
 
     - task: Docker@2
       displayName: Build and push decidim
@@ -98,7 +142,7 @@ jobs:
 
 
 - job: deployment
-#  dependsOn: buildAndPushDockerfile
+  dependsOn: buildAndPushDockerfile
   displayName: Kubectl Tool3 deployment
   steps:
     - task: replacetokens@5
@@ -128,36 +172,7 @@ jobs:
         command: 'apply'
         arguments: '-f infrastructure/int/namespace.yml'
 
-#ASR: Añadimos la eliminacion del ACR Pull Secret para volver a generarlo
-    - task: Kubernetes@1
-      displayName: "Delete ACR Pull Secret if exists (Tool3)"
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-        namespace: 'participate'
-        command: 'delete'
-        arguments: secret acr-secret --ignore-not-found=true
-#-------------------------------------------------------------------------------
-    - task: Kubernetes@1
-      displayName: "Set ACR Pull Secret (Tool3)"
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-        namespace: 'participate'
-        command: 'create'
-        arguments: secret docker-registry acr-secret --docker-server=euldtshared.azurecr.io --docker-username=f703f14b-9128-4eb8-b78b-a819d3e66d32 --docker-password=y_LusONCFAN7Az6SI7lHCq4S0YwqZzV3t-
-        secretType: 'dockerRegistry'
-        containerRegistryType: 'Azure Container Registry'
-
-
-#        
-#
-#
-  #ASR: Añadimos la eliminacion del Shared Storage Secret para volver a generarlo
+    # Shared Storage Secret  
     - task: Kubernetes@1
       displayName: "Delete existing storage-secret if it exists"
       inputs:
@@ -181,23 +196,7 @@ jobs:
         arguments: secret generic storage-secret --from-literal=azurestorageaccountname=euldtsharedtfstateint --from-literal=azurestorageaccountkey=$(STORAGE-ACCOUNT-KEY)
         secretType: 'generic'
 
-
-#
-#    - task: Kubernetes@1
-#      displayName: "Apply File Storage (Tool3)"
-#      inputs:
-#        connectionType: 'Azure Resource Manager'
-#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-#        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-#        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-#        namespace: 'participate'
-#        command: 'apply'
-#        arguments: '-f infrastructure/int/storage/file-storage.yml'
-#
-##-------------------------------------------------------------------------------------------
-##CONFIGURACION DB
-## Config Services
-
+    # Database StatefulSet
     - task: Kubernetes@1
       displayName: "DB - Apply Services"
       inputs:
@@ -207,9 +206,8 @@ jobs:
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
         command: 'apply'
-        arguments: '-f infrastructure/int/db/db-service.yaml'
+        arguments: '-f infrastructure/int/decidim/db/db-service.yaml'
 
-## Statefulset
 
     - task: Kubernetes@1
       displayName: "DB - Apply Statefulset"
@@ -220,13 +218,47 @@ jobs:
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
         command: 'apply'
-        arguments: '-f infrastructure/int/db/db-statefulset.yaml'
+        arguments: '-f infrastructure/int/decidim/db/db-statefulset.yaml'
 
-
-## Statefulset
+    # Redis StatefulSet
 
     - task: Kubernetes@1
-      displayName: "JITSI-JICOFO - - Apply Statefulset"
+      displayName: "REDIS - Apply Statefulset"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/decidim/redis/redis-statefulset.yaml'
+
+    # Jitsi Configuration
+    - task: Kubernetes@1
+      displayName: "JITSI - Apply ConfigMaps and Secrets"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/jitsi/jitsi-configmap.yml -f infrastructure/int/jitsi/jitsi-secrets.yml'
+
+    # Jitsi StatefulSets
+    - task: Kubernetes@1
+      displayName: "JITSI-JICOFO - Delete existing StatefulSet if it exists"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'delete'
+        arguments: 'statefulset jitsi-jicofo --ignore-not-found=true'
+
+    - task: Kubernetes@1
+      displayName: "JITSI-JICOFO - Apply Statefulset"
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -236,8 +268,17 @@ jobs:
         command: 'apply'
         arguments: '-f infrastructure/int/jitsi/jitsi-jicofo-statefulset.yaml'
 
+    - task: Kubernetes@1
+      displayName: "JITSI-JVB - Delete existing StatefulSet if it exists"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'delete'
+        arguments: 'statefulset jitsi-jvb --ignore-not-found=true'
 
-## Statefulset JITSI-JVB
     - task: Kubernetes@1
       displayName: "JITSI-JVB - Apply Statefulset"
       inputs:
@@ -249,10 +290,19 @@ jobs:
         command: 'apply'
         arguments: '-f infrastructure/int/jitsi/jitsi-jvb-statefulset.yaml'
 
-
-## Statefulset JITSI-PROSODY
     - task: Kubernetes@1
-      displayName: "JITSI-PROSODY - - Apply Statefulset"
+      displayName: "JITSI-PROSODY - Delete existing StatefulSet if it exists"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'delete'
+        arguments: 'statefulset jitsi-prosody --ignore-not-found=true'
+
+    - task: Kubernetes@1
+      displayName: "JITSI-PROSODY - Apply Statefulset"
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -262,9 +312,9 @@ jobs:
         command: 'apply'
         arguments: '-f infrastructure/int/jitsi/jitsi-prosody-statefulset.yaml'
 
-## Statefulset REDIS
+    # Jitsi Web Component (for routing)
     - task: Kubernetes@1
-      displayName: "REDIS - - Apply Statefulset"
+      displayName: "JITSI-WEB - Apply Deployment"
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -272,12 +322,10 @@ jobs:
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
         command: 'apply'
-        arguments: '-f infrastructure/int/redis/redis-statefulset.yaml'
+        arguments: '-f infrastructure/int/jitsi/jitsi-web-deployment.yml'
 
-        
-## Statefulset MATOMO DB
     - task: Kubernetes@1
-      displayName: "MATOMO - - Apply Statefulset"
+      displayName: "JITSI-WEB - Apply Service"
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -285,11 +333,10 @@ jobs:
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
         command: 'apply'
-        arguments: '-f infrastructure/int/matomo/matomo-db-statefulset.yaml'
+        arguments: '-f infrastructure/int/jitsi/jitsi-web-service.yml'
 
-        ## Statefulset MATOMO 
     - task: Kubernetes@1
-      displayName: "MATOMO - - Apply Statefulset"
+      displayName: "JITSI - Apply Additional Services"
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -297,10 +344,88 @@ jobs:
         kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
         namespace: 'participate'
         command: 'apply'
-        arguments: '-f infrastructure/int/matomo/matomo-statefulset.yaml'
-        
+        arguments: '-f infrastructure/int/jitsi/jitsi-jvb-service.yml -f infrastructure/int/jitsi/jitsi-prosody-service.yml'
 
-##CONFIGURACION DECIDIM
+    # Matomo StatefulSets  
+    - task: Kubernetes@1
+      displayName: "MATOMO DB - Delete existing StatefulSet if it exists"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'delete'
+        arguments: 'statefulset matomo-db --ignore-not-found=true'
+
+    - task: Kubernetes@1
+      displayName: "MATOMO DB - Apply Statefulset"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/analytics/matomo/matomo-db-deployment.yml'
+
+    - task: Kubernetes@1
+      displayName: "MATOMO - Apply Deployment"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/analytics/matomo/matomo-deployment.yml'
+
+    - task: Kubernetes@1
+      displayName: "MATOMO - Apply Service"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/analytics/matomo/matomo-service.yml'
+
+    # Analytics Components
+    - task: Kubernetes@1
+      displayName: "GRAFANA - Apply Deployment"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/analytics/grafana/grafana-deployment.yml'
+
+    - task: Kubernetes@1
+      displayName: "GRAFANA - Apply Service"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/analytics/grafana/grafana-service.yml'
+
+    - task: Kubernetes@1
+      displayName: "ANALYTICS - Apply ConfigMaps and Secrets"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/analytics/grafana/grafana-configmap.yml -f infrastructure/int/analytics/grafana/grafana-secret.yml -f infrastructure/int/analytics/matomo/matomo-configmap.yml -f infrastructure/int/analytics/matomo/matomo-secret.yml'
+
+    # Decidim Configuration
     - task: Kubernetes@1
       displayName: "Decidim - Apply ConfigMap"
       inputs:
@@ -311,9 +436,18 @@ jobs:
         namespace: 'participate'
         command: 'apply'
         arguments: '-f infrastructure/int/decidim/ConfigMap.yml'
-#    
 
-#
+    - task: Kubernetes@1
+      displayName: "Decidim - Delete existing StatefulSet if it exists"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'delete'
+        arguments: 'statefulset decidim --ignore-not-found=true'
+
     - task: Kubernetes@1
       displayName: "Decidim - Apply Statefulset"
       inputs:
