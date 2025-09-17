@@ -98,7 +98,7 @@ jobs:
 
 
 - job: deployment
-#  dependsOn: buildAndPushDockerfile
+  dependsOn: buildAndPushDockerfile
   displayName: Kubectl Tool3 deployment
   steps:
     - task: replacetokens@5
