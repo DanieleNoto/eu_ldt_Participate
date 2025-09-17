@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: matomo
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: matomo
+    template:
+        metadata:
+            labels:
+                app: matomo
+        spec:
+            automountServiceAccountToken: false
+            containers:
+                - name: matomo
+                  image: matomo:5
+                  resources:
+                      requests:
+                          memory: '256Mi'
+                          cpu: '250m'
+                          ephemeral-storage: '1Gi'
+                      limits:
+                          memory: '512Mi'
+                          cpu: '500m'
+                          ephemeral-storage: '2Gi'
+                  ports:
+                      - containerPort: 80
+                  envFrom:
+                      - configMapRef:
+                            name: matomo-config
+                      - secretRef:
+                            name: matomo-secrets
+                  volumeMounts:
+                      - name: matomo-data
+                        mountPath: /var/www/html
+        volumes:
+            - name: matomo-data
+              persistentVolumeClaim:
+                  claimName: matomo-pvc

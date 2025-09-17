@@ -3,8 +3,11 @@
 module Decidim
   module Meetings
     module Jitsi
-      JITSI_DEFAULT_SERVER_URL = "https://meet.jit.si"
-      JITSI_DEFAULT_ROOM_PREFIX = "decidim-meeting-"
+      # Shared constants for Jitsi integration
+      module Constants
+        JITSI_DEFAULT_SERVER_URL = "https://meet.jit.si"
+        JITSI_DEFAULT_ROOM_PREFIX = "decidim-meeting-"
+      end
     end
   end
 end
