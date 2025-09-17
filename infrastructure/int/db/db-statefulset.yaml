@@ -25,27 +25,27 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: CONFIG
-                  name: db-configmap
+                  name: dbConfigmap
             - name: DATABASE_HOST
               valueFrom:
                 configMapKeyRef:
                   key: DATABASE_HOST
-                  name: db-configmap
+                  name: dbConfigmap
             - name: DATABASE_NAME
               valueFrom:
                 configMapKeyRef:
                   key: DATABASE_NAME
-                  name: db-configmap
+                  name: dbConfigmap
             - name: DATABASE_PASSWORD
               valueFrom:
                 configMapKeyRef:
                   key: DATABASE_PASSWORD
-                  name: db-configmap
+                  name: dbConfigmap
             - name: DATABASE_USERNAME
               valueFrom:
                 configMapKeyRef:
                   key: DATABASE_USERNAME
-                  name: db-configmap
+                  name: dbConfigmap
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
             - name: POSTGRES_USER
