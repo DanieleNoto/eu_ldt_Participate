@@ -1,11 +1,7 @@
 import { expect, Page } from '@playwright/test';
 import { BaseAdminPage } from '../../../../BaseAdminPage';
-import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { HomePage } from '@pages/pages/public/HomePage';
-import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
-
-import { ensureLoggedIn } from '@utils/auth-helper';
 
 /**
  * Page Object Model for Surveys management functionality.

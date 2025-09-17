@@ -5,9 +5,6 @@ import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage'
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
-import { QuestionnaireTemplatesPage } from '@pages/pages/admin/templates/QuestionnaireTemplatesPage';
-import { NewTemplatePage } from '@pages/pages/admin/templates/NewTemplatePage';
-import { EditTemplatePage } from '@pages/pages/admin/templates/EditTemplatePage';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -34,9 +31,6 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 	let updateProcessAdminPage: UpdateProcessAdminPage;
 	let componentsPage: ComponentsPage;
 	let surveysManagePage: SurveysManagePage;
-	let templatesPage: QuestionnaireTemplatesPage;
-	let newTemplatePage: NewTemplatePage;
-	let editTemplatePage: EditTemplatePage;
 	let validProcessData: any;
 	let processEditUrl: string;
 
@@ -52,9 +46,6 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 		updateProcessAdminPage = new UpdateProcessAdminPage(page);
 		componentsPage = new ComponentsPage(page);
 		surveysManagePage = new SurveysManagePage(page);
-		templatesPage = new QuestionnaireTemplatesPage(page);
-		newTemplatePage = new NewTemplatePage(page);
-		editTemplatePage = new EditTemplatePage(page);
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 	});
 
@@ -111,7 +102,7 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 	/**
 	 * Setup test environment without responses (for Alternative Flow)
 	 */
-	async function setupTestProcessWithoutResponses(browser: any) {
+	async function setupTestProcessWithoutResponses() {
 		await test.step('Setup: Create new test process as prerequisite', async () => {
 			const { processSlug: slug, processEditUrl: url } = await surveysManagePage.setupTestProcess(
 				validProcessData,
@@ -290,7 +281,7 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 	test.describe('Alternative Flow: No Responses Available', () => {
 		// Specific Setup for Alternative Flow (without responses)
 		test.beforeEach(async ({ browser }) => {
-			await setupTestProcessWithoutResponses(browser);
+			await setupTestProcessWithoutResponses();
 		});
 
 		test('should display appropriate message when no responses are available', async ({ page }) => {
