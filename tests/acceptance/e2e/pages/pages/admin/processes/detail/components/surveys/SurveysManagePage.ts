@@ -638,10 +638,6 @@ export class SurveysManagePage extends BaseAdminPage {
 		// Fill Question 2: Single Option
 		await this.page.getByRole('radio', { name: 'Blue' }).click();
 
-		// Fill Question 3: Multiple Option (left empty intentionally to see if validation works)
-		// await this.page.getByRole('checkbox', { name: 'Cat' }).check();
-		// await this.page.getByRole('checkbox', { name: 'Dog' }).check();
-
 		// Accept terms and conditions
 		const termsCheckbox = this.page.getByRole('checkbox', { name: 'By participating you accept' });
 		if (!(await termsCheckbox.isChecked())) {
