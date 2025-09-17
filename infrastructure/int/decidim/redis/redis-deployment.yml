@@ -18,8 +18,8 @@ spec:
                 automountServiceAccountToken: false
                 containers:
                     - name: redis
-                        image: redis:7
-                        resources:
+                      image: redis:7
+                      resources:
                             requests:
                                 memory: '128Mi'
                                 cpu: '100m'
@@ -28,17 +28,17 @@ spec:
                                 memory: '256Mi'
                                 cpu: '250m'
                                 ephemeral-storage: '1Gi'
-                        ports:
+                      ports:
                             - containerPort: 6379
-                        readinessProbe:
+                      readinessProbe:
                             exec:
                                 command: ['redis-cli', 'ping']
                             initialDelaySeconds: 5
                             periodSeconds: 10
-                        volumeMounts:
+                      volumeMounts:
                             - name: redis-data
                                 mountPath: /data
                 volumes:
                     - name: redis-data
-                        persistentVolumeClaim:
+                      persistentVolumeClaim:
                             claimName: decidim-redis-pvc
