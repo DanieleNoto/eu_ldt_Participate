@@ -48,4 +48,4 @@ Notes:
 
 - Do not commit real passwords. Use a secret manager for production.
 - Adjust storageClassName and resources for your cluster.
-kubectl apply -n participate -f infrastructure/int/analytics/matomo/
+  kubectl apply -n participate -f infrastructure/int/analytics/matomo/
