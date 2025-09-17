@@ -18,7 +18,7 @@ spec:
       containers:
 
         - name: decidim
-          image: euldtshared.azurecr.io/eu-ldt-part-int:15079
+          image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
         #  command: ["bash", "/code/docker-entrypoint.sh"]
           env:
             - name: CONFIG

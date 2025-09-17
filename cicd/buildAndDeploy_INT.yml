@@ -112,6 +112,18 @@ jobs:
         verbosity: detailed
         actionOnNoFiles: warn
 
+    - task: replacetokens@5
+      displayName: "Replace tokens decidim"
+      inputs:
+        rootDirectory: infrastructure/int/decidim
+        targetFiles: '*.yml'
+        tokenPattern: custom
+        tokenPrefix: _%
+        tokenSuffix: '%_'
+        writeBOM: false
+        verbosity: detailed
+        actionOnNoFiles: warn
+
     - task: KubectlInstaller@0
       displayName: "Kubectl Install"
       inputs:
