@@ -85,5 +85,5 @@ EXPOSE 3000
 
 # ENTRYPOINT ["/code/docker-entrypoint.sh"]
 
-CMD ["./docker-entrypoint.sh"]
+CMD ["/code/docker-entrypoint.sh"]
 # Expose port

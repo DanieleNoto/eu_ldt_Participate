@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: db-home-adminlnx-temp1-env
+  name: db-configmap
+
+data:
+  CONFIG: ./jitsi-meet-cfg
+  DATABASE_HOST: db
+  DATABASE_NAME: decidim_application_development
+  DATABASE_PASSWORD: postgres
+  DATABASE_USERNAME: postgres
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: supersecret

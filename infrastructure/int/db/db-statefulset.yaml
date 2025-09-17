@@ -25,27 +25,27 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: CONFIG
-                  name: home-adminlnx-temp1-env
+                  name: db-configmap
             - name: DATABASE_HOST
               valueFrom:
                 configMapKeyRef:
                   key: DATABASE_HOST
-                  name: home-adminlnx-temp1-env
+                  name: db-configmap
             - name: DATABASE_NAME
               valueFrom:
                 configMapKeyRef:
                   key: DATABASE_NAME
-                  name: home-adminlnx-temp1-env
+                  name: db-configmap
             - name: DATABASE_PASSWORD
               valueFrom:
                 configMapKeyRef:
                   key: DATABASE_PASSWORD
-                  name: home-adminlnx-temp1-env
+                  name: db-configmap
             - name: DATABASE_USERNAME
               valueFrom:
                 configMapKeyRef:
                   key: DATABASE_USERNAME
-                  name: home-adminlnx-temp1-env
+                  name: db-configmap
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
             - name: POSTGRES_USER
