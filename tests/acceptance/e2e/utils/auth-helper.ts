@@ -1,7 +1,7 @@
 import { TEST_USERS } from '@config/test-users';
 import { LoginPage } from '@pages/pages/auth/LoginPage';
 import { HomePage } from '@pages/pages/public/HomePage';
-import { Page } from '@playwright/test';
+import { Page, Browser } from '@playwright/test';
 import { STORAGE_STATE, TEST_SELECTORS } from './constants';
 
 /**
@@ -32,6 +32,25 @@ export async function ensureLoggedIn(page: Page, userType: keyof typeof STORAGE_
 		console.log(`${userType} login completed and state saved.`);
 	} else {
 		console.log(`${userType} is already logged in.`);
+	}
+}
+
+/**
+ * Helper function to setup authentication in test beforeAll hooks.
+ * This function handles both authentication and proper cleanup of the browser context.
+ * @param browser - Playwright browser instance
+ * @param userType - Type of user ('USER', 'ADMIN', 'ACCOUNT_DELETION_USER')
+ */
+export async function setupAuthForTest(browser: Browser, userType: keyof typeof STORAGE_STATE) {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+
+	try {
+		await ensureLoggedIn(page, userType);
+	} finally {
+		// Always clean up the authentication context to prevent extra browser windows
+		await page.close();
+		await context.close();
 	}
 }
 

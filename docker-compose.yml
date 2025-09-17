@@ -18,6 +18,10 @@ services:
             - NODE_ENV=${NODE_ENV}
             - DECIDIM_MAILER_SENDER=${DECIDIM_MAILER_SENDER}
             - QUEUE_ADAPTER=${QUEUE_ADAPTER}
+            - OMNIAUTH_KEYCLOAK_CLIENT_ID=${OMNIAUTH_KEYCLOAK_CLIENT_ID}
+            - OMNIAUTH_KEYCLOAK_CLIENT_SECRET=${OMNIAUTH_KEYCLOAK_CLIENT_SECRET}
+            - OMNIAUTH_KEYCLOAK_SITE=${OMNIAUTH_KEYCLOAK_SITE}
+            - OMNIAUTH_KEYCLOAK_REALM=${OMNIAUTH_KEYCLOAK_REALM}
             - SHAKAPACKER_DEV_SERVER_HOST=0.0.0.0
             - SHAKAPACKER_DEV_SERVER_PORT=3035
             - SHAKAPACKER_DEV_SERVER_ENABLED=true
@@ -26,10 +30,18 @@ services:
             # Database reset and setup flags (controlled by make commands)
             - FORCE_DB_RESET=${FORCE_DB_RESET:-false}
             - FORCE_DATA_SETUP=${FORCE_DATA_SETUP:-false}
+            # SMTP configuration
+            - SMTP_ADDRESS=${SMTP_ADDRESS}
+            - SMTP_PORT=${SMTP_PORT}
+            - SMTP_USER_NAME=${SMTP_USER_NAME}
+            - SMTP_PASSWORD=${SMTP_PASSWORD}
+            - SMTP_DOMAIN=${SMTP_DOMAIN}
+            - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
+            - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
+            - SMTP_OPENSSL_VERIFY_MODE=${SMTP_OPENSSL_VERIFY_MODE}
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
-            - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
         command: bash /code/docker-entrypoint.sh
         networks:
@@ -71,11 +83,10 @@ services:
             retries: 5
     shakapacker:
         build: ./decidim/decidim_application/
-        command: bash -c "cd /code && bundle install && yarn install && bundle exec bin/shakapacker-dev-server"
+        command: bash -c "cd /code && bundle exec bin/shakapacker-dev-server"
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
-            - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
         depends_on:
             - db
@@ -114,10 +125,31 @@ services:
             - DATABASE_NAME=${DATABASE_NAME}
             - DATABASE_USERNAME=${DATABASE_USERNAME}
             - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+            # OAuth/Keycloak configuration
+            - GF_AUTH_GENERIC_OAUTH_ENABLED=${GF_AUTH_GENERIC_OAUTH_ENABLED}
+            - GF_AUTH_GENERIC_OAUTH_NAME=${GF_AUTH_GENERIC_OAUTH_NAME}
+            - GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP=${GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP}
+            - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=${GF_AUTH_GENERIC_OAUTH_CLIENT_ID}
+            - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
+            - GF_AUTH_GENERIC_OAUTH_SCOPES=${GF_AUTH_GENERIC_OAUTH_SCOPES}
+            - GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_PATH=${GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_PATH}
+            - GF_AUTH_GENERIC_OAUTH_LOGIN_ATTRIBUTE_PATH=${GF_AUTH_GENERIC_OAUTH_LOGIN_ATTRIBUTE_PATH}
+            - GF_AUTH_GENERIC_OAUTH_NAME_ATTRIBUTE_PATH=${GF_AUTH_GENERIC_OAUTH_NAME_ATTRIBUTE_PATH}
+            - GF_AUTH_GENERIC_OAUTH_AUTH_URL=${GF_AUTH_GENERIC_OAUTH_AUTH_URL}
+            - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=${GF_AUTH_GENERIC_OAUTH_TOKEN_URL}
+            - GF_AUTH_GENERIC_OAUTH_API_URL=${GF_AUTH_GENERIC_OAUTH_API_URL}
+            - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH=${GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH}
+            - GF_AUTH_GENERIC_OAUTH_USE_REFRESH_TOKEN=${GF_AUTH_GENERIC_OAUTH_USE_REFRESH_TOKEN}
+            - GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH=${GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH}
+            - GF_AUTH_GENERIC_OAUTH_ALLOW_ASSIGN_GRAFANA_ADMIN=${GF_AUTH_GENERIC_OAUTH_ALLOW_ASSIGN_GRAFANA_ADMIN}
+            - GF_AUTH_GENERIC_OAUTH_SIGNOUT_REDIRECT_URL=${GF_AUTH_GENERIC_OAUTH_SIGNOUT_REDIRECT_URL}
+            - GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN=${GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN}
+            - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
+            - GF_SERVER_DOMAIN=${GF_SERVER_DOMAIN}
         volumes:
             - grafana_data:/var/lib/grafana
             - ./analytics/grafana/provisioning:/etc/grafana/provisioning
-            - ./analytics/grafana/dashboards:/etc/grafana/provisioning/dashboards
+            - ./analytics/grafana/dashboards:/var/lib/grafana/dashboards
         networks:
             - private
         depends_on:

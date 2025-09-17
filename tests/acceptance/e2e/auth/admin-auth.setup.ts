@@ -1,12 +1,12 @@
 import { test as setup } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
+import { setupAuthForTest } from '@utils/auth-helper';
 
 /**
- * Global setup for user authentication.
+ * Global setup for admin authentication.
  * This file is executed before tests to create authentication states.
  */
 
 // Setup authentication for administrator
-setup('authenticate as admin', async ({ page }) => {
-	await ensureLoggedIn(page, 'ADMIN');
+setup('authenticate as admin', async ({ browser }) => {
+	await setupAuthForTest(browser, 'ADMIN');
 });

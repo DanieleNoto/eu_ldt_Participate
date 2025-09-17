@@ -1,0 +1,581 @@
+{
+	"annotations": {
+		"list": [
+			{
+				"builtIn": 1,
+				"datasource": {
+					"type": "grafana",
+					"uid": "-- Grafana --"
+				},
+				"enable": true,
+				"hide": true,
+				"iconColor": "rgba(0, 211, 255, 1)",
+				"name": "Annotations & Alerts",
+				"type": "dashboard"
+			}
+		]
+	},
+	"description": "Community Engagement Analytics Dashboard for Decidim 0.30 - Tracks participation levels, user activity, and community growth metrics.",
+	"editable": true,
+	"fiscalYearStartMonth": 0,
+	"graphTooltip": 0,
+	"id": 18,
+	"links": [],
+	"panels": [
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 4,
+				"x": 0,
+				"y": 0
+			},
+			"id": 1,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto"
+			},
+			"pluginVersion": "12.1.0-87021",
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT COUNT(*) as value FROM decidim_users WHERE created_at >= NOW() - INTERVAL '30 days' AND deleted_at IS NULL AND type = 'Decidim::User';",
+					"refId": "A"
+				}
+			],
+			"title": "New Users (30 days)",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 4,
+				"x": 4,
+				"y": 0
+			},
+			"id": 2,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto"
+			},
+			"pluginVersion": "12.1.0-87021",
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT COUNT(*) as value FROM decidim_comments_comments WHERE created_at >= NOW() - INTERVAL '30 days' AND deleted_at IS NULL;",
+					"refId": "A"
+				}
+			],
+			"title": "Comments (30 days)",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 4,
+				"x": 8,
+				"y": 0
+			},
+			"id": 3,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto"
+			},
+			"pluginVersion": "12.1.0-87021",
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT COUNT(*) as value FROM decidim_proposals_proposals WHERE created_at >= NOW() - INTERVAL '30 days' AND deleted_at IS NULL;",
+					"refId": "A"
+				}
+			],
+			"title": "New Proposals (30 days)",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					},
+					"unit": "percent"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 4,
+				"x": 12,
+				"y": 0
+			},
+			"id": 4,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto"
+			},
+			"pluginVersion": "12.1.0-87021",
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT ROUND(\n  (COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) * 100.0) / \n  NULLIF(COUNT(DISTINCT u.id), 0), 2\n) as value\nFROM decidim_users u\nLEFT JOIN decidim_comments_comments c ON u.id = c.decidim_author_id AND c.decidim_author_type = 'Decidim::User' AND c.deleted_at IS NULL\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User';",
+					"refId": "A"
+				}
+			],
+			"title": "Active Users Rate (%)",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"axisBorderShow": false,
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisLabel": "",
+						"axisPlacement": "auto",
+						"barAlignment": 0,
+						"barWidthFactor": 0.6,
+						"drawStyle": "line",
+						"fillOpacity": 0,
+						"gradientMode": "none",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"insertNulls": false,
+						"lineInterpolation": "linear",
+						"lineWidth": 1,
+						"pointSize": 5,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "off"
+						}
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					}
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 16,
+				"x": 0,
+				"y": 8
+			},
+			"id": 5,
+			"options": {
+				"legend": {
+					"calcs": [],
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": true
+				},
+				"tooltip": {
+					"hideZeros": false,
+					"mode": "single",
+					"sort": "none"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "time_series",
+					"rawQuery": true,
+					"rawSql": "SELECT \n  DATE_TRUNC('day', created_at) as time,\n  COUNT(*) as \"Comments\"\nFROM decidim_comments_comments \nWHERE created_at >= NOW() - INTERVAL '30 days' AND deleted_at IS NULL\nGROUP BY DATE_TRUNC('day', created_at)\nUNION ALL\nSELECT \n  DATE_TRUNC('day', created_at) as time,\n  COUNT(*) as \"Proposals\"\nFROM decidim_proposals_proposals \nWHERE created_at >= NOW() - INTERVAL '30 days' AND deleted_at IS NULL\nGROUP BY DATE_TRUNC('day', created_at)\nORDER BY time;",
+					"refId": "A"
+				}
+			],
+			"title": "Daily Activity Trend (30 days)",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "palette-classic"
+					},
+					"custom": {
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						}
+					},
+					"mappings": []
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 8,
+				"x": 16,
+				"y": 8
+			},
+			"id": 6,
+			"options": {
+				"legend": {
+					"displayMode": "list",
+					"placement": "right",
+					"showLegend": true
+				},
+				"pieType": "pie",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"tooltip": {
+					"mode": "single",
+					"sort": "none"
+				}
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT 'Comments' as activity_type, COUNT(*) as value FROM decidim_comments_comments WHERE deleted_at IS NULL\nUNION ALL\nSELECT 'Proposals' as activity_type, COUNT(*) as value FROM decidim_proposals_proposals WHERE deleted_at IS NULL\nUNION ALL\nSELECT 'Endorsements' as activity_type, COUNT(*) as value FROM decidim_endorsements\nUNION ALL\nSELECT 'Follows' as activity_type, COUNT(*) as value FROM decidim_follows;",
+					"refId": "A"
+				}
+			],
+			"title": "Activity Distribution",
+			"type": "piechart"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"custom": {
+						"align": "auto",
+						"cellOptions": {
+							"type": "auto"
+						},
+						"inspect": false
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					}
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 0,
+				"y": 16
+			},
+			"id": 7,
+			"options": {
+				"cellHeight": "sm",
+				"footer": {
+					"countRows": false,
+					"fields": "",
+					"reducer": ["sum"],
+					"show": false
+				},
+				"showHeader": true
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT \n  u.nickname,\n  u.name,\n  COUNT(DISTINCT c.id) as comments_count,\n  COUNT(DISTINCT p.id) as proposals_count,\n  COUNT(DISTINCT e.id) as endorsements_count,\n  (COUNT(DISTINCT c.id) + COUNT(DISTINCT p.id) + COUNT(DISTINCT e.id)) as total_activity\nFROM decidim_users u\nLEFT JOIN decidim_comments_comments c ON u.id = c.decidim_author_id AND c.decidim_author_type = 'Decidim::User' AND c.deleted_at IS NULL\nLEFT JOIN decidim_proposals_proposals p ON u.id = p.decidim_author_id AND p.decidim_author_type = 'Decidim::User' AND p.deleted_at IS NULL\nLEFT JOIN decidim_endorsements e ON u.id = e.decidim_author_id AND e.decidim_author_type = 'Decidim::User'\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY u.id, u.nickname, u.name\nHAVING (COUNT(DISTINCT c.id) + COUNT(DISTINCT p.id) + COUNT(DISTINCT e.id)) > 0\nORDER BY total_activity DESC\nLIMIT 10;",
+					"refId": "A"
+				}
+			],
+			"title": "Top Active Users",
+			"type": "table"
+		},
+		{
+			"datasource": {
+				"type": "postgres",
+				"uid": "decidim_postgres"
+			},
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"custom": {
+						"align": "auto",
+						"cellOptions": {
+							"type": "auto"
+						},
+						"inspect": false
+					},
+					"mappings": [],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "green"
+							},
+							{
+								"color": "red",
+								"value": 80
+							}
+						]
+					}
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 12,
+				"y": 16
+			},
+			"id": 8,
+			"options": {
+				"cellHeight": "sm",
+				"footer": {
+					"countRows": false,
+					"fields": "",
+					"reducer": ["sum"],
+					"show": false
+				},
+				"showHeader": true
+			},
+			"targets": [
+				{
+					"datasource": {
+						"type": "postgres",
+						"uid": "decidim_postgres"
+					},
+					"editorMode": "code",
+					"format": "table",
+					"rawQuery": true,
+					"rawSql": "SELECT \n  pp.slug as process_slug,\n  COALESCE(pp.title->>'en', pp.title->>'it', pp.title->>'fr', pp.title->>'de', pp.title->>'es', pp.title::text) as process_title,\n  COUNT(DISTINCT p.id) as proposals_count,\n  COUNT(DISTINCT c.id) as comments_count,\n  COUNT(DISTINCT e.id) as endorsements_count,\n  (COUNT(DISTINCT p.id) + COUNT(DISTINCT c.id) + COUNT(DISTINCT e.id)) as total_engagement\nFROM decidim_participatory_processes pp\nLEFT JOIN decidim_components comp ON pp.id = comp.decidim_participatory_space_id AND comp.decidim_participatory_space_type = 'Decidim::ParticipatoryProcess'\nLEFT JOIN decidim_proposals_proposals p ON comp.id = p.decidim_component_id AND p.deleted_at IS NULL\nLEFT JOIN decidim_comments_comments c ON (p.id = c.decidim_commentable_id AND c.decidim_commentable_type = 'Decidim::Proposals::Proposal') AND c.deleted_at IS NULL\nLEFT JOIN decidim_endorsements e ON p.id = e.resource_id AND e.resource_type = 'Decidim::Proposals::Proposal'\nWHERE pp.deleted_at IS NULL\nGROUP BY pp.id, pp.slug, pp.title\nORDER BY total_engagement DESC\nLIMIT 10;",
+					"refId": "A"
+				}
+			],
+			"title": "Most Engaging Processes",
+			"type": "table"
+		}
+	],
+	"refresh": "5m",
+	"schemaVersion": 41,
+	"tags": ["decidim", "engagement", "community"],
+	"templating": {
+		"list": []
+	},
+	"time": {
+		"from": "now-30d",
+		"to": "now"
+	},
+	"timepicker": {},
+	"timezone": "browser",
+	"title": "Community Engagement Analytics",
+	"uid": "decidim_engagement",
+	"version": 1
+}

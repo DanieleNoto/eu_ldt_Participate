@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: matomo-db
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: matomo-db
+    template:
+        metadata:
+            labels:
+                app: matomo-db
+        spec:
+            automountServiceAccountToken: false
+            containers:
+                - name: mariadb
+                  image: mariadb:11
+                  resources:
+                      requests:
+                          memory: '256Mi'
+                          cpu: '250m'
+                          ephemeral-storage: '1Gi'
+                      limits:
+                          memory: '512Mi'
+                          cpu: '500m'
+                          ephemeral-storage: '2Gi'
+                  env:
+                      - name: MYSQL_ROOT_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: matomo-secrets
+                                key: MATOMO_DATABASE_PASSWORD
+                      - name: MYSQL_DATABASE
+                        valueFrom:
+                            configMapKeyRef:
+                                name: matomo-config
+                                key: MATOMO_DATABASE_DBNAME
+                      - name: MYSQL_USER
+                        valueFrom:
+                            secretKeyRef:
+                                name: matomo-secrets
+                                key: MATOMO_DATABASE_USERNAME
+                      - name: MYSQL_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: matomo-secrets
+                                key: MATOMO_DATABASE_PASSWORD
+                  volumeMounts:
+                      - name: matomo-db-data
+                        mountPath: /var/lib/mysql
+        volumes:
+            - name: matomo-db-data
+              persistentVolumeClaim:
+                  claimName: matomo-db-pvc
