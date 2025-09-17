@@ -1,5 +1,11 @@
 import { expect, Page } from '@playwright/test';
 import { BaseAdminPage } from '../../../../BaseAdminPage';
+import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
+import { HomePage } from '@pages/pages/public/HomePage';
+import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
+import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
+
+import { ensureLoggedIn } from '@utils/auth-helper';
 
 /**
  * Page Object Model for Surveys management functionality.
@@ -690,5 +696,37 @@ export class SurveysManagePage extends BaseAdminPage {
 		// Verify validation error for missing mandatory field is displayed
 		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_BODY_BLANK)).toBeVisible();
 		console.log('Survey validation errors are displayed for missing mandatory fields');
+	}
+
+	/**
+	 * Helper function to reply to a survey as a user
+	 * Used in: review-result-of-specific-surveys.spec.ts
+	 */
+	async replytoSurvey(
+		processSlug: string,
+		componentName: string,
+		surveyName: string,
+		validProcessData: any
+	): Promise<void> {
+		// Initialize PUBLIC Page Objects (assumes USER context is already set)
+		const homePage = new HomePage(this.page);
+		const processDetailPage = new ProcessDetailPage(this.page);
+		const publicSurveysPage = new SurveysManagePage(this.page);
+
+		// Navigate to home and then to specific process
+		await homePage.navigateToHomePage();
+		await this.page.goto(`/processes/${processSlug}`);
+		await processDetailPage.waitForPageLoad();
+
+		// Execute survey reply actions
+		await publicSurveysPage.verifyProcessDetailsDisplayed(validProcessData, componentName);
+		await publicSurveysPage.selectSurveyToParticipate(componentName, surveyName);
+		await publicSurveysPage.verifySurveyFormDisplayed();
+		await publicSurveysPage.fillSurveyResponses();
+		await publicSurveysPage.submitSurvey();
+		await publicSurveysPage.validateAndConfirmSubmission();
+		await publicSurveysPage.verifySurveySubmissionSuccess();
+
+		console.log('Survey reply actions completed successfully');
 	}
 }
