@@ -55,7 +55,7 @@ spec:
                                             command: ['sh', '-c', 'pg_isready -U $POSTGRES_USER']
                                         initialDelaySeconds: 5
                                         periodSeconds: 10
-                terminationGracePeriodSeconds: 30
+                        terminationGracePeriodSeconds: 30
     volumeClaimTemplates:
         - metadata:
               name: postgres-data
