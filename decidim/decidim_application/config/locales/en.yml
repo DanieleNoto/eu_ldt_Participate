@@ -30,4 +30,31 @@
 # available at https://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+    hello: 'Hello world'
+    activemodel:
+        attributes:
+            organization:
+                admin_terms_of_service_body: Body for the admin privacy policy
+                tos_version: Privacy policy version
+    decidim:
+        admin:
+            admin_terms_of_service:
+                accept:
+                    error: There was a problem while accepting the admin privacy policy.
+                    success: Great! You have accepted the admin privacy policy.
+                actions:
+                    accept: I agree with the privacy policy
+                    are_you_sure: Are you sure you want to refuse the admin privacy policy?
+                    refuse: Refuse the admin privacy policy
+                    title: Agree to the privacy policy
+                required_review:
+                    alert: 'Required: Review our admin privacy policy'
+                    callout: Please take a moment to review the admin privacy policy. Otherwise you will not be able to manage the platform.
+                title: Admin privacy policy
+            organization:
+                form:
+                    admin_terms_of_service: Admin privacy policy
+
+            static_pages:
+                edit:
+                    changed_notably_help: If checked, participants will be notified to accept the new terms of service.
