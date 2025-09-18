@@ -74,8 +74,8 @@ jobs:
     - task: replacetokens@5
       displayName: "Replace tokens decidim"
       inputs:
-        rootDirectory: infrastructure/int/decidim/decidim-statefulset.yaml'
- #       targetFiles: '*.yml'
+        rootDirectory: infrastructure/int/decidim'
+        targetFiles: 'decidim-statefulset.yaml'
         tokenPattern: custom
         tokenPrefix: _%
         tokenSuffix: '%_'
