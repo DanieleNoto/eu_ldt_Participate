@@ -1,5 +1,7 @@
 import { expect, Page } from '@playwright/test';
 import { BaseAdminPage } from '../../../../BaseAdminPage';
+import { HomePage } from '@pages/pages/public/HomePage';
+import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 
 /**
  * Page Object Model for Surveys management functionality.
@@ -636,10 +638,6 @@ export class SurveysManagePage extends BaseAdminPage {
 		// Fill Question 2: Single Option
 		await this.page.getByRole('radio', { name: 'Blue' }).click();
 
-		// Fill Question 3: Multiple Option (left empty intentionally to see if validation works)
-		// await this.page.getByRole('checkbox', { name: 'Cat' }).check();
-		// await this.page.getByRole('checkbox', { name: 'Dog' }).check();
-
 		// Accept terms and conditions
 		const termsCheckbox = this.page.getByRole('checkbox', { name: 'By participating you accept' });
 		if (!(await termsCheckbox.isChecked())) {
@@ -690,5 +688,37 @@ export class SurveysManagePage extends BaseAdminPage {
 		// Verify validation error for missing mandatory field is displayed
 		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_BODY_BLANK)).toBeVisible();
 		console.log('Survey validation errors are displayed for missing mandatory fields');
+	}
+
+	/**
+	 * Helper function to reply to a survey as a user
+	 * Used in: review-result-of-specific-surveys.spec.ts
+	 */
+	async replytoSurvey(
+		processSlug: string,
+		componentName: string,
+		surveyName: string,
+		validProcessData: any
+	): Promise<void> {
+		// Initialize PUBLIC Page Objects (assumes USER context is already set)
+		const homePage = new HomePage(this.page);
+		const processDetailPage = new ProcessDetailPage(this.page);
+		const publicSurveysPage = new SurveysManagePage(this.page);
+
+		// Navigate to home and then to specific process
+		await homePage.navigateToHomePage();
+		await this.page.goto(`/processes/${processSlug}`);
+		await processDetailPage.waitForPageLoad();
+
+		// Execute survey reply actions
+		await publicSurveysPage.verifyProcessDetailsDisplayed(validProcessData, componentName);
+		await publicSurveysPage.selectSurveyToParticipate(componentName, surveyName);
+		await publicSurveysPage.verifySurveyFormDisplayed();
+		await publicSurveysPage.fillSurveyResponses();
+		await publicSurveysPage.submitSurvey();
+		await publicSurveysPage.validateAndConfirmSubmission();
+		await publicSurveysPage.verifySurveySubmissionSuccess();
+
+		console.log('Survey reply actions completed successfully');
 	}
 }
