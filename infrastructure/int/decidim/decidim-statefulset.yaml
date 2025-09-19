@@ -337,15 +337,17 @@ spec:
                   name: home-adminlnx-temp1-env
           ports:
             - containerPort: 3000
+          command: ["/bin/sh", "-c"]
+          args: ["/code/docker-entrypoint.sh && tail -f /dev/null"]
           livenessProbe:
             exec:
               command:
                 - test
                 - -d
                 - node_modules
-            failureThreshold: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
+            failureThreshold: 100
+            periodSeconds: 100
+            timeoutSeconds: 50
           volumeMounts:
             - mountPath: /code
               name: decidim-pvc
