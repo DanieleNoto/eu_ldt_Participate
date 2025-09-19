@@ -266,6 +266,10 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 
 				// Question 3: Pet preference
 				await expect(page1.getByText('Which pets do you prefer?')).toBeVisible();
+				// Verify the answer is displayed as '-' for no selection
+				const petQuestion = page1.getByText('Which pets do you prefer?');
+				const petAnswer = petQuestion.locator('xpath=following-sibling::dd[1]');
+				await expect(petAnswer).toHaveText('-');
 
 				console.log('Survey questions and responses verified');
 
