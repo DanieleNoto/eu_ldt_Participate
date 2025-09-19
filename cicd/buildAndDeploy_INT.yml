@@ -21,34 +21,34 @@ variables:
 jobs:
 
 
-#- job: buildAndPushDockerfile
-#  displayName: "Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION"
-#  variables:
-#      tag: '$(Build.BuildId)' 
-#  steps:
-#
-#    - task: replacetokens@5
-#      displayName: "Replace tokens Decidim"
-#      inputs:
-#        rootDirectory: decidim
-#        targetFiles: Dockerfile*
-#        tokenPattern: custom
-#        tokenPrefix: _TOKEN_
-#        tokenSuffix: _TOKEN_
-#        writeBOM: false
-#        verbosity: detailed
-#        actionOnNoFiles: warn
-#
-#
-#    - task: Docker@2
-#      displayName: Build and push decidim
-#      inputs:
-#        command: buildAndPush
-#        repository: eu-ldt-part-int
-#        dockerfile: decidim/decidim_application/Dockerfile
-#        containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
-#        tags: |
-#            $(tag)
+- job: buildAndPushDockerfile
+  displayName: "Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION"
+  variables:
+      tag: '$(Build.BuildId)' 
+  steps:
+
+    - task: replacetokens@5
+      displayName: "Replace tokens Decidim"
+      inputs:
+        rootDirectory: decidim
+        targetFiles: Dockerfile*
+        tokenPattern: custom
+        tokenPrefix: _TOKEN_
+        tokenSuffix: _TOKEN_
+        writeBOM: false
+        verbosity: detailed
+        actionOnNoFiles: warn
+
+
+    - task: Docker@2
+      displayName: Build and push decidim
+      inputs:
+        command: buildAndPush
+        repository: eu-ldt-part-int
+        dockerfile: decidim/decidim_application/Dockerfile
+        containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+        tags: |
+            $(tag)
 ##
 ##
 #
@@ -56,38 +56,38 @@ jobs:
 
 # -----------------------------------------------------------------
 
-- job: deployment
- # dependsOn: buildAndPushDockerfile
-  displayName: Kubectl Tool3 deployment
-  steps:
-    - task: replacetokens@5
-      displayName: "Replace tokens Tools"
-      inputs:
-        rootDirectory: infrastructure/int
-        tokenPattern: custom
-        tokenPrefix: _%
-        tokenSuffix: '%_'
-        writeBOM: false
-        verbosity: detailed
-        actionOnNoFiles: warn
-
-    - task: replacetokens@5
-      displayName: "Replace tokens decidim"
-      inputs:
-        rootDirectory: infrastructure/int/decidim
-        targetFiles: 'decidim-statefulset.yaml'
-        tokenPattern: custom
-        tokenPrefix: _%
-        tokenSuffix: '%_'
-        writeBOM: false
-        verbosity: detailed
-        actionOnNoFiles: warn
-
-    - task: KubectlInstaller@0
-      displayName: "Kubectl Install"
-      inputs:
-        kubectlVersion: 'latest'
-
+#- job: deployment
+# # dependsOn: buildAndPushDockerfile
+#  displayName: Kubectl Tool3 deployment
+#  steps:
+#    - task: replacetokens@5
+#      displayName: "Replace tokens Tools"
+#      inputs:
+#        rootDirectory: infrastructure/int
+#        tokenPattern: custom
+#        tokenPrefix: _%
+#        tokenSuffix: '%_'
+#        writeBOM: false
+#        verbosity: detailed
+#        actionOnNoFiles: warn
+#
+#    - task: replacetokens@5
+#      displayName: "Replace tokens decidim"
+#      inputs:
+#        rootDirectory: infrastructure/int/decidim
+#        targetFiles: 'decidim-statefulset.yaml'
+#        tokenPattern: custom
+#        tokenPrefix: _%
+#        tokenSuffix: '%_'
+#        writeBOM: false
+#        verbosity: detailed
+#        actionOnNoFiles: warn
+#
+#    - task: KubectlInstaller@0
+#      displayName: "Kubectl Install"
+#      inputs:
+#        kubectlVersion: 'latest'
+#
 #    - task: Kubernetes@1
 #      displayName: "Apply Namespaces (Tool3)"
 #      inputs:
@@ -100,29 +100,29 @@ jobs:
 #        arguments: '-f infrastructure/int/namespace.yml'
 
 #ASR: Añadimos la eliminacion del ACR Pull Secret para volver a generarlo
-    - task: Kubernetes@1
-      displayName: "Delete ACR Pull Secret if exists (Tool3)"
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-        namespace: 'participate'
-        command: 'delete'
-        arguments: secret acr-secret --ignore-not-found=true
-#-------------------------------------------------------------------------------
-    - task: Kubernetes@1
-      displayName: "Set ACR Pull Secret (Tool3)"
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-        namespace: 'participate'
-        command: 'create'
-        arguments: secret docker-registry acr-secret --docker-server=euldtshared.azurecr.io --docker-username=f703f14b-9128-4eb8-b78b-a819d3e66d32 --docker-password=y_LusONCFAN7Az6SI7lHCq4S0YwqZzV3t-
-        secretType: 'dockerRegistry'
-        containerRegistryType: 'Azure Container Registry'
+#    - task: Kubernetes@1
+#      displayName: "Delete ACR Pull Secret if exists (Tool3)"
+#      inputs:
+#        connectionType: 'Azure Resource Manager'
+#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+#        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+#        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+#        namespace: 'participate'
+#        command: 'delete'
+#        arguments: secret acr-secret --ignore-not-found=true
+##-------------------------------------------------------------------------------
+#    - task: Kubernetes@1
+#      displayName: "Set ACR Pull Secret (Tool3)"
+#      inputs:
+#        connectionType: 'Azure Resource Manager'
+#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+#        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+#        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+#        namespace: 'participate'
+#        command: 'create'
+#        arguments: secret docker-registry acr-secret --docker-server=euldtshared.azurecr.io --docker-username=f703f14b-9128-4eb8-b78b-a819d3e66d32 --docker-password=y_LusONCFAN7Az6SI7lHCq4S0YwqZzV3t-
+#        secretType: 'dockerRegistry'
+#        containerRegistryType: 'Azure Container Registry'
 
 
 #        
@@ -272,40 +272,40 @@ jobs:
         
 
 ##CONFIGURACION DECIDIM
-    - task: Kubernetes@1
-      displayName: "Decidim - Apply ConfigMap"
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
-        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-        namespace: 'participate'
-        command: 'apply'
-        arguments: '-f infrastructure/int/decidim/ConfigMap.yml'
-#    
-
+#    - task: Kubernetes@1
+#      displayName: "Decidim - Apply ConfigMap"
+#      inputs:
+#        connectionType: 'Azure Resource Manager'
+#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+#        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+#        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+#        namespace: 'participate'
+#        command: 'apply'
+#        arguments: '-f infrastructure/int/decidim/ConfigMap.yml'
+##    
 #
-    - task: Kubernetes@1
-      displayName: "Decidim - Apply Statefulset"
-      inputs:
-          connectionType: 'Azure Resource Manager'
-          azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-          azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
-          kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-          namespace: 'participate'              
-          command: 'apply'
-          arguments: '-f infrastructure/int/decidim/decidim-statefulset.yaml'
-
-    - task: Kubernetes@1
-      displayName: "Decidim - Apply Services"
-      inputs:
-          connectionType: 'Azure Resource Manager'
-          azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-          azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
-          kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-          namespace: 'participate'              
-          command: 'apply'
-          arguments: '-f infrastructure/int/decidim/decidim-service.yaml'
+##
+#    - task: Kubernetes@1
+#      displayName: "Decidim - Apply Statefulset"
+#      inputs:
+#          connectionType: 'Azure Resource Manager'
+#          azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+#          azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+#          kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+#          namespace: 'participate'              
+#          command: 'apply'
+#          arguments: '-f infrastructure/int/decidim/decidim-statefulset.yaml'
+#
+#    - task: Kubernetes@1
+#      displayName: "Decidim - Apply Services"
+#      inputs:
+#          connectionType: 'Azure Resource Manager'
+#          azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+#          azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+#          kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+#          namespace: 'participate'              
+#          command: 'apply'
+#          arguments: '-f infrastructure/int/decidim/decidim-service.yaml'
 
 #    #- task: Kubernetes@1
 #    #  displayName: "Apply ConfigMap - DB (Tool7) Backend"
