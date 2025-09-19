@@ -83,5 +83,6 @@ ENV NODE_ENV=${NODE_ENV:-production}
 
 EXPOSE 3000
 
+ENTRYPOINT ["/code/docker-entrypoint.sh"]
 # CMD ["./docker-entrypoint.sh"]
 # Expose port
