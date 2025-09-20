@@ -5,14 +5,24 @@
             
             </div>
             <div class='flex grow gap-4 justify-end'>
-                <span>
-                    Buttons
-                </span>
-                <span>
-                    Ciao Admin!
-                </span>
+                <div class="relative flex">
+                    <button id="tools-dropdown-button" class="tools-button flex items-center" type="button">
+                        <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="2" width="5" height="5" fill="#004494"/>
+                            <rect x="8" y="2" width="5" height="5" fill="#004494"/>
+                            <rect x="14" y="2" width="4" height="5" fill="#004494"/>
+                            <rect x="2" y="8" width="5" height="5" fill="#004494"/>
+                            <rect x="8" y="8" width="5" height="5" fill="#004494"/>
+                            <rect x="14" y="8" width="4" height="5" fill="#004494"/>
+                            <rect x="2" y="14" width="5" height="4" fill="#004494"/>
+                            <rect x="8" y="14" width="5" height="4" fill="#004494"/>
+                            <rect x="14" y="14" width="4" height="4" fill="#004494"/>
+                        </svg>
+                        <span class="tools-text">Tools</span>
+                    </button>
+                    <div id="tools-dropdown" class="tools-dropdown hidden">
+                        <div class="loading-message">Loading...</div>
+                    </div>
+                </div>
             </div>
-</div>
-<div class="md:flex grow w-full ldt-admin-breadcrumb p-2 text-center">
-            Breadcrumb
 </div>
