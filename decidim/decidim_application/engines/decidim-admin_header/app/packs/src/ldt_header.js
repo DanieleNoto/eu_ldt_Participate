@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const img = document.createElement('img');
         img.src = logoPath;
         img.alt = "LDT Logo";
-        img.classList.add('logo');
+        img.classList.add('ldt-logo');
         container.appendChild(img);
     }
 })

@@ -15,8 +15,9 @@
     height: 56px;
     background-color: #FCFCFC;
 
-    .logo {
-        height: 28px;
+    #ldt-logo {
+        max-height: 28px;
+        max-width: 112px;
     }
 }
 
