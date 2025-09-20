@@ -30,7 +30,6 @@
 # available at https://guides.rubyonrails.org/i18n.html.
 
 en:
-    hello: 'Hello world'
     activemodel:
         attributes:
             organization:
@@ -78,9 +77,12 @@ en:
                 models:
                     components:
                         tos: Privacy Policy
-                questionnaires:
-                    responses:
-                        tos_agreement: By participating you accept its Privacy Policy
+
+            questionnaires:
+                show:
+                    tos_agreement: I have read and accept the specific Privacy Policy for this survey described above, which explains the additional data collected, the puposes of processing, and the legal basis, in addition to the general Privacy Policy.
+                responses:
+                    tos_agreement: By participating you accept its Privacy Policy
 
         demographics:
             demographics:
