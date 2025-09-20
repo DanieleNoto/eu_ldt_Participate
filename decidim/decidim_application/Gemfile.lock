@@ -36,6 +36,13 @@ PATH
       rails (>= 7.0.8.7)
 
 PATH
+  remote: engines/decidim-admin_header
+  specs:
+    decidim-admin_header (0.1.0)
+      deface (>= 1.0)
+      rails (>= 7.0.8.7)
+
+PATH
   remote: engines/decidim-keycloak
   specs:
     decidim-keycloak (0.30.1)
@@ -968,6 +975,7 @@ DEPENDENCIES
   brakeman (~> 7.0)
   byebug (~> 11.0)
   decidim (= 0.30.1)
+  decidim-admin_header!
   decidim-calendar!
   decidim-conferences (= 0.30.1)
   decidim-decidim_awesome!
