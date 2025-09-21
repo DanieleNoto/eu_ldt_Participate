@@ -234,7 +234,7 @@ spec:
                   name: home-adminlnx-temp1-env
             - name: SECRET_KEY_BASE
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   key: SECRET_KEY_BASE
                   name: decidim-secret
             - name: SHAKAPACKER_DEV_SERVER_ENABLED
