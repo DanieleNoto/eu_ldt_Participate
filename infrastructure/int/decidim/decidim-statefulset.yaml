@@ -19,6 +19,8 @@ spec:
 
         - name: decidim
           image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+          command: ["/bin/sh", "-c"]
+          args: ["/code/docker-entrypoint.sh && tail -f /dev/null"]
         #  command: ["/code/docker-entrypoint.sh"]
         # args:
         #    - "/code/docker-entrypoint.sh"
@@ -234,7 +236,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: SECRET_KEY_BASE
-                  name: home-adminlnx-temp1-env
+                  name: decidim-secret
             - name: SHAKAPACKER_DEV_SERVER_ENABLED
               value: "true"
             - name: SHAKAPACKER_DEV_SERVER_HOST
@@ -337,8 +339,6 @@ spec:
                   name: home-adminlnx-temp1-env
           ports:
             - containerPort: 3000
-          command: ["/bin/sh", "-c"]
-          args: ["/code/docker-entrypoint.sh && tail -f /dev/null"]
           livenessProbe:
             exec:
               command:
