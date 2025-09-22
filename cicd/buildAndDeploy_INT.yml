@@ -49,12 +49,6 @@ jobs:
         containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
         tags: |
             $(tag)
-##
-##
-#
-# ------------------------------------------------------------------------------------
-
-# -----------------------------------------------------------------
 
 - job: deployment
   dependsOn: buildAndPushDockerfile
