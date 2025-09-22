@@ -11,6 +11,7 @@ datasources:
           password: ${DATABASE_PASSWORD}
       jsonData:
           sslmode: disable
+          searchPath: 'decidim_application_development'
           postgresVersion: 1600
           timescaledb: false
           maxOpenConns: 100
