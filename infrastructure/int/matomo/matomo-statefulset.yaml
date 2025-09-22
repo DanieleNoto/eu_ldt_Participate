@@ -65,18 +65,5 @@ spec:
         resources:
           requests:
             storage: 100Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: matomo
-  labels:
-    io.kompose.service: matomo
-spec:
-  selector:
-    io.kompose.service: matomo
-  ports:
-    - name: http
-      port: 8081
-      targetPort: 80
-  type: ClusterIP
+
+
