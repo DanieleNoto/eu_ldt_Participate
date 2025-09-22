@@ -1,14 +1,4 @@
 GIT
-  remote: https://github.com/PopulateTools/decidim-module-extra_user_fields.git
-  revision: 2d48fafe5f634a6b6ec3cdbf2382182eca3a8a8a
-  branch: release/0.28-stable
-  specs:
-    decidim-extra_user_fields (0.28.0)
-      country_select (~> 4.0)
-      decidim-core (>= 0.28)
-      deface (~> 1.5)
-
-GIT
   remote: https://github.com/decidim-ice/decidim-module-calendar
   revision: b92974a56b0b55a9e7282047170709a8ca513c55
   specs:
@@ -41,6 +31,14 @@ PATH
     decidim-admin_header (0.1.0)
       deface (>= 1.0)
       rails (>= 7.0.8.7)
+
+PATH
+  remote: engines/decidim-extra_user_fields
+  specs:
+    decidim-extra_user_fields (0.30.1)
+      country_select (~> 4.0)
+      decidim-core (= 0.30.1)
+      deface (~> 1.5)
 
 PATH
   remote: engines/decidim-keycloak
@@ -548,7 +546,7 @@ GEM
     invisible_captcha (0.13.0)
       rails (>= 3.2.0)
     io-console (0.8.1)
-    json (2.14.1)
+    json (2.15.0)
     json-jwt (1.17.0)
       activesupport (>= 4.2)
       aes_key_wrap
