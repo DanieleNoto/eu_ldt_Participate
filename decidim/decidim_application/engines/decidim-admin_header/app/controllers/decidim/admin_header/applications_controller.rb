@@ -4,7 +4,7 @@ module Decidim
   module AdminHeader
     class ApplicationsController < Decidim::Admin::ApplicationController
       def index
-        data = Tool0ApiService.new.fetch_applications
+        data = Tool0ApiService.new(current_user: current_user).fetch_applications
         
         # Sort groups by order and applications within each group by order
         if data["groups"]
