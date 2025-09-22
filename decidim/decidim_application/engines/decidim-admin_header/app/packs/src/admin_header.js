@@ -68,31 +68,30 @@ function initializeToolsDropdown() {
   
   function renderApplications(data) {
     console.log('Rendering applications:', data);
-    
     if (!data.groups || data.groups.length === 0) {
       toolsDropdown.innerHTML = '<div class="p-4 text-center text-gray-600 text-sm">No applications available</div>';
       return;
     }
-    
     let html = '';
-    
     // Sort groups by order
     const sortedGroups = data.groups.sort((a, b) => (a.order || 0) - (b.order || 0));
-    
     sortedGroups.forEach((group, groupIndex) => {
       if (group.applications && group.applications.length > 0) {
         // Sort applications within group by order
         const sortedApps = group.applications.sort((a, b) => (a.order || 0) - (b.order || 0));
-        
-        html += `<div class="application-group ${groupIndex > 0 ? 'border-t border-gray-100' : ''}">`;
-        html += `<div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
-                   <h3 class="text-xs font-semibold text-blue-900 uppercase tracking-wider">${escapeHtml(group.name)}</h3>
-                 </div>`;
-        
+        const groupId = `tools-group-${groupIndex}`;
+        html += `<div class="application-group">
+          <button type="button" class="w-full flex items-center px-4 pt-3 pb-1 group-header-toggle focus:outline-none" data-group="${groupId}">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider text-left flex-1">${escapeHtml(group.name)}</span>
+            <svg class="w-4 h-4 ml-2 transition-transform duration-200 text-gray-400" data-arrow="${groupId}" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          <div class="group-apps" id="${groupId}">
+        `;
         sortedApps.forEach((app, appIndex) => {
           html += `<div class="application-item">`;
-          html += `<a href="${escapeHtml(app.url)}" target="_blank" class="flex items-center px-4 py-3 text-gray-800 hover:bg-blue-50 transition-colors duration-150 no-underline group">`;
-          
+          html += `<a href="${escapeHtml(app.url)}" target="_blank" class="flex items-center px-4 py-2 text-gray-800 hover:bg-[#004494] hover:text-white transition-colors duration-150 no-underline group rounded-md">`;
           if (app.icon && app.icon.trim() !== '') {
             html += `<img src="data:image/png;base64,${app.icon}" alt="" class="w-6 h-6 rounded object-cover flex-shrink-0 mr-3">`;
           } else {
@@ -102,20 +101,36 @@ function initializeToolsDropdown() {
                        </svg>
                      </div>`;
           }
-          
-          html += `<span class="text-sm font-medium text-gray-900 group-hover:text-blue-900 transition-colors duration-150">${escapeHtml(app.name)}</span>`;
-          html += `<svg class="w-4 h-4 text-gray-400 ml-auto group-hover:text-blue-600 transition-colors duration-150" fill="currentColor" viewBox="0 0 20 20">
-                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                   </svg>`;
+          html += `<span class="text-sm font-medium text-gray-900 group-hover:text-white transition-colors duration-150">${escapeHtml(app.name)}</span>`;
           html += `</a>`;
           html += `</div>`;
         });
-        
-        html += `</div>`;
+        html += `</div></div>`;
       }
     });
-    
     toolsDropdown.innerHTML = html;
+    // Add toggle logic for group dropdowns
+    document.querySelectorAll('.group-header-toggle').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const groupId = btn.getAttribute('data-group');
+        const groupDiv = document.getElementById(groupId);
+        const arrow = document.querySelector(`[data-arrow="${groupId}"]`);
+        if (groupDiv.style.display === 'none' || groupDiv.style.display === '') {
+          groupDiv.style.display = 'block';
+          arrow.style.transform = 'rotate(180deg)';
+        } else {
+          groupDiv.style.display = 'none';
+          arrow.style.transform = 'rotate(0deg)';
+        }
+      });
+      // By default, open all groups
+      const groupId = btn.getAttribute('data-group');
+      const groupDiv = document.getElementById(groupId);
+      groupDiv.style.display = 'block';
+      const arrow = document.querySelector(`[data-arrow="${groupId}"]`);
+      arrow.style.transform = 'rotate(180deg)';
+    });
   }
   
   function renderError() {
