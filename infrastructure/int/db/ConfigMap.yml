@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     io.kompose.service: dbConfigmap
-  name: dbConfigmap
+  name: dbconfigmap
 data:
   CONFIG: ./jitsi-meet-cfg
   DATABASE_HOST: db
