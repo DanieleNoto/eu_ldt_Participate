@@ -38,9 +38,9 @@ spec:
                   name: dbconfigmap
             - name: DATABASE_PASSWORD
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   key: DATABASE_PASSWORD
-                  name: dbconfigmap
+                  name: db-secret
             - name: DATABASE_USERNAME
               valueFrom:
                 configMapKeyRef:
