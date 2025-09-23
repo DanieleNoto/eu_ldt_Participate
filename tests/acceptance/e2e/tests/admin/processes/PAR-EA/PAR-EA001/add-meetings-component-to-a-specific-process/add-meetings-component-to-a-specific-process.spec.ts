@@ -39,8 +39,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
     });
     test.describe('Main Flow', () => {
         test('should allow admin to add a Meetings component to a specific participatory process', async () => {
-            // Variables to store updated values for verification
-            let newName: string;
+            const newName = `Community Meetings - adding meetings component`;
             await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
                 await processAdminPage.navigateToProcesses();
                 await processAdminPage.getPage().waitForLoadState('networkidle');
@@ -66,15 +65,20 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
                 const currentUrl = processAdminPage.getPage().url();
                 expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/edit/);
             });
+
             await test.step('5. Admin: Navigates to the "Components" section in the admin panel.', async () => {
                 // Navigate to Components tab/section
                 await componentsPage.sidebarProcessDetail.navigateToComponents();
                 const currentUrl = componentsPage.getPage().url();
-                expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components/);                    
+                expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components/);
+                // Delete component if exists
+                await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i, 'snapshots/EA001');
             });
+
             await test.step('6. Admin: Clicks on "Add Component" and select Meetings', async () => {
                 // Click on "Add Component" button and select Meetings
                 await componentsPage.addMeetingsComponent();
+                await componentsPage.getPage().screenshot({ path: 'snapshots/EA001/AddComponent.png', fullPage: true });
             });
 
             await test.step('7. System: Displays the "Add Meetings Component" form, prompting the City Administrator to provide the component details.', async () => {
@@ -86,39 +90,83 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 
             await test.step('8. Admin: Fills in the component details • Name: Adds a title for the Meetings component, Announcement (optional): Adds an announcement visible to participants on the .', async () => {
                 // Fill in the form fields
-                const now = new Date();
-                const formatted = now.toLocaleString('sv-SE').replace(',', '');
-                newName = `Community Meetings - ${formatted}`;
                 await addMeetingsComponentPage.fillNameEn(newName);
                 await addMeetingsComponentPage.fillAnnouncementEn('Announcement visible to participants on the meeting landing page.');
+                await addMeetingsComponentPage.getPage().screenshot({ path: 'snapshots/EA001/FilledFields.png', fullPage: true });
             });
+
             await test.step('9. Admin: Clicks on "Save Component" to add the Meetings component to the process.', async () => {
                 // Submit the form
                 await addMeetingsComponentPage.submitForm();
                 await addMeetingsComponentPage.getPage().waitForLoadState('networkidle');
             });
+
             await test.step('10. System: Validates the component details for completeness and correctness.', async () => {
 			    // Check if there are validation errors
 		    	const hasValidationErrors = await addMeetingsComponentPage.hasValidationErrors();
 		    	expect(hasValidationErrors).toBe(false);
 		    });
+
             await test.step('11. System: Saves the Meetings component and updates the process details.', async () => {
                 // Verify we're redirected back to components list
                 const currentUrl = await componentsPage.getCurrentUrl();
                 expect(currentUrl).toMatch(/\/admin.*\/components/);
             });
+
             await test.step('12. System: Notifies the City Administrator that the Meetings component has been successfully added to the process.', async () => {
                 // Check for success notification/message
                 const successMessage = componentsPage.getPage().locator('.flash.success, .alert.success, [role="alert"]');
                 await expect(successMessage).toBeVisible();
+                await componentsPage.getPage().screenshot({ path: 'snapshots/EA001/MeetingComponentAdded.png', fullPage: true });
             });
+
             await test.step('Result.', async () => {
                 // Final verification: check the new component appears in the components list with correct type
-                const row = componentsPage.getPage().locator(`tr:has(td a:text-is("${newName}"))`);
+                const row = componentsPage.getPage().getByRole('option', { name: /Community Meetings - adding meetings component/i }).first();
                 await expect(row).toBeVisible();
                 const typeCell = row.locator('td').nth(2);
                 await expect(typeCell).toHaveText(/Meetings/i);    
             });
         });
     });
+
+    test.describe('Alternative Flow', () => {
+        test('should show validation error when mandatory fields are blank and allow successful update after correction', async ({ page }) => {
+            const newName = `Community Meetings - adding meetings component`;
+            await processAdminPage.navigateToProcesses();
+            await processAdminPage.getPage().waitForLoadState('load');
+            await processAdminPage.getPage().waitForLoadState('networkidle');
+            await processAdminPage.editFirstProcess();
+            await processAdminPage.getPage().waitForLoadState('load');            
+            // Verify we're on the processes page                    
+            await componentsPage.sidebarProcessDetail.navigateToComponents();
+            const row = componentsPage.getPage().getByRole('option', { name: /Community Meetings - adding meetings component/i }).first();
+            await expect(row).toBeVisible();
+            const configureLink = row.locator('a.action-icon--configure');
+            await configureLink.click();
+            // Validates the input fields for completeness. Detects missing or invalid fields.
+            await addMeetingsComponentPage.fillNameEn('');
+            await addMeetingsComponentPage.getPage().screenshot({ path: 'snapshots/EA001/MissingField.png', fullPage: true });
+            await addMeetingsComponentPage.updateComponent();
+            // Check that the alert icon (flash error) is visible
+            const flashIcon = page.locator('.flash__icon svg[aria-hidden="true"]');
+            await expect(flashIcon).toBeVisible();
+            // Check that the "cannot be blank" error message is visible next to the required field
+            const errorMessage = page.locator('small.form-error.is-visible[role="alert"]', { hasText: 'cannot be blank' });
+            await expect(errorMessage).toBeVisible();                
+            await addMeetingsComponentPage.getPage().screenshot({ path: 'snapshots/EA001/MissingFieldErrors.png', fullPage: true });
+            // Corrects the errors in the input fields and go back to the Component Page.
+            await addMeetingsComponentPage.fillNameEn(newName);
+            await addMeetingsComponentPage.updateComponent();
+            // Verify to be back to Component Page
+            const currentUrl = await componentsPage.getCurrentUrl();
+            expect(currentUrl).toMatch(/\/admin.*\/components/);
+            // Check for success notification/message after update
+            const updateSuccessMessage = componentsPage.getPage().locator('.flash.success, .alert.success, [role="alert"]');
+            await expect(updateSuccessMessage).toBeVisible();
+            await addMeetingsComponentPage.getPage().screenshot({ path: 'snapshots/EA001/UpdateSuccess.png', fullPage: true });
+            // Optionally, verify the exact message text
+            await expect(updateSuccessMessage.locator('.flash__message')).toHaveText(/The component was updated successfully\./);
+        });
+    });    
 });

@@ -7,6 +7,7 @@ export class AddMeetingsComponentPage extends FormMeetingPage {
     private readonly announcementEditorEn: Locator;
     private readonly announcementContentEditableEn: Locator;
     private readonly saveButton: Locator;
+    private readonly updateComponentButton: Locator;    
 
     constructor(page: Page) {
         super(page);
@@ -14,6 +15,7 @@ export class AddMeetingsComponentPage extends FormMeetingPage {
         this.announcementEditorEn = page.locator('#component_settings_announcement_en .editor-input');
         this.announcementContentEditableEn = page.locator('#component_settings_announcement_en [contenteditable="true"]');
         this.saveButton = page.locator('form#new_component_ button[type="submit"]');
+        this.updateComponentButton = page.getByRole('button', { name: 'Update' });
     }
 
     async fillNameEn(name: string) {
@@ -28,6 +30,12 @@ export class AddMeetingsComponentPage extends FormMeetingPage {
         await this.saveButton.click();
         await this.page.waitForLoadState('networkidle');
     }
+
+    async updateComponent() {
+    await this.updateComponentButton.click();
+    await this.page.waitForLoadState('networkidle');
+}
+
 
     async expectNameVisible() {
         await expect(this.nameInputEn).toBeVisible();

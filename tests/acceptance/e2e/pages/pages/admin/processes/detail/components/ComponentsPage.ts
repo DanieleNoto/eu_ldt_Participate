@@ -3,6 +3,8 @@ import { SidebarProcessDetailComponent } from '../../../../../components/admin/p
 import { BaseAdminPage } from '../../../BaseAdminPage';
 import { ManagePageComponentPage } from './ManagePageComponentPage';
 import { NewPageComponentPage } from './NewPageComponentPage';
+import { readdirSync, unlinkSync, existsSync } from 'fs';
+import { join } from 'path';
 
 /**
  * Page Object Model for the Components page in process detail management.
@@ -434,4 +436,39 @@ export class ComponentsPage extends BaseAdminPage {
 			await expect(this.page).toHaveURL(/\/admin\/participatory_processes\/.*\/components\/new/);
 		}
 	}
+
+    /**
+     * Deletes a component by name if it exists, including snapshots cleanup.
+     * @param componentName Name or regex of the component to delete
+     * @param snapshotsDir Directory containing snapshots to delete
+     */
+    async deleteComponentIfExists(componentName: string | RegExp, snapshotsDir: string) {
+        const rowLocator = this.page.getByRole('option', { name: componentName });
+        if (await rowLocator.count() > 0) {
+            const row = rowLocator.first();
+            const deleteLink = row.locator('a.action-icon--delete');
+            await deleteLink.click();
+
+            // Confirm deletion
+            await this.page.getByRole('button', { name: 'OK' }).click();
+
+            // Verify success message
+            const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
+            await expect(deletionSuccessMessage).toBeVisible();
+
+            // Delete all files in snapshots directory
+            if (existsSync(snapshotsDir)) {
+                const files = readdirSync(snapshotsDir);
+                for (const file of files) {
+                    const filePath = join(snapshotsDir, file);
+                    unlinkSync(filePath);
+                    console.log(`Deleted: ${filePath}`);
+                }
+            } else {
+                console.log(`Directory ${snapshotsDir} does not exist.`);
+            }
+        } else {
+            console.log(`Component "${componentName}" not found, skipping deletion.`);
+        }
+    }
 }
