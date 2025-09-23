@@ -60,7 +60,8 @@ export class SurveysManagePage extends BaseAdminPage {
 		validProcessData: any,
 		adminHomePage: any,
 		processAdminPage: any,
-		publishProcess: boolean = false
+		publishProcess: boolean = false,
+		isPrivateProcess: boolean = false
 	): Promise<{ processSlug: string; processEditUrl: string }> {
 		// Navigate to admin home and processes
 		await adminHomePage.navigateToAdminHomePage();
@@ -71,7 +72,14 @@ export class SurveysManagePage extends BaseAdminPage {
 		await processAdminPage.navigateToNewProcess();
 		await processAdminPage.fillGeneralInfo(validProcessData.general);
 		await processAdminPage.fillMetadataInfo(validProcessData.metadata);
-		await processAdminPage.setVisibilityToPublic();
+
+		// Set visibility based on parameter
+		if (isPrivateProcess) {
+			await processAdminPage.setVisibilityToPrivate();
+		} else {
+			await processAdminPage.setVisibilityToPublic();
+		}
+
 		await processAdminPage.submitProcess();
 
 		// Wait for process creation to complete
