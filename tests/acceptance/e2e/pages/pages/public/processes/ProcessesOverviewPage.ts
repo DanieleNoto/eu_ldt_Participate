@@ -560,7 +560,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 			}
 		} catch (error) {
 			// Grid might be empty - this is acceptable
-			console.log('No processes found in grid after applying filter');
+			console.log(`No processes found in grid after applying filter. Error: ${error.message || error}`);
 		}
 	}
 
@@ -581,7 +581,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 			console.log(`Process "${processTitle}" is visible in the grid`);
 			return true;
 		} catch (error) {
-			console.log(`Process "${processTitle}" is not visible in the grid`);
+			console.log(`Process "${processTitle}" is not visible in the grid. Error: ${error.message || error}`);
 			return false;
 		}
 	}

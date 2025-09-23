@@ -29,6 +29,7 @@ export class LetterOpenerPage extends BasePage {
 			await this.page.getByRole('link', { name: 'Refresh' }).click();
 		} catch (error) {
 			// Fallback to CSS selector if getByRole fails
+			console.log(`getByRole failed, using CSS selector fallback. Error: ${error.message || error}`);
 			await this.page.click('a.btn.btn-primary.refresh');
 		}
 		await this.page.waitForLoadState('networkidle');
