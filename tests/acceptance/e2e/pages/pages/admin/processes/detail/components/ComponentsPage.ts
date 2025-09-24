@@ -456,17 +456,18 @@ export class ComponentsPage extends BaseAdminPage {
             const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
             await expect(deletionSuccessMessage).toBeVisible();
 
-            // Delete all files in snapshots directory
-            if (existsSync(snapshotsDir)) {
-                const files = readdirSync(snapshotsDir);
-                for (const file of files) {
-                    const filePath = join(snapshotsDir, file);
-                    unlinkSync(filePath);
-                    console.log(`Deleted: ${filePath}`);
-                }
-            } else {
-                console.log(`Directory ${snapshotsDir} does not exist.`);
-            }
+            // //commenting out snapshot deletion for permanence of snapshots -- uncomment if needed
+			// // Delete all files in snapshots directory
+            // if (existsSync(snapshotsDir)) {
+            //     const files = readdirSync(snapshotsDir);
+            //     for (const file of files) {
+            //         const filePath = join(snapshotsDir, file);
+            //         unlinkSync(filePath);
+            //         console.log(`Deleted: ${filePath}`);
+            //     }
+            // } else {
+            //     console.log(`Directory ${snapshotsDir} does not exist.`);
+            // }
         } else {
             console.log(`Component "${componentName}" not found, skipping deletion.`);
         }
