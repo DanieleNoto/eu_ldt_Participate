@@ -432,7 +432,7 @@ jobs:
 ## Statefulset - GRAFANA
 
     - task: Kubernetes@1
-      displayName: "JITSI-WEB - - Apply Statefulset"
+      displayName: "GRAFANA - - Apply Statefulset"
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -444,7 +444,7 @@ jobs:
 
 #  Services - GRAFANA
     - task: Kubernetes@1
-      displayName: "JITSI-WEB - Apply Services"
+      displayName: "GRAFANA - Apply Services"
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -453,3 +453,16 @@ jobs:
         namespace: 'participate'
         command: 'apply'
         arguments: '-f infrastructure/int/grafana/grafana-service.yaml'
+
+
+#  Storage - GRAFANA
+    - task: Kubernetes@1
+      displayName: "GRAFANA - Apply Storage"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/grafana/grafana-storage.yaml'
