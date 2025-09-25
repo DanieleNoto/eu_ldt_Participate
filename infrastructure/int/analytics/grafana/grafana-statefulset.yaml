@@ -30,17 +30,17 @@ spec:
                       - containerPort: 3000
                         hostPort: 3001
                         protocol: TCP
-            # Load environment variables for Grafana from its ConfigMap and secrets
-            envFrom:
-                # Load Grafana-specific settings first
-                - configMapRef:
-                      name: grafana-config
-                # Override with global environment settings if present
-                - configMapRef:
-                      name: home-adminlnx-temp1-env
-                # Load sensitive values from secrets
-                - secretRef:
-                      name: grafana-secrets
+                  # Load environment variables for Grafana from its ConfigMap and secrets
+                  envFrom:
+                      # Load Grafana-specific settings first
+                      - configMapRef:
+                            name: grafana-config
+                      # Override with global environment settings if present
+                      - configMapRef:
+                            name: home-adminlnx-temp1-env
+                      # Load sensitive values from secrets
+                      - secretRef:
+                            name: grafana-secrets
                   volumeMounts:
                       - name: grafana-data
                         mountPath: /var/lib/grafana
