@@ -42,6 +42,7 @@ export class ComponentsPage extends BaseAdminPage {
 	private readonly tableHeaders: Locator;
 	private readonly tableBody: Locator;
 	private readonly componentRows: Locator;
+	private readonly componentRowMeetings: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -76,6 +77,7 @@ export class ComponentsPage extends BaseAdminPage {
 		this.tableHeaders = page.locator('.table-list thead th');
 		this.tableBody = page.locator('.table-list tbody');
 		this.componentRows = page.locator('.table-list tbody tr');
+		this.componentRowMeetings = page.locator('td', { hasText: 'Meetings' }).nth(1);
 	}
 
 	// Navigation and page state
@@ -118,6 +120,8 @@ export class ComponentsPage extends BaseAdminPage {
 		await this.addComponentButton.click();
 		await expect(this.addComponentDropdown).toHaveAttribute('aria-hidden', 'false');
 	}
+
+
 
 	async closeAddComponentDropdown() {
 		if (await this.isAddComponentDropdownVisible()) {
@@ -471,4 +475,10 @@ export class ComponentsPage extends BaseAdminPage {
             console.log(`Component "${componentName}" not found, skipping deletion.`);
         }
     }
+
+	async openComponentMeetingsLink() {
+		await this.componentRowMeetings.click();
+		await this.page.waitForLoadState('networkidle');
+	}	
+
 }
