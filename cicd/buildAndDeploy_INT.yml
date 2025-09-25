@@ -5,7 +5,8 @@ name: Tool3-BuildAndDeploy-INT-$(date:yyyyMMdd)$(rev:.r)
 #    - pipeline: QualityCheck
 #      source: 'EU LDT Participate - Quality Checks'
 #      trigger: true
-
+#
+#
 trigger: none
 
 pool:
@@ -19,8 +20,6 @@ variables:
 - group: 'TOOL3 - PT - KV'
 
 jobs:
-
-
 - job: buildAndPushDockerfile
   displayName: "Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION"
   variables:
@@ -50,61 +49,26 @@ jobs:
         tags: |
             $(tag)
 
-
-
- #   - task: replacetokens@5
- #     displayName: "Replace tokens Backend"
- #     inputs:
- #       rootDirectory: backend-py
- #       targetFiles: Dockerfile*
- #       tokenPattern: custom
- #       tokenPrefix: _TOKEN_
- #       tokenSuffix: _TOKEN_
- #       writeBOM: false
- #       verbosity: detailed
- #       actionOnNoFiles: warn
-    
-#    - task: Docker@2
-#      displayName: Build and push backend
-#      inputs:
-#        command: buildAndPush
-#        repository: eu-ldt-pv-int
-#        dockerfile: backend-py/Dockerfile
-#        containerRegistry: EU-LDT-Toolbox-ACR-Shared
-#        tags: |
-#            $(ENVIRONMENT_NAME)-$(tag)
-#
-#
-#    - task: replacetokens@5
-#      displayName: "Replace tokens in Secrets YAMLs"
-#      inputs:
-#        rootDirectory: infrastructure/int/secrets
-#        targetFiles: '*.yml'
-#        tokenPattern: default
-#        writeBOM: false
-#        verbosity: detailed
-#
-#
-#    
-#    - task: Docker@2
-#      displayName: Build and push frontend
-#      inputs:
-#        command: buildAndPush
-#        repository: eu-ldt-ie-int-fe
-#        dockerfile: tool3-frontend/Dockerfile
-#        containerRegistry: EU-LDT-Toolbox-ACR-Shared
-#        tags: |
-#          $(tag)
-
-
 - job: deployment
-#  dependsOn: buildAndPushDockerfile
+  dependsOn: buildAndPushDockerfile
   displayName: Kubectl Tool3 deployment
   steps:
     - task: replacetokens@5
       displayName: "Replace tokens Tools"
       inputs:
         rootDirectory: infrastructure/int
+        tokenPattern: custom
+        tokenPrefix: _%
+        tokenSuffix: '%_'
+        writeBOM: false
+        verbosity: detailed
+        actionOnNoFiles: warn
+
+    - task: replacetokens@5
+      displayName: "Replace tokens decidim"
+      inputs:
+        rootDirectory: infrastructure/int/decidim
+        targetFiles: 'decidim-statefulset.yaml'
         tokenPattern: custom
         tokenPrefix: _%
         tokenSuffix: '%_'
@@ -127,8 +91,7 @@ jobs:
         namespace: 'participate'
         command: 'apply'
         arguments: '-f infrastructure/int/namespace.yml'
-
-#ASR: Añadimos la eliminacion del ACR Pull Secret para volver a generarlo
+# ASR: Añadimos la eliminacion del ACR Pull Secret para volver a generarlo
     - task: Kubernetes@1
       displayName: "Delete ACR Pull Secret if exists (Tool3)"
       inputs:
@@ -180,24 +143,22 @@ jobs:
         command: 'create'
         arguments: secret generic storage-secret --from-literal=azurestorageaccountname=euldtsharedtfstateint --from-literal=azurestorageaccountkey=$(STORAGE-ACCOUNT-KEY)
         secretType: 'generic'
-
-
 #
-#    - task: Kubernetes@1
-#      displayName: "Apply File Storage (Tool3)"
-#      inputs:
-#        connectionType: 'Azure Resource Manager'
-#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-#        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-#        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-#        namespace: 'participate'
+#   - task: Kubernetes@1
+#     displayName: "Apply File Storage (Tool3)"
+#     inputs:
+#       connectionType: 'Azure Resource Manager'
+#       azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+#       azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+#       kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+#       namespace: 'participate'
 #        command: 'apply'
 #        arguments: '-f infrastructure/int/storage/file-storage.yml'
-#
-##-------------------------------------------------------------------------------------------
-##CONFIGURACION DB
-## Config Services
 
+#-------------------------------------------------------------------------------------------
+#CONFIGURACION DB
+#--------------------------------------------------------------------------
+# DB - Services
     - task: Kubernetes@1
       displayName: "DB - Apply Services"
       inputs:
@@ -209,7 +170,35 @@ jobs:
         command: 'apply'
         arguments: '-f infrastructure/int/db/db-service.yaml'
 
-## Statefulset
+# DB - Configmap
+
+    - task: Kubernetes@1
+      displayName: "DB - Apply ConfigMap"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/db/ConfigMap.yml'
+
+# DB - Secrets
+
+    - task: Kubernetes@1
+      displayName: "DB - Apply ConfigMap"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/db/secretsMap.yml'
+
+
+
+## Statefulset#
 
     - task: Kubernetes@1
       displayName: "DB - Apply Statefulset"
@@ -221,6 +210,39 @@ jobs:
         namespace: 'participate'
         command: 'apply'
         arguments: '-f infrastructure/int/db/db-statefulset.yaml'
+
+#-------------------------------------------------------------------------------------------
+#CONFIGURACION JITSI
+#--------------------------------------------------------------------------
+
+## Statefulset - JITSI-WEB
+
+    - task: Kubernetes@1
+      displayName: "JITSI-WEB - - Apply Statefulset"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/jitsi/jitsi-web-statefulset.yaml'
+
+#  Services - JITSI-WEB
+    - task: Kubernetes@1
+      displayName: "JITSI-WEB - Apply Services"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/jitsi/jitsi-web-service.yaml'
+
+#-------------------------------------------------------------------------------------------
+# Statefulset - JITSI JICOFO
+#--------------------------------------------------------------------------
 
 
 ## Statefulset
@@ -277,7 +299,7 @@ jobs:
         
 ## Statefulset MATOMO DB
     - task: Kubernetes@1
-      displayName: "MATOMO - - Apply Statefulset"
+      displayName: "MATOMO DB - - Apply Statefulset"
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -298,9 +320,22 @@ jobs:
         namespace: 'participate'
         command: 'apply'
         arguments: '-f infrastructure/int/matomo/matomo-statefulset.yaml'
-        
 
-##CONFIGURACION DECIDIM
+#CONFIGURACION DB
+# Config Services Matomo
+    - task: Kubernetes@1
+      displayName: "MATOMO - Apply Services"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/matomo/matomo-service.yaml'
+
+
+#CONFIGURACION DECIDIM
     - task: Kubernetes@1
       displayName: "Decidim - Apply ConfigMap"
       inputs:
@@ -311,7 +346,6 @@ jobs:
         namespace: 'participate'
         command: 'apply'
         arguments: '-f infrastructure/int/decidim/ConfigMap.yml'
-#    
 
 #
     - task: Kubernetes@1
@@ -335,60 +369,101 @@ jobs:
           namespace: 'participate'              
           command: 'apply'
           arguments: '-f infrastructure/int/decidim/decidim-service.yaml'
+    #- task: Kubernetes@1
+    #  displayName: "Apply ConfigMap - DB (Tool7) Backend"
+    #  inputs:
+    #    connectionType: 'Azure Resource Manager'
+    #    azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+    #    azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+    #    kubernetesCluster: 'eu-ldt-tool-07-participate-aks-int'
+    #    namespace: 'participate'
+    #    command: 'apply'
+    #    arguments: '-f infrastructure/int/backend/configMapDB.yml'
 
-#    #- task: Kubernetes@1
-#    #  displayName: "Apply ConfigMap - DB (Tool7) Backend"
-#    #  inputs:
-#    #    connectionType: 'Azure Resource Manager'
-#    #    azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-#    #    azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-#    #    kubernetesCluster: 'eu-ldt-tool-07-participate-aks-int'
-#    #    namespace: 'participate'
-#    #    command: 'apply'
-#    #    arguments: '-f infrastructure/int/backend/configMapDB.yml'
-#
-#    #- task: Kubernetes@1
-#    #  displayName: "Apply Secrets - BE (Tool7)"
-#    #  inputs:
-#    #    connectionType: 'Azure Resource Manager'
-#    #    azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-#    #    azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-#    #    kubernetesCluster: 'eu-ldt-tool-07-participate-aks-int'
-#    #    namespace: 'participate'
-#    #    command: 'apply'
-#    #    arguments: '-f infrastructure/int/backend/secrets.yaml'
-#
-#    #- task: Kubernetes@1
-#    #  displayName: "Apply Secrets - DB (Tool7) Backend"
-#    #  inputs:
-#    #    connectionType: 'Azure Resource Manager'
-#    #    azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-#    #    azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-#    #    kubernetesCluster: 'eu-ldt-tool-07-participate-aks-int'
-#    #    namespace: 'participate'
-#    #    command: 'apply'
-#    #    arguments: '-f infrastructure/int/backend/db-secrets.yaml'
-#
-#
-#    - task: Kubernetes@1
-#      displayName: "Apply SecretsMap (Tool3)"
-#      inputs:
-#        connectionType: 'Azure Resource Manager'
-#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-#        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-#        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-#        namespace: 'participate'
-#        command: 'apply'
-#        arguments: '-f infrastructure/int/secretsMap.yml'
-#
-##-------------------------------------------------------------------------------------------------  
-#    - task: Kubernetes@1
-#      displayName: "Apply Ingress (Tool3)"
-#      inputs:
-#        connectionType: 'Azure Resource Manager'
-#        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-#        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-#        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-#        namespace: 'participate'
-#        command: 'apply'
-#        arguments: '-f infrastructure/int/proxy/ingress.yml'
+    #- task: Kubernetes@1
+    #  displayName: "Apply Secrets - BE (Tool7)"
+    #  inputs:
+    #    connectionType: 'Azure Resource Manager'
+    #    azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+    #    azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+    #    kubernetesCluster: 'eu-ldt-tool-07-participate-aks-int'
+    #    namespace: 'participate'
+    #    command: 'apply'
+    #    arguments: '-f infrastructure/int/backend/secrets.yaml'
+
+    #- task: Kubernetes@1
+    #  displayName: "Apply Secrets - DB (Tool7) Backend"
+    #  inputs:
+    #    connectionType: 'Azure Resource Manager'
+    #    azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+    #    azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+    #    kubernetesCluster: 'eu-ldt-tool-07-participate-aks-int'
+    #    namespace: 'participate'
+    #    command: 'apply'
+    #    arguments: '-f infrastructure/int/backend/db-secrets.yaml'
+
+
+    - task: Kubernetes@1
+      displayName: "Apply SecretsMap (Tool3)"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/decidim/secretsMap.yml'
+
+
+  #  - task: Kubernetes@1
+  #    displayName: "Apply Ingress (Tool3)"
+  #    inputs:
+  #      connectionType: 'Azure Resource Manager'
+  #      azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+  #      azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+  #      kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+  #      namespace: 'participate'
+  #      command: 'apply'
+  #      arguments: '-f infrastructure/int/proxy/ingress.yml'
+
+  #-------------------------------------------------------------------------------------------
+#CONFIGURACION JITSI
+#--------------------------------------------------------------------------
+
+## Statefulset - GRAFANA
+
+    - task: Kubernetes@1
+      displayName: "GRAFANA - - Apply Statefulset"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/grafana/grafana-statefulset.yaml'
+
+#  Services - GRAFANA
+    - task: Kubernetes@1
+      displayName: "GRAFANA - Apply Services"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/grafana/grafana-service.yaml'
+
+
+#  Storage - GRAFANA
+    - task: Kubernetes@1
+      displayName: "GRAFANA - Apply Storage"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+        azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'        
+        kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+        namespace: 'participate'
+        command: 'apply'
+        arguments: '-f infrastructure/int/grafana/grafana-storage.yaml'
