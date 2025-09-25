@@ -71,7 +71,7 @@ export class NewsletterAdminPage extends BaseAdminPage {
 
 	private async getPreviewFrame() {
 		const iframe = this.page.locator('iframe[data-email-preview]');
-		await expect(iframe).toBeVisible({ timeout: 5000 });
+		await expect(iframe).toBeVisible();
 		const frame = await iframe.contentFrame();
 		if (!frame) {
 			throw new Error('Newsletter preview iframe not found');
@@ -175,7 +175,7 @@ export class NewsletterAdminPage extends BaseAdminPage {
 		const frame = await this.getPreviewFrame();
 		const container = frame.locator('table.content th.small-12.first.columns').first();
 
-		await expect(container).toBeVisible({ timeout: 30000 });
+		await expect(container).toBeVisible();
 
 		const expectedHelloPattern = `Hello ${namePattern},`;
 		await expect(container).toContainText(new RegExp(expectedHelloPattern));
@@ -217,12 +217,16 @@ export class NewsletterAdminPage extends BaseAdminPage {
 				console.log(`Refreshing page (attempt ${attempts})...`);
 				await this.page.reload();
 				await this.page.waitForLoadState('networkidle');
-				await this.page.waitForTimeout(2000);
 			}
 
 			try {
 				const newsletterRow = this.newsletterRowBySubject(subject);
+
+				await expect(newsletterRow).toBeVisible();
+
 				const progressCell = newsletterRow.locator('td').nth(4);
+
+				await expect(progressCell).toBeVisible();
 
 				const progressText = await progressCell.textContent();
 				if (progressText) {
@@ -251,7 +255,7 @@ export class NewsletterAdminPage extends BaseAdminPage {
 			attempts++;
 
 			if (attempts < maxAttempts) {
-				await this.page.waitForTimeout(waitBetweenAttempts);
+				await this.page.waitForLoadState('networkidle');
 			}
 		}
 
