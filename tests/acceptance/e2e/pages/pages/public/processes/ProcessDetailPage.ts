@@ -23,7 +23,6 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	private readonly navItems: Locator;
 
 	// Help elements
-	private readonly helpButton: Locator;
 	private readonly debatesLink: Locator;
 	private readonly meetingsLink: Locator;
 

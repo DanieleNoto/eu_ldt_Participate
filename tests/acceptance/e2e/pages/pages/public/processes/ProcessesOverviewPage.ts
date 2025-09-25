@@ -525,63 +525,48 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 			console.log(`"${dateOption}" date filter is already applied`);
 		}
 
-		// Wait for the grid to update after filter application
 		await this.page.waitForLoadState('networkidle');
 
-		// Wait for the processes grid container to be visible
-		await this.page.waitForSelector('#processes-grid', { state: 'visible', timeout: 10000 });
-		await this.page.waitForSelector('#processes-grid .card__grid-grid', { state: 'visible', timeout: 10000 });
+		// Wait for grid container to be present
+		await expect(this.processesGrid).toBeVisible();
+		await expect(this.cardGrid).toBeVisible();
 
-		// Wait for at least one process to be loaded (or confirm grid is empty)
-		try {
-			await this.page.waitForSelector('#processes-grid .card__grid-grid a.card__grid', {
-				state: 'visible',
-				timeout: 10000
+		// Wait for DOM to update completely for 'all' filter
+		if (dateOption === 'all') {
+			await this.page.waitForFunction(() => {
+				const links = document.querySelectorAll('#processes-grid .card__grid-grid a.card__grid');
+				return links.length >= 2;
 			});
+		}
 
-			// Additional wait for any pending loads
-			await this.page.waitForTimeout(2000);
-
-			// Check if the count has changed and stabilized
-			let stableCount = 0;
-			let attempts = 0;
-			const maxAttempts = 5;
-
-			while (attempts < maxAttempts) {
-				const currentCount = await this.allProcessCards.count();
-
-				if (currentCount === stableCount) {
-					break;
-				}
-
-				stableCount = currentCount;
-				await this.page.waitForTimeout(1000);
-				attempts++;
-			}
+		// Check if grid has processes or is empty
+		try {
+			await expect(this.allProcessCards.first()).toBeVisible();
+			console.log(`Grid loaded with processes`);
 		} catch (error) {
-			// Grid might be empty - this is acceptable
-			console.log(`No processes found in grid after applying filter. Error: ${error.message || error}`);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.log(`Grid is empty after applying "${dateOption}" filter. Error: ${errorMessage}`);
 		}
 	}
 
 	/**
-	 * Checks if a process with the given title is visible in the grid (non-blocking)
+	 * Checks if a process with the given title is visible in the grid
 	 * @param processTitle - The title of the process to check
-	 * @param timeout - Timeout in milliseconds for visibility check (default: 5000)
 	 * @returns Promise<boolean> - True if visible, false if not visible
 	 */
-	async checkProcessVisibility(processTitle: string, timeout: number = 5000): Promise<boolean> {
+	async checkProcessVisibility(processTitle: string): Promise<boolean> {
 		console.log(`Looking for process with title: "${processTitle}"`);
 
 		const processesGrid = this.page.locator('#processes-grid .card__grid-grid');
 		const processLink = processesGrid.getByRole('link', { name: processTitle });
 
 		try {
-			await processLink.waitFor({ state: 'visible', timeout });
+			await expect(processLink).toBeVisible();
 			console.log(`Process "${processTitle}" is visible in the grid`);
 			return true;
 		} catch (error) {
-			console.log(`Process "${processTitle}" is not visible in the grid. Error: ${error.message || error}`);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.log(`Process "${processTitle}" is not visible in the grid. Error: ${errorMessage}`);
 			return false;
 		}
 	}
@@ -590,22 +575,21 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	 * Navigates to a process
 	 * @param processTitle - The title of the process to navigate to
 	 * @param processSlug - The slug of the process for direct navigation fallback
-	 * @param timeout - Timeout in milliseconds for grid click attempt (default: 5000)
 	 */
-	async navigateToProcess(processTitle: string, processSlug: string, timeout: number = 5000): Promise<void> {
+	async navigateToProcess(processTitle: string, processSlug: string): Promise<void> {
 		try {
 			// Get the process card from the main grid
 			const processCard = this.getAllProcessCardByTitle(processTitle);
 
-			// Check if the process is visible and clickable with a longer timeout
-			await processCard.waitFor({ state: 'visible', timeout });
+			// Check if the process is visible and clickable
+			await expect(processCard).toBeVisible();
 			await processCard.click();
 			await this.waitForLoadState('networkidle');
 			console.log(`Successfully clicked on process "${processTitle}" from the grid`);
 		} catch (error) {
-			// Fallback: navigate directly to the process URL
+			const errorMessage = error instanceof Error ? error.message : String(error);
 			console.log(`Could not click on process from grid, using direct navigation fallback`);
-			console.log(`Error: ${error.message}`);
+			console.log(`Error: ${errorMessage}`);
 			const processUrl = `/processes/${processSlug}`;
 			await this.page.goto(processUrl);
 			await this.waitForLoadState('networkidle');
