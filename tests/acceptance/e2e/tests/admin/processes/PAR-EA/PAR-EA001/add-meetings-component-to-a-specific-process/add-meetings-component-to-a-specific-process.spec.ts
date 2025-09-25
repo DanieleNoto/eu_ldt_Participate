@@ -72,7 +72,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
                 const currentUrl = componentsPage.getPage().url();
                 expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components/);
                 // Delete component if exists
-                await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i, 'snapshots/EA001');
+                //await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i, 'snapshots/EA001');
             });
 
             await test.step('6. Admin: Clicks on "Add Component" and select Meetings', async () => {
@@ -125,48 +125,57 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
                 const row = componentsPage.getPage().getByRole('option', { name: /Community Meetings - adding meetings component/i }).first();
                 await expect(row).toBeVisible();
                 const typeCell = row.locator('td').nth(2);
-                await expect(typeCell).toHaveText(/Meetings/i);    
+                await expect(typeCell).toHaveText(/Meetings/i);  
+                await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i, 'snapshots/EA001');  
             });
         });
     });
 
     test.describe('Alternative Flow', () => {
         test('should show validation error when mandatory fields are blank and allow successful update after correction', async ({ page }) => {
+            const newNameBlank = ``;
             const newName = `Community Meetings - adding meetings component`;
             await processAdminPage.navigateToProcesses();
             await processAdminPage.getPage().waitForLoadState('load');
             await processAdminPage.getPage().waitForLoadState('networkidle');
             await processAdminPage.editFirstProcess();
             await processAdminPage.getPage().waitForLoadState('load');            
-            // Verify we're on the processes page                    
+            // Verify we're on the processes page             
             await componentsPage.sidebarProcessDetail.navigateToComponents();
-            const row = componentsPage.getPage().getByRole('option', { name: /Community Meetings - adding meetings component/i }).first();
-            await expect(row).toBeVisible();
-            const configureLink = row.locator('a.action-icon--configure');
-            await configureLink.click();
-            // Validates the input fields for completeness. Detects missing or invalid fields.
-            await addMeetingsComponentPage.fillNameEn('');
+            // create the component Meetings first "blank name"
+            await componentsPage.getPage().waitForLoadState('networkidle');
+            await componentsPage.addMeetingsComponent();
+            await addMeetingsComponentPage.fillNameEn(newNameBlank);
             await addMeetingsComponentPage.getPage().screenshot({ path: 'snapshots/EA001/MissingField.png', fullPage: true });
-            await addMeetingsComponentPage.updateComponent();
-            // Check that the alert icon (flash error) is visible
+            await addMeetingsComponentPage.fillAnnouncementEn('');
+            await addMeetingsComponentPage.submitForm();
+            await addMeetingsComponentPage.getPage().waitForLoadState('networkidle');
+            await addMeetingsComponentPage.getPage().screenshot({ path: 'snapshots/EA001/ExpectedErrorMissingField.png', fullPage: true });
             const flashIcon = page.locator('.flash__icon svg[aria-hidden="true"]');
             await expect(flashIcon).toBeVisible();
-            // Check that the "cannot be blank" error message is visible next to the required field
             const errorMessage = page.locator('small.form-error.is-visible[role="alert"]', { hasText: 'cannot be blank' });
-            await expect(errorMessage).toBeVisible();                
-            await addMeetingsComponentPage.getPage().screenshot({ path: 'snapshots/EA001/MissingFieldErrors.png', fullPage: true });
-            // Corrects the errors in the input fields and go back to the Component Page.
+            await expect(errorMessage).toBeVisible();
+            // Now fill in a lowercase name to test that validation
+            await addMeetingsComponentPage.fillNameEn('lowercase')
+            await addMeetingsComponentPage.getPage().screenshot({ path: 'snapshots/EA001/LowercaseField.png', fullPage: true });
+            await addMeetingsComponentPage.submitForm();
+            await addMeetingsComponentPage.getPage().waitForLoadState('networkidle');
+            await addMeetingsComponentPage.getPage().screenshot({ path: 'snapshots/EA001/ExpectedErrorLowercaseField.png', fullPage: true });
+            await expect(flashIcon).toBeVisible();
+            await expect(errorMessage).toBeVisible();
+            // Finally, fill in the correct name and submit
             await addMeetingsComponentPage.fillNameEn(newName);
-            await addMeetingsComponentPage.updateComponent();
-            // Verify to be back to Component Page
+            await addMeetingsComponentPage.fillAnnouncementEn('Announcement visible to participants on the meeting landing page.');
+            await addMeetingsComponentPage.getPage().screenshot({ path: 'snapshots/EA001/ExpectedFieldFilled.png', fullPage: true });
+            await addMeetingsComponentPage.submitForm();
+            await addMeetingsComponentPage.getPage().waitForLoadState('networkidle');
+            // Verify the component was created
             const currentUrl = await componentsPage.getCurrentUrl();
-            expect(currentUrl).toMatch(/\/admin.*\/components/);
-            // Check for success notification/message after update
-            const updateSuccessMessage = componentsPage.getPage().locator('.flash.success, .alert.success, [role="alert"]');
-            await expect(updateSuccessMessage).toBeVisible();
-            await addMeetingsComponentPage.getPage().screenshot({ path: 'snapshots/EA001/UpdateSuccess.png', fullPage: true });
-            // Optionally, verify the exact message text
-            await expect(updateSuccessMessage.locator('.flash__message')).toHaveText(/The component was updated successfully\./);
+            expect(currentUrl).toMatch(/\/admin.*\/components/);            
+            const successMessage = componentsPage.getPage().locator('.flash.success, .alert.success, [role="alert"]');
+            await expect(successMessage).toBeVisible();
+            await componentsPage.getPage().screenshot({ path: 'snapshots/EA001/MeetingComponentAdded.png', fullPage: true });            
+            await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i, 'snapshots/EA001');
         });
     });    
 });
