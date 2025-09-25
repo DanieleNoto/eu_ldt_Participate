@@ -93,11 +93,14 @@ test.describe('[PAR-EA002] – Create an official event', () => {
                 expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components/);
 
             });
-// riparto da qui, devo selezionare Meetings dalla lista dei componenti
+
             await test.step('6. System: Displays the "Meetings" section in the admin panel.', async () => {
                 // Verify meetings page is loaded and visible
-                await componentsPage.openComponentMeetingsLink();
-
+                const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
+                expect(meetingsLink).not.toBeNull();
+                await meetingsLink.click();
+                await componentsPage.getPage().waitForLoadState('networkidle');
+                await meetingsPage.verifyMeetingsPageVisible();
                 // Check if there are meetings available
                 const meetingCount = await meetingsPage.getMeetingCount();
                 expect(meetingCount).toBeGreaterThan(0);
@@ -111,9 +114,9 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 
             await test.step('8. System: Displays the "New Meeting" form, prompting the user to fill in the meeting details.', async () => {
                 // Verify we're on the new meeting form page
-                const currentUrl = managePageComponentPage.getPage().url();
+                const currentUrl = meetingsPage.getPage().url();
                 expect(currentUrl).toMatch(/\/admin.*\/meetings\/new/);
-                await expect(managePageComponentPage.getPage().locator('text=Create meeting')).toBeVisible();
+                await expect(meetingsPage.getPage().locator('text=Create meeting')).toBeVisible();
             });            
 
 

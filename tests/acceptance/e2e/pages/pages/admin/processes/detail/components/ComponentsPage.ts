@@ -42,7 +42,6 @@ export class ComponentsPage extends BaseAdminPage {
 	private readonly tableHeaders: Locator;
 	private readonly tableBody: Locator;
 	private readonly componentRows: Locator;
-	private readonly componentRowMeetings: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -76,8 +75,7 @@ export class ComponentsPage extends BaseAdminPage {
 		this.componentsTable = page.locator('.table-list');
 		this.tableHeaders = page.locator('.table-list thead th');
 		this.tableBody = page.locator('.table-list tbody');
-		this.componentRows = page.locator('.table-list tbody tr');
-		this.componentRowMeetings = page.locator('td', { hasText: 'Meetings' }).nth(1);
+    	this.componentRows = this.tableBody.locator('tr');
 	}
 
 	// Navigation and page state
@@ -475,10 +473,19 @@ export class ComponentsPage extends BaseAdminPage {
             console.log(`Component "${componentName}" not found, skipping deletion.`);
         }
     }
-
-	async openComponentMeetingsLink() {
-		await this.componentRowMeetings.click();
-		await this.page.waitForLoadState('networkidle');
+	/**
+	 * Ritorna il link di un componente in base al testo (es. "Meetings", "Accountability").
+	 * @param componentName Testo del link nella tabella
+	 */
+	getComponentLinkByName(componentName: string): Locator {
+	  return this.componentRows.locator(`td a:has-text("${componentName}")`);
 	}	
+	/**
+	 * Clicca direttamente sul link del componente dato il nome.
+	 */
+	async clickComponentLink(componentName: string): Promise<void> {
+	  const link = this.getComponentLinkByName(componentName);
+	  await link.click();
+	}
 
 }
