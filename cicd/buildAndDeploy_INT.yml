@@ -6,6 +6,7 @@ name: Tool3-BuildAndDeploy-INT-$(date:yyyyMMdd)$(rev:.r)
 #      source: 'EU LDT Participate - Quality Checks'
 #      trigger: true
 #
+#
 trigger: none
 
 pool:
