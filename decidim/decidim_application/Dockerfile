@@ -53,17 +53,22 @@ RUN bundle install
 
 # Install webpack globally and in the project
 RUN npm install -g webpack webpack-cli && \
-    cd /code && \
-    npm install webpack webpack-cli --save-dev
+  cd /code && \
+  npm install webpack webpack-cli --save-dev
 
 # Precompile assets for production
 RUN if [ "$RAILS_ENV" = "production" ]; then \
-    echo "Precompiling assets for production" && \
-    SECRET_KEY_BASE=temp_key_for_asset_precompilation \
-    RAILS_ENV=production \
-    NODE_ENV=production \
-    bundle exec rails assets:precompile; \
-    fi
+  echo "Precompiling assets for production" && \
+  SECRET_KEY_BASE=temp_key_for_asset_precompilation \
+  RAILS_ENV=production \
+  NODE_ENV=production \
+  bundle exec rails assets:precompile; \
+  fi
 
 # Expose port
 EXPOSE 3000
+
+# ENTRYPOINT ["/code/docker-entrypoint.sh"]
+# ENTRYPOINT ["sh", "/code/docker-entrypoint.sh"]
+
+# Expose port

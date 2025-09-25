@@ -1,5 +1,7 @@
 import { expect, Page } from '@playwright/test';
 import { BaseAdminPage } from '../../../../BaseAdminPage';
+import { HomePage } from '@pages/pages/public/HomePage';
+import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 
 /**
  * Page Object Model for Surveys management functionality.
@@ -7,6 +9,7 @@ import { BaseAdminPage } from '../../../../BaseAdminPage';
  */
 export class SurveysManagePage extends BaseAdminPage {
 	static readonly VALIDATION_ERROR_STATEMENT_BLANK = 'Statementcannot be blank';
+	static readonly VALIDATION_ERROR_BODY_BLANK = 'characters left500 characters leftBody cannot be blank';
 
 	constructor(page: Page) {
 		super(page);
@@ -430,7 +433,6 @@ export class SurveysManagePage extends BaseAdminPage {
 
 		await question2Container.getByRole('textbox', { name: 'Statement' }).fill('What color do you prefer?');
 		await question2Container.locator('.editor-input .tiptap').fill('select one of the available options');
-		await question2Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 		await question2Container.getByLabel('TypeShort answer Long answer').selectOption('single_option');
 
 		// Fill the default two answer options that are automatically created
@@ -553,5 +555,170 @@ export class SurveysManagePage extends BaseAdminPage {
 		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 		await expect(this.page.getByText('Survey successfully published.')).toBeVisible();
 		console.log('Survey successfully published');
+	}
+
+	/**
+	 * Helper function to verify process details are displayed
+	 * Used in: reply-to-a-survey.spec.ts
+	 */
+	async verifyProcessDetailsDisplayed(validProcessData: any, componentName: string): Promise<void> {
+		// Verify process title is displayed
+		await expect(this.page.getByRole('heading', { name: validProcessData.general.title })).toBeVisible();
+		console.log('Process title is visible');
+
+		// Verify process description is displayed
+		await expect(this.page.getByText(validProcessData.general.description)).toBeVisible();
+		console.log('Process description is visible');
+
+		// Verify survey component is available in the jump navigation
+		await expect(this.page.getByText(`Jump to: ${componentName}`)).toBeVisible();
+		console.log(`Survey component "${componentName}" is visible`);
+	}
+
+	/**
+	 * Helper function to select and navigate to a survey
+	 * Used in: reply-to-a-survey.spec.ts
+	 */
+	async selectSurveyToParticipate(componentName: string, surveyName: string): Promise<void> {
+		// Click directly on the survey component link on the process page
+		const surveyComponentLink = this.page.getByRole('link', { name: componentName });
+		await surveyComponentLink.click();
+
+		// Wait for component page to load
+		await this.page.waitForLoadState('networkidle');
+		console.log('Navigated to survey component page via direct link');
+		console.log('Component page URL:', this.page.url());
+
+		// Now navigate to the specific survey from the component page
+		const surveyLink = this.page.getByRole('link', { name: `${surveyName} survey` });
+		await surveyLink.click();
+	}
+
+	/**
+	 * Helper function to verify survey form is displayed with all questions
+	 * Used in: reply-to-a-survey.spec.ts
+	 */
+	async verifySurveyFormDisplayed(): Promise<void> {
+		// Wait for survey questions page to load
+		await this.page.waitForLoadState('networkidle');
+		console.log('Navigated to survey questions page');
+		console.log('Survey questions page URL:', this.page.url());
+
+		// Verify Question 1: Long Answer is visible
+		await expect(this.page.getByText('What is your opinion on this')).toBeVisible();
+		await expect(this.page.getByRole('textbox', { name: '1 What is your opinion on' })).toBeVisible();
+		console.log('Question 1 (Long Answer) is visible');
+
+		// Verify Question 2: Single Option is visible with options
+		await expect(this.page.getByText('What color do you prefer?')).toBeVisible();
+		await expect(this.page.getByRole('radio', { name: 'Blue' })).toBeVisible();
+		await expect(this.page.getByRole('radio', { name: 'Green' })).toBeVisible();
+		console.log('Question 2 (Single Option) is visible');
+
+		// Verify Question 3: Multiple Option is visible with options
+		await expect(this.page.getByText('Which pets do you prefer?')).toBeVisible();
+		await expect(this.page.getByRole('checkbox', { name: 'Cat' })).toBeVisible();
+		await expect(this.page.getByRole('checkbox', { name: 'Dog' })).toBeVisible();
+		await expect(this.page.getByRole('checkbox', { name: 'Parrot' })).toBeVisible();
+		await expect(this.page.getByRole('checkbox', { name: 'Fish' })).toBeVisible();
+		console.log('Question 3 (Multiple Option) is visible');
+
+		console.log('Survey form is fully displayed with all questions and response fields');
+	}
+
+	/**
+	 * Helper function to fill survey responses
+	 * Used in: reply-to-a-survey.spec.ts
+	 */
+	async fillSurveyResponses(): Promise<void> {
+		// Fill Question 1: Long Answer
+		await this.page.getByRole('textbox', { name: '1 What is your opinion on' }).click();
+		await this.page.getByRole('textbox', { name: '1 What is your opinion on' }).fill('I really like this topic.');
+
+		// Fill Question 2: Single Option
+		await this.page.getByRole('radio', { name: 'Blue' }).click();
+
+		// Accept terms and conditions
+		const termsCheckbox = this.page.getByRole('checkbox', { name: 'By participating you accept' });
+		if (!(await termsCheckbox.isChecked())) {
+			await termsCheckbox.check();
+		}
+
+		console.log('All survey questions completed with responses');
+	}
+
+	/**
+	 * Helper function to submit survey
+	 * Used in: reply-to-a-survey.spec.ts
+	 */
+	async submitSurvey(): Promise<void> {
+		await this.page.getByRole('button', { name: 'Submit' }).click();
+		console.log('Clicked Submit button');
+	}
+
+	/**
+	 * Helper function to validate and confirm survey submission
+	 * Used in: reply-to-a-survey.spec.ts
+	 */
+	async validateAndConfirmSubmission(): Promise<void> {
+		// Confirm submission by clicking OK on confirmation dialog
+		await this.page.getByRole('button', { name: 'OK', exact: true }).click();
+		console.log('Confirmed survey submission by clicking OK');
+	}
+
+	/**
+	 * Helper function to verify survey submission success
+	 * Used in: reply-to-a-survey.spec.ts
+	 */
+	async verifySurveySubmissionSuccess(): Promise<void> {
+		await this.page.waitForLoadState('networkidle');
+		// Verify successful submission message is displayed
+		await expect(this.page.getByText('Survey successfully answered.')).toBeVisible();
+
+		// Verify that the survey shows as already answered
+		await expect(this.page.getByText('Already answered You have')).toBeVisible();
+		console.log('Survey successfully submitted and answered');
+	}
+
+	/**
+	 * Helper function to verify survey validation errors are displayed
+	 * Used in: reply-to-a-survey.spec.ts Alternative Flow validation tests
+	 */
+	async verifySurveyValidationErrors(): Promise<void> {
+		// Verify validation error for missing mandatory field is displayed
+		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_BODY_BLANK)).toBeVisible();
+		console.log('Survey validation errors are displayed for missing mandatory fields');
+	}
+
+	/**
+	 * Helper function to reply to a survey as a user
+	 * Used in: review-result-of-specific-surveys.spec.ts
+	 */
+	async replytoSurvey(
+		processSlug: string,
+		componentName: string,
+		surveyName: string,
+		validProcessData: any
+	): Promise<void> {
+		// Initialize PUBLIC Page Objects (assumes USER context is already set)
+		const homePage = new HomePage(this.page);
+		const processDetailPage = new ProcessDetailPage(this.page);
+		const publicSurveysPage = new SurveysManagePage(this.page);
+
+		// Navigate to home and then to specific process
+		await homePage.navigateToHomePage();
+		await this.page.goto(`/processes/${processSlug}`);
+		await processDetailPage.waitForPageLoad();
+
+		// Execute survey reply actions
+		await publicSurveysPage.verifyProcessDetailsDisplayed(validProcessData, componentName);
+		await publicSurveysPage.selectSurveyToParticipate(componentName, surveyName);
+		await publicSurveysPage.verifySurveyFormDisplayed();
+		await publicSurveysPage.fillSurveyResponses();
+		await publicSurveysPage.submitSurvey();
+		await publicSurveysPage.validateAndConfirmSubmission();
+		await publicSurveysPage.verifySurveySubmissionSuccess();
+
+		console.log('Survey reply actions completed successfully');
 	}
 }
