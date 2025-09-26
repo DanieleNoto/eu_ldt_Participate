@@ -1244,34 +1244,34 @@
     tom-select "2.2.2"
     wc-datepicker "^0.5.2"
 
-"@decidim/dev@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/dev/-/dev-0.30.1.tgz"
-  integrity sha512-X1VihtpKyRn2zmLkzBby94TlQZj4s7CyPdhKF5fHa166LDhKh/l9Pc/8b5Xxvjt2l/G7KbQIfsWCbz85UOpeDA==
+"@decidim/dev@^0.30.0":
+  version "0.30.0"
+  resolved "https://registry.npmjs.org/@decidim/dev/-/dev-0.30.0.tgz"
+  integrity sha512-sFpqrlArUo5cTuwMkknUi6BYKmK/Yq2qxdIFmoPPGAS3UlVGztAVGDMY4bj/ieMBXVawhVCaORw+P2pW0tz1AQ==
   dependencies:
     "@linthtml/linthtml" "^0.9.6"
     axe-core "^4.7.2"
     markdownlint-cli "^0.35.0"
 
-"@decidim/eslint-config@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/eslint-config/-/eslint-config-0.30.1.tgz"
-  integrity sha512-ZVjRs+5B0mIweOOozdL7G357nySLK6joEhHMyyYGc9RXb1EGo4J95o5HXWrWxLMjF3zoJhIqd0dmNdBCkFnVYQ==
+"@decidim/eslint-config@^0.30.0":
+  version "0.30.0"
+  resolved "https://registry.npmjs.org/@decidim/eslint-config/-/eslint-config-0.30.0.tgz"
+  integrity sha512-LANtnH/uSMGc8KkVtBuulF07wVCd89n+EZU+eii486fyvOR0OBOuRVR/Pq0YJKgkJJYImQ/JXslmt2AA9noA6w==
 
-"@decidim/prettier-config@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/prettier-config/-/prettier-config-0.30.1.tgz"
-  integrity sha512-GHSGeK9hgtxpAm23iVHP4z5SKVl+oHUlCX3DXe3bgCtTa+fesu9fzJiMDtCzbleyutCdTCB40uNjXieSeSLEfw==
+"@decidim/prettier-config@^0.30.0":
+  version "0.30.0"
+  resolved "https://registry.npmjs.org/@decidim/prettier-config/-/prettier-config-0.30.0.tgz"
+  integrity sha512-63MKgcgCumeo6rjygAl7ZPy5naunwxbHfIdzIzEZue6+DkauoyVMbR0z43oqiJs0sbzIunBM4mIlPdw2A2P/jQ==
 
-"@decidim/stylelint-config@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/stylelint-config/-/stylelint-config-0.30.1.tgz"
-  integrity sha512-dilg0EBLC/9Lmi6w5GB7QaAsy5zkrrGjvUDlDIAPb/qdwa6bMQ2+Y7EloPuQE/BFTCrA4dpJf9/4Zh8rLAyDtg==
+"@decidim/stylelint-config@^0.30.0":
+  version "0.30.0"
+  resolved "https://registry.npmjs.org/@decidim/stylelint-config/-/stylelint-config-0.30.0.tgz"
+  integrity sha512-T8elxftgiAyTchubREJIalb3TY5XXTejVKy3V4M3lv7PzCCQCqJqCwk/nMpJJbkmAFlWcvnMx1LlL2dbGwBwKw==
 
-"@decidim/webpacker@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/webpacker/-/webpacker-0.30.1.tgz"
-  integrity sha512-dBgjHSwNLVLXbMpsRMmMfPSitVh03pL7MVSYVgeFq1E8mltMtToyKklEHe2tZwTUqbdBA0kkvbCjweZ9YwMuxA==
+"@decidim/webpacker@^0.30.0":
+  version "0.30.0"
+  resolved "https://registry.npmjs.org/@decidim/webpacker/-/webpacker-0.30.0.tgz"
+  integrity sha512-k8/pOXi/pAr1A1KoP6/pwEw97KwK8DzUW8XM1+Li3VRtUKJxNuoClEKTokoO8nv4eNvmNwHNIO26ild5fsFvIQ==
   dependencies:
     "@rails/ujs" "^6.1.7"
     "@tailwindcss/typography" "^0.5.2"

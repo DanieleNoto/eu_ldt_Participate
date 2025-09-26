@@ -82,7 +82,15 @@ development:
             'Access-Control-Allow-Origin': '*'
         static:
             watch:
-                ignored: '**/node_modules/**'
+                ignored: 
+                    - '**/node_modules/**'
+                    - '**/tmp/**'
+                    - '**/log/**'
+                    - '**/public/assets/**'
+                    - '**/storage/**'
+                # Reduce polling interval and use efficient watching
+                poll: 1000
+                aggregateTimeout: 300
 
 test:
     <<: *default

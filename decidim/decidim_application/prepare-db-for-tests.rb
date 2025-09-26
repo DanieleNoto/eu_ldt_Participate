@@ -66,9 +66,21 @@ begin
         user.password_confirmation = "decidim123456789"
         user.confirmed_at = Time.current
         user.admin = true
+        user.system = true
         user.tos_agreement = true
       end
       puts "--- System user created: #{system_user.email} (for /system access) ---"
+
+      # Aggiungi l'utente system come system admin
+      if defined?(Decidim::System::Admin)
+        Decidim::System::Admin.find_or_create_by!(user: system_user)
+      elsif ActiveRecord::Base.connection.table_exists?(:decidim_system_admins)
+        # fallback diretto se la costante non è caricata
+        system_admins = ActiveRecord::Base.connection.execute("SELECT * FROM decidim_system_admins WHERE user_id = #{system_user.id}")
+        if system_admins.none?
+          ActiveRecord::Base.connection.execute("INSERT INTO decidim_system_admins (user_id, created_at, updated_at) VALUES (#{system_user.id}, '#{Time.now.utc.to_s(:db)}', '#{Time.now.utc.to_s(:db)}')")
+        end
+      end
 
       # Create organization admin user
       puts "--- Creating admin user... ---"

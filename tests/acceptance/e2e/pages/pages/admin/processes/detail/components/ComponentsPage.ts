@@ -3,6 +3,8 @@ import { SidebarProcessDetailComponent } from '../../../../../components/admin/p
 import { BaseAdminPage } from '../../../BaseAdminPage';
 import { ManagePageComponentPage } from './ManagePageComponentPage';
 import { NewPageComponentPage } from './NewPageComponentPage';
+import { readdirSync, unlinkSync, existsSync } from 'fs';
+import { join } from 'path';
 
 /**
  * Page Object Model for the Components page in process detail management.
@@ -15,14 +17,11 @@ export class ComponentsPage extends BaseAdminPage {
 	public readonly managePageComponentPage: ManagePageComponentPage;
 
 	// Main page elements
-	private readonly pageWrapper: Locator;
-	private readonly card: Locator;
 	private readonly pageTitle: Locator;
 
 	// Add component dropdown
 	private readonly addComponentButton: Locator;
 	private readonly addComponentDropdown: Locator;
-	private readonly addComponentMenu: Locator;
 
 	// Component type links in dropdown
 	private readonly accountabilityLink: Locator;
@@ -36,9 +35,7 @@ export class ComponentsPage extends BaseAdminPage {
 	private readonly surveysLink: Locator;
 
 	// Components table
-	private readonly componentsTable: Locator;
 	private readonly tableHeaders: Locator;
-	private readonly tableBody: Locator;
 	private readonly componentRows: Locator;
 
 	constructor(page: Page) {
@@ -434,4 +431,40 @@ export class ComponentsPage extends BaseAdminPage {
 			await expect(this.page).toHaveURL(/\/admin\/participatory_processes\/.*\/components\/new/);
 		}
 	}
+
+    /**
+     * Deletes a component by name if it exists, including snapshots cleanup.
+     * @param componentName Name or regex of the component to delete
+     * @param snapshotsDir Directory containing snapshots to delete
+     */
+    async deleteComponentIfExists(componentName: string | RegExp, snapshotsDir: string) {
+        const rowLocator = this.page.getByRole('option', { name: componentName });
+        if (await rowLocator.count() > 0) {
+            const row = rowLocator.first();
+            const deleteLink = row.locator('a.action-icon--delete');
+            await deleteLink.click();
+
+            // Confirm deletion
+            await this.page.getByRole('button', { name: 'OK' }).click();
+
+            // Verify success message
+            const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
+            await expect(deletionSuccessMessage).toBeVisible();
+
+            // //commenting out snapshot deletion for permanence of snapshots -- uncomment if needed
+			// // Delete all files in snapshots directory
+            // if (existsSync(snapshotsDir)) {
+            //     const files = readdirSync(snapshotsDir);
+            //     for (const file of files) {
+            //         const filePath = join(snapshotsDir, file);
+            //         unlinkSync(filePath);
+            //         console.log(`Deleted: ${filePath}`);
+            //     }
+            // } else {
+            //     console.log(`Directory ${snapshotsDir} does not exist.`);
+            // }
+        } else {
+            console.log(`Component "${componentName}" not found, skipping deletion.`);
+        }
+    }
 }

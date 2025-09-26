@@ -1,0 +1,28 @@
+es:
+    activemodel:
+        attributes:
+            organization:
+                admin_terms_of_service_body: Cuerpo de texto para la política de privacidad de administración
+                tos_version: Versión de la Política de Privacidad
+    decidim:
+        admin:
+            admin_terms_of_service:
+                accept:
+                    error: Se ha producido un problema al aceptar la política de privacidad de administración.
+                    success: '¡Genial! Has aceptado la política de privacidad de administración.'
+                actions:
+                    accept: Estoy de acuerdo con la política de privacidad
+                    are_you_sure: '¿Seguro que quieres rechazar la política de privacidad de administración?'
+                    refuse: Rechazar la política de privacidad de administración
+                    title: Aceptar la política de privacidad
+                required_review:
+                    alert: 'Requerido: Revisa nuestra política de privacidad de administración'
+                    callout: Por favor dedica un momento a revisar la política de privacidad de administración. En caso contrario, no podrás administrar la plataforma.
+                title: Política de privacidad de administración
+            organization:
+                form:
+                    admin_terms_of_service: Política de privacidad para administradoras
+
+            static_pages:
+                edit:
+                    changed_notably_help: Si se marca, se notificará a las participantes para que acepten la nueva política de privacidad.
