@@ -17,14 +17,11 @@ export class ComponentsPage extends BaseAdminPage {
 	public readonly managePageComponentPage: ManagePageComponentPage;
 
 	// Main page elements
-	private readonly pageWrapper: Locator;
-	private readonly card: Locator;
 	private readonly pageTitle: Locator;
 
 	// Add component dropdown
 	private readonly addComponentButton: Locator;
 	private readonly addComponentDropdown: Locator;
-	private readonly addComponentMenu: Locator;
 
 	// Component type links in dropdown
 	private readonly accountabilityLink: Locator;
@@ -38,9 +35,7 @@ export class ComponentsPage extends BaseAdminPage {
 	private readonly surveysLink: Locator;
 
 	// Components table
-	private readonly componentsTable: Locator;
 	private readonly tableHeaders: Locator;
-	private readonly tableBody: Locator;
 	private readonly componentRows: Locator;
 
 	constructor(page: Page) {

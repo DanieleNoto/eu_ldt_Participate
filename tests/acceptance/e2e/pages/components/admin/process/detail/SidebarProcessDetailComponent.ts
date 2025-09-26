@@ -52,7 +52,7 @@ export class SidebarProcessDetailComponent {
 		this.processAdminsLink = page.locator('a[href*="/user_roles"]:has-text("Process admins")');
 		this.moderationsLink = page.locator('a[href*="/moderations"]:has-text("Moderations")');
 		this.privateParticipantsLink = page.locator(
-			'a[href*="/participatory_space_private_users"]:has-text("Private participants")'
+			'a[href*="/participatory_space_private_users"]:has-text("Members")'
 		);
 	}
 

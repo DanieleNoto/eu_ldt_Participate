@@ -142,6 +142,15 @@ export default defineConfig({
 		{
 			name: 'user-without-messages-tests',
 			testMatch: 'tests/user-without-messages/**/*.spec.ts'
+		},
+
+		// Guest tests for unregistered users (no authentication required)
+		{
+			name: 'guest-tests',
+			use: {
+				...devices['Desktop Chrome']
+			},
+			testMatch: ['tests/guest/**/*.spec.ts', '**/tests/guest/**/*.spec.ts']
 		}
 
 		// {

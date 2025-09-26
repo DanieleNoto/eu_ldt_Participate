@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: matomo-db
+  labels:
+    io.kompose.service: matomo-db
+spec:
+  serviceName: matomo-db
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: matomo-db
+  template:
+    metadata:
+      labels:
+        io.kompose.service: matomo-db
+        io.kompose.network/temp1-private: "true"
+    spec:
+      containers:
+        - name: matomo-db
+          image: mariadb:11
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              value: supersecurejvbpassword
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: home-adminlnx-temp1-env
+                  key: DATABASE_HOST
+            - name: DATABASE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: home-adminlnx-temp1-env
+                  key: DATABASE_USERNAME
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: home-adminlnx-temp1-env
+                  key: DATABASE_PASSWORD
+            - name: DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: home-adminlnx-temp1-env
+                  key: DATABASE_NAME
+          volumeMounts:
+            - name: matomo-db-data
+              mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+    - metadata:
+        name: matomo-db-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 100Mi
