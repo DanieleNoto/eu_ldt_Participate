@@ -5,7 +5,6 @@ Files in this folder:
 Usage (apply in the `participate` namespace):
 kubectl apply -n participate -f infrastructure/int/analytics/grafana/
 
-
 Files in this folder:
 
 - `grafana-configmap.yml` - non-sensitive Grafana configuration (mapped from `.env` in local development)

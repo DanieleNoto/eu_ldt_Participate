@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbconfigmap
+data:
+  CONFIG: ./jitsi-meet-cfg
+  DATABASE_HOST: db
+  DATABASE_NAME: decidim_application_development
+  DATABASE_USERNAME: postgres
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: supersecret

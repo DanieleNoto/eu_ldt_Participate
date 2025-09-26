@@ -23,7 +23,6 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	private readonly navItems: Locator;
 
 	// Help elements
-	private readonly helpButton: Locator;
 	private readonly debatesLink: Locator;
 	private readonly meetingsLink: Locator;
 
@@ -265,6 +264,21 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	async expectParticipatoryContainerToBeVisible(): Promise<void> {
 		this.expectToBeOnProcessDetailPage();
 		expect(this.participatorySpaceContainer).toBeVisible();
+	}
+
+	/**
+	 * Expects the current process to be a private process
+	 */
+	async expectToBePrivateProcess(): Promise<void> {
+		const privateProcessText = this.getPage().getByText('This is a private process');
+		await expect(privateProcessText).toBeVisible();
+	}
+
+	/**
+	 * Expects to be on a process detail page with valid URL pattern
+	 */
+	async expectToBeOnValidProcessDetailPage(): Promise<void> {
+		await expect(this.getPage()).toHaveURL(/\/processes\/[^\/]+$/);
 	}
 
 	// Page state verification

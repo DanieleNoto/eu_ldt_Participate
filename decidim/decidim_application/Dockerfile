@@ -65,5 +65,30 @@ RUN if [ "$RAILS_ENV" = "production" ]; then \
     bundle exec rails assets:precompile; \
     fi
 
+<<<<<<< HEAD
+=======
+### Runtime stage: smaller image with only runtime artifacts
+FROM decidim/decidim-dev:0.30.1 AS runtime
+ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /code
+
+# Copy application code and artifacts from builder
+COPY --from=builder /code /code
+# Copy installed gems and node modules to preserve cache
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+
+# Expose the application port and set entrypoint
+COPY --from=builder /code/docker-entrypoint.sh /code/docker-entrypoint.sh
+RUN chmod +x /code/docker-entrypoint.sh
+
+ENV RAILS_ENV=${RAILS_ENV:-production}
+ENV NODE_ENV=${NODE_ENV:-production}
+
+EXPOSE 3000
+
+# ENTRYPOINT ["/code/docker-entrypoint.sh"]
+# ENTRYPOINT ["sh", "/code/docker-entrypoint.sh"]
+
+>>>>>>> origin/main
 # Expose port
 EXPOSE 3000
