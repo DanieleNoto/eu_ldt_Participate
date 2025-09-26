@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: decidim-redis
+    namespace: participate
+    labels:
+        app: decidim-redis
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: decidim-redis
+        template:
+            metadata:
+                labels:
+                    app: decidim-redis
+            spec:
+                automountServiceAccountToken: false
+                containers:
+                    - name: redis
+                      image: redis:7
+                      resources:
+                            requests:
+                                memory: '128Mi'
+                                cpu: '100m'
+                                ephemeral-storage: '512Mi'
+                            limits:
+                                memory: '256Mi'
+                                cpu: '250m'
+                                ephemeral-storage: '1Gi'
+                      ports:
+                            - containerPort: 6379
+                      readinessProbe:
+                            exec:
+                                command: ['redis-cli', 'ping']
+                            initialDelaySeconds: 5
+                            periodSeconds: 10
+                      volumeMounts:
+                            - name: redis-data
+                                mountPath: /data
+                volumes:
+                    - name: redis-data
+                      persistentVolumeClaim:
+                            claimName: decidim-redis-pvc

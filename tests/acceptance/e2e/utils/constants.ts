@@ -68,3 +68,7 @@ export const BASE_URLS = {
 	STAGING: process.env.STAGING_URL || 'https://staging.example.com',
 	PRODUCTION: process.env.PROD_URL || 'https://production.example.com'
 } as const;
+
+export const EMAIL_URLS = {
+	LETTER_OPENER: `${process.env.FE_BASE_URL || 'http://localhost:3000'}/letter_opener/`
+} as const;
