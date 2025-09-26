@@ -71,8 +71,6 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
                 await componentsPage.sidebarProcessDetail.navigateToComponents();
                 const currentUrl = componentsPage.getPage().url();
                 expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components/);
-                // Delete component if exists
-                //await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i, 'snapshots/EA001');
             });
 
             await test.step('6. Admin: Clicks on "Add Component" and select Meetings', async () => {
