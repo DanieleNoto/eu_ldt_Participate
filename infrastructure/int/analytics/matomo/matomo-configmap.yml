@@ -4,6 +4,8 @@ metadata:
     name: matomo-config
 data:
     MATOMO_DATABASE_HOST: 'matomo-db'
+    DATABASE_HOST: 'matomo-db'
     MATOMO_DATABASE_ADAPTER: 'mysqli'
     MATOMO_DATABASE_TABLES_PREFIX: 'matomo_'
     MATOMO_DATABASE_DBNAME: 'matomo'
+    DATABASE_NAME: 'matomo'

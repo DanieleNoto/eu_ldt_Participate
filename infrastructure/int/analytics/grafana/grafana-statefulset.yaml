@@ -19,6 +19,7 @@ spec:
                 io.kompose.network/temp1-private: 'true'
                 io.kompose.service: grafana
         spec:
+            automountServiceAccountToken: false
             securityContext:
                 runAsUser: 472 # UID del usuario Grafana
                 runAsGroup: 472 # GID del usuario Grafana
@@ -26,6 +27,15 @@ spec:
             containers:
                 - name: grafana
                   image: grafana/grafana:11.0.0
+                  resources:
+                      requests:
+                          memory: '256Mi'
+                          cpu: '250m'
+                          ephemeral-storage: '1Gi'
+                      limits:
+                          memory: '512Mi'
+                          cpu: '500m'
+                          ephemeral-storage: '2Gi'
                   ports:
                       - containerPort: 3000
                         hostPort: 3001

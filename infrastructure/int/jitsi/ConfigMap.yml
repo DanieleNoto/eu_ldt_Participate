@@ -2,8 +2,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
     labels:
-        io.kompose.service: dbConfigmap
-    name: dbconfigmap
+        io.kompose.service: jitsi-config
+    name: jitsi-config
 data:
     CONFIG: ./jitsi-meet-cfg
     DATABASE_HOST: db
