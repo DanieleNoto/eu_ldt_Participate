@@ -18,14 +18,6 @@ GIT
       sassc (~> 2.3)
 
 PATH
-  remote: decidim-meetings-jitsi
-  specs:
-    decidim-meetings-jitsi (0.1.0)
-      decidim-core (~> 0.30.1)
-      decidim-meetings (~> 0.30.1)
-      rails (>= 7.0.8.7)
-
-PATH
   remote: engines/decidim-admin_header
   specs:
     decidim-admin_header (0.1.0)
@@ -46,6 +38,14 @@ PATH
     decidim-keycloak (0.30.1)
       decidim-core (~> 0.30.0)
       omniauth-keycloak (~> 1.5)
+
+PATH
+  remote: engines/decidim-meetings-jitsi
+  specs:
+    decidim-meetings-jitsi (0.1.0)
+      decidim-core (~> 0.30.1)
+      decidim-meetings (~> 0.30.1)
+      rails (>= 7.0.8.7)
 
 GEM
   remote: https://rubygems.org/

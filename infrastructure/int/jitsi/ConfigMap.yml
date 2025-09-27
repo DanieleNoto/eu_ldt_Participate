@@ -1,13 +1,35 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  labels:
-    io.kompose.service: dbConfigmap
-  name: dbconfigmap
+    labels:
+        io.kompose.service: dbConfigmap
+    name: dbconfigmap
 data:
-  CONFIG: ./jitsi-meet-cfg
-  DATABASE_HOST: db
-  DATABASE_NAME: decidim_application_development
-  DATABASE_USERNAME: postgres
-  POSTGRES_USER: admin
-  POSTGRES_PASSWORD: supersecret
+    CONFIG: ./jitsi-meet-cfg
+    DATABASE_HOST: db
+    DATABASE_NAME: decidim_application_development
+    DATABASE_USERNAME: postgres
+    POSTGRES_USER: admin
+    POSTGRES_PASSWORD: supersecret
+    ENABLE_AUTH: 1
+    ENABLE_GUESTS: 1
+    JICOFO_AUTH_USER: focus
+    JITSI_HTTP_PORT: '8000'
+    JITSI_HTTPS_PORT: '8443'
+    JITSI_UDP_PORT: '10000'
+    JVB_AUTH_USER: jvb
+    JVB_BREWERY_MUC: jvbbrewery
+    JVB_ENABLE_APIS: rest,colibri
+    JVB_PORT: '10000'
+    JVB_STUN_SERVERS: stun.l.google.com:19302,stun1.l.google.com:19302
+    RESTART_POLICY: unless-stopped
+    TZ: Europe/Rome
+    XMPP_AUTH_DOMAIN: auth.meet.jitsi
+    XMPP_BOSH_URL_BASE: https://part-int.ldttoolbox.app/jitsi/http-bind
+    XMPP_DOMAIN: meet.jitsi
+    XMPP_GUEST_DOMAIN: guest.meet.jitsi
+    XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
+    XMPP_MODULES: ''
+    XMPP_MUC_DOMAIN: muc.meet.jitsi
+    XMPP_RECORDER_DOMAIN: recorder.meet.jitsi
+    XMPP_SERVER: jitsi-prosody

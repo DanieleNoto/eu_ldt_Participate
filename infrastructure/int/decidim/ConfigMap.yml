@@ -5,32 +5,14 @@ metadata:
         io.kompose.service: db-home-adminlnx-temp1-env
     name: home-adminlnx-temp1-env
 data:
-    CONFIG: ./jitsi-meet-cfg
     DATABASE_HOST: db
     DATABASE_NAME: decidim_application_development
     DATABASE_USERNAME: postgres
     DECIDIM_FORCE_SSL: 'true'
     DECIDIM_MAILER_SENDER: info@ldttoolbox.eu
     DOCKER_HOST_ADDRESS: 127.0.0.1
-    ENABLE_AUTH: '0'
-    ENABLE_GUESTS: '0'
-    GF_SECURITY_ADMIN_USER: admin
-    JICOFO_AUTH_USER: focus
-    JITSI_HTTP_PORT: '8000'
-    JITSI_HTTPS_PORT: '8443'
-    JITSI_UDP_PORT: '10000'
-    JVB_AUTH_USER: jvb
-    JVB_BREWERY_MUC: jvbbrewery
-    JVB_ENABLE_APIS: rest,colibri
-    JVB_PORT: '10000'
-    JVB_STUN_SERVERS: stun.l.google.com:19302,stun1.l.google.com:19302
     KEYCLOAK_DISABLE_SSL_VERIFY: 'false'
-    MATOMO_DATABASE_ADAPTER: mysqli
-    MATOMO_DATABASE_DBNAME: matomo
-    MATOMO_DATABASE_HOST: matomo-db
-    MATOMO_DATABASE_TABLES_PREFIX: matomo_
-    MATOMO_DATABASE_USERNAME: matomo
-    NODE_ENV: development
+    NODE_ENV: production
     OMNIAUTH_KEYCLOAK_CLIENT_ID: tool3
     OMNIAUTH_KEYCLOAK_REALM: LDT
     OMNIAUTH_KEYCLOAK_SITE: https://im-int.ldttoolbox.app/
@@ -50,13 +32,3 @@ data:
     TOOL0_FULL_URL: https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools
     TOOL0_DOMAIN: https://ie-int.ldttoolbox.app
     TOOL0_TENANT_ID: a6b3523b-b882-4a10-82d9-0db4dbe12f8e
-    TZ: Europe/Rome
-    XMPP_AUTH_DOMAIN: auth.meet.jitsi
-    XMPP_BOSH_URL_BASE: https://part-int.ldttoolbox.app/jitsi/http-bind
-    XMPP_DOMAIN: meet.jitsi
-    XMPP_GUEST_DOMAIN: guest.meet.jitsi
-    XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
-    XMPP_MODULES: ''
-    XMPP_MUC_DOMAIN: muc.meet.jitsi
-    XMPP_RECORDER_DOMAIN: recorder.meet.jitsi
-    XMPP_SERVER: jitsi-prosody

@@ -60,73 +60,72 @@ end
 def create_basic_users(org)
   puts "--- Creating basic users ---"
   
-  # Skip user creation in development mode if not forced
-  if (defined?(Rails) && Rails.env.development?) || ENV["RAILS_ENV"] == "development"
-    puts "--- Skipping creation of basic users because environment is development ---"
-    return {}
-  end
-  
   users = {}
   
-  # Create system admin user (for /system access)
-  puts "--- Creating system user... ---"
-  users[:system] = Decidim::User.find_or_create_by!(
-    email: "system@example.org",
-    organization: org
-  ) do |user|
-    user.name = "System Administrator"
-    user.nickname = "system"
-    user.password = "decidim123456789"
-    user.password_confirmation = "decidim123456789"
-    user.confirmed_at = Time.current
-    user.admin = true
-    user.system = true
-    user.tos_agreement = true
-  end
-  puts "--- System user created: #{users[:system].email} ---"
-
-  # Add system user as system admin
-  if defined?(Decidim::System::Admin)
-    Decidim::System::Admin.find_or_create_by!(user: users[:system])
-  elsif ActiveRecord::Base.connection.table_exists?(:decidim_system_admins)
-    # Direct fallback if constant isn't loaded
-    system_admins = ActiveRecord::Base.connection.execute("SELECT * FROM decidim_system_admins WHERE user_id = #{users[:system].id}")
-    if system_admins.none?
-      ActiveRecord::Base.connection.execute("INSERT INTO decidim_system_admins (user_id, created_at, updated_at) VALUES (#{users[:system].id}, '#{Time.now.utc.to_s(:db)}', '#{Time.now.utc.to_s(:db)}')")
+  # Only create users in development environment
+  # In production, system user should be created manually via rake task with secure credentials
+  if (defined?(Rails) && Rails.env.development?) || ENV["RAILS_ENV"] == "development"
+    # Create system admin user (for /system access)
+    puts "--- Creating system user... ---"
+    users[:system] = Decidim::User.find_or_create_by!(
+      email: "system@example.org",
+      organization: org
+    ) do |user|
+      user.name = "System Administrator"
+      user.nickname = "system"
+      user.password = "decidim123456789"
+      user.password_confirmation = "decidim123456789"
+      user.confirmed_at = Time.current
+      user.admin = true
+      user.system = true
+      user.tos_agreement = true
     end
-  end
+    puts "--- System user created: #{users[:system].email} ---"
 
-  # Create organization admin user
-  puts "--- Creating admin user... ---"
-  users[:admin] = Decidim::User.find_or_create_by!(
-    email: "admin@example.org",
-    organization: org
-  ) do |user|
-    user.name = "Organization Admin"
-    user.nickname = "admin"
-    user.password = "decidim123456789"
-    user.password_confirmation = "decidim123456789"
-    user.confirmed_at = Time.current
-    user.admin = true
-    user.tos_agreement = true
-  end
-  puts "--- Admin user created: #{users[:admin].email} ---"
+    # Add system user as system admin
+    if defined?(Decidim::System::Admin)
+      Decidim::System::Admin.find_or_create_by!(user: users[:system])
+    elsif ActiveRecord::Base.connection.table_exists?(:decidim_system_admins)
+      # Direct fallback if constant isn't loaded
+      system_admins = ActiveRecord::Base.connection.execute("SELECT * FROM decidim_system_admins WHERE user_id = #{users[:system].id}")
+      if system_admins.none?
+        ActiveRecord::Base.connection.execute("INSERT INTO decidim_system_admins (user_id, created_at, updated_at) VALUES (#{users[:system].id}, '#{Time.now.utc.to_s(:db)}', '#{Time.now.utc.to_s(:db)}')")
+      end
+    end
+    # Create organization admin user
+    puts "--- Creating admin user... ---"
+    users[:admin] = Decidim::User.find_or_create_by!(
+      email: "admin@example.org",
+      organization: org
+    ) do |user|
+      user.name = "Organization Admin"
+      user.nickname = "admin"
+      user.password = "decidim123456789"
+      user.password_confirmation = "decidim123456789"
+      user.confirmed_at = Time.current
+      user.admin = true
+      user.tos_agreement = true
+    end
+    puts "--- Admin user created: #{users[:admin].email} ---"
 
-  # Create regular user
-  puts "--- Creating regular user... ---"
-  users[:regular] = Decidim::User.find_or_create_by!(
-    email: "user@example.org",
-    organization: org
-  ) do |user|
-    user.name = "Regular User"
-    user.nickname = "user"
-    user.password = "decidim123456789"
-    user.password_confirmation = "decidim123456789"
-    user.confirmed_at = Time.current
-    user.admin = false
-    user.tos_agreement = true
+    # Create regular user
+    puts "--- Creating regular user... ---"
+    users[:regular] = Decidim::User.find_or_create_by!(
+      email: "user@example.org",
+      organization: org
+    ) do |user|
+      user.name = "Regular User"
+      user.nickname = "user"
+      user.password = "decidim123456789"
+      user.password_confirmation = "decidim123456789"
+      user.confirmed_at = Time.current
+      user.admin = false
+      user.tos_agreement = true
+    end
+    puts "--- Regular user created: #{users[:regular].email} ---"
+  else
+    puts "--- Production mode: Only system user created for /system access ---"
   end
-  puts "--- Regular user created: #{users[:regular].email} ---"
   
   users
 rescue => e

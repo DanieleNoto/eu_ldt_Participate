@@ -1,6 +1,10 @@
 services:
     decidim:
-        build: ./decidim/decidim_application/
+        build: 
+            context: ./decidim/decidim_application/
+            args:
+                RAILS_ENV: development
+                NODE_ENV: development
         ports:
             - '3000:3000'
         env_file:
@@ -82,8 +86,12 @@ services:
             timeout: 3s
             retries: 5
     shakapacker:
-        build: ./decidim/decidim_application/
-        command: bash -c "cd /code && bundle install && yarn install && bundle exec bin/shakapacker-dev-server"
+        build: 
+            context: ./decidim/decidim_application/
+            args:
+                RAILS_ENV: development
+                NODE_ENV: development
+        command: bash -c "cd /code && bundle exec bin/shakapacker-dev-server --host 0.0.0.0"
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
@@ -99,8 +107,8 @@ services:
         env_file:
             - .env
         environment:
-            - RAILS_ENV=${RAILS_ENV}
-            - NODE_ENV=${NODE_ENV}
+            - RAILS_ENV=development
+            - NODE_ENV=development
             - SHAKAPACKER_DEV_SERVER_HOST=0.0.0.0
             - SHAKAPACKER_DEV_SERVER_PORT=3035
             - SHAKAPACKER_DEV_SERVER_PUBLIC=0.0.0.0:3035
