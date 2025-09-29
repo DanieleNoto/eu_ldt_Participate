@@ -55,11 +55,7 @@ RUN [ "$RAILS_ENV" = "production" ] && \
   bundle install
 
 # Install Node.js dependencies (cached layer)
-RUN yarn install --network-timeout 100000
-
-# Ensure webpack tools are available both globally and locally
-RUN npm install -g webpack webpack-cli && \
-  yarn add webpack webpack-cli --dev
+RUN yarn install --network-timeout 100000 --include-dev
 
 # NOW copy the full application code
 COPY . .
@@ -71,10 +67,14 @@ RUN chmod +x docker-entrypoint.sh
 RUN bundle install
 
 # Production asset precompilation (separate layer for better caching)
-RUN [ "$RAILS_ENV" = "production" ] && \
+RUN if [ "$RAILS_ENV" = "production" ]; then \
+  echo "=== PRODUCTION BUILD: Precompiling assets ===" && \
   SECRET_KEY_BASE=temp_key_for_asset_precompilation \
-  bundle exec rails assets:precompile || \
-  echo "Development mode: assets will be served by shakapacker-dev-server container"
+  bundle exec rails assets:precompile && \
+  echo "=== Assets precompilation completed ==="; \
+  else \
+  echo "=== FAILED Assets precompilation === DEVELOPMENT BUILD: Assets served by shakapacker-dev-server ==="; \
+  fi
 
 ### Runtime stage: lean image with only runtime dependencies
 FROM decidim/decidim-dev:0.30.1 AS runtime
