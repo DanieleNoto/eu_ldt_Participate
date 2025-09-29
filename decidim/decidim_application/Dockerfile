@@ -4,8 +4,8 @@ FROM decidim/decidim-dev:0.30.1 AS builder
 # Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
 # Set build environment early for dependencies
-ARG RAILS_ENV=development
-ARG NODE_ENV=development
+ARG RAILS_ENV=production
+ARG NODE_ENV=production
 ENV RAILS_ENV=${RAILS_ENV}
 ENV NODE_ENV=${NODE_ENV}
 
@@ -79,8 +79,8 @@ RUN [ "$RAILS_ENV" = "production" ] && \
 FROM decidim/decidim-dev:0.30.1 AS runtime
 
 # Inherit build arguments for runtime
-ARG RAILS_ENV=development
-ARG NODE_ENV=development
+ARG RAILS_ENV=production
+ARG NODE_ENV=production
 
 # Install only runtime dependencies (no build tools)
 ENV DEBIAN_FRONTEND=noninteractive
