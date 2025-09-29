@@ -3,7 +3,10 @@ kind: ConfigMap
 metadata:
     name: db-config
 data:
-    DATABASE_HOST: db
-    DATABASE_NAME: decidim_application_development
-    DATABASE_USERNAME: postgres
+    POSTGRES_DATABASE: decidim_application_development
     PGDATA: /var/lib/postgresql/data/pgdata
+
+
+    # DATABASE_HOST: db
+    # DATABASE_NAME: decidim_application_development
+    # DATABASE_USERNAME: postgres

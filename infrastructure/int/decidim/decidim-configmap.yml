@@ -7,7 +7,7 @@ metadata:
 data:
     DATABASE_HOST: db
     DATABASE_NAME: decidim_application_development
-    DATABASE_USERNAME: postgres
+    # DATABASE_USERNAME: postgres
     DECIDIM_FORCE_SSL: 'true'
     DECIDIM_MAILER_SENDER: info@ldttoolbox.eu
     DOCKER_HOST_ADDRESS: 127.0.0.1
