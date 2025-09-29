@@ -54,10 +54,11 @@ jobs:
                 dockerfile: decidim/decidim_application/Dockerfile
                 containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
                 buildContext: decidim/decidim_application
-                arguments: |
-                    --no-cache
-                    --build-arg RAILS_ENV=production
-                    --build-arg NODE_ENV=production
+                addPipelineData: false
+                addBaseImageData: false
+                buildArgs: |
+                    RAILS_ENV=production
+                    NODE_ENV=production
                 tags: |
                     $(tag)
 
