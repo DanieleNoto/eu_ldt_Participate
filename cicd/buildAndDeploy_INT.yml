@@ -35,6 +35,7 @@ jobs:
                 writeBOM: false
                 verbosity: detailed
                 actionOnNoFiles: warn
+                #
           - task: replacetokens@5
             displayName: 'Replace tokens Decidim'
             inputs:
