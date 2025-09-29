@@ -8,6 +8,7 @@ ARG RAILS_ENV=production
 ARG NODE_ENV=production
 ENV RAILS_ENV=${RAILS_ENV}
 ENV NODE_ENV=${NODE_ENV}
+ENV RAILS_SERVE_STATIC_FILES=true
 
 # Update system and install base dependencies
 RUN apt-get update && apt-get install -y \
@@ -74,12 +75,15 @@ RUN echo "=== Installing webpack tools ===" && \
 
 # Production asset precompilation (separate layer for better caching)
 RUN if [ "$RAILS_ENV" = "production" ]; then \
-  echo "=== PRODUCTION BUILD: Using Shakapacker for compilation ===" && \
+  echo "=== PRODUCTION BUILD: Precompiling assets ===" && \
+  echo "Node modules bin directory:" && \
+  ls -la node_modules/.bin/ | head -10 && \
   SECRET_KEY_BASE=temp_key_for_asset_precompilation \
   NODE_ENV=production \
   RAILS_ENV=production \
-  bundle exec rails shakapacker:compile && \
-  echo "=== Shakapacker compilation completed ==="; \
+  PATH="./node_modules/.bin:$PATH" \
+  bundle exec rake assets:precompile && \
+  echo "=== Assets precompilation completed ==="; \
   else \
   echo "=== DEVELOPMENT BUILD: Assets served by shakapacker-dev-server ==="; \
   fi
