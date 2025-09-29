@@ -69,11 +69,16 @@ RUN bundle install
 # Production asset precompilation (separate layer for better caching)
 RUN if [ "$RAILS_ENV" = "production" ]; then \
   echo "=== PRODUCTION BUILD: Precompiling assets ===" && \
+  echo "Node modules bin directory:" && \
+  ls -la node_modules/.bin/ | head -10 && \
   SECRET_KEY_BASE=temp_key_for_asset_precompilation \
+  NODE_ENV=production \
+  RAILS_ENV=production \
+  PATH="./node_modules/.bin:$PATH" \
   bundle exec rails assets:precompile && \
   echo "=== Assets precompilation completed ==="; \
   else \
-  echo "=== FAILED Assets precompilation === DEVELOPMENT BUILD: Assets served by shakapacker-dev-server ==="; \
+  echo "=== DEVELOPMENT BUILD: Assets served by shakapacker-dev-server ==="; \
   fi
 
 ### Runtime stage: lean image with only runtime dependencies
