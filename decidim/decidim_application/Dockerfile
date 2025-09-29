@@ -79,10 +79,13 @@ RUN echo "=== Installing webpack tools ===" && \
 RUN if [ "$RAILS_ENV" = "production" ]; then \
   echo "=== PRODUCTION BUILD: Precompiling assets ===" && \
   bundle exec rake decidim:webpacker:install && \
+  echo "=== Webpacker install completed, now precompiling assets ===" && \
   bundle exec rake assets:precompile && \
+  echo "=== Assets precompiled, now compiling deface overrides ===" && \
   bundle exec rails deface:precompile && \
-  bundle exec rails shakapacker:compile \
-  echo "=== Assets precompilation completed ==="; \
+  echo "=== Compiling Shakapacker assets ===" && \
+  bundle exec rails shakapacker:compile && \
+  echo "=== All asset compilation completed ==="; \
   else \
   echo "=== DEVELOPMENT BUILD: Assets served by shakapacker-dev-server ==="; \
   fi
