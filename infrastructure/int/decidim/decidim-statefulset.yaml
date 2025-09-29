@@ -32,7 +32,7 @@ spec:
                       - secretRef:
                             name: decidim-secret
                       - configMapRef:
-                            name: home-adminlnx-temp1-env
+                            name: decidim-configmap
 
                   ports:
                       - containerPort: 3000
