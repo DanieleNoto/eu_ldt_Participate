@@ -32,11 +32,37 @@ spec:
                   ports:
                       - containerPort: 80
                         protocol: TCP
-                  envFrom:
-                      - configMapRef:
-                            name: matomo-config
-                      - secretRef:
-                            name: matomo-secrets
+                  env:
+                    - name: DATABASE_HOST
+                      valueFrom:
+                        configMapKeyRef:
+                          name: matomo-configmap
+                          key: MATOMO_DATABASE_HOST
+                    - name: DATABASE_USERNAME
+                      valueFrom:
+                        secretKeyRef:
+                          name: matomo-secrets
+                          key: MATOMO_DATABASE_USERNAME
+                    - name: DATABASE_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: matomo-secrets
+                          key: MATOMO_DATABASE_PASSWORD
+                    - name: DATABASE_NAME
+                      valueFrom:
+                        configMapKeyRef:
+                          name: matomo-configmap
+                          key:  MATOMO_DATABASE_DBNAME
+                    - name: MATOMO_DATABASE_ADAPTER
+                      valueFrom:
+                        configMapKeyRef:
+                          name: matomo-configmap
+                          key: MATOMO_DATABASE_ADAPTER
+                    - name: MATOMO_DATABASE_TABLES_PREFIX
+                      valueFrom:
+                        configMapKeyRef:
+                          name: matomo-configmap
+                          key: MATOMO_DATABASE_TABLES_PREFIX
                   volumeMounts:
                       - name: matomo-data
                         mountPath: /var/www/html
