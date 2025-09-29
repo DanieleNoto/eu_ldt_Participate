@@ -6,8 +6,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Set build environment early for dependencies
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
+ARG SECRET_KEY_BASE=temp_key_for_asset_precompilation 
 ENV RAILS_ENV=${RAILS_ENV}
 ENV NODE_ENV=${NODE_ENV}
+ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 ENV RAILS_SERVE_STATIC_FILES=true
 
 # Update system and install base dependencies
@@ -100,6 +102,8 @@ FROM decidim/decidim-dev:0.30.1 AS runtime
 # Inherit build arguments for runtime
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
+ARG SECRET_KEY_BASE=temp_key_for_asset_precompilation
+ARG RAILS_SERVE_STATIC_FILES=true
 
 # Install only runtime dependencies (no build tools)
 ENV DEBIAN_FRONTEND=noninteractive
