@@ -3,6 +3,11 @@ FROM decidim/decidim-dev:0.30.1 AS builder
 
 # Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
+# Set build environment early for dependencies
+ARG RAILS_ENV=development
+ARG NODE_ENV=development
+ENV RAILS_ENV=${RAILS_ENV}
+ENV NODE_ENV=${NODE_ENV}
 
 # Update system and install base dependencies
 RUN apt-get update && apt-get install -y \
@@ -31,11 +36,7 @@ RUN mkdir -p /etc/apt/keyrings && \
 # Set working directory
 WORKDIR /code
 
-# Set build environment early for dependencies
-ARG RAILS_ENV=development
-ARG NODE_ENV=development
-ENV RAILS_ENV=${RAILS_ENV}
-ENV NODE_ENV=${NODE_ENV}
+
 
 # Copy dependency files FIRST for better Docker layer caching
 COPY Gemfile Gemfile.lock ./
