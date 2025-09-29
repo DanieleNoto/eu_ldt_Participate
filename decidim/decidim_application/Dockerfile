@@ -66,6 +66,12 @@ RUN chmod +x docker-entrypoint.sh
 # Final bundle install for git dependencies and local engines
 RUN bundle install
 
+# Ensure webpack is available for asset compilation
+RUN echo "=== Installing webpack tools ===" && \
+  yarn add webpack webpack-cli webpack-dev-server --dev && \
+  echo "=== Webpack installed ===" && \
+  ls -la node_modules/.bin/webpack*
+
 # Production asset precompilation (separate layer for better caching)
 RUN if [ "$RAILS_ENV" = "production" ]; then \
   echo "=== PRODUCTION BUILD: Precompiling assets ===" && \
