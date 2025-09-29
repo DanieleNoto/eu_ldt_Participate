@@ -57,8 +57,9 @@ RUN [ "$RAILS_ENV" = "production" ] && \
 # Install Node.js dependencies (cached layer)
 RUN yarn install --network-timeout 100000
 
-# Install webpack tools
-RUN npm install -g webpack webpack-cli
+# Ensure webpack tools are available both globally and locally
+RUN npm install -g webpack webpack-cli && \
+  yarn add webpack webpack-cli --dev
 
 # NOW copy the full application code
 COPY . .
