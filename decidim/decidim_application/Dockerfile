@@ -76,17 +76,23 @@ RUN echo "=== Installing webpack tools ===" && \
 # Production asset precompilation (separate layer for better caching)
 RUN if [ "$RAILS_ENV" = "production" ]; then \
   echo "=== PRODUCTION BUILD: Precompiling assets ===" && \
-  echo "Node modules bin directory:" && \
-  ls -la node_modules/.bin/ | head -10 && \
-  SECRET_KEY_BASE=temp_key_for_asset_precompilation \
-  NODE_ENV=production \
-  RAILS_ENV=production \
-  PATH="./node_modules/.bin:$PATH" \
+  bundle exec rake decidim:webpacker:install && \
   bundle exec rake assets:precompile && \
+  bundle exec rails deface:precompile && \
+  bundle exec rails shakapacker:compile \
   echo "=== Assets precompilation completed ==="; \
   else \
   echo "=== DEVELOPMENT BUILD: Assets served by shakapacker-dev-server ==="; \
   fi
+
+RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
+  && rm -rf /usr/local/bundle/cache/*.gem \
+  && find /usr/local/bundle/gems/ -name "*.c" -delete \
+  && find /usr/local/bundle/gems/ -name "*.o" -delete \
+  && find /usr/local/bundle/bundler/gems/ -type d -name "spec" -prune -exec rm -rf {} \; \
+  && find /usr/local/bundle/bundler/gems/decidim-* -type d -name "db/migrate" -prune -exec rm -rf {} \; \
+  && find /usr/local/bundle/bundler/gems/decidim-* -type d -name "docs" -prune -exec rm -rf {} \; \
+  && rm -rf log/*.log
 
 ### Runtime stage: lean image with only runtime dependencies
 FROM decidim/decidim-dev:0.30.1 AS runtime
