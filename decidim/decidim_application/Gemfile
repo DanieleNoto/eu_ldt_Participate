@@ -23,8 +23,10 @@ gem "puma", ">= 6.3.1"
 # Add mutex_m to fix warning in Ruby 3.3.4
 gem "mutex_m", "~> 0.2.0"
 
-gem "decidim-extra_user_fields", git: "https://github.com/PopulateTools/decidim-module-extra_user_fields.git", branch: "release/0.28-stable"
+gem "decidim-extra_user_fields", path: './engines/decidim-extra_user_fields'
 gem "decidim-keycloak", path: "./engines/decidim-keycloak"
+gem 'decidim-meetings-jitsi', path: './engines/decidim-meetings-jitsi'
+gem 'decidim-admin_header', path: './engines/decidim-admin_header'
 
 gem "decidim-decidim_awesome", git: "https://github.com/decidim-ice/decidim-module-decidim_awesome.git"
 
@@ -41,4 +43,3 @@ group :development do
   gem "web-console", "~> 4.2"
 end
 
-gem 'decidim-meetings-jitsi', path: 'decidim-meetings-jitsi'

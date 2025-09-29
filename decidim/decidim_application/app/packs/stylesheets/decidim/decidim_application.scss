@@ -6,3 +6,7 @@
 // available at https://docs.decidim.org/en/develop/customize/styles.html#_tailwind_css
 //
 // By default this is empty.
+.rich-text-display a[href] {
+    color: #004494 !important;
+    text-decoration: underline !important;
+}
