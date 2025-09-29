@@ -14,6 +14,19 @@ export class LetterOpenerPage extends BasePage {
 	}
 
 	/**
+	 * Private helper method to get the email content frame
+	 */
+	private getEmailContentFrame() {
+		// Navigate to the mail iframe (outer iframe)
+		const mailFrame = this.page.frameLocator('iframe[name="mail"]');
+
+		// Navigate to the inner iframe containing the email content
+		const contentFrame = mailFrame.frameLocator('iframe');
+
+		return contentFrame;
+	}
+
+	/**
 	 * Navigate to Letter Opener interface
 	 */
 	async navigateToLetterOpener(): Promise<void> {
@@ -40,7 +53,7 @@ export class LetterOpenerPage extends BasePage {
 	 * After refresh, the newest invitation should be at the top of the list
 	 */
 	async clickMostRecentInvitationEmail(): Promise<void> {
-		await this.page.waitForSelector('li.list-group-item', { timeout: 10000 });
+		await this.page.waitForSelector('li.list-group-item');
 
 		// Look for the first invitation email (most recent after refresh)
 		const invitationEmail = this.page
@@ -61,14 +74,58 @@ export class LetterOpenerPage extends BasePage {
 	}
 
 	/**
+	 * Find and click on the most recent survey answers export email
+	 * After refresh, the newest export email should be at the top of the list
+	 */
+	async clickMostRecentExportEmail(): Promise<void> {
+		// Look for the first survey answers export email (most recent after refresh)
+		const exportEmail = this.page
+			.locator('li.list-group-item')
+			.filter({
+				has: this.page.locator('dd:has-text("Your export \\"survey_user_answers\\" is ready")')
+			})
+			.first();
+
+		// Verify we found an export email
+		await expect(exportEmail).toBeVisible();
+
+		// Click on the email link within the list item
+		await exportEmail.locator('a[target="mail"]').click();
+		await this.page.waitForLoadState('networkidle');
+
+		console.log('Clicked on the most recent survey answers export email');
+	}
+
+	/**
+	 * Find and click on the most recent debates export email
+	 * After refresh, the newest export email should be at the top of the list
+	 */
+	async clickMostRecentDebatesExportEmail(): Promise<void> {
+		await this.page.waitForSelector('li.list-group-item', { timeout: 10000 });
+
+		// Look for the first debates export email (most recent after refresh)
+		const exportEmail = this.page
+			.locator('li.list-group-item')
+			.filter({
+				has: this.page.locator('dd:has-text("Your export \\"debates\\" is ready")')
+			})
+			.first();
+
+		// Verify we found a debates export email
+		await expect(exportEmail).toBeVisible();
+
+		// Click on the email link within the list item
+		await exportEmail.locator('a[target="mail"]').click();
+		await this.page.waitForLoadState('networkidle');
+
+		console.log('Clicked on the most recent debates export email');
+	}
+
+	/**
 	 * Verify invitation email content and click on "Accept invitation" link
 	 */
 	async verifyInvitationEmailAndAccept(userName: string): Promise<void> {
-		// Navigate to the mail iframe (outer iframe)
-		const mailFrame = this.page.frameLocator('iframe[name="mail"]');
-
-		// Navigate to the inner iframe containing the email content
-		const contentFrame = mailFrame.frameLocator('iframe');
+		const contentFrame = this.getEmailContentFrame();
 
 		// Verify the greeting message contains the user name
 		const greetingText = `Hello ${userName},`;
@@ -92,6 +149,21 @@ export class LetterOpenerPage extends BasePage {
 		await acceptInvitationElement.click();
 		await this.page.waitForLoadState('networkidle');
 		console.log('Clicked on "Accept invitation" link');
+	}
+
+	/**
+	 * Verify export email content and download link visibility
+	 */
+	async verifyExportEmail(): Promise<void> {
+		const contentFrame = this.getEmailContentFrame();
+
+		// Verify export ready message is visible
+		await expect(contentFrame.getByText('Your download is ready.')).toBeVisible();
+		console.log('Export ready message is visible');
+
+		// Verify download link is visible
+		await expect(contentFrame.getByRole('link', { name: 'Download' })).toBeVisible();
+		console.log('Download link is visible');
 	}
 
 	// Validation methods
