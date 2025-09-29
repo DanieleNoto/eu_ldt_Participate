@@ -13,28 +13,30 @@ ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 ENV RAILS_SERVE_STATIC_FILES=true
 
 # Update system and install base dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   apt-transport-https \
   build-essential \
   ca-certificates \
   curl \
+  git \
   gnupg \
+  libicu-dev \
+  libpq-dev \
   libreadline-dev \
   libssl-dev \
   lsb-release \
   netcat-openbsd \
   redis-tools \
   sudo \
+  wkhtmltopdf \
   zlib1g-dev \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 20.x via NodeSource repository
-RUN mkdir -p /etc/apt/keyrings && \
-  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-  echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
-  apt-get update && \
-  apt-get install -y nodejs && \
-  rm -rf /var/lib/apt/lists/*
+# Install Node.js 22.x and yarn
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+  apt-get install -y --no-install-recommends nodejs && \
+  npm install --global yarn && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /code
