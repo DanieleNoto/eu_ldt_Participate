@@ -124,7 +124,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
                 await expect(row).toBeVisible();
                 const typeCell = row.locator('td').nth(2);
                 await expect(typeCell).toHaveText(/Meetings/i);  
-                await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i, 'snapshots/EA001');  
+                await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i);  
             });
         });
     });
@@ -173,7 +173,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
             const successMessage = componentsPage.getPage().locator('.flash.success, .alert.success, [role="alert"]');
             await expect(successMessage).toBeVisible();
             await componentsPage.getPage().screenshot({ path: 'test-results/screenshots/EA001/MeetingComponentAdded.png', fullPage: true });
-            await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i, 'snapshots/EA001');
+            await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i);
         });
     });    
 });
