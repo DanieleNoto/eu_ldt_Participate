@@ -182,7 +182,7 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 					await letterOpenerPage.verifyExportEmail();
 
 					// Download and verify the export file
-					await letterOpenerPage.downloadExportFileDebates();
+					await letterOpenerPage.downloadExportFile();
 				});
 			});
 		});

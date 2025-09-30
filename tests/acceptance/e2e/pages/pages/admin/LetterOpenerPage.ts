@@ -187,9 +187,9 @@ export class LetterOpenerPage extends BasePage {
 	}
 
 	/**
-	 * Download the debates export file
+	 * Download the export file
 	 */
-	async downloadExportFileDebates(): Promise<void> {
+	async downloadExportFile(): Promise<void> {
 		try {
 			let downloadReceived = false;
 			let receivedDownload: Download | null = null;
@@ -218,20 +218,20 @@ export class LetterOpenerPage extends BasePage {
 				const suggestedFilename = receivedDownload.suggestedFilename();
 				console.log(`Suggested filename: "${suggestedFilename}"`);
 
-				// Accept both 'debates.zip' and UUID filenames
-				const isValidDebatesFile =
+				const isValidExportFile =
 					suggestedFilename === 'debates.zip' ||
+					suggestedFilename === 'survey_user_answers.zip' ||
 					/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(suggestedFilename);
 
-				if (!isValidDebatesFile) {
+				if (!isValidExportFile) {
 					console.log(`Unexpected filename: ${suggestedFilename}`);
 					return;
 				}
 
-				console.log(`Valid debates file detected: ${suggestedFilename}`);
+				console.log(`Valid export file detected: ${suggestedFilename}`);
 
 				const tempDir = tmpdir();
-				const downloadPath = join(tempDir, 'debates.zip');
+				const downloadPath = join(tempDir, suggestedFilename);
 
 				try {
 					await receivedDownload.saveAs(downloadPath);
