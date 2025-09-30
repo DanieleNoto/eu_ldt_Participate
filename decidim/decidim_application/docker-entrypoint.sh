@@ -12,14 +12,6 @@ if [ "$RAILS_ENV" = "production" ]; then
   # Database setup (optimized)
   echo "--- Setting up database ---"
   
-  # Wait for database to be ready
-  echo "--- Waiting for database connection ---"
-  until bin/rails runner "ActiveRecord::Base.connection.execute('SELECT 1')" >/dev/null 2>&1; do
-    echo "Database not ready, waiting 2 seconds..."
-    sleep 2
-  done
-  echo "--- Database connection established ---"
-  
   bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
   
   # Run migrations (always safe, idempotent)
@@ -55,14 +47,6 @@ elif [ "$RAILS_ENV" = "development" ]; then
   
   # Database setup (optimized)
   echo "--- Setting up database ---"
-  
-  # Wait for database to be ready
-  echo "--- Waiting for database connection ---"
-  until bin/rails runner "ActiveRecord::Base.connection.execute('SELECT 1')" >/dev/null 2>&1; do
-    echo "Database not ready, waiting 2 seconds..."
-    sleep 2
-  done
-  echo "--- Database connection established ---"
   
   bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
   
