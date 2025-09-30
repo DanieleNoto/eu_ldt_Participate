@@ -39,16 +39,14 @@ WORKDIR /code
 
 # Copy dependency files FIRST for better Docker layer caching
 COPY Gemfile Gemfile.lock ./
-COPY package.json yarn.lock* ./
 COPY engines/ ./engines/
 
 # Install Ruby gems (cached layer) - optimized bundle config
 RUN bundle config set --local path '/usr/local/bundle' && \
-  bundle config set --local jobs 4
+  bundle config set --local jobs 4 && \
+  bundle install --retry 3
 
-# Environment-specific gem installation (production excludes dev/test gems)
-RUN bundle install --retry 3
-
+COPY package.json yarn.lock* ./
 # Install Node.js dependencies (cached layer)
 RUN yarn install --network-timeout 100000 --include-dev
 
@@ -58,8 +56,7 @@ COPY . .
 # Make entrypoint executable
 RUN chmod +x docker-entrypoint.sh
 
-# Final bundle install for git dependencies and local engines
-RUN bundle install
+
 
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
@@ -69,16 +66,14 @@ ENV NODE_ENV=${NODE_ENV}
 ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 ENV RAILS_SERVE_STATIC_FILES=true
 
-# Ensure webpack is available for asset compilation
-RUN echo "=== Installing webpack tools ===" && \
-  yarn add webpack webpack-cli webpack-dev-server --dev && \
-  echo "=== Webpack installed ==="
 
 # Production asset precompilation (separate layer for better caching)
 RUN if [ "$RAILS_ENV" = "production" ]; then \
   echo "=== PRODUCTION BUILD: Precompiling assets ===" && \
-  bundle exec rake decidim:webpacker:install && \
-  echo "=== Webpacker install completed, now precompiling assets ===" && \
+  RAILS_ENV=production \
+  SHAKAPACKER_FORCE=true \
+  yes | bundle exec rake shakapacker:install && \
+  echo "=== Shakapacker install completed, now precompiling assets ===" && \
   bundle exec rake assets:precompile && \
   echo "=== Assets precompiled, now compiling deface overrides ===" && \
   bundle exec rails deface:precompile && \
