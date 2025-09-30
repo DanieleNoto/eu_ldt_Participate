@@ -33,16 +33,13 @@ test.describe('[PAR-EA002] – Create an official event', () => {
     test.use({ storageState: STORAGE_STATE.ADMIN });
     let adminHomePage: AdminHomePage;
     let processAdminPage: ProcessAdminPage;
-    let updateProcessPage: UpdateProcessAdminPage;
     let meetingsPage: MeetingsPage;
     let formMeetingPage: FormMeetingPage;
     let componentsPage: ComponentsPage;
-    let managePageComponentPage: ManagePageComponentPage;
 
     test.beforeEach(async ({ page }) => {
         adminHomePage = new AdminHomePage(page);
         processAdminPage = new ProcessAdminPage(page);
-        updateProcessPage = new UpdateProcessAdminPage(page);
         meetingsPage = new MeetingsPage(page);
         formMeetingPage = new FormMeetingPage(page);
         componentsPage = new ComponentsPage(page);
@@ -51,15 +48,15 @@ test.describe('[PAR-EA002] – Create an official event', () => {
     test.describe('Main Flow', () => {
         test('should allow admin to create an official event', async () => {
             // Variables to store updated values for verification
-            let updatedTitle: string;
-            let updatedDescription: string;
-            let updatedMeetingType: 'online' | 'in_person' | 'hybrid';
-            let updatedStartDate: string;
-            let updatedStartTime: string;
-            let updatedEndTime: string;
-            let updatedOnlineMeetingUrl: string;
-            let updatedLocationHints: string;
-            let updatedRegistrationType: 'on_this_platform' | 'registration_disabled' | 'on_different_platform';
+            let newTitle: string;
+            let newDescription: string;
+            let address: string;
+            let location: string;
+            let newOnlineMeetingUrl: string;
+            let newLocationHints: string;
+            let beforeMeetingCount: number;
+            let newRegistrationType: 'on_this_platform' | 'registration_disabled' | 'on_different_platform';
+
             await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
                 await processAdminPage.navigateToProcesses();
                 await processAdminPage.getPage().waitForLoadState('networkidle');
@@ -102,324 +99,207 @@ test.describe('[PAR-EA002] – Create an official event', () => {
                 await componentsPage.getPage().waitForLoadState('networkidle');
                 await meetingsPage.verifyMeetingsPageVisible();
                 // Check if there are meetings available
-                const meetingCount = await meetingsPage.getMeetingCount();
-                expect(meetingCount).toBeGreaterThan(0);
-                await componentsPage.getPage().screenshot({ path: 'snapshots/EA002/MeetingsList.png', fullPage: true });
+                beforeMeetingCount = await meetingsPage.getMeetingCount();
+                expect(beforeMeetingCount).toBeGreaterThan(0);
+                await componentsPage.getPage().screenshot({ path: 'test-results/screenshots/EA002/MeetingsList.png', fullPage: true });
             });
 
-            await test.step('7. Admin: Clicks on "New Meeting" to start the process of creating a new meeting', async () => {
+            // Define required fields for validation testing
+            const meetingTypes = [{ type: "online" }, { type: "in person" }];
+
+            for (const { type } of meetingTypes) {
+                
+                await test.step(`7. Admin: Clicks on "New Meeting" to start the process of creating a ${type} meeting`, async () => {
+                    await meetingsPage.clickNewMeeting();
+                    await meetingsPage.getPage().waitForLoadState('networkidle');
+                });
+                await test.step('8. System: Displays the "New Meeting" form, prompting the user to fill in the meeting details.', async () => {
+                    // Verify we're on the new meeting form page
+                    const currentUrl = meetingsPage.getPage().url();
+                    expect(currentUrl).toMatch(/\/admin.*\/meetings\/new/);
+                    await expect(meetingsPage.getPage().locator('text=Create meeting')).toBeVisible();
+                });                      
+                
+                await test.step('9. Admin: Create meeting details: Title, Description, Type (in person or online), Start Time, Duration, Location, Registration type, Online Meeting URL (only for online meeting)', async () => {
+                        // Update meeting title
+                        
+                if (type === 'online') {
+                        await formMeetingPage.selectMeetingType('online');
+                        newTitle = `New Meeting Title - Type: ${type}`;
+                        await formMeetingPage.fillTitle(newTitle);                        
+                        newOnlineMeetingUrl = 'https://meet.jit.si/updated-meeting-room';
+                        await formMeetingPage.fillOnlineMeetingUrl(newOnlineMeetingUrl);                        
+
+                } else if (type === 'in person') {
+                        await formMeetingPage.selectMeetingType('in_person');
+                        newTitle = `New Meeting Title - Type: ${type}`;
+                        await formMeetingPage.fillTitle(newTitle);
+                        newLocationHints = 'Meeting password: 123456';
+                        await formMeetingPage.fillLocationHints(newLocationHints);
+                        address = '123 Main St, Cityville';
+                        await formMeetingPage.fillAddress(address);
+                        location = 'City Hall Conference Room';
+                        await formMeetingPage.fillLocation(location);
+                }                         
+                // Create meeting description
+                newDescription = `Create meeting description with new details - ${type}`;
+                await formMeetingPage.fillDescriptionField(newDescription, 'en');
+                // First Calendar (start)
+                await formMeetingPage.selectTomorrowDate(0, 0);
+                await formMeetingPage.selectTomorrowTime(0, 10, 0);
+
+                // Second Calendar (end)
+                await formMeetingPage.selectTomorrowDate(1, 1);
+                await formMeetingPage.selectTomorrowTime(1, 12, 0);
+                // Set registration type to "on this platform"
+                newRegistrationType = 'on_this_platform';
+                await formMeetingPage.selectRegistrationType(newRegistrationType);
+                                // Enable comments
+                await formMeetingPage.setCommentsEnabled(true);
+                //await formMeetingPage.getPage().screenshot({ path: `test-results/screenshots/EA002/NewMeetingForm-${type}.png`, fullPage: true });
+                });
+                await test.step('10. Admin: Clicks on "Create Event" to create the event.', async () => {
+                        // Click the Update button to save changes
+                        await formMeetingPage.createMeeting();
+                        await formMeetingPage.getPage().screenshot({ path: `test-results/screenshots/EA002/CreatedNewMeetingForm-${type}.png`, fullPage: true });
+                });
+            
+                await test.step('11. System: Validates the event details for completeness and correctness.', async () => {
+                        // Check if there are validation errors
+                        const hasValidationErrors = await formMeetingPage.hasValidationErrors();
+                        expect(hasValidationErrors).toBe(false);
+                });
+            
+                await test.step('12. System: Saves the event and makes it available for citizens to view.', async () => {
+                        // Verify we're redirected back to meetings list or meeting details
+                        const currentUrl = await formMeetingPage.getCurrentUrl();
+                        expect(currentUrl).toMatch(/\/admin.*\/meetings/);
+                });
+            
+                await test.step('13. System: Notifies the City Administrator that the event has been successfully created.', async () => {
+                        // Check for success notification/message
+                        const successMessage = formMeetingPage
+                            .getPage()
+                            .locator('.flash.success, .alert.success, [role="alert"]');
+                        await expect(successMessage).toBeVisible();
+                });
+            
+                await test.step('Result.', async () => {
+                        // Final verification: navigate back to meetings and verify our meeting was created
+                        if (!(await meetingsPage.isOnMeetingsPage())) {
+                            await meetingsPage.navigateToMeetings();
+                        }
+                    
+                        // Verify the meetings page loads successfully
+                        await meetingsPage.waitForMeetingsLoad();
+                                       
+                        // Find and edit the meeting we just updated by title to verify changes were saved
+                        const meetingIndex = await meetingsPage.findMeetingByTitle(newTitle);
+                        expect(meetingIndex).toBeGreaterThan(0);
+                });
+            };
+            // Verify the total number of meetings has increased by 2, then clean up
+            const afterMeetingCount = await meetingsPage.getMeetingCount();
+            expect(afterMeetingCount).toBe(beforeMeetingCount + 2);
+            await componentsPage.deleteComponentIfExists(/New Meeting Title - Type: online/i);
+            await componentsPage.deleteComponentIfExists(/New Meeting Title - Type: in person/i);
+        });
+    });
+    
+    test.describe('Alternative Flows', () => {
+        test('should show validation errors when required fields are missing', async () => {
+            let beforeMeetingCount: number;	
+            // Navigate to Processes
+            await processAdminPage.navigateToProcesses();
+            await processAdminPage.getPage().waitForLoadState('networkidle');
+            const hasProcesses = await processAdminPage.processTable.hasProcesses();
+            expect(hasProcesses).toBe(true);
+
+            // Click edit on the first process in the table
+            await processAdminPage.editFirstProcess();
+            await processAdminPage.getPage().waitForLoadState('networkidle');
+
+            // Navigate to Components tab/section
+            await componentsPage.sidebarProcessDetail.navigateToComponents();
+
+            // Verify meetings page is loaded and visible
+            const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
+            expect(meetingsLink).not.toBeNull();
+            await meetingsLink.click();
+            await componentsPage.getPage().waitForLoadState('networkidle');
+            await meetingsPage.verifyMeetingsPageVisible();
+            beforeMeetingCount = await meetingsPage.getMeetingCount();
+            expect(beforeMeetingCount).toBeGreaterThan(0);
+            await componentsPage.getPage().screenshot({ path: 'test-results/screenshots/EA002/MeetingsList.png', fullPage: true });            
+            const meetingTypes = [{ type: "online" }, { type: "in person" }, { type: "hybrid" }];
+
+            for (const { type } of meetingTypes) {
+
                 await meetingsPage.clickNewMeeting();
                 await meetingsPage.getPage().waitForLoadState('networkidle');
-            });
+                await formMeetingPage.createMeeting();
+                expect(await formMeetingPage.hasValidationErrors()).toBe(true);
+                const errorsFirstStep = await formMeetingPage.getValidationErrors();                
+                expect(errorsFirstStep.length).toBe(4);
+                await formMeetingPage.getPage().screenshot({ path: `test-results/screenshots/EA002/CreatedNewMeetingForm1 - ${type}.png`, fullPage: true });
+                // First Calendar (start)
+                await formMeetingPage.selectTomorrowDate(0, 0);
+                await formMeetingPage.selectTomorrowTime(0, 10, 0);
 
-            await test.step('8. System: Displays the "New Meeting" form, prompting the user to fill in the meeting details.', async () => {
-                // Verify we're on the new meeting form page
-                const currentUrl = meetingsPage.getPage().url();
-                expect(currentUrl).toMatch(/\/admin.*\/meetings\/new/);
-                await expect(meetingsPage.getPage().locator('text=Create meeting')).toBeVisible();
-            });            
+                // Second Calendar (end)
+                await formMeetingPage.selectTomorrowDate(1, 1);
+                await formMeetingPage.selectTomorrowTime(1, 12, 0);
+                // Set registration type to "on this platform"
+                const newRegistrationType = 'on_this_platform';
+                await formMeetingPage.selectRegistrationType(newRegistrationType);                
 
-
-
-
-            // await test.step('9. Admin: Fills in the meeting details: Title, Description, Type (in person or online), Start Time, Duration, Location, Registration type, Online Meeting URL (only for online meeting)', async () => {
-            //     // create unique title and description for verification later
-            //     updatedTitle = `Create Meeting Title - ${Date.now()}`;
-            //     await formMeetingPage.fillTitle(updatedTitle);
-
-//                 // Update meeting description
-//                 updatedDescription = `Updated meeting description with new details - ${Date.now()}`;
-//                 await formMeetingPage.fillDescription(updatedDescription);
-
-//                 // Change meeting type to online
-//                 updatedMeetingType = 'online';
-//                 await formMeetingPage.selectMeetingType(updatedMeetingType);
-
-//                 // Update start time (set to tomorrow)
-//                 const tomorrow = new Date();
-//                 tomorrow.setDate(tomorrow.getDate() + 1);
-//                 updatedStartDate = tomorrow.toISOString().split('T')[0]; // YYYY-MM-DD
-//                 updatedStartTime = '14:00'; // 2 PM
-//                 await formMeetingPage.setStartDateTime(updatedStartDate, updatedStartTime);
-
-//                 // Update end time (3 hours after start)
-//                 updatedEndTime = '17:00'; // 5 PM
-//                 await formMeetingPage.setEndDateTime(updatedStartDate, updatedEndTime);
-
-//                 // Update online meeting URL
-//                 updatedOnlineMeetingUrl = 'https://meet.jit.si/updated-meeting-room';
-//                 await formMeetingPage.fillOnlineMeetingUrl(updatedOnlineMeetingUrl);
-
-//                 // Update location hints
-//                 updatedLocationHints = 'Meeting password: 123456';
-//                 await formMeetingPage.fillLocationHints(updatedLocationHints);
-
-//                 // Set registration type to "on this platform"
-//                 updatedRegistrationType = 'on_this_platform';
-//                 await formMeetingPage.selectRegistrationType(updatedRegistrationType);
-
-//                 // Enable comments
-//                 await formMeetingPage.setCommentsEnabled(true);
-//             });
-//             await test.step('10. Admin: Clicks on "Save Event" to update  the event.', async () => {
-//                 // Click the Update button to save changes
-//                 await formMeetingPage.submitForm();
-//                 await formMeetingPage.getPage().waitForLoadState('networkidle');
-//             });
-
-//             await test.step('11. System: Validates the event details for completeness and correctness.', async () => {
-//                 // Check if there are validation errors
-//                 const hasValidationErrors = await formMeetingPage.hasValidationErrors();
-//                 expect(hasValidationErrors).toBe(false);
-//             });
-
-//             await test.step('12. System: Saves the event and makes it available for citizens to view.', async () => {
-//                 // Verify we're redirected back to meetings list or meeting details
-//                 const currentUrl = await formMeetingPage.getCurrentUrl();
-//                 expect(currentUrl).toMatch(/\/admin.*\/meetings/);
-//             });
-
-//             await test.step('13. System: Notifies the City Administrator that the event has been successfully updated.', async () => {
-//                 // Check for success notification/message
-//                 const successMessage = formMeetingPage
-//                     .getPage()
-//                     .locator('.flash.success, .alert.success, [role="alert"]');
-
-//                 await expect(successMessage).toBeVisible();
-//             });
-
-//             await test.step('Result.', async () => {
-//                 // Final verification: navigate back to meetings and verify our meeting was updated
-//                 if (!(await meetingsPage.isOnMeetingsPage())) {
-//                     await meetingsPage.navigateToMeetings();
-//                 }
-
-//                 // Verify the meetings page loads successfully
-//                 await meetingsPage.waitForMeetingsLoad();
-
-//                 // Meeting should still exist in the list
-//                 const meetingCount = await meetingsPage.getMeetingCount();
-//                 expect(meetingCount).toBeGreaterThan(0);
-
-//                 // Find and edit the meeting we just updated by title to verify changes were saved
-//                 const meetingIndex = await meetingsPage.findMeetingByTitle(updatedTitle);
-//                 expect(meetingIndex).toBeGreaterThanOrEqual(0);
-
-//                 // Click edit on the meeting we just updated
-//                 await meetingsPage.clickEdit(meetingIndex);
-//                 await meetingsPage.getPage().waitForLoadState('networkidle');
-
-//                 // Verify the edit form loads
-//                 await formMeetingPage.verifyEditMeetingPageVisible();
-
-//                 // Verify all the updated values are correctly saved in the form
-//                 const currentTitle = await formMeetingPage.getTitle();
-//                 expect(currentTitle).toBe(updatedTitle);
-
-//                 const currentDescription = await formMeetingPage.getDescription();
-//                 expect(currentDescription).toContain(updatedDescription);
-
-//                 const currentMeetingType = await formMeetingPage.getMeetingType();
-//                 expect(currentMeetingType).toBe(updatedMeetingType);
-
-//                 const currentRegistrationType = await formMeetingPage.getRegistrationType();
-//                 expect(currentRegistrationType).toBe(updatedRegistrationType);
-
-//                 const currentOnlineMeetingUrl = await formMeetingPage.getOnlineMeetingUrl();
-//                 expect(currentOnlineMeetingUrl).toBe(updatedOnlineMeetingUrl);
-
-//                 const currentLocationHints = await formMeetingPage.getLocationHints();
-//                 expect(currentLocationHints).toBe(updatedLocationHints);
-
-//                 // Verify comments are enabled
-//                 const commentsEnabled = await formMeetingPage.getCommentsEnabledValue();
-//                 expect(commentsEnabled).toBe(true);
-//             });
-//         });
-//     });
-//     test.describe('Alternative Flow', () => {
-//         test('should handle validation failures for all meeting types', async ({ page }) => {
-//             await processAdminPage.navigateToProcesses();
-//             await processAdminPage.getPage().waitForLoadState('load');
-//             await processAdminPage.editFirstProcess();
-//             await processAdminPage.getPage().waitForLoadState('load');
-//             await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
-//             meetingsPage = new MeetingsPage(page);
-//             await meetingsPage.verifyMeetingsPageVisible();
-//             await meetingsPage.clickEdit(0);
-//             await meetingsPage.getPage().waitForLoadState('networkidle');
-
-//             const meetingTypes = [
-//                 {
-//                     type: 'online',
-//                     requiredFields: [
-//                         {
-//                             name: 'title',
-//                             selector: '#meeting_title_en',
-//                             fill: async v => await formMeetingPage.fillTitle(v),
-//                             valid: 'Valid Title'
-//                         },
-//                         {
-//                             name: 'type_of_meeting',
-//                             selector: '#meeting_type_of_meeting',
-//                             fill: async v => await formMeetingPage.selectMeetingType(v),
-//                             valid: 'online'
-//                         },
-//                         {
-//                             name: 'registration_type',
-//                             selector: '#meeting_registration_type',
-//                             fill: async v => await formMeetingPage.selectRegistrationType(v),
-//                             valid: 'on_this_platform'
-//                         }
-//                     ]
-//                 },
-//                 {
-//                     type: 'in_person',
-//                     requiredFields: [
-//                         {
-//                             name: 'title',
-//                             selector: '#meeting_title_en',
-//                             fill: async v => await formMeetingPage.fillTitle(v),
-//                             valid: 'Valid Title'
-//                         },
-//                         {
-//                             name: 'type_of_meeting',
-//                             selector: '#meeting_type_of_meeting',
-//                             fill: async v => await formMeetingPage.selectMeetingType(v),
-//                             valid: 'in_person'
-//                         },
-//                         {
-//                             name: 'registration_type',
-//                             selector: '#meeting_registration_type',
-//                             fill: async v => await formMeetingPage.selectRegistrationType(v),
-//                             valid: 'on_this_platform'
-//                         },
-//                         {
-//                             name: 'address',
-//                             selector: '#meeting_address',
-//                             fill: async v => await formMeetingPage.fillAddress(v),
-//                             valid: 'Test Address'
-//                         },
-//                         {
-//                             name: 'location_en',
-//                             selector: '#meeting_location_en',
-//                             fill: async v => await formMeetingPage.fillLocation(v),
-//                             valid: 'Test Location'
-//                         }
-//                     ]
-//                 },
-//                 {
-//                     type: 'hybrid',
-//                     requiredFields: [
-//                         {
-//                             name: 'title',
-//                             selector: '#meeting_title_en',
-//                             fill: async v => await formMeetingPage.fillTitle(v),
-//                             valid: 'Valid Title'
-//                         },
-//                         {
-//                             name: 'type_of_meeting',
-//                             selector: '#meeting_type_of_meeting',
-//                             fill: async v => await formMeetingPage.selectMeetingType(v),
-//                             valid: 'hybrid'
-//                         },
-//                         {
-//                             name: 'registration_type',
-//                             selector: '#meeting_registration_type',
-//                             fill: async v => await formMeetingPage.selectRegistrationType(v),
-//                             valid: 'on_this_platform'
-//                         },
-//                         {
-//                             name: 'address',
-//                             selector: '#meeting_address',
-//                             fill: async v => await formMeetingPage.fillAddress(v),
-//                             valid: 'Test Address'
-//                         },
-//                         {
-//                             name: 'location_en',
-//                             selector: '#meeting_location_en',
-//                             fill: async v => await formMeetingPage.fillLocation(v),
-//                             valid: 'Test Location'
-//                         }
-//                     ]
-//                 }
-//             ];
-
-//             // getValidDate is now imported from utils
-
-//             for (const { type, requiredFields } of meetingTypes) {
-//                 await test.step(`Alternative flow for meeting type: ${type}`, async () => {
-//                     // First, fill all required fields with valid values
-//                     for (const field of requiredFields) {
-//                         await field.fill(field.valid);
-//                     }
-//                     // Use TypeScript literal values for meeting type
-//                     if (type === 'online') {
-//                         await formMeetingPage.selectMeetingType('online');
-//                     } else if (type === 'in_person') {
-//                         await formMeetingPage.selectMeetingType('in_person');
-//                     } else {
-//                         await formMeetingPage.selectMeetingType('hybrid');
-//                     }
-//                     await formMeetingPage.selectRegistrationType('on_this_platform');
-
-//                     for (const field of requiredFields) {
-//                         // Clear only the current field
-//                         await field.fill('');
-//                         await formMeetingPage.submitForm();
-//                         const page = formMeetingPage.getPage();
-//                         // Look for a visible error next to or inside the field label
-//                         const errorSpanVisible = page.locator(`${field.selector} ~ span.form-error.is-visible`);
-//                         const errorSpanGeneric = page.locator(`${field.selector} ~ span.form-error`);
-//                         const errorSmallVisible = page.locator(
-//                             `label[for="${field.selector.replace('#', '')}"] small.form-error.is-visible`
-//                         );
-//                         const errorSmallGeneric = page.locator(
-//                             `label[for="${field.selector.replace('#', '')}"] small.form-error`
-//                         );
-//                         let errorFound = false;
-//                         if ((await errorSpanVisible.count()) > 0 && (await errorSpanVisible.isVisible())) {
-//                             await expect(errorSpanVisible).toBeVisible();
-//                             errorFound = true;
-//                         } else if ((await errorSpanGeneric.count()) > 0 && (await errorSpanGeneric.isVisible())) {
-//                             await expect(errorSpanGeneric).toBeVisible();
-//                             errorFound = true;
-//                         } else if ((await errorSmallVisible.count()) > 0 && (await errorSmallVisible.isVisible())) {
-//                             await expect(errorSmallVisible).toBeVisible();
-//                             errorFound = true;
-//                         } else if ((await errorSmallGeneric.count()) > 0 && (await errorSmallGeneric.isVisible())) {
-//                             await expect(errorSmallGeneric).toBeVisible();
-//                             errorFound = true;
-//                         }
-//                         expect(errorFound).toBe(true);
-//                         // Fix the field
-//                         await field.fill(field.valid);
-//                         await formMeetingPage.submitForm();
-//                         // If the page returned to the meetings list, reopen the meeting
-//                         const currentUrl = await formMeetingPage.getCurrentUrl();
-//                         if (/\/admin.*\/meetings/.test(currentUrl)) {
-//                             await meetingsPage.clickEdit(0);
-//                             await formMeetingPage.getPage().waitForLoadState('networkidle');
-//                         }
-//                         // After fixing, no error should be visible
-//                         if ((await errorSpanVisible.count()) > 0) {
-//                             await expect(errorSpanVisible).not.toBeVisible();
-//                         }
-//                         if ((await errorSpanGeneric.count()) > 0) {
-//                             await expect(errorSpanGeneric).not.toBeVisible();
-//                         }
-//                         if ((await errorSmallVisible.count()) > 0) {
-//                             await expect(errorSmallVisible).not.toBeVisible();
-//                         }
-//                         if ((await errorSmallGeneric.count()) > 0) {
-//                             await expect(errorSmallGeneric).not.toBeVisible();
-//                         }
-//                     }
-//                     // At the end, all fields should be valid
-//                     const hasValidationErrors = await formMeetingPage.hasValidationErrors();
-//                     expect(hasValidationErrors).toBe(false);
-//                 });
-//             }
-         });
-     });
- });
+                if (type === 'online') {
+                    await formMeetingPage.selectMeetingType('online');
+                    const newOnlineMeetingUrlError = 'aaa';
+                    await formMeetingPage.fillOnlineMeetingUrl(newOnlineMeetingUrlError);
+                    await formMeetingPage.createMeeting();
+                    const flashIcon = formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]');
+                    await expect(flashIcon).toBeVisible();                    
+                    await formMeetingPage.getPage().screenshot({ path: `test-results/screenshots/EA002/CreatedNewMeetingForm2 - ${type}.png`, fullPage: true });                    
+                    expect(await formMeetingPage.hasValidationErrors()).toBe(true);
+                    const errorsSecondStep = await formMeetingPage.getValidationErrors();                
+                    expect(errorsSecondStep.length).toBe(3);
+                    const newTitleAF = `New Meeting Title - Type: ${type}`;
+                    await formMeetingPage.fillTitle(newTitleAF);
+                    const newOnlineMeetingUrl = 'https://meet.jit.si/updated-meeting-room';
+                    await formMeetingPage.fillOnlineMeetingUrl(newOnlineMeetingUrl);
+                    const newDescriptionAF = `Create meeting description with new details - ${type}`;
+                    await formMeetingPage.fillDescriptionField(newDescriptionAF, 'en');
+                } else if (type === 'in person' || type === 'hybrid') {
+                    if (type === 'in person') { await formMeetingPage.selectMeetingType('in_person'); };
+                    if (type === 'hybrid') { await formMeetingPage.selectMeetingType('hybrid'); };
+                    await formMeetingPage.createMeeting();                    
+                    await formMeetingPage.getPage().screenshot({ path: `test-results/screenshots/EA002/CreatedNewMeetingForm2 - ${type}.png`, fullPage: true });                    
+                    expect(await formMeetingPage.hasValidationErrors()).toBe(true);
+                    const errorsSecondStep = await formMeetingPage.getValidationErrors();                
+                    expect(errorsSecondStep.length).toBe(4);
+                    const flashIcon = formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]');
+                    await expect(flashIcon).toBeVisible();                    
+                    const newTitleAF = `New Meeting Title - Type: ${type}`;
+                    await formMeetingPage.fillTitle(newTitleAF);
+                    const address = '123 Main St, Cityville';
+                    await formMeetingPage.fillAddress(address);
+                    const location = 'City Hall Conference Room';
+                    await formMeetingPage.fillLocation(location);
+                    const newDescriptionAF = `Create meeting description with new details - ${type}`;
+                    await formMeetingPage.fillDescriptionField(newDescriptionAF, 'en');                    
+                }
+                await formMeetingPage.createMeeting();
+                await formMeetingPage.getPage().screenshot({ path: `test-results/screenshots/EA002/CreatedNewMeetingForm3 - ${type}.png`, fullPage: true });
+                const successMessage = formMeetingPage.getPage().locator('.flash.success, .alert.success, [role="alert"]');
+                await expect(successMessage).toBeVisible();                
+                await meetingsPage.getPage().waitForLoadState('networkidle');
+			}
+            const afterMeetingCount = await meetingsPage.getMeetingCount();
+            expect(afterMeetingCount).toBe(beforeMeetingCount + 3);
+            await componentsPage.deleteComponentIfExists(/New Meeting Title - Type: online/i);
+            await componentsPage.deleteComponentIfExists(/New Meeting Title - Type: in person/i);
+            await componentsPage.deleteComponentIfExists(/New Meeting Title - Type: hybrid/i);
+		});
+    });
+});
