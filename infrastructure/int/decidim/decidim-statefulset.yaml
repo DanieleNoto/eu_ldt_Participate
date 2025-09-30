@@ -46,7 +46,7 @@ spec:
                       periodSeconds: 100
                       timeoutSeconds: 50
                   volumeMounts:
-                      - mountPath: /code/data
+                      - mountPath: /code
                         name: decidim-pvc
                       - mountPath: /usr/local/bundle
                         name: bundle-cache
