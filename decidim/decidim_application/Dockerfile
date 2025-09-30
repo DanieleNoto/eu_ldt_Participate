@@ -50,8 +50,7 @@ COPY package.json yarn.lock* ./
 # Install Node.js dependencies (cached layer)
 RUN yarn install --network-timeout 100000 --include-dev
 
-# NOW copy the full application code
-COPY . .
+
 
 # Make entrypoint executable
 RUN chmod +x docker-entrypoint.sh
@@ -83,6 +82,9 @@ RUN if [ "$RAILS_ENV" = "production" ]; then \
   else \
   echo "=== DEVELOPMENT BUILD: Assets served by shakapacker-dev-server ==="; \
   fi
+
+# NOW copy the full application code
+COPY . .
 
 RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
   && rm -rf /usr/local/bundle/cache/*.gem \
