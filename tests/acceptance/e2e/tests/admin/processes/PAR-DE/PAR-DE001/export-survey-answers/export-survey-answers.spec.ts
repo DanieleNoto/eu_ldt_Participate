@@ -107,97 +107,101 @@ test.describe('[PAR-DE001] – Export survey answers', () => {
 			await setupTestProcessWithResponses(browser);
 		});
 
-		test('should export survey answers provided by users', async ({ page }) => {
-			await test.step('1. User: Navigates to the "Processes" section.', async () => {
-				// Navigate to processes section using admin nav
-				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+		[{ fileFormat: 'CSV' }, { fileFormat: 'JSON' }, { fileFormat: 'Excel' }, { fileFormat: 'PDF' }].forEach(
+			({ fileFormat }) => {
+				test(`should export survey answers provided by users in ${fileFormat} format`, async ({ page }) => {
+					await test.step('1. User: Navigates to the "Processes" section.', async () => {
+						// Navigate to processes section using admin nav
+						await adminHomePage.navigateViaAdminNav('processes');
+						await processAdminPage.waitForLoadState('networkidle');
 
-				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
-				expect(isOnProcessesPage).toBe(true);
-				console.log('Navigated to Processes section');
-			});
+						const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+						expect(isOnProcessesPage).toBe(true);
+						console.log('Navigated to Processes section');
+					});
 
-			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
-				await processAdminPage.expectToBeOnProcessesAdminPage();
-				// Verify processes table is visible and has content
-				const hasProcesses = await processAdminPage.processTable.hasProcesses();
-				expect(hasProcesses).toBe(true);
-				console.log('Processes list displayed with available processes');
-			});
+					await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
+						await processAdminPage.expectToBeOnProcessesAdminPage();
+						// Verify processes table is visible and has content
+						const hasProcesses = await processAdminPage.processTable.hasProcesses();
+						expect(hasProcesses).toBe(true);
+						console.log('Processes list displayed with available processes');
+					});
 
-			await test.step('3. User: Selects the process that want to update', async () => {
-				// Search for the specific process created in setup using its exact title
-				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
-				console.log(`Selected the specific process created in setup: "${validProcessData.general.title}"`);
-			});
+					await test.step('3. User: Selects the process that want to update', async () => {
+						// Search for the specific process created in setup using its exact title
+						await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
+						console.log(
+							`Selected the specific process created in setup: "${validProcessData.general.title}"`
+						);
+					});
 
-			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await page.waitForLoadState('networkidle');
+					await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
+						await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+						await page.waitForLoadState('networkidle');
 
-				// Verify we're on the edit page with process information using Page Object
-				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
-			});
+						// Verify we're on the edit page with process information using Page Object
+						await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
+					});
 
-			await test.step('5. User: Navigates to the "Components" section in the admin panel.', async () => {
-				await updateProcessAdminPage.navigateToComponents();
-				await componentsPage.manageComponent(componentName);
-				console.log('Accessed survey component');
-			});
+					await test.step('5. User: Navigates to the "Components" section in the admin panel.', async () => {
+						await updateProcessAdminPage.navigateToComponents();
+						await componentsPage.manageComponent(componentName);
+						console.log('Accessed survey component');
+					});
 
-			await test.step('6. User: Select specific Survey that want to export.', async () => {
-				await surveysManagePage.accessQuestionsManagement();
-				console.log('Navigated to Manage questions page for survey export');
-			});
+					await test.step('6. User: Select specific Survey that want to export.', async () => {
+						await surveysManagePage.accessQuestionsManagement();
+						console.log('Navigated to Manage questions page for survey export');
+					});
 
-			await test.step('7. System: Displays survey details, including an option to "Export all"', async () => {
-				// Verify we're on the survey details/manage questions page
-				expect(page.url()).toMatch(/\/edit_questions$/);
+					await test.step('7. System: Displays survey details, including an option to "Export all"', async () => {
+						// Verify we're on the survey details/manage questions page
+						expect(page.url()).toMatch(/\/edit_questions$/);
 
-				// Verify the "Export" button is visible
-				await expect(page.getByText('Export', { exact: true })).toBeVisible();
-				console.log('Export button is visible');
+						// Verify the "Export" button is visible
+						await expect(page.getByText('Export', { exact: true })).toBeVisible();
+						console.log('Export button is visible');
 
-				// Verify the confirmation message is present
-				await expect(page.getByText('The form is already answered')).toBeVisible();
-				console.log('Confirmation message is visible');
-			});
+						// Verify the confirmation message is present
+						await expect(page.getByText('The form is already answered')).toBeVisible();
+						console.log('Confirmation message is visible');
+					});
 
-			await test.step('8. User: Clicks on the "Export" button and select format', async () => {
-				await page.getByText('Export', { exact: true }).click();
+					await test.step('8. User: Clicks on the "Export" button and select format', async () => {
+						await componentsPage.exportComponentData(fileFormat);
+						console.log(`Selected Export ${fileFormat} format`);
 
-				await page.waitForLoadState('networkidle');
+						await page.waitForLoadState('networkidle');
+					});
 
-				await expect(page.getByRole('link', { name: 'Export CSV' })).toBeVisible();
-				await page.getByRole('link', { name: 'Export CSV' }).click();
-				console.log('Selected Export CSV format');
+					await test.step('9. System: Displays a confirmation message on the platform, indicating that the export process has been initiated and that the file will be sent via email', async () => {
+						await componentsPage.expectExportConfirmationMessage();
+						console.log('Export status message is visible');
 
-				await page.waitForLoadState('networkidle');
-			});
+						await page.waitForLoadState('networkidle');
+					});
 
-			await test.step('9. System: Displays a confirmation message on the platform, indicating that the export process has been initiated and that the file will be sent via email', async () => {
-				await expect(page.getByText('Your export is currently in')).toBeVisible();
-				console.log('Export status message is visible');
+					await test.step("10. System: Sends an email to the administrator's registered email address with the export file as an attachment or a secure download link", async () => {
+						// Navigate to Letter Opener and refresh to get latest emails
+						await letterOpenerPage.navigateToLetterOpener();
+						await letterOpenerPage.refreshEmails();
 
-				await page.waitForLoadState('networkidle');
-			});
+						console.log('Letter Opener opened and refreshed. Ready to search for export email.');
 
-			await test.step("10. System: Sends an email to the administrator's registered email address with the export file as an attachment or a secure download link", async () => {
-				// Navigate to Letter Opener and refresh to get latest emails
-				await letterOpenerPage.navigateToLetterOpener();
-				await letterOpenerPage.refreshEmails();
+						// Find and click on the most recent export email (should be first after refresh)
+						await letterOpenerPage.clickMostRecentExportEmail();
 
-				console.log('Letter Opener opened and refreshed. Ready to search for export email.');
+						// Verify the export email content
+						await letterOpenerPage.verifyExportEmail();
 
-				// Find and click on the most recent export email (should be first after refresh)
-				await letterOpenerPage.clickMostRecentExportEmail();
+						// Download and verify the export file
+						await letterOpenerPage.downloadExportFile();
 
-				// Verify the export email content
-				await letterOpenerPage.verifyExportEmail();
-
-				console.log('Export email content verified');
-			});
-		});
+						console.log('Export email content verified');
+					});
+				});
+			}
+		);
 	});
 });
