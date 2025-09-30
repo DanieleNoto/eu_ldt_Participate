@@ -155,21 +155,14 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 				});
 
 				await test.step('7. User: Clicks on the "Export" button and select format', async () => {
-					await page.getByText('Export', { exact: true }).click();
-
-					await page.waitForLoadState('networkidle');
-
-					await page
-						.getByRole('link', { name: `Export ${fileFormat}` })
-						.first()
-						.click();
+					await componentsPage.exportComponentData(fileFormat);
 					console.log(`Selected Export ${fileFormat} format`);
 
 					await page.waitForLoadState('networkidle');
 				});
 
 				await test.step('8. System: Displays a confirmation message on the platform, indicating that the export process has been initiated and that the file will be sent via email', async () => {
-					await expect(page.getByText('Your export is currently in')).toBeVisible();
+					await componentsPage.expectExportConfirmationMessage();
 					console.log('Export status message is visible');
 
 					await page.waitForLoadState('networkidle');
@@ -188,7 +181,8 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 					// Verify the export email content
 					await letterOpenerPage.verifyExportEmail();
 
-					console.log('Export email content verified');
+					// Download and verify the export file
+					await letterOpenerPage.downloadExportFileDebates();
 				});
 			});
 		});
