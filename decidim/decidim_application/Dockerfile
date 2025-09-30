@@ -4,13 +4,7 @@ FROM decidim/decidim-dev:0.30.1 AS builder
 # Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
 # Set build environment early for dependencies
-ARG RAILS_ENV=production
-ARG NODE_ENV=production
-ARG SECRET_KEY_BASE=temp_key_for_asset_precompilation 
-ENV RAILS_ENV=${RAILS_ENV}
-ENV NODE_ENV=${NODE_ENV}
-ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
-ENV RAILS_SERVE_STATIC_FILES=true
+
 
 # Update system and install base dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -53,11 +47,7 @@ RUN bundle config set --local path '/usr/local/bundle' && \
   bundle config set --local jobs 4
 
 # Environment-specific gem installation (production excludes dev/test gems)
-RUN [ "$RAILS_ENV" = "production" ] && \
-  bundle config set --local deployment true && \
-  bundle config set --local without 'development test' && \
-  bundle install --retry 3 || \
-  bundle install
+RUN bundle install --retry 3
 
 # Install Node.js dependencies (cached layer)
 RUN yarn install --network-timeout 100000 --include-dev
@@ -71,11 +61,18 @@ RUN chmod +x docker-entrypoint.sh
 # Final bundle install for git dependencies and local engines
 RUN bundle install
 
+ARG RAILS_ENV=production
+ARG NODE_ENV=production
+ARG SECRET_KEY_BASE=temp_key_for_asset_precompilation 
+ENV RAILS_ENV=${RAILS_ENV}
+ENV NODE_ENV=${NODE_ENV}
+ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
+ENV RAILS_SERVE_STATIC_FILES=true
+
 # Ensure webpack is available for asset compilation
 RUN echo "=== Installing webpack tools ===" && \
   yarn add webpack webpack-cli webpack-dev-server --dev && \
-  echo "=== Webpack installed ===" && \
-  ls -la node_modules/.bin/webpack*
+  echo "=== Webpack installed ==="
 
 # Production asset precompilation (separate layer for better caching)
 RUN if [ "$RAILS_ENV" = "production" ]; then \
@@ -96,9 +93,6 @@ RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
   && rm -rf /usr/local/bundle/cache/*.gem \
   && find /usr/local/bundle/gems/ -name "*.c" -delete \
   && find /usr/local/bundle/gems/ -name "*.o" -delete \
-  && find /usr/local/bundle/bundler/gems/ -type d -name "spec" -prune -exec rm -rf {} \; \
-  && find /usr/local/bundle/bundler/gems/decidim-* -type d -name "db/migrate" -prune -exec rm -rf {} \; \
-  && find /usr/local/bundle/bundler/gems/decidim-* -type d -name "docs" -prune -exec rm -rf {} \; \
   && rm -rf log/*.log
 
 ### Runtime stage: lean image with only runtime dependencies
