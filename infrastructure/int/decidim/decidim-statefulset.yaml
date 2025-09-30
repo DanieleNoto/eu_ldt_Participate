@@ -52,8 +52,6 @@ spec:
                         name: bundle-cache
                       - mountPath: /app/vendor/bundle
                         name: vendor-bundle
-                      - mountPath: /code/node_modules
-                        name: node-modules
     volumeClaimTemplates:
         - metadata:
               name: decidim-pvc
@@ -71,13 +69,6 @@ spec:
                       storage: 1Gi
         - metadata:
               name: vendor-bundle
-          spec:
-              accessModes: ['ReadWriteOnce']
-              resources:
-                  requests:
-                      storage: 1Gi
-        - metadata:
-              name: node-modules
           spec:
               accessModes: ['ReadWriteOnce']
               resources:
