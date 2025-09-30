@@ -35,7 +35,7 @@ if [ "$RAILS_ENV" = "production" ]; then
   if [ ! -d "public/assets" ] || [ -z "$(ls -A public/assets 2>/dev/null)" ]; then
     echo "ERROR: No precompiled assets found in production"
     echo "Assets must be precompiled during Docker image build"
-    exit 1
+    bin/rails assets:precompile
   else
     echo "--- Precompiled assets verified, ready to serve ---"
   fi
