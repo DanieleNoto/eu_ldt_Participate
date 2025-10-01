@@ -95,7 +95,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				await page.waitForLoadState('networkidle');
 			});
 
-			await test.step('7. System: Displays a preview of the newsletter to the user, allowing them to check layout, personalization tags, and overall content', async () => {
+			await test.step('7. System: Displays a preview of the newsletter to the user, allowing them to check layout and overall content', async () => {
 				// Verify that the newsletter preview is displayed
 				await newsletterAdminPage.expectNewsletterPreviewHeadingToBeVisible();
 

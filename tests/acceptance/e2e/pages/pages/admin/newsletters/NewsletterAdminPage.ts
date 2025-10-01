@@ -203,62 +203,38 @@ export class NewsletterAdminPage extends BaseAdminPage {
 
 	async expectNewsletterSentToAllUsers(subject: string) {
 		const newsletterRow = this.newsletterRowBySubject(subject);
-		await expect(newsletterRow.getByText('Has been sent to:')).toBeVisible();
-		await expect(newsletterRow.getByText('All users')).toBeVisible();
+		await expect(newsletterRow).toBeVisible();
+
+		// Check the "Sent to" column (4th column) contains both required texts
+		const sentToCell = newsletterRow.locator('td').nth(3);
+		await expect(sentToCell).toBeVisible();
+
+		await expect(sentToCell).toContainText('Has been sent to:');
+		await expect(sentToCell).toContainText('All users');
 	}
 
 	async expectNewsletterDeliveryStarted(subject: string) {
-		let attempts = 0;
-		const maxAttempts = 20;
-		const waitBetweenAttempts = 6000;
+		// Initial wait to allow server-side newsletter delivery process to initialize
+		await this.page.waitForTimeout(2000);
 
-		while (attempts < maxAttempts) {
-			if (attempts > 0) {
-				console.log(`Refreshing page (attempt ${attempts})...`);
-				await this.page.reload();
-				await this.page.waitForLoadState('networkidle');
-			}
+		// Retry loop with page reloads until delivery starts or timeout
+		await expect(async () => {
+			// Reload page to get fresh progress data from server
+			await this.page.reload();
+			await this.page.waitForLoadState('networkidle');
 
-			try {
-				const newsletterRow = this.newsletterRowBySubject(subject);
+			// Re-query DOM elements after reload
+			const newsletterRow = this.newsletterRowBySubject(subject);
+			const progressCell = newsletterRow.locator('td').nth(4);
 
-				await expect(newsletterRow).toBeVisible();
+			// Check if delivery has started (progress > 0)
+			await expect(progressCell).not.toHaveText(/^\s*0\s*\/\s*\d+\s*$/);
+			await expect(progressCell).toHaveText(/^\s*[1-9]\d*\s*\/\s*\d+\s*$/);
 
-				const progressCell = newsletterRow.locator('td').nth(4);
-
-				await expect(progressCell).toBeVisible();
-
-				const progressText = await progressCell.textContent();
-				if (progressText) {
-					const match = progressText.match(/(\d+)\s*\/\s*(\d+)/);
-					if (match) {
-						const completed = parseInt(match[1], 10);
-						const total = parseInt(match[2], 10);
-
-						console.log(`Newsletter delivery progress: ${completed}/${total}`);
-
-						if (completed > 0 && total > 0) {
-							console.log('Newsletter delivery has started!');
-							return;
-						}
-
-						if (completed === 0) {
-							console.log('Delivery not started yet, waiting...');
-						}
-					}
-				}
-			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : String(error);
-				console.log(`Error reading progress, retrying... Error: ${errorMessage}`);
-			}
-
-			attempts++;
-
-			if (attempts < maxAttempts) {
-				await this.page.waitForLoadState('networkidle');
-			}
-		}
-
-		throw new Error(`Newsletter delivery did not start after ${maxAttempts} attempts`);
+			console.log('Newsletter delivery has started!');
+		}).toPass({
+			timeout: 120000, // 2 minutes total timeout
+			intervals: [3000, 5000, 10000] // Progressive wait intervals between retries
+		});
 	}
 }
