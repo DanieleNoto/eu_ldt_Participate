@@ -1,57 +1,3 @@
-#apiVersion: networking.k8s.io/v1
-#kind: Ingress
-#metadata:
-#  name: tool3-ingress-api
-#  annotations:
-#    kubernetes.io/ingress.class: nginx
-#    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
-#    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-#    nginx.ingress.kubernetes.io/use-regex: "true"
-#    nginx.ingress.kubernetes.io/rewrite-target: /api/$2
-#    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-#    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-#spec:
-#  ingressClassName: nginx
-#  rules:
-#  - host: part-int.ldttoolbox.app
-#    http:
-#      paths:
-#      - path: /api(/|$)(.*)
-#        pathType: ImplementationSpecific
-#        backend:
-#          service:
-#            name: tool3
-#            port:
-#              number: 3000
-#---
-#apiVersion: networking.k8s.io/v1
-#kind: Ingress
-#metadata:
-#  name: tool3-ingress
-#  annotations:
-#    kubernetes.io/ingress.class: nginx
-#    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
-#    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-#    nginx.ingress.kubernetes.io/use-regex: "true"
-#    nginx.ingress.kubernetes.io/rewrite-target: /$1
-#    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
-#    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-#    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-#spec:
-#  ingressClassName: nginx
-#  rules:
-#  - host: part-int.ldttoolbox.app
-#    http:
-#      paths:
-#      - path: /(.*)
-#        pathType: ImplementationSpecific
-#        backend:
-#          service:
-#            name: tool3-frontend
-#            port:
-#              number: 8080
-#---
-# Ingress entries for platform components (Decidim, Grafana, Matomo, Jitsi)
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -59,77 +5,36 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
   rules:
   - host: part-int.ldttoolbox.app
     http:
       paths:
-      # Decidim at root
-      - path: /(.*)
-        pathType: ImplementationSpecific
+      - path: /
+        pathType: Prefix
         backend:
           service:
             name: decidim
             port:
               number: 80
-      # Jitsi under /jitsi -> forward to jitsi-web
-      - path: /jitsi(/|$)(.*)
-        pathType: ImplementationSpecific
+      - path: /jitsi
+        pathType: Prefix
         backend:
           service:
             name: jitsi-web
             port:
               number: 80
-      # Grafana under /analytics/grafana -> rewrite to /$2 (grafana root)
-      - path: /analytics/grafana(/|$)(.*)
-        pathType: ImplementationSpecific
+      - path: /analytics/grafana
+        pathType: Prefix
         backend:
-          service:
             name: grafana
             port:
               number: 3000
-      # Matomo under /analytics/matomo -> rewrite to /$2 (matomo root)
-      - path: /analytics/matomo(/|$)(.*)
-        pathType: ImplementationSpecific
+      - path: /analytics/matomo
+        pathType: Prefix
         backend:
           service:
             name: matomo
             port:
               number: 8081
-
----
-# Placeholder legacy ingresses kept empty (no rules) for backwards compatibility
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: grafana-ingress
-  annotations:
-    kubernetes.io/ingress.class: nginx
-spec:
-  ingressClassName: nginx
-  rules: []
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: matomo-ingress
-  annotations:
-    kubernetes.io/ingress.class: nginx
-spec:
-  ingressClassName: nginx
-  rules: []
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: jitsi-ingress
-  annotations:
-    kubernetes.io/ingress.class: nginx
-spec:
-  ingressClassName: nginx
-  rules: []
