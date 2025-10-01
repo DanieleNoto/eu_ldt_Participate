@@ -12,7 +12,6 @@ data:
     GF_PATHS_PROVISIONING: /etc/grafana/provisioning
     GF_SECURITY_ALLOW_EMBEDDING: 'true'
     GF_SECURITY_ADMIN_USER: 'admin'
-    GF_SECURITY_COOKIE_SECURE: 'admin'
     GF_SERVER_ROOT_URL: 'https://part-int.ldttoolbox.app/analytics/grafana'
     GF_SERVER_DOMAIN: 'part-int.ldttoolbox.app'
     GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: 'true'
