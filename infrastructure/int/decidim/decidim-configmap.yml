@@ -16,8 +16,8 @@ data:
     OMNIAUTH_KEYCLOAK_CLIENT_ID: tool3
     OMNIAUTH_KEYCLOAK_REALM: LDT
     OMNIAUTH_KEYCLOAK_SITE: https://im-int.ldttoolbox.app/
-    PUBLIC_URL: https://part-int.ldttoolbox.app/jitsi
     QUEUE_ADAPTER: sidekiq
+    RAILS_LOG_LEVEL: debug
     RAILS_ENV: production
     REDIS_URL: redis://redis:6379/0
     RESTART_POLICY: unless-stopped
