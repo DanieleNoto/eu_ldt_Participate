@@ -24,12 +24,11 @@ if [ "$RAILS_ENV" = "production" ]; then
   
   # Asset verification (must be precompiled)
   echo "--- Verifying precompiled assets ---"
-  if [ ! -d "public/assets" ] || [ -z "$(ls -A public/assets 2>/dev/null)" ]; then
+  if [ ! -d "public/packs" ] || [ -z "$(ls -A public/packs 2>/dev/null)" ]; then
     echo "ERROR: No precompiled assets found in production"
-    echo "Assets must be precompiled during Docker image build"
-    bin/rails assets:precompile
+    echo "'public/packs' not exist. Assets must be precompiled during Docker image build"
   else
-    echo "--- Precompiled assets verified, ready to serve ---"
+    echo "--- 'public/packs' exist. Precompiled assets verified, ready to serve ---"
   fi
   
   # No data setup in production
