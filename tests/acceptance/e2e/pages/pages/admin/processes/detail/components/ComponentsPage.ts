@@ -46,14 +46,11 @@ export class ComponentsPage extends BaseAdminPage {
 		this.newPageComponentPage = new NewPageComponentPage(page);
 		this.managePageComponentPage = new ManagePageComponentPage(page);
 		// Main page elements
-		this.pageWrapper = page.locator('.item_show__wrapper');
-		this.card = page.locator('.card');
 		this.pageTitle = page.locator('.item_show__header-title h1, h1.item_show__header-title');
 
 		// Add component dropdown
 		this.addComponentButton = page.locator('button[data-toggle="add-component-dropdown"]');
 		this.addComponentDropdown = page.locator('#add-component-dropdown');
-		this.addComponentMenu = page.locator('.add-components.vertical.menu');
 
 		// Component type links
 		this.accountabilityLink = page.locator('a.accountability[href*="components/new?type=accountability"]');
@@ -67,9 +64,7 @@ export class ComponentsPage extends BaseAdminPage {
 		this.surveysLink = page.locator('a.surveys[href*="components/new?type=surveys"]');
 
 		// Components table
-		this.componentsTable = page.locator('.table-list');
 		this.tableHeaders = page.locator('.table-list thead th');
-		this.tableBody = page.locator('.table-list tbody');
 		this.componentRows = page.locator('.table-list tbody tr');
 	}
 
@@ -432,39 +427,73 @@ export class ComponentsPage extends BaseAdminPage {
 		}
 	}
 
-    /**
-     * Deletes a component by name if it exists, including snapshots cleanup.
-     * @param componentName Name or regex of the component to delete
-     * @param snapshotsDir Directory containing snapshots to delete
-     */
-    async deleteComponentIfExists(componentName: string | RegExp, snapshotsDir: string) {
-        const rowLocator = this.page.getByRole('option', { name: componentName });
-        if (await rowLocator.count() > 0) {
-            const row = rowLocator.first();
-            const deleteLink = row.locator('a.action-icon--delete');
-            await deleteLink.click();
+	/**
+	 * Deletes a component by name if it exists, including snapshots cleanup.
+	 * @param componentName Name or regex of the component to delete
+	 * @param snapshotsDir Directory containing snapshots to delete
+	 */
+	async deleteComponentIfExists(componentName: string | RegExp, snapshotsDir: string) {
+		const rowLocator = this.page.getByRole('option', { name: componentName });
+		if ((await rowLocator.count()) > 0) {
+			const row = rowLocator.first();
+			const deleteLink = row.locator('a.action-icon--delete');
+			await deleteLink.click();
 
-            // Confirm deletion
-            await this.page.getByRole('button', { name: 'OK' }).click();
+			// Confirm deletion
+			await this.page.getByRole('button', { name: 'OK' }).click();
 
-            // Verify success message
-            const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
-            await expect(deletionSuccessMessage).toBeVisible();
+			// Verify success message
+			const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
+			await expect(deletionSuccessMessage).toBeVisible();
 
-            // //commenting out snapshot deletion for permanence of snapshots -- uncomment if needed
+			// //commenting out snapshot deletion for permanence of snapshots -- uncomment if needed
 			// // Delete all files in snapshots directory
-            // if (existsSync(snapshotsDir)) {
-            //     const files = readdirSync(snapshotsDir);
-            //     for (const file of files) {
-            //         const filePath = join(snapshotsDir, file);
-            //         unlinkSync(filePath);
-            //         console.log(`Deleted: ${filePath}`);
-            //     }
-            // } else {
-            //     console.log(`Directory ${snapshotsDir} does not exist.`);
-            // }
-        } else {
-            console.log(`Component "${componentName}" not found, skipping deletion.`);
-        }
-    }
+			// if (existsSync(snapshotsDir)) {
+			//     const files = readdirSync(snapshotsDir);
+			//     for (const file of files) {
+			//         const filePath = join(snapshotsDir, file);
+			//         unlinkSync(filePath);
+			//         console.log(`Deleted: ${filePath}`);
+			//     }
+			// } else {
+			//     console.log(`Directory ${snapshotsDir} does not exist.`);
+			// }
+		} else {
+			console.log(`Component "${componentName}" not found, skipping deletion.`);
+		}
+	}
+
+	/**
+	 * Click on the Export button to open export dropdown/modal
+	 */
+	async clickExportButton(): Promise<void> {
+		await this.page.getByText('Export', { exact: true }).click();
+	}
+
+	/**
+	 * Select a specific export format from the export options
+	 * @param fileFormat - The format to export (CSV, JSON, Excel)
+	 */
+	async selectExportFormat(fileFormat: string): Promise<void> {
+		await this.page
+			.getByRole('link', { name: `Export ${fileFormat}` })
+			.first()
+			.click();
+	}
+
+	/**
+	 * Complete export process: open export menu and select format
+	 * @param fileFormat - The format to export (CSV, JSON, Excel)
+	 */
+	async exportComponentData(fileFormat: string): Promise<void> {
+		await this.clickExportButton();
+		await this.selectExportFormat(fileFormat);
+	}
+
+	/**
+	 * Verify that the export confirmation message is displayed
+	 */
+	async expectExportConfirmationMessage(): Promise<void> {
+		await expect(this.page.getByText('Your export is currently in')).toBeVisible();
+	}
 }
