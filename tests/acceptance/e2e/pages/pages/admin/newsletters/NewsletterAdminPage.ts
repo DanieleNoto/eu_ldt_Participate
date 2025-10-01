@@ -32,6 +32,9 @@ export class NewsletterAdminPage extends BaseAdminPage {
 	readonly deliverNewsletterButton: Locator;
 	readonly confirmOKButton: Locator;
 	readonly newsletterDeliveredMessage: Locator;
+	readonly confirmRecipientsButton: Locator;
+	readonly confirmRecipientsHeading: Locator;
+	readonly recipientsTable: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -62,6 +65,9 @@ export class NewsletterAdminPage extends BaseAdminPage {
 		this.deliverNewsletterButton = page.getByRole('button', { name: 'Deliver newsletter' });
 		this.confirmOKButton = page.getByRole('button', { name: 'OK' });
 		this.newsletterDeliveredMessage = page.getByText('Newsletter delivered');
+		this.confirmRecipientsButton = page.getByRole('link', { name: 'Confirm recipients' });
+		this.confirmRecipientsHeading = page.getByRole('heading', { name: 'Confirm recipients' });
+		this.recipientsTable = page.locator('.table-list tbody');
 	}
 
 	// Helpers methods for dynamic locators
@@ -126,6 +132,38 @@ export class NewsletterAdminPage extends BaseAdminPage {
 
 	async selectSendToAllUsers() {
 		await this.sendToAllUsersRadio.click();
+		await this.page.waitForLoadState('networkidle');
+	}
+
+	async selectSendToParticipants(processName?: string) {
+		// Check the "Send to participants" checkbox
+		await this.sendToParticipantsCheckbox.check();
+		await this.page.waitForLoadState('networkidle');
+
+		// Click to open the participatory processes dropdown
+		await this.page.locator('#participatory_processes-spaces-select-ts-control').click();
+
+		// Wait for dropdown to be visible
+		const dropdown = this.page.locator('#participatory_processes-spaces-select-ts-dropdown');
+		await dropdown.waitFor({ state: 'visible' });
+
+		if (processName) {
+			// Use the search textbox to filter the process by name
+			const searchBox = this.page.getByRole('textbox', { name: 'Choose participatory processes' });
+			await searchBox.fill(processName);
+
+			// Wait for dropdown filtering to complete
+			await this.page.waitForTimeout(500);
+
+			// Now click on the first visible option after filtering
+			const filteredOption = dropdown.locator('.option:visible').first();
+			await filteredOption.click();
+		} else {
+			// Default: select first available process (excluding "All")
+			const firstProcessOption = dropdown.locator('.option[data-value]:not([data-value="all"])').first();
+			await firstProcessOption.click();
+		}
+
 		await this.page.waitForLoadState('networkidle');
 	}
 
@@ -213,6 +251,21 @@ export class NewsletterAdminPage extends BaseAdminPage {
 		await expect(sentToCell).toContainText('All users');
 	}
 
+	async expectNewsletterSentToProcessParticipants(subject: string, processName: string) {
+		const newsletterRow = this.newsletterRowBySubject(subject);
+		await expect(newsletterRow).toBeVisible();
+
+		// Check the "Sent to" column (4th column) contains process-specific texts
+		const sentToCell = newsletterRow.locator('td').nth(3);
+		await expect(sentToCell).toBeVisible();
+
+		await expect(sentToCell).toContainText('Has been sent to:');
+		await expect(sentToCell).toContainText('participants');
+
+		await expect(sentToCell).toContainText('Segmented to Participatory processes:');
+		await expect(sentToCell).toContainText(processName);
+	}
+
 	async expectNewsletterDeliveryStarted(subject: string) {
 		// Initial wait to allow server-side newsletter delivery process to initialize
 		await this.page.waitForTimeout(2000);
@@ -221,7 +274,7 @@ export class NewsletterAdminPage extends BaseAdminPage {
 		await expect(async () => {
 			// Reload page to get fresh progress data from server
 			await this.page.reload();
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('domcontentloaded');
 
 			// Re-query DOM elements after reload
 			const newsletterRow = this.newsletterRowBySubject(subject);
@@ -236,5 +289,28 @@ export class NewsletterAdminPage extends BaseAdminPage {
 			timeout: 120000, // 2 minutes total timeout
 			intervals: [3000, 5000, 10000] // Progressive wait intervals between retries
 		});
+	}
+
+	async confirmRecipients() {
+		await this.confirmRecipientsButton.click();
+		await this.page.waitForLoadState('networkidle');
+	}
+
+	async expectConfirmRecipientsPageToBeVisible() {
+		await expect(this.confirmRecipientsHeading).toBeVisible();
+		await expect(this.recipientsTable).toBeVisible();
+	}
+
+	async expectAtLeastOneRecipientToBeDisplayed() {
+		// Verify that the recipients table exists and has at least one row
+		await expect(this.recipientsTable).toBeVisible();
+
+		// Check that there's at least one recipient row in the table
+		const recipientRows = this.recipientsTable.locator('tr');
+
+		// check count is greater than 0
+		expect(await recipientRows.count()).toBeGreaterThan(0);
+
+		console.log('At least one recipient found in the confirmation table');
 	}
 }
