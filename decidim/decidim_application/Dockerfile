@@ -114,7 +114,6 @@ WORKDIR /code
 # Copy application and compiled assets from builder
 COPY --from=builder /code /code
 COPY --from=builder /usr/local/bundle /usr/local/bundle
-COPY --from=builder /code/public/packs /code/public/packs
 
 # Set runtime environment
 ENV RAILS_ENV=${RAILS_ENV}
