@@ -9,7 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+ #   nginx.ingress.kubernetes.io/rewrite-target: /$2
 
 spec:
   ingressClassName: nginx
@@ -34,6 +34,7 @@ spec:
       - path: /analytics/grafana
         pathType: Prefix
         backend:
+          service:
             name: grafana
             port:
               number: 3000
