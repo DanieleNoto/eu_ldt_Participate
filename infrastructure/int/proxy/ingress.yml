@@ -50,7 +50,6 @@
 #            name: tool3-frontend
 #            port:
 #              number: 8080
-#
 #---
 # Ingress entries for platform components (Decidim, Grafana, Matomo, Jitsi)
 apiVersion: networking.k8s.io/v1
