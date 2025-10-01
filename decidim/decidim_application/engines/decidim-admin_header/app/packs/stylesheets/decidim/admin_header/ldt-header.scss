@@ -1,0 +1,94 @@
+/* LDT Admin Header Styles */
+
+.ldt-admin-header {
+  height: 56px;
+  max-height: 56px;
+  background-color: #FCFCFC;
+}
+
+.ldt-admin-header #ldt-logo {
+  max-height: 28px;
+  max-width: 112px;
+}
+
+.ldt-admin-breadcrumb {
+  height: 56px;
+  background-color: #F2F4F5;
+  padding-right: 32px;
+  padding-left: 32px;
+}
+
+/* Tools Button Styles */
+.tools-button {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: 1px solid #004494;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  gap: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  &:hover {
+      background: #004494;
+      transform: translateY(-1px);
+      .tools-text {
+        color: #FFFFFF !important;
+      }
+      svg {
+        fill: #FFFFFF !important;
+      }
+    }
+  &:active {
+      transform: translateY(0);
+    }
+    
+  .tools-text {
+      color: #004494;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0.1px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    
+  .tools-icon {
+      width: 20px;
+      height: 20px;
+      fill: #004494;
+    }
+}
+
+
+/* Dropdown Styles */
+.tools-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  min-width: 17rem;
+  z-index: 1000;
+  margin-top: 4px;
+  overflow-y: auto;
+}
+
+.tools-dropdown.hidden {
+  display: none;
+}
+
+.loading-message {
+  padding: 12px 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+.application-item {
+  svg {
+    scale: 0.75;
+  }
+}

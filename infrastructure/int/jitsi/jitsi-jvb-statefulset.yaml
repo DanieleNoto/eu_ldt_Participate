@@ -1,75 +1,77 @@
-
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: jitsi-jvb
-  labels:
-    app: jitsi-jvb
-spec:
-  serviceName: jitsi-jvb
-  replicas: 1
-  selector:
-    matchLabels:
-      app: jitsi-jvb
-  template:
-    metadata:
-      labels:
+    name: jitsi-jvb
+    labels:
         app: jitsi-jvb
-    spec:
-      containers:
-        - name: jitsi-jvb
-          image: jitsi/jvb:stable-8960
-          env:
-            - name: JVB_AUTH_USER
-              value: jvb
-            - name: JVB_AUTH_PASSWORD
-              value: supersecurejvbpassword
-            - name: JVB_BREWERY_MUC
-              value: jvbbrewery
-            - name: XMPP_SERVER
-              value: prosody
-            - name: XMPP_DOMAIN
-              value: meet.jitsi
-          ports:
-            - containerPort: 10000
-              protocol: UDP
-          volumeMounts:
-            - mountPath: /config
+spec:
+    serviceName: jitsi-jvb
+    replicas: 1
+    selector:
+        matchLabels:
+            app: jitsi-jvb
+    template:
+        metadata:
+            labels:
+                app: jitsi-jvb
+        spec:
+            automountServiceAccountToken: false
+            containers:
+                - name: jitsi-jvb
+                  image: jitsi/jvb:stable-8960
+                  resources:
+                      requests:
+                          memory: '256Mi'
+                          cpu: '200m'
+                          ephemeral-storage: '512Mi'
+                      limits:
+                          memory: '512Mi'
+                          cpu: '500m'
+                          ephemeral-storage: '1Gi'
+                  envFrom:
+                      - configMapRef:
+                            name: jitsi-config
+                      - secretRef:
+                            name: jitsi-secret
+                  ports:
+                      - containerPort: 10000
+                        protocol: UDP
+                  volumeMounts:
+                      - mountPath: /config
+                        name: jitsi-jvb-storage
+    volumeClaimTemplates:
+        - metadata:
               name: jitsi-jvb-storage
-  volumeClaimTemplates:
-    - metadata:
-        name: jitsi-jvb-storage
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 100Mi
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 100Mi
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: jitsi-jvb
-  labels:
-    app: jitsi-jvb
+    name: jitsi-jvb
+    labels:
+        app: jitsi-jvb
 spec:
-  type: ClusterIP
-  selector:
-    app: jitsi-jvb
-  ports:
-    - name: udp-10000
-      port: 10000
-      targetPort: 10000
-      protocol: UDP
+    type: ClusterIP
+    selector:
+        app: jitsi-jvb
+    ports:
+        - name: udp-10000
+          port: 10000
+          targetPort: 10000
+          protocol: UDP
 
 ---
-
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: jitsi-jvb-claim0
+    name: jitsi-jvb-claim0
 spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Mi
+    accessModes:
+        - ReadWriteOnce
+    resources:
+        requests:
+            storage: 100Mi
