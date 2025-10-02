@@ -9,7 +9,9 @@ data:
     DATABASE_NAME: decidim_application_development
     # DATABASE_USERNAME: postgres
     DECIDIM_FORCE_SSL: 'true'
+    DECIDIM_HOST: part-int.ldttoolbox.app
     DECIDIM_MAILER_SENDER: info@ldttoolbox.eu
+    DECIDIM_PROTOCOL: https
     DOCKER_HOST_ADDRESS: 127.0.0.1
     KEYCLOAK_DISABLE_SSL_VERIFY: 'false'
     NODE_ENV: production
