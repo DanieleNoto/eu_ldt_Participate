@@ -44,7 +44,8 @@ export default fp(async function (fastify) {
 		returnObjects: false
 	});
 
+	// declare the property on the request via a declaration file so we don't need to cast to `any`
 	fastify.addHook('onRequest', async request => {
-		(request as any).i18n = i18next;
+		request.i18n = i18next;
 	});
 });
