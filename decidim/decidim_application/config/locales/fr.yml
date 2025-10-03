@@ -1,0 +1,97 @@
+    activemodel:
+        attributes:
+            user:
+                tos_agreement: Accord sur la politique de confidentialité
+
+    decidim:
+        account:
+            blocked: Ce compte a été bloqué en raison d'une violation de la politique de confidentialité
+        admin_terms_of_service:
+            default_body: '<h2>POLITIQUE DE CONFIDENTIALITÉ ADMIN</h2><p>Nous espérons que vous avez reçu le discours habituel de l’administrateur système local. Cela se résume généralement à trois choses :</p><ol><li>Respectez la vie privée des autres.</li><li>Réfléchissez avant de cliquer.</li><li>Un grand pouvoir implique de grandes responsabilités.</li></ol>'
+        devise:
+            registrations:
+                new:
+                    terms: la politique de confidentialité
+                    tos_agreement: En vous inscrivant, vous acceptez %{link}.
+                    tos_title: Politique de confidentialité
+        download_your_data:
+            help:
+                users:
+                    accepted_tos_version: La date à laquelle l'utilisateur a accepté la politique de confidentialité de cette plateforme
+        pages:
+            privacy_policy:
+                accept:
+                    error: Un problème est survenu lors de l'acceptation de la politique de confidentialité.
+                    success: Félicitations ! Vous avez accepté la politique de confidentialité.
+                form:
+                    agreement: J'accepte cette politique de confidentialité
+                    legend: Accepter la politique de confidentialité
+                refuse:
+                    modal_body: Si vous refusez, vous ne pourrez pas utiliser la plateforme, vous pouvez <a href="%{download_your_data_path}">télécharger vos données</a> et/ou <a href="%{delete_path}">supprimer votre compte</a>.
+                    modal_btn_continue: Accepter la politique de confidentialité et continuer
+                    modal_btn_exit: Je la relirai plus tard
+                    modal_button: Refuser la politique de confidentialité
+                    modal_title: Refusez-vous vraiment la politique de confidentialité mise à jour ?
+                required_review:
+                    alert: Nous avons mis à jour notre politique de confidentialité, veuillez la consulter.
+                    body: Veuillez prendre un moment pour consulter les mises à jour de notre politique de confidentialité. Sinon, vous ne pourrez pas utiliser la plateforme.
+                    title: "Requis : Consultez les mises à jour de notre politique de confidentialité"
+        profile:
+            inaccessible_message: Ce profil est inaccessible en raison d'une violation de la politique de confidentialité !
+    devise:
+        omniauth_callbacks:
+            add_tos_errors: La politique de confidentialité doit être acceptée pour créer un compte.
+    layouts:
+        decidim:
+            footer:
+                terms_of_service: Politique de confidentialité
+fr:
+    activemodel:
+        attributes:
+            organization:
+                admin_terms_of_service_body: Politique de confidentialité administrateur
+
+                tos_version: Version de la politique de confidentialité
+    decidim:
+        admin:
+            admin_terms_of_service:
+                accept:
+                    error: Une erreur s'est produite lors de l'acceptation de la politique de confidentialité administrateur.
+                    success: Félicitations ! Vous avez accepté la politique de confidentialité administrateur.
+                actions:
+                    accept: J'accepte la politique de confidentialité
+                    are_you_sure: Êtes-vous sûr de vouloir refuser la politique de confidentialité administrateur ?
+                    refuse: Refuser la politique de confidentialité administrateur
+                    title: Accepter la politique de confidentialité
+                required_review:
+                    alert: 'Requis: Consultez notre politique de confidentialité administrateur'
+                    callout: Veuillez prendre le temps de lire la politique de confidentialité administrateur. Dans le cas contraire, vous ne serrez pas en mesure d'administrer la plateforme.
+                title: Politique de confidentialité administrateur
+            organization:
+                form:
+                    admin_terms_of_service: Politique de confidentialité administrateur
+            static_pages:
+                edit:
+                    changed_notably_help: Si cette case est cochée, les utilisateurs devront accepter la nouvelle politique de confidentialité.
+        templates:
+            admin:
+                questionnaire_templates:
+                    preview:
+                        tos_agreement: En participant, vous acceptez cette politique de confidentialité
+        forms:
+            admin:
+                models:
+                    components:
+                        tos: Politique de confidentialité
+                questionnaires:
+                    responses:
+                        tos_agreement: En participant, vous acceptez la politique de confidentialité
+        demographics:
+            demographics:
+                questionnaire:
+                    terms_of_service: Politique de confidentialité
+    components:
+        meetings:
+            settings:
+                global:
+                    terms_and_conditions_url_for_meeting_creators: URL de la politique de confidentialité pour les créateurs de réunions

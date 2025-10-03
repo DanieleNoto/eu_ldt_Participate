@@ -1,87 +1,110 @@
-
-ARG RAILS_ENV=production
-ARG PRECOMPILE=false
-FROM decidim/decidim-dev:0.30.1
-
-# Disable manual interaction
-### Multi-stage Dockerfile for Decidim
-
-# Builder stage: install build dependencies, gems, node modules and optionally precompile assets
-ARG PRECOMPILE=false
-ARG RAILS_ENV=production
+# Build stage: install dependencies and compile assets
 FROM decidim/decidim-dev:0.30.1 AS builder
 
+# Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
-WORKDIR /code
 
-# Install OS packages and Node.js repository in a single RUN to keep layers small
-RUN apt-get update \
-  && apt-get install -y \
-    apt-transport-https \
-    build-essential \
-    ca-certificates \
-    curl \
-    gnupg \
-    libreadline-dev \
-    libssl-dev \
-    lsb-release \
-    netcat-openbsd \
-    redis-tools \
-    sudo \
-    zlib1g-dev \
-  && mkdir -p /etc/apt/keyrings \
-  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
-  && apt-get update \
-  && apt-get install -y nodejs \
+# Update system and install base dependencies
+RUN apt-get update && apt-get install -y \
+  apt-transport-https \
+  build-essential \
+  ca-certificates \
+  curl \
+  gnupg \
+  libreadline-dev \
+  libssl-dev \
+  lsb-release \
+  netcat-openbsd \
+  redis-tools \
+  sudo \
+  zlib1g-dev \
   && rm -rf /var/lib/apt/lists/*
 
-# Copy lockfiles first to leverage Docker cache for deps
-COPY Gemfile Gemfile.lock ./
-COPY package.json yarn.lock ./
-COPY engines/ ./engines/
-COPY decidim-meetings-jitsi/ ./decidim-meetings-jitsi/
+# Install Node.js 20.x via NodeSource repository
+RUN mkdir -p /etc/apt/keyrings && \
+  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+  echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
+  apt-get update && \
+  apt-get install -y nodejs && \
+  rm -rf /var/lib/apt/lists/*
 
-# Install Ruby gems and Node.js deps
-RUN bundle config set --local path '/usr/local/bundle' \
-  && bundle install --jobs=4 --retry=3 \
-  && yarn install --frozen-lockfile --network-timeout 100000
-
-# Copy the application source
-COPY . .
-
-# Ensure entrypoint is available
-COPY docker-entrypoint.sh /code/docker-entrypoint.sh
-RUN chmod +x /code/docker-entrypoint.sh
-
-# Re-run bundle check to handle git-based gems that require source files
-RUN bundle check || bundle install --jobs=4 --retry=3
-
-# Optionally precompile assets during build (controlled via build-arg PRECOMPILE)
-RUN if [ "$PRECOMPILE" = "true" ] && [ "$RAILS_ENV" = "production" ]; then \
-      echo "Precompiling assets for production" && \
-      SECRET_KEY_BASE=temp_key_for_asset_precompilation \
-      RAILS_ENV=production NODE_ENV=production bundle exec rails assets:precompile; \
-    fi
-
-### Runtime stage: smaller image with only runtime artifacts
-FROM decidim/decidim-dev:0.30.1 AS runtime
-ENV DEBIAN_FRONTEND=noninteractive
+# Set working directory
 WORKDIR /code
 
-# Copy application code and artifacts from builder
+# Set build environment early for dependencies
+ARG RAILS_ENV=development
+ARG NODE_ENV=development
+ENV RAILS_ENV=${RAILS_ENV}
+ENV NODE_ENV=${NODE_ENV}
+
+# Copy dependency files FIRST for better Docker layer caching
+COPY Gemfile Gemfile.lock ./
+COPY package.json yarn.lock* ./
+COPY engines/ ./engines/
+
+# Install Ruby gems (cached layer) - optimized bundle config
+RUN bundle config set --local path '/usr/local/bundle' && \
+  bundle config set --local jobs 4
+
+# Environment-specific gem installation (production excludes dev/test gems)
+RUN [ "$RAILS_ENV" = "production" ] && \
+  bundle config set --local deployment true && \
+  bundle config set --local without 'development test' && \
+  bundle install --retry 3 || \
+  bundle install
+
+# Install Node.js dependencies (cached layer)
+RUN yarn install --network-timeout 100000
+
+# Install webpack tools
+RUN npm install -g webpack webpack-cli
+
+# NOW copy the full application code
+COPY . .
+
+# Make entrypoint executable
+RUN chmod +x docker-entrypoint.sh
+
+# Final bundle install for git dependencies and local engines
+RUN bundle install
+
+# Production asset precompilation (separate layer for better caching)
+RUN [ "$RAILS_ENV" = "production" ] && \
+  SECRET_KEY_BASE=temp_key_for_asset_precompilation \
+  bundle exec rails assets:precompile || \
+  echo "Development mode: assets will be served by shakapacker-dev-server container"
+
+### Runtime stage: lean image with only runtime dependencies
+FROM decidim/decidim-dev:0.30.1 AS runtime
+
+# Inherit build arguments for runtime
+ARG RAILS_ENV=development
+ARG NODE_ENV=development
+
+# Install only runtime dependencies (no build tools)
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+  ca-certificates \
+  netcat-openbsd \
+  redis-tools \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /code
+
+# Copy application and compiled assets from builder
 COPY --from=builder /code /code
-# Copy installed gems and node modules to preserve cache
 COPY --from=builder /usr/local/bundle /usr/local/bundle
 
-# Expose the application port and set entrypoint
-COPY --from=builder /code/docker-entrypoint.sh /code/docker-entrypoint.sh
-RUN chmod +x /code/docker-entrypoint.sh
+# Set runtime environment
+ENV RAILS_ENV=${RAILS_ENV}
+ENV NODE_ENV=${NODE_ENV}
 
-ENV RAILS_ENV=${RAILS_ENV:-production}
-ENV NODE_ENV=${NODE_ENV:-production}
+# Create user and set ownership efficiently (single operation)
+RUN groupadd -r decidim 2>/dev/null || true && \
+  useradd -r -g decidim -d /code -s /bin/bash decidim 2>/dev/null || true && \
+  chown -R decidim:decidim /code
+USER decidim
 
 EXPOSE 3000
 
-CMD ["/code/docker-entrypoint.sh"]
-# Expose port
+ENTRYPOINT ["/code/docker-entrypoint.sh"]

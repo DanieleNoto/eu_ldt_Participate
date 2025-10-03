@@ -12,11 +12,11 @@ if Rails.env.development?
       
       # Check if this is a request for decidim-packs assets
       if request.path.start_with?('/decidim-packs/')
-        Rails.logger.info "ShakapackerProxy: Proxying request for #{request.path}"
+        Rails.logger.debug "ShakapackerProxy: Proxying request for #{request.path}"
         begin
           # Proxy the request to shakapacker dev server
           uri = URI("http://shakapacker:3035#{request.path}")
-          Rails.logger.info "ShakapackerProxy: Proxying to #{uri}"
+          Rails.logger.debug "ShakapackerProxy: Proxying to #{uri}"
           http = Net::HTTP.new(uri.host, uri.port)
           http.read_timeout = 60
           
@@ -38,7 +38,7 @@ if Rails.env.development?
           end
           
           response = http.request(http_request)
-          Rails.logger.info "ShakapackerProxy: Got response #{response.code}"
+          Rails.logger.debug "ShakapackerProxy: Got response #{response.code}"
           
           # Return the proxied response
           headers = {}

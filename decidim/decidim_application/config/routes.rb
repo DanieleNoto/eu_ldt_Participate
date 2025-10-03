@@ -4,6 +4,8 @@ Rails.application.routes.draw do
   end
 
   mount Decidim::Core::Engine => '/'
+  mount Decidim::AdminHeader::Engine, at: '/'
+  
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")

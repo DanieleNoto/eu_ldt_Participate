@@ -1,0 +1,97 @@
+    activemodel:
+        attributes:
+            user:
+                tos_agreement: Zustimmung zur Datenschutzrichtlinie
+
+    decidim:
+        account:
+            blocked: Dieses Konto wurde wegen Verstoßes gegen die Datenschutzrichtlinie gesperrt
+        admin_terms_of_service:
+            default_body: '<h2>ADMIN-DATENSCHUTZRICHTLINIE</h2><p>Wir gehen davon aus, dass Sie die übliche Belehrung des lokalen Systemadministrators erhalten haben. Sie läuft in der Regel auf drei Dinge hinaus:</p><ol><li>Respektieren Sie die Privatsphäre anderer.</li><li>Denken Sie nach, bevor Sie klicken.</li><li>Mit großer Macht kommt große Verantwortung.</li></ol>'
+        devise:
+            registrations:
+                new:
+                    terms: die Datenschutzrichtlinie
+                    tos_agreement: Mit der Anmeldung stimmen Sie %{link} zu.
+                    tos_title: Datenschutzrichtlinie
+        download_your_data:
+            help:
+                users:
+                    accepted_tos_version: Das Datum, an dem der Nutzer die Datenschutzrichtlinie dieser Plattform akzeptiert hat
+        pages:
+            privacy_policy:
+                accept:
+                    error: Beim Akzeptieren der Datenschutzrichtlinie ist ein Problem aufgetreten.
+                    success: Super! Sie haben die Datenschutzrichtlinie akzeptiert.
+                form:
+                    agreement: Ich stimme dieser Datenschutzrichtlinie zu
+                    legend: Datenschutzrichtlinie zustimmen
+                refuse:
+                    modal_body: Wenn Sie ablehnen, können Sie die Plattform nicht nutzen. Sie können <a href="%{download_your_data_path}">Ihre Daten herunterladen</a> und/oder <a href="%{delete_path}">Ihr Konto löschen</a>.
+                    modal_btn_continue: Datenschutzrichtlinie akzeptieren und fortfahren
+                    modal_btn_exit: Ich prüfe sie später
+                    modal_button: Datenschutzrichtlinie ablehnen
+                    modal_title: Möchten Sie die aktualisierte Datenschutzrichtlinie wirklich ablehnen?
+                required_review:
+                    alert: Wir haben unsere Datenschutzrichtlinie aktualisiert, bitte überprüfen Sie sie.
+                    body: Bitte nehmen Sie sich einen Moment Zeit, um die Aktualisierungen unserer Datenschutzrichtlinie zu überprüfen. Andernfalls können Sie die Plattform nicht nutzen.
+                    title: "Erforderlich: Überprüfen Sie die Aktualisierungen unserer Datenschutzrichtlinie"
+        profile:
+            inaccessible_message: Dieses Profil ist aufgrund eines Verstoßes gegen die Datenschutzrichtlinie nicht zugänglich!
+    devise:
+        omniauth_callbacks:
+            add_tos_errors: Die Datenschutzrichtlinie muss akzeptiert werden, um ein Konto zu erstellen.
+    layouts:
+        decidim:
+            footer:
+                terms_of_service: Datenschutzrichtlinie
+de:
+    activemodel:
+        attributes:
+            organization:
+                admin_terms_of_service_body: Inhalt für die Admin-Datenschutzrichtlinie
+                tos_version: Datenschutzrichtlinie Version
+    decidim:
+        admin:
+            admin_terms_of_service:
+                accept:
+                    error: Beim Akzeptieren der Datenschutzrichtlinie ist ein Problem aufgetreten.
+                    success: Super! Sie haben die Admin-Datenschutzrichtlinie akzeptiert.
+                actions:
+                    accept: Ich stimme dieser Datenschutzrichtlinie zu
+                    are_you_sure: Sind Sie sicher, dass Sie die Admin-Datenschutzrichtlinie ablehnen möchten?
+                    refuse: Admin-Datenschutzrichtlinie ablehnen
+                    title: Datenschutzrichtlinie zustimmen
+                required_review:
+                    alert: 'Erforderlich: Überprüfen Sie unsere Admin-Datenschutzrichtlinie'
+                    callout: Bitte nehmen Sie sich einen Moment Zeit, um die Admin-Datenschutzrichtlinie zu lesen. Ansonsten können Sie die Plattform nicht verwalten.
+                title: Admin-Datenschutzrichtlinie
+            organization:
+                form:
+                    admin_terms_of_service: Admin-Datenschutzrichtlinie
+            static_pages:
+                edit:
+                    changed_notably_help: Wenn diese Option aktiviert ist, werden Nutzende benachrichtigt, um die neue Datenschutzrichtlinie zu akzeptieren.
+        templates:
+            admin:
+                questionnaire_templates:
+                    preview:
+                        tos_agreement: Mit Ihrer Teilnahme stimmen Sie folgender Datenschutzrichtlinie zu:
+        forms:
+            admin:
+                models:
+                    components:
+                        tos: Datenschutzrichtlinie
+                questionnaires:
+                    responses:
+                        tos_agreement: Mit Ihrer Teilnahme stimmen Sie folgender Datenschutzrichtlinie zu:
+
+        demographics:
+            demographics:
+                questionnaire:
+                    terms_of_service: Datenschutzrichtlinie
+    components:
+        meetings:
+            settings:
+                global:
+                    terms_and_conditions_url_for_meeting_creators: Datenschutzrichtlinien-URL für Meeting-Ersteller
