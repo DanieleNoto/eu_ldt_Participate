@@ -130,15 +130,15 @@ export class FormMeetingPage extends BaseAdminPage {
 		return this.page.locator('#panel-services');
 	}
 
-    /** Returns the calendar button based on the index (0 = first, 1 = second) */
-    private calendarIcon(index: number) {
-        return this.page.locator('.datepicker__calendar-button').nth(index);
-    }
+	/** Returns the calendar button based on the index (0 = first, 1 = second) */
+	private calendarIcon(index: number) {
+		return this.page.locator('.datepicker__calendar-button').nth(index);
+	}
 
-    /** Returns the "Select" button based on the index (0 = first, 1 = second) */
-    private selectButtoncalendar(index: number) {
-        return this.page.locator('button.datepicker__pick-calendar:enabled:has-text("Select")').nth(index);
-    }
+	/** Returns the "Select" button based on the index (0 = first, 1 = second) */
+	private selectButtoncalendar(index: number) {
+		return this.page.locator('button.datepicker__pick-calendar:enabled:has-text("Select")').nth(index);
+	}
 	// Page verification methods
 	async isOnMeetingFormPage(): Promise<boolean> {
 		try {
@@ -177,10 +177,9 @@ export class FormMeetingPage extends BaseAdminPage {
 	}
 
 	async fillDescriptionField(description: string, lang: 'en' | 'fr' | 'es' | 'de' = 'en') {
-    	const editor = this.page.locator(`#meeting_description_${lang} .tiptap`);
-    	await editor.fill(description);
+		const editor = this.page.locator(`#meeting_description_${lang} .tiptap`);
+		await editor.fill(description);
 	}
-
 
 	async getDescription(): Promise<string> {
 		return (await this.descriptionEditor.textContent()) || '';
@@ -335,7 +334,7 @@ export class FormMeetingPage extends BaseAdminPage {
 	async createMeeting() {
 		await this.createButton.click();
 		await this.page.waitForLoadState('networkidle');
-	}	
+	}
 
 	// Comprehensive form filling method for test scenarios
 	async fillMeetingDetails(meetingData: {
@@ -470,55 +469,85 @@ export class FormMeetingPage extends BaseAdminPage {
 	}
 
 	/**
-	 * Selects tomorrow's date.
+	 * Selects a specific date in YYYY-MM-DD format.
 	 * Works for both start and end date by passing the correct index.
 	 */
-	async selectTomorrowDate(calendarIndex: number, selectIndex: number): Promise<void> {
-	  // Calculate tomorrow in YYYY-MM-DD
-	  const tomorrow = new Date();
-	  tomorrow.setDate(tomorrow.getDate() + 1);
-	  const pad = (n: number) => (n < 10 ? '0' + n : n);
-	  const tomorrowStr = `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`;
+	async selectCustomDate(date: Date, calendarIndex: number, selectIndex: number): Promise<void> {
+		const pad = (n: number) => (n < 10 ? '0' + n : n);
+		const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
-	  // Open the datepicker
-	  await this.calendarIcon(calendarIndex).click();
+		// Open the datepicker
+		await this.calendarIcon(calendarIndex).click();
 
-	  // Pick tomorrow’s date
-	  const dateCell = this.page.locator(`.wc-datepicker__date[data-date="${tomorrowStr}"]:visible`).first();
-	  await dateCell.click();
+		// Pick the target date
+		const dateCell = this.page.locator(`.wc-datepicker__date[data-date="${dateStr}"]:visible`).first();
+		await dateCell.click();
 
-	  // Confirm date with "Select"
-	  await this.selectButtoncalendar(selectIndex).click();
+		// Confirm date with "Select"
+		await this.selectButtoncalendar(selectIndex).click();
 
-	  // Open the clock for this field
-	  await this.page.locator('.datepicker__clock-button').nth(calendarIndex).click();
+		// Open the clock for this field
+		await this.page.locator('.datepicker__clock-button').nth(calendarIndex).click();
 	}
 
 	/**
 	 * Sets a specific time using the time picker widget.
 	 * Works for both start and end date/time by passing the correct index.
+	 * Uses the "Reset" button to start from 0:00 to ensure correct final time.
+	 *
+	 * @param calendarIndex 0 = start, 1 = end
+	 * @param targetHour desired hour (0-23)
+	 * @param targetMinute desired minute (0-59)
+	 * @param deltaMinutes optional minutes to add/subtract
 	 */
-	async selectTomorrowTime(calendarIndex: number, hour: number, minute: number): Promise<void> {
+	async selectTomorrowTime(
+		calendarIndex: number,
+		targetHour: number,
+		targetMinute: number,
+		deltaMinutes: number = 0
+	): Promise<void> {
+		// Calculate final time with delta
+		let totalMinutes = targetHour * 60 + targetMinute + deltaMinutes;
+		totalMinutes = ((totalMinutes % (24 * 60)) + 24 * 60) % (24 * 60);
+		const finalHour = Math.floor(totalMinutes / 60);
+		const finalMinute = totalMinutes % 60;
 
-	  // Fill tomorrow's date in both date inputs	  // Open the clock for this field
-	  await this.page.locator('.datepicker__clock-button').nth(calendarIndex).click();
+		// Open the correct clock
+		await this.page.locator('.datepicker__clock-button').nth(calendarIndex).click();
 
-	  // Get the right timepicker container (start or end)
-	  const timePicker = calendarIndex === 0
-	    ? this.page.locator('#meeting_start_time_time_timepicker')
-	    : this.page.locator('#meeting_end_time_time_timepicker');
+		// Get timepicker
+		const timePicker =
+			calendarIndex === 0
+				? this.page.locator('#meeting_start_time_time_timepicker')
+				: this.page.locator('#meeting_end_time_time_timepicker');
 
-	  // Adjust hour
-	  for (let i = 0; i < hour; i++) {
-	    await timePicker.locator('.datepicker__hour-up').click();
-	  }
+		// --- RESET widget ---
+		await timePicker.locator('button.datepicker__reset-clock').click();
 
-	  // Adjust minute
-	  for (let i = 0; i < minute; i++) {
-	    await timePicker.locator('.datepicker__minute-up').click();
-	  }
+		// --- Set hours ---
+		let deltaHour = finalHour;
+		if (deltaHour > 12) deltaHour -= 24;
+		if (deltaHour < -12) deltaHour += 24;
 
-	  // Confirm time
-	  await timePicker.locator('button.datepicker__select-clock:has-text("Select")').click();
-	}	
+		if (deltaHour > 0) {
+			for (let i = 0; i < deltaHour; i++) await timePicker.locator('.datepicker__hour-up').click();
+		} else if (deltaHour < 0) {
+			for (let i = 0; i < Math.abs(deltaHour); i++) await timePicker.locator('.datepicker__hour-down').click();
+		}
+
+		// --- Set minutes ---
+		let deltaMinute = finalMinute;
+		if (deltaMinute > 30) deltaMinute -= 60;
+		if (deltaMinute < -30) deltaMinute += 60;
+
+		if (deltaMinute > 0) {
+			for (let i = 0; i < deltaMinute; i++) await timePicker.locator('.datepicker__minute-up').click();
+		} else if (deltaMinute < 0) {
+			for (let i = 0; i < Math.abs(deltaMinute); i++)
+				await timePicker.locator('.datepicker__minute-down').click();
+		}
+
+		// Confirm selection
+		await timePicker.locator('button.datepicker__select-clock:has-text("Select")').click();
+	}
 }

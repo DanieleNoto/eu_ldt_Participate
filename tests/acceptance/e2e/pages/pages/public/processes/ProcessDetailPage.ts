@@ -25,6 +25,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	// Help elements
 	private readonly debatesLink: Locator;
 	private readonly meetingsLink: Locator;
+	private meetingCards;
 
 	constructor(page: Page) {
 		super(page);
@@ -46,9 +47,10 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		this.navItems = page.locator('.participatory-space__nav-item');
 
 		// Help elements
-		this.helpButton = page.locator('#floating-helper-tip button');
+		//this.helpButton = page.locator('#floating-helper-tip button');
 		this.debatesLink = page.locator('a[href$="/debates"]:visible').first();
 		this.meetingsLink = page.locator('a[href$="/meetings"]:visible').first();
+		this.meetingCards = this.page.locator('.card__list-list .card__list');
 	}
 
 	// Navigation methods
@@ -303,5 +305,49 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		const triggerLoaded = await this.navDropdownTrigger.isVisible();
 
 		return navLoaded && triggerLoaded;
+	}
+	// /**
+	// * Finds the index of a meeting card given its title
+	// * @param title - The exact title of the card
+	// * @returns the index (0-based) or -1 if not found
+	// */
+	async findMeetingCardIndexByTitle(title: string): Promise<number> {
+		const count = await this.meetingCards.count();
+		for (let i = 0; i < count; i++) {
+			const cardTitle = await this.meetingCards.nth(i).locator('.card__list-title').innerText();
+			if (cardTitle.trim() === title) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Make sure the meeting list is visible
+	 * and that each card contains the title, date/time, and location.
+	 */
+	async verifyMeetingsCardListVisible(): Promise<void> {
+		// Ensure there is at least one card
+		const count = await this.meetingCards.count();
+		expect(count).toBeGreaterThan(0);
+		for (let i = 0; i < count; i++) {
+			const card = this.meetingCards.nth(i);
+			// Title
+			await expect(card.locator('.card__list-title')).toBeVisible();
+			// Date/time (time element)
+			await expect(card.locator('time.card__calendar')).toBeVisible();
+			// Location (icon + type text "Online", "In-person", "Hybrid")
+			await expect(card.locator('.card__list-metadata')).toContainText(['Online', 'In-person', 'Hybrid']);
+		}
+	}
+
+	async clickMeetingCardByIndex(index: number): Promise<void> {
+		const meetingCard = this.meetingCards.nth(index);
+		await meetingCard.click();
+	}
+
+	async expectUrlContainsMeetings(): Promise<void> {
+		await this.page.waitForURL(/.*\/meetings.*/);
+		expect(this.page.url()).toContain('/meetings');
 	}
 }
