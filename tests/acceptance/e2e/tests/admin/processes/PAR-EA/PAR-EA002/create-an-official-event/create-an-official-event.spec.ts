@@ -145,12 +145,20 @@ test.describe('[PAR-EA002] – Create an official event', () => {
                 newDescription = `Create meeting description with new details - ${type}`;
                 await formMeetingPage.fillDescriptionField(newDescription, 'en');
                 // First Calendar (start)
-                await formMeetingPage.selectTomorrowDate(0, 0);
-                await formMeetingPage.selectTomorrowTime(0, 10, 0);
+				// Start date: tomorrow
+				const startDate = new Date();
+				startDate.setDate(startDate.getDate() + 1);
+				await formMeetingPage.selectCustomDate(startDate, 0, 0);
+				const hour = startDate.getHours();
+				const minute = startDate.getMinutes();
+				await formMeetingPage.selectCustomTime(0, hour, minute);
 
                 // Second Calendar (end)
-                await formMeetingPage.selectTomorrowDate(1, 1);
-                await formMeetingPage.selectTomorrowTime(1, 12, 0);
+				const endDate = new Date();
+				endDate.setDate(endDate.getDate() + 21);
+                const endHour = hour + 2; 
+				await formMeetingPage.selectCustomDate(endDate, 1, 1);
+                await formMeetingPage.selectCustomTime(1, endHour, minute);
                 // Set registration type to "on this platform"
                 newRegistrationType = 'on_this_platform';
                 await formMeetingPage.selectRegistrationType(newRegistrationType);
@@ -208,6 +216,14 @@ test.describe('[PAR-EA002] – Create an official event', () => {
     
     test.describe('Alternative Flows', () => {
         test('should show validation errors when required fields are missing', async () => {
+            //////////////////
+            const expectedErrors = [
+              { fieldName: 'meeting[type_of_meeting]', message: 'There is an error in this field.' },
+              { fieldName: 'meeting[start_time]', message: 'There is an error in this field.' },
+              { fieldName: 'meeting[end_time]', message: 'There is an error in this field.' },
+              { fieldName: 'meeting[registration_type]', message: 'There is an error in this field.' }
+            ];
+            /////////////////////
             let beforeMeetingCount: number;	
             // Navigate to Processes
             await processAdminPage.navigateToProcesses();
@@ -230,7 +246,10 @@ test.describe('[PAR-EA002] – Create an official event', () => {
             await meetingsPage.verifyMeetingsPageVisible();
             beforeMeetingCount = await meetingsPage.getMeetingCount();
             expect(beforeMeetingCount).toBeGreaterThan(0);
+
             await componentsPage.getPage().screenshot({ path: 'test-results/screenshots/EA002/MeetingsList.png', fullPage: true });            
+            
+            
             const meetingTypes = [{ type: "online" }, { type: "in person" }, { type: "hybrid" }];
 
             for (const { type } of meetingTypes) {
@@ -241,14 +260,36 @@ test.describe('[PAR-EA002] – Create an official event', () => {
                 expect(await formMeetingPage.hasValidationErrors()).toBe(true);
                 const errorsFirstStep = await formMeetingPage.getValidationErrors();                
                 expect(errorsFirstStep.length).toBe(4);
-                await formMeetingPage.getPage().screenshot({ path: `test-results/screenshots/EA002/CreatedNewMeetingForm1 - ${type}.png`, fullPage: true });
-                // First Calendar (start)
-                await formMeetingPage.selectTomorrowDate(0, 0);
-                await formMeetingPage.selectTomorrowTime(0, 10, 0);
+                /////////
+                const actualErrors = await meetingsPage.getValidationErrorsDetailed();
+                expect(actualErrors.length).toBe(expectedErrors.length);
+                for (const expected of expectedErrors) {
+                  const match = actualErrors.find(
+                    err => err.fieldName === expected.fieldName && err.message === expected.message
+                  );
+                    if (match) {
+                      console.log(`✅ Campo "${expected.fieldName}" ha generato l'errore previsto: "${expected.message}"`);
+                    } else {
+                      console.warn(`❌ Campo "${expected.fieldName}" NON ha generato l'errore previsto: "${expected.message}"`);
+                    }
+                  expect(match).toBeTruthy(); // Verifica che l'errore sia presente
+                }
 
-                // Second Calendar (end)
-                await formMeetingPage.selectTomorrowDate(1, 1);
-                await formMeetingPage.selectTomorrowTime(1, 12, 0);
+                /////////
+                await formMeetingPage.getPage().screenshot({ path: `test-results/screenshots/EA002/CreatedNewMeetingForm1 - ${type}.png`, fullPage: true });
+				
+                const startDate = new Date();
+				startDate.setDate(startDate.getDate() + 1);
+				await formMeetingPage.selectCustomDate(startDate, 0, 0);
+				const hour = startDate.getHours();
+				const minute = startDate.getMinutes();
+				await formMeetingPage.selectCustomTime(0, hour, minute);
+				const endDate = new Date();
+				endDate.setDate(endDate.getDate() + 21);
+                const endHour = hour + 2; 
+				await formMeetingPage.selectCustomDate(endDate, 1, 1);
+                await formMeetingPage.selectCustomTime(1, endHour, minute);
+                
                 // Set registration type to "on this platform"
                 const newRegistrationType = 'on_this_platform';
                 await formMeetingPage.selectRegistrationType(newRegistrationType);                
@@ -261,15 +302,35 @@ test.describe('[PAR-EA002] – Create an official event', () => {
                     const flashIcon = formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]');
                     await expect(flashIcon).toBeVisible();                    
                     await formMeetingPage.getPage().screenshot({ path: `test-results/screenshots/EA002/CreatedNewMeetingForm2 - ${type}.png`, fullPage: true });                    
+                    
                     expect(await formMeetingPage.hasValidationErrors()).toBe(true);
                     const errorsSecondStep = await formMeetingPage.getValidationErrors();                
                     expect(errorsSecondStep.length).toBe(3);
-                    const newTitleAF = `New Meeting Title - Type: ${type}`;
-                    await formMeetingPage.fillTitle(newTitleAF);
+                    expect(errorsSecondStep).toContain('Must be valid URL');
+
+
+
+                    //console.log(`✅ Campo "${errorsSecondStep}`);                    
+                    // const newTitleAF = `New Meeting Title - Type: ${type}`;
+                    // await formMeetingPage.fillTitle(newTitleAF);
                     const newOnlineMeetingUrl = 'https://meet.jit.si/updated-meeting-room';
                     await formMeetingPage.fillOnlineMeetingUrl(newOnlineMeetingUrl);
                     const newDescriptionAF = `Create meeting description with new details - ${type}`;
                     await formMeetingPage.fillDescriptionField(newDescriptionAF, 'en');
+                    await formMeetingPage.createMeeting();
+                    const flashIcon4Title = formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]');
+                    await expect(flashIcon4Title).toBeVisible();                    
+                    await formMeetingPage.getPage().screenshot({ path: `test-results/screenshots/EA002/CreatedNewMeeting4Title- ${type}.png`, fullPage: true });                    
+                    
+                    expect(await formMeetingPage.hasValidationErrors()).toBe(true);
+                    const errors4Title = await formMeetingPage.getValidationErrors();                
+                    //expect(errorsSecondStep.length).toBe(3);
+                    console.log(`✅ titleField "${errors4Title}`);
+
+                    const newTitleAF = `New Meeting Title - Type: ${type}`;
+                    await formMeetingPage.fillTitle(newTitleAF);
+                    await formMeetingPage.createMeeting();
+                    
                 } else if (type === 'in person' || type === 'hybrid') {
                     if (type === 'in person') { await formMeetingPage.selectMeetingType('in_person'); };
                     if (type === 'hybrid') { await formMeetingPage.selectMeetingType('hybrid'); };
