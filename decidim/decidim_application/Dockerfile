@@ -84,8 +84,6 @@ RUN if [ "$RAILS_ENV" = "production" ]; then \
   echo "=== DEVELOPMENT BUILD: Assets served by shakapacker-dev-server ==="; \
   fi
 
-COPY . .
-
 RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
   && rm -rf /usr/local/bundle/cache/*.gem \
   && find /usr/local/bundle/gems/ -name "*.c" -delete \

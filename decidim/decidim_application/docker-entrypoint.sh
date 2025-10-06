@@ -23,12 +23,13 @@ if [ "$RAILS_ENV" = "production" ]; then
   echo "--- Database setup completed ---"
   
   # Asset verification (must be precompiled)
-  echo "--- Verifying precompiled assets ---"
-  if [ ! -d "public/packs" ] || [ -z "$(ls -A public/packs 2>/dev/null)" ]; then
+  # shakapacker is configured to output to `public/decidim-packs` (see config/shakapacker.yml)
+  echo "--- Verifying precompiled assets (public/decidim-packs) ---"
+  if [ ! -d "public/decidim-packs" ] || [ -z "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
     echo "ERROR: No precompiled assets found in production"
-    echo "'public/packs' not exist. Assets must be precompiled during Docker image build"
+    echo "'public/decidim-packs' not exist or is empty. Assets must be precompiled during Docker image build"
   else
-    echo "--- 'public/packs' exist. Precompiled assets verified, ready to serve ---"
+    echo "--- 'public/decidim-packs' exist. Precompiled assets verified, ready to serve ---"
   fi
   
   # No data setup in production
@@ -72,8 +73,9 @@ elif [ "$RAILS_ENV" = "development" ]; then
   fi
    # Asset compilation for development (optimized)
   echo "--- Checking assets for development ---"
-  if [ ! -f "public/packs/manifest.json" ] || [ -n "$(find app/packs config/shakapacker.yml -newer public/packs/manifest.json 2>/dev/null)" ]; then
-    echo "--- Compiling assets (changed files detected) ---"
+  # In development check the manifest in public/decidim-packs by default
+  if [ ! -f "public/decidim-packs/manifest.json" ] || [ -n "$(find app/packs config/shakapacker.yml -newer public/decidim-packs/manifest.json 2>/dev/null)" ]; then
+    echo "--- Compiling assets (changed files detected for public/decidim-packs) ---"
     bin/rails shakapacker:compile
   else
     echo "--- Assets up to date, skipping compilation ---"
