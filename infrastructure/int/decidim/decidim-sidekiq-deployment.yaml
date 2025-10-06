@@ -26,7 +26,7 @@ spec:
           # Run Sidekiq; allow RAILS_ENV to be provided via env
           command: ["/bin/sh", "-lc"]
           args:
-            - "bundle exec sidekiq -C config/initializers/sidekiq.yml -e ${RAILS_ENV:-production}"
+            - "bundle exec sidekiq -e ${RAILS_ENV:-production}"
           envFrom:
             - secretRef:
                 name: decidim-secret
