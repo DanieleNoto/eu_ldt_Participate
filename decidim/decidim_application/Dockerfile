@@ -68,14 +68,8 @@ ENV RAILS_SERVE_STATIC_FILES=true
 
 
 # Production asset precompilation (separate layer for better caching)
-RUN if [ "$RAILS_ENV" = "production" ]; then \
-  echo "=== Precompiling Decidim assets ===" && \
-  bundle exec rake assets:precompile && \
-  echo "=== Assets precompiled successfully ==="; \
-  else \
-  echo "=== Development build: skipping precompilation ==="; \
-  fi
-
+RUN bundle exec rake assets:precompile && \
+  echo "=== Assets precompiled successfully ===";
 RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
   && rm -rf /usr/local/bundle/cache/*.gem \
   && find /usr/local/bundle/gems/ -name "*.c" -delete \
@@ -91,13 +85,18 @@ ARG NODE_ENV=production
 ARG SECRET_KEY_BASE=temp_key_for_asset_precompilation
 ARG RAILS_SERVE_STATIC_FILES=true
 
-# Install only runtime dependencies (no build tools)
+# Install only runtime dependencies (no build tools) and ensure Node.js 22 + yarn
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   ca-certificates \
+  curl \
+  gnupg \
   netcat-openbsd \
   redis-tools \
-  && rm -rf /var/lib/apt/lists/*
+  && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+  && apt-get install -y --no-install-recommends nodejs \
+  && npm install --global yarn \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /code
 
