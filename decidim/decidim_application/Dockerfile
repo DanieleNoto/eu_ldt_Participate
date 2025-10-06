@@ -69,19 +69,11 @@ ENV RAILS_SERVE_STATIC_FILES=true
 
 # Production asset precompilation (separate layer for better caching)
 RUN if [ "$RAILS_ENV" = "production" ]; then \
-  echo "=== PRODUCTION BUILD: Precompiling assets ===" && \
-  RAILS_ENV=production \
-  SHAKAPACKER_FORCE=true \
-  yes | bundle exec rake shakapacker:install && \
-  echo "=== Shakapacker install completed, now precompiling assets ===" && \
+  echo "=== Precompiling Decidim assets ===" && \
   bundle exec rake assets:precompile && \
-  echo "=== Assets precompiled, now compiling deface overrides ===" && \
-  bundle exec rails deface:precompile && \
-  echo "=== Compiling Shakapacker assets ===" && \
-  bundle exec rails shakapacker:compile && \
-  echo "=== All asset compilation completed ==="; \
+  echo "=== Assets precompiled successfully ==="; \
   else \
-  echo "=== DEVELOPMENT BUILD: Assets served by shakapacker-dev-server ==="; \
+  echo "=== Development build: skipping precompilation ==="; \
   fi
 
 RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
