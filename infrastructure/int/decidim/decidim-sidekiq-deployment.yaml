@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: decidim-sidekiq
+  labels:
+    app: decidim
+    component: sidekiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: decidim
+      component: sidekiq
+  template:
+    metadata:
+      labels:
+        app: decidim
+        component: sidekiq
+    spec:
+      # Do not automatically mount the service account token into the pod
+      automountServiceAccountToken: false
+      containers:
+        - name: sidekiq
+          image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+          imagePullPolicy: IfNotPresent
+          # Run Sidekiq; allow RAILS_ENV to be provided via env
+          command: ["/bin/sh", "-lc"]
+          args:
+            - "bundle exec sidekiq -C config/sidekiq.yml -e ${RAILS_ENV:-production}"
+          envFrom:
+            - secretRef:
+                name: decidim-secret
+            - configMapRef:
+                name: decidim-configmap
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+              ephemeral-storage: "1Gi"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+              ephemeral-storage: "2Gi"
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - "ps aux | grep '[s]idekiq' || exit 1"
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - "ps aux | grep '[s]idekiq' || exit 1"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+      restartPolicy: Always
+      # Reuse same DNS/Network settings as the app; no extra volumes by default
+      # If you need access to persistent bundles, mount the same PVCs as decidim
+      # by uncommenting the volume and volumeMount sections below.
+      # volumes:
+      #  - name: bundle-cache
+      #    persistentVolumeClaim:
+      #      claimName: bundle-cache-decidim-0
