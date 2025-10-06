@@ -76,7 +76,7 @@ test.describe('[PAR-EP004] – Flow meeting admin + user', () => {
 				await formMeetingPage.selectCustomDate(startDate, 0, 0);
 				const hour = startDate.getHours();
 				const minute = startDate.getMinutes();
-				await formMeetingPage.selectTomorrowTime(0, hour, minute, 5);
+				await formMeetingPage.selectCustomTime(0, hour, minute, 5);
 				const endDate = new Date(startDate);
 				endDate.setDate(endDate.getDate() + 21);
 				await formMeetingPage.selectCustomDate(endDate, 1, 1);

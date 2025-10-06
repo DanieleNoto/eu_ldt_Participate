@@ -12,6 +12,7 @@ import { BaseAdminPage } from '../../../BaseAdminPage';
  *
  * Used for both creating new meetings and editing existing ones.
  */
+
 export class FormMeetingPage extends BaseAdminPage {
 	constructor(page: Page) {
 		super(page);
@@ -500,7 +501,7 @@ export class FormMeetingPage extends BaseAdminPage {
 	 * @param targetMinute desired minute (0-59)
 	 * @param deltaMinutes optional minutes to add/subtract
 	 */
-	async selectTomorrowTime(
+	async selectCustomTime(
 		calendarIndex: number,
 		targetHour: number,
 		targetMinute: number,
