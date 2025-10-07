@@ -36,17 +36,20 @@ jobs:
                 verbosity: detailed
                 actionOnNoFiles: warn
  #               #
- #         - task: replacetokens@5
- #           displayName: 'Replace tokens Decidim'
- #           inputs:
- #               rootDirectory: decidim
- #               targetFiles: Dockerfile*
- #               tokenPattern: custom
- #               tokenPrefix: _TOKEN_
- #               tokenSuffix: _TOKEN_
- #               writeBOM: false
- #               verbosity: detailed
- #               actionOnNoFiles: warn
+          - task: replacetokens@5
+            displayName: 'Replace tokens Decidim'
+            inputs:
+                rootDirectory: decidim
+                targetFiles: Dockerfile*
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+
+
+
           - task: Docker@2
             displayName: Build and push decidim
             inputs:
