@@ -51,7 +51,7 @@ jobs:
 
           - task: Docker@2
             displayName: Build and push decidim
-            variables:
+            env:
                 SECRET_KEY_BASE: '$(SECRET_KEY_BASE)'
             inputs:
                 command: buildAndPush
