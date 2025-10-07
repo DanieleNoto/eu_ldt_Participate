@@ -23,7 +23,6 @@ jobs:
     - job: buildAndPushDockerfile
       displayName: 'Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION'
       variables:
-          SECRET_KEY_BASE: '$(SECRET_KEY_BASE)'
           tag: '$(Build.BuildId)'
       steps:
           - task: replacetokens@5
