@@ -465,6 +465,12 @@ jobs:
                 command: 'apply'
                 arguments: '-f infrastructure/int/decidim/decidim-secret.yml'
 
+          - script: |
+              kubectl create secret generic decidim-secret \
+                --from-literal=SECRET_KEY_BASE="$(SECRET_KEY_BASE)" \
+                -n participate --dry-run=client -o yaml | kubectl apply -f -
+            displayName: 'Sync SECRET_KEY_BASE to k8s secret'
+
           # DECIDIM - Statefulset
 
           - task: Kubernetes@1
