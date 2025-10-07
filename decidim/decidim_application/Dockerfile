@@ -92,6 +92,7 @@ ARG RAILS_ENV=production
 ARG NODE_ENV=production
 ARG SECRET_KEY_BASE=_%SECRET-KEY-BASE%_
 ARG RAILS_SERVE_STATIC_FILES=true
+ENV RAILS_SERVE_STATIC_FILES=${RAILS_SERVE_STATIC_FILES}
 
 # Install only runtime dependencies (no build tools) and ensure Node.js 22 + yarn
 ENV DEBIAN_FRONTEND=noninteractive
