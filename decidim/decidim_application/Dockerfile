@@ -60,10 +60,9 @@ RUN chmod +x docker-entrypoint.sh
 
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
-ARG SECRET_KEY_BASE=temp_key_for_asset_precompilation 
+ARG SECRET_KEY_BASE=_%SECRET-KEY-BASE%_
 ENV RAILS_ENV=${RAILS_ENV}
 ENV NODE_ENV=${NODE_ENV}
-ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 ENV RAILS_SERVE_STATIC_FILES=true
 
 
@@ -82,7 +81,7 @@ FROM decidim/decidim-dev:0.30.1 AS runtime
 # Inherit build arguments for runtime
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
-ARG SECRET_KEY_BASE=temp_key_for_asset_precompilation
+ARG SECRET_KEY_BASE=_%SECRET-KEY-BASE%_
 ARG RAILS_SERVE_STATIC_FILES=true
 
 # Install only runtime dependencies (no build tools) and ensure Node.js 22 + yarn
