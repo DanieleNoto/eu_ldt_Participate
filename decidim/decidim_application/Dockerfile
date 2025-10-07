@@ -59,7 +59,7 @@ RUN chmod +x docker-entrypoint.sh
 
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
-ARG SECRET_KEY_BASE=_%SECRET-KEY-BASE%_
+ARG SECRET_KEY_BASE
 ENV RAILS_ENV=${RAILS_ENV}
 ENV NODE_ENV=${NODE_ENV}
 ENV RAILS_SERVE_STATIC_FILES=true
@@ -71,6 +71,7 @@ RUN if [ -z "${SECRET_KEY_BASE:-}" ]; then \
   SECRET_KEY_BASE=_%SECRET-KEY-BASE%_ RAILS_ENV=production bundle exec rake assets:precompile && \
   echo "=== Assets precompiled successfully ==="; \
   fi && \
+  echo "=== Compiling assets with SECRET_KEY_BASE ==="; \
   SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production bundle exec rake assets:precompile && \
   echo "=== Assets precompiled successfully ===";
 
