@@ -60,6 +60,7 @@ jobs:
                 buildArgs: |
                     RAILS_ENV=production
                     NODE_ENV=production
+                    SECRET_KEY_BASE=$(SECRET_KEY_BASE)
                 tags: |
                     $(tag)
 
