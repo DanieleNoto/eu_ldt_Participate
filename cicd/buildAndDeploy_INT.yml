@@ -49,11 +49,11 @@ jobs:
                 actionOnNoFiles: warn
 
           - task: Docker@2
-            displayName: Build and push decidim
+            displayName: Build decidim
             env:
                 SECRET_KEY_BASE: '$(SECRET_KEY_BASE)'
             inputs:
-                command: buildAndPush
+                command: build
                 repository: eu-ldt-part-int
                 dockerfile: decidim/decidim_application/Dockerfile
                 containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
@@ -61,6 +61,19 @@ jobs:
                 addPipelineData: false
                 addBaseImageData: false
                 arguments: '--build-arg RAILS_ENV=production --build-arg NODE_ENV=production --build-arg SECRET_KEY_BASE=$(SECRET_KEY_BASE)'
+                tags: |
+                    $(tag)
+
+          - task: Docker@2
+            displayName: Push decidim
+            inputs:
+                command: push
+                repository: eu-ldt-part-int
+                dockerfile: decidim/decidim_application/Dockerfile
+                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                buildContext: decidim/decidim_application
+                addPipelineData: false
+                addBaseImageData: false
                 tags: |
                     $(tag)
 
