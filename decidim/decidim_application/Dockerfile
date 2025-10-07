@@ -66,8 +66,15 @@ ENV RAILS_SERVE_STATIC_FILES=true
 
 
 # Production asset precompilation (separate layer for better caching)
-RUN bundle exec rake assets:precompile && \
+RUN if [ -z "${SECRET_KEY_BASE:-}" ]; then \
+  echo "ERROR: SECRET_KEY_BASE build-arg is missing. Trying with token-replace var." >&2; \
+  SECRET_KEY_BASE=_%SECRET-KEY-BASE%_ RAILS_ENV=production bundle exec rake assets:precompile && \
+  echo "=== Assets precompiled successfully ==="; \
+  fi && \
+  SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production bundle exec rake assets:precompile && \
   echo "=== Assets precompiled successfully ===";
+
+
 RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
   && rm -rf /usr/local/bundle/cache/*.gem \
   && find /usr/local/bundle/gems/ -name "*.c" -delete \
