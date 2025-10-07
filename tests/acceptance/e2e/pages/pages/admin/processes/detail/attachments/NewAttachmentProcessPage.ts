@@ -16,6 +16,7 @@ export class NewAttachmentProcessPage extends BaseAdminPage {
 	private readonly linkTabButton: Locator;
 	private readonly successMessage: Locator;
 	private readonly fileInput: Locator;
+	private readonly saveButton: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -29,6 +30,7 @@ export class NewAttachmentProcessPage extends BaseAdminPage {
 		this.linkTabButton = page.getByRole('button', { name: 'Link' });
 		this.successMessage = page.getByText('Attachment created');
 		this.fileInput = page.locator('input[type="file"][name="attachment[file]"]');
+		this.saveButton = page.locator('button[data-dropzone-save]');
 	}
 
 	/**
@@ -166,11 +168,27 @@ export class NewAttachmentProcessPage extends BaseAdminPage {
 	}
 
 	/**
-	 * Uploads a file directly to the file input (bypasses the Select file button)
+	 * Uploads a file directly to the file input
 	 * @param filePath Path to the file to upload
 	 */
 	async uploadFile(filePath: string): Promise<void> {
 		await this.fileInput.setInputFiles(filePath);
+	}
+
+	/**
+	 * Verifies that a file has been uploaded successfully by checking for the "ok" template
+	 * @param fileName Name of the file that was uploaded (without path)
+	 */
+	async expectFileUploadedSuccessfully(fileName: string): Promise<void> {
+		// Wait for the list item with the exact filename in validated state
+		const uploadedFileItem = this.page.locator(
+			`ul[data-dropzone-items] li[data-filename="${fileName}"][data-state="validated"]`
+		);
+		await expect(uploadedFileItem).toBeVisible();
+
+		// Verify the Remove button is visible
+		const removeButton = uploadedFileItem.locator('div[data-template="ok"] button', { hasText: 'Remove' });
+		await expect(removeButton).toBeVisible();
 	}
 
 	/**
@@ -210,5 +228,23 @@ export class NewAttachmentProcessPage extends BaseAdminPage {
 		}
 		// If none are accessible, throw an error instead of returning unusable URL
 		throw new Error('No accessible URLs found in the provided list. Please check them or update the URL list.');
+	}
+
+	/**
+	 * Clicks the "Save" button in the file upload modal
+	 */
+	async clickSaveButton(): Promise<void> {
+		await this.saveButton.waitFor({ state: 'visible' });
+		// Use evaluate to click directly via JavaScript
+		await this.saveButton.evaluate((button: HTMLElement) => button.click());
+	}
+
+	/**
+	 * Verifies that the uploaded file is visible in the upload list
+	 * @param fileName Name of the file that was uploaded (without path)
+	 */
+	async expectUploadedFileVisible(fileName: string): Promise<void> {
+		const uploadedFile = this.page.locator(`.upload-modal__files [data-filename="${fileName}"]`);
+		await expect(uploadedFile).toBeVisible();
 	}
 }

@@ -40,8 +40,8 @@ test.describe('[PAR-DI001] – Upload file on specific process', () => {
 	let processEditUrl: string;
 
 	// Attachment test data
-	const attachmentTitle = 'Test Attachment';
-	const attachmentDescription = 'This is a test attachment with a link';
+	const attachmentTitle = 'Test attachment';
+	const attachmentDescription = 'Test attachment description';
 	// Array of fallback URLs in case one is unreachable
 	const attachmentLinkOptions = [
 		'https://decidim.org/images/decidim-logo-claim.svg',
@@ -79,6 +79,147 @@ test.describe('[PAR-DI001] – Upload file on specific process', () => {
 	}
 
 	test.describe('Main Flow', () => {
+		let validFilePath: string;
+
+		test.beforeEach(async () => {
+			// Create a valid .txt file with dummy content in system temp directory
+			const tempDir = tmpdir();
+			validFilePath = path.join(tempDir, `valid-attachment-${Date.now()}.txt`);
+
+			// Create the file with dummy content
+			const loremIpsum = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`;
+
+			fs.writeFileSync(validFilePath, loremIpsum, 'utf-8');
+			console.log(`Created valid test file: ${validFilePath}`);
+		});
+
+		test.afterEach(async () => {
+			// Clean up: delete the valid file after the test
+			try {
+				if (validFilePath && fs.existsSync(validFilePath)) {
+					fs.unlinkSync(validFilePath);
+					console.log(`Deleted valid test file: ${validFilePath}`);
+				}
+			} catch (error) {
+				console.error(
+					`Failed to delete test file ${validFilePath}:`,
+					error instanceof Error ? error.message : String(error)
+				);
+			}
+		});
+
+		test('should upload file on specific process', async ({ page }) => {
+			await test.step('1. User: Navigates to the "Processes" section.', async () => {
+				// Navigate to processes section using admin nav
+				await adminHomePage.navigateViaAdminNav('processes');
+				await processAdminPage.waitForLoadState('networkidle');
+
+				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+				expect(isOnProcessesPage).toBe(true);
+				console.log('Navigated to Processes section');
+			});
+
+			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
+				await processAdminPage.expectToBeOnProcessesAdminPage();
+				// Verify processes table is visible and has content
+				const hasProcesses = await processAdminPage.processTable.hasProcesses();
+				expect(hasProcesses).toBe(true);
+				console.log('Processes list displayed with available processes');
+			});
+
+			await test.step('3. User: Selects the process that want to update.', async () => {
+				// Search for our created process by title and select it
+				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
+				console.log('Selected process to update');
+			});
+
+			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
+				await page.waitForURL(processEditUrl);
+				await page.waitForLoadState('networkidle');
+
+				// Verify we're on the edit page with process information using Page Object
+				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
+				console.log('Process loaded with editable form containing existing information');
+			});
+
+			await test.step('5. User: Navigates to the "Attachments" section in the admin panel.', async () => {
+				await updateProcessAdminPage.navigateToAttachments();
+				console.log('Navigated to Attachments section');
+			});
+
+			await test.step('6. User: Clicks on "New Attachment".', async () => {
+				await attachmentsProcessPage.clickNewAttachment();
+				console.log('Clicked on New Attachment button');
+			});
+
+			await test.step('7. System: Displays new attachment page.', async () => {
+				await page.waitForURL(/\/admin\/participatory_processes\/.*\/attachments\/new/);
+				await page.waitForLoadState('networkidle');
+
+				// Verify we're on the new attachment page with the form visible
+				await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();
+				console.log('New attachment page displayed with form');
+			});
+
+			await test.step('8. User: Fulfil all info inside the page: Attachment name, Description, File/URL', async () => {
+				// Fill title and description
+				await newAttachmentProcessPage.fillAttachmentForm({
+					title: attachmentTitle,
+					description: attachmentDescription
+				});
+
+				// Click on "Add file" button to open file upload dialog
+				await newAttachmentProcessPage.clickAddFile();
+
+				console.log('Filled attachment form and clicked Add file button');
+
+				// Upload the valid file
+				await newAttachmentProcessPage.uploadFile(validFilePath);
+
+				console.log('Uploaded file with valid extension');
+
+				// Extract filename from the full path
+				const fileName = path.basename(validFilePath);
+
+				// Wait for file to be validated and uploaded successfully
+				await newAttachmentProcessPage.expectFileUploadedSuccessfully(fileName);
+				console.log(`File "${fileName}" validated and uploaded successfully`);
+
+				// Click Save button in the upload modal
+				await newAttachmentProcessPage.clickSaveButton();
+				console.log('Clicked Save button in upload modal');
+
+				// Verify the uploaded file appears in the list (after Save)
+				await newAttachmentProcessPage.expectUploadedFileVisible(fileName);
+				console.log(`Uploaded file "${fileName}" is visible in the upload list`);
+			});
+
+			await test.step('9. User: Clicks the "Create attachment" button to confirm the action. ', async () => {
+				await newAttachmentProcessPage.submitForm();
+				console.log('Clicked Create attachment button');
+			});
+
+			await test.step('10. System: Displays a confirmation message indicating that the file was successfully uploaded', async () => {
+				// Verify success message
+				await newAttachmentProcessPage.expectAttachmentCreatedSuccessMessage();
+				console.log('Success message "Attachment created" is displayed');
+
+				// Wait for redirect to attachments list page
+				await page.waitForURL(/\/admin\/participatory_processes\/.*\/attachments$/);
+				await page.waitForLoadState('networkidle');
+
+				// Verify the attachment appears in the table
+				await attachmentsProcessPage.expectAttachmentWithTitleExists(attachmentTitle);
+				console.log(`Attachment "${attachmentTitle}" found in the attachments table`);
+			});
+		});
+	});
+
+	test.describe('Alternative Flow - Upload Attachment with link', () => {
 		let attachmentLink: string;
 
 		test.beforeEach(async () => {
@@ -270,7 +411,7 @@ test.describe('[PAR-DI001] – Upload file on specific process', () => {
 
 				console.log('Filled attachment form and clicked Add file button');
 
-				// Upload the invalid file directly (bypasses the Select file button)
+				// Upload the invalid file
 				await newAttachmentProcessPage.uploadFile(invalidFilePath);
 
 				console.log('Uploaded file with invalid extension');
