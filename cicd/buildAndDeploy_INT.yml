@@ -40,9 +40,9 @@ jobs:
             displayName: 'Replace tokens Decidim'
             inputs:
                 rootDirectory: decidim
-                targetFiles: Dockerfile*
+                targetFiles: decidim_application/Dockerfile*
                 tokenPattern: custom
-                tokenPrefix: _%
+                tokenPrefix: '_%'
                 tokenSuffix: '%_'
                 writeBOM: false
                 verbosity: detailed
