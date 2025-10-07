@@ -23,6 +23,7 @@ jobs:
     - job: buildAndPushDockerfile
       displayName: 'Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION'
       variables:
+          SECRET_KEY_BASE: '$(SECRET_KEY_BASE)'
           tag: '$(Build.BuildId)'
       steps:
           - task: replacetokens@5
@@ -35,7 +36,7 @@ jobs:
                 writeBOM: false
                 verbosity: detailed
                 actionOnNoFiles: warn
- #               #
+
           - task: replacetokens@5
             displayName: 'Replace tokens Decidim'
             inputs:
@@ -48,10 +49,10 @@ jobs:
                 verbosity: detailed
                 actionOnNoFiles: warn
 
-
-
           - task: Docker@2
             displayName: Build and push decidim
+            variables:
+                SECRET_KEY_BASE: '$(SECRET_KEY_BASE)'
             inputs:
                 command: buildAndPush
                 repository: eu-ldt-part-int
@@ -60,10 +61,7 @@ jobs:
                 buildContext: decidim/decidim_application
                 addPipelineData: false
                 addBaseImageData: false
-                buildArgs: |
-                    RAILS_ENV=production
-                    NODE_ENV=production
-                    SECRET_KEY_BASE=$(SECRET_KEY_BASE)
+                arguments: '--build-arg RAILS_ENV=production --build-arg NODE_ENV=production --build-arg SECRET_KEY_BASE=$(SECRET_KEY_BASE)'
                 tags: |
                     $(tag)
 

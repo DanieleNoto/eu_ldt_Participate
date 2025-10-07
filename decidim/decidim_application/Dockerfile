@@ -66,14 +66,16 @@ ENV RAILS_SERVE_STATIC_FILES=true
 
 
 # Production asset precompilation (separate layer for better caching)
-RUN if [ -z "${SECRET_KEY_BASE:-}" ]; then \
-  echo "ERROR: SECRET_KEY_BASE build-arg is missing. Trying with token-replace var." >&2; \
-  SECRET_KEY_BASE=_%SECRET-KEY-BASE%_ RAILS_ENV=production bundle exec rake assets:precompile && \
-  echo "=== Assets precompiled successfully ==="; \
-  fi && \
-  echo "=== Compiling assets with SECRET_KEY_BASE ==="; \
-  SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production bundle exec rake assets:precompile && \
-  echo "=== Assets precompiled successfully ===";
+# Supports both replacetokens (SECRET-KEY-BASE with hyphen) and build-arg (SECRET_KEY_BASE with underscore)
+RUN if [ -n "${SECRET_KEY_BASE:-}" ] then \
+  echo "=== Using SECRET_KEY_BASE from build-arg ===" && \
+  SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:precompile && \
+  echo "=== Assets precompiled successfully with build-arg ==="; \
+  else \
+  echo "FATAL: SECRET_KEY_BASE is required but not provided."; \
+  echo "Provide it via --build-arg SECRET_KEY_BASE=<value> or replacetokens."; \
+  SECRET_KEY_BASE="_%SECRET-KEY-BASE%_" bundle exec rake assets:precompile && \
+  fi
 
 
 RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
