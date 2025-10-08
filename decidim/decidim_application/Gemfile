@@ -28,7 +28,7 @@ gem "decidim-keycloak", path: "./engines/decidim-keycloak"
 gem 'decidim-meetings-jitsi', path: './engines/decidim-meetings-jitsi'
 gem 'decidim-admin_header', path: './engines/decidim-admin_header'
 
-gem "decidim-decidim_awesome", git: "https://github.com/decidim-ice/decidim-module-decidim_awesome.git"
+gem "decidim-decidim_awesome", "~> 0.13.1", git: "https://github.com/decidim-ice/decidim-module-decidim_awesome.git"
 
 group :development, :test do
   gem "byebug", "~> 11.0", platform: :mri
@@ -43,3 +43,6 @@ group :development do
   gem "web-console", "~> 4.2"
 end
 
+group :production do
+  gem "sidekiq", "~> 7.3"
+end
