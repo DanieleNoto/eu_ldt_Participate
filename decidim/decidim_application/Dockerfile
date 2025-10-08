@@ -62,6 +62,7 @@ ARG NODE_ENV=production
 ARG SECRET_KEY_BASE
 ENV RAILS_ENV=${RAILS_ENV}
 ENV NODE_ENV=${NODE_ENV}
+ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 ENV RAILS_SERVE_STATIC_FILES=true
 
 
@@ -90,9 +91,10 @@ FROM decidim/decidim-dev:0.30.1 AS runtime
 # Inherit build arguments for runtime
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
-ARG SECRET_KEY_BASE=_%SECRET-KEY-BASE%_
+ARG SECRET_KEY_BASE
 ARG RAILS_SERVE_STATIC_FILES=true
 ENV RAILS_SERVE_STATIC_FILES=${RAILS_SERVE_STATIC_FILES}
+ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 
 # Install only runtime dependencies (no build tools) and ensure Node.js 22 + yarn
 ENV DEBIAN_FRONTEND=noninteractive

@@ -51,7 +51,7 @@ jobs:
           - task: Docker@2
             displayName: Build decidim
             env:
-                SECRET_KEY_BASE: '$(SECRET_KEY_BASE)'
+                SECRET_KEY_BASE: $(SECRET_KEY_BASE)
             inputs:
                 command: build
                 repository: eu-ldt-part-int
@@ -60,7 +60,7 @@ jobs:
                 buildContext: decidim/decidim_application
                 addPipelineData: false
                 addBaseImageData: false
-                arguments: '--build-arg RAILS_ENV=production --build-arg NODE_ENV=production --build-arg SECRET_KEY_BASE=$(SECRET_KEY_BASE)'
+                arguments: --build-arg RAILS_ENV=production --build-arg NODE_ENV=production --build-arg SECRET_KEY_BASE=$(SECRET_KEY_BASE)
                 tags: |
                     $(tag)
 
@@ -228,7 +228,7 @@ jobs:
           # DB - Secrets
 
           - task: Kubernetes@1
-            displayName: 'DB - Apply ConfigMap'
+            displayName: 'DB - Apply Secrets'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'

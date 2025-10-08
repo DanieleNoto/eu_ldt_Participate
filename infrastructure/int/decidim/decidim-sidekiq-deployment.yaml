@@ -22,18 +22,28 @@ spec:
       # Wait for Redis to be reachable before starting Sidekiq to avoid CrashLoopBackOff
       initContainers:
         - name: wait-for-redis
-          image: busybox:1.36.1
+          # use an image that contains redis-cli so we can handle auth/URLs
+          image: redis:7-alpine
           command:
             - /bin/sh
             - -c
             - |
-              echo "Waiting for redis at redis:6379..."
-              for i in $(seq 1 60); do
-                nc -z redis 6379 && echo "redis reachable" && exit 0
-                echo "redis not reachable yet (attempt $i)"; sleep 1
-              done
+              echo "Waiting for redis..."
+              # If REDIS_URL is provided via secret/configmap use it (handles auth),
+              # otherwise fall back to REDIS_HOST/REDIS_PORT/REDIS_PASSWORD or defaults.
+              if [ -n "${REDIS_URL:-}" ]; then
+                for i in $(seq 1 120); do
+                  redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1 && echo "redis reachable" && exit 0
+                  echo "redis not reachable yet (attempt $i)"; sleep 1
+                done
+              fi
               echo "timeout waiting for redis"; exit 1
-          # initContainer only needs to perform a TCP check; do not import app envs here
+          # import the same envs the app uses so the initContainer can read REDIS_URL
+          envFrom:
+            - secretRef:
+                name: decidim-secret
+            - configMapRef:
+                name: decidim-configmap
       containers:
         - name: sidekiq
           image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
@@ -44,12 +54,21 @@ spec:
           args:
             - |
               set -e
-              echo "Starting Sidekiq wrapper: waiting for redis at redis:6379..."
-              # loop until redis is reachable; this handles container restarts as well
-              until nc -z redis 6379; do
-                echo "redis not reachable yet; sleeping 1s"
-                sleep 1
-              done
+              echo "Starting Sidekiq wrapper: waiting for redis..."
+              # Prefer redis-cli if present (handles auth and URLs), otherwise fall back to nc TCP check.
+              if command -v redis-cli >/dev/null 2>&1; then
+                if [ -n "${REDIS_URL:-}" ]; then
+                  until redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1; do
+                    echo "redis not reachable yet; sleeping 1s"
+                    sleep 1
+                  done
+                fi
+              else
+                until nc -z ${REDIS_HOST:-redis} ${REDIS_PORT:-6379}; do
+                  echo "redis not reachable yet; sleeping 1s"
+                  sleep 1
+                done
+              fi
               echo "redis reachable; exec sidekiq"
               exec bundle exec sidekiq -c ${SIDEKIQ_CONCURRENCY:-5} -e ${RAILS_ENV:-production}
           envFrom:
