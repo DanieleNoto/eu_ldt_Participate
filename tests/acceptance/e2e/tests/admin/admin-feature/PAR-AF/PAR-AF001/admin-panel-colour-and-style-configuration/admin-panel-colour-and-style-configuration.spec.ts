@@ -180,5 +180,18 @@ a:hover {
 				expect(allStylesApplied).toBe(true);
 			});
 		});
+		test.afterEach(async () => {
+			await test.step('Cleanup: Remove the custom CSS box', async () => {
+				// Delete the CSS box
+				await decidimAwesomeAdminPage.clickDeleteCssBox();
+
+				// Confirm deletion in modal
+				await decidimAwesomeAdminPage.confirmDeleteCssBox();
+
+				// Verify the CSS box was removed
+				await expect(decidimAwesomeAdminPage.cssBoxRemovedMessage).toBeVisible();
+				console.log('Custom CSS box successfully removed - Admin panel styles reset to default');
+			});
+		});
 	});
 });

@@ -24,6 +24,9 @@ export class DecidimAwesomeAdminPage extends BaseAdminPage {
 	readonly cardSection: Locator;
 	readonly button: Locator;
 	readonly link: Locator;
+	readonly deleteLink: Locator;
+	readonly confirmOkButton: Locator;
+	readonly cssBoxRemovedMessage: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -46,6 +49,11 @@ export class DecidimAwesomeAdminPage extends BaseAdminPage {
 		this.cardSection = page.locator('.card-section').first();
 		this.button = page.locator('button, .dropdown__trigger').first();
 		this.link = page.locator('a').first();
+
+		// Selectors for cleanup
+		this.deleteLink = page.getByRole('link', { name: 'Delete' });
+		this.confirmOkButton = page.getByRole('button', { name: 'OK' });
+		this.cssBoxRemovedMessage = page.getByText(/CSS box \w+ removed/);
 	}
 
 	/**
@@ -204,5 +212,26 @@ export class DecidimAwesomeAdminPage extends BaseAdminPage {
 			}
 			return false;
 		}
+	}
+
+	/**
+	 * Deletes the CSS box by clicking the Delete link
+	 */
+	async clickDeleteCssBox(): Promise<void> {
+		await this.deleteLink.click();
+	}
+
+	/**
+	 * Confirms the deletion by clicking OK in the modal dialog
+	 */
+	async confirmDeleteCssBox(): Promise<void> {
+		await this.page.evaluate(() => {
+			const okButton = Array.from(document.querySelectorAll('button')).find(
+				btn => btn.textContent?.trim() === 'OK'
+			);
+			if (okButton) {
+				(okButton as HTMLButtonElement).click();
+			}
+		});
 	}
 }
