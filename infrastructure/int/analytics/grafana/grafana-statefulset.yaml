@@ -40,27 +40,11 @@ spec:
                       - containerPort: 3000
                         hostPort: 3001
                         protocol: TCP
-                  env:
-                      - name: DATABASE_HOST
-                        valueFrom:
-                            configMapKeyRef:
-                                key: GF_DATABASE_HOST
-                                name: grafana-configmap
-                      - name: DATABASE_NAME
-                        valueFrom:
-                            configMapKeyRef:
-                                key: GF_DATABASE_NAME
-                                name: grafana-configmap
-                      - name: DATABASE_PASSWORD
-                        valueFrom:
-                            secretKeyRef:
-                                key: GF_DATABASE_PASSWORD
-                                name: grafana-secrets
-                      - name: DATABASE_USERNAME
-                        valueFrom:
-                            configMapKeyRef:
-                                key: GF_DATABASE_USER
-                                name: grafana-configmap
+                  envFrom:
+                      - secretRef:
+                            name: grafana-secrets
+                      - configMapRef:
+                            name: grafana-configmap
                   volumeMounts:
                       - name: grafana-data
                         mountPath: /var/lib/grafana
