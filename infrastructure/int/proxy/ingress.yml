@@ -1,4 +1,3 @@
-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -11,15 +10,42 @@ metadata:
     nginx.ingress.kubernetes.io/compute-full-forwarded-for: "true"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    # Allow using regular expressions in the path definitions so the
+    # analytics and jitsi regex paths are evaluated correctly.
+    nginx.ingress.kubernetes.io/use-regex: "true"
 
-    # REWRITE ANNOTATIONS
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  # No global rewrite-target for analytics routes: use Prefix paths to avoid
+  # accidental duplicated prefixes when upstream or local proxies also add paths.
 spec:
   ingressClassName: nginx
   rules:
   - host: part-int.ldttoolbox.app
     http:
       paths:
+      # More-specific regex paths first so they are matched before the
+      # fallback root path.
+      - path: /jitsi(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: jitsi-web
+            port:
+              number: 8000
+      - path: /analytics/grafana
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
+            port:
+              number: 3000
+      - path: /analytics/matomo
+        pathType: Prefix
+        backend:
+          service:
+            name: matomo
+            port:
+              number: 8081
+      # Fallback root path kept last so it doesn't capture analytics paths.
       - path: /
         pathType: Prefix
         backend:
@@ -27,24 +53,3 @@ spec:
             name: decidim
             port:
               number: 80
-      - path: /jitsi(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: jitsi-web
-            port:
-              number: 80
-      - path: /analytics/grafana(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: grafana
-            port:
-              number: 3000
-      - path: /analytics/matomo(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: matomo
-            port:
-              number: 8081
