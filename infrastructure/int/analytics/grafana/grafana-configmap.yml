@@ -18,7 +18,15 @@ data:
     GF_AUTH_GENERIC_OAUTH_ALLOW_ASSIGN_GRAFANA_ADMIN: 'true'
     GF_AUTH_GENERIC_OAUTH_API_URL: https://im-int.ldttoolbox.app/realms/LDT/protocol/openid-connect/userinfo
     GF_AUTH_GENERIC_OAUTH_AUTH_URL: https://im-int.ldttoolbox.app/realms/LDT/protocol/openid-connect/auth
-    GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN: 'true'
+    # Do not automatically redirect to the OAuth provider so the local
+    # Grafana login form remains available to users.
+    GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN: 'false'
+    # Ensure the standard Grafana login form is enabled so users can
+    # authenticate with local Grafana accounts in addition to Keycloak.
+    GF_AUTH_DISABLE_LOGIN_FORM: 'false'
+    # Ensure basic (username/password) auth is enabled (default is true,
+    # but set explicitly to make intent clear).
+    GF_AUTH_BASIC_ENABLED: 'true'
     GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_PATH: email
     GF_AUTH_GENERIC_OAUTH_ENABLED: 'true'
     GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH: groups

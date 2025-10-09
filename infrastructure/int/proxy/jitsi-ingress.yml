@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jitsi-subpath-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /jitsi/$2
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: part-int.ldttoolbox.app
+    http:
+      paths:
+      - path: /jitsi(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: jitsi-web
+            port:
+              number: 8000

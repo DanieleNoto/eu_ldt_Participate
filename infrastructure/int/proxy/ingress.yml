@@ -31,7 +31,6 @@ spec:
             name: jitsi-web
             port:
               number: 8000
-        nginx.ingress.kubernetes.io/rewrite-target: /jitsi/$2
       - path: /analytics/grafana
         pathType: Prefix
         backend:
@@ -46,7 +45,6 @@ spec:
             name: matomo
             port:
               number: 8081
-        nginx.ingress.kubernetes.io/rewrite-target: /analytics/matomo$2
       # Fallback root path kept last so it doesn't capture analytics paths.
       - path: /
         pathType: Prefix
