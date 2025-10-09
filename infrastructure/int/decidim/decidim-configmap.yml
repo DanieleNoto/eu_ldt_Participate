@@ -9,6 +9,7 @@ data:
     DATABASE_NAME: decidim_application_development
     # DATABASE_USERNAME: postgres
     DECIDIM_FORCE_SSL: 'true'
+    DECIDIM_FOLLOW_HTTP_X_FORWARDED_HOST: 'true'
     DECIDIM_HOST: part-int.ldttoolbox.app
     DECIDIM_MAILER_SENDER: info@ldttoolbox.eu
     DECIDIM_PROTOCOL: https

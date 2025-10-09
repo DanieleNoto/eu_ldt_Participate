@@ -13,6 +13,7 @@ metadata:
     # Allow using regular expressions in the path definitions so the
     # analytics and jitsi regex paths are evaluated correctly.
     nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 
   # No global rewrite-target for analytics routes: use Prefix paths to avoid
   # accidental duplicated prefixes when upstream or local proxies also add paths.
@@ -38,8 +39,8 @@ spec:
             name: grafana
             port:
               number: 3000
-      - path: /analytics/matomo
-        pathType: Prefix
+      - path: /analytics/matomo(/|$)(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: matomo
