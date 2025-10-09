@@ -6,6 +6,8 @@ import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/Upda
 import { AttachmentsProcessPage } from '@pages/pages/admin/processes/detail/attachments/AttachmentsProcessPage';
 import { NewAttachmentProcessPage } from '@pages/pages/admin/processes/detail/attachments/NewAttachmentProcessPage';
 import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
+import { LandingPageAdminPage } from '@pages/pages/admin/processes/detail/LandingPageAdminPage';
+import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 import * as fs from 'fs';
@@ -36,8 +38,10 @@ test.describe('[PAR-DI001] – Upload file on specific process', () => {
 	let attachmentsProcessPage: AttachmentsProcessPage;
 	let newAttachmentProcessPage: NewAttachmentProcessPage;
 	let surveysManagePage: SurveysManagePage;
+	let landingPageAdminPage: LandingPageAdminPage;
 	let validProcessData: any;
 	let processEditUrl: string;
+	let processSlug: string;
 
 	// Attachment test data
 	const attachmentTitle = 'Test attachment';
@@ -56,6 +60,7 @@ test.describe('[PAR-DI001] – Upload file on specific process', () => {
 		attachmentsProcessPage = new AttachmentsProcessPage(page);
 		newAttachmentProcessPage = new NewAttachmentProcessPage(page);
 		surveysManagePage = new SurveysManagePage(page);
+		landingPageAdminPage = new LandingPageAdminPage(page);
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 
 		// Setup test environment
@@ -73,6 +78,7 @@ test.describe('[PAR-DI001] – Upload file on specific process', () => {
 				processAdminPage,
 				true // publish the process
 			);
+			processSlug = slug;
 			processEditUrl = url;
 			console.log('Test process setup completed');
 		});
@@ -216,6 +222,73 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 				await attachmentsProcessPage.expectAttachmentWithTitleExists(attachmentTitle);
 				console.log(`Attachment "${attachmentTitle}" found in the attachments table`);
 			});
+
+			await test.step('11. User: Confirm that the uploaded file is visible to citizens on the process page', async () => {
+				// Use the sidebar component to navigate to Landing page
+				await updateProcessAdminPage.sidebarProcessDetail.navigateToLandingPage();
+
+				// Verify we're on the landing page edit URL
+				await page.waitForURL(/\/admin\/participatory_processes\/.*\/landing_page\/edit/);
+				await page.waitForLoadState('networkidle');
+
+				console.log('Navigated to Landing page configuration');
+
+				// Add "Related documents" content block
+				await landingPageAdminPage.openContentBlockDropdown();
+				await landingPageAdminPage.clickRelatedDocuments();
+				await landingPageAdminPage.expectContentBlockSuccessMessage();
+
+				console.log('Added "Related documents" content block to inactive list');
+
+				// Move it to active content blocks
+				try {
+					await landingPageAdminPage.dragRelatedDocumentsToActive();
+
+					// Verify the drag operation was successful
+					await landingPageAdminPage.expectRelatedDocumentsInActiveList();
+
+					console.log('Successfully moved "Related documents" to active content blocks');
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+					console.error('Drag and drop failed:', errorMessage);
+					throw new Error(`Failed to move "Related documents" to active content blocks: ${errorMessage}`);
+				}
+
+				// Load user authentication state
+				const userContext = await page.context().browser()?.newContext({
+					storageState: STORAGE_STATE.USER
+				});
+
+				if (!userContext) {
+					throw new Error('Failed to create user context');
+				}
+
+				const userPage = await userContext.newPage();
+
+				// Navigate to the public process page
+				await userPage.goto(`/processes/${processSlug}`);
+				await userPage.waitForLoadState('networkidle');
+
+				console.log(`Navigated to public process page: /processes/${processSlug}`);
+
+				// Verify that the attachment is visible and downloadable on the public page
+				const processDetailPage = new ProcessDetailPage(userPage);
+				try {
+					await processDetailPage.verifyAndDownloadAttachment(attachmentTitle);
+					console.log(`Attachment "${attachmentTitle}" is visible and downloadable on public process page`);
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+					console.error(`Attachment verification failed: ${errorMessage}`);
+					throw new Error(`Failed to verify attachment on public page: ${errorMessage}`);
+				}
+
+				await userPage.close();
+				await userContext.close();
+
+				console.log(
+					'Verified attachment file visibility and download functionality on public process page as user'
+				);
+			});
 		});
 	});
 
@@ -311,6 +384,74 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 				// Verify the attachment appears in the table
 				await attachmentsProcessPage.expectAttachmentWithTitleExists(attachmentTitle);
 				console.log(`Attachment "${attachmentTitle}" found in the attachments table`);
+			});
+
+			await test.step('11. User: Confirm that the uploaded file is visible to citizens on the process page', async () => {
+				// Use the sidebar component to navigate to Landing page
+				await updateProcessAdminPage.sidebarProcessDetail.navigateToLandingPage();
+
+				// Verify we're on the landing page edit URL
+				await page.waitForURL(/\/admin\/participatory_processes\/.*\/landing_page\/edit/);
+				await page.waitForLoadState('networkidle');
+
+				console.log('Navigated to Landing page configuration');
+
+				// Add "Related documents" content block
+				await landingPageAdminPage.openContentBlockDropdown();
+				await landingPageAdminPage.clickRelatedDocuments();
+				await landingPageAdminPage.expectContentBlockSuccessMessage();
+
+				console.log('Added "Related documents" content block to inactive list');
+
+				// Move it to active content blocks
+				try {
+					await landingPageAdminPage.dragRelatedDocumentsToActive();
+
+					// Verify the drag operation was successful
+					await landingPageAdminPage.expectRelatedDocumentsInActiveList();
+
+					console.log('Successfully moved "Related documents" to active content blocks');
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+					console.error('Drag and drop failed:', errorMessage);
+					throw new Error(`Failed to move "Related documents" to active content blocks: ${errorMessage}`);
+				}
+
+				// Load user authentication state
+				const userContext = await page.context().browser()?.newContext({
+					storageState: STORAGE_STATE.USER
+				});
+
+				if (!userContext) {
+					throw new Error('Failed to create user context');
+				}
+
+				const userPage = await userContext.newPage();
+
+				// Navigate to the public process page
+				await userPage.goto(`/processes/${processSlug}`);
+				await userPage.waitForLoadState('networkidle');
+
+				console.log(`Navigated to public process page: /processes/${processSlug}`);
+
+				// Verify that the attachment link is visible and opens correctly on the public page
+				const processDetailPage = new ProcessDetailPage(userPage);
+				try {
+					await processDetailPage.verifyAndOpenAttachmentLink(attachmentTitle, attachmentLink);
+
+					console.log(
+						`Attachment link "${attachmentTitle}" is visible and opens correctly on public process page`
+					);
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+					console.error(`Attachment link verification failed: ${errorMessage}`);
+					throw new Error(`Failed to verify attachment link on public page: ${errorMessage}`);
+				}
+
+				await userPage.close();
+				await userContext.close();
+
+				console.log('Verified attachment link visibility and functionality on public process page as user');
 			});
 		});
 	});
