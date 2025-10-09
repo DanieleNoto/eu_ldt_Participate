@@ -13,6 +13,7 @@ data:
     DECIDIM_HOST: part-int.ldttoolbox.app
     DECIDIM_MAILER_SENDER: info@ldttoolbox.eu
     DECIDIM_PROTOCOL: https
+    DECIDIM_ENABLE_HTML_HEADER_SNIPPETS: 'true'
     DOCKER_HOST_ADDRESS: 127.0.0.1
     KEYCLOAK_DISABLE_SSL_VERIFY: 'false'
     NODE_ENV: production
