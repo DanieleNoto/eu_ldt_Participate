@@ -8,6 +8,8 @@ data:
     DATABASE_HOST: db
     DATABASE_NAME: decidim_application_development
     # DATABASE_USERNAME: postgres
+    DECIDIM_AVAILABLE_LOCALES: en,es,fr,de
+    DECIDIM_DEFAULT_LOCALE: en
     DECIDIM_FORCE_SSL: 'true'
     DECIDIM_FOLLOW_HTTP_X_FORWARDED_HOST: 'true'
     DECIDIM_HOST: part-int.ldttoolbox.app
