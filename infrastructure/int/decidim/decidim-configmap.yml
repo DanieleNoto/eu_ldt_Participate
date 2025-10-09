@@ -23,13 +23,12 @@ data:
     RAILS_ENV: production
     REDIS_URL: redis://redis:6379/0
     RESTART_POLICY: unless-stopped
-    SMTP_ADDRESS: info@ldttoolbox.eu
+    SMTP_ADDRESS: ssl0.ovh.net
     SMTP_AUTHENTICATION: plain
-    SMTP_DOMAIN: ssl0.ovh.net
-    SMTP_ENABLE_STARTTLS_AUTO: 'true'
-    SMTP_OPENSSL_VERIFY_MODE: ''
+    SMTP_DOMAIN: part-int.ldttoolbox.app
+    SMTP_STARTTLS_AUTO: 'false'
     SMTP_PORT: '465'
-    SMTP_USER_NAME: EU LDT Toolbox Participate
+    SMTP_USERNAME: info@ldttoolbox.eu
     TOOL0_API_TOOLBAR_APPLICATIONS: /api/dashboard/applications/external-tools
     TOOL0_FULL_URL: https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools
     TOOL0_DOMAIN: https://ie-int.ldttoolbox.app
