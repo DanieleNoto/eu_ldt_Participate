@@ -101,6 +101,30 @@ jobs:
                 tags: |
                     $(tag)
 
+          - task: Docker@2
+            displayName: Build Matomo custom image
+            inputs:
+                command: build
+                repository: matomo-custom
+                dockerfile: analytics/matomo/Dockerfile
+                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                buildContext: analytics/matomo
+                addPipelineData: false
+                addBaseImageData: false
+                tags: |
+                    $(tag)
+
+          - task: Docker@2
+            displayName: Push Matomo custom image
+            inputs:
+                command: push
+                repository: matomo-custom
+                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                addPipelineData: false
+                addBaseImageData: false
+                tags: |
+                    $(tag)
+
     - job: deployment
       dependsOn: buildAndPushDockerfile
       displayName: Kubectl Tool3 deployment
