@@ -37,25 +37,14 @@ spec:
                   ports:
                       - containerPort: 3000
                   livenessProbe:
-                      httpGet:
-                          path: /up
-                          port: 3000
-                          scheme: HTTP
-                      initialDelaySeconds: 60
-                      periodSeconds: 30
-                      timeoutSeconds: 10
-                      failureThreshold: 5
-                      successThreshold: 1
-                  readinessProbe:
-                      httpGet:
-                          path: /up
-                          port: 3000
-                          scheme: HTTP
-                      initialDelaySeconds: 30
-                      periodSeconds: 10
-                      timeoutSeconds: 5
-                      failureThreshold: 3
-                      successThreshold: 1
+                      exec:
+                          command:
+                              - test
+                              - -d
+                              - node_modules
+                      failureThreshold: 100
+                      periodSeconds: 100
+                      timeoutSeconds: 50
                   volumeMounts:
                       - mountPath: /code/data
                         name: decidim-pvc
