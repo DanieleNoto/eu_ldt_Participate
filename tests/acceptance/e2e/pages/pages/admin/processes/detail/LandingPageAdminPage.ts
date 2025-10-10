@@ -60,7 +60,7 @@ export class LandingPageAdminPage extends BasePage {
 	 * Drags "Related documents" from inactive to active content blocks
 	 */
 	async dragRelatedDocumentsToActive(): Promise<void> {
-		// Wait for the block to appear in inactive list (più specifico)
+		// Wait for the block to appear in inactive list
 		await this.relatedDocumentsInInactiveList.waitFor({ state: 'visible' });
 
 		console.log('Related documents block found in inactive list, attempting drag...');
