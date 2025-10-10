@@ -26,7 +26,7 @@ spec:
                 fsGroup: 472 # Grupo para los volumenes montados
             containers:
                 - name: grafana
-                  image: grafana/grafana:11.0.0
+                  image: euldtshared.azurecr.io/grafana-custom:${tag}
                   resources:
                       requests:
                           memory: '256Mi'
@@ -51,7 +51,7 @@ spec:
                       - name: grafana-claim1
                         mountPath: /etc/grafana/provisioning
                       - name: grafana-claim2
-                        mountPath: /etc/grafana/provisioning/dashboards
+                        mountPath: /etc/grafana/dashboards
             restartPolicy: Always
             volumes:
                 - name: grafana-data

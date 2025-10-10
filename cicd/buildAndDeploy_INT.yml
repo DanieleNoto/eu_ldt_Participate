@@ -77,6 +77,30 @@ jobs:
                 tags: |
                     $(tag)
 
+          - task: Docker@2
+            displayName: Build Grafana custom image
+            inputs:
+                command: build
+                repository: grafana-custom
+                dockerfile: analytics/grafana/Dockerfile
+                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                buildContext: analytics/grafana
+                addPipelineData: false
+                addBaseImageData: false
+                tags: |
+                    $(tag)
+
+          - task: Docker@2
+            displayName: Push Grafana custom image
+            inputs:
+                command: push
+                repository: grafana-custom
+                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                addPipelineData: false
+                addBaseImageData: false
+                tags: |
+                    $(tag)
+
     - job: deployment
       dependsOn: buildAndPushDockerfile
       displayName: Kubectl Tool3 deployment
