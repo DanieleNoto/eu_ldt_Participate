@@ -6,14 +6,31 @@ metadata:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: "/jitsi/$2"
+    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
     nginx.ingress.kubernetes.io/configuration-snippet: |
+      # Redirect /jitsi a /jitsi/
+      if ($request_uri ~ ^/jitsi$) {
+        return 301 $scheme://$host$request_uri/;
+      }
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $http_connection;
+
       proxy_set_header X-Forwarded-Prefix /jitsi;
       proxy_set_header X-Forwarded-Proto $scheme;
       proxy_set_header X-Forwarded-Host $host;
       proxy_set_header X-Forwarded-Port $server_port;
+      
+      sub_filter '<head>' '<head><base href="/jitsi/">'
+      sub_filter 'href="/' 'href="/jitsi/';
+      sub_filter 'src="/' 'src="/jitsi/';
+      sub_filter 'url(/' 'url(/jitsi/';
+      sub_filter 'url":"/' 'url":"/jitsi/';
+      sub_filter '"path":"/' '"path":"/jitsi/';
+      sub_filter '"config":' '"config.externalConnectUrl": "https://part-int.ldttoolbox.app/jitsi/http-pre-bind", "config":';
+      sub_filter_once off;
+      sub_filter_types text/html text/css text/xml text/javascript application/javascript application/json;
 spec:
   ingressClassName: nginx
   rules:
