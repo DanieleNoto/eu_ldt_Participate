@@ -17,6 +17,48 @@ spec:
                 io.kompose.network/temp1-private: 'true'
         spec:
             automountServiceAccountToken: false
+            initContainers:
+                - name: configure-matomo
+                  image: busybox:1.36
+                  command:
+                      - sh
+                      - -c
+                      - |
+                          echo "Configuring Matomo for subpath deployment..."
+                          mkdir -p /var/www/html/config
+                          
+                          # Crea un file di configurazione custom se non esiste
+                          if [ ! -f /var/www/html/config/config.ini.php ]; then
+                              cat > /var/www/html/config/config.ini.php <<'EOF'
+                          ; <?php exit; ?> DO NOT REMOVE THIS LINE
+                          ; file automatically generated or modified by Matomo; you can manually override the default values in global.ini.php by redefining them in this file.
+                          [General]
+                          force_ssl = 1
+                          assume_secure_protocol = 1
+                          proxy_uri_header = 1
+                          trusted_hosts[] = "part-int.ldttoolbox.app"
+                          
+                          ; Optimized configuration for Matomo widget embedding
+                          enable_framed_pages = 1
+                          enable_framed_settings = 1
+                          enable_framed_allow_write_admin_token_auth = 1
+                          disable_merged_assets = 1
+                          auto_redirect = 0
+                          enable_framed_mode = 1
+                          disable_frame_busting = 1
+                          EOF
+                              echo "Matomo configuration created."
+                          else
+                              echo "Matomo configuration already exists."
+                          fi
+                          
+                          chown -R www-data:www-data /var/www/html/config || true
+                          echo "Configuration complete!"
+                  volumeMounts:
+                      - name: matomo-data
+                        mountPath: /var/www/html
+                  securityContext:
+                      runAsUser: 0
             containers:
                 - name: matomo
                   image: matomo:5
