@@ -6,10 +6,10 @@ metadata:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/use-regex: "true"
-    # Preserve the /analytics/matomo prefix when forwarding so Matomo
-    # generates asset URLs that include the 'matomo' segment.
-    # Ensure we include a slash between 'matomo' and the captured group.
-    nginx.ingress.kubernetes.io/rewrite-target: '/analytics/matomo/$2'
+    # Rewrite target: strip the external /analytics/matomo prefix when
+    # forwarding to the backend, but set X-Forwarded-Prefix so Matomo
+    # can generate correct asset URLs pointing to /analytics/matomo/...
+    nginx.ingress.kubernetes.io/rewrite-target: '/$2'
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header X-Forwarded-Prefix /analytics/matomo;
       proxy_set_header X-Forwarded-Proto $scheme;
