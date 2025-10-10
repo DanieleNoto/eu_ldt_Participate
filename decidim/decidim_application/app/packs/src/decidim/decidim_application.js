@@ -3,22 +3,23 @@
 
 // Load images
 require.context("../../images", true)
-import * as ActiveStorage from "@rails/activestorage"
-import Rails from "@rails/ujs"
+import * as ActiveStorage from "@rails/activestorage";
 
-Rails.start()
 ActiveStorage.start()
 
-document.addEventListener("DOMContentLoaded", () => {
-  const tokenElement = document.querySelector('meta[name="csrf-token"]')
-  if (!tokenElement) return
-
-  const token = tokenElement.getAttribute("content")
-
-  // Intercetta l'evento di Active Storage e aggiungi l'header
-  addEventListener("direct-upload:initialize", event => {
-    if (event && event.detail && event.detail.xhr) {
-      event.detail.xhr.setRequestHeader("X-CSRF-Token", token)
+const originalXHROpen = XMLHttpRequest.prototype.open
+XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+    this._isDirectUpload = url && url.includes('/rails/active_storage/direct_uploads')
+    return originalXHROpen.apply(this, [method, url, ...rest])
+}
+const originalXHRSend = XMLHttpRequest.prototype.send
+XMLHttpRequest.prototype.send = function(...args) {
+    if (this._isDirectUpload) {
+        const csrfToken = document.querySelector("meta[name='csrf-token']")?.getAttribute("content")
+        if (csrfToken) {
+            this.setRequestHeader('X-CSRF-Token', csrfToken)
+        }
     }
-  })
-})
+    return originalXHRSend.apply(this, args)
+}
+
