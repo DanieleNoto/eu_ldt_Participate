@@ -26,13 +26,14 @@ data:
     RAILS_LOG_LEVEL: debug
     RAILS_LOG_TO_STDOUT: 'true'
     RAILS_ENV: production
+    RAILS_ASSET_HOST: http://decidim
     REDIS_URL: redis://redis:6379/0
     RESTART_POLICY: unless-stopped
     SMTP_ADDRESS: ssl0.ovh.net
     SMTP_AUTHENTICATION: login
     SMTP_DOMAIN: part-int.ldttoolbox.app
-    SMTP_STARTTLS_AUTO: 'false'
-    SMTP_PORT: '465'
+    SMTP_STARTTLS_AUTO: 'true'
+    SMTP_PORT: '587'
     SMTP_USERNAME: info@ldttoolbox.eu
     TOOL0_API_TOOLBAR_APPLICATIONS: /api/dashboard/applications/external-tools
     TOOL0_FULL_URL: https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools

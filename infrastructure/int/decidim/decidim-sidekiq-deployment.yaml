@@ -70,7 +70,7 @@ spec:
                 done
               fi
               echo "redis reachable; exec sidekiq"
-              exec bundle exec sidekiq -c ${SIDEKIQ_CONCURRENCY:-5} -e ${RAILS_ENV:-production}
+              exec bundle exec sidekiq -C config/sidekiq.yml -e ${RAILS_ENV:-production}
           envFrom:
             - secretRef:
                 name: decidim-secret
