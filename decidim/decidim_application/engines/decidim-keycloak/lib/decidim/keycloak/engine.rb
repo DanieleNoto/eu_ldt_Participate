@@ -150,7 +150,7 @@ module Decidim
                 end
               rescue => e
                 Rails.logger.error "Error syncing Keycloak admin role: #{e.message}"
-              endF
+              end
             end
           end
         end
