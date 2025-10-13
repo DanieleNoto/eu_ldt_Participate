@@ -16,6 +16,8 @@ spec:
                 app: decidim
         spec:
             automountServiceAccountToken: false
+            securityContext:
+              fsGroup: 1000  # group ID of decidim user
             containers:
                 - name: decidim
                   resources:
