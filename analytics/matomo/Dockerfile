@@ -8,7 +8,7 @@ RUN a2enmod headers && \
     a2enconf iframe
 
 # Configurazione per il virtual host Apache per permettere l'embedding
-RUN echo '<VirtualHost *:80>' > /etc/apache2/sites-available/matomo-embed.conf && \
+RUN echo '<VirtualHost *:8081>' > /etc/apache2/sites-available/matomo-embed.conf && \
     echo '  ServerAdmin webmaster@localhost' >> /etc/apache2/sites-available/matomo-embed.conf && \
     echo '  DocumentRoot /var/www/html' >> /etc/apache2/sites-available/matomo-embed.conf && \
     echo '  <Directory /var/www/html>' >> /etc/apache2/sites-available/matomo-embed.conf && \
