@@ -18,6 +18,8 @@ spec:
             automountServiceAccountToken: false
             securityContext:
               fsGroup: 1000  # group ID of decidim user
+              runAsUser: 1000
+              runAsGroup: 1000
             containers:
                 - name: decidim
                   resources:
