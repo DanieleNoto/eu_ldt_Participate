@@ -37,11 +37,30 @@ spec:
                   volumeMounts:
                       - mountPath: /config
                         name: jitsi-web-claim0
+                      - name: nginx-config
+                        mountPath: /config/nginx/meet.conf
+                        subPath: meet.conf
+                      - name: config-js
+                        mountPath: /config/web/config.js
+                        subPath: config.js
                   envFrom:
                       - configMapRef:
                             name: jitsi-config
                       - secretRef:
                             name: jitsi-secret
+            volumes:
+                - name: nginx-config
+                  configMap:
+                      name: jitsi-config
+                      items:
+                        - key: meet.conf
+                          path: meet.conf
+                - name: config-js
+                  configMap:
+                      name: jitsi-config
+                      items:
+                        - key: config.js
+                          path: config.js
     volumeClaimTemplates:
         - metadata:
               name: jitsi-web-claim0
