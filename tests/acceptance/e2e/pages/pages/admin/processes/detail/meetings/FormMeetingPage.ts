@@ -111,10 +111,6 @@ export class FormMeetingPage extends BaseAdminPage {
 		return this.page.locator('#meeting_comments_start_time');
 	}
 
-	private get commentsEndTimeField() {
-		return this.page.locator('#meeting_comments_end_time');
-	}
-
 	private get updateButton() {
 		return this.page.getByRole('button', { name: 'Update' });
 	}
@@ -125,10 +121,6 @@ export class FormMeetingPage extends BaseAdminPage {
 
 	private get addServiceButton() {
 		return this.page.locator('.add-service');
-	}
-
-	private get servicesSection() {
-		return this.page.locator('#panel-services');
 	}
 
 	/** Returns the calendar button based on the index (0 = first, 1 = second) */
