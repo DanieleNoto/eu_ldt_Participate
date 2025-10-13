@@ -145,7 +145,7 @@ setup: setup-node install-deps setup-playwright setup-frontend setup-backend set
 	@echo "  5. Access Grafana at http://localhost:3001"
 	@echo "  6. Access Matomo at http://localhost:8081"
 
-start: build-analytics-images ## Start all services
+start: ## Start all services
 	@echo "$(YELLOW)Starting services...$(NC)"
 	@export FORCE_DB_RESET=false FORCE_DATA_SETUP=false && docker compose up -d
 	@echo "$(GREEN)✓ All services started$(NC)"
@@ -155,7 +155,7 @@ start: build-analytics-images ## Start all services
 	@echo "$(YELLOW)Default admin credentials: admin@example.org / decidim123456789$(NC)"
 	@echo "$(YELLOW)Default user credentials: user@example.org / decidim123456789$(NC)"
 
-setup-initial-environment: build-analytics-images ## Start all services with database reset and initial data setup
+setup-initial-environment: ## Start all services with database reset and initial data setup
 	@echo "$(YELLOW)Starting all services with database reset and initial data setup...$(NC)"
 	@export FORCE_DB_RESET=true FORCE_DATA_SETUP=true && docker compose up -d
 	@echo "$(GREEN)✓ All services started with fresh database and initial data$(NC)"

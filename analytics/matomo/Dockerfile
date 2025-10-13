@@ -7,8 +7,12 @@ RUN a2enmod headers && \
     echo 'Header always set Content-Security-Policy "frame-ancestors *"' >> /etc/apache2/conf-available/iframe.conf && \
     a2enconf iframe
 
-# Configurazione per il virtual host Apache per permettere l'embedding
-RUN echo '<VirtualHost *:8081>' > /etc/apache2/sites-available/matomo-embed.conf && \
+# Configure Apache to listen on port 8080
+RUN sed -i 's/Listen 80$/Listen 8080/' /etc/apache2/ports.conf && \
+    sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8080>/' /etc/apache2/sites-available/000-default.conf
+
+# embedding configuration
+RUN echo '<VirtualHost *:8080>' > /etc/apache2/sites-available/matomo-embed.conf && \
     echo '  ServerAdmin webmaster@localhost' >> /etc/apache2/sites-available/matomo-embed.conf && \
     echo '  DocumentRoot /var/www/html' >> /etc/apache2/sites-available/matomo-embed.conf && \
     echo '  <Directory /var/www/html>' >> /etc/apache2/sites-available/matomo-embed.conf && \
