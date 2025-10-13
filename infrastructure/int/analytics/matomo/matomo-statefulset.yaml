@@ -30,7 +30,7 @@ spec:
                           cpu: '500m'
                           ephemeral-storage: '2Gi'
                   ports:
-                      - containerPort: 8080
+                      - containerPort: 8081
                         protocol: TCP
                   envFrom:
                       - secretRef:
