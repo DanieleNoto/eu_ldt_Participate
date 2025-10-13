@@ -34,6 +34,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 # Set working directory
 WORKDIR /code
 
+RUN mkdir -p /code/storage
+RUN chown -R decidim:decidim /code/storage
+RUN chmod 775 /code/storage
 
 
 # Copy dependency files FIRST for better Docker layer caching
