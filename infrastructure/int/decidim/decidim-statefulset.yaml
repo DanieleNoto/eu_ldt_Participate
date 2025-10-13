@@ -48,6 +48,8 @@ spec:
                   volumeMounts:
                       - mountPath: /code/data
                         name: decidim-pvc
+                      - mountPath: /code/storage
+                        name: decidim-pvc
     volumeClaimTemplates:
         - metadata:
               name: decidim-pvc
