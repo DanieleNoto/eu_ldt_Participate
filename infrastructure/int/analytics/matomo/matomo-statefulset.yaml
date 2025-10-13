@@ -19,7 +19,7 @@ spec:
             automountServiceAccountToken: false
             containers:
                 - name: matomo
-                  image: euldtshared.azurecr.io/matomo-custom:${tag}
+                  image: euldtshared.azurecr.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_
                   resources:
                       requests:
                           memory: '256Mi'
