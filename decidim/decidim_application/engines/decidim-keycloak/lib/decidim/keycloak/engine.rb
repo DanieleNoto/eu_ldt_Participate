@@ -92,9 +92,17 @@ module Decidim
             end
             
             # Store admin role information for later use in Decidim callbacks
-            if raw_info && raw_info['resource_access'] && raw_info['resource_access']['Tool3']
-              tool3_roles = raw_info['resource_access']['Tool3']['roles'] || []
-              hash[:is_decidim_admin] = tool3_roles.include?('Admin')
+            if raw_info && raw_info['resource_access']
+              # Prefer explicit environment variable OMNIAUTH_KEYCLOAK_CLIENT_ID if present
+              client_key = ENV['OMNIAUTH_KEYCLOAK_CLIENT_ID'] || Rails.application.secrets.dig(:omniauth, :keycloakopenid, :client_id) || 'tool3'
+              client_key = client_key.to_s
+
+              if raw_info['resource_access'][client_key]
+                client_roles = raw_info['resource_access'][client_key]['roles'] || []
+                hash[:is_decidim_admin] = client_roles.include?('Admin')
+              else
+                hash[:is_decidim_admin] = false
+              end
             else
               hash[:is_decidim_admin] = false
             end
@@ -142,7 +150,7 @@ module Decidim
                 end
               rescue => e
                 Rails.logger.error "Error syncing Keycloak admin role: #{e.message}"
-              end
+              endF
             end
           end
         end
