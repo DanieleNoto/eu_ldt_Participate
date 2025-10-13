@@ -266,7 +266,7 @@ async function checkErrors(
 		await meetingsPage.getPage().waitForLoadState('networkidle');
 		await formMeetingPage.createMeeting();
 		expect(await formMeetingPage.hasValidationErrors()).toBe(true);
-		const actualErrors = await meetingsPage.getValidationErrorsDetailed();
+		const actualErrors = await formMeetingPage.getValidationErrorsDetailed();
 		expect(actualErrors.length).toBe(expectedErrors.length);
 		for (const expected of expectedErrors) {
 			const match = actualErrors.find(

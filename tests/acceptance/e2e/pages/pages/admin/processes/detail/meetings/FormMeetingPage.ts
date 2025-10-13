@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 import { BaseAdminPage } from '../../../BaseAdminPage';
 
 /**
@@ -12,6 +12,13 @@ import { BaseAdminPage } from '../../../BaseAdminPage';
  *
  * Used for both creating new meetings and editing existing ones.
  */
+
+interface SimpleValidationError {
+	message: string;
+	fieldName: string | null;
+	fieldLabel: string | null;
+	fieldSelector: string | null;
+}
 
 export class FormMeetingPage extends BaseAdminPage {
 	constructor(page: Page) {
@@ -628,5 +635,94 @@ export class FormMeetingPage extends BaseAdminPage {
 
 		// Confirm selection
 		await timePicker.locator('button.datepicker__select-clock:has-text("Select")').click();
+	}
+
+	async getValidationErrorsDetailed(): Promise<SimpleValidationError[]> {
+		const errorLocator = this.page.locator('.form-error[role="alert"]:visible, small.form-error.is-visible');
+		const count = await errorLocator.count();
+		const results: SimpleValidationError[] = [];
+		for (let i = 0; i < count; i++) {
+			const msgNode = errorLocator.nth(i);
+			if (!(await msgNode.isVisible())) continue;
+			const raw = (await msgNode.innerText()) ?? '';
+			const message = raw.replace(/\s+/g, ' ').trim();
+			let inputLocator: Locator | null = null;
+			//1) aria-describedby association
+			const id = await msgNode.getAttribute('id');
+			if (id) {
+				const inputs = this.page.locator(
+					`input[aria-describedby~="${id}"]:not([type="hidden"]),textarea[aria-describedby~="${id}"],select[aria-describedby~="${id}"]`
+				);
+				if ((await inputs.count()) > 0) inputLocator = inputs.first();
+			}
+			//2) fallback: nearest input in same form-group
+			if (!inputLocator) {
+				const container = msgNode.locator(
+					'xpath=ancestor::*[contains(@class,"form-group") or contains(@class,"field") or contains(@class,"form-row")][1]'
+				);
+				if ((await container.count()) > 0) {
+					const inside = container.locator('input:not([type="hidden"]), textarea, select');
+					if ((await inside.count()) > 0) inputLocator = inside.first();
+				}
+			}
+			//3) fallback: preceding input
+			if (!inputLocator) {
+				const preceding = msgNode.locator(
+					'xpath=preceding::input[not(@type="hidden")][1] | preceding::textarea[1] | preceding::select[1]'
+				);
+				if ((await preceding.count()) > 0) inputLocator = preceding.first();
+			}
+			//4) NEW fallback: sibling inside same wrapper (case: <small> + <div class="field_with_errors"><input...>)
+			if (!inputLocator) {
+				const siblingInput = msgNode.locator(
+					'xpath=following-sibling::div[contains(@class,"field_with_errors")]input[not(@type="hidden")]'
+				);
+				if ((await siblingInput.count()) > 0) inputLocator = siblingInput.first();
+			}
+			//Extract field info
+			let fieldName: string | null = null;
+			let fieldSelector: string | null = null;
+			let fieldLabel: string | null = null;
+			let inputId: string | null = null;
+			if (inputLocator) {
+				inputId = await inputLocator.getAttribute('id');
+				fieldName = (await inputLocator.getAttribute('name')) || inputId || null;
+				if (inputId) {
+					fieldSelector = `#${inputId}`;
+				} else if (fieldName) {
+					fieldSelector = `input[name="${fieldName}"], textarea[name="${fieldName}"], select[name="${fieldName}"]`;
+				}
+				//Find label
+				if (inputId) {
+					const forLabel = this.page.locator(`label[for="${inputId}"]`);
+					if ((await forLabel.count()) > 0) {
+						fieldLabel = (await forLabel.first().innerText()).trim();
+					}
+				}
+				if (!fieldLabel) {
+					const ancLabel = inputLocator.locator('xpath=ancestor::label[1]');
+					if ((await ancLabel.count()) > 0) {
+						fieldLabel = (await ancLabel.first().innerText()).trim();
+					}
+				}
+				if (!fieldLabel) {
+					const ariaLabelledBy = (await inputLocator.getAttribute('aria-labelledby')) || '';
+					const ids = ariaLabelledBy.split(/\s+/).filter(Boolean);
+					if (ids.length) {
+						const node = this.page.locator(`#${ids[0]}`);
+						if ((await node.count()) > 0) {
+							fieldLabel = (await node.first().innerText()).trim();
+						}
+					}
+				}
+			}
+			results.push({
+				message,
+				fieldName,
+				fieldLabel,
+				fieldSelector
+			});
+		}
+		return results;
 	}
 }
