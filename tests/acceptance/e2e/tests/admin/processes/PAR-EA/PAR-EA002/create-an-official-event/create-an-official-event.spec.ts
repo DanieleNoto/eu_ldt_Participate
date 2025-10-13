@@ -156,8 +156,6 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 					// Set registration type to "on this platform"
 					const newRegistrationType = 'on_this_platform';
 					await formMeetingPage.selectRegistrationType(newRegistrationType);
-					// Enable comments
-					await formMeetingPage.setCommentsEnabled(true);
 				});
 
 				await test.step('10. Admin: Clicks on "Create Event" to create the event.', async () => {
@@ -307,7 +305,6 @@ async function checkErrors(
 				fullPage: true
 			});
 			await expect(formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
-			//await expect(successMessage).toBeVisible();
 			await meetingsPage.getPage().waitForLoadState('networkidle');
 			await formMeetingPage.checkTitleFieldErrors();
 			await formMeetingPage.checkDescriptionFieldErrors();
@@ -376,7 +373,6 @@ async function checkErrors(
 				fullPage: true
 			});
 			await expect(formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
-			//await expect(successMessage).toBeVisible();
 			await meetingsPage.getPage().waitForLoadState('networkidle');
 			await formMeetingPage.checkTitleFieldErrors();
 			await formMeetingPage.checkDescriptionFieldErrors();
