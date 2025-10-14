@@ -41,6 +41,7 @@ spec:
             name: decidim
             port:
               number: 80
+    # Jitsi is handled by a dedicated host
   - host: jitsi-part-int.ldttoolbox.app
   http:
     paths:
