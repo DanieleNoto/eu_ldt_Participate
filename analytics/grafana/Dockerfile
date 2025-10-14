@@ -1,6 +1,6 @@
 FROM grafana/grafana:12.2.0
 
-# Assicuriamo che le directory esistano prima delle operazioni di copia
+
 RUN mkdir -p /etc/grafana/provisioning/datasources \
     /etc/grafana/provisioning/dashboards \
     /var/lib/grafana/dashboards

@@ -24,6 +24,33 @@ spec:
                 runAsUser: 472 # UID del usuario Grafana
                 runAsGroup: 472 # GID del usuario Grafana
                 fsGroup: 472 # Grupo para los volumenes montados
+            initContainers:
+            - name: grafana-seed
+              image: eu-ldt-part-int/grafana-custom:localtest
+              command:
+                    - sh
+                    - -c
+                    - |
+                        set -e
+                        [ -d /target/provisioning ] || mkdir -p /target/provisioning
+                        [ -d /target/dashboards ] || mkdir -p /target/dashboards
+                        [ -d /target/data/dashboards ] || mkdir -p /target/data/dashboards
+                        # copy provisioning (from image) into PVC mount target
+                        cp -a /etc/grafana/provisioning/. /target/provisioning/ || true
+                        # ensure dashboards are available both under provisioning (for provisioning files)
+                        # and under /var/lib/grafana (Grafana expects dashboards there depending on config)
+                        cp -a /var/lib/grafana/dashboards/. /target/provisioning/ || true
+                        cp -a /var/lib/grafana/dashboards/. /target/dashboards/ || true
+                        cp -a /var/lib/grafana/dashboards/. /target/data/dashboards/ || true
+              securityContext:
+                    runAsUser: 0
+              volumeMounts:
+                    - name: grafana-claim1
+                      mountPath: /target/provisioning
+                    - name: grafana-claim2
+                      mountPath: /target/dashboards
+                    - name: grafana-data
+                      mountPath: /target/data
             containers:
                 - name: grafana
                   image: euldtshared.azurecr.io/grafana-custom:_%CONTAINER_IMAGE_TOOL_TAG%_
