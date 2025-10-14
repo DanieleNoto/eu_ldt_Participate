@@ -22,7 +22,7 @@ data:
     JVB_ENABLE_APIS: rest,colibri
     JVB_PORT: '10000'
     JVB_STUN_SERVERS: stun.l.google.com:19302,stun1.l.google.com:19302
-    PUBLIC_URL: https://part-int.ldttoolbox.app/jitsi
+    PUBLIC_URL: https://jitsi.part-int.ldttoolbox.app
     RESTART_POLICY: unless-stopped
     TZ: Europe/Rome
     XMPP_AUTH_DOMAIN: auth.meet.jitsi
@@ -35,36 +35,8 @@ data:
     XMPP_RECORDER_DOMAIN: recorder.meet.jitsi
     XMPP_SERVER: jitsi-prosody
     ENABLE_XMPP_WEBSOCKET: '1'
-    SUBDIR: jitsi
-    # File di configurazione personalizzato per Jitsi
+    SUBDIR: ''
+    ENABLE_SUBDOMAINS: 'true'
     
-    meet.conf: |
-      server_name _;
-      
-       location ~ ^/jitsi/(.*)$ {
-            rewrite ^/jitsi/(.*)$ /$1 break;
-            proxy_pass http://localhost:8000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-        }
-    config.js: |
-        /* Jitsi Meet configuration for subpath /jitsi */
-        var config = {
-            hosts: {
-                domain: 'part-int.ldttoolbox.app',
-                muc: 'muc.part-int.ldttoolbox.app'
-            },
-            bosh: '/jitsi/http-bind',
-            websocket: 'wss://part-int.ldttoolbox.app/jitsi/xmpp-websocket',
-            publicURL: 'https://part-int.ldttoolbox.app/jitsi',
-            externalConnectUrl: 'https://part-int.ldttoolbox.app/jitsi/http-pre-bind',
-            enableWelcomePage: true,
-            enableClosePage: false,
-            deploymentInfo: {
-                environment: 'k8s',
-                envType: 'production'
-            }
-        };
+    # No embedded config.js here — rely on the image default config.js or mount a separate file
+    # If you need custom JS, mount a file at /config/web/config.js via a ConfigMap or a volume.
