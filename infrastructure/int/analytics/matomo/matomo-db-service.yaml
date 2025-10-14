@@ -4,7 +4,7 @@ metadata:
     name: matomo-db-svc
 spec:
     selector:
-        io.kompose.service: matomo-db-svc
+        io.kompose.service: matomo-db
     ports:
         - port: 3306
           targetPort: 3306
