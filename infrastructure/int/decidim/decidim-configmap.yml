@@ -35,6 +35,8 @@ data:
     SMTP_STARTTLS_AUTO: 'true'
     SMTP_PORT: '587'
     SMTP_USERNAME: info@ldttoolbox.eu
+    SMTP_OPEN_TIMEOUT: '300'
+    SMTP_READ_TIMEOUT: '300'
     TOOL0_API_TOOLBAR_APPLICATIONS: /api/dashboard/applications/external-tools
     TOOL0_FULL_URL: https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools
     TOOL0_DOMAIN: https://ie-int.ldttoolbox.app
