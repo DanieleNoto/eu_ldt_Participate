@@ -133,5 +133,6 @@ RUN groupadd -r decidim 2>/dev/null || true && \
 USER decidim
 
 EXPOSE 3000
+EXPOSE 3035
 
 ENTRYPOINT ["/code/docker-entrypoint.sh"]

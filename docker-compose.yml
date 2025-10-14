@@ -55,6 +55,8 @@ services:
                 condition: service_started
             db:
                 condition: service_started
+            shakapacker:
+                condition: service_started
         healthcheck:
             test: ["CMD", "test", "-d", "node_modules"]
             interval: 10s
@@ -91,7 +93,7 @@ services:
             args:
                 RAILS_ENV: development
                 NODE_ENV: development
-        command: bash -c "cd /code && bundle exec bin/shakapacker-dev-server --host 0.0.0.0"
+        entrypoint: ["bin/shakapacker-dev-server"]
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
