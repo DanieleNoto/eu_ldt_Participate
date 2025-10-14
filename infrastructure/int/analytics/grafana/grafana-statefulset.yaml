@@ -26,7 +26,7 @@ spec:
                 fsGroup: 472 # Grupo para los volumenes montados
             initContainers:
             - name: grafana-seed
-              image: eu-ldt-part-int/grafana-custom:localtest
+              image: euldtshared.azurecr.io/grafana-custom:_%CONTAINER_IMAGE_TOOL_TAG%_
               command:
                     - sh
                     - -c
