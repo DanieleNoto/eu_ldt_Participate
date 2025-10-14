@@ -82,8 +82,8 @@ elif [ "$RAILS_ENV" = "development" ]; then
   echo "--- Checking assets for development ---"
   # In development check the manifest in public/decidim-packs by default
   if [ ! -f "public/decidim-packs/manifest.json" ] || [ -n "$(find app/packs config/shakapacker.yml -newer public/decidim-packs/manifest.json 2>/dev/null)" ]; then
-    echo "--- Compiling assets (changed files detected for public/decidim-packs) ---"
-    bin/rails shakapacker:compile
+      echo "--- Compiling assets (changed files detected for public/decidim-packs) ---"
+      
   else
     echo "--- Assets up to date, skipping compilation ---"
   fi
