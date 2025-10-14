@@ -41,3 +41,13 @@ spec:
             name: decidim
             port:
               number: 80
+  - host: jitsi-part-int.ldttoolbox.app
+  http:
+    paths:
+    - backend:
+        service:
+          name: jitsi-web
+          port:
+            number: 8443
+      path: /jitsi
+      pathType: Prefix
