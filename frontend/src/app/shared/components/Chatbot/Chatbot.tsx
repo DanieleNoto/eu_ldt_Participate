@@ -540,6 +540,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 									<span className="font-medium">{t('chatbot.describeYourIssue')}</span>
 									<textarea
 										value={supportText}
+										maxLength={500}
+										minLength={20}
 										onChange={e => setSupportText(e.target.value)}
 										onKeyDown={handleSupportTextareaKey}
 										placeholder={t('chatbot.typeHere')}
