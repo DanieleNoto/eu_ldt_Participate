@@ -12,6 +12,7 @@ import { BaseAdminPage } from '../../../BaseAdminPage';
  *
  * Integrates AdminNavigationComponent and AdminTitleBarComponent from BaseAdminPage.
  */
+
 export class MeetingsPage extends BaseAdminPage {
 	constructor(page: Page) {
 		super(page);

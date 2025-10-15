@@ -3,8 +3,6 @@ import { SidebarProcessDetailComponent } from '../../../../../components/admin/p
 import { BaseAdminPage } from '../../../BaseAdminPage';
 import { ManagePageComponentPage } from './ManagePageComponentPage';
 import { NewPageComponentPage } from './NewPageComponentPage';
-import { readdirSync, unlinkSync, existsSync } from 'fs';
-import { join } from 'path';
 
 /**
  * Page Object Model for the Components page in process detail management.
@@ -46,14 +44,11 @@ export class ComponentsPage extends BaseAdminPage {
 		this.newPageComponentPage = new NewPageComponentPage(page);
 		this.managePageComponentPage = new ManagePageComponentPage(page);
 		// Main page elements
-		this.pageWrapper = page.locator('.item_show__wrapper');
-		this.card = page.locator('.card');
 		this.pageTitle = page.locator('.item_show__header-title h1, h1.item_show__header-title');
 
 		// Add component dropdown
 		this.addComponentButton = page.locator('button[data-toggle="add-component-dropdown"]');
 		this.addComponentDropdown = page.locator('#add-component-dropdown');
-		this.addComponentMenu = page.locator('.add-components.vertical.menu');
 
 		// Component type links
 		this.accountabilityLink = page.locator('a.accountability[href*="components/new?type=accountability"]');
@@ -67,10 +62,8 @@ export class ComponentsPage extends BaseAdminPage {
 		this.surveysLink = page.locator('a.surveys[href*="components/new?type=surveys"]');
 
 		// Components table
-		this.componentsTable = page.locator('.table-list');
 		this.tableHeaders = page.locator('.table-list thead th');
-		this.tableBody = page.locator('.table-list tbody');
-    	this.componentRows = this.tableBody.locator('tr');
+		this.componentRows = page.locator('.table-list tbody tr');
 	}
 
 	// Navigation and page state
@@ -113,8 +106,6 @@ export class ComponentsPage extends BaseAdminPage {
 		await this.addComponentButton.click();
 		await expect(this.addComponentDropdown).toHaveAttribute('aria-hidden', 'false');
 	}
-
-
 
 	async closeAddComponentDropdown() {
 		if (await this.isAddComponentDropdownVisible()) {
@@ -434,32 +425,32 @@ export class ComponentsPage extends BaseAdminPage {
 		}
 	}
 
-/**
- * Deletes a component by name or regex if it exists.
- * Works with pages that expose role="option" and with normal tables.
- */
+	/**
+	 * Deletes a component by name or regex if it exists.
+	 * Works with pages that expose role="option" and with normal tables.
+	 */
 	async deleteComponentIfExists(componentName: string | RegExp) {
 		// try the semantic locator (when present)
 		let rowLocator = this.page.getByRole('option', { name: componentName });
 
 		// fallback: find table rows that contain the text
-		if (await rowLocator.count() === 0) {
-		  rowLocator = this.page.locator('table tbody tr', { hasText: componentName });
+		if ((await rowLocator.count()) === 0) {
+			rowLocator = this.page.locator('table tbody tr', { hasText: componentName });
 		}
 
 		// if there are no matches, exit
-		if (await rowLocator.count() === 0) {
-		  console.log(`Component "${componentName}" not found, skipping deletion.`);
-		  return;
+		if ((await rowLocator.count()) === 0) {
+			console.log(`Component "${componentName}" not found, skipping deletion.`);
+			return;
 		}
 
 		// take the first match and click the delete link in the actions cell
 		const row = rowLocator.first();
 		const deleteLink = row.locator('a.action-icon--delete');
 
-		if (await deleteLink.count() === 0) {
-		  console.log(`Delete link not found for "${componentName}", skipping deletion.`);
-		  return;
+		if ((await deleteLink.count()) === 0) {
+			console.log(`Delete link not found for "${componentName}", skipping deletion.`);
+			return;
 		}
 
 		await deleteLink.first().click();
@@ -478,7 +469,7 @@ export class ComponentsPage extends BaseAdminPage {
 	 */
 	getComponentLinkByName(componentName: string): Locator {
 		return this.componentRows.locator(`td a:has-text("${componentName}")`);
-	}	
+	}
 	/**
 	 * Click on link component from name
 	 */
