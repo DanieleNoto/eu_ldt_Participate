@@ -3,8 +3,6 @@ import { SidebarProcessDetailComponent } from '../../../../../components/admin/p
 import { BaseAdminPage } from '../../../BaseAdminPage';
 import { ManagePageComponentPage } from './ManagePageComponentPage';
 import { NewPageComponentPage } from './NewPageComponentPage';
-import { readdirSync, unlinkSync, existsSync } from 'fs';
-import { join } from 'path';
 
 /**
  * Page Object Model for the Components page in process detail management.
@@ -428,39 +426,56 @@ export class ComponentsPage extends BaseAdminPage {
 	}
 
 	/**
-	 * Deletes a component by name if it exists, including snapshots cleanup.
-	 * @param componentName Name or regex of the component to delete
-	 * @param snapshotsDir Directory containing snapshots to delete
+	 * Deletes a component by name or regex if it exists.
+	 * Works with pages that expose role="option" and with normal tables.
 	 */
-	async deleteComponentIfExists(componentName: string | RegExp, snapshotsDir: string) {
-		const rowLocator = this.page.getByRole('option', { name: componentName });
-		if ((await rowLocator.count()) > 0) {
-			const row = rowLocator.first();
-			const deleteLink = row.locator('a.action-icon--delete');
-			await deleteLink.click();
+	async deleteComponentIfExists(componentName: string | RegExp) {
+		// try the semantic locator (when present)
+		let rowLocator = this.page.getByRole('option', { name: componentName });
 
-			// Confirm deletion
-			await this.page.getByRole('button', { name: 'OK' }).click();
-
-			// Verify success message
-			const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
-			await expect(deletionSuccessMessage).toBeVisible();
-
-			// //commenting out snapshot deletion for permanence of snapshots -- uncomment if needed
-			// // Delete all files in snapshots directory
-			// if (existsSync(snapshotsDir)) {
-			//     const files = readdirSync(snapshotsDir);
-			//     for (const file of files) {
-			//         const filePath = join(snapshotsDir, file);
-			//         unlinkSync(filePath);
-			//         console.log(`Deleted: ${filePath}`);
-			//     }
-			// } else {
-			//     console.log(`Directory ${snapshotsDir} does not exist.`);
-			// }
-		} else {
-			console.log(`Component "${componentName}" not found, skipping deletion.`);
+		// fallback: find table rows that contain the text
+		if ((await rowLocator.count()) === 0) {
+			rowLocator = this.page.locator('table tbody tr', { hasText: componentName });
 		}
+
+		// if there are no matches, exit
+		if ((await rowLocator.count()) === 0) {
+			console.log(`Component "${componentName}" not found, skipping deletion.`);
+			return;
+		}
+
+		// take the first match and click the delete link in the actions cell
+		const row = rowLocator.first();
+		const deleteLink = row.locator('a.action-icon--delete');
+
+		if ((await deleteLink.count()) === 0) {
+			console.log(`Delete link not found for "${componentName}", skipping deletion.`);
+			return;
+		}
+
+		await deleteLink.first().click();
+
+		// confirm the deletion (adjust the button name if necessary)
+		await this.page.getByRole('button', { name: 'OK' }).click();
+
+		// wait for success message or for the row to be removed
+		const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
+		await expect(deletionSuccessMessage).toBeVisible();
+	}
+
+	/**
+	 * Returns the link of a component based on the text (e.g. "Meetings", "Accountability").
+	 * @param componentName Text of the link in the table
+	 */
+	getComponentLinkByName(componentName: string): Locator {
+		return this.componentRows.locator(`td a:has-text("${componentName}")`);
+	}
+	/**
+	 * Click on link component from name
+	 */
+	async clickComponentLink(componentName: string): Promise<void> {
+		const link = this.getComponentLinkByName(componentName);
+		await link.click();
 	}
 
 	/**
