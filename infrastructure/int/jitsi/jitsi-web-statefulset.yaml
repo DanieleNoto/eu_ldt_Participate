@@ -30,9 +30,9 @@ spec:
                           cpu: '250m'
                           ephemeral-storage: '1Gi'
                   ports:
-                      - containerPort: 8000
+                      - containerPort: 80
                         protocol: TCP
-                      - containerPort: 8443
+                      - containerPort: 443
                         protocol: TCP
                   volumeMounts:
                       - mountPath: /config
