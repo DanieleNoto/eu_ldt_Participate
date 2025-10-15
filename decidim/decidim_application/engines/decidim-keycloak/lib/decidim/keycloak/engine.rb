@@ -128,9 +128,10 @@ module Decidim
               # Call original create method
               result = original_create
               
-              # After successful authentication, sync admin roles if this was Keycloak auth
+              # After successful authentication, sync admin roles and save JWT token
               if auth_data&.provider == "keycloakopenid" && current_user
                 sync_keycloak_admin_role(current_user, auth_data)
+                save_keycloak_jwt_token(current_user, auth_data)
               end
               
               result
@@ -150,6 +151,77 @@ module Decidim
                 end
               rescue => e
                 Rails.logger.error "Error syncing Keycloak admin role: #{e.message}"
+              end
+            end
+            
+            def save_keycloak_jwt_token(user, auth_data)
+              begin
+                if auth_data.extra && auth_data.extra['id_token']
+                  jwt_token = auth_data.extra['id_token']
+                  
+                  # Save JWT token in extended_data
+                  extended_data = user.extended_data || {}
+                  extended_data['keycloak_jwt_token'] = jwt_token
+                  
+                  user.update!(extended_data: extended_data)
+                  
+                  Rails.logger.info "Saved Keycloak JWT token for user #{user.id}"
+                else
+                  Rails.logger.warn "No JWT token found in Keycloak auth data for user #{user.id}"
+                end
+              rescue => e
+                Rails.logger.error "Error saving Keycloak JWT token for user #{user.id}: #{e.message}"
+              end
+            end
+          end
+          
+          # Also override SessionsController to handle JWT token saving during login
+          Decidim::Devise::SessionsController.class_eval do
+            alias_method :original_create, :create
+            
+            def create
+              # Store OmniAuth auth data if this is an OAuth login
+              auth_data = request.env["omniauth.auth"]
+              
+              # Call original create method
+              result = original_create
+              
+              # After successful authentication, save JWT token if this was Keycloak auth
+              if auth_data&.provider == "keycloakopenid" && current_user
+                Rails.logger.info "Calling save_keycloak_jwt_token_for_login for user #{current_user.id}"
+                save_keycloak_jwt_token_for_login(current_user, auth_data)
+              else
+                Rails.logger.warn "Not saving JWT token - provider: #{auth_data&.provider}, user: #{current_user&.id}"
+              end
+              
+              result
+            end
+            
+            private
+            
+            def save_keycloak_jwt_token_for_login(user, auth_data)
+              begin
+                Rails.logger.info "Saving Keycloak JWT token for login - auth_data keys: #{auth_data&.keys}"
+                Rails.logger.info "auth_data.extra: #{auth_data&.extra.inspect}"
+                
+                if auth_data.extra && auth_data.extra['id_token']
+                  jwt_token = auth_data.extra['id_token']
+                  
+                  Rails.logger.info "Found JWT token in auth_data.extra['id_token'] for user #{user.id}, token length: #{jwt_token.length}"
+                  
+                  # Save JWT token in extended_data
+                  extended_data = user.extended_data || {}
+                  extended_data['keycloak_jwt_token'] = jwt_token
+                  
+                  user.update!(extended_data: extended_data)
+                  
+                  Rails.logger.info "Saved Keycloak JWT token for login user #{user.id}"
+                else
+                  Rails.logger.warn "No JWT token found in Keycloak auth data for login user #{user.id}. Available extra keys: #{auth_data&.extra&.keys}"
+                end
+              rescue => e
+                Rails.logger.error "Error saving Keycloak JWT token for login user #{user.id}: #{e.message}"
+                Rails.logger.error e.backtrace.join("\n")
               end
             end
           end
