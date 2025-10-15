@@ -52,3 +52,10 @@ spec:
               number: 80
         path: /
         pathType: Prefix
+      - path: /xmpp-websocket
+        pathType: Prefix
+        backend:
+          service:
+            name: jitsi-prosody
+            port:
+              number: 5280  
