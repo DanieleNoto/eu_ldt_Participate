@@ -25,6 +25,7 @@ gem "mutex_m", "~> 0.2.0"
 
 gem "decidim-extra_user_fields", path: './engines/decidim-extra_user_fields'
 gem "decidim-keycloak", path: "./engines/decidim-keycloak"
+gem "decidim-analytics", path: "./engines/decidim-module-analytics"
 gem 'decidim-meetings-jitsi', path: './engines/decidim-meetings-jitsi'
 gem 'decidim-admin_header', path: './engines/decidim-admin_header'
 
