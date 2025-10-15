@@ -391,6 +391,42 @@ jobs:
                 command: 'apply'
                 arguments: '-f infrastructure/int/jitsi/jitsi-web-service.yaml'
 
+          #  Services - JITSI-JVB
+          - task: Kubernetes@1
+            displayName: 'JITSI-JVB - Apply Services'
+            inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/jitsi/jitsi-jvb-service.yaml'
+
+          #  Services - JITSI-JICOFO
+          - task: Kubernetes@1
+            displayName: 'JITSI-JICOFO - Apply Services'
+            inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/jitsi/jitsi-jicofo-service.yaml'
+
+          #  Services - JITSI-PROSODY
+          - task: Kubernetes@1
+            displayName: 'JITSI-PROSODY - Apply Services'
+            inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/jitsi/jitsi-prosody-service.yaml'
+
           #-------------------------------------------------------------------------------------------
           # Statefulset - JITSI JICOFO
           #--------------------------------------------------------------------------
