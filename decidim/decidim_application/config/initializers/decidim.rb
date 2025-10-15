@@ -484,6 +484,13 @@ Decidim.configure do |config|
       config.content_security_policies_extra["img-src"] ||= %w('self' data:)
       config.content_security_policies_extra["img-src"] += [grafana_url]
     end
+    
+    # Allow Keycloak authentication in development
+    keycloak_hosts.each do |keycloak_url|
+      next if keycloak_url.blank?
+      
+      config.content_security_policies_extra["connect-src"] += [keycloak_url]
+    end
   end
 
   # Admin admin password configurations

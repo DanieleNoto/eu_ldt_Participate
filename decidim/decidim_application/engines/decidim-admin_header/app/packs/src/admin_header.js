@@ -44,8 +44,10 @@ function loadKeycloakConfig() {
 				url: 'https://im-int.ldttoolbox.app/',
 				realm: 'LDT',
 				clientId: 'tool3',
+				clientSecret: 'h3dLaZSDBEWzC4BKVQKPjiqPTJkA4yFA',
 				tool0Url: 'https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools',
-				tenantId: 'a6b3523b-b882-4a10-82d9-0db4dbe12f8e'
+        tenantId: 'a6b3523b-b882-4a10-82d9-0db4dbe12f8e',
+        redirectUri: 'http://localhost:3000/admin/'
 			};
 			console.log('Using fallback config:', fallbackConfig);
 			initializeKeycloak(fallbackConfig);
@@ -65,13 +67,15 @@ function initializeKeycloak(config) {
 	const keycloak = new Keycloak({
 		url: config.url,
 		realm: config.realm,
-		clientId: config.clientId
+		clientId: config.clientId,
+		clientSecret: config.clientSecret
 	});
 
 	// Initialize Keycloak with check-sso
 	keycloak.init({
 		onLoad: 'check-sso',
-		checkLoginIframe: false
+    checkLoginIframe: false,
+    enableLogging: true
 	}).then(function(authenticated) {
 		console.log('Keycloak initialized, authenticated:', authenticated);
 		if (authenticated) {
