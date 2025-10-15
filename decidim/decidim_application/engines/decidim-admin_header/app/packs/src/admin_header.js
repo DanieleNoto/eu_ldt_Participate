@@ -1,31 +1,17 @@
 // Dynamic import of keycloak-js to avoid webpack resolution issues
+// NOTE: Not used anymore with confidential client, keeping for reference
 let Keycloak;
 
 document.addEventListener('DOMContentLoaded', function () {
 	console.log('Admin Header JavaScript loaded');
 
-	// Dynamically import Keycloak
-	import('keycloak-js').then(module => {
-		Keycloak = module.default;
-		console.log('Keycloak module loaded:', Keycloak);
-
-		// Now proceed with configuration loading
-		loadKeycloakConfig();
-	}).catch(error => {
-		console.error('Failed to load keycloak-js:', error);
-		// Fallback: try to load from global scope if available
-		if (window.Keycloak) {
-			Keycloak = window.Keycloak;
-			console.log('Using Keycloak from global scope');
-			loadKeycloakConfig();
-		} else {
-			console.error('Keycloak not available');
-		}
-	});
+	// For confidential clients, we don't use keycloak-js
+	// Instead, we get the token from the backend
+	loadKeycloakConfig();
 });
 
 function loadKeycloakConfig() {
-	// First load Keycloak configuration from backend
+	// Load Keycloak configuration from backend
 	fetch('/admin/admin_header/keycloak_config')
 		.then(response => {
 			if (!response.ok) {
@@ -35,7 +21,10 @@ function loadKeycloakConfig() {
 		})
 		.then(config => {
 			console.log('Keycloak config loaded:', config);
-			initializeKeycloak(config);
+			// Store config globally
+			window.keycloakConfig = config;
+			// Initialize tools dropdown without Keycloak.js
+			initializeToolsDropdown();
 		})
 		.catch(error => {
 			console.error('Error loading Keycloak configuration:', error);
@@ -44,80 +33,23 @@ function loadKeycloakConfig() {
 				url: 'https://im-int.ldttoolbox.app/',
 				realm: 'LDT',
 				clientId: 'tool3',
-				clientSecret: 'h3dLaZSDBEWzC4BKVQKPjiqPTJkA4yFA',
+				// NO client_secret for public clients with PKCE
 				tool0Url: 'https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools',
         tenantId: 'a6b3523b-b882-4a10-82d9-0db4dbe12f8e',
-        redirectUri: 'http://localhost:3000/admin/'
+        redirectUri: 'https://part-int.ldttoolbox.app/admin/'
 			};
 			console.log('Using fallback config:', fallbackConfig);
-			initializeKeycloak(fallbackConfig);
+			window.keycloakConfig = fallbackConfig;
+			initializeToolsDropdown();
 		});
 }
 
-function initializeKeycloak(config) {
-	if (!Keycloak) {
-		console.error('Keycloak not available');
-		return;
-	}
-
-	// Store config globally for use in other functions
-	window.keycloakConfig = config;
-
-	// Initialize Keycloak
-	const keycloak = new Keycloak({
-		url: config.url,
-		realm: config.realm,
-		clientId: config.clientId,
-		clientSecret: config.clientSecret
-	});
-
-	// Initialize Keycloak with check-sso
-	keycloak.init({
-		onLoad: 'check-sso',
-    checkLoginIframe: false,
-    enableLogging: true
-	}).then(function(authenticated) {
-		console.log('Keycloak initialized, authenticated:', authenticated);
-		if (authenticated) {
-			console.log('User is authenticated');
-			// Set up token refresh
-			setInterval(function() {
-				keycloak.updateToken(70).then(function(refreshed) {
-					if (refreshed) {
-						console.log('Token was successfully refreshed');
-					} else {
-						console.log('Token is still valid');
-					}
-				}).catch(function() {
-					console.error('Failed to refresh token');
-				});
-			}, 60000); // Check every minute
-			
-			// User is authenticated, proceed with initialization
-			setTimeout(function() {
-				initializeToolsDropdown(keycloak);
-			}, 100);
-		} else {
-			console.log('User is not authenticated');
-			// User is not authenticated, you might want to handle this case
-			setTimeout(function() {
-				initializeToolsDropdown(null);
-			}, 100);
-		}
-	}).catch(function(error) {
-		console.error('Keycloak initialization failed:', error);
-		// Fallback to non-authenticated mode
-		setTimeout(function() {
-			initializeToolsDropdown(null);
-		}, 100);
-	});
-}function initializeToolsDropdown(keycloak) {
+function initializeToolsDropdown() {
   const toolsButton = document.getElementById('tools-dropdown-button');
   const toolsDropdown = document.getElementById('tools-dropdown');
   
   console.log('toolsButton:', toolsButton);
   console.log('toolsDropdown:', toolsDropdown);
-  console.log('keycloak:', keycloak);
   
   if (toolsButton && toolsDropdown) {
     console.log('Elements found, adding event listeners');
@@ -133,7 +65,7 @@ function initializeKeycloak(config) {
       toolsDropdown.style.display = isVisible ? 'none' : 'block';
       
       if (!isVisible) {
-        loadApplications(keycloak);
+        loadApplications();
       }
     });
     
@@ -147,58 +79,63 @@ function initializeKeycloak(config) {
     console.warn('Tools dropdown elements not found. Retrying in 500ms...');
     // Retry after a longer delay in case elements are inserted later
     setTimeout(function() {
-      initializeToolsDropdown(keycloak);
+      initializeToolsDropdown();
     }, 500);
   }
   
-  function loadApplications(keycloak) {
+  function loadApplications() {
     // Show loading state
     toolsDropdown.innerHTML = '<div class="loading-spinner">Loading...</div>';
     
-    // Check if user is authenticated with Keycloak
-    if (!keycloak || !keycloak.authenticated) {
-      renderError('User not authenticated');
-      return;
-    }
+    console.log('Loading applications - fetching JWT token from backend');
     
-    // Get the JWT token directly from Keycloak
-    const jwtToken = keycloak.token;
-    if (!jwtToken) {
-      renderError('No JWT token available');
-      return;
-    }
-    
-    console.log('Using JWT token from Keycloak');
-    
-    // Now call Tool0 API directly with the JWT token
-    const tool0Url = window.keycloakConfig.tool0Url;
-    const tenantId = window.keycloakConfig.tenantId;
-    
-    fetch(tool0Url, {
-      method: 'GET',
-      headers: {
-        'x-tenant-id': tenantId,
-        'authorization': `Bearer ${jwtToken}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => {
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Authentication failed - JWT token invalid');
-        } else {
-          throw new Error(`Tool0 API error: ${response.status}`);
+    // Get JWT token from backend
+    fetch('/admin/admin_header/jwt_token')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to get JWT token: ${response.status}`);
         }
-      }
-      return response.json();
-    })
-    .then(data => {
-      renderApplications(data);
-    })
-    .catch(error => {
-      console.error('Error loading applications:', error);
-      renderError(error.message);
-    });
+        return response.json();
+      })
+      .then(data => {
+        if (!data.token) {
+          throw new Error('No token returned from backend');
+        }
+        
+        console.log('JWT token obtained from backend');
+        const jwtToken = data.token;
+        
+        // Call Tool0 API with JWT token
+        const tool0Url = window.keycloakConfig.tool0Url;
+        const tenantId = window.keycloakConfig.tenantId;
+        
+        return fetch(tool0Url, {
+          method: 'GET',
+          headers: {
+            'x-tenant-id': tenantId,
+            'authorization': `Bearer ${jwtToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      })
+      .then(async response => {
+        if (!response.ok) {
+          if (response.status === 401) {
+            const body = await response.json();
+            throw new Error(`Authentication failed - ${body.toString()}`);
+          } else {
+            throw new Error(`Tool0 API error: ${response.status}`);
+          }
+        }
+        return response.json();
+      })
+      .then(data => {
+        renderApplications(data);
+      })
+      .catch(error => {
+        console.error('Error loading applications:', error);
+        renderError(error.message);
+      });
   }
   
   function renderApplications(data) {
