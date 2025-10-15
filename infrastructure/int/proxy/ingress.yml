@@ -49,6 +49,6 @@ spec:
           service:
             name: jitsi-web
             port:
-              number: 8443
+              number: 80
         path: /jitsi
         pathType: Prefix

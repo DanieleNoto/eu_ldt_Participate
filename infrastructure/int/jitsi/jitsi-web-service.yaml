@@ -10,8 +10,8 @@ spec:
   ports:
     - name: "80"
       port: 80
-      targetPort: 8000
+      targetPort: 80
     - name: "443"
       port: 443
-      targetPort: 8443
+      targetPort: 443
   type: ClusterIP
