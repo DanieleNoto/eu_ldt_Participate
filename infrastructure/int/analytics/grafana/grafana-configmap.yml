@@ -39,3 +39,4 @@ data:
     GF_AUTH_GENERIC_OAUTH_TOKEN_URL: https://im-int.ldttoolbox.app/realms/LDT/protocol/openid-connect/token
     GF_AUTH_GENERIC_OAUTH_USE_REFRESH_TOKEN: 'true'
     GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
+    GF_USERS_DEFAULT_THEME: 'light'
