@@ -91,7 +91,7 @@ elif [ "$RAILS_ENV" = "development" ]; then
   echo "--- Checking assets for development ---"
   if [ ! -f "public/packs/manifest.json" ] || [ -n "$(find app/packs config/shakapacker.yml -newer public/packs/manifest.json 2>/dev/null)" ]; then
     echo "--- Compiling assets (changed files detected) ---"
-    bin/rails shakapacker:compile
+  RAILS_ENV=development bundle exec rake assets:precompile
   else
     echo "--- Assets up to date, skipping compilation ---"
   fi

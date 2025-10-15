@@ -69,12 +69,16 @@ ENV RAILS_SERVE_STATIC_FILES=true
 # Supports both replacetokens (SECRET-KEY-BASE with hyphen) and build-arg (SECRET_KEY_BASE with underscore)
 RUN if [ -n "${SECRET_KEY_BASE:-}" ]; then \
   echo "=== Using SECRET_KEY_BASE from build-arg ==="; \
+  echo "=== Cleaning previous assets ==="; \
+  SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:clean; \
+  echo "=== Precompiling assets ==="; \
   SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:precompile; \
   echo "=== Assets precompiled successfully with build-arg ==="; \
   else \
   echo "FATAL: SECRET_KEY_BASE is required but not provided."; \
   echo "Provide it via --build-arg SECRET_KEY_BASE=<value> or replacetokens."; \
-  SECRET_KEY_BASE="_%SECRET-KEY-BASE%_" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:precompile; \
+  bundle exec rake assets:clean; \
+  bundle exec rake assets:precompile; \
   fi
 
 
