@@ -26,7 +26,7 @@ data:
     RESTART_POLICY: unless-stopped
     TZ: Europe/Rome
     XMPP_AUTH_DOMAIN: auth.meet.jitsi
-    XMPP_BOSH_URL_BASE: http://jitsi-prosody:5280/http-bind
+    XMPP_BOSH_URL_BASE: https://jitsi-prosody:5280/http-bind
     XMPP_DOMAIN: meet.jitsi
     XMPP_GUEST_DOMAIN: guest.meet.jitsi
     XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
