@@ -41,6 +41,17 @@ spec:
             name: decidim
             port:
               number: 80
+
+      - path: /xmpp-websocket
+        pathType: Prefix
+        backend:
+          service:
+            name: jitsi-prosody
+            port:
+              number: 5280
+  
+
+
     # Jitsi is handled by a dedicated host
   - host: jitsi-part-int.ldttoolbox.app
     http:
