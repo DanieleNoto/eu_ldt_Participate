@@ -24,6 +24,13 @@ spec:
   - host: jitsi-part-int.ldttoolbox.app
     http:
       paths:
+      - path: /xmpp-websocket
+        pathType: Prefix
+        backend:
+          service:
+            name: jitsi-prosody
+            port:
+              number: 5280
       - path: /
         pathType: Prefix
         backend:

@@ -42,6 +42,10 @@ services:
             - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
             - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
             - SMTP_OPENSSL_VERIFY_MODE=${SMTP_OPENSSL_VERIFY_MODE}
+            # Matomo Analytics Configuration
+            - MATOMO_SITE_ID=${MATOMO_SITE_ID}
+            - MATOMO_SERVER_ADDRESS=${MATOMO_SERVER_ADDRESS}
+            - MATOMO_TOKEN_AUTH=${MATOMO_TOKEN_AUTH}
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
@@ -168,6 +172,7 @@ services:
     matomo:
         build:
             context: ./analytics/matomo
+            dockerfile: Dockerfile
         ports:
             - "8081:80"
         env_file:
