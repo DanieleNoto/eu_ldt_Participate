@@ -5,6 +5,7 @@ force_ssl = 1
 assume_secure_protocol = 1
 proxy_uri_header = 1
 trusted_hosts[] = "part-int.ldttoolbox.app"
+trusted_hosts[] = "part-int.ldttoolbox.app/analytics/matomo"
 
 ; Optimized configuration for Matomo widget embedding
 enable_framed_pages = 1
