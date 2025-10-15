@@ -422,7 +422,31 @@ Decidim.configure do |config|
     grafana_hosts = ["http://grafana:3000", "http://localhost:3001"]
   end
   
-  frame_src_hosts = %w('self') + embeddable_services + matomo_hosts + grafana_hosts
+  # Add Keycloak server to frame-src for authentication iframe
+  keycloak_hosts = []
+  if ENV['OMNIAUTH_KEYCLOAK_SITE'].present?
+    begin
+      keycloak_uri = URI.parse(ENV['OMNIAUTH_KEYCLOAK_SITE'])
+      keycloak_host_with_port = "#{keycloak_uri.host}:#{keycloak_uri.port}"
+      keycloak_hosts = [keycloak_host_with_port, ENV['OMNIAUTH_KEYCLOAK_SITE'].chomp('/')]
+    rescue URI::InvalidURIError
+      Rails.logger.warn "Invalid OMNIAUTH_KEYCLOAK_SITE: #{ENV['OMNIAUTH_KEYCLOAK_SITE']}"
+    end
+  end
+  
+  # Add Tool0 server to frame-src for external applications
+  tool0_hosts = []
+  if ENV['TOOL0_DOMAIN'].present?
+    begin
+      tool0_uri = URI.parse(ENV['TOOL0_DOMAIN'])
+      tool0_host_with_port = "#{tool0_uri.host}:#{tool0_uri.port}"
+      tool0_hosts = [tool0_host_with_port, ENV['TOOL0_DOMAIN'].chomp('/')]
+    rescue URI::InvalidURIError
+      Rails.logger.warn "Invalid TOOL0_DOMAIN: #{ENV['TOOL0_DOMAIN']}"
+    end
+  end
+  
+  frame_src_hosts = %w('self') + embeddable_services + matomo_hosts + grafana_hosts + keycloak_hosts + tool0_hosts
   
   config.content_security_policies_extra = {
     "default-src" => %w('self' https:),

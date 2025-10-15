@@ -71,7 +71,7 @@ function initializeKeycloak(config) {
 	// Initialize Keycloak with check-sso
 	keycloak.init({
 		onLoad: 'check-sso',
-		silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html'
+		checkLoginIframe: false
 	}).then(function(authenticated) {
 		console.log('Keycloak initialized, authenticated:', authenticated);
 		if (authenticated) {
