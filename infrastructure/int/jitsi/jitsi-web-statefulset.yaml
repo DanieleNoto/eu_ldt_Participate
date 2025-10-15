@@ -3,7 +3,7 @@ kind: StatefulSet
 metadata:
     name: jitsi-web
     labels:
-        io.kompose.service: jitsi-web
+       app: jitsi-web
 spec:
     serviceName: jitsi-web
     replicas: 1
