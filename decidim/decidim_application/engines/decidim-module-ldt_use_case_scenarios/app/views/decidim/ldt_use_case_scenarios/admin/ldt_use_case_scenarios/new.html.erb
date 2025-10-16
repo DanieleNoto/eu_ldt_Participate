@@ -1,0 +1,29 @@
+<div class="decidim-admin">
+  <div class="row">
+    <div class="columns mediumlarge-8 mediumlarge-offset-2">
+      <h1><%= t(".title") %></h1>
+      
+      <%= form_with model: @form, local: true, url: admin_ldt_use_case_scenarios_path do |form| %>
+        <div class="row">
+          <div class="columns">
+            <%= form.label :name %>
+            <%= form.text_field :name %>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="columns">
+            <%= form.label :description %>
+            <%= form.text_area :description %>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="columns">
+            <%= form.submit t(".submit"), class: "button expanded" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+---
+fr:
+  decidim:
+    components:
+      ldt_use_case_scenarios:
+        name: Scénarios de cas d'usage LDT
+        settings:
+          global:
+            title: Titre
+    ldt_use_case_scenarios:
+      use_case_scenarios:
+        index:
+          title: Scénarios de cas d'usage
+          no_scenarios: Aucun scénario disponible
+      admin:
+        ldt_use_case_scenarios:
+          index:
+            title: Gérer les scénarios de cas d'usage
+            name: Nom
+            actions: Actions
+            new: Ajouter un nouveau scénario
+            no_scenarios: Aucun scénario disponible pour le moment
+            edit: Modifier
+            delete: Supprimer
+          new:
+            title: Créer un scénario de cas d'usage
+            submit: Créer

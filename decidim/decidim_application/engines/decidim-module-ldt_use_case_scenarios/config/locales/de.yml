@@ -1,0 +1,27 @@
+---
+de:
+  decidim:
+    components:
+      ldt_use_case_scenarios:
+        name: LDT-Anwendungsfallszenarien
+        settings:
+          global:
+            title: Titel
+    ldt_use_case_scenarios:
+      use_case_scenarios:
+        index:
+          title: Anwendungsfallszenarien
+          no_scenarios: Keine Szenarien verfügbar
+      admin:
+        ldt_use_case_scenarios:
+          index:
+            title: Anwendungsfallszenarien verwalten
+            name: Name
+            actions: Aktionen
+            new: Neues Szenario hinzufügen
+            no_scenarios: Noch keine Szenarien verfügbar
+            edit: Bearbeiten
+            delete: Löschen
+          new:
+            title: Anwendungsfallszenario erstellen
+            submit: Erstellen

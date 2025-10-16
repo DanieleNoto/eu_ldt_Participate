@@ -1,0 +1,33 @@
+<div class="decidim-admin">
+  <div class="row">
+    <div class="columns mediumlarge-12">
+      <h1><%= t(".title") %></h1>
+      
+      <%= link_to t(".new"), "#", class: "button expanded" %>
+      
+      <% if @use_case_scenarios.any? %>
+        <table>
+          <thead>
+            <tr>
+              <th><%= t(".name") %></th>
+              <th><%= t(".actions") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @use_case_scenarios.each do |scenario| %>
+              <tr>
+                <td><%= scenario.name %></td>
+                <td>
+                  <%= link_to t(".edit"), "#", class: "button small" %>
+                  <%= link_to t(".delete"), "#", method: :delete, class: "button small alert" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p><%= t(".no_scenarios") %></p>
+      <% end %>
+    </div>
+  </div>
+</div>

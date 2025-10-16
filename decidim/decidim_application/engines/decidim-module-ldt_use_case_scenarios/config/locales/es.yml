@@ -1,0 +1,27 @@
+---
+es:
+  decidim:
+    components:
+      ldt_use_case_scenarios:
+        name: Escenarios de Casos de Uso LDT
+        settings:
+          global:
+            title: Título
+    ldt_use_case_scenarios:
+      use_case_scenarios:
+        index:
+          title: Escenarios de Casos de Uso
+          no_scenarios: No hay escenarios disponibles
+      admin:
+        ldt_use_case_scenarios:
+          index:
+            title: Gestionar Escenarios de Casos de Uso
+            name: Nombre
+            actions: Acciones
+            new: Agregar Nuevo Escenario
+            no_scenarios: No hay escenarios disponibles aún
+            edit: Editar
+            delete: Eliminar
+          new:
+            title: Crear Escenario de Caso de Uso
+            submit: Crear
