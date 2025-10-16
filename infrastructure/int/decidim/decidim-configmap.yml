@@ -44,6 +44,8 @@ data:
     TOOL0_FULL_URL: https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools
     TOOL0_DOMAIN: https://ie-int.ldttoolbox.app
     TOOL0_TENANT_ID: a6b3523b-b882-4a10-82d9-0db4dbe12f8e
+    TOOL2_EXPERIMENTS_URL: https://ucs-int.ldttoolbox.app/api/v1/experiments
+    TOOL1_MAPS_URL: https://pv-int.ldttoolbox.app/api/maps
 #    CONFIG: ./jitsi-meet-cfg
 #  DATABASE_HOST: db
 #  DATABASE_NAME: decidim_application_development
