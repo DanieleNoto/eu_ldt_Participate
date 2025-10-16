@@ -34,7 +34,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 # Set working directory
 WORKDIR /code
 
-
+RUN mkdir -p /code/storage
+RUN chown -R decidim:decidim /code/storage
+RUN chmod 775 /code/storage
 
 # Copy dependency files FIRST for better Docker layer caching
 COPY Gemfile Gemfile.lock ./
@@ -71,10 +73,6 @@ RUN if [ -n "${SECRET_KEY_BASE:-}" ]; then \
   echo "=== Using SECRET_KEY_BASE from build-arg ==="; \
   SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:precompile; \
   echo "=== Assets precompiled successfully with build-arg ==="; \
-  else \
-  echo "FATAL: SECRET_KEY_BASE is required but not provided."; \
-  echo "Provide it via --build-arg SECRET_KEY_BASE=<value> or replacetokens."; \
-  SECRET_KEY_BASE="_%SECRET-KEY-BASE%_" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:precompile; \
   fi
 
 
@@ -90,7 +88,7 @@ FROM decidim/decidim-dev:0.30.1 AS runtime
 # Inherit build arguments for runtime
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
-ARG SECRET_KEY_BASE=_%SECRET-KEY-BASE%_
+ARG SECRET_KEY_BASE
 ARG RAILS_SERVE_STATIC_FILES=true
 ENV RAILS_SERVE_STATIC_FILES=${RAILS_SERVE_STATIC_FILES}
 
@@ -124,5 +122,6 @@ RUN groupadd -r decidim 2>/dev/null || true && \
 USER decidim
 
 EXPOSE 3000
+EXPOSE 3035
 
 ENTRYPOINT ["/code/docker-entrypoint.sh"]
