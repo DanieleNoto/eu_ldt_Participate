@@ -78,15 +78,7 @@ elif [ "$RAILS_ENV" = "development" ]; then
   else
     echo "--- Skipping data setup (set FORCE_DATA_SETUP=true to enable) ---"
   fi
-   # Asset compilation for development (optimized)
-  echo "--- Checking assets for development ---"
-  # In development check the manifest in public/decidim-packs by default
-  if [ ! -f "public/decidim-packs/manifest.json" ] || [ -n "$(find app/packs config/shakapacker.yml -newer public/decidim-packs/manifest.json 2>/dev/null)" ]; then
-      echo "--- Compiling assets (changed files detected for public/decidim-packs) ---"
-      
-  else
-    echo "--- Assets up to date, skipping compilation ---"
-  fi
+  
   echo "--- Assets will also be served by shakapacker-dev-server ---"
 else
   echo "=== NON-PRODUCTION ENVIRONMENT SETUP (${RAILS_ENV}) ==="
@@ -100,14 +92,6 @@ else
   
   # Database setup (optimized)
   echo "--- Setting up database ---"
-  
-  # Wait for database to be ready
-  echo "--- Waiting for database connection ---"
-  until bin/rails runner "ActiveRecord::Base.connection.execute('SELECT 1')" >/dev/null 2>&1; do
-    echo "Database not ready, waiting 2 seconds..."
-    sleep 2
-  done
-  echo "--- Database connection established ---"
   
   bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
   
