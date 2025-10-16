@@ -102,7 +102,7 @@ export class DebateDetailPage {
 		// Action buttons
 		this.likeButton = this.page.locator('#endorsement-button');
 		this.endorsementDropdown = this.page.locator('button#dropdown-trigger');
-		this.commentButton = this.page.locator('a[href="#comments"]', { hasText: 'Comment' });
+		this.commentButton = this.page.getByRole('link', { name: 'Comment' });
 		this.followButton = this.page.locator('button[id^="follow_debate"]');
 		this.shareButton = this.page.locator('button[data-dialog-open="socialShare"]');
 		this.reportButton = this.page.locator('button[data-dialog-open="loginModal"]', { hasText: 'Rapporto' });
@@ -130,8 +130,8 @@ export class DebateDetailPage {
 
 		// Comment form (when logged in)
 		this.commentForm = this.page.locator('form.new_comment[id*="new_comment_for_Debate"]');
-		this.commentTextarea = this.page.locator('textarea[id*="add-comment-Debate"][name="comment[body]"]');
-		this.commentSubmitButton = this.page.locator('button[type="submit"]', { hasText: 'Publish comment' });
+		this.commentTextarea = this.page.getByRole('textbox', { name: 'What do you think about this?' });
+		this.commentSubmitButton = this.page.getByRole('button', { name: 'Publish comment' });
 		this.remainingCharacters = this.page.locator('[id*="remaining-characters"]');
 
 		// Mention/Tribute system
@@ -365,6 +365,7 @@ export class DebateDetailPage {
 	 */
 	async fillComment(commentText: string): Promise<void> {
 		await this.commentTextarea.waitFor({ state: 'visible' });
+		await this.commentTextarea.click();
 		await this.commentTextarea.fill(commentText);
 	}
 
@@ -1232,7 +1233,7 @@ export class DebateDetailPage {
 	 * Verifies that exist a comment with text from text param
 	 */
 	async expectCommentToBeVisible(text: string): Promise<void> {
-		const comment = this.existingComments.locator(`text=${text}`).last();
+		const comment = this.existingComments.filter({ hasText: text }).last();
 		await expect(comment).toBeVisible();
 	}
 
