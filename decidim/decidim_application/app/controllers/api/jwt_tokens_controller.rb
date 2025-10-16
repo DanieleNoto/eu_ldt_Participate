@@ -48,7 +48,7 @@ module Api
       end
       
       # Build token endpoint URL
-      token_url = "#{keycloak_url}/realms/#{realm}/protocol/openid-connect/token"
+      token_url = "#{keycloak_url}realms/#{realm}/protocol/openid-connect/token"
       Rails.logger.info "Token URL: #{token_url}"
       
       uri = URI.parse(token_url)

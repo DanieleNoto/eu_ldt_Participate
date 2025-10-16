@@ -1,35 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
 	console.log('Admin Header JavaScript loaded');
-	loadTool0Config();
+	initializeToolsDropdown();
 });
-
-function loadTool0Config() {
-	// Load Tool0 configuration from backend
-	fetch('/admin/admin_header/tool0_config')
-		.then(response => {
-			if (!response.ok) {
-				throw new Error('Failed to load Tool0 configuration');
-			}
-			return response.json();
-		})
-		.then(config => {
-			console.log('Tool0 config loaded:', config);
-			// Store config globally
-			window.tool0Config = config;
-			// Initialize tools dropdown
-			initializeToolsDropdown();
-		})
-		.catch(error => {
-			console.error('Error loading Tool0 configuration:', error);
-			// Fallback to hardcoded config for development
-			const fallbackConfig = {
-				tool0Url: 'https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools'
-			};
-			console.log('Using fallback config:', fallbackConfig);
-			window.tool0Config = fallbackConfig;
-			initializeToolsDropdown();
-		});
-}
 
 function initializeToolsDropdown() {
   const toolsButton = document.getElementById('tools-dropdown-button');
@@ -74,45 +46,18 @@ function initializeToolsDropdown() {
     // Show loading state
     toolsDropdown.innerHTML = '<div class="loading-spinner">Loading...</div>';
     
-    console.log('Loading applications - fetching JWT token from backend');
+    console.log('Loading applications from backend API');
     
-    // Get JWT token from backend API
-    fetch('/api/jwt_token')
+    // Call backend API to fetch applications (handles JWT + Tool0 communication)
+    fetch('/admin/admin_header/applications')
       .then(response => {
         if (!response.ok) {
-          throw new Error(`Failed to get JWT token: ${response.status}`);
+          throw new Error(`Failed to load applications: ${response.status}`);
         }
         return response.json();
       })
       .then(data => {
-        if (!data.token) {
-          throw new Error('No token returned from backend');
-        }
-        
-        console.log('JWT token obtained from backend');
-        const jwtToken = data.token;
-        
-        // Call Tool0 API with JWT token
-        return fetch(window.tool0Config.tool0Url, {
-          method: 'GET',
-          headers: {
-            'authorization': `Bearer ${jwtToken}`,
-            'Content-Type': 'application/json'
-          }
-        });
-      })
-      .then(async response => {
-        if (!response.ok) {
-          if (response.status === 401) {
-            const body = await response.json();
-            throw new Error(`Authentication failed - ${body.toString()}`);
-          } else {
-            throw new Error(`Tool0 API error: ${response.status}`);
-          }
-        }
-        return response.json();
-      })
-      .then(data => {
+        console.log('Applications loaded from backend:', data);
         renderApplications(data);
       })
       .catch(error => {
