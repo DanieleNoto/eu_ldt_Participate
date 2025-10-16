@@ -1,6 +1,5 @@
 Decidim::AdminHeader::Engine.routes.draw do
   scope "/admin/admin_header" do
-    get 'keycloak_config', to: 'applications#keycloak_config'
-    get 'jwt_token', to: 'applications#get_jwt_token'
+    get 'tool0_config', to: 'applications#tool0_config'
   end
 end

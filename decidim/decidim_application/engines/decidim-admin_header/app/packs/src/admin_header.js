@@ -1,45 +1,32 @@
-// Dynamic import of keycloak-js to avoid webpack resolution issues
-// NOTE: Not used anymore with confidential client, keeping for reference
-let Keycloak;
-
 document.addEventListener('DOMContentLoaded', function () {
 	console.log('Admin Header JavaScript loaded');
-
-	// For confidential clients, we don't use keycloak-js
-	// Instead, we get the token from the backend
-	loadKeycloakConfig();
+	loadTool0Config();
 });
 
-function loadKeycloakConfig() {
-	// Load Keycloak configuration from backend
-	fetch('/admin/admin_header/keycloak_config')
+function loadTool0Config() {
+	// Load Tool0 configuration from backend
+	fetch('/admin/admin_header/tool0_config')
 		.then(response => {
 			if (!response.ok) {
-				throw new Error('Failed to load Keycloak configuration');
+				throw new Error('Failed to load Tool0 configuration');
 			}
 			return response.json();
 		})
 		.then(config => {
-			console.log('Keycloak config loaded:', config);
+			console.log('Tool0 config loaded:', config);
 			// Store config globally
-			window.keycloakConfig = config;
-			// Initialize tools dropdown without Keycloak.js
+			window.tool0Config = config;
+			// Initialize tools dropdown
 			initializeToolsDropdown();
 		})
 		.catch(error => {
-			console.error('Error loading Keycloak configuration:', error);
+			console.error('Error loading Tool0 configuration:', error);
 			// Fallback to hardcoded config for development
 			const fallbackConfig = {
-				url: 'https://im-int.ldttoolbox.app/',
-				realm: 'LDT',
-				clientId: 'tool3',
-				// NO client_secret for public clients with PKCE
-				tool0Url: 'https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools',
-        tenantId: 'a6b3523b-b882-4a10-82d9-0db4dbe12f8e',
-        redirectUri: 'https://part-int.ldttoolbox.app/admin/'
+				tool0Url: 'https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools'
 			};
 			console.log('Using fallback config:', fallbackConfig);
-			window.keycloakConfig = fallbackConfig;
+			window.tool0Config = fallbackConfig;
 			initializeToolsDropdown();
 		});
 }
@@ -89,8 +76,8 @@ function initializeToolsDropdown() {
     
     console.log('Loading applications - fetching JWT token from backend');
     
-    // Get JWT token from backend
-    fetch('/admin/admin_header/jwt_token')
+    // Get JWT token from backend API
+    fetch('/api/jwt_token')
       .then(response => {
         if (!response.ok) {
           throw new Error(`Failed to get JWT token: ${response.status}`);
@@ -106,13 +93,9 @@ function initializeToolsDropdown() {
         const jwtToken = data.token;
         
         // Call Tool0 API with JWT token
-        const tool0Url = window.keycloakConfig.tool0Url;
-        const tenantId = window.keycloakConfig.tenantId;
-        
-        return fetch(tool0Url, {
+        return fetch(window.tool0Config.tool0Url, {
           method: 'GET',
           headers: {
-            'x-tenant-id': tenantId,
             'authorization': `Bearer ${jwtToken}`,
             'Content-Type': 'application/json'
           }
