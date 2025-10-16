@@ -1,0 +1,27 @@
+---
+es:
+  decidim:
+    components:
+      ldt_map_visualization:
+        name: Visualización de Mapa LDT
+        settings:
+          global:
+            title: Título
+    ldt_map_visualization:
+      map_visualizations:
+        index:
+          title: Visualizaciones de Mapa
+          no_maps: No hay visualizaciones de mapa disponibles
+      admin:
+        map_visualizations:
+          index:
+            title: Gestionar Visualizaciones de Mapa
+            name: Nombre
+            actions: Acciones
+            new: Agregar Nuevo Mapa
+            no_maps: No hay visualizaciones de mapa disponibles aún
+            edit: Editar
+            delete: Eliminar
+          new:
+            title: Crear Visualización de Mapa
+            submit: Crear

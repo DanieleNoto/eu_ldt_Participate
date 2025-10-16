@@ -1,0 +1,27 @@
+---
+de:
+  decidim:
+    components:
+      ldt_map_visualization:
+        name: LDT-Kartendarstellung-Visualisierung
+        settings:
+          global:
+            title: Titel
+    ldt_map_visualization:
+      map_visualizations:
+        index:
+          title: Kartendarstellungen
+          no_maps: Keine Kartendarstellungen verfügbar
+      admin:
+        map_visualizations:
+          index:
+            title: Kartendarstellungen verwalten
+            name: Name
+            actions: Aktionen
+            new: Neue Karte hinzufügen
+            no_maps: Noch keine Kartendarstellungen verfügbar
+            edit: Bearbeiten
+            delete: Löschen
+          new:
+            title: Kartendarstellung erstellen
+            submit: Erstellen

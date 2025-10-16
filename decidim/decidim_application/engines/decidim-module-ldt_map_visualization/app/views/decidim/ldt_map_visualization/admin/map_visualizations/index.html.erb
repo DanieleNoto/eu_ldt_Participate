@@ -1,0 +1,33 @@
+<div class="decidim-admin">
+  <div class="row">
+    <div class="columns mediumlarge-12">
+      <h1><%= t(".title") %></h1>
+      
+      <%= link_to t(".new"), "#", class: "button expanded" %>
+      
+      <% if @map_visualizations.any? %>
+        <table>
+          <thead>
+            <tr>
+              <th><%= t(".name") %></th>
+              <th><%= t(".actions") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @map_visualizations.each do |map_viz| %>
+              <tr>
+                <td><%= map_viz.name %></td>
+                <td>
+                  <%= link_to t(".edit"), "#", class: "button small" %>
+                  <%= link_to t(".delete"), "#", method: :delete, class: "button small alert" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p><%= t(".no_maps") %></p>
+      <% end %>
+    </div>
+  </div>
+</div>
