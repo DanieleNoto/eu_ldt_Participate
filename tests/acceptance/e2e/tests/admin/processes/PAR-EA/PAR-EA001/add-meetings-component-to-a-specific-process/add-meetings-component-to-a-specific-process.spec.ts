@@ -83,7 +83,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
                 // Verify we're on the new meeting form page
                 const currentUrl = componentsPage.getPage().url();
                 expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/new\?type=meetings/);
-                await expect(componentsPage.getPage().locator('text=Add component: Meetings').first()).toBeVisible();
+                await expect(componentsPage.getPage().getByRole('heading', { name: 'Add component: Meetings', level: 1 })).toBeVisible();
             });
 
             await test.step('8. Admin: Fills in the component details • Name: Adds a title for the Meetings component, Announcement (optional): Adds an announcement visible to participants on the .', async () => {
