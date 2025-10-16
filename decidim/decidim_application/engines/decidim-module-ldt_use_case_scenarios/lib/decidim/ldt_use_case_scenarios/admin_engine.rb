@@ -14,9 +14,15 @@ module Decidim
         resources :ldt_use_case_scenarios, only: [:index, :new, :create, :edit, :update, :destroy] do
           collection do
             resources :exports, only: [:create]
+            get :external_experiments
           end
         end
         root to: "ldt_use_case_scenarios#index"
+      end
+
+      initializer "ldt_use_case_scenarios.assets" do
+        assets_path = File.expand_path("config/assets.rb", root)
+        load assets_path if File.exist?(assets_path)
       end
 
       def load_seed

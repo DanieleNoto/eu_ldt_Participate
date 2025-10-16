@@ -16,8 +16,11 @@ es:
         ldt_use_case_scenarios:
           index:
             title: Gestionar Escenarios de Casos de Uso
-            name: Nombre
+            scenario_name: Nombre del Escenario
+            experiment_id: ID de Experimento
+            experiment_name: Nombre del Experimento
             actions: Acciones
+            associate_experiments: Asociar resultados de experimentos
             new: Agregar Nuevo Escenario
             no_scenarios: No hay escenarios disponibles aún
             edit: Editar
@@ -25,3 +28,20 @@ es:
           new:
             title: Crear Escenario de Caso de Uso
             submit: Crear
+            save: Guardar
+            loading_experiments: Cargando experimentos...
+            experiment_id: ID
+            experiment_name: Nombre del Experimento
+            description: Descripción
+            actions: Acciones
+            confirm_title: ¿Asociar resultados de experimentos?
+            confirm_message: Al hacer clic en "confirmar" creará una nueva asociación.
+            association_name: Nombre de la Asociación
+            enter_association_name: Ingrese el nombre de la asociación
+            cancel: Cancelar
+            confirm: Confirmar
+            name_required: El nombre de la asociación es obligatorio
+            save_error: Error al guardar la asociación. Por favor, inténtelo de nuevo.
+            previous_page: Página Anterior
+            next_page: Página Siguiente
+            select: Seleccionar

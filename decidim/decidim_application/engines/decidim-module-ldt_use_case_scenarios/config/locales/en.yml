@@ -16,12 +16,32 @@ en:
         ldt_use_case_scenarios:
           index:
             title: Manage Use Case Scenarios
-            name: Name
+            scenario_name: Scenario Name
+            experiment_id: Experiment ID
+            experiment_name: Experiment Name
             actions: Actions
+            associate_experiments: Associate experiments results
             new: Add New Scenario
             no_scenarios: No scenarios available yet
             edit: Edit
             delete: Delete
           new:
-            title: Create Use Case Scenario
+            title: Associate Experiment Results
             submit: Create
+            save: Save
+            loading_experiments: Loading experiments...
+            experiment_id: ID
+            experiment_name: Experiment Name
+            description: Description
+            actions: Actions
+            confirm_title: Associate experiments results?
+            confirm_message: By clicking "confirm" you will create a new association.
+            association_name: Association Name
+            enter_association_name: Enter association name
+            cancel: Cancel
+            confirm: Confirm
+            name_required: Association name is required
+            save_error: Error saving association. Please try again.
+            previous_page: Previous Page
+            next_page: Next Page
+            select: Select

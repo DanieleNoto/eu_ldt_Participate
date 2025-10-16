@@ -8,14 +8,14 @@ module Decidim
           return permission_action if permission_action.scope != :admin
           return permission_action unless user&.admin?
 
-          allow! if can_access?
+          allow! if can_manage?
 
           permission_action
         end
 
-        def can_access?
-          permission_action.subject == :ldt_use_case_scenarios &&
-            permission_action.action == :read
+        def can_manage?
+          permission_action.subject == :ldt_use_case_scenario &&
+            [:read, :create, :update, :destroy].include?(permission_action.action)
         end
       end
     end
