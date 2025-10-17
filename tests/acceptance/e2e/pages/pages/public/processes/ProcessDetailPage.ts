@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { Download, expect, Locator, Page } from '@playwright/test';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -387,8 +387,8 @@ export class ProcessDetailPage extends AuthenticatedPage {
 			console.log('Setting up popup and download listeners...');
 
 			// Register event listeners before any action
-			const popupPromise = this.getPage().waitForEvent('popup');
-			const downloadPromise = this.getPage().waitForEvent('download');
+    	    const popupPromise: Promise<Page> = this.getPage().waitForEvent('popup');
+	        const downloadPromise: Promise<Download> = this.getPage().waitForEvent('download');			
 
 			console.log('Listeners registered, now clicking...');
 
