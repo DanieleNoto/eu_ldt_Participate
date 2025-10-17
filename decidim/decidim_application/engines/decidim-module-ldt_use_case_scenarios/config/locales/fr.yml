@@ -45,3 +45,6 @@ fr:
             previous_page: Page Précédente
             next_page: Page Suivante
             select: Sélectionner
+            selected_experiment: Expérience Sélectionnée
+          create:
+            success: Association d'expériences créée avec succès.

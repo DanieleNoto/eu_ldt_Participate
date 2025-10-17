@@ -45,3 +45,6 @@ en:
             previous_page: Previous Page
             next_page: Next Page
             select: Select
+            selected_experiment: Selected Experiment
+          create:
+            success: Experiment association created successfully.

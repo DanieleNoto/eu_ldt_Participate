@@ -94,9 +94,17 @@ module Decidim
           @scenario.decidim_component_id = current_component.id
 
           if @scenario.save
-            redirect_to admin_ldt_use_case_scenarios_path, notice: t(".success")
+            # Return JSON response with redirect URL for the JavaScript to handle
+            render json: { 
+              success: true, 
+              redirect_url: "/admin/participatory_processes/#{params[:participatory_process_slug]}/components/#{params[:component_id]}/manage/ldt_use_case_scenarios",
+              message: t(".success")
+            }, status: :ok
           else
-            render :new
+            render json: { 
+              success: false, 
+              errors: @scenario.errors.full_messages 
+            }, status: :unprocessable_entity
           end
         end
 

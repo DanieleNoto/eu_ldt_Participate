@@ -44,8 +44,7 @@
               </td>
               <td class="table-list__actions" data-label="<%= t(".actions") %>">
                 <div class="flex gap-x-2">
-                  <%= link_to t(".edit"), edit_admin_ldt_use_case_scenario_path(scenario), class: "button button__xs button__secondary" if allowed_to? :update, :ldt_use_case_scenario %>
-                  <%= link_to t(".delete"), admin_ldt_use_case_scenario_path(scenario), method: :delete, data: { confirm: t("decidim.admin.actions.confirm_delete") }, class: "button button__xs button__alert" if allowed_to? :destroy, :ldt_use_case_scenario %>
+                  <!-- Edit and delete functionality not yet implemented -->
                 </div>
               </td>
             </tr>

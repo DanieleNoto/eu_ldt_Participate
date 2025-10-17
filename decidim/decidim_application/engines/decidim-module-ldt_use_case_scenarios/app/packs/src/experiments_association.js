@@ -5,7 +5,7 @@ let pageSize = 10;
 
 document.addEventListener('DOMContentLoaded', function() {
   loadExperiments(0);
-  setupModalHandlers();
+  setupFormHandlers();
   setupPaginationHandlers();
 });
 
@@ -31,6 +31,7 @@ function loadExperiments(page = 0) {
   document.getElementById('loading-state').style.display = 'block';
   document.getElementById('experiments-container').style.display = 'none';
   document.getElementById('error-state').style.display = 'none';
+  document.getElementById('form-section').style.display = 'none';
   
   fetch(proxyUrl, {
     method: 'GET',
@@ -110,7 +111,7 @@ function renderExperiments(experiments) {
     btn.addEventListener('click', function() {
       const experimentJson = this.dataset.experiment;
       selectedExperiment = JSON.parse(experimentJson);
-      document.getElementById('save-button').disabled = false;
+      showFormSection();
     });
   });
 }
@@ -130,25 +131,45 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function setupModalHandlers() {
+function showFormSection() {
+  // Show the form section and selected experiment info
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('selected-experiment-info').style.display = 'block';
+  document.getElementById('selected-exp-name').textContent = selectedExperiment.name;
+  
+  // Clear and focus the input field
+  document.getElementById('association-name').value = '';
+  document.getElementById('association-name').focus();
+  
+  // Scroll to form
+  document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function setupFormHandlers() {
+  // Save button
   document.getElementById('save-button').addEventListener('click', function() {
-    if (!selectedExperiment) return;
-    document.getElementById('confirmation-modal').style.display = 'block';
-  });
-
-  document.getElementById('modal-cancel').addEventListener('click', function() {
-    document.getElementById('confirmation-modal').style.display = 'none';
-    document.getElementById('association-name').value = '';
-  });
-
-  document.getElementById('modal-confirm').addEventListener('click', function() {
+    if (!selectedExperiment) {
+      alert('Please select an experiment first');
+      return;
+    }
+    
     const associationName = document.getElementById('association-name').value;
     const nameRequiredMessage = document.querySelector('[data-i18n="name_required"]')?.textContent || 'Association name is required';
+    
     if (!associationName.trim()) {
       alert(nameRequiredMessage);
       return;
     }
+    
     submitExperimentAssociation(associationName);
+  });
+
+  // Reset/Cancel button
+  document.getElementById('reset-button').addEventListener('click', function() {
+    selectedExperiment = null;
+    document.getElementById('association-name').value = '';
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('selected-experiment-info').style.display = 'none';
   });
 }
 
@@ -156,31 +177,57 @@ function submitExperimentAssociation(name) {
   const formData = new FormData();
   formData.append('use_case_scenario[name]', name);
   formData.append('use_case_scenario[experiment_id]', selectedExperiment.id);
+  formData.append('use_case_scenario[experiment_name]', selectedExperiment.name);
   formData.append('use_case_scenario[experiment_data]', JSON.stringify(selectedExperiment));
 
   const adminPath = document.querySelector('[data-admin-path]')?.getAttribute('data-admin-path') || '/admin/components/ldt_use_case_scenarios';
+  
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+  console.log('Submitting to:', adminPath);
+  console.log('With data:', {
+    name: name,
+    experiment_id: selectedExperiment.id,
+    experiment_name: selectedExperiment.name
+  });
+  console.log('CSRF Token present:', !!csrfToken);
 
-  // The data-admin-path ends with /manage/ldt_use_case_scenarios, 
-  // we need to POST to the same path (create action)
-  const createPath = adminPath;
-
-  fetch(createPath, {
+  fetch(adminPath, {
     method: 'POST',
     headers: {
-      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      'X-CSRF-Token': csrfToken,
+      'Accept': 'application/json'
     },
-    body: formData
+    body: formData,
+    credentials: 'same-origin'
   })
   .then(response => {
     console.log('Response status:', response.status);
     console.log('Response ok:', response.ok);
-    if (response.ok || response.status === 302 || response.status === 301) {
-      // Redirect after successful creation
-      window.location.href = adminPath;
+    
+    if (response.status === 200 || response.status === 201) {
+      // Success - parse JSON response
+      return response.json().then(data => {
+        if (data.success && data.redirect_url) {
+          console.log('Redirecting to:', data.redirect_url);
+          window.location.href = data.redirect_url;
+        } else {
+          console.log('Success but no redirect URL, reloading page');
+          window.location.reload();
+        }
+      });
+    } else if (response.status === 422 || response.status === 400) {
+      return response.json().then(data => {
+        const errors = data.errors || ['Validation error'];
+        const errorMessage = errors.join(', ');
+        console.error('Validation error:', errorMessage);
+        const saveErrorMessage = document.querySelector('[data-i18n="save_error"]')?.textContent || 'Error saving association. Please try again.';
+        alert(`${saveErrorMessage}\n${errorMessage}`);
+      });
     } else {
       return response.text().then(text => {
         console.error('Error response:', text);
-        throw new Error(`HTTP ${response.status}`);
+        const saveErrorMessage = document.querySelector('[data-i18n="save_error"]')?.textContent || 'Error saving association. Please try again.';
+        alert(`${saveErrorMessage}\nStatus: ${response.status}`);
       });
     }
   })

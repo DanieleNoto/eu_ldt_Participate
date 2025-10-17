@@ -45,3 +45,6 @@ es:
             previous_page: Página Anterior
             next_page: Página Siguiente
             select: Seleccionar
+            selected_experiment: Experimento Seleccionado
+          create:
+            success: Asociación de experimentos creada exitosamente.

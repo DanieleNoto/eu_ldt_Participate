@@ -45,3 +45,6 @@ de:
             previous_page: Vorherige Seite
             next_page: Nächste Seite
             select: Auswählen
+            selected_experiment: Ausgewähltes Experiment
+          create:
+            success: Experimentzuordnung erfolgreich erstellt.
