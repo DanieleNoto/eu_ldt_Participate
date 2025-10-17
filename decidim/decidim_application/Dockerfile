@@ -1,63 +1,55 @@
-# Build stage: install dependencies and compile assets
 FROM decidim/decidim-dev:0.30.1 AS builder
 
 # Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
+# Set build environment early for dependencies
+
 
 # Update system and install base dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   apt-transport-https \
   build-essential \
   ca-certificates \
   curl \
+  git \
   gnupg \
+  libicu-dev \
+  libpq-dev \
   libreadline-dev \
   libssl-dev \
   lsb-release \
   netcat-openbsd \
   redis-tools \
   sudo \
+  wkhtmltopdf \
   zlib1g-dev \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 20.x via NodeSource repository
-RUN mkdir -p /etc/apt/keyrings && \
-  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-  echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
-  apt-get update && \
-  apt-get install -y nodejs && \
-  rm -rf /var/lib/apt/lists/*
+# Install Node.js 22.x and yarn
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+  apt-get install -y --no-install-recommends nodejs && \
+  npm install --global yarn && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /code
 
-# Set build environment early for dependencies
-ARG RAILS_ENV=development
-ARG NODE_ENV=development
-ENV RAILS_ENV=${RAILS_ENV}
-ENV NODE_ENV=${NODE_ENV}
+RUN mkdir -p /code/storage
+RUN chown -R decidim:decidim /code/storage
+RUN chmod 775 /code/storage
 
 # Copy dependency files FIRST for better Docker layer caching
 COPY Gemfile Gemfile.lock ./
-COPY package.json yarn.lock* ./
 COPY engines/ ./engines/
 
 # Install Ruby gems (cached layer) - optimized bundle config
 RUN bundle config set --local path '/usr/local/bundle' && \
-  bundle config set --local jobs 4
+  bundle config set --local jobs 4 && \
+  bundle install --retry 3
 
-# Environment-specific gem installation (production excludes dev/test gems)
-RUN [ "$RAILS_ENV" = "production" ] && \
-  bundle config set --local deployment true && \
-  bundle config set --local without 'development test' && \
-  bundle install --retry 3 || \
-  bundle install
-
+COPY package.json yarn.lock* ./
 # Install Node.js dependencies (cached layer)
-RUN yarn install --network-timeout 100000
-
-# Install webpack tools
-RUN npm install -g webpack webpack-cli
+RUN yarn install --network-timeout 100000 --include-dev
 
 # NOW copy the full application code
 COPY . .
@@ -65,29 +57,53 @@ COPY . .
 # Make entrypoint executable
 RUN chmod +x docker-entrypoint.sh
 
-# Final bundle install for git dependencies and local engines
-RUN bundle install
+
+
+ARG RAILS_ENV=production
+ARG NODE_ENV=production
+ARG SECRET_KEY_BASE
+ENV RAILS_ENV=${RAILS_ENV}
+ENV NODE_ENV=${NODE_ENV}
+ENV RAILS_SERVE_STATIC_FILES=true
+
 
 # Production asset precompilation (separate layer for better caching)
-RUN [ "$RAILS_ENV" = "production" ] && \
-  SECRET_KEY_BASE=temp_key_for_asset_precompilation \
-  bundle exec rails assets:precompile || \
-  echo "Development mode: assets will be served by shakapacker-dev-server container"
+# Supports both replacetokens (SECRET-KEY-BASE with hyphen) and build-arg (SECRET_KEY_BASE with underscore)
+RUN if [ -n "${SECRET_KEY_BASE:-}" ]; then \
+  echo "=== Using SECRET_KEY_BASE from build-arg ==="; \
+  SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:precompile; \
+  echo "=== Assets precompiled successfully with build-arg ==="; \
+  fi
+
+
+RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
+  && rm -rf /usr/local/bundle/cache/*.gem \
+  && find /usr/local/bundle/gems/ -name "*.c" -delete \
+  && find /usr/local/bundle/gems/ -name "*.o" -delete \
+  && rm -rf log/*.log
 
 ### Runtime stage: lean image with only runtime dependencies
 FROM decidim/decidim-dev:0.30.1 AS runtime
 
 # Inherit build arguments for runtime
-ARG RAILS_ENV=development
-ARG NODE_ENV=development
+ARG RAILS_ENV=production
+ARG NODE_ENV=production
+ARG SECRET_KEY_BASE
+ARG RAILS_SERVE_STATIC_FILES=true
+ENV RAILS_SERVE_STATIC_FILES=${RAILS_SERVE_STATIC_FILES}
 
-# Install only runtime dependencies (no build tools)
+# Install only runtime dependencies (no build tools) and ensure Node.js 22 + yarn
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   ca-certificates \
+  curl \
+  gnupg \
   netcat-openbsd \
   redis-tools \
-  && rm -rf /var/lib/apt/lists/*
+  && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+  && apt-get install -y --no-install-recommends nodejs \
+  && npm install --global yarn \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /code
 
@@ -106,5 +122,6 @@ RUN groupadd -r decidim 2>/dev/null || true && \
 USER decidim
 
 EXPOSE 3000
+EXPOSE 3035
 
 ENTRYPOINT ["/code/docker-entrypoint.sh"]

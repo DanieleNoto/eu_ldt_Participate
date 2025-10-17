@@ -11,15 +11,7 @@ if [ "$RAILS_ENV" = "production" ]; then
   
   # Database setup (optimized)
   echo "--- Setting up database ---"
-  
-  # Wait for database to be ready
-  echo "--- Waiting for database connection ---"
-  until bin/rails runner "ActiveRecord::Base.connection.execute('SELECT 1')" >/dev/null 2>&1; do
-    echo "Database not ready, waiting 2 seconds..."
-    sleep 2
-  done
-  echo "--- Database connection established ---"
-  
+
   bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
   
   # Run migrations (always safe, idempotent)
@@ -31,13 +23,20 @@ if [ "$RAILS_ENV" = "production" ]; then
   echo "--- Database setup completed ---"
   
   # Asset verification (must be precompiled)
-  echo "--- Verifying precompiled assets ---"
-  if [ ! -d "public/assets" ] || [ -z "$(ls -A public/assets 2>/dev/null)" ]; then
+  # shakapacker is configured to output to `public/decidim-packs` (see config/shakapacker.yml)
+  echo "--- Verifying precompiled assets (public/decidim-packs) ---"
+  if [ ! -d "public/decidim-packs" ] || [ -z "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
     echo "ERROR: No precompiled assets found in production"
-    echo "Assets must be precompiled during Docker image build"
-    exit 1
+    echo "'public/decidim-packs' not exist or is empty. Assets must be precompiled during Docker image build"
   else
-    echo "--- Precompiled assets verified, ready to serve ---"
+    echo "--- 'public/decidim-packs' exist. Precompiled assets verified, ready to serve ---"
+  fi
+
+  # Ensure backwards compatibility: some tools/scripts may still look under public/packs
+  # If public/packs is missing but public/decidim-packs exists, create a symlink to it.
+  if [ ! -e public/packs ] && [ -d public/decidim-packs ]; then
+    echo "--- Creating compatibility symlink public/packs -> public/decidim-packs ---"
+    ln -sfn public/decidim-packs public/packs || true
   fi
   
   # No data setup in production
@@ -55,14 +54,6 @@ elif [ "$RAILS_ENV" = "development" ]; then
   
   # Database setup (optimized)
   echo "--- Setting up database ---"
-  
-  # Wait for database to be ready
-  echo "--- Waiting for database connection ---"
-  until bin/rails runner "ActiveRecord::Base.connection.execute('SELECT 1')" >/dev/null 2>&1; do
-    echo "Database not ready, waiting 2 seconds..."
-    sleep 2
-  done
-  echo "--- Database connection established ---"
   
   bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
   
@@ -87,15 +78,7 @@ elif [ "$RAILS_ENV" = "development" ]; then
   else
     echo "--- Skipping data setup (set FORCE_DATA_SETUP=true to enable) ---"
   fi
-   # Asset compilation for development (optimized)
-  echo "--- Checking assets for development ---"
-  if [ ! -f "public/packs/manifest.json" ] || [ -n "$(find app/packs config/shakapacker.yml -newer public/packs/manifest.json 2>/dev/null)" ]; then
-    echo "--- Compiling assets (changed files detected) ---"
-    bin/rails shakapacker:compile
-  else
-    echo "--- Assets up to date, skipping compilation ---"
-  fi
-  echo "--- Assets will also be served by shakapacker-dev-server ---"
+  echo "--- Assets will be served by shakapacker-dev-server ---"
 else
   echo "=== NON-PRODUCTION ENVIRONMENT SETUP (${RAILS_ENV}) ==="
   
@@ -107,16 +90,7 @@ else
   fi
   
   # Database setup (optimized)
-  echo "--- Setting up database ---"
-  
-  # Wait for database to be ready
-  echo "--- Waiting for database connection ---"
-  until bin/rails runner "ActiveRecord::Base.connection.execute('SELECT 1')" >/dev/null 2>&1; do
-    echo "Database not ready, waiting 2 seconds..."
-    sleep 2
-  done
-  echo "--- Database connection established ---"
-  
+  echo "--- Setting up database ---"  
   bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
   
   # Run migrations (always safe, idempotent)
@@ -130,6 +104,12 @@ else
   # Asset precompilation for non-dev environments
   echo "--- Precompiling assets ---"
   bin/rails assets:precompile
+
+  # After precompile, ensure compatibility symlink exists so any code expecting public/packs works
+  if [ ! -e public/packs ] && [ -d public/decidim-packs ]; then
+    echo "--- Creating compatibility symlink public/packs -> public/decidim-packs (post-precompile) ---"
+    ln -sfn public/decidim-packs public/packs || true
+  fi
   
   # No data setup in non-development environments
   echo "--- Skipping data setup (only available in development) ---"

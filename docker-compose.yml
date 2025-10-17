@@ -1,12 +1,12 @@
 services:
     decidim:
-        build: 
+        build:
             context: ./decidim/decidim_application/
             args:
                 RAILS_ENV: development
                 NODE_ENV: development
         ports:
-            - '3000:3000'
+            - "3000:3000"
         env_file:
             - .env
         environment:
@@ -56,7 +56,7 @@ services:
             db:
                 condition: service_started
         healthcheck:
-            test: ['CMD', 'test', '-d', 'node_modules']
+            test: ["CMD", "test", "-d", "node_modules"]
             interval: 10s
             timeout: 5s
             retries: 30
@@ -73,7 +73,7 @@ services:
         networks:
             - private
         ports:
-            - '5432:5432'
+            - "5432:5432"
     redis:
         image: redis:7
         volumes:
@@ -81,17 +81,17 @@ services:
         networks:
             - private
         healthcheck:
-            test: ['CMD', 'redis-cli', 'ping']
+            test: ["CMD", "redis-cli", "ping"]
             interval: 5s
             timeout: 3s
             retries: 5
     shakapacker:
-        build: 
+        build:
             context: ./decidim/decidim_application/
             args:
                 RAILS_ENV: development
                 NODE_ENV: development
-        command: bash -c "cd /code && bundle exec bin/shakapacker-dev-server --host 0.0.0.0"
+        entrypoint: ["bin/shakapacker-dev-server"]
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
@@ -103,7 +103,7 @@ services:
         networks:
             - private
         ports:
-            - '3035:3035'
+            - "3035:3035"
         env_file:
             - .env
         environment:
@@ -113,7 +113,7 @@ services:
             - SHAKAPACKER_DEV_SERVER_PORT=3035
             - SHAKAPACKER_DEV_SERVER_PUBLIC=0.0.0.0:3035
         healthcheck:
-            test: ['CMD', 'curl', '-f', 'http://localhost:3035']
+            test: ["CMD", "curl", "-f", "http://localhost:3035"]
             interval: 15s
             timeout: 10s
             retries: 20
@@ -153,7 +153,7 @@ services:
     grafana:
         image: grafana/grafana:11.0.0
         ports:
-            - '3001:3000'
+            - "3001:3000"
         env_file:
             - .env
         environment:
@@ -198,7 +198,7 @@ services:
     matomo:
         image: matomo:5
         ports:
-            - '8081:80'
+            - "8081:80"
         env_file:
             - .env
         environment:
@@ -233,8 +233,8 @@ services:
         image: jitsi/web:stable-8960
         restart: ${RESTART_POLICY:-unless-stopped}
         ports:
-            - '${JITSI_HTTP_PORT:-8000}:80'
-            - '${JITSI_HTTPS_PORT:-8443}:443'
+            - "${JITSI_HTTP_PORT:-8000}:80"
+            - "${JITSI_HTTPS_PORT:-8443}:443"
         volumes:
             - ${CONFIG:-./jitsi-meet-cfg}/web:/config:Z
             - ./jitsi-meet-cfg/web/nginx/prosody-websocket.conf:/config/nginx/prosody-websocket.conf:Z
@@ -259,9 +259,9 @@ services:
         image: jitsi/prosody:stable-8960
         restart: ${RESTART_POLICY:-unless-stopped}
         expose:
-            - '5222'
-            - '5347'
-            - '5280'
+            - "5222"
+            - "5347"
+            - "5280"
         volumes:
             - ${CONFIG:-./jitsi-meet-cfg}/prosody/config:/config:Z
             - ${CONFIG:-./jitsi-meet-cfg}/prosody/prosody-plugins-custom:/prosody-plugins-custom:Z
@@ -315,7 +315,7 @@ services:
         image: jitsi/jvb:stable-8960
         restart: ${RESTART_POLICY:-unless-stopped}
         ports:
-            - '${JVB_PORT:-10000}:${JVB_PORT:-10000}/udp'
+            - "${JVB_PORT:-10000}:${JVB_PORT:-10000}/udp"
         volumes:
             - ${CONFIG:-./jitsi-meet-cfg}/jvb:/config:Z
         environment:
