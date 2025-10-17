@@ -1,17 +1,14 @@
-import { test } from '@playwright/test';
-import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
-import { FormMeetingPage } from '@pages/pages/admin/processes/detail/meetings/FormMeetingPage';
-import { MeetingsPage } from '@pages/pages/admin/processes/detail/meetings/MeetingsPage';
-import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
-import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { STORAGE_STATE } from '@utils/constants';
-import { ensureLoggedIn } from '@utils/auth-helper';
 import { HomePage } from '@pages/pages/public/HomePage';
-import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
+import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { MeetingDetailPage } from '@pages/pages/user/processes/MeetingDetailPage';
-import * as fs from 'fs';
-import * as path from 'path';
+import { MeetingsPage } from '@pages/pages/user/processes/MeetingsPage';
+import test, { expect } from '@playwright/test';
+import { ensureLoggedIn } from '@utils/auth-helper';
+import { STORAGE_STATE } from '@utils/constants';
+import { HeaderComponent } from '@pages/components/common/HeaderComponent';
+import NotificationPage from '@pages/pages/user/NotificationPage';
+import { LetterOpenerPage } from '@pages/pages/admin/LetterOpenerPage';
 
 /**
  * Test suite for Allows citizens to register for a meeting in advance.
@@ -25,193 +22,98 @@ import * as path from 'path';
  * - Meetings are created and published by the City Administrator and are open for registration.
  */
 
-test.describe('[PAR-EP005] – Flow meeting admin + user + participatory', () => {
-    // All tests run as USER
-    test.use({ storageState: STORAGE_STATE.USER });
-
-    // Variables for USER-side objects
-    let homePage: HomePage;
-    let processesOverviewPage: ProcessesOverviewPage;
-    let processDetailPage: ProcessDetailPage;
-    let meetingDetailPage: MeetingDetailPage;
-
-async function ensureStateExists(browser: any, statePath: string, userType: keyof typeof STORAGE_STATE) {
-  try {
-    if (fs.existsSync(statePath) && fs.statSync(statePath).size > 0) return;
-  } catch {
-    // continueremo a rigenerare
-  }
-
-  const tmpCtx = await browser.newContext();
-  const tmpPage = await tmpCtx.newPage();
-  await tmpPage.goto(process.env.BASE_URL ?? 'http://localhost:3000');
-  await ensureLoggedIn(tmpPage, userType); // la tua funzione di login
-  await tmpCtx.storageState({ path: statePath });
-  await tmpCtx.close();
-}
-
-
-
-
-
-    test.beforeEach(async ({ page, browser }, testInfo) => {
-         // --- PARTICIPATORY PRE-REQUISITE ---
-    
-          // ... admin setup già esistente ...
-
-  // Assicura che il file esista, altrimenti lo crea
-  await ensureStateExists(browser, STORAGE_STATE.USER_WITHOUT_MESSAGES, 'USER_WITHOUT_MESSAGES');
-
-  // Ora puoi aprire il context per l'utenza participatory (o USER_WITHOUT_MESSAGES)
-  const participatoryContext = await browser.newContext({ storageState: STORAGE_STATE.USER_WITHOUT_MESSAGES });
-  const participatoryPage = await participatoryContext.newPage();
-  await ensureLoggedIn(participatoryPage, 'USER_WITHOUT_MESSAGES'); // fallback di verifica
-  // salva le variabili se ti serve usarle durante il test
-  (testInfo as any).participatoryContext = participatoryContext;
-  (testInfo as any).participatoryPage = participatoryPage;
-
-  // Se non ti serve continuare con participatory aperto, chiudilo qui;
-  // altrimenti manterlo aperto e chiuderlo in afterEach.
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-        // //  // Crea un context separato per l'utenza participatory e assicurati sia autenticata
-        // // const participatoryContext = await browser.newContext({ storageState: STORAGE_STATE.USER_WITHOUT_MESSAGES });
-        // // const participatoryPage = await participatoryContext.newPage();
-        // // await ensureLoggedIn(participatoryPage, 'USER_WITHOUT_MESSAGES');
-
-        // Se hai pagine/wrappers specifici per participatory puoi inizializzarli qui:
-        // const participatoryHome = new ParticipatoryHomePage(participatoryPage);
-        // await participatoryHome.navigateToSomewhere();
-
-        // Chiudi context participatory dopo il setup (o mantienilo aperto se ti serve durante i test)
-        // // await participatoryPage.close();
-        // // await participatoryContext.close();
-
-        // // --- ADMIN PRE-REQUISITE ---
-        // const adminContext = await browser.newContext({ storageState: STORAGE_STATE.ADMIN });
-        // const adminPage = await adminContext.newPage();
-        // await ensureLoggedIn(adminPage, 'ADMIN');
-
-        // const adminHomePage = new AdminHomePage(adminPage);
-        // const processAdminPage = new ProcessAdminPage(adminPage);
-        // const updateProcessPage = new UpdateProcessAdminPage(adminPage);
-        // const meetingsPageAdmin = new MeetingsPage(adminPage);
-        // const formMeetingPage = new FormMeetingPage(adminPage);
-
-        // await test.step('Setup: Admin edits an existing meeting', async () => {
-        //     await adminHomePage.navigateToAdminHomePage();
-        //     await processAdminPage.navigateToProcesses();
-        //     await processAdminPage.getPage().waitForLoadState('networkidle');
-
-        //     await processAdminPage.editProcess('Officia aut dolor aut eos.');
-        //     await processAdminPage.getPage().waitForLoadState('networkidle');
-
-        //     await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
-        //     await meetingsPageAdmin.verifyMeetingsPageVisible();
-        //     const index = await meetingsPageAdmin.findMeetingByTitle('Exercitationem dolorem.');
-        //     await meetingsPageAdmin.clickEdit(index);
-        //     await meetingsPageAdmin.getPage().waitForLoadState('networkidle');
-
-        //     // Conditional: Main flow vs alternate flow
-        //     if (testInfo.title.includes('Main Flow')) {
-        //         // Start date: 3 days before today
-        //         const startDate = new Date();
-        //         startDate.setDate(startDate.getDate() - 3);
-        //         await formMeetingPage.selectCustomDate(startDate, 0, 0);
-        //         // End date: 3 weeks later today
-        //         const endDate = new Date();
-        //         endDate.setDate(endDate.getDate() + 21);
-        //         await formMeetingPage.selectCustomDate(endDate, 1, 1);
-        //     } else {
-        //         //Start data to date start time + 5 minutes
-        //         const startDate = new Date();
-        //         await formMeetingPage.selectCustomDate(startDate, 0, 0);
-        //         const hour = startDate.getHours();
-        //         const minute = startDate.getMinutes();
-        //         await formMeetingPage.selectCustomTime(0, hour, minute, 5);
-        //         const endDate = new Date(startDate);
-        //         endDate.setDate(endDate.getDate() + 21);
-        //         await formMeetingPage.selectCustomDate(endDate, 1, 1);
-        //     }
-
-        //     await formMeetingPage.submitForm();
-        //     await formMeetingPage.getPage().waitForLoadState('networkidle');
-        // });
-
-        // Close context admin
-        // await adminPage.close();
-        // await adminContext.close();
-
-
-
-        // --- USER INIT ---
-        homePage = new HomePage(page);
-        processesOverviewPage = new ProcessesOverviewPage(page);
-        processDetailPage = new ProcessDetailPage(page);
-        meetingDetailPage = new MeetingDetailPage(page);
-        await homePage.navigateToHomePage();
-    });
-
-    test('Main Flow: Register for a meeting', async () => {
-	await test.step('USER Register the meeting', async () => {
-		//let joined: any;
-		await test.step('1. User: Navigates to the "Processes" section on the platform', async () => {
-			// Navigate to processes section
-			await homePage.goToProcessesFromHomeMenu();
-			await processesOverviewPage.getPage().waitForLoadState('networkidle');
-		});
-		await test.step('2. System: Displays the details of the selected process, including the title, description, phases, key objectives.', async () => {
-			await processesOverviewPage.expectToBeOnProcessesOverviewPage();
-		});
-		await test.step('3. User: Scrolls through the process details to understand the context and purpose of the process and navigates to “Meetings', async () => {
-			await processesOverviewPage.navigateToProcessByTitle('Officia aut dolor aut eos.');
-			await processesOverviewPage.getPage().waitForLoadState('networkidle');
-			await processDetailPage.navigateToMeetingsPage();
-		});
-		await test.step('4. System: Displays a list of available meetings, including relevant details such as title, date, time, location, and availability.', async () => {
-			await processDetailPage.expectUrlContainsMeetings();
-		});
-		await test.step('5. User: Selects a specific meeting to view more details.', async () => {
-			const index = await processDetailPage.findMeetingCardIndexByTitle('Test on available slots');
-			await processDetailPage.clickMeetingCardByIndex(index);
-		});
-		// await test.step('6. System: Displays the meeting details page, including a button labelled "Join Online Meeting."', async () => {
-		// 	await meetingDetailPage.expectOnMeetingDetailPage();
-		// 	await meetingDetailPage.expectJoinLinkVisible();
-		// 	meetingDetailPage.takeScreenshot('JoinLinkVisible');
-		// });
-		// await test.step('7. User: Clicks on the "Join Online Meeting" button to join the online meeting.', async () => {
-		// const [newPage] = await Promise.all([
-    	// 	meetingDetailPage.getPage().context().waitForEvent('page'),
-   		// 	meetingDetailPage.clickJoinMeetingButton()
-		// 	]);
-		//     await newPage.waitForLoadState('domcontentloaded');
-    	// await newPage.screenshot({
-       	// 	path: `test-results/screenshots/join-meeting-${Date.now()}.png`,
-       	// 	fullPage: true
-    	// 	});	
-		// });
-		// await test.step('8. System: Redirects the citizen to the meeting link using the provided video conferencing tool.', async () => {
-		// 	joined = await meetingDetailPage.verifyJoinMeetingResult();
-		// });
-		// await test.step('Result: The citizen successfully joins the online meeting and can participate in discussions and activities.', async () => {
-		// 	if (joined.success) {
-		// 		console.log(`Join successful: scenario = ${joined.outcome}`);
-				
-		// 	} else {
-		// 		throw new Error(`Join KO: outcome = ${joined.outcome}`);
-		// 	}
-		// });
-	});
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await ensureLoggedIn(page, 'USER');
 });
+test.describe('[PAR-EP005] – Register for a meeting', () => {
+	test.use({ storageState: STORAGE_STATE.USER });
+	let processesOverviewPage: ProcessesOverviewPage;
+	let processDetailPage: ProcessDetailPage;
+	let meetingsPage: MeetingsPage;
+	let meetingDetailPage: MeetingDetailPage;
+	let homePage: HomePage;
+	let headerComponent: HeaderComponent;
+	let notificationPage: NotificationPage;
+    let registrationCode: string;
+    let letterOpenerPage: LetterOpenerPage;
+
+	test.beforeEach(async ({ page }) => {
+		processesOverviewPage = new ProcessesOverviewPage(page);
+		processDetailPage = new ProcessDetailPage(page);
+		meetingsPage = new MeetingsPage(page);
+		meetingDetailPage = new MeetingDetailPage(page);
+		homePage = new HomePage(page);
+        headerComponent = new HeaderComponent(page);
+        notificationPage = new NotificationPage(page);
+		await homePage.navigateToHomePage();
+	});
+	test.describe('Main Flow', () => {
+		test('Allows citizens to register for a meeting in advance', async () => {
+			await test.step('1. User: navigates to the "Processes" section', async () => {
+				// Navigate to processes section
+				await homePage.goToProcessesFromHomeMenu();
+				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
+				await processesOverviewPage.navigateToProcessByIndex(0);
+			});
+			await test.step('2. System: Displays the details of the selected process, including the title, description, phases, key objectives.', async () => {
+				await processDetailPage.expectToBeOnProcessDetailPage();
+			});
+			await test.step('3. User: Navigate to the “Meetings” section of the process', async () => {
+				await processDetailPage.navigateToMeetingsPage();
+			});
+			await test.step('4. System: Displays a list of available meetings, including relevant details such as title, date, time, location, and availability.', async () => {
+				await meetingsPage.expectOnMeetingsPage();
+			});
+			await test.step('5. User: Selects a specific meeting to view more details.', async () => {
+				await meetingsPage.clickMeetingCardByIndex(0);
+			});
+			await test.step('6. System: Displays the meeting details, including the agenda, location, date, time, and access settings.', async () => {
+				await meetingDetailPage.expectOnMeetingDetailPage();
+                				await meetingDetailPage
+					.getPage()
+					.screenshot({ path: 'test-results/screenshots/OnMeetingDetailPage.png', fullPage: true });
+			});
+			await test.step('7. User: Clicks on the "Register" button to sign up for the meeting.', async () => {
+				await meetingDetailPage.expectRegisterButtonVisible();
+				await meetingDetailPage.clickRegisterMeetingButton();
+			});
+			await test.step('8. System: Displays a confirmation dialog to confirm the registration.', async () => {
+				await meetingDetailPage.expectRegistrationPromptVisible();
+			});
+			await test.step('9. User: Confirms the registration by clicking the "Confirm" button in the dialog.', async () => {
+				await meetingDetailPage.confirmRegistration();
+                await meetingDetailPage.getPage().waitForLoadState('networkidle');
+                await meetingDetailPage.getPage().reload({ waitUntil: 'networkidle' });
+			});
+			await test.step('10. System: Saves the registration information, adds the user to the attendee list, and provides a confirmation message.', async () => {
+				registrationCode = await meetingDetailPage.expectRegistrationCodeVisibleAndGet();
+				test.expect(registrationCode).not.toBeNull();
+				await meetingDetailPage.expectRegistrationStatusVisible();
+				await meetingDetailPage.expectConfirmationMessageVisible();
+			});
+			await test.step('11. System: Sends a confirmation email or notification to the user with the meeting details, including date, time, and location (or link if the meeting is online).', async () => {
+				await headerComponent.goToNotifications();
+                // await headerComponent.openAccountDropdown();
+				// await headerComponent.navigateToNotifications();
+				await notificationPage.expectToBeOnNotificationsPage();
+                const isPresent = await notificationPage.isTextPresentInNotifications(registrationCode);
+                expect(isPresent).toBeTruthy(); // Se non presente, fallisce il test
+                // Navigate to Letter Opener and refresh to get latest emails
+				await letterOpenerPage.navigateToLetterOpener();
+                await letterOpenerPage.expectToBeOnLetterOpener();
+				await letterOpenerPage.refreshEmails();
+                await letterOpenerPage.clickMostRecentInvitationEmail();
+                const emailContentFrame =  await letterOpenerPage.getEmailContentFrame();
+                const emailBodyText = await emailContentFrame?.innerText() || '';
+                expect(emailBodyText).toContain(registrationCode);
+			});
+
+			// await test.step('Result.', async () => {
+			// 	await meetingDetailPage.expectOnMeetingDetailPage();
+			// });
+		});
+	});
 });
