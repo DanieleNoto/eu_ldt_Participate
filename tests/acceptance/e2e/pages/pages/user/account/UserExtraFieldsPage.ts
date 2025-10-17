@@ -2,6 +2,26 @@ import { Page, expect } from '@playwright/test';
 import { TEST_SELECTORS } from '@utils/constants';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
 
+export interface UserAccountFieldValues {
+	name: string;
+	email: string;
+	dateOfBirth: string; // Format: yyyy-mm-dd
+	gender: string;
+	country: string;
+	postalCode: string;
+	phoneNumber: string;
+	location: string;
+}
+
+// Type definition for user fields data
+export interface UserFieldsData {
+	dateOfBirth?: string;
+	gender?: string;
+	country?: string;
+	postalCode?: string;
+	phoneNumber?: string;
+	location?: string;
+}
 export class UserExtraFieldsPage extends AuthenticatedPage {
 	constructor(page: Page) {
 		super(page);
@@ -97,14 +117,19 @@ export class UserExtraFieldsPage extends AuthenticatedPage {
 		const fieldContainer = this.page.locator(`[data-field="${fieldName}"]`);
 		await expect(fieldContainer.locator('.form-error')).toBeVisible();
 	}
-}
 
-// Type definition for user fields data
-export interface UserFieldsData {
-	dateOfBirth?: string;
-	gender?: string;
-	country?: string;
-	postalCode?: string;
-	phoneNumber?: string;
-	location?: string;
+	// Assertion method for verifying all field values
+	async expectAllFieldValues(expectedData: UserAccountFieldValues): Promise<void> {
+		// Verify basic fields
+		await expect(this.page.locator('#user_name')).toHaveValue(expectedData.name);
+		await expect(this.page.locator('#user_email')).toHaveValue(expectedData.email);
+
+		// Verify extra user fields
+		await expect(this.page.locator('#user_date_of_birth')).toHaveValue(expectedData.dateOfBirth);
+		await expect(this.page.locator('#user_gender')).toHaveValue(expectedData.gender);
+		await expect(this.page.locator('#user_country')).toHaveValue(expectedData.country);
+		await expect(this.page.locator('#user_postal_code')).toHaveValue(expectedData.postalCode);
+		await expect(this.page.locator('#user_phone_number')).toHaveValue(expectedData.phoneNumber);
+		await expect(this.page.locator('#user_location')).toHaveValue(expectedData.location);
+	}
 }
