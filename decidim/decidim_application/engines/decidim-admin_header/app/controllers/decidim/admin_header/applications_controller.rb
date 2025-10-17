@@ -11,13 +11,12 @@ module Decidim
         # Backend endpoint to fetch applications from Tool0
         # Use the JWT token saved to user.extended_data during Keycloak login
         begin
-          # Get JWT token from user's extended_data (saved during login)
-          jwt = current_user&.extended_data&.dig('keycloak_access_token')
-          token_expires_at = current_user&.extended_data&.dig('keycloak_token_expires_at')
+          # Ensure token is valid (refresh if expired)
+          jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user)
           
           unless jwt
-            Rails.logger.warn("No Keycloak JWT token found for user #{current_user&.id}")
-            return render json: { error: "No Keycloak JWT token available. Please log in again." }, status: :unauthorized
+            Rails.logger.warn("No valid Keycloak JWT token available for user #{current_user&.id}")
+            return render json: { error: "No valid Keycloak JWT token. Please log in again." }, status: :unauthorized
           end
 
           # Get Tool0 URL from environment

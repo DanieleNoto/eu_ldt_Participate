@@ -30,6 +30,7 @@ module Decidim
 
         def save_keycloak_token_to_cache(user, auth_data)
           access_token = auth_data&.extra&.dig('access_token')
+          refresh_token = auth_data&.extra&.dig('refresh_token')
           token_expires_in = auth_data&.extra&.dig('token_expires_in').to_i
           user_uid = auth_data&.uid
 
@@ -37,6 +38,7 @@ module Decidim
             # Save to user's extended_data (persistent in database)
             user.extended_data ||= {}
             user.extended_data['keycloak_access_token'] = access_token
+            user.extended_data['keycloak_refresh_token'] = refresh_token if refresh_token
             
             if token_expires_in > 0
               expires_at = Time.current + token_expires_in.seconds
