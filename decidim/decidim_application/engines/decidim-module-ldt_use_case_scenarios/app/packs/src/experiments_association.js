@@ -230,7 +230,8 @@ function submitExperimentAssociation(name) {
           try {
             const url = new URL(data.redirect_url, window.location.origin);
             if (url.origin === window.location.origin && url.pathname.startsWith('/admin/')) {
-              window.location.href = url.href;
+              // Use only the safe pathname and search/hash to prevent open redirects
+              window.location.href = url.pathname + url.search + url.hash;
             } else {
               window.location.reload();
             }
