@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-	console.log('Admin Header JavaScript loaded');
 	initializeToolsDropdown();
 });
 
@@ -7,18 +6,12 @@ function initializeToolsDropdown() {
   const toolsButton = document.getElementById('tools-dropdown-button');
   const toolsDropdown = document.getElementById('tools-dropdown');
   
-  console.log('toolsButton:', toolsButton);
-  console.log('toolsDropdown:', toolsDropdown);
-  
   if (toolsButton && toolsDropdown) {
-    console.log('Elements found, adding event listeners');
     
     // Toggle dropdown visibility
     toolsButton.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      
-      console.log('Tools button clicked!');
       
       const isVisible = toolsDropdown.style.display === 'block';
       toolsDropdown.style.display = isVisible ? 'none' : 'block';
@@ -35,7 +28,6 @@ function initializeToolsDropdown() {
       }
     });
   } else {
-    console.warn('Tools dropdown elements not found. Retrying in 500ms...');
     // Retry after a longer delay in case elements are inserted later
     setTimeout(function() {
       initializeToolsDropdown();
@@ -46,8 +38,6 @@ function initializeToolsDropdown() {
     // Show loading state
     toolsDropdown.innerHTML = '<div class="loading-spinner">Loading...</div>';
     
-    console.log('Loading applications from backend API');
-    
     // Call backend API to fetch applications (handles JWT + Tool0 communication)
     fetch('/admin/admin_header/applications')
       .then(response => {
@@ -57,17 +47,14 @@ function initializeToolsDropdown() {
         return response.json();
       })
       .then(data => {
-        console.log('Applications loaded from backend:', data);
         renderApplications(data);
       })
       .catch(error => {
-        console.error('Error loading applications:', error);
         renderError(error.message);
       });
   }
   
   function renderApplications(data) {
-    console.log('Rendering applications:', data);
     if (!data.groups || data.groups.length === 0) {
       const emptyDiv = document.createElement('div');
       emptyDiv.className = 'p-4 text-center text-gray-600 text-sm';
@@ -207,7 +194,11 @@ function initializeToolsDropdown() {
   }
   
   function renderError(message = 'Failed to load applications') {
-    toolsDropdown.innerHTML = `<div class="error-message">${escapeHtml(message)}</div>`;
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    toolsDropdown.innerHTML = '';
+    toolsDropdown.appendChild(errorDiv);
   }
   
   function escapeHtml(text) {

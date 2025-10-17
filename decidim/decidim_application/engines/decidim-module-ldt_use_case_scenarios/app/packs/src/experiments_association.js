@@ -222,23 +222,22 @@ function submitExperimentAssociation(name) {
   })
   .then(response => {
     console.log('Response status:', response.status);
-    console.log('Response ok:', response.ok);
-    
     if (response.status === 200 || response.status === 201) {
       // Success - parse JSON response
       return response.json().then(data => {
         if (data.success && data.redirect_url) {
           // Validate redirect URL to prevent open redirect attacks
-          const url = new URL(data.redirect_url, window.location.origin);
-          if (url.origin === window.location.origin) {
-            console.log('Redirecting to:', url.href);
-            window.location.href = url.href;
-          } else {
-            console.error('Invalid redirect URL - origin mismatch');
+          try {
+            const url = new URL(data.redirect_url, window.location.origin);
+            if (url.origin === window.location.origin && url.pathname.startsWith('/admin/')) {
+              window.location.href = url.href;
+            } else {
+              window.location.reload();
+            }
+          } catch (e) {
             window.location.reload();
           }
         } else {
-          console.log('Success but no redirect URL, reloading page');
           window.location.reload();
         }
       });
@@ -246,20 +245,17 @@ function submitExperimentAssociation(name) {
       return response.json().then(data => {
         const errors = data.errors || ['Validation error'];
         const errorMessage = errors.join(', ');
-        console.error('Validation error:', errorMessage);
         const saveErrorMessage = document.querySelector('[data-i18n="save_error"]')?.textContent || 'Error saving association. Please try again.';
         alert(`${saveErrorMessage}\n${errorMessage}`);
       });
     } else {
       return response.text().then(text => {
-        console.error('Error response:', text);
         const saveErrorMessage = document.querySelector('[data-i18n="save_error"]')?.textContent || 'Error saving association. Please try again.';
         alert(`${saveErrorMessage}\nStatus: ${response.status}`);
       });
     }
   })
   .catch(error => {
-    console.error('Error saving:', error);
     const saveErrorMessage = document.querySelector('[data-i18n="save_error"]')?.textContent || 'Error saving association. Please try again.';
     alert(saveErrorMessage);
   });
