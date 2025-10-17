@@ -13,6 +13,10 @@ export class NewAttachmentProcessPage extends BaseAdminPage {
 	private readonly addFileButton: Locator;
 	private readonly linkInput: Locator;
 	private readonly submitButton: Locator;
+	private readonly linkTabButton: Locator;
+	private readonly successMessage: Locator;
+	private readonly fileInput: Locator;
+	private readonly saveButton: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -23,6 +27,10 @@ export class NewAttachmentProcessPage extends BaseAdminPage {
 		this.addFileButton = page.locator('#attachment_file_button');
 		this.linkInput = page.locator('#attachment_link');
 		this.submitButton = page.locator('div.item__edit-sticky button[type="submit"]');
+		this.linkTabButton = page.getByRole('button', { name: 'Link' });
+		this.successMessage = page.getByText('Attachment created');
+		this.fileInput = page.locator('input[type="file"][name="attachment[file]"]');
+		this.saveButton = page.locator('button[data-dropzone-save]');
 	}
 
 	/**
@@ -103,6 +111,13 @@ export class NewAttachmentProcessPage extends BaseAdminPage {
 	}
 
 	/**
+	 * Clicks on the "Link" tab to switch to URL input mode
+	 */
+	async clickLinkTab(): Promise<void> {
+		await this.linkTabButton.click();
+	}
+
+	/**
 	 * Asserts that the new attachment form is visible
 	 */
 	async expectToBeOnNewAttachmentPage(): Promise<void> {
@@ -143,5 +158,93 @@ export class NewAttachmentProcessPage extends BaseAdminPage {
 		if (isDescriptionEmpty) {
 			console.log('Description field is empty');
 		}
+	}
+
+	/**
+	 * Verifies that the success message "Attachment created" is visible
+	 */
+	async expectAttachmentCreatedSuccessMessage(): Promise<void> {
+		await expect(this.successMessage).toBeVisible();
+	}
+
+	/**
+	 * Uploads a file directly to the file input
+	 * @param filePath Path to the file to upload
+	 */
+	async uploadFile(filePath: string): Promise<void> {
+		await this.fileInput.setInputFiles(filePath);
+	}
+
+	/**
+	 * Verifies that a file has been uploaded successfully by checking for the "ok" template
+	 * @param fileName Name of the file that was uploaded (without path)
+	 */
+	async expectFileUploadedSuccessfully(fileName: string): Promise<void> {
+		// Wait for the list item with the exact filename in validated state
+		const uploadedFileItem = this.page.locator(
+			`ul[data-dropzone-items] li[data-filename="${fileName}"][data-state="validated"]`
+		);
+		await expect(uploadedFileItem).toBeVisible();
+
+		// Verify the Remove button is visible
+		const removeButton = uploadedFileItem.locator('div[data-template="ok"] button', { hasText: 'Remove' });
+		await expect(removeButton).toBeVisible();
+	}
+
+	/**
+	 * Verifies that the validation error message is visible
+	 */
+	async expectValidationErrorMessage(): Promise<void> {
+		const errorMessage = this.page.getByText(/Validation error!/);
+		await expect(errorMessage).toBeVisible();
+	}
+
+	/**
+	 * Checks if a URL is accessible by making a HEAD request
+	 * @param url URL to check
+	 * @returns Promise that resolves to true if the URL returns a successful response (2xx status)
+	 */
+	static async isUrlAccessible(url: string): Promise<boolean> {
+		try {
+			const response = await fetch(url, { method: 'HEAD' });
+			return response.ok;
+		} catch {
+			return false;
+		}
+	}
+
+	/**
+	 * Finds the first accessible URL from an array of options by testing each one
+	 * @param urls Array of URLs to check in order of preference
+	 * @returns Promise that resolves to the first accessible URL
+	 * @throws Error if no URLs in the array are accessible
+	 */
+	static async findAccessibleUrl(urls: string[]): Promise<string> {
+		for (const url of urls) {
+			if (await this.isUrlAccessible(url)) {
+				console.log(`Using attachment URL: ${url}`);
+				return url;
+			}
+		}
+		// If none are accessible, throw an error instead of returning unusable URL
+		throw new Error('No accessible URLs found in the provided list. Please check them or update the URL list.');
+	}
+
+	/**
+	 * Clicks the "Save" button in the file upload modal
+	 */
+	async clickSaveButton(): Promise<void> {
+		await this.saveButton.waitFor({ state: 'visible' });
+		// Use evaluate to click directly via JavaScript
+		await this.saveButton.evaluate((button: HTMLElement) => button.click());
+	}
+
+	/**
+	 * Verifies that the uploaded file is visible in the upload list
+	 * @param fileName Name of the file that was uploaded (without path)
+	 */
+	async expectUploadedFileVisible(fileName: string): Promise<void> {
+		const uploadedFile = this.page.locator(`.upload-modal__files [data-filename="${fileName}"]`);
+		await expect(uploadedFile).toBeVisible();
 	}
 }

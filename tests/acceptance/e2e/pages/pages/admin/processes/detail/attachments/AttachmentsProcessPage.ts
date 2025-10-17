@@ -146,4 +146,14 @@ export class AttachmentsProcessPage extends BaseAdminPage {
 		await expect(this.page).toHaveURL(/\/admin\/participatory_processes\/.*\/attachments$/);
 		await expect(this.attachmentsTable).toBeVisible();
 	}
+
+	/**
+	 * Verifies that an attachment with the specified title exists in the table
+	 * @param title Title to look for
+	 * @throws Error if the attachment is not found
+	 */
+	async expectAttachmentWithTitleExists(title: string): Promise<void> {
+		const exists = await this.hasAttachmentWithTitle(title);
+		expect(exists).toBe(true);
+	}
 }

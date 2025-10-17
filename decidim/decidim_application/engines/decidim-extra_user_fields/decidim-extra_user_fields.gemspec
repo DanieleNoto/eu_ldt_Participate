@@ -1,0 +1,22 @@
+require_relative "lib/decidim/extra_user_fields/version"
+
+Gem::Specification.new do |spec|
+  spec.name        = "decidim-extra_user_fields"
+  spec.version     = Decidim::ExtraUserFields::VERSION
+  spec.authors     = ["Gianfranco Cedro"]
+  spec.email       = ["gianfranco.cedro@eng.it"]
+  spec.homepage    = "https://dev.azure.com/EULDT-Toolbox/_git/EU%20LDT%20Participate?path=/decidim/decidim_application/engines/decidim-extra_user_fields"
+  spec.summary     = "Decidim Extra user fields engine"
+  spec.description = "Engine forked from gem https://github.com/PopulateTools/decidim-module-extra_user_fields"
+
+  spec.metadata["homepage_uri"] = spec.homepage
+  spec.metadata["source_code_uri"] = "https://dev.azure.com/EULDT-Toolbox/_git/EU%20LDT%20Participate?path=/decidim/decidim_application/engines/decidim-extra_user_fields"
+
+  spec.files = Dir.chdir(File.expand_path(__dir__)) do
+    Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
+  end
+
+  spec.add_dependency "country_select", "~> 4.0"
+  spec.add_dependency "decidim-core", Decidim::ExtraUserFields::VERSION
+  spec.add_dependency "deface", "~> 1.5"
+end

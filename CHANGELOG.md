@@ -1,4 +1,116 @@
-# Changelog from D03.04.Aug to HEAD
+# Changelog from D03.04.Sep to D03.04.Oct
+
+## feat
+
+- updated [PAR-MACT001] ��� Send mass email communications
+- merge main into PAR-DE/PAR-DE001
+- updated [PAR-MACT001] ��� Send mass email communications
+- added download of the file in all formats and downloadExportFile function
+- renamed the function to more generic downloadExportFile
+- updated [PAR-DE002] ��� Export debate data
+- [PAR-DE002] ��� Export debate data
+- refactor configurations
+- move gem jitsi under engines and refactor build
+- [PAR-DE001] ��� Export survey answers
+- add Kubernetes tasks to apply Matomo and Grafana secrets, update secret values for consistency
+- add Kubernetes task to apply Grafana secrets in build and deployment pipeline
+- removed timeouts from NewsletterAdminPage.ts
+- enhance build and deployment pipeline for Tool3 with updated Kubernetes tasks and configurations
+- update Grafana and Matomo configurations, add StatefulSets and services
+- fixed comments PR 1543
+- add JWT_APP_SECRET to Jitsi secrets configuration
+- [PAR-MACT001] ��� Send mass email communications
+- add custom styles for rich text links in application stylesheet
+- update Grafana and Jitsi configurations for improved database handling and WebSocket support
+- fixed SonarQube warnings - PR 1543
+- update custom admin header to improve layout structure
+- [PAR-CP004] ��� Citizen invitation to participate in a private process
+- add new fork of module updated to decidim 0.30.1
+- implement API service for fetching external tools applications
+- enhance tools dropdown functionality and styling
+- enhance application group rendering and toggle functionality
+- update Gemfile.lock with dependency version bumps
+- implement tools dropdown and applications loading functionality
+- init engine for tool0 header
+- fixed comment PR 1504
+- fixed comments of PR 1504
+- fixed comments of PR 1504
+- fixing conflict of SurveysManagePage.ts file
+- [PAR-PAS005] ��� Review result of specific surveys
+- restructure build and deployment pipeline for Tool3 with enhanced Kubernetes configurations
+- enhance Kubernetes deployment configuration for Decidim, Jitsi, and Matomo services
+- add system user creation and admin assignment in test database preparation
+- add localization files for privacy policy in German, Spanish, French, and update English translations
+- remove deprecated DecidimAwesome configuration script
+- refactor docker-compose
+- update database connection pool settings and add timeout; adjust development log level and enable query log tags; enhance shakapacker asset watching configuration
+- [PAR-PAS004] ��� Reply to a survey
+- merge main into PAR-PAS/PAR-PAS003
+- remove unused import and variable from PAR-PAS002 and PAR-PAS003
+- update Dockerfile and docker-compose configurations for improved build efficiency and dependency management
+- updated [PAR-PAS002] ��� Create single question polls
+- updated [PAR-PAS003] ��� Create detailed surveys with configurable options
+- implement variable tokenization and secrets management across Grafana, Matomo, Decidim, and Jitsi configurations
+- updated [PAR-PAS003] ��� Create detailed surveys with configurable options
+- update ingress configurations for platform components with new routing rules and host adjustments
+- improve user creation logic in prepare-db-for-tests script to skip in development environment
+- added missing empty fields verification also for alternative fields
+- enhance Kubernetes deployment configurations for Grafana, Matomo, Decidim, and Jitsi applications with resource limits and security improvements
+- fixed comments for PR 1159
+- update build and deployment pipeline for Decidim, Jitsi, and Matomo applications, including ACR secret management and resource configurations
+- fixed PR 1159 comments
+- update yarn.lock
+- add Kubernetes scripts and ingress configurations for Decidim, Matomo, Grafana, and Jitsi Meet deployment
+- add Kubernetes configuration for Jitsi Meet deployment, including deployments, services, ingress, and persistent volume claims
+- updated PAR-PAS003 - Create detailed surveys with configurable options
+- updated PAR-PAS002 - Create single-question polls
+- implemented [PAR-PAS003] ��� Create detailed surveys with configurable options
+- enhance Dockerfile and entrypoint for asset management and user creation, update Gemfile for mutex_m, and adjust production config for static file serving
+- add Kubernetes manifests for Decidim, Grafana and Matomo, including deployment, service, and persistent volume claims
+- updated [PAR-PAS002] ��� Create single-question polls
+- updated [PAR-PAS002] ��� Create single-question polls
+- add migrations and webpacker installation for decidim_decidim_awesome
+- add Keycloak OAuth2 configuration to Grafana setup
+- update organization colors for improved branding consistency
+- implement single-question polls creation with validation and template support
+
+## PR Merge
+
+- test: [PAR-MACT001] ��� Send mass email communications- test: [PAR-DE002] ��� Export debate data- test: [PAR-DE001] ��� Export survey answers- decidim variables configuration updated- [PAR-EA001] ��� Add meetings component to a specific process- test: [PAR-CP004] ��� Citizen invitation to participate in a private process- Tool3 infraestructure deploy- test [PAR-PAS005] ��� Review result of specific surveys- test: [PAR-PAS004] ��� Reply to a survey- db files added- Deploy Integration Env- [ISSUE-SEP01] Add keycloack auth to grafana and matomo- [PAR-PAS003] ��� Create detailed surveys with configurable options- Deleting Files whith name OLD or COPY- [PAR-PAS002] ��� Create single-question polls- Solved Problems and Vuls QA
+
+## refactor
+
+- reorganize Decidim deployment configuration for clarity and maintainability
+- streamline organization creation and user setup in test preparation script
+- restructure Jitsi integration by organizing constants and decorators into modules
+
+## fix
+
+- update secret values in Grafana, Matomo, Decidim, and Jitsi configurations for consistency
+- update Matomo secret file path in Kubernetes deployment configuration
+- correct indentation for environment variable loading in Grafana StatefulSet
+- ensure max-height is explicitly set for ldt-admin-header
+- update SQL queries in participation demographics dashboard for accuracy
+- update privacy policy agreement messages for clarity and specificity
+- update logo class and styles for consistency in admin header
+- add privacy policy agreements and related messages in multiple languages
+- correct indentation in redis deployment configuration
+- correct indentation in redis deployment configuration
+- correct indentation in redis deployment configuration
+- correct indentation in postgres StatefulSet configuration
+- correct indentation for terminationGracePeriodSeconds in postgres StatefulSet configuration
+- correct sonar.exclusions line formatting in sonar-project.properties
+- comment out decidim-decidim_awesome gem reference to prevent build issues
+- update decidim-decidim_awesome gem reference to latest revision and remove branch specification
+- update sonar.exclusions to include tests/acceptance directory
+- streamline organization creation with minimal attributes and dynamic color settings
+- add missing copy for decidim-meetings-jitsi in Dockerfile
+
+## file_changes
+
+- Deleted file-storage.yml.old- Deleted COPY3 file-storage.yaml- Deleted COPY file-storage copy.yml- Deleted COPY3 ingress.yml- Deleted COPY3 service.yml- Deleted configMap\_\_OLD.yml- Deleted db-secrets copy.yaml- Deleted COPY3 service.yml- Deleted COPY3 secrets.yml- Deleted COPY3 configMap.yml- Deleted COPY_configMapDB.yml- Deleted COPY tool3-fe-config-configmap.yaml- Deleted COPY service.yml- Deleted COPY secretsMap.yml- Deleted COPY configMap.yml- Deleted COPY3 statefulSet.yml- Deleted COPY statefulSet.yml- Deleted COPY statefulSet.yml
+
+# Changelog from D03.04.Aug to D03.04.Sep
 
 ## feat
 

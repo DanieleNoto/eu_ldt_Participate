@@ -1,89 +1,127 @@
-
-ARG RAILS_ENV=production
-ARG PRECOMPILE=false
-FROM decidim/decidim-dev:0.30.1
-
-# Disable manual interaction
-### Multi-stage Dockerfile for Decidim
-
-# Builder stage: install build dependencies, gems, node modules and optionally precompile assets
-ARG PRECOMPILE=false
-ARG RAILS_ENV=production
 FROM decidim/decidim-dev:0.30.1 AS builder
 
+# Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
+# Set build environment early for dependencies
+
+
+# Update system and install base dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  apt-transport-https \
+  build-essential \
+  ca-certificates \
+  curl \
+  git \
+  gnupg \
+  libicu-dev \
+  libpq-dev \
+  libreadline-dev \
+  libssl-dev \
+  lsb-release \
+  netcat-openbsd \
+  redis-tools \
+  sudo \
+  wkhtmltopdf \
+  zlib1g-dev \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 22.x and yarn
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+  apt-get install -y --no-install-recommends nodejs && \
+  npm install --global yarn && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
 WORKDIR /code
 
-# Install OS packages and Node.js repository in a single RUN to keep layers small
-RUN apt-get update \
-  && apt-get install -y \
-    apt-transport-https \
-    build-essential \
-    ca-certificates \
-    curl \
-    gnupg \
-    libreadline-dev \
-    libssl-dev \
-    lsb-release \
-    netcat-openbsd \
-    redis-tools \
-    sudo \
-    zlib1g-dev \
-  && mkdir -p /etc/apt/keyrings \
-  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
-  && apt-get update \
-  && apt-get install -y nodejs \
-  && rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /code/storage
+RUN chown -R decidim:decidim /code/storage
+RUN chmod 775 /code/storage
 
-# Copy lockfiles first to leverage Docker cache for deps
+# Copy dependency files FIRST for better Docker layer caching
 COPY Gemfile Gemfile.lock ./
-COPY package.json yarn.lock ./
 COPY engines/ ./engines/
-COPY decidim-meetings-jitsi/ ./decidim-meetings-jitsi/
 
-# Install Ruby gems and Node.js deps
-RUN bundle config set --local path '/usr/local/bundle' \
-  && bundle install --jobs=4 --retry=3 \
-  && yarn install --frozen-lockfile --network-timeout 100000
+# Install Ruby gems (cached layer) - optimized bundle config
+RUN bundle config set --local path '/usr/local/bundle' && \
+  bundle config set --local jobs 4 && \
+  bundle install --retry 3
 
-# Copy the application source
+COPY package.json yarn.lock* ./
+# Install Node.js dependencies (cached layer)
+RUN yarn install --network-timeout 100000 --include-dev
+
+# NOW copy the full application code
 COPY . .
 
-# Ensure entrypoint is available
-COPY docker-entrypoint.sh /code/docker-entrypoint.sh
-RUN chmod +x /code/docker-entrypoint.sh
+# Make entrypoint executable
+RUN chmod +x docker-entrypoint.sh
 
-# Re-run bundle check to handle git-based gems that require source files
-RUN bundle check || bundle install --jobs=4 --retry=3
 
-# Optionally precompile assets during build (controlled via build-arg PRECOMPILE)
-RUN if [ "$PRECOMPILE" = "true" ] && [ "$RAILS_ENV" = "production" ]; then \
-      echo "Precompiling assets for production" && \
-      SECRET_KEY_BASE=temp_key_for_asset_precompilation \
-      RAILS_ENV=production NODE_ENV=production bundle exec rails assets:precompile; \
-    fi
 
-### Runtime stage: smaller image with only runtime artifacts
+ARG RAILS_ENV=production
+ARG NODE_ENV=production
+ARG SECRET_KEY_BASE
+ENV RAILS_ENV=${RAILS_ENV}
+ENV NODE_ENV=${NODE_ENV}
+ENV RAILS_SERVE_STATIC_FILES=true
+
+
+# Production asset precompilation (separate layer for better caching)
+# Supports both replacetokens (SECRET-KEY-BASE with hyphen) and build-arg (SECRET_KEY_BASE with underscore)
+RUN if [ -n "${SECRET_KEY_BASE:-}" ]; then \
+  echo "=== Using SECRET_KEY_BASE from build-arg ==="; \
+  SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:precompile; \
+  echo "=== Assets precompiled successfully with build-arg ==="; \
+  fi
+
+
+RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
+  && rm -rf /usr/local/bundle/cache/*.gem \
+  && find /usr/local/bundle/gems/ -name "*.c" -delete \
+  && find /usr/local/bundle/gems/ -name "*.o" -delete \
+  && rm -rf log/*.log
+
+### Runtime stage: lean image with only runtime dependencies
 FROM decidim/decidim-dev:0.30.1 AS runtime
+
+# Inherit build arguments for runtime
+ARG RAILS_ENV=production
+ARG NODE_ENV=production
+ARG SECRET_KEY_BASE
+ARG RAILS_SERVE_STATIC_FILES=true
+ENV RAILS_SERVE_STATIC_FILES=${RAILS_SERVE_STATIC_FILES}
+
+# Install only runtime dependencies (no build tools) and ensure Node.js 22 + yarn
 ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  ca-certificates \
+  curl \
+  gnupg \
+  netcat-openbsd \
+  redis-tools \
+  && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+  && apt-get install -y --no-install-recommends nodejs \
+  && npm install --global yarn \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /code
 
-# Copy application code and artifacts from builder
+# Copy application and compiled assets from builder
 COPY --from=builder /code /code
-# Copy installed gems and node modules to preserve cache
 COPY --from=builder /usr/local/bundle /usr/local/bundle
 
-# Expose the application port and set entrypoint
-COPY --from=builder /code/docker-entrypoint.sh /code/docker-entrypoint.sh
-RUN chmod +x /code/docker-entrypoint.sh
+# Set runtime environment
+ENV RAILS_ENV=${RAILS_ENV}
+ENV NODE_ENV=${NODE_ENV}
 
-ENV RAILS_ENV=${RAILS_ENV:-production}
-ENV NODE_ENV=${NODE_ENV:-production}
+# Create user and set ownership efficiently (single operation)
+RUN groupadd -r decidim 2>/dev/null || true && \
+  useradd -r -g decidim -d /code -s /bin/bash decidim 2>/dev/null || true && \
+  chown -R decidim:decidim /code
+USER decidim
 
 EXPOSE 3000
+EXPOSE 3035
 
-# ENTRYPOINT ["/code/docker-entrypoint.sh"]
-# ENTRYPOINT ["sh", "/code/docker-entrypoint.sh"]
-
-# Expose port
+ENTRYPOINT ["/code/docker-entrypoint.sh"]

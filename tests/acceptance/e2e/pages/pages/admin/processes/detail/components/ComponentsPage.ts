@@ -477,4 +477,37 @@ export class ComponentsPage extends BaseAdminPage {
 		const link = this.getComponentLinkByName(componentName);
 		await link.click();
 	}
+	/**
+	 * Click on the Export button to open export dropdown/modal
+	 */
+	async clickExportButton(): Promise<void> {
+		await this.page.getByText('Export', { exact: true }).click();
+	}
+
+	/**
+	 * Select a specific export format from the export options
+	 * @param fileFormat - The format to export (CSV, JSON, Excel)
+	 */
+	async selectExportFormat(fileFormat: string): Promise<void> {
+		await this.page
+			.getByRole('link', { name: `Export ${fileFormat}` })
+			.first()
+			.click();
+	}
+
+	/**
+	 * Complete export process: open export menu and select format
+	 * @param fileFormat - The format to export (CSV, JSON, Excel)
+	 */
+	async exportComponentData(fileFormat: string): Promise<void> {
+		await this.clickExportButton();
+		await this.selectExportFormat(fileFormat);
+	}
+
+	/**
+	 * Verify that the export confirmation message is displayed
+	 */
+	async expectExportConfirmationMessage(): Promise<void> {
+		await expect(this.page.getByText('Your export is currently in')).toBeVisible();
+	}
 }
