@@ -1,0 +1,27 @@
+---
+en:
+  decidim:
+    components:
+      ldt_map_visualization:
+        name: LDT - Map Visualization
+        settings:
+          global:
+            title: Title
+    ldt_map_visualization:
+      map_visualizations:
+        index:
+          title: Map Visualizations
+          no_maps: No map visualizations available
+      admin:
+        map_visualizations:
+          index:
+            title: Manage Map Visualizations
+            name: Name
+            actions: Actions
+            new: Add New Map
+            no_maps: No map visualizations available yet
+            edit: Edit
+            delete: Delete
+          new:
+            title: Create Map Visualization
+            submit: Create

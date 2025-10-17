@@ -1,0 +1,15 @@
+<div class="decidim-ldt-map-visualization">
+  <h2><%= t(".title") %></h2>
+  
+  <% if @map_visualizations.any? %>
+    <div class="map-visualizations-grid">
+      <% @map_visualizations.each do |map_viz| %>
+        <div class="map-visualization-card">
+          <h3><%= map_viz.name %></h3>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p><%= t(".no_maps") %></p>
+  <% end %>
+</div>

@@ -4,14 +4,14 @@ datasources:
     - name: Decidim PostgreSQL
       type: postgres
       access: proxy
-      url: ${DATABASE_HOST}:5432
-      database: ${DATABASE_NAME}
-      user: ${DATABASE_USERNAME}
+      url: ${GF_DATABASE_HOST}:5432
+      database: ${GF_DATABASE_NAME}
+      user: ${GF_DATABASE_USER}
       secureJsonData:
-          password: ${DATABASE_PASSWORD}
+          password: ${GF_DATABASE_PASSWORD}
       jsonData:
           sslmode: disable
-          searchPath: 'decidim_application_development'
+          searchPath: ${GF_DATABASE_NAME}
           postgresVersion: 1600
           timescaledb: false
           maxOpenConns: 100

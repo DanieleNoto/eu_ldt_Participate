@@ -1,0 +1,76 @@
+.experiments-association {
+  .label {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .label-secondary {
+    background-color: #ececec;
+    color: #666;
+  }
+
+  .label-success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .label-warning {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+
+  .button__primary {
+    background-color: #004494;
+    color: white;
+
+    &:hover {
+      background-color: #003366;
+    }
+  }
+
+  #confirmation-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+
+    > div {
+      background-color: white;
+      border-radius: 4px;
+      padding: 30px;
+      max-width: 500px;
+      margin: 100px auto;
+
+      input[type="text"] {
+        box-sizing: border-box;
+      }
+    }
+  }
+
+  #experiments-container {
+    display: none;
+
+    .table-controls {
+      margin-top: 20px;
+    }
+  }
+
+  #loading-state {
+    text-align: center;
+    padding: 40px;
+  }
+
+  #error-state {
+    display: none;
+    background-color: #fde8e8;
+    padding: 20px;
+    border-radius: 4px;
+  }
+}
