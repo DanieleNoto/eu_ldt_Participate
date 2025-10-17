@@ -114,14 +114,34 @@ test.describe('[PAR-RG001] - View reports and analytics', () => {
 					console.log(`   ${indicator} ${metric}: ${oldValue} -> ${newValue}`);
 				});
 
-				// Log summary
-				if (comparison.hasChanges) {
-					console.log('\nVisualizations updated (values changed)');
+				// Warning if no changes detected
+				if (!comparison.hasChanges) {
+					console.warn('\nWARNING: No metric values changed after filter application');
+					console.warn('   This might indicate:');
+					console.warn('   - No data in the selected time range');
+					console.warn('   - Environment has insufficient data');
 				} else {
-					console.log('\nValues remained the same');
+					const changedCount = comparison.changes.filter(c => c.changed).length;
+					console.log(`\n${changedCount}/${comparison.changes.length} metrics updated after filter change`);
 				}
 
-				// Verify dashboard still functional
+				// Check if all values are zero or No data
+				const allZeroOrNoData = comparison.changes.every(
+					({ newValue }) =>
+						newValue === '0' ||
+						newValue === 'No data' ||
+						newValue === '0.00' ||
+						newValue === '' ||
+						newValue === 'N/A'
+				);
+
+				if (allZeroOrNoData) {
+					console.error(
+						'\nERROR: All metrics are 0 or No data - dashboard might not be loading data correctly'
+					);
+				}
+
+				// Verify dashboard still functional (core test validation)
 				await grafanaDashboardPage.verifyReportDashboardLoaded();
 				await grafanaDashboardPage.verifyAllMetricPanelsDisplayed();
 			});

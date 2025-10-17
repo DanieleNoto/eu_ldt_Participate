@@ -208,15 +208,26 @@ export class GrafanaDashboardPage {
 
 	/**
 	 * Get the current time range filter value
-	 * @returns Current time range value as string
+	 * @returns Current time range value as string (e.g., "7", "30", "90") or "Unknown" if not found
 	 */
 	async getCurrentTimeRange(): Promise<string> {
-		await expect(this.timeRangeDropdown).toBeVisible();
+		try {
+			await expect(this.timeRangeDropdown).toBeVisible();
 
-		const testId = await this.timeRangeDropdown.getAttribute('data-testid');
-		const match = testId?.match(/text (\d+)$/);
+			const testId = await this.timeRangeDropdown.getAttribute('data-testid');
+			const match = testId?.match(/text (\d+)$/);
 
-		return match ? match[1] : '';
+			if (match) {
+				return match[1];
+			}
+
+			// Log warning if pattern doesn't match
+			console.warn(`Could not parse time range from data-testid: "${testId}"`);
+			return 'Unknown';
+		} catch (error) {
+			console.error('Error getting current time range:', error instanceof Error ? error.message : String(error));
+			return 'Unknown';
+		}
 	}
 
 	/**
