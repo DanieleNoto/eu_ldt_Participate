@@ -1,7 +1,8 @@
 let selectedExperiment = null;
 let currentPage = 0;
 let totalPages = 1;
-let pageSize = 10;
+// Fetch up to 100 results per backend recommendation
+let pageSize = 100;
 
 document.addEventListener('DOMContentLoaded', function() {
   loadExperiments(0);
@@ -31,7 +32,7 @@ function loadExperiments(page = 0) {
   document.getElementById('loading-state').style.display = 'block';
   document.getElementById('experiments-container').style.display = 'none';
   document.getElementById('error-state').style.display = 'none';
-  document.getElementById('form-section').style.display = 'none';
+  // keep form-section visible by default
   
   fetch(proxyUrl, {
     method: 'GET',
@@ -67,7 +68,14 @@ function loadExperiments(page = 0) {
       }
       
       // Handle pagination metadata if available
-      totalPages = data.totalPages || Math.ceil(experiments.length / pageSize) || 1;
+      // Try multiple metadata shapes from different APIs
+      if (typeof data.totalPages !== 'undefined') {
+        totalPages = data.totalPages;
+      } else if (data.page && typeof data.page.totalPages !== 'undefined') {
+        totalPages = data.page.totalPages;
+      } else {
+        totalPages = Math.max(1, Math.ceil(experiments.length / pageSize));
+      }
       currentPage = page;
       
       renderExperiments(experiments);
@@ -85,13 +93,62 @@ function loadExperiments(page = 0) {
 }
 
 function updatePaginationInfo() {
-  const pageInfo = document.getElementById('page-info');
-  const prevButton = document.getElementById('prev-page-button');
-  const nextButton = document.getElementById('next-page-button');
-  
-  pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`;
-  prevButton.disabled = currentPage === 0;
-  nextButton.disabled = currentPage >= totalPages - 1;
+  // Render a Decidim-like pagination control into [data-pagination]
+  const container = document.querySelector('[data-pagination]');
+  if (!container) return;
+
+  // Build per-page menu and page links only if more than 1 page
+  const perPageOptions = [25, 50, 100];
+  let html = '';
+
+  // Results per page selector
+  html += `<div class="flex items-center gap-1"><svg width="1em" height="1em" role="img" aria-hidden="true" class="w-4 h-4 text-gray fill-current"><use href="/decidim-packs/media/images/remixicon.symbol-e643e553623ffcd49f94.svg#ri-list-check-2"></use></svg><p class="text-gray-2">Results per page:</p><details class="relative"><summary class="flex items-center cursor-pointer text-secondary font-semibold">${pageSize}<svg width="1em" height="1em" role="img" aria-hidden="true" class="w-4 h-4 text-gray fill-current"><use href="/decidim-packs/media/images/remixicon.symbol-e643e553623ffcd49f94.svg#ri-arrow-down-s-line"></use></svg></summary><ul class="dropdown dropdown__bottom">`;
+  perPageOptions.forEach(opt => {
+    html += `<li role="presentation"><a data-per-page-option="${opt}" class="dropdown__item" href="#">${opt}</a></li>`;
+  });
+  html += `</ul></details></div>`;
+
+  // Pages
+  html += `<nav aria-label="Pagination"><ul class="flex flex-wrap items-center text-sm text-secondary gap-x-1" data-pages>`;
+  for (let p = 0; p < totalPages; p++) {
+    if (p === currentPage) {
+      html += `<li class="w-6 h-6 px-2 rounded-full hover:bg-background-3 transition min-w-fit bg-background-3 grid place-items-center" aria-current="page" data-page="${p}">${p+1}</li>`;
+    } else {
+      html += `<li class="w-6 h-6 px-2 rounded-full hover:bg-background-3 transition min-w-fit " data-page="${p}"><a class="w-full h-full grid place-items-center" href="#" data-page-link="${p}">${p+1}</a></li>`;
+    }
+  }
+
+  // Next link
+  if (currentPage < totalPages - 1) {
+    html += `<li class="ml-2"><a href="#" data-next class="flex items-center gap-2 border border-secondary rounded font-semibold px-4 py-1.5">Next<svg width="1em" height="1em" role="img" aria-hidden="true" class="fill-current"><use href="/decidim-packs/media/images/remixicon.symbol-e643e553623ffcd49f94.svg#ri-arrow-right-line"></use></svg></a></li>`;
+  }
+
+  html += `</ul></nav>`;
+
+  // Wrap into Decidim-like flex container so per-page is left and pages nav is right
+  container.innerHTML = `<div class="flex flex-col-reverse md:flex-row items-center justify-between gap-1 py-8 md:py-16 md:flex-wrap">${html}</div>`;
+
+  // Wire per-page clicks
+  container.querySelectorAll('[data-per-page-option]').forEach(a => {
+    a.addEventListener('click', function(ev) {
+      ev.preventDefault();
+      const opt = parseInt(this.getAttribute('data-per-page-option'), 10);
+      pageSize = opt;
+      loadExperiments(0);
+    });
+  });
+
+  // Wire page links
+  container.querySelectorAll('[data-page-link]').forEach(a => {
+    a.addEventListener('click', function(ev) {
+      ev.preventDefault();
+      const p = parseInt(this.getAttribute('data-page-link'), 10);
+      loadExperiments(p);
+    });
+  });
+
+  const next = container.querySelector('[data-next]');
+  if (next) next.addEventListener('click', function(ev) { ev.preventDefault(); loadExperiments(currentPage + 1); });
 }
 
 function renderExperiments(experiments) {
@@ -100,7 +157,7 @@ function renderExperiments(experiments) {
 
   if (!experiments || experiments.length === 0) {
     const row = document.createElement('tr');
-    row.innerHTML = '<td colspan="4" style="text-align: center; padding: 20px;">No experiments found</td>';
+    row.innerHTML = '<td colspan="5" style="text-align: center; padding: 20px;">No experiments found</td>';
     tbody.appendChild(row);
     return;
   }
@@ -108,30 +165,53 @@ function renderExperiments(experiments) {
   experiments.forEach(exp => {
     const row = document.createElement('tr');
     row.dataset.experimentId = exp.id;
+    // First column: radio button to select experiment
+    const created = exp.createdAt || exp.created_at || '';
+    // Format created date into a human readable string if possible
+    let createdFormatted = '';
+    if (created) {
+      try {
+        const d = new Date(created);
+        if (!isNaN(d.getTime())) {
+          createdFormatted = d.toLocaleString();
+        }
+      } catch (e) {
+        createdFormatted = String(created);
+      }
+    }
+    const version = exp.version || '';
     row.innerHTML = `
-      <td data-label="ID">
-        ${exp.id}
+      <td data-label="Select">
+        <input type="radio" name="selected_experiment" value="${escapeHtmlAttr(exp.id)}" class="select-experiment-radio" />
       </td>
-      <td class="!text-left" data-label="Name">
-        <strong>${escapeHtml(exp.name)}</strong>
+      <td class="!text-left" data-label="ID/Name">
+        <div><strong>${escapeHtml(exp.name || exp.id)}</strong></div>
+        <div class="text-sm text-gray-600">${escapeHtml(exp.id)}</div>
       </td>
       <td data-label="Description">
         ${escapeHtml((exp.description || '-').substring(0, 100))}
       </td>
-      <td class="table-list__actions" data-label="Actions">
-        <button type="button" class="button button__sm button__secondary select-experiment" data-experiment='${escapeHtmlAttr(JSON.stringify(exp))}'>
-          Select
-        </button>
+      <td data-label="Created">
+        ${escapeHtml(createdFormatted)}
+      </td>
+      <td data-label="Version">
+        ${escapeHtml(String(version))}
       </td>
     `;
     tbody.appendChild(row);
   });
 
-  document.querySelectorAll('.select-experiment').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const experimentJson = this.dataset.experiment;
-      selectedExperiment = JSON.parse(experimentJson);
-      showFormSection();
+  // Wire up radio buttons to select experiment
+  document.querySelectorAll('.select-experiment-radio').forEach(radio => {
+    radio.addEventListener('change', function() {
+      const tr = this.closest('tr');
+      const expId = this.value;
+      // Find the full experiment object in the experiments array
+      const found = experiments.find(e => String(e.id) === String(expId));
+      if (found) {
+        selectedExperiment = found;
+        showFormSection();
+      }
     });
   });
 }
@@ -154,11 +234,10 @@ function escapeHtml(text) {
 function showFormSection() {
   // Show the form section and selected experiment info
   document.getElementById('form-section').style.display = 'block';
-  document.getElementById('selected-experiment-info').style.display = 'block';
-  document.getElementById('selected-exp-name').textContent = selectedExperiment.name;
   
   // Clear and focus the input field
-  document.getElementById('association-name').value = '';
+  // Do not clear the input so user can prepare a name before selection
+  // document.getElementById('association-name').value = '';
   document.getElementById('association-name').focus();
   
   // Scroll to form

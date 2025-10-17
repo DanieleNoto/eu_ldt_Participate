@@ -17,7 +17,11 @@ fr:
           index:
             title: Gérer les scénarios de cas d'usage
             scenario_name: Nom du Scénario
+            association_name: Nom de l'Association
             experiment_id: ID Expérience
+            associated_experiment_results: Résultats de l'expérience associés
+            created: Créé
+            version: Version
             experiment_name: Nom de l'Expérience
             actions: Actions
             associate_experiments: Associer les résultats des expériences
@@ -38,6 +42,8 @@ fr:
             confirm_message: En cliquant sur "confirmer", vous créerez une nouvelle association.
             association_name: Nom de l'Association
             enter_association_name: Entrez le nom de l'association
+            created: Créé
+            version: Version
             cancel: Annuler
             confirm: Confirmer
             name_required: Le nom de l'association est requis
@@ -48,3 +54,9 @@ fr:
             selected_experiment: Expérience Sélectionnée
           create:
             success: Association d'expériences créée avec succès.
+    admin:
+      actions:
+        confirm_delete: "Êtes-vous sûr de vouloir supprimer cet élément ?"
+        deleted: "Élément supprimé avec succès."
+        not_allowed: "Vous n'êtes pas autorisé à effectuer cette action."
+        not_found: "Élément introuvable."

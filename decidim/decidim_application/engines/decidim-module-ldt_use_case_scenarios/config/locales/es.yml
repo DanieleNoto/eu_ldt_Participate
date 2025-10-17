@@ -15,9 +15,13 @@ es:
       admin:
         ldt_use_case_scenarios:
           index:
-            title: Gestionar Escenarios de Casos de Uso
+            title: Gestionar Escenarios de Cas de Uso
             scenario_name: Nombre del Escenario
+            association_name: Nombre de la Asociación
             experiment_id: ID de Experimento
+            associated_experiment_results: Resultados del Experimento Asociado
+            created: Creado
+            version: Versión
             experiment_name: Nombre del Experimento
             actions: Acciones
             associate_experiments: Asociar resultados de experimentos
@@ -38,6 +42,8 @@ es:
             confirm_message: Al hacer clic en "confirmar" creará una nueva asociación.
             association_name: Nombre de la Asociación
             enter_association_name: Ingrese el nombre de la asociación
+            created: Creado
+            version: Versión
             cancel: Cancelar
             confirm: Confirmar
             name_required: El nombre de la asociación es obligatorio
@@ -48,3 +54,9 @@ es:
             selected_experiment: Experimento Seleccionado
           create:
             success: Asociación de experimentos creada exitosamente.
+    admin:
+      actions:
+        confirm_delete: "¿Está seguro de que desea eliminar este elemento?"
+        deleted: "Elemento eliminado con éxito."
+        not_allowed: "No tiene permiso para realizar esta acción."
+        not_found: "Elemento no encontrado."

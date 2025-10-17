@@ -138,7 +138,24 @@ module Decidim
         end
 
         def destroy
-          # Handle deletion
+          # Ensure user has permission to destroy scenarios
+          unless allowed_to? :destroy, :ldt_use_case_scenario
+            redirect_to "/admin/participatory_processes/#{params[:participatory_process_slug]}/components/#{params[:component_id]}/manage/ldt_use_case_scenarios", alert: t("decidim.admin.actions.not_allowed")
+            return
+          end
+
+          @scenario = collection.find_by(id: params[:id])
+
+          unless @scenario
+            redirect_to "/admin/participatory_processes/#{params[:participatory_process_slug]}/components/#{params[:component_id]}/manage/ldt_use_case_scenarios", alert: t("decidim.admin.actions.not_found")
+            return
+          end
+
+          if @scenario.destroy
+            redirect_to "/admin/participatory_processes/#{params[:participatory_process_slug]}/components/#{params[:component_id]}/manage/ldt_use_case_scenarios", notice: t("decidim.admin.actions.deleted")
+          else
+            redirect_to "/admin/participatory_processes/#{params[:participatory_process_slug]}/components/#{params[:component_id]}/manage/ldt_use_case_scenarios", alert: @scenario.errors.full_messages.to_sentence
+          end
         end
 
         private

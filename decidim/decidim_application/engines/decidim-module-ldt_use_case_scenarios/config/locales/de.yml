@@ -17,9 +17,17 @@ de:
           index:
             title: Anwendungsfallszenarien verwalten
             scenario_name: Szenarioname
+            association_name: Zuordnungsname
             experiment_id: Experiment-ID
+            associated_experiment_results: Zugeordnete Experimentergebnisse
+            created: Erstellt
+            version: Version
             experiment_name: Name des Experiments
-            actions: Aktionen
+            actions:
+              confirm_delete: "Sind Sie sicher, dass Sie dieses Element löschen möchten?"
+              deleted: "Eintrag erfolgreich gelöscht."
+              not_allowed: "Sie sind nicht berechtigt, diese Aktion auszuführen."
+              not_found: "Element nicht gefunden."
             associate_experiments: Experimentiergebnisse zuordnen
             new: Neues Szenario hinzufügen
             no_scenarios: Noch keine Szenarien verfügbar
@@ -38,6 +46,8 @@ de:
             confirm_message: Durch Klicken auf "Bestätigen" erstellen Sie eine neue Zuordnung.
             association_name: Zuordnungsname
             enter_association_name: Geben Sie den Zuordnungsnamen ein
+            created: Erstellt
+            version: Version
             cancel: Abbrechen
             confirm: Bestätigen
             name_required: Der Name der Zuordnung ist erforderlich

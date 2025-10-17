@@ -12,13 +12,14 @@
 
       <div id="experiments-container" style="display: none;">
         <div class="table-stacked">
-          <table class="table-list">
+          <table class="table-list w-full" style="width: 100%;">
             <thead id="experiments-thead">
               <tr>
-                <th><%= t(".experiment_id") %></th>
+                <th></th>
                 <th class="!text-left"><%= t(".experiment_name") %></th>
                 <th><%= t(".description") %></th>
-                <th><%= t(".actions") %></th>
+                <th><%= t(".created") %></th>
+                <th><%= t(".version") %></th>
               </tr>
             </thead>
             <tbody id="experiments-tbody">
@@ -27,9 +28,7 @@
         </div>
 
         <div class="table-controls">
-          <button type="button" id="prev-page-button" class="button button__secondary"><%= t(".previous_page") %></button>
-          <span id="page-info"></span>
-          <button type="button" id="next-page-button" class="button button__secondary"><%= t(".next_page") %></button>
+          <div data-pagination></div>
         </div>
       </div>
 
@@ -45,14 +44,7 @@
 
       <!-- Form Section - Always Visible -->
       <div id="form-section" class="card-section">
-        <!-- Selected Experiment Info -->
-        <div id="selected-experiment-info" style="display: none; margin-bottom: 20px;">
-          <div class="callout">
-            <p><strong><%= t(".selected_experiment") %>:</strong> <span id="selected-exp-name"></span></p>
-          </div>
-        </div>
-
-        <!-- Association Name Field -->
+        <!-- Association Name Field (always visible) -->
         <div class="row column">
           <label for="association-name"><strong><%= t(".association_name") %></strong></label>
           <input 
