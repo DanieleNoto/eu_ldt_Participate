@@ -69,9 +69,14 @@ function initializeToolsDropdown() {
   function renderApplications(data) {
     console.log('Rendering applications:', data);
     if (!data.groups || data.groups.length === 0) {
-      toolsDropdown.innerHTML = '<div class="p-4 text-center text-gray-600 text-sm">No applications available</div>';
+      const emptyDiv = document.createElement('div');
+      emptyDiv.className = 'p-4 text-center text-gray-600 text-sm';
+      emptyDiv.textContent = 'No applications available';
+      toolsDropdown.innerHTML = '';
+      toolsDropdown.appendChild(emptyDiv);
       return;
     }
+    
     // Helper to decode base64 SVG icons
     function decodeIcon(iconString) {
       const prefix = 'data:image/svg+xml;base64,';
@@ -86,48 +91,97 @@ function initializeToolsDropdown() {
       return null;
     }
     
-    // Helper to render a single application item
+    // Helper to render a single application item (returns DOM element)
     function renderAppItem(app) {
       const svgMarkup = decodeIcon(app.icon);
-      let item = `<div class="application-item">`;
-      item += `<a href="${escapeHtml(app.url)}" target="_blank" class="flex items-center px-4 py-2 text-gray-800 hover:bg-[#F6F6F6] no-underline group">`;
+      const item = document.createElement('div');
+      item.className = 'application-item';
+      
+      const link = document.createElement('a');
+      link.href = escapeHtml(app.url);
+      link.target = '_blank';
+      link.className = 'flex items-center px-4 py-2 text-gray-800 hover:bg-[#F6F6F6] no-underline group';
+      
       if (svgMarkup) {
-        item += `<span class="flex-shrink-0 mr-1">${svgMarkup}</span>`;
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'flex-shrink-0 mr-1';
+        iconSpan.innerHTML = svgMarkup; // Safe because it's from base64-decoded SVG
+        link.appendChild(iconSpan);
       } else {
-        item += `<div class="w-6 h-6 mr-1 bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center rounded">
-                   <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                     <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
-                   </svg>
-                 </div>`;
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'w-6 h-6 mr-1 bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center rounded';
+        iconDiv.innerHTML = '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>';
+        link.appendChild(iconDiv);
       }
-      item += `<span class="text-xl font-bold group-hover:text-[#004494]">${escapeHtml(app.name)}</span>`;
-      item += `</a></div>`;
+      
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'text-xl font-bold group-hover:text-[#004494]';
+      nameSpan.textContent = app.name;
+      link.appendChild(nameSpan);
+      
+      item.appendChild(link);
       return item;
     }
     
-    // Helper to render a group with optional separator
+    // Helper to render a group with optional separator (returns DOM element)
     function renderGroup(group, index) {
-      if (!group.applications || group.applications.length === 0) return '';
+      if (!group.applications || group.applications.length === 0) return null;
+      
       const sortedApps = group.applications.sort((a, b) => (a.order || 0) - (b.order || 0));
       const groupId = `tools-group-${index}`;
-      // Separator before all groups except first
-      const sep = index > 0 ? '<div class="border-t border-gray-200 my-2 mx-2 p-1"></div>' : '';
-      let grp = `${sep}<div class="application-group">`;
-      grp += `<button type="button" class="w-full flex items-center px-4 pt-3 pb-1 group-header-toggle focus:outline-none" data-group="${groupId}">`;
-      grp += `<span class="text-lg text-start font-semibold text-gray-500 uppercase tracking-wider flex-1">${escapeHtml(group.name)}</span>`;
-      grp += `<svg class="w-4 h-4 ml-2 transition-transform duration-200 text-gray-400" data-arrow="${groupId}" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>`;
-      grp += '</button><div class="group-apps" id="' + groupId + '">';
-      sortedApps.forEach(app => { grp += renderAppItem(app); });
-      grp += '</div></div>';
-      return grp;
+      
+      const groupDiv = document.createElement('div');
+      groupDiv.className = 'application-group';
+      
+      // Add separator before all groups except first
+      if (index > 0) {
+        const sep = document.createElement('div');
+        sep.className = 'border-t border-gray-200 my-2 mx-2 p-1';
+        groupDiv.appendChild(sep);
+      }
+      
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'w-full flex items-center px-4 pt-3 pb-1 group-header-toggle focus:outline-none';
+      btn.setAttribute('data-group', groupId);
+      
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'text-lg text-start font-semibold text-gray-500 uppercase tracking-wider flex-1';
+      nameSpan.textContent = group.name;
+      btn.appendChild(nameSpan);
+      
+      const arrow = document.createElement('svg');
+      arrow.className = 'w-4 h-4 ml-2 transition-transform duration-200 text-gray-400';
+      arrow.setAttribute('data-arrow', groupId);
+      arrow.setAttribute('fill', 'currentColor');
+      arrow.setAttribute('viewBox', '0 0 20 20');
+      arrow.innerHTML = '<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />';
+      btn.appendChild(arrow);
+      
+      groupDiv.appendChild(btn);
+      
+      const appsContainer = document.createElement('div');
+      appsContainer.className = 'group-apps';
+      appsContainer.id = groupId;
+      
+      sortedApps.forEach(app => {
+        appsContainer.appendChild(renderAppItem(app));
+      });
+      
+      groupDiv.appendChild(appsContainer);
+      return groupDiv;
     }
     
-    let html = '';
+    // Clear and rebuild the dropdown
+    toolsDropdown.innerHTML = '';
     const sortedGroups = data.groups.sort((a, b) => (a.order || 0) - (b.order || 0));
     sortedGroups.forEach((grp, idx) => {
-      html += renderGroup(grp, idx);
+      const groupElement = renderGroup(grp, idx);
+      if (groupElement) {
+        toolsDropdown.appendChild(groupElement);
+      }
     });
-    toolsDropdown.innerHTML = html;
+    
     // Add toggle logic for group dropdowns
     document.querySelectorAll('.group-header-toggle').forEach(btn => {
       btn.addEventListener('click', function(e) {

@@ -45,7 +45,27 @@ function loadExperiments(page = 0) {
       return response.json();
     })
     .then(data => {
-      const experiments = data.content || data;
+      // Handle different response structures
+      let experiments = [];
+      
+      if (Array.isArray(data)) {
+        experiments = data;
+      } else if (Array.isArray(data.content)) {
+        experiments = data.content;
+      } else if (Array.isArray(data.experiments)) {
+        experiments = data.experiments;
+      } else if (typeof data === 'object' && data !== null) {
+        // Try to find an array in the response
+        const possibleArrays = Object.values(data).filter(v => Array.isArray(v));
+        if (possibleArrays.length > 0) {
+          experiments = possibleArrays[0];
+        }
+      }
+      
+      if (!Array.isArray(experiments)) {
+        throw new Error(`Experiments data is not in expected format. Got: ${typeof experiments}`);
+      }
+      
       // Handle pagination metadata if available
       totalPages = data.totalPages || Math.ceil(experiments.length / pageSize) || 1;
       currentPage = page;
@@ -208,8 +228,15 @@ function submitExperimentAssociation(name) {
       // Success - parse JSON response
       return response.json().then(data => {
         if (data.success && data.redirect_url) {
-          console.log('Redirecting to:', data.redirect_url);
-          window.location.href = data.redirect_url;
+          // Validate redirect URL to prevent open redirect attacks
+          const url = new URL(data.redirect_url, window.location.origin);
+          if (url.origin === window.location.origin) {
+            console.log('Redirecting to:', url.href);
+            window.location.href = url.href;
+          } else {
+            console.error('Invalid redirect URL - origin mismatch');
+            window.location.reload();
+          }
         } else {
           console.log('Success but no redirect URL, reloading page');
           window.location.reload();

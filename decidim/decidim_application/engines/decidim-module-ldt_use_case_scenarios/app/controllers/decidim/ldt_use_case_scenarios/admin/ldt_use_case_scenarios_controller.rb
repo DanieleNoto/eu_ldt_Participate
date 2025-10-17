@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'net/http'
+require 'uri'
+
 module Decidim
   module LdtUseCaseScenarios
     module Admin
@@ -14,11 +17,16 @@ module Decidim
         # It performs server-side handshake (csrf-token) and forwards the experiments JSON.
         def external_experiments
           begin
-            # Get JWT token from local endpoint using curl
+            # Get JWT token from local endpoint using Net::HTTP instead of shell command
             jwt_url = "#{request.protocol}#{request.host_with_port}/api/jwt_token"
-            jwt_cmd = "curl -s '#{jwt_url}' -H 'Accept: application/json'"
-            jwt_response = `#{jwt_cmd}`
+            uri = URI(jwt_url)
+            http = Net::HTTP.new(uri.host, uri.port)
+            http.use_ssl = uri.scheme == 'https'
             
+            request_obj = Net::HTTP::Get.new(uri)
+            request_obj['Accept'] = 'application/json'
+            
+            jwt_response = http.request(request_obj).body
             jwt_json = JSON.parse(jwt_response) rescue {}
             jwt = jwt_json["token"]
             
@@ -33,20 +41,25 @@ module Decidim
             base_url = (ENV["TOOL2_EXPERIMENTS_URL"] || "https://ucs-int.ldttoolbox.app/api/v1/experiments").sub(/\/experiments$/, "")
             csrf_url = "#{base_url}/csrf-token"
             experiments_url = "#{base_url}/experiments"
-            cookie_jar = "/tmp/tool2_cookies_#{SecureRandom.hex(8)}.txt"
 
-            # Step 1: Get CSRF token
-            csrf_cmd = "curl -s -X GET '#{csrf_url}' " \
-                       "-H 'Authorization: Bearer #{jwt}' " \
-                       "-H 'Accept: application/json' " \
-                       "-c #{cookie_jar}"
-
-            csrf_response = `#{csrf_cmd}`
+            # Step 1: Get CSRF token using Net::HTTP
+            uri = URI(csrf_url)
+            http = Net::HTTP.new(uri.host, uri.port)
+            http.use_ssl = uri.scheme == 'https'
+            
+            csrf_request = Net::HTTP::Get.new(uri)
+            csrf_request['Authorization'] = "Bearer #{jwt}"
+            csrf_request['Accept'] = 'application/json'
+            
+            csrf_response_obj = http.request(csrf_request)
+            csrf_response = csrf_response_obj.body
             csrf_json = JSON.parse(csrf_response) rescue {}
             csrf_token = csrf_json["csrfToken"]
+            
+            # Extract cookies from CSRF response for subsequent requests
+            csrf_cookies = csrf_response_obj['Set-Cookie']
 
             unless csrf_token
-              File.delete(cookie_jar) if File.exist?(cookie_jar)
               if ENV["TOOL2_MOCK_MODE"] == "true"
                 return render json: {
                   content: [
@@ -60,23 +73,30 @@ module Decidim
             end
 
             # Step 2: Fetch experiments with CSRF token
-            ex_cmd = "curl -s -X GET '#{experiments_url}?page=#{page}&size=#{size}' " \
-                     "-H 'Authorization: Bearer #{jwt}' " \
-                     "-H 'X-CSRF-Token: #{csrf_token}' " \
-                     "-H 'Accept: application/json' " \
-                     "-b #{cookie_jar}"
-
-            ex_response = `#{ex_cmd}`
+            # Sanitize page and size parameters to prevent command injection
+            page = Integer(params[:page] || 0) rescue 0
+            size = Integer(params[:size] || 100) rescue 100
+            
+            ex_uri = URI("#{experiments_url}?page=#{page}&size=#{size}")
+            ex_http = Net::HTTP.new(ex_uri.host, ex_uri.port)
+            ex_http.use_ssl = ex_uri.scheme == 'https'
+            
+            ex_request = Net::HTTP::Get.new(ex_uri)
+            ex_request['Authorization'] = "Bearer #{jwt}"
+            ex_request['X-CSRF-Token'] = csrf_token
+            # Include CSRF cookies if available
+            ex_request['Cookie'] = csrf_cookies if csrf_cookies
+            ex_request['Accept'] = 'application/json'
+            
+            ex_response = ex_http.request(ex_request).body
 
             # Check if response is HTML
             if ex_response.strip.start_with?('<!DOCTYPE', '<!doctype', '<html')
-              File.delete(cookie_jar) if File.exist?(cookie_jar)
               return render json: { error: "TOOL2 returned HTML - wrong endpoint or authentication issue" }, status: :bad_gateway
             end
 
             # Parse and return experiments
             result = JSON.parse(ex_response)
-            File.delete(cookie_jar) if File.exist?(cookie_jar)
             render json: result
           rescue JSON::ParserError => e
             render json: { error: "parsing error: #{e.message}" }, status: :unprocessable_entity
