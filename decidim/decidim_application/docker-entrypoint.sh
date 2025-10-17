@@ -26,21 +26,9 @@ if [ "$RAILS_ENV" = "production" ]; then
   # shakapacker is configured to output to `public/decidim-packs` (see config/shakapacker.yml)
   echo "--- Verifying precompiled assets (public/decidim-packs) ---"
   if [ ! -d "public/decidim-packs" ] || [ -z "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
-  # shakapacker is configured to output to `public/decidim-packs` (see config/shakapacker.yml)
-  echo "--- Verifying precompiled assets (public/decidim-packs) ---"
-  if [ ! -d "public/decidim-packs" ] || [ -z "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
     echo "ERROR: No precompiled assets found in production"
     echo "'public/decidim-packs' not exist or is empty. Assets must be precompiled during Docker image build"
-    echo "'public/decidim-packs' not exist or is empty. Assets must be precompiled during Docker image build"
   else
-    echo "--- 'public/decidim-packs' exist. Precompiled assets verified, ready to serve ---"
-  fi
-
-  # Ensure backwards compatibility: some tools/scripts may still look under public/packs
-  # If public/packs is missing but public/decidim-packs exists, create a symlink to it.
-  if [ ! -e public/packs ] && [ -d public/decidim-packs ]; then
-    echo "--- Creating compatibility symlink public/packs -> public/decidim-packs ---"
-    ln -sfn public/decidim-packs public/packs || true
     echo "--- 'public/decidim-packs' exist. Precompiled assets verified, ready to serve ---"
   fi
 
@@ -117,12 +105,6 @@ else
   # Asset precompilation for non-dev environments
   echo "--- Precompiling assets ---"
   bin/rails assets:precompile
-
-  # After precompile, ensure compatibility symlink exists so any code expecting public/packs works
-  if [ ! -e public/packs ] && [ -d public/decidim-packs ]; then
-    echo "--- Creating compatibility symlink public/packs -> public/decidim-packs (post-precompile) ---"
-    ln -sfn public/decidim-packs public/packs || true
-  fi
 
   # After precompile, ensure compatibility symlink exists so any code expecting public/packs works
   if [ ! -e public/packs ] && [ -d public/decidim-packs ]; then

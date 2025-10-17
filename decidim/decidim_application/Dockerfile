@@ -2,23 +2,15 @@ FROM decidim/decidim-dev:0.30.2 AS builder
 
 # Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
-# Set build environment early for dependencies
-
-# Set build environment early for dependencies
-
 
 # Update system and install base dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  RUN apt-get update && apt-get install -y --no-install-recommends \
   apt-transport-https \
   build-essential \
   ca-certificates \
   curl \
   git \
-  git \
   gnupg \
-  libicu-dev \
-  libpq-dev \
   libicu-dev \
   libpq-dev \
   libreadline-dev \
@@ -28,16 +20,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   redis-tools \
   sudo \
   wkhtmltopdf \
-  wkhtmltopdf \
   zlib1g-dev \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
-&& apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 22.x and yarn
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-  apt-get install -y --no-install-recommends nodejs && \
-  npm install --global yarn && \
-  apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install Node.js 22.x and yarn
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
   apt-get install -y --no-install-recommends nodejs && \
@@ -51,7 +36,6 @@ RUN mkdir -p /code/storage
 RUN chown -R decidim:decidim /code/storage
 RUN chmod 775 /code/storage
 
-
 # Copy dependency files FIRST for better Docker layer caching
 COPY Gemfile Gemfile.lock ./
 COPY engines/ ./engines/
@@ -62,13 +46,9 @@ RUN bundle config set --local path '/usr/local/bundle' && \
   bundle install --retry 3
 
 COPY package.json yarn.lock* ./
-bundle config set --local jobs 4 && \
-  bundle install --retry 3
 
-COPY package.json yarn.lock* ./
-# Install Node.js dependencies (cached layer)
-RUN yarn install --network-timeout 100000 --include-dev
-RUN yarn install --network-timeout 100000 --include-dev
+# Install Node.js dependencies (cached layer) - reduced concurrency
+RUN yarn install --network-timeout 100000 --include-dev 
 
 # NOW copy the full application code
 COPY . .
@@ -88,7 +68,6 @@ ENV RAILS_SERVE_STATIC_FILES=true
 
 
 # Production asset precompilation (separate layer for better caching)
-# Supports both replacetokens (SECRET-KEY-BASE with hyphen) and build-arg (SECRET_KEY_BASE with underscore)
 RUN if [ -n "${SECRET_KEY_BASE:-}" ]; then \
   echo "=== Using SECRET_KEY_BASE from build-arg ==="; \
   echo "=== Cleaning previous assets ==="; \
@@ -117,22 +96,14 @@ ENV RAILS_SERVE_STATIC_FILES=${RAILS_SERVE_STATIC_FILES}
 ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 
 # Install only runtime dependencies (no build tools) and ensure Node.js 22 + yarn
-# Install only runtime dependencies (no build tools) and ensure Node.js 22 + yarn
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  RUN apt-get update && apt-get install -y --no-install-recommends \
   ca-certificates \
-  curl \
-  gnupg \
   curl \
   gnupg \
   netcat-openbsd \
   redis-tools \
   && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-  && apt-get install -y --no-install-recommends nodejs \
-  && npm install --global yarn \
-  && apt-get clean && rm -rf /var/lib/apt/lists/*
-&& curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
   && apt-get install -y --no-install-recommends nodejs \
   && npm install --global yarn \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -154,7 +125,6 @@ RUN groupadd -r decidim 2>/dev/null || true && \
 USER decidim
 
 EXPOSE 3000
-EXPOSE 3035
 EXPOSE 3035
 
 ENTRYPOINT ["/code/docker-entrypoint.sh"]
