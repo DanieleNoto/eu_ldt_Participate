@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "omniauth/strategies/keycloak-openid"
+require_relative "devise_extension"
 
 module Decidim
   module Keycloak
@@ -85,6 +86,13 @@ module Decidim
             hash[:id_info] = id_info if respond_to?(:id_info) && id_info
             hash[:id_token] = access_token.params['id_token'] if access_token.params['id_token']
             
+            # Store the access_token for Tool0 API calls
+            hash[:access_token] = access_token.token if access_token.token
+            hash[:token_expires_in] = access_token.params['expires_in'] if access_token.params['expires_in']
+            
+            # NOTE: Token is NOT saved to session here - it will be saved to cache in the OmniAuth callback
+            # to avoid cookie overflow issues
+            
             # Add Keycloak roles to the extra hash for Decidim to use
             if raw_info && raw_info['resource_access']
               hash[:keycloak_roles] = raw_info['resource_access']
@@ -112,119 +120,12 @@ module Decidim
         end
       end
 
-      # Add callback for admin role synchronization using Decidim's OmniAuth callbacks
-      initializer "decidim_keycloak.sync_admin_roles" do
-        # Hook into Decidim's OmniAuth callbacks that fire during user registration/authentication
-        ActiveSupport.on_load(:after_initialize) do
-          # Override the Decidim OmniAuth registration controller to sync admin roles
-          Decidim::Devise::OmniauthRegistrationsController.class_eval do
-            # Override create method to handle admin role sync after successful auth
-            alias_method :original_create, :create
-            
-            def create
-              # Store OmniAuth auth data before calling original create
-              auth_data = request.env["omniauth.auth"]
-              
-              # Call original create method
-              result = original_create
-              
-              # After successful authentication, sync admin roles and save JWT token
-              if auth_data&.provider == "keycloakopenid" && current_user
-                sync_keycloak_admin_role(current_user, auth_data)
-                save_keycloak_jwt_token(current_user, auth_data)
-              end
-              
-              result
-            end
-            
-            private
-            
-            def sync_keycloak_admin_role(user, auth_data)
-              begin
-                if auth_data.extra && auth_data.extra['is_decidim_admin']
-                  user.update!(admin: true)
-                else
-                  # Optionally remove admin role if user no longer has it in Keycloak
-                  if user.admin?
-                    user.update!(admin: false)
-                  end
-                end
-              rescue => e
-                Rails.logger.error "Error syncing Keycloak admin role: #{e.message}"
-              end
-            end
-            
-            def save_keycloak_jwt_token(user, auth_data)
-              begin
-                if auth_data.extra && auth_data.extra['id_token']
-                  jwt_token = auth_data.extra['id_token']
-                  
-                  # Save JWT token in extended_data
-                  extended_data = user.extended_data || {}
-                  extended_data['keycloak_jwt_token'] = jwt_token
-                  
-                  user.update!(extended_data: extended_data)
-                  
-                  Rails.logger.info "Saved Keycloak JWT token for user #{user.id}"
-                else
-                  Rails.logger.warn "No JWT token found in Keycloak auth data for user #{user.id}"
-                end
-              rescue => e
-                Rails.logger.error "Error saving Keycloak JWT token for user #{user.id}: #{e.message}"
-              end
-            end
-          end
-          
-          # Also override SessionsController to handle JWT token saving during login
-          Decidim::Devise::SessionsController.class_eval do
-            alias_method :original_create, :create
-            
-            def create
-              # Store OmniAuth auth data if this is an OAuth login
-              auth_data = request.env["omniauth.auth"]
-              
-              # Call original create method
-              result = original_create
-              
-              # After successful authentication, save JWT token if this was Keycloak auth
-              if auth_data&.provider == "keycloakopenid" && current_user
-                Rails.logger.info "Calling save_keycloak_jwt_token_for_login for user #{current_user.id}"
-                save_keycloak_jwt_token_for_login(current_user, auth_data)
-              else
-                Rails.logger.warn "Not saving JWT token - provider: #{auth_data&.provider}, user: #{current_user&.id}"
-              end
-              
-              result
-            end
-            
-            private
-            
-            def save_keycloak_jwt_token_for_login(user, auth_data)
-              begin
-                Rails.logger.info "Saving Keycloak JWT token for login - auth_data keys: #{auth_data&.keys}"
-                Rails.logger.info "auth_data.extra: #{auth_data&.extra.inspect}"
-                
-                if auth_data.extra && auth_data.extra['id_token']
-                  jwt_token = auth_data.extra['id_token']
-                  
-                  Rails.logger.info "Found JWT token in auth_data.extra['id_token'] for user #{user.id}, token length: #{jwt_token.length}"
-                  
-                  # Save JWT token in extended_data
-                  extended_data = user.extended_data || {}
-                  extended_data['keycloak_jwt_token'] = jwt_token
-                  
-                  user.update!(extended_data: extended_data)
-                  
-                  Rails.logger.info "Saved Keycloak JWT token for login user #{user.id}"
-                else
-                  Rails.logger.warn "No JWT token found in Keycloak auth data for login user #{user.id}. Available extra keys: #{auth_data&.extra&.keys}"
-                end
-              rescue => e
-                Rails.logger.error "Error saving Keycloak JWT token for login user #{user.id}: #{e.message}"
-                Rails.logger.error e.backtrace.join("\n")
-              end
-            end
-          end
+      # Token caching and admin role sync using Devise extension
+      initializer "decidim_keycloak.integrate_devise_extension" do
+        # Include our Devise extension in OmniAuth controller
+        # We use to_prepare to ensure the class is loaded before inclusion
+        config.to_prepare do
+          Decidim::Devise::OmniauthRegistrationsController.include Decidim::Keycloak::DeviseExtension
         end
       end
 
