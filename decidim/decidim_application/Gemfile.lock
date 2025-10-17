@@ -9,7 +9,9 @@ GIT
 GIT
   remote: https://github.com/decidim-ice/decidim-module-decidim_awesome.git
   revision: b284f280e6cf0d3fbdf2214b5d539fc75c8df7a4
+  revision: b284f280e6cf0d3fbdf2214b5d539fc75c8df7a4
   specs:
+    decidim-decidim_awesome (0.13.1)
     decidim-decidim_awesome (0.13.1)
       active_hashcash (~> 0.4.0)
       decidim-admin (>= 0.30.0, < 0.31)
@@ -959,6 +961,7 @@ DEPENDENCIES
   mutex_m (~> 0.2.0)
   parallel_tests (~> 4.2)
   puma (>= 6.3.1)
+  sidekiq (~> 7.3)
   sidekiq (~> 7.3)
   web-console (~> 4.2)
 

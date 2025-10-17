@@ -162,3 +162,4 @@ function initializeToolsDropdown() {
     return div.innerHTML;
   }
 }
+
