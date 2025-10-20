@@ -37,7 +37,6 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 	let homePage: HomePage;
 	let signUpPage: SignUpPage;
 	let letterOpenerPage: LetterOpenerPage;
-	let userExtraFieldsPage: UserExtraFieldsPage;
 
 	let sharedAdminContext: any;
 	let sharedAdminPage: any;
@@ -66,7 +65,7 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 		});
 	});
 
-	test.beforeEach(async ({ page, browser }) => {
+	test.beforeEach(async ({ page }) => {
 		// Generate unique test user data
 		const timestamp = Date.now().toString().slice(-8);
 		testUserName = `TestUser${timestamp}`;
@@ -85,7 +84,6 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 		homePage = new HomePage(page);
 		signUpPage = new SignUpPage(page);
 		letterOpenerPage = new LetterOpenerPage(page);
-		userExtraFieldsPage = new UserExtraFieldsPage(page);
 
 		await homePage.navigateToHomePage();
 	});
@@ -290,8 +288,7 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 				await signUpPage.fillEmail('invalidemail.com');
 				await signUpPage.fillPassword(testUserPassword);
 
-				// Accept terms and conditions and newsletter
-				await signUpPage.checkTermsAndConditions();
+				// Accept newsletter only (leave terms and conditions unchecked)
 				await signUpPage.checkNewsletterSubscription();
 
 				// Submit registration (validation should fail)
@@ -301,9 +298,6 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 			});
 
 			await test.step('4. System: Highlights the incorrect or incomplete fields and displays error messages explaining the issues.', async () => {
-				// Verify we're still on the signup page
-				await signUpPage.expectToBeOnSignupPage();
-
 				// Verify validation errors for invalid/missing fields
 				const fieldsWithErrors = [
 					'registration_user_email',
@@ -317,20 +311,38 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 					await signUpPage.expectFieldValidationError(fieldId);
 				}
 
-				console.log('Validation errors displayed');
-			});
+				console.log('Validation errors displayed for missing/invalid fields');
 
-			await test.step('5. User: Corrects the errors and resubmits the form', async () => {
-				// Correct the invalid email
+				// Now correct the fields but leave terms unchecked to verify terms validation
 				await signUpPage.fillEmail(testUserEmail);
-
-				// Fill the missing extra user fields
+				await signUpPage.fillPassword(testUserPassword);
 				await signUpPage.fillDateOfBirth(testDateOfBirth);
 				await signUpPage.selectGender(testGender);
 				await signUpPage.selectCountry(testCountry);
 				await signUpPage.fillPostalCode(testPostalCode);
 				await signUpPage.fillPhoneNumber(testPhoneNumber);
 				await signUpPage.fillLocation(testLocation);
+
+				console.log('Fields corrected except terms and conditions');
+
+				// Submit again to trigger terms checkbox validation
+				await signUpPage.submitRegistration();
+
+				// Verify the error alert message is still displayed
+				await expect(page.getByText('There was a problem creating your account.')).toBeVisible();
+
+				// Now verify terms and conditions checkbox validation error
+				await signUpPage.expectTermsCheckboxValidationError();
+
+				console.log('Terms and conditions validation error displayed');
+			});
+
+			await test.step('5. User: Corrects the errors and resubmits the form', async () => {
+				// Re-fill password (it was cleared after submit)
+				await signUpPage.fillPassword(testUserPassword);
+
+				// Accept terms and conditions (all other fields are already correct from step 4)
+				await signUpPage.checkTermsAndConditions();
 
 				console.log('All validation errors corrected with valid data');
 

@@ -197,6 +197,20 @@ export class SignUpPage {
 	}
 
 	/**
+	 * Verifies that "must be accepted" validation error is displayed for terms and conditions checkbox
+	 */
+	async expectTermsCheckboxValidationError(): Promise<void> {
+		const errorMessage = 'must be accepted';
+
+		const errorLocator = this.page.locator(
+			'div.field_with_errors:has(label[for="registration_user_tos_agreement"]) ~ small.form-error.is-visible'
+		);
+
+		await expect(errorLocator).toContainText(errorMessage);
+		await expect(errorLocator).toBeVisible();
+	}
+
+	/**
 	 * Verifies we are on the signup page
 	 */
 	async expectToBeOnSignupPage(): Promise<void> {
