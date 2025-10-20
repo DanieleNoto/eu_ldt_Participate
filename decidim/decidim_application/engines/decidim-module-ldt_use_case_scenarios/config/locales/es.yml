@@ -11,7 +11,19 @@ es:
       use_case_scenarios:
         index:
           title: Escenarios de Casos de Uso
-          no_scenarios: No hay escenarios disponibles
+          empty: No hay escenarios disponibles aún
+          count:
+            one: "%{count} escenario"
+            other: "%{count} escenarios"
+        use_case_scenario:
+          experiment_id: ID de Experimento
+          view_details: Ver Detalles
+        show:
+          title: Detalles del Experimento
+          experiment_id: ID de Experimento
+          description: Descripción
+          back_to_list: Volver a la Lista
+          not_found: Escenario no encontrado
       admin:
         ldt_use_case_scenarios:
           index:

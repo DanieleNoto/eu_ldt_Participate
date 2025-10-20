@@ -1,19 +1,16 @@
-<div class="decidim-pages">
-  <div class="row">
-    <div class="columns mediumlarge-8 mediumlarge-offset-2">
-      <h1><%= t(".title") %></h1>
-      
-      <% if @use_case_scenarios.any? %>
-        <div class="use-case-scenarios">
-          <% @use_case_scenarios.each do |scenario| %>
-            <div class="use-case-scenario">
-              <%= scenario.title %>
-            </div>
-          <% end %>
-        </div>
-      <% else %>
-        <p><%= t(".no_scenarios") %></p>
-      <% end %>
-    </div>
-  </div>
-</div>
+<% add_decidim_meta_tags(
+  description: translated_attribute(current_component.participatory_space.try(:description)),
+  title: decidim_escape_translated(translated_attribute(current_component.name)),
+  url: use_case_scenarios_url,
+  resource: current_component
+) %>
+
+<% content_for :aside do %>
+  <h1 class="title-decorator"><%= decidim_escape_translated(translated_attribute(current_component.name)) %></h1>
+<% end %>
+
+<%= render layout: "layouts/decidim/shared/layout_two_col" do %>
+  <section id="use-case-scenarios" class="layout-main__section layout-main__heading">
+    <%= render partial: "use_case_scenarios" %>
+  </section>
+<% end %>

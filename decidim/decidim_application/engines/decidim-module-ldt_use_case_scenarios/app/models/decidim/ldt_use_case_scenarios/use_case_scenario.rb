@@ -3,9 +3,11 @@
 module Decidim
   module LdtUseCaseScenarios
     class UseCaseScenario < ApplicationRecord
+      include Decidim::Resourceable
       self.table_name = "decidim_ldt_use_case_scenarios_use_case_scenarios"
 
       belongs_to :component, class_name: "Decidim::Component", foreign_key: :decidim_component_id
+      
       
       validates :name, presence: true
       validates :component, presence: true

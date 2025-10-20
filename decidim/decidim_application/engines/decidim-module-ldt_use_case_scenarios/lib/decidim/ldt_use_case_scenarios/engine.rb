@@ -11,11 +11,14 @@ module Decidim
 
       routes do
         # Add engine routes here
-        resources :use_case_scenarios, only: [:index, :new, :create]
-        root to: "use_case_scenarios#index"
+        resources :use_case_scenarios, only: [:index, :show]
+        scope "/use_case_scenarios" do
+          root to: "use_case_scenarios#index"
+        end
+        get "/", to: redirect("use_case_scenarios", status: 301)
       end
 
-      initializer "LdtUseCaseScenarios.webpacker.assets_path" do
+      initializer "use_case_scenarios.shakapacker.assets_path" do
         Decidim.register_assets_path File.expand_path("app/packs", root)
       end
     end

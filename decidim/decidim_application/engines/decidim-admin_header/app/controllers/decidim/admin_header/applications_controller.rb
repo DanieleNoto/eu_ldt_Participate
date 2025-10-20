@@ -9,13 +9,14 @@ module Decidim
     class ApplicationsController < Decidim::Admin::ApplicationController
       def applications
         # Backend endpoint to fetch applications from Tool0
-        # Use the JWT token saved to user.extended_data during Keycloak login
+        # Use the JWT token saved to cookies during Keycloak login
         begin
-          # Ensure token is valid (refresh if expired)
-          jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user)
+          # Ensure token is valid (refresh if expired) - pass request.cookies for token lookup
+          jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies)
           
           unless jwt
             Rails.logger.warn("No valid Keycloak JWT token available for user #{current_user&.id}")
+            Rails.logger.warn("Available cookies: #{request.cookies.keys.grep(/keycloak/).inspect}")
             return render json: { error: "No valid Keycloak JWT token. Please log in again." }, status: :unauthorized
           end
 

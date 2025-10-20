@@ -11,7 +11,19 @@ fr:
       use_case_scenarios:
         index:
           title: Scénarios de cas d'usage
-          no_scenarios: Aucun scénario disponible
+          empty: Aucun scénario disponible pour le moment
+          count:
+            one: "%{count} scénario"
+            other: "%{count} scénarios"
+        use_case_scenario:
+          experiment_id: ID Expérience
+          view_details: Voir les Détails
+        show:
+          title: Détails de l'Expérience
+          experiment_id: ID Expérience
+          description: Description
+          back_to_list: Retour à la Liste
+          not_found: Scénario introuvable
       admin:
         ldt_use_case_scenarios:
           index:

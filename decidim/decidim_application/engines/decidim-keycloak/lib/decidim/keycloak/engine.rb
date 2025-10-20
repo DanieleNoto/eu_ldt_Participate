@@ -86,12 +86,22 @@ module Decidim
             hash[:id_info] = id_info if respond_to?(:id_info) && id_info
             hash[:id_token] = access_token.params['id_token'] if access_token.params['id_token']
             
-            # Store the access_token for Tool0 API calls
+            # DEBUG: Log what we have in access_token
+            Rails.logger.info "=== DEBUG: access_token details ==="
+            Rails.logger.info "access_token class: #{access_token.class}"
+            Rails.logger.info "access_token.token: #{access_token.token.inspect[0..100]}"
+            Rails.logger.info "access_token.params keys: #{access_token.params.keys.inspect}"
+            Rails.logger.info "access_token.params: #{access_token.params.inspect}"
+            
+            # Store the access_token and refresh_token for session saving
+            # These will be saved to session/extended_data by DeviseExtension
             hash[:access_token] = access_token.token if access_token.token
+            hash[:refresh_token] = access_token.params['refresh_token'] if access_token.params['refresh_token']
             hash[:token_expires_in] = access_token.params['expires_in'] if access_token.params['expires_in']
             
-            # NOTE: Token is NOT saved to session here - it will be saved to cache in the OmniAuth callback
-            # to avoid cookie overflow issues
+            Rails.logger.info "hash[:access_token] present: #{hash[:access_token].present?}"
+            Rails.logger.info "hash[:refresh_token] present: #{hash[:refresh_token].present?}"
+            Rails.logger.info "hash[:token_expires_in]: #{hash[:token_expires_in]}"
             
             # Add Keycloak roles to the extra hash for Decidim to use
             if raw_info && raw_info['resource_access']
@@ -121,11 +131,21 @@ module Decidim
       end
 
       # Token caching and admin role sync using Devise extension
+      # This extension overrides the create method in OmniauthRegistrationsController
+      # to save Keycloak tokens to session after successful authentication
       initializer "decidim_keycloak.integrate_devise_extension" do
         # Include our Devise extension in OmniAuth controller
         # We use to_prepare to ensure the class is loaded before inclusion
         config.to_prepare do
-          Decidim::Devise::OmniauthRegistrationsController.include Decidim::Keycloak::DeviseExtension
+          puts "[KEYCLOAK_ENGINE] === Engine initializer running ==="
+          puts "[KEYCLOAK_ENGINE] About to prepend DeviseExtension"
+          puts "[KEYCLOAK_ENGINE] OmniauthRegistrationsController singleton_methods before: #{Decidim::Devise::OmniauthRegistrationsController.instance_method(:create).owner.name rescue 'error'}"
+          
+          Decidim::Devise::OmniauthRegistrationsController.prepend Decidim::Keycloak::DeviseExtension
+          
+          puts "[KEYCLOAK_ENGINE] ✓ DeviseExtension prepended successfully"
+          puts "[KEYCLOAK_ENGINE] OmniauthRegistrationsController method owner after: #{Decidim::Devise::OmniauthRegistrationsController.instance_method(:create).owner.name rescue 'error'}"
+          puts "[KEYCLOAK_ENGINE] Ancestors: #{Decidim::Devise::OmniauthRegistrationsController.ancestors[0..3].inspect}"
         end
       end
 

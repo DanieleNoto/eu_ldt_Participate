@@ -1,0 +1,91 @@
+<% add_decidim_meta_tags(
+  description: @use_case_scenario.experiment_data&.dig('description'),
+  title: decidim_escape_translated(@use_case_scenario.name),
+  url: use_case_scenario_url(@use_case_scenario)
+) %>
+
+<div class="row">
+  <div class="columns">
+    <%= link_to use_case_scenarios_path, class: "button button--sc small hollow" do %>
+      ← <%= t(".back_to_list") %>
+    <% end %>
+    
+    <h1 class="section-heading"><%= @use_case_scenario.name %></h1>
+  </div>
+</div>
+
+<% if @use_case_scenario.experiment_data.present? %>
+  <div class="row">
+    <div class="columns">
+      <div class="card">
+        <div class="card__content">
+          <% if @use_case_scenario.experiment_data['id'].present? %>
+            <p>
+              <strong><%= t(".experiment_id") %>:</strong> 
+              <%= @use_case_scenario.experiment_data['id'] %>
+            </p>
+          <% end %>
+          
+          <% if @use_case_scenario.experiment_data['description'].present? %>
+            <p><%= @use_case_scenario.experiment_data['description'] %></p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<div class="row">
+  <div class="columns">
+    <div class="experiment-iframe-container" 
+         data-experiment-data="<%= @use_case_scenario.experiment_data.to_json %>"
+         data-iframe-url="<%= @tool2_iframe_url %>"
+         style="margin-top: 2rem;">
+      <iframe 
+        id="experiment-iframe"
+        src="<%= @tool2_iframe_url %>"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        style="width: 100%; height: 800px; border: 1px solid #ddd; border-radius: 4px;">
+      </iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+// Inline script for postMessage handling
+(function() {
+  const container = document.querySelector('[data-experiment-data]');
+  
+  if (!container) {
+    return;
+  }
+
+  const iframe = document.getElementById('experiment-iframe');
+  const experimentData = JSON.parse(container.dataset.experimentData || '{}');
+
+  function sendExperimentData() {
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({
+        type: 'EXPERIMENT_DATA',
+        data: experimentData
+      }, '<%= @tool2_iframe_url %>');
+    }
+  }
+
+  iframe.addEventListener('load', function() {
+    setTimeout(sendExperimentData, 500);
+  });
+
+  window.addEventListener('message', function(event) {
+    if (event.origin !== '<%= URI.parse(@tool2_iframe_url).origin %>') {
+      return;
+    }
+
+    if (event.data.type === 'REQUEST_EXPERIMENT_DATA') {
+      sendExperimentData();
+    }
+  });
+})();
+</script>

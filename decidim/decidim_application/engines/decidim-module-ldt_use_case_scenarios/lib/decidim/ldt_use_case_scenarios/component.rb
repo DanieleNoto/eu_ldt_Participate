@@ -30,6 +30,13 @@ Decidim.register_component(:ldt_use_case_scenarios) do |component|
   #   resource.template = "decidim/ldt_use_case_scenarios/some_resources/linked_some_resources"
   # end
 
+  # Register the UseCaseScenario resource so the component exposes a resource
+  # that other parts of the application (menus, links, admin UI) can reference.
+  component.register_resource(:use_case_scenario) do |resource|
+    resource.card = "decidim/ldt_use_case_scenarios/use_case_scenarios"
+    resource.model_class_name = "Decidim::LdtUseCaseScenarios::UseCaseScenario"
+  end
+
   # component.register_stat :some_stat do |context, start_at, end_at|
   #   # Register some stat number to the application
   # end
