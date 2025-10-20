@@ -117,6 +117,7 @@ test.describe('[PAR-EP004] – Flow meeting admin + user', () => {
 			});
 			await test.step('4. System: Displays a list of available meetings, including relevant details such as title, date, time, location, and availability.', async () => {
 				await processDetailPage.expectUrlContainsMeetings();
+				await processDetailPage.verifyMeetingsCardListVisible();
 			});
 			await test.step('5. User: Selects a specific meeting to view more details.', async () => {
 				const index = await processDetailPage.findMeetingCardIndexByTitle('Exercitationem dolorem.');
