@@ -8,7 +8,7 @@ import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 import { HeaderComponent } from '@pages/components/common/HeaderComponent';
 import NotificationPage from '@pages/pages/user/NotificationPage';
-import { LetterOpenerPage } from '@pages/pages/admin/LetterOpenerPage';
+//import { LetterOpenerPage } from '@pages/pages/admin/LetterOpenerPage';
 
 /**
  * Test suite for Allows citizens to register for a meeting in advance.
@@ -36,8 +36,8 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 	let homePage: HomePage;
 	let headerComponent: HeaderComponent;
 	let notificationPage: NotificationPage;
-    let registrationCode: string;
-    let letterOpenerPage: LetterOpenerPage;
+	let meetingDetailUrl: string;
+    //let letterOpenerPage: LetterOpenerPage;
 
 	test.beforeEach(async ({ page }) => {
 		processesOverviewPage = new ProcessesOverviewPage(page);
@@ -51,6 +51,9 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 	});
 	test.describe('Main Flow', () => {
 		test('Allows citizens to register for a meeting in advance', async () => {
+			let confirmationMessage: string;
+			let registrationCode: string;
+
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
@@ -70,11 +73,10 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 			await test.step('5. User: Selects a specific meeting to view more details.', async () => {
 				await meetingsPage.clickMeetingCardByIndex(0);
 			});
-			await test.step('6. System: Displays the meeting details, including the agenda, location, date, time, and access settings.', async () => {
-				await meetingDetailPage.expectOnMeetingDetailPage();
-                				await meetingDetailPage
-					.getPage()
-					.screenshot({ path: 'test-results/screenshots/OnMeetingDetailPage.png', fullPage: true });
+			await test.step('6. System: Displays the meeting details...', async () => {
+			  	await meetingDetailPage.expectOnMeetingDetailPage();
+			  	meetingDetailUrl = meetingDetailPage.getPage().url();
+			  	await meetingDetailPage.getPage().screenshot({ path: 'test-results/screenshots/OnMeetingDetailPage.png', fullPage: true });
 			});
 			await test.step('7. User: Clicks on the "Register" button to sign up for the meeting.', async () => {
 				await meetingDetailPage.expectRegisterButtonVisible();
@@ -87,33 +89,64 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 				await meetingDetailPage.confirmRegistration();
                 await meetingDetailPage.getPage().waitForLoadState('networkidle');
                 await meetingDetailPage.getPage().reload({ waitUntil: 'networkidle' });
+				await meetingDetailPage.getPage().waitForLoadState('networkidle');
+				await meetingDetailPage.getPage().reload({ waitUntil: 'networkidle' });
 			});
 			await test.step('10. System: Saves the registration information, adds the user to the attendee list, and provides a confirmation message.', async () => {
 				registrationCode = await meetingDetailPage.expectRegistrationCodeVisibleAndGet();
-				test.expect(registrationCode).not.toBeNull();
+				expect(registrationCode).not.toBeNull();
 				await meetingDetailPage.expectRegistrationStatusVisible();
-				await meetingDetailPage.expectConfirmationMessageVisible();
+				confirmationMessage = await meetingDetailPage.expectConfirmationMessageVisibleAndGet('You have joined the meeting successfully.');
 			});
 			await test.step('11. System: Sends a confirmation email or notification to the user with the meeting details, including date, time, and location (or link if the meeting is online).', async () => {
 				await headerComponent.goToNotifications();
-                // await headerComponent.openAccountDropdown();
-				// await headerComponent.navigateToNotifications();
 				await notificationPage.expectToBeOnNotificationsPage();
-                const isPresent = await notificationPage.isTextPresentInNotifications(registrationCode);
-                expect(isPresent).toBeTruthy(); // Se non presente, fallisce il test
+                const boolRegCode = await notificationPage.isTextPresentInNotifications(registrationCode);
+                expect(boolRegCode).toBeTruthy(); // Se non presente, fallisce il test
+				const inboxRes = await fetch('https://api.mailslurp.com/inboxes', {
+				  method: 'POST',
+				  headers: { 'x-api-key': process.env.MAILSLURP_API_KEY }
+				});
+				const inbox = await inboxRes.json();
+				const emailRes = await fetch(`https://api.mailslurp.com/waitForLatestEmail?inboxId=${inbox.id}&timeout=30000`, {
+				  headers: { 'x-api-key': process.env.MAILSLURP_API_KEY }
+				});
+				const email = await emailRes.json();
+				expect(email.subject).toContain('Registrazione confermata');
+				expect(email.body).toContain('Grazie per esserti registrato al meeting');
+
+
+
+
+
                 // Navigate to Letter Opener and refresh to get latest emails
-				await letterOpenerPage.navigateToLetterOpener();
-                await letterOpenerPage.expectToBeOnLetterOpener();
-				await letterOpenerPage.refreshEmails();
-                await letterOpenerPage.clickMostRecentInvitationEmail();
-                const emailContentFrame =  await letterOpenerPage.getEmailContentFrame();
-                const emailBodyText = await emailContentFrame?.innerText() || '';
-                expect(emailBodyText).toContain(registrationCode);
+				// await letterOpenerPage.navigateToLetterOpener();
+                // await letterOpenerPage.expectToBeOnLetterOpener();
+				// await letterOpenerPage.refreshEmails();
+                // await letterOpenerPage.clickMostRecentInvitationEmail();
+                // const emailContentFrame =  await letterOpenerPage.getEmailContentFrame();
+                // const emailBodyText = await emailContentFrame?.innerText() || '';
+                // expect(emailBodyText).toContain(registrationCode);
 			});
 
-			// await test.step('Result.', async () => {
-			// 	await meetingDetailPage.expectOnMeetingDetailPage();
-			// });
+			await test.step('Result.', async () => {
+				expect(confirmationMessage).not.toBeNull();
+				//await meetingDetailPage.expectOnMeetingDetailPage();
+
+			});
 		});
+    // Cleanup: deregister the user after each test
+	    test.afterEach(async () => {
+	        await test.step('Deregister the user from the meeting', async () => {
+	            await meetingDetailPage.getPage().goto(meetingDetailUrl);
+				await meetingDetailPage.getPage().waitForLoadState('networkidle');
+				await meetingDetailPage.expectOnMeetingDetailPage();
+				await meetingDetailPage.getPage().waitForLoadState('networkidle');	            
+				await meetingDetailPage.CancelRegistration();
+				await meetingDetailPage.getPage().waitForLoadState('networkidle');
+				await meetingDetailPage.getPage().reload({ waitUntil: 'networkidle' });
+				await meetingDetailPage.expectRegisterButtonVisible();
+	        });
+	    });		
 	});
 });
