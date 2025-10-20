@@ -1,4 +1,4 @@
-import { expect, Locator, Page, Download } from '@playwright/test';
+import { Download, expect, Locator, Page } from '@playwright/test';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -28,6 +28,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	// Help elements
 	private readonly debatesLink: Locator;
 	private readonly meetingsLink: Locator;
+	private meetingCards: Locator;
 
 	// Related documents section
 	private readonly relatedDocumentsHeading: Locator;
@@ -316,7 +317,63 @@ export class ProcessDetailPage extends AuthenticatedPage {
 
 		return navLoaded && triggerLoaded;
 	}
+	// /**
+	// * Finds the index of a meeting card given its title
+	// * @param title - The exact title of the card
+	// * @returns the index (0-based) or -1 if not found
+	// */
+	async findMeetingCardIndexByTitle(title: string): Promise<number> {
+		const count = await this.meetingCards.count();
+		for (let i = 0; i < count; i++) {
+			const cardTitle = await this.meetingCards.nth(i).locator('.card__list-title').innerText();
+			if (cardTitle.trim() === title) {
+				return i;
+			}
+		}
+		return -1;
+	}
 
+	/**
+	 * Make sure the meeting list is visible
+	 * and that each card contains the title, date/time, location, comments count visible, link to meeting detail.
+	 */
+	async verifyMeetingsCardListVisible(): Promise<void> {
+		// Ensure there is at least one card
+		const count = await this.meetingCards.count();
+		expect(count).toBeGreaterThan(0);
+
+		for (let i = 0; i < count; i++) {
+			const card = this.meetingCards.nth(i);
+
+			// Title
+			await expect(card.locator('.card__list-title')).toBeVisible();
+
+			// Date/time (time element)
+			await expect(card.locator('time.card__calendar')).toBeVisible();
+			await expect(card.locator('.card__calendar-month')).toBeVisible();
+			await expect(card.locator('.card__calendar-day')).toBeVisible();
+			await expect(card.locator('.card__calendar-year')).toBeVisible();
+
+			// Location (icon + type text "Online", "In-person", "Hybrid")
+			await expect(card.locator('.card__list-metadata')).toContainText(['Online', 'In-person', 'Hybrid']);
+
+			// Availability: comments count visible (can be zero)
+			await expect(card.locator('[data-comments-count]')).toBeVisible();
+
+			// Link to meeting detail
+			await expect(card).toHaveAttribute('href', /\/meetings\/\d+/);
+		}
+	}
+
+	async clickMeetingCardByIndex(index: number): Promise<void> {
+		const meetingCard = this.meetingCards.nth(index);
+		await meetingCard.click();
+	}
+
+	async expectUrlContainsMeetings(): Promise<void> {
+		await this.page.waitForURL(/.*\/meetings.*/);
+		expect(this.page.url()).toContain('/meetings');
+	}
 	/**
 	 * Verifies that the "Related documents" section is visible on the page
 	 */
@@ -343,8 +400,8 @@ export class ProcessDetailPage extends AuthenticatedPage {
 			console.log('Setting up popup and download listeners...');
 
 			// Register event listeners before any action
-			const popupPromise = this.getPage().waitForEvent('popup');
-			const downloadPromise = this.getPage().waitForEvent('download');
+			const popupPromise: Promise<Page> = this.getPage().waitForEvent('popup');
+			const downloadPromise: Promise<Download> = this.getPage().waitForEvent('download');
 
 			console.log('Listeners registered, now clicking...');
 
