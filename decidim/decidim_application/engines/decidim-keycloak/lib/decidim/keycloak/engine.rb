@@ -10,6 +10,8 @@ module Decidim
       isolate_namespace Decidim::Keycloak
 
       initializer "decidim.keycloak.middleware" do |app|
+        # Ensure OmniAuth uses Devise paths (/users/auth/...)
+        OmniAuth.config.path_prefix = "/users/auth"
         omniauth_config = Rails.application.secrets[:omniauth]
         next if omniauth_config[:keycloakopenid].blank?
 

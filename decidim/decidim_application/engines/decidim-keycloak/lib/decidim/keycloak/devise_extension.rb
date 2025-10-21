@@ -64,60 +64,15 @@ module Decidim
           puts "[SAVE_TOKEN] token_expires_in: #{token_expires_in}"
 
           if access_token
-            # Save tokens to HTTP cookies in chunks (to avoid CookieOverflow)
-            # Divide tokens into ~2KB chunks and save each as a separate HTTP cookie
-            chunk_size = 2048
-            
-            # Save access token in chunks
-            access_token_chunks = access_token.scan(/.{1,#{chunk_size}}/m)
-            access_token_chunks.each_with_index do |chunk, index|
-              cookies["keycloak_access_token_#{index}"] = {
-                value: chunk,
-                httponly: true,
-                secure: Rails.env.production?,
-                same_site: :lax,
-                expires: 1.day.from_now
-              }
-            end
-            cookies['keycloak_access_token_count'] = {
-              value: access_token_chunks.length.to_s,
-              httponly: true,
-              expires: 1.day.from_now
+            # Use TokenService to save tokens to cookies
+            tokens = {
+              access_token: access_token,
+              refresh_token: refresh_token,
+              expires_in: token_expires_in
             }
-            puts "[SAVE_TOKEN] Split access_token into #{access_token_chunks.length} cookies"
             
-            # Save refresh token in chunks if present
-            if refresh_token
-              refresh_token_chunks = refresh_token.scan(/.{1,#{chunk_size}}/m)
-              refresh_token_chunks.each_with_index do |chunk, index|
-                cookies["keycloak_refresh_token_#{index}"] = {
-                  value: chunk,
-                  httponly: true,
-                  secure: Rails.env.production?,
-                  same_site: :lax,
-                  expires: 30.days.from_now
-                }
-              end
-              cookies['keycloak_refresh_token_count'] = {
-                value: refresh_token_chunks.length.to_s,
-                httponly: true,
-                expires: 30.days.from_now
-              }
-              puts "[SAVE_TOKEN] Split refresh_token into #{refresh_token_chunks.length} cookies"
-            end
-            
-            # Save token expiry
-            if token_expires_in && token_expires_in > 0
-              expires_at = Time.current + token_expires_in.seconds
-              cookies['keycloak_token_expires_at'] = {
-                value: expires_at.to_i.to_s,
-                httponly: true,
-                expires: expires_at
-              }
-              puts "[SAVE_TOKEN] Saved token expiry to cookie: #{expires_at.to_i}"
-            end
-            
-            puts "[SAVE_TOKEN] ✓ Keycloak: Tokens saved to HTTP cookies in chunks (#{access_token.length} bytes access_token)"
+            Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, tokens)
+            puts "[SAVE_TOKEN] ✓ Keycloak: Tokens saved to HTTP cookies using TokenService"
 
             # Sync admin role
             if auth_data.extra && auth_data.extra['is_decidim_admin']

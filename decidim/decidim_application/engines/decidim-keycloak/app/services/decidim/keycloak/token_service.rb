@@ -7,50 +7,202 @@ require 'json'
 module Decidim
   module Keycloak
     class TokenService
-      def self.ensure_valid_token(user, cookies_or_session = nil)
-        new.ensure_valid_token(user, cookies_or_session)
+      def self.ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil)
+        new.ensure_valid_token(user, cookies_hash, cookies_obj)
       end
 
-      def ensure_valid_token(user, cookies_or_session = nil)
+      def ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil)
         # Get tokens from cookies - they are stored as separate chunks in HTTP cookies
-        access_token = reconstruct_token_from_cookies(cookies_or_session, 'keycloak_access_token')
-        expires_at = cookies_or_session&.dig('keycloak_token_expires_at')&.to_i if cookies_or_session
-        refresh_token = reconstruct_token_from_cookies(cookies_or_session, 'keycloak_refresh_token')
+        access_token = reconstruct_token_from_cookies(cookies_hash, 'keycloak_access_token')
+        expires_at = cookies_hash&.dig('keycloak_token_expires_at')&.to_i if cookies_hash
+        refresh_token = reconstruct_token_from_cookies(cookies_hash, 'keycloak_refresh_token')
         
         return nil unless access_token
 
-        Rails.logger.info "Using token from COOKIES (expires_at: #{expires_at})"
+        Rails.logger.info "Using token from COOKIES (expires_at: #{expires_at ? Time.at(expires_at) : 'N/A'})"
         
         # If no expiration set, assume it's still valid
         return access_token unless expires_at
         
         # If token not expired, return it
-        return access_token if Time.at(expires_at) > Time.current
+        if Time.at(expires_at) > Time.current
+          Rails.logger.info "Token is still valid (expires in #{(Time.at(expires_at) - Time.current).to_i} seconds)"
+          return access_token
+        end
         
         # Token is expired, try to refresh
-        if refresh_token
-          Rails.logger.info "Cookie token expired for user #{user.id}, attempting refresh..."
-          new_token = refresh_access_token_with_cookies(cookies_or_session, refresh_token)
-          return new_token if new_token
+        if refresh_token && cookies_obj
+          Rails.logger.info "Token expired for user #{user&.id}, attempting refresh..."
+          new_tokens = refresh_access_token(refresh_token)
+          
+          if new_tokens
+            # Update cookies with new tokens
+            save_tokens_to_cookies(cookies_obj, new_tokens)
+            return new_tokens[:access_token]
+          else
+            Rails.logger.warn "Token refresh failed, user needs to re-login"
+          end
+        elsif !cookies_obj
+          Rails.logger.warn "Token expired but cookies object not provided - cannot refresh"
         end
         
         nil
       end
 
+      def save_tokens_to_cookies(cookies_obj, tokens)
+        chunk_size = 2048
+        
+        # Save access token in chunks
+        access_token = tokens[:access_token]
+        access_token_chunks = access_token.scan(/.{1,#{chunk_size}}/m)
+        
+        # Clear old chunks first
+        old_count = cookies_obj['keycloak_access_token_count'].to_i
+        old_count.times do |i|
+          cookies_obj.delete("keycloak_access_token_#{i}")
+        end
+        
+        # Save new chunks
+        access_token_chunks.each_with_index do |chunk, index|
+          cookies_obj["keycloak_access_token_#{index}"] = {
+            value: chunk,
+            httponly: true,
+            secure: Rails.env.production?,
+            same_site: :lax,
+            expires: 1.day.from_now
+          }
+        end
+        cookies_obj['keycloak_access_token_count'] = {
+          value: access_token_chunks.length.to_s,
+          httponly: true,
+          expires: 1.day.from_now
+        }
+        
+        # Save refresh token in chunks
+        if tokens[:refresh_token]
+          refresh_token = tokens[:refresh_token]
+          refresh_token_chunks = refresh_token.scan(/.{1,#{chunk_size}}/m)
+          
+          # Clear old chunks
+          old_refresh_count = cookies_obj['keycloak_refresh_token_count'].to_i
+          old_refresh_count.times do |i|
+            cookies_obj.delete("keycloak_refresh_token_#{i}")
+          end
+          
+          # Save new chunks
+          refresh_token_chunks.each_with_index do |chunk, index|
+            cookies_obj["keycloak_refresh_token_#{index}"] = {
+              value: chunk,
+              httponly: true,
+              secure: Rails.env.production?,
+              same_site: :lax,
+              expires: 30.days.from_now
+            }
+          end
+          cookies_obj['keycloak_refresh_token_count'] = {
+            value: refresh_token_chunks.length.to_s,
+            httponly: true,
+            expires: 30.days.from_now
+          }
+        end
+        
+        # Save token expiry
+        if tokens[:expires_in] && tokens[:expires_in] > 0
+          expires_at = Time.current + tokens[:expires_in].seconds
+          cookies_obj['keycloak_token_expires_at'] = {
+            value: expires_at.to_i.to_s,
+            httponly: true,
+            expires: expires_at
+          }
+        end
+        
+        Rails.logger.info "✓ Updated tokens in cookies (access: #{access_token_chunks.length} chunks, refresh: #{tokens[:refresh_token] ? refresh_token_chunks.length : 0} chunks)"
+      end
+
+      def save_tokens_to_cookies(cookies_obj, tokens)
+        chunk_size = 2048
+        
+        # Save access token in chunks
+        access_token = tokens[:access_token]
+        access_token_chunks = access_token.scan(/.{1,#{chunk_size}}/m)
+        
+        # Clear old chunks first
+        old_count = cookies_obj['keycloak_access_token_count'].to_i
+        old_count.times do |i|
+          cookies_obj.delete("keycloak_access_token_#{i}")
+        end
+        
+        # Save new chunks
+        access_token_chunks.each_with_index do |chunk, index|
+          cookies_obj["keycloak_access_token_#{index}"] = {
+            value: chunk,
+            httponly: true,
+            secure: Rails.env.production?,
+            same_site: :lax,
+            expires: 1.day.from_now
+          }
+        end
+        cookies_obj['keycloak_access_token_count'] = {
+          value: access_token_chunks.length.to_s,
+          httponly: true,
+          expires: 1.day.from_now
+        }
+        
+        # Save refresh token in chunks
+        if tokens[:refresh_token]
+          refresh_token = tokens[:refresh_token]
+          refresh_token_chunks = refresh_token.scan(/.{1,#{chunk_size}}/m)
+          
+          # Clear old chunks
+          old_refresh_count = cookies_obj['keycloak_refresh_token_count'].to_i
+          old_refresh_count.times do |i|
+            cookies_obj.delete("keycloak_refresh_token_#{i}")
+          end
+          
+          # Save new chunks
+          refresh_token_chunks.each_with_index do |chunk, index|
+            cookies_obj["keycloak_refresh_token_#{index}"] = {
+              value: chunk,
+              httponly: true,
+              secure: Rails.env.production?,
+              same_site: :lax,
+              expires: 30.days.from_now
+            }
+          end
+          cookies_obj['keycloak_refresh_token_count'] = {
+            value: refresh_token_chunks.length.to_s,
+            httponly: true,
+            expires: 30.days.from_now
+          }
+        end
+        
+        # Save token expiry
+        if tokens[:expires_in] && tokens[:expires_in] > 0
+          expires_at = Time.current + tokens[:expires_in].seconds
+          cookies_obj['keycloak_token_expires_at'] = {
+            value: expires_at.to_i.to_s,
+            httponly: true,
+            expires: expires_at
+          }
+        end
+        
+        Rails.logger.info "✓ Updated tokens in cookies (access: #{access_token_chunks.length} chunks, refresh: #{tokens[:refresh_token] ? refresh_token_chunks.length : 0} chunks)"
+      end
+
       private
 
-      def reconstruct_token_from_cookies(cookies_or_session, token_key)
+      def reconstruct_token_from_cookies(cookies_hash, token_key)
         # Reconstruct token from chunks stored in HTTP cookies
-        return nil unless cookies_or_session
+        return nil unless cookies_hash
         
-        chunk_count = cookies_or_session["#{token_key}_count"].to_i
+        chunk_count = cookies_hash["#{token_key}_count"].to_i
         return nil if chunk_count == 0
         
         Rails.logger.debug "Reconstructing #{token_key} from #{chunk_count} chunks"
         
         chunks = []
         chunk_count.times do |i|
-          chunk = cookies_or_session["#{token_key}_#{i}"]
+          chunk = cookies_hash["#{token_key}_#{i}"]
           if chunk
             Rails.logger.debug "  Chunk #{i}: found (#{chunk.length} bytes)"
             chunks << chunk
@@ -70,10 +222,14 @@ module Decidim
         reconstructed
       end
 
-      def refresh_access_token_with_cookies(session, refresh_token)
-        token_endpoint = ENV['OMNIAUTH_KEYCLOAK_TOKEN_URL'] || "#{ENV['OMNIAUTH_KEYCLOAK_SITE']}/token"
+      def refresh_access_token(refresh_token)
+        # Get Keycloak configuration
+        keycloak_site = ENV['OMNIAUTH_KEYCLOAK_SITE']
+        realm = ENV['OMNIAUTH_KEYCLOAK_REALM'] || 'master'
         client_id = ENV['OMNIAUTH_KEYCLOAK_CLIENT_ID']
         client_secret = ENV['OMNIAUTH_KEYCLOAK_CLIENT_SECRET']
+        
+        token_endpoint = "#{keycloak_site}/realms/#{realm}/protocol/openid-connect/token"
 
         begin
           uri = URI(token_endpoint)
@@ -89,25 +245,25 @@ module Decidim
             client_secret: client_secret
           )
 
+          Rails.logger.info "Refreshing token at #{token_endpoint}"
           response = http.request(request)
 
           unless response.code == '200'
-            Rails.logger.warn "Keycloak token refresh failed: #{response.code}"
+            Rails.logger.warn "Keycloak token refresh failed: #{response.code} - #{response.body[0..200]}"
             return nil
           end
 
           result = JSON.parse(response.body)
-          new_access_token = result['access_token']
-          new_refresh_token = result['refresh_token']
-          expires_in = result['expires_in'].to_i
-
-          # NOTE: We cannot update cookies from here because we don't have access to the response object
-          # The cookies will be updated on the next login
-          # For now, just log the refresh
-          Rails.logger.info "Token refreshed successfully (refresh happened server-side, will be updated on next request)"
-          new_access_token
+          
+          Rails.logger.info "✓ Token refreshed successfully (expires_in: #{result['expires_in']}s)"
+          
+          {
+            access_token: result['access_token'],
+            refresh_token: result['refresh_token'] || refresh_token, # Keep old refresh_token if not provided
+            expires_in: result['expires_in'].to_i
+          }
         rescue StandardError => e
-          Rails.logger.error "Error refreshing token: #{e.message}"
+          Rails.logger.error "Error refreshing token: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
           nil
         end
       end
