@@ -1,7 +1,6 @@
 // src/app/hooks/useLogger.ts
 
-import { selectConfig } from '@app/store/config/config-slice.selectors';
-import { useAppSelector } from '@app/store/hook';
+import { useConfig } from '@app/config/ConfigContext';
 import pino from 'pino';
 import { useCallback, useMemo } from 'react';
 
@@ -18,7 +17,7 @@ import { useCallback, useMemo } from 'react';
  * logger.info(createInfoMessage('Starting API call'));
  */
 const useLogger = () => {
-	const config = useAppSelector(selectConfig);
+	const config = useConfig();
 	const logger = useMemo(() => pino({ level: config.logger.level }), [config.logger.level]);
 
 	const createInfoMessage = useCallback(

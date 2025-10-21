@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { selectConfig } from '@app/store/config/config-slice.selectors';
-import { useAppSelector } from '@app/store/hook';
+import { useConfig } from '@app/config/ConfigContext';
+import { API_CONFIG } from '@config/api-config';
 import { useToastr } from '@app/shared/toastr/hooks/useToastr';
 import useLogger from '../logger/logger';
 import { PathParams } from './models';
@@ -78,7 +78,13 @@ export interface BlobWithHeaders {
  * merges headers, performs the fetch call, and maps the response using the provided model mapper if available.
  */
 const useApiRequest = <T extends BaseModel, R = T, L = T[]>(options: RequestOptions<T, R, L>) => {
-	const { backend } = useAppSelector(selectConfig);
+	// Always call hook (React rules); provide runtime fallback if slice missing
+	const config = useConfig();
+	// Defensive backend fallback: if config context not yet initialized, provide minimal structure
+	const backend =
+		config?.backend && Array.isArray(config.backend.api)
+			? config.backend
+			: { api: API_CONFIG, baseUrl: (globalThis as any).__CHATBOT_BASE_URL__ || '' };
 	const { success: toastrSuccess, error: toastrError } = useToastr();
 	const { logger } = useLogger();
 	/**

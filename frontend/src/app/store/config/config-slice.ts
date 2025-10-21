@@ -107,9 +107,18 @@ const configSlice = createSlice({
 			const unflattened = unflatten<FlatAppConfig, ConfigState>(flatConfig);
 			// Merge the current state with the unflattened configuration and return the result
 			state.config = merge(state.config, unflattened);
+		},
+		/**
+		 * Sets or overrides the backend.baseUrl at runtime (e.g. from env variables passed to the container).
+		 */
+		setBackendBaseUrl: (state, action: PayloadAction<string>) => {
+			if (!state.config.backend) {
+				state.config.backend = { api: API_CONFIG };
+			}
+			state.config.backend.baseUrl = action.payload;
 		}
 	}
 });
 
-export const { extendConfig } = configSlice.actions;
+export const { extendConfig, setBackendBaseUrl } = configSlice.actions;
 export const configReducer = configSlice.reducer;

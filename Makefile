@@ -4,6 +4,7 @@
 .PHONY: help setup install-deps check-env check-prerequisites setup-node setup-decidim setup-playwright setup-frontend setup-backend setup-jitsi
 .PHONY: start setup-initial-environment stop restart logs test test-playwright test-frontend test-backend test-all clean
 .PHONY: dev-decidim dev-frontend dev-backend dev-all status check-services
+.PHONY: build-chatbot rebuild-chatbot restart-chatbot
 
 # Default target
 .DEFAULT_GOAL := help
@@ -239,3 +240,26 @@ validate-env: ## Validate environment setup
 	@docker --version || { echo "$(RED)Docker not found$(NC)"; exit 1; }
 	@docker compose --version || { echo "$(RED)Docker Compose not found$(NC)"; exit 1; }
 	@echo "$(GREEN)✓ Environment validation passed$(NC)"
+
+# Chatbot Module Federation build targets
+build-chatbot: ## Build chatbot with Module Federation
+	@echo "$(YELLOW)Building chatbot with Module Federation...$(NC)"
+	@cd frontend && npm run build:federation
+	@echo "$(GREEN)✓ Chatbot built successfully$(NC)"
+
+rebuild-chatbot: ## Rebuild chatbot Docker container
+	@echo "$(YELLOW)Rebuilding chatbot-frontend container...$(NC)"
+	@docker compose build chatbot-frontend
+	@echo "$(GREEN)✓ Chatbot container rebuilt$(NC)"
+
+restart-chatbot: ## Restart chatbot service
+	@echo "$(YELLOW)Restarting chatbot-frontend service...$(NC)"
+	@docker compose restart chatbot-frontend
+	@echo "$(GREEN)✓ Chatbot service restarted$(NC)"
+	@echo "$(YELLOW)Chatbot available at: $(FRONTEND_URL)$(NC)"
+
+rebuild-all: rebuild-chatbot ## Rebuild all Docker containers
+	@echo "$(YELLOW)Rebuilding all containers...$(NC)"
+	@docker compose build
+	@echo "$(GREEN)✓ All containers rebuilt$(NC)"
+

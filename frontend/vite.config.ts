@@ -7,16 +7,23 @@ export default defineConfig({
 	plugins: [react(), tailwindcss()],
 	build: {
 		target: 'esnext',
-		lib: {
-			entry: path.resolve(__dirname, 'src/app/standalone-chatbot.tsx'),
-			name: 'EUChatbot',
-			fileName: 'eu-chatbot',
-			formats: ['es', 'umd']
-		},
+		modulePreload: false,
+		minify: 'esbuild',
+		cssCodeSplit: false,
+		emptyOutDir: true,
 		rollupOptions: {
-			external: [],
 			output: {
-				globals: {}
+				format: 'es',
+				// Use content-based hashing for better caching
+				entryFileNames: '[name]-[hash].js',
+				chunkFileNames: '[name]-[hash].js',
+				// Ensure CSS is extracted to a predictable filename
+				assetFileNames: assetInfo => {
+					if (assetInfo.name === 'style.css' || assetInfo.name?.endsWith('.css')) {
+						return 'global.css';
+					}
+					return '[name]-[hash].[ext]';
+				}
 			}
 		}
 	},
@@ -35,12 +42,22 @@ export default defineConfig({
 	},
 	server: {
 		port: 5001,
+		host: '0.0.0.0',
+		origin: 'http://localhost:5001',
+		fs: {
+			// Allow serving files from dist folder
+			allow: ['..']
+		},
 		proxy: {
 			'/api/v1': {
-				target: 'http://localhost:3000',
+				target: process.env.VITE_API_URL || 'http://backend:3002',
 				changeOrigin: true,
 				secure: false
 			}
 		}
+	},
+	preview: {
+		port: 5001,
+		host: '0.0.0.0'
 	}
 });

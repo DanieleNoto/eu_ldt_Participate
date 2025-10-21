@@ -1,6 +1,25 @@
 {
-	"backend.baseUrl": "http://localhost:3000",
-	"frontend.appBasePath": "localhost:5001",
-	"logger.level": "debug",
-	"dateFns.locale": "it"
+	"backend": {
+		"baseUrl": "http://localhost:3002",
+		"api": [
+			{
+				"name": "chatMessage",
+				"url": "/api/v1/chat/",
+				"method": "post",
+				"headers": { "Content-Type": "application/json" }
+			},
+			{
+				"name": "supportSend",
+				"url": "/api/v1/support/send",
+				"method": "post",
+				"headers": { "Content-Type": "application/json" }
+			}
+		]
+	},
+	"frontend": {
+		"appBasePath": "localhost:5001"
+	},
+	"logger": { "level": "debug" },
+	"dateFns": { "locale": "it" },
+	"toastr": { "horizontal": "right", "vertical": "bottom", "delay": 2000 }
 }

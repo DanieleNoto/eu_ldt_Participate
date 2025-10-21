@@ -174,6 +174,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 
 			onSupportSent?.();
 		} catch (e) {
+			// eslint-disable-next-line no-console
 			console.error('Support request failed:', e);
 		} finally {
 			loadingRef.current = false;
@@ -251,7 +252,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 		return (
 			<button
 				ref={fabRef}
-				className="fixed bottom-5 right-5 w-14 h-14 rounded-full bg-[#3F51B5] text-white shadow-lg shadow-black/25 flex items-center justify-center hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 z-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
+				className="w-14 h-14 rounded-full bg-[#3F51B5] text-white shadow-lg shadow-black/25 flex items-center justify-center hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
 				aria-label={t('chatbot.openHelpAssistant')}
 				onClick={() => setOpen(true)}
 			>
@@ -262,11 +263,11 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 
 	const lastBotMessage = [...messages].reverse().find(m => m.from === 'bot');
 	return (
-		   <dialog
-			   style={{position: 'fixed', left: 'auto', right: 20, bottom: 24, zIndex: 9999, padding: 0, margin: 0}}
-			   className={`flex flex-col w-[430px] max-w-[95vw] h-[600px] max-h-[95vh] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className || ''}`}
+		   <div
+			   role="dialog"
 			   aria-labelledby="chatbot-header-title"
-			   open
+			   aria-modal="true"
+			   className={`flex flex-col w-[430px] max-w-[95vw] h-[600px] max-h-[95vh] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className || ''}`}
 		   >
 				{/* Header - conditional based on FAQ detail mode */}
 				<div className="flex items-center gap-3 h-[72px] px-6 py-3 border-b border-[#D2D7DB] bg-white relative">
@@ -572,7 +573,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 						)}
 					</div>
 				)}
-		   </dialog>
+		   </div>
 	   );
 };
 

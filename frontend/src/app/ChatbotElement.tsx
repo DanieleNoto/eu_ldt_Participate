@@ -1,6 +1,8 @@
-import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
-import ChatbotWebComponent from './shared/components/Chatbot/ChatbotWebComponent';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
+import SimplifiedMainProvider from './SimplifiedMainProvider';
+import Chatbot from './shared/components/Chatbot/Chatbot';
 
 class ChatbotCustomElement extends HTMLElement {
 	private _root: Root | null = null;
@@ -54,16 +56,19 @@ class ChatbotCustomElement extends HTMLElement {
 		
 		try {
 			this._root.render(
-				React.createElement(ChatbotWebComponent, {
-					language,
-					onSupportSent: () => {
-						// Dispatch custom event for parent page
-						this.dispatchEvent(new CustomEvent('supportSent', {
-							bubbles: true,
-							detail: { timestamp: new Date().toISOString() }
-						}));
-					}
-				})
+				<Provider store={store}>
+					<SimplifiedMainProvider>
+						<Chatbot
+							language={language}
+							onSupportSent={() => {
+								this.dispatchEvent(new CustomEvent('supportSent', {
+									bubbles: true,
+									detail: { timestamp: new Date().toISOString() }
+								}));
+							}}
+						/>
+					</SimplifiedMainProvider>
+				</Provider>
 			);
 		} catch (error) {
 			// eslint-disable-next-line no-console
