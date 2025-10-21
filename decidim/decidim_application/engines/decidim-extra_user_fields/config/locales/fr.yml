@@ -18,6 +18,17 @@ fr:
             date_of_birth:
               underage: invalide. Si vous êtes mineur, vous devez obtenir une autorisation
                 parentale
+            phone_number:
+              invalid: n'est pas un format de téléphone valide
+              too_long: est trop long (maximum 1000 caractères)
+            country:
+              too_long: est trop long (maximum 1000 caractères)
+            postal_code:
+              too_long: est trop long (maximum 1000 caractères)
+            location:
+              too_long: est trop long (maximum 1000 caractères)
+            statutory_representative_email:
+              too_long: est trop long (maximum 1000 caractères)
   decidim:
     admin:
       actions:
