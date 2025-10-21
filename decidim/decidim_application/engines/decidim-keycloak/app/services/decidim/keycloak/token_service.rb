@@ -50,80 +50,16 @@ module Decidim
       end
 
       def save_tokens_to_cookies(cookies_obj, tokens)
-        chunk_size = 2048
+        # Optimize chunk size: smaller chunks = more flexible, less risk of hitting single cookie limit
+        # Max single cookie size is typically 4KB, we use 1500 bytes to be safe
+        chunk_size = 1500
         
         # Save access token in chunks
         access_token = tokens[:access_token]
-        access_token_chunks = access_token.scan(/.{1,#{chunk_size}}/m)
         
-        # Clear old chunks first
-        old_count = cookies_obj['keycloak_access_token_count'].to_i
-        old_count.times do |i|
-          cookies_obj.delete("keycloak_access_token_#{i}")
-        end
+        # Log token size for monitoring
+        Rails.logger.info "JWT Token size: #{access_token.length} bytes (will create #{(access_token.length.to_f / chunk_size).ceil} chunks)"
         
-        # Save new chunks
-        access_token_chunks.each_with_index do |chunk, index|
-          cookies_obj["keycloak_access_token_#{index}"] = {
-            value: chunk,
-            httponly: true,
-            secure: Rails.env.production?,
-            same_site: :lax,
-            expires: 1.day.from_now
-          }
-        end
-        cookies_obj['keycloak_access_token_count'] = {
-          value: access_token_chunks.length.to_s,
-          httponly: true,
-          expires: 1.day.from_now
-        }
-        
-        # Save refresh token in chunks
-        if tokens[:refresh_token]
-          refresh_token = tokens[:refresh_token]
-          refresh_token_chunks = refresh_token.scan(/.{1,#{chunk_size}}/m)
-          
-          # Clear old chunks
-          old_refresh_count = cookies_obj['keycloak_refresh_token_count'].to_i
-          old_refresh_count.times do |i|
-            cookies_obj.delete("keycloak_refresh_token_#{i}")
-          end
-          
-          # Save new chunks
-          refresh_token_chunks.each_with_index do |chunk, index|
-            cookies_obj["keycloak_refresh_token_#{index}"] = {
-              value: chunk,
-              httponly: true,
-              secure: Rails.env.production?,
-              same_site: :lax,
-              expires: 30.days.from_now
-            }
-          end
-          cookies_obj['keycloak_refresh_token_count'] = {
-            value: refresh_token_chunks.length.to_s,
-            httponly: true,
-            expires: 30.days.from_now
-          }
-        end
-        
-        # Save token expiry
-        if tokens[:expires_in] && tokens[:expires_in] > 0
-          expires_at = Time.current + tokens[:expires_in].seconds
-          cookies_obj['keycloak_token_expires_at'] = {
-            value: expires_at.to_i.to_s,
-            httponly: true,
-            expires: expires_at
-          }
-        end
-        
-        Rails.logger.info "✓ Updated tokens in cookies (access: #{access_token_chunks.length} chunks, refresh: #{tokens[:refresh_token] ? refresh_token_chunks.length : 0} chunks)"
-      end
-
-      def save_tokens_to_cookies(cookies_obj, tokens)
-        chunk_size = 2048
-        
-        # Save access token in chunks
-        access_token = tokens[:access_token]
         access_token_chunks = access_token.scan(/.{1,#{chunk_size}}/m)
         
         # Clear old chunks first

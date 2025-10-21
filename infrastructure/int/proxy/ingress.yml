@@ -13,6 +13,11 @@ metadata:
     # Allow using regular expressions in the path definitions so the
     # analytics and jitsi regex paths are evaluated correctly.
     nginx.ingress.kubernetes.io/use-regex: "true"
+    # Increase buffer sizes to handle large JWT tokens in cookies
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "8"
+    nginx.ingress.kubernetes.io/client-header-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/large-client-header-buffers: "8 16k"
 
   # No global rewrite-target for analytics routes: use Prefix paths to avoid
   # accidental duplicated prefixes when upstream or local proxies also add paths.
