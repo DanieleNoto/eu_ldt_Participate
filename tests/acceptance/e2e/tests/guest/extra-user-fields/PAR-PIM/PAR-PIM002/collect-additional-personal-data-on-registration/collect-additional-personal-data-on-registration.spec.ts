@@ -504,7 +504,6 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 				await userExtraFieldsPage2.clickSaveProfilePicture();
 
 				// Verify the profile picture was uploaded successfully
-				const uploadedFileName = path.basename(validProfilePicturePath);
 				await userExtraFieldsPage2.expectProfilePictureUploaded();
 				console.log('Profile picture upload verified in user profile');
 
