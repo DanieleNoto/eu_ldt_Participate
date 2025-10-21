@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test';
+import { Page, expect, Locator } from '@playwright/test';
 import { TEST_SELECTORS } from '@utils/constants';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
 
@@ -23,8 +23,22 @@ export interface UserFieldsData {
 	location?: string;
 }
 export class UserExtraFieldsPage extends AuthenticatedPage {
+	private readonly personalUrlInput: Locator;
+	private readonly personalUrlLabel: Locator;
+	private readonly avatarFileInput: Locator;
+	private readonly saveButton: Locator;
+	private readonly errorFileContainer: Locator;
+	private readonly removeErrorFileButton: Locator;
+
 	constructor(page: Page) {
 		super(page);
+
+		this.personalUrlInput = page.locator('#user_personal_url');
+		this.personalUrlLabel = page.locator('label[for="user_personal_url"]');
+		this.avatarFileInput = page.locator('input[type="file"][name="user[avatar]"]');
+		this.saveButton = page.locator('button[data-dropzone-save]');
+		this.errorFileContainer = page.locator('div[data-template="error"]');
+		this.removeErrorFileButton = this.errorFileContainer.getByRole('button', { name: 'Remove' });
 	}
 
 	// Public getter for page access in tests
@@ -131,5 +145,100 @@ export class UserExtraFieldsPage extends AuthenticatedPage {
 		await expect(this.page.locator('#user_postal_code')).toHaveValue(expectedData.postalCode);
 		await expect(this.page.locator('#user_phone_number')).toHaveValue(expectedData.phoneNumber);
 		await expect(this.page.locator('#user_location')).toHaveValue(expectedData.location);
+	}
+
+	/**
+	 * Fills the Personal URL field
+	 * @param url The URL to enter
+	 */
+	async fillPersonalUrl(url: string): Promise<void> {
+		await this.personalUrlInput.click();
+		await this.personalUrlInput.fill(url);
+		// Trigger validation by removing focus from the field
+		await this.personalUrlInput.blur();
+	}
+
+	/**
+	 * Verifies that the Personal URL field is marked as invalid
+	 */
+	async expectPersonalUrlInvalid(): Promise<void> {
+		// Check if the input field is marked as invalid (red border)
+		await expect(this.personalUrlInput).toHaveClass(/is-invalid-input/);
+		// Check if the label has the error class
+		await expect(this.personalUrlLabel).toHaveClass(/is-invalid-label/);
+	}
+
+	/**
+	 * Verifies that the Personal URL field is marked as valid
+	 */
+	async expectPersonalUrlValid(): Promise<void> {
+		// Check if the input field does NOT have the invalid class
+		await expect(this.personalUrlInput).not.toHaveClass(/is-invalid-input/);
+		// Check if the label does NOT have the error class
+		await expect(this.personalUrlLabel).not.toHaveClass(/is-invalid-label/);
+	}
+
+	/**
+	 * Clicks the "Add image" button to open the upload modal
+	 */
+	async clickAddImage(): Promise<void> {
+		const addImageButton = this.page.getByRole('button', { name: 'Add image' });
+		await addImageButton.click();
+	}
+
+	/**
+	 * Uploads a file for profile picture
+	 * @param filePath Path to the file to upload
+	 */
+	async uploadProfilePicture(filePath: string): Promise<void> {
+		await this.avatarFileInput.setInputFiles(filePath);
+	}
+
+	/**
+	 * Verifies that the validation error message is visible
+	 */
+	async expectProfilePictureValidationError(): Promise<void> {
+		const errorMessage = this.page.getByText(/Validation error!/);
+		await expect(errorMessage).toBeVisible();
+	}
+
+	/**
+	 * Clicks the "Remove" button to delete the uploaded file with error
+	 */
+	async clickRemoveInvalidFile(): Promise<void> {
+		await expect(this.removeErrorFileButton).toBeVisible();
+		await this.removeErrorFileButton.click();
+
+		// Wait for the error template to be removed from DOM
+		await expect(this.errorFileContainer).not.toBeVisible();
+	}
+
+	/**
+	 * Clicks the "Save" button in the profile picture upload modal
+	 */
+	async clickSaveProfilePicture(): Promise<void> {
+		await this.saveButton.waitFor({ state: 'visible' });
+		// Use evaluate to click directly via JavaScript
+		await this.saveButton.evaluate((button: HTMLElement) => button.click());
+	}
+
+	/**
+	 * Verifies that a profile picture has been successfully uploaded
+	 */
+	async expectProfilePictureUploaded(): Promise<void> {
+		await this.page.waitForLoadState('networkidle');
+
+		// Verify the modal is closed
+		await expect(this.saveButton).not.toBeVisible();
+
+		// Verify the upload button changed from "Add image" to "Replace"
+		const uploadButton = this.page.locator('button#user_avatar_button');
+		await expect(uploadButton).toHaveText('Replace');
+
+		// Verify the upload container is visible
+		const uploadContainer = this.page.locator('.upload-modal__files-container.upload-container-for-avatar');
+		await expect(uploadContainer).toBeVisible();
+
+		console.log('Profile picture uploaded successfully');
 	}
 }

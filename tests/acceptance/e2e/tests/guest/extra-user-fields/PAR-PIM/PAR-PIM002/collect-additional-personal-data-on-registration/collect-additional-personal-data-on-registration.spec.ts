@@ -10,6 +10,9 @@ import { AccountDeletionPage } from '@pages/pages/user/account/AccountDeletionPa
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 import { ROUTES } from '@utils/routes';
+import * as fs from 'fs';
+import * as path from 'path';
+import { tmpdir } from 'os';
 
 /**
  * Defines how citizens must provide additional personal information during their registration process, ensuring their profile is complete and ready for full participation on the platform.
@@ -88,34 +91,60 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 		await homePage.navigateToHomePage();
 	});
 
-	test.afterEach(async ({ page }) => {
+	test.afterEach(async ({ browser }) => {
 		await test.step('Cleanup: Delete test user account', async () => {
-			// Navigate to account deletion page
-			await page.goto(ROUTES.accountDeletePage.pattern);
+			try {
+				const cleanupContext = await browser.newContext();
+				const cleanupPage = await cleanupContext.newPage();
 
-			// Initialize AccountDeletionPage
-			const accountDeletionPage = new AccountDeletionPage(page);
+				console.log('Starting cleanup: logging in to delete test user account...');
 
-			// Fill delete reason
-			await accountDeletionPage.fillDeleteReason('Test cleanup - automated test user deletion');
+				await cleanupPage.goto('/users/sign_in');
+				await cleanupPage.getByRole('textbox', { name: 'Email' }).fill(testUserEmail);
+				await cleanupPage.getByRole('textbox', { name: 'Password' }).fill(testUserPassword);
+				await cleanupPage.getByRole('button', { name: 'Log in' }).click();
 
-			// Click delete account button
-			await accountDeletionPage.clickDeleteAccountButton();
+				await cleanupPage.waitForURL(/.*/, { waitUntil: 'domcontentloaded' });
 
-			// Wait for confirmation modal to appear
-			await accountDeletionPage.waitForConfirmationModal();
+				// Verify if login was successful
+				const currentUrl = cleanupPage.url();
 
-			// Confirm deletion
-			await accountDeletionPage.confirmDeletion();
+				if (currentUrl.includes('/users/sign_in')) {
+					console.log(
+						'Login failed - user account does not exist (test likely failed before registration completed)'
+					);
+					console.log('Skipping account deletion - nothing to clean up');
+					await cleanupContext.close();
+					return;
+				}
 
-			// Verify redirect to home page
-			await homePage.expectToBeOnHomePage();
+				console.log('Logged in successfully for cleanup');
 
-			console.log(`User account deleted successfully: ${testUserName} (${testUserEmail})`);
+				await cleanupPage.goto(ROUTES.accountDeletePage.pattern);
+
+				const accountDeletionPage = new AccountDeletionPage(cleanupPage);
+				await accountDeletionPage.fillDeleteReason('Test cleanup - automated test user deletion');
+				await accountDeletionPage.clickDeleteAccountButton();
+				await accountDeletionPage.waitForConfirmationModal();
+				await accountDeletionPage.confirmDeletion();
+
+				const homePage = new HomePage(cleanupPage);
+				await homePage.expectToBeOnHomePage();
+
+				console.log(`User account deleted successfully: ${testUserName} (${testUserEmail})`);
+
+				await cleanupContext.close();
+				console.log('Cleanup context closed');
+			} catch (error) {
+				console.error(
+					`Failed to delete test user account: ${testUserName} (${testUserEmail})`,
+					error instanceof Error ? error.message : String(error)
+				);
+				console.log('This is expected if the test failed before account creation');
+			}
 		});
 	});
 
-	// Run once after all tests in this describe block
 	test.afterAll(async () => {
 		await test.step('Cleanup: Disable admin extra user fields configuration', async () => {
 			const adminHomePage = new AdminHomePage(sharedAdminPage);
@@ -244,23 +273,54 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 
 				console.log('All field values verified successfully');
 
-				// Transfer the logged-in session to the main page context
-				// Get cookies from fresh context
-				const cookies = await freshContext.cookies();
-
-				// Add cookies to the main page context
-				await page.context().addCookies(cookies);
-
-				// Close fresh context (the main page now has the logged-in session)
 				await freshContext.close();
-
-				// Navigate to home in the main page to activate the session
-				await page.goto('/');
 			});
 		});
 	});
 
 	test.describe('Alternative flow: Field validation fails', () => {
+		let invalidProfilePicturePath: string;
+		let validProfilePicturePath: string;
+
+		test.beforeEach(async () => {
+			const tempDir = tmpdir();
+
+			// Create invalid .txt file
+			invalidProfilePicturePath = path.join(tempDir, `invalid-profile-${Date.now()}.txt`);
+			fs.writeFileSync(invalidProfilePicturePath, 'This is not a valid image file');
+			console.log(`Created invalid profile picture file: ${invalidProfilePicturePath}`);
+
+			// Create valid 1x1 PNG image (minimal valid PNG)
+			validProfilePicturePath = path.join(tempDir, `valid-profile-${Date.now()}.png`);
+
+			// Minimal valid PNG file (1x1 transparent pixel)
+			const pngBuffer = Buffer.from([
+				0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, 0x00,
+				0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00,
+				0x00, 0x00, 0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00, 0x05, 0x00, 0x01,
+				0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
+			]);
+
+			fs.writeFileSync(validProfilePicturePath, pngBuffer);
+			console.log(`Created valid profile picture file: ${validProfilePicturePath}`);
+		});
+
+		test.afterEach(async () => {
+			// Clean up: delete both test files after the test
+			try {
+				if (invalidProfilePicturePath && fs.existsSync(invalidProfilePicturePath)) {
+					fs.unlinkSync(invalidProfilePicturePath);
+					console.log(`Deleted invalid profile picture file: ${invalidProfilePicturePath}`);
+				}
+				if (validProfilePicturePath && fs.existsSync(validProfilePicturePath)) {
+					fs.unlinkSync(validProfilePicturePath);
+					console.log(`Deleted valid profile picture file: ${validProfilePicturePath}`);
+				}
+			} catch (error) {
+				console.error(`Failed to delete test files:`, error instanceof Error ? error.message : String(error));
+			}
+		});
+
 		test('should display validation errors when submitting invalid or missing required data', async ({
 			page,
 			browser
@@ -408,20 +468,49 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 					location: testLocation
 				});
 
+				// Fill with invalid URL
+				await userExtraFieldsPage2.fillPersonalUrl('invalidurl');
+
+				// Verify field shows as invalid (red border)
+				await userExtraFieldsPage2.expectPersonalUrlInvalid();
+				console.log('Personal URL validation error correctly displayed for invalid URL');
+
+				// Clear and fill with valid URL
+				await userExtraFieldsPage2.fillPersonalUrl('https://example.org');
+
+				// Verify field shows as valid (no red border)
+				await userExtraFieldsPage2.expectPersonalUrlValid();
+				console.log('Personal URL validation passed for valid URL');
+
+				// Click Add image button to open upload modal
+				await userExtraFieldsPage2.clickAddImage();
+
+				// Upload invalid file (txt file)
+				await userExtraFieldsPage2.uploadProfilePicture(invalidProfilePicturePath);
+
+				// Verify validation error is displayed
+				await userExtraFieldsPage2.expectProfilePictureValidationError();
+				console.log('Profile picture validation error correctly displayed for invalid file type');
+
+				// Remove the invalid file before uploading a valid one
+				await userExtraFieldsPage2.clickRemoveInvalidFile();
+				console.log('Invalid profile picture removed');
+
+				// Now upload valid image file
+				await userExtraFieldsPage2.uploadProfilePicture(validProfilePicturePath);
+				console.log('Valid profile picture uploaded successfully');
+
+				// Click Save button to close the modal
+				await userExtraFieldsPage2.clickSaveProfilePicture();
+
+				// Verify the profile picture was uploaded successfully
+				const uploadedFileName = path.basename(validProfilePicturePath);
+				await userExtraFieldsPage2.expectProfilePictureUploaded();
+				console.log('Profile picture upload verified in user profile');
+
 				console.log('All field values verified successfully');
 
-				// Transfer the logged-in session to the main page context
-				// Get cookies from fresh context
-				const cookies = await freshContext.cookies();
-
-				// Add cookies to the main page context
-				await page.context().addCookies(cookies);
-
-				// Close fresh context (the main page now has the logged-in session)
 				await freshContext.close();
-
-				// Navigate to home in the main page to activate the session
-				await page.goto('/');
 			});
 		});
 	});

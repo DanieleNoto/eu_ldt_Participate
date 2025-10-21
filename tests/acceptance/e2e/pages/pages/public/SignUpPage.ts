@@ -41,11 +41,11 @@ export class SignUpPage {
 	}
 
 	get genderSelect(): Locator {
-		return this.page.getByLabel('Gender*Required field Male');
+		return this.page.locator('select#registration_user_gender');
 	}
 
 	get countrySelect(): Locator {
-		return this.page.getByLabel('Country*Required');
+		return this.page.locator('select#registration_user_country');
 	}
 
 	get postalCodeInput(): Locator {
