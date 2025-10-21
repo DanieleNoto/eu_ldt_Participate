@@ -276,8 +276,55 @@ module Decidim
           data_response = data_http.request(data_request)
           
           unless data_response.code == '200'
-            Rails.logger.error("TOOL2 API error - Status: #{data_response.code}, Body: #{data_response.body[0..500]}")
-            raise "TOOL2 returned status #{data_response.code}"
+            # If unauthorized (401), try refreshing token and retry once
+            if data_response.code == '401'
+              Rails.logger.warn("TOOL2 API returned 401 - attempting token refresh and retry")
+              
+              # Force token refresh
+              refresh_token = reconstruct_token_from_cookies(request.cookies, 'keycloak_refresh_token')
+              if refresh_token.present?
+                new_tokens = Decidim::Keycloak::TokenService.new.send(:refresh_access_token, refresh_token)
+                
+                if new_tokens
+                  # Save new tokens
+                  Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, new_tokens)
+                  jwt = new_tokens[:access_token]
+                  
+                  # Retry CSRF token request first
+                  csrf_request['Authorization'] = "Bearer #{jwt}"
+                  csrf_response_obj = http.request(csrf_request)
+                  csrf_response = csrf_response_obj.body
+                  csrf_json = JSON.parse(csrf_response) rescue {}
+                  csrf_token = csrf_json["csrfToken"]
+                  csrf_cookies = csrf_response_obj['Set-Cookie']
+                  
+                  unless csrf_token
+                    Rails.logger.error("Failed to obtain CSRF token after token refresh")
+                    raise "Failed to obtain CSRF token from TOOL2"
+                  end
+                  
+                  # Retry data request with new token
+                  data_request['Authorization'] = "Bearer #{jwt}"
+                  data_request['X-CSRF-Token'] = csrf_token
+                  data_request['Cookie'] = csrf_cookies if csrf_cookies
+                  data_response = data_http.request(data_request)
+                  
+                  unless data_response.code == '200'
+                    Rails.logger.error("TOOL2 API error after token refresh - Status: #{data_response.code}, Body: #{data_response.body[0..500]}")
+                    raise "TOOL2 returned status #{data_response.code}"
+                  end
+                else
+                  Rails.logger.error("Token refresh failed")
+                  raise "Authentication failed - please log in again"
+                end
+              else
+                Rails.logger.error("No refresh token available")
+                raise "Authentication expired - please log in again"
+              end
+            else
+              Rails.logger.error("TOOL2 API error - Status: #{data_response.code}, Body: #{data_response.body[0..500]}")
+              raise "TOOL2 returned status #{data_response.code}"
+            end
           end
 
           # Parse data from TOOL2
@@ -288,6 +335,29 @@ module Decidim
             cookies: csrf_cookies,
             data: data
           }
+        end
+
+        def reconstruct_token_from_cookies(cookies_hash, token_key)
+          return nil unless cookies_hash
+          
+          chunk_count = cookies_hash["#{token_key}_count"].to_i
+          return nil if chunk_count.zero?
+          
+          chunks = []
+          chunk_count.times do |i|
+            chunk = cookies_hash["#{token_key}_#{i}"]
+            if chunk
+              chunks << chunk
+            else
+              break
+            end
+          end
+          
+          return nil if chunks.length != chunk_count
+          chunks.join
+        rescue => e
+          Rails.logger.debug "Error reconstructing token: #{e.message}"
+          nil
         end
       end
     end

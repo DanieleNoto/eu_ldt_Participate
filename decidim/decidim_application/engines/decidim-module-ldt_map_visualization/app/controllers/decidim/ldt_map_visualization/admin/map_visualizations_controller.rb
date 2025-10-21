@@ -321,9 +321,43 @@ module Decidim
           end
 
           unless response.code == '200'
-            error_body = truncated[0..500]
-            Rails.logger.error("TOOL1 API error - Status: #{response.code}, Body: #{error_body}")
-            raise "TOOL1 returned status #{response.code}: #{error_body}"
+            # If unauthorized (401), try refreshing token and retry once
+            if response.code == '401'
+              Rails.logger.warn("TOOL1 API returned 401 - attempting token refresh and retry")
+              
+              # Force token refresh
+              refresh_token = reconstruct_token_from_cookies(request.cookies, 'keycloak_refresh_token')
+              if refresh_token.present?
+                new_tokens = Decidim::Keycloak::TokenService.new.send(:refresh_access_token, refresh_token)
+                
+                if new_tokens
+                  # Save new tokens and retry request
+                  Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, new_tokens)
+                  jwt = new_tokens[:access_token]
+                  
+                  # Retry the request with new token
+                  request['Authorization'] = "Bearer #{jwt}"
+                  request['Cookie'] = "access_token=#{jwt}"
+                  response = http.request(request)
+                  
+                  unless response.code == '200'
+                    error_body = response.body.to_s[0..500]
+                    Rails.logger.error("TOOL1 API error after token refresh - Status: #{response.code}, Body: #{error_body}")
+                    raise "TOOL1 returned status #{response.code}: #{error_body}"
+                  end
+                else
+                  Rails.logger.error("Token refresh failed")
+                  raise "Authentication failed - please log in again"
+                end
+              else
+                Rails.logger.error("No refresh token available")
+                raise "Authentication expired - please log in again"
+              end
+            else
+              error_body = truncated[0..500]
+              Rails.logger.error("TOOL1 API error - Status: #{response.code}, Body: #{error_body}")
+              raise "TOOL1 returned status #{response.code}: #{error_body}"
+            end
           end
 
           # Parse and return data
