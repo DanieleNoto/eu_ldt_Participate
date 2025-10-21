@@ -10,3 +10,12 @@
     color: #004494 !important;
     text-decoration: underline !important;
 }
+
+// Add hyphens to tab menu items for better text wrapping
+.tabs-title[role="menuitem"],
+.tabs-title[role="menuitem"] a {
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    word-wrap: break-word;
+}
