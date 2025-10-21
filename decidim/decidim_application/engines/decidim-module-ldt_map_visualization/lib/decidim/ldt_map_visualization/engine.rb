@@ -11,7 +11,7 @@ module Decidim
 
       routes do
         # Add engine routes here
-        resources :map_visualizations, only: [:index]
+        resources :map_visualizations, only: [:index, :show]
         root to: "map_visualizations#index"
       end
 

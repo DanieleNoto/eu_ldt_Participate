@@ -19,31 +19,22 @@ module Decidim
         
         return nil unless access_token
 
-        Rails.logger.info "Using token from COOKIES (expires_at: #{expires_at ? Time.at(expires_at) : 'N/A'})"
         
         # If no expiration set, assume it's still valid
         return access_token unless expires_at
         
         # If token not expired, return it
         if Time.at(expires_at) > Time.current
-          Rails.logger.info "Token is still valid (expires in #{(Time.at(expires_at) - Time.current).to_i} seconds)"
           return access_token
         end
         
         # Token is expired, try to refresh
         if refresh_token && cookies_obj
-          Rails.logger.info "Token expired for user #{user&.id}, attempting refresh..."
           new_tokens = refresh_access_token(refresh_token)
-          
           if new_tokens
-            # Update cookies with new tokens
             save_tokens_to_cookies(cookies_obj, new_tokens)
             return new_tokens[:access_token]
-          else
-            Rails.logger.warn "Token refresh failed, user needs to re-login"
           end
-        elsif !cookies_obj
-          Rails.logger.warn "Token expired but cookies object not provided - cannot refresh"
         end
         
         nil
@@ -58,7 +49,6 @@ module Decidim
         access_token = tokens[:access_token]
         
         # Log token size for monitoring
-        Rails.logger.info "JWT Token size: #{access_token.length} bytes (will create #{(access_token.length.to_f / chunk_size).ceil} chunks)"
         
         access_token_chunks = access_token.scan(/.{1,#{chunk_size}}/m)
         
@@ -122,7 +112,72 @@ module Decidim
           }
         end
         
-        Rails.logger.info "✓ Updated tokens in cookies (access: #{access_token_chunks.length} chunks, refresh: #{tokens[:refresh_token] ? refresh_token_chunks.length : 0} chunks)"
+      end
+
+      # Exchange an incoming token (subject_token) for a token targeted at a specific audience/client
+      # Returns the exchanged access_token string on success, or nil on failure.
+      def exchange_token_for_audience(subject_token, audience)
+        keycloak_site = ENV['OMNIAUTH_KEYCLOAK_SITE']
+        realm = ENV['OMNIAUTH_KEYCLOAK_REALM'] || 'master'
+        client_id = ENV['OMNIAUTH_KEYCLOAK_CLIENT_ID']
+        client_secret = ENV['OMNIAUTH_KEYCLOAK_CLIENT_SECRET']
+
+        token_endpoint = "#{keycloak_site}/realms/#{realm}/protocol/openid-connect/token"
+
+        # Try a couple of subject_token_type and client auth strategies if Keycloak rejects the first attempt
+        subject_token_types = [
+          'urn:ietf:params:oauth:token-type:access_token',
+          'urn:ietf:params:oauth:token-type:id_token',
+          'urn:ietf:params:oauth:token-type:jwt'
+        ]
+
+        client_auth_methods = [:post, :basic]
+
+        client_auth_methods.each do |auth_method|
+          subject_token_types.each do |sub_type|
+            begin
+              uri = URI(token_endpoint)
+              http = Net::HTTP.new(uri.host, uri.port)
+              http.use_ssl = uri.scheme == 'https'
+
+              request = Net::HTTP::Post.new(uri)
+              request['Content-Type'] = 'application/x-www-form-urlencoded'
+
+              form = {
+                grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+                subject_token: subject_token,
+                subject_token_type: sub_type,
+                audience: audience,
+                client_id: client_id
+              }
+
+              # Attach client authentication
+              if auth_method == :post
+                form[:client_secret] = client_secret
+              else
+                request.basic_auth(client_id, client_secret)
+              end
+
+              request.set_form_data(form)
+
+              response = http.request(request)
+
+              if response.code == '200'
+                result = JSON.parse(response.body)
+                if result['access_token']
+                  return result['access_token']
+                else
+                  return nil
+                end
+              else
+                # Try next combination
+              end
+            rescue StandardError => e
+            end
+          end
+        end
+
+        nil
       end
 
       private
@@ -134,28 +189,19 @@ module Decidim
         chunk_count = cookies_hash["#{token_key}_count"].to_i
         return nil if chunk_count == 0
         
-        Rails.logger.debug "Reconstructing #{token_key} from #{chunk_count} chunks"
         
         chunks = []
         chunk_count.times do |i|
           chunk = cookies_hash["#{token_key}_#{i}"]
           if chunk
-            Rails.logger.debug "  Chunk #{i}: found (#{chunk.length} bytes)"
             chunks << chunk
           else
-            Rails.logger.warn "  Chunk #{i}: NOT FOUND - reconstruction will fail"
             break
           end
         end
         
-        if chunks.length != chunk_count
-          Rails.logger.warn "Could not reconstruct #{token_key}: expected #{chunk_count} chunks, got #{chunks.length}"
-          return nil
-        end
-        
-        reconstructed = chunks.join
-        Rails.logger.debug "Reconstructed #{token_key} from #{chunk_count} cookies (#{reconstructed.length} bytes)"
-        reconstructed
+        return nil if chunks.length != chunk_count
+        chunks.join
       end
 
       def refresh_access_token(refresh_token)
@@ -181,17 +227,14 @@ module Decidim
             client_secret: client_secret
           )
 
-          Rails.logger.info "Refreshing token at #{token_endpoint}"
           response = http.request(request)
 
           unless response.code == '200'
-            Rails.logger.warn "Keycloak token refresh failed: #{response.code} - #{response.body[0..200]}"
             return nil
           end
 
           result = JSON.parse(response.body)
           
-          Rails.logger.info "✓ Token refreshed successfully (expires_in: #{result['expires_in']}s)"
           
           {
             access_token: result['access_token'],
@@ -199,7 +242,6 @@ module Decidim
             expires_in: result['expires_in'].to_i
           }
         rescue StandardError => e
-          Rails.logger.error "Error refreshing token: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
           nil
         end
       end

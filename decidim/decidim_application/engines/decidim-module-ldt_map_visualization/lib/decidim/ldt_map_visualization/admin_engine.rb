@@ -13,9 +13,12 @@ module Decidim
         # Add admin engine routes here
         resources :map_visualizations, only: [:index, :new, :create, :edit, :update, :destroy] do
           collection do
-            resources :exports, only: [:create]
+            get :external_maps
+            get :debug_token
           end
         end
+
+        # Engine root should point to the map_visualizations index
         root to: "map_visualizations#index"
       end
 
