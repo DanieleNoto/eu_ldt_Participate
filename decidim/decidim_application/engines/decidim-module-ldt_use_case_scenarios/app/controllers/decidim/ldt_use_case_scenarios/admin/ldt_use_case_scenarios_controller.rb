@@ -194,21 +194,25 @@ module Decidim
         def destroy
           # Ensure user has permission to destroy scenarios
           unless allowed_to? :destroy, :ldt_use_case_scenario
-            redirect_to "/admin/participatory_processes/#{params[:participatory_process_slug]}/components/#{params[:component_id]}/manage/ldt_use_case_scenarios", alert: t("decidim.admin.actions.not_allowed")
+            flash[:alert] = t("decidim.admin.actions.not_allowed")
+            redirect_to ldt_use_case_scenarios_path
             return
           end
 
           @scenario = collection.find_by(id: params[:id])
 
           unless @scenario
-            redirect_to "/admin/participatory_processes/#{params[:participatory_process_slug]}/components/#{params[:component_id]}/manage/ldt_use_case_scenarios", alert: t("decidim.admin.actions.not_found")
+            flash[:alert] = t("decidim.admin.actions.not_found")
+            redirect_to ldt_use_case_scenarios_path
             return
           end
 
           if @scenario.destroy
-            redirect_to "/admin/participatory_processes/#{params[:participatory_process_slug]}/components/#{params[:component_id]}/manage/ldt_use_case_scenarios", notice: t("decidim.admin.actions.deleted")
+            flash[:notice] = t("decidim.admin.actions.deleted")
+            redirect_to ldt_use_case_scenarios_path
           else
-            redirect_to "/admin/participatory_processes/#{params[:participatory_process_slug]}/components/#{params[:component_id]}/manage/ldt_use_case_scenarios", alert: @scenario.errors.full_messages.to_sentence
+            flash[:alert] = @scenario.errors.full_messages.to_sentence
+            redirect_to ldt_use_case_scenarios_path
           end
         end
 
