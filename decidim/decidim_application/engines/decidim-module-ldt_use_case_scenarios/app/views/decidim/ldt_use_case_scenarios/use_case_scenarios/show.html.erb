@@ -4,51 +4,75 @@
   url: use_case_scenario_url(@use_case_scenario)
 ) %>
 
-<div class="row">
-  <div class="columns">
-    <%= link_to use_case_scenarios_path, class: "button button--sc small hollow" do %>
-      ← <%= t(".back_to_list") %>
-    <% end %>
-    
-    <h1 class="section-heading"><%= @use_case_scenario.name %></h1>
-  </div>
-</div>
-
-<% if @use_case_scenario.experiment_data.present? %>
+<div style="padding: 2rem;">
   <div class="row">
-    <div class="columns">
-      <div class="card">
-        <div class="card__content">
-          <% if @use_case_scenario.experiment_data['id'].present? %>
-            <p>
-              <strong><%= t(".experiment_id") %>:</strong> 
-              <%= @use_case_scenario.experiment_data['id'] %>
-            </p>
-          <% end %>
-          
-          <% if @use_case_scenario.experiment_data['description'].present? %>
-            <p><%= @use_case_scenario.experiment_data['description'] %></p>
-          <% end %>
-        </div>
+    <div class="columns large-12">
+      <%= link_to use_case_scenarios_path, class: "button button--sc small hollow" do %>
+        ← <%= t(".back_to_list") %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="columns large-12">
+      <h2 class="section-heading"><%= @use_case_scenario.name %></h2>
+    </div>
+  </div>
+
+  <!-- AI Transparency Disclaimer -->
+  <div class="row">
+    <div class="columns large-12">
+      <div class="callout warning" style="margin-bottom: 2rem;">
+        <p>
+          <strong><%= t("decidim.ldt_use_case_scenarios.use_case_scenarios.show.transparency_disclaimer") %></strong>
+        </p>
       </div>
     </div>
   </div>
-<% end %>
+
+  <% if @use_case_scenario.experiment_data.present? %>
+    <div class="row">
+      <div class="columns large-12">
+        <div class="card">
+          <div class="card__content">
+            <% if @use_case_scenario.experiment_data['id'].present? %>
+              <div class="definition-data">
+                <span class="definition-data__title"><%= t(".experiment_id") %></span>
+                <span class="definition-data__text"><%= @use_case_scenario.experiment_data['id'] %></span>
+              </div>
+            <% end %>
+            
+            <% if @use_case_scenario.experiment_data['description'].present? %>
+              <div class="section" style="margin-top: 1.5rem;">
+                <%= simple_format(@use_case_scenario.experiment_data['description']) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
 
 <div class="row">
-  <div class="columns">
-    <div class="experiment-iframe-container" 
-         data-experiment-data="<%= @use_case_scenario.experiment_data.to_json %>"
-         data-iframe-url="<%= @tool2_iframe_url %>"
-         style="margin-top: 2rem;">
-      <iframe 
-        id="experiment-iframe"
-        src="<%= @tool2_iframe_url %>"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-        style="width: 100%; height: 800px; border: 1px solid #ddd; border-radius: 4px;">
-      </iframe>
+  <div class="columns large-12">
+    <div class="card" style="margin-top: 2rem;">
+      <div class="card__content">
+        <h3 class="card__title"><%= t(".title") %></h3>
+        <div class="experiment-iframe-container" 
+             data-experiment-data="<%= @use_case_scenario.experiment_data.to_json %>"
+             data-iframe-url="<%= @tool2_iframe_url %>"
+             style="margin-top: 1rem;">
+          <iframe 
+            id="experiment-iframe"
+            src="<%= @tool2_iframe_url %>"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            style="width: 100%; height: 800px; border: 1px solid #e8e8e8; border-radius: 4px;">
+          </iframe>
+        </div>
+      </div>
     </div>
   </div>
 </div>

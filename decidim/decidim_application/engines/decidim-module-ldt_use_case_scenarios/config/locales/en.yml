@@ -24,6 +24,7 @@ en:
           description: Description
           back_to_list: Back to List
           not_found: Scenario not found
+          transparency_disclaimer: "This experiment execution uses AI algorithms and machine learning models. The following information provides transparency about the datasets, algorithms, and models used. This includes their purpose, type, training datasets, expected outcomes, limitations, and potential biases. (change me in source code: decidim-module-ldt_use_case_scenarios/config/locales/en.yml)"
       admin:
         ldt_use_case_scenarios:
           index:

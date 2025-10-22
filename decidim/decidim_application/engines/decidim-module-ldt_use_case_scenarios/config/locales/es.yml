@@ -24,6 +24,7 @@ es:
           description: Descripción
           back_to_list: Volver a la Lista
           not_found: Escenario no encontrado
+          transparency_disclaimer: "Esta ejecución de experimento utiliza algoritmos de IA y modelos de aprendizaje automático. La siguiente información proporciona transparencia sobre los conjuntos de datos, algoritmos y modelos utilizados. Esto incluye su propósito, tipo, conjuntos de datos de entrenamiento, resultados esperados, limitaciones y sesgos potenciales. (cambiar en el código fuente: decidim-module-ldt_use_case_scenarios/config/locales/es.yml)"
       admin:
         ldt_use_case_scenarios:
           index:

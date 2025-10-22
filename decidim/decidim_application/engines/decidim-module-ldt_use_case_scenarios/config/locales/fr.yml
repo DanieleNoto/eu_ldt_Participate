@@ -24,6 +24,7 @@ fr:
           description: Description
           back_to_list: Retour à la Liste
           not_found: Scénario introuvable
+          transparency_disclaimer: "Cette exécution d'expérience utilise des algorithmes d'IA et des modèles d'apprentissage automatique. Les informations suivantes fournissent une transparence sur les ensembles de données, les algorithmes et les modèles utilisés. Cela inclut leur objectif, leur type, les ensembles de données d'entraînement, les résultats attendus, les limitations et les biais potentiels. (à modifier dans le code source: decidim-module-ldt_use_case_scenarios/config/locales/fr.yml)"
       admin:
         ldt_use_case_scenarios:
           index:

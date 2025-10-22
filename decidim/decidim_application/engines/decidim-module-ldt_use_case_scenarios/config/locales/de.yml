@@ -24,6 +24,7 @@ de:
           description: Beschreibung
           back_to_list: Zurück zur Liste
           not_found: Szenario nicht gefunden
+          transparency_disclaimer: "Diese Experimentausführung verwendet KI-Algorithmen und Machine-Learning-Modelle. Die folgenden Informationen bieten Transparenz über die verwendeten Datensätze, Algorithmen und Modelle. Dies umfasst ihren Zweck, Typ, Trainingsdatensätze, erwartete Ergebnisse, Einschränkungen und potenzielle Verzerrungen. (im Quellcode ändern: decidim-module-ldt_use_case_scenarios/config/locales/de.yml)"
       admin:
         ldt_use_case_scenarios:
           index:
