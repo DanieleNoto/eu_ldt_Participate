@@ -241,22 +241,35 @@ validate-env: ## Validate environment setup
 	@docker compose --version || { echo "$(RED)Docker Compose not found$(NC)"; exit 1; }
 	@echo "$(GREEN)✓ Environment validation passed$(NC)"
 
-# Chatbot Module Federation build targets
-build-chatbot: ## Build chatbot with Module Federation
-	@echo "$(YELLOW)Building chatbot with Module Federation...$(NC)"
-	@cd frontend && npm run build:federation
-	@echo "$(GREEN)✓ Chatbot built successfully$(NC)"
+# Chatbot build and deployment targets
+build-chatbot: ## Build chatbot Docker container with fresh code
+	@echo "$(YELLOW)Building chatbot-frontend container (this will compile the code inside the container)...$(NC)"
+	@docker compose build chatbot-frontend --no-cache
+	@echo "$(GREEN)✓ Chatbot container built successfully with fresh code$(NC)"
 
-rebuild-chatbot: ## Rebuild chatbot Docker container
+rebuild-chatbot: ## Quick rebuild chatbot Docker container (uses cache)
 	@echo "$(YELLOW)Rebuilding chatbot-frontend container...$(NC)"
 	@docker compose build chatbot-frontend
 	@echo "$(GREEN)✓ Chatbot container rebuilt$(NC)"
+
+start-chatbot: ## Start chatbot service
+	@echo "$(YELLOW)Starting chatbot-frontend service...$(NC)"
+	@docker compose up chatbot-frontend -d
+	@echo "$(GREEN)✓ Chatbot service started$(NC)"
+	@echo "$(YELLOW)Chatbot available at: $(FRONTEND_URL)$(NC)"
 
 restart-chatbot: ## Restart chatbot service
 	@echo "$(YELLOW)Restarting chatbot-frontend service...$(NC)"
 	@docker compose restart chatbot-frontend
 	@echo "$(GREEN)✓ Chatbot service restarted$(NC)"
 	@echo "$(YELLOW)Chatbot available at: $(FRONTEND_URL)$(NC)"
+
+rebuild-start-chatbot: build-chatbot start-chatbot ## Rebuild and start chatbot with fresh code
+	@echo "$(GREEN)✓ Chatbot rebuilt and started successfully$(NC)"
+
+logs-chatbot: ## Show chatbot container logs
+	@echo "$(YELLOW)Showing chatbot-frontend logs...$(NC)"
+	@docker compose logs -f chatbot-frontend
 
 rebuild-all: rebuild-chatbot ## Rebuild all Docker containers
 	@echo "$(YELLOW)Rebuilding all containers...$(NC)"

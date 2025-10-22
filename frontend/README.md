@@ -253,6 +253,7 @@ The /example directory under src/app/pages/example serves as a template for how 
 
 - **Node.js** (v14 or later recommended)
 - **npm** (or yarn)
+- **Docker & Docker Compose** (for containerized development)
 
 ### Installation
 
@@ -266,9 +267,47 @@ The /example directory under src/app/pages/example serves as a template for how 
         npm install
     ```
 3. **Running the Development Server**
-   Start the development server using Vite:
-   `     npm run dev  `
-   By default, the application runs on http://localhost:5001.
+
+    **Option A: Local Development (without Docker)**
+
+    Start the development server using Vite:
+
+    ```bash
+    npm run dev
+    ```
+
+    By default, the application runs on http://localhost:5001.
+
+    **Option B: Docker Development**
+
+    The chatbot-frontend container automatically builds the application during image creation:
+
+    ```bash
+    # Build and start the container
+    docker compose up chatbot-frontend
+
+    # To rebuild with fresh code (recommended after source code changes)
+    docker compose build chatbot-frontend --no-cache
+    docker compose up chatbot-frontend
+
+    # Or in one command
+    docker compose up chatbot-frontend --build
+    ```
+
+    **How the Docker Build Works:**
+
+    1. `Dockerfile.dev` copies all source code into the image
+    2. Runs `npm ci` to install all dependencies (including devDependencies)
+    3. Executes `npm run build` to create fresh production build in `dist/`
+    4. The entrypoint script serves the built files using `http-server`
+
+    **Key Points:**
+
+    - The build happens **inside the container** during image creation
+    - No need to manually build on the host machine
+    - The `dist/` folder is kept inside the container (not mounted from host)
+    - Source code changes require rebuilding the Docker image
+    - For hot-reload development, use local development (Option A)
 
 ## API Client
 

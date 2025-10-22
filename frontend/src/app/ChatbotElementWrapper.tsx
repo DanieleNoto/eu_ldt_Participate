@@ -1,17 +1,6 @@
-/**
- * EU LDT Participate Chatbot Web Component
- * 
- * This is the main entry point for the chatbot as a web component.
- * It creates a custom element that can be embedded in any web page.
- * 
- * Best practices implemented:
- * - Shadow DOM for style encapsulation
- * - Proper lifecycle management
- * - Clean React integration
- * - Attribute-based configuration
- */
-
 import { createRoot, Root } from 'react-dom/client';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 import SimplifiedMainProvider from './SimplifiedMainProvider';
@@ -26,11 +15,15 @@ class EuChatbotElement extends HTMLElement {
 	private _shadowRoot: ShadowRoot | null = null;
 	private _mountPoint: HTMLDivElement | null = null;
 	private _styleElement: HTMLStyleElement | null = null;
+	private _emotionCache: ReturnType<typeof createCache> | null = null;
 
 	constructor() {
 		super();
 		// Attach shadow DOM for style encapsulation
 		this._shadowRoot = this.attachShadow({ mode: 'open' });
+		if (this._shadowRoot) {
+			this._emotionCache = createCache({ key: 'chatbot', container: this._shadowRoot });
+		}
 	}
 
 	static get observedAttributes() {
@@ -84,44 +77,88 @@ class EuChatbotElement extends HTMLElement {
 				pointer-events: auto; /* Re-enable clicks on the chatbot itself */
 			}
 
-			/* Reset box-sizing for all elements inside shadow DOM */
 			*, *::before, *::after {
 				box-sizing: border-box;
 			}
 
-			/* Ensure proper font loading */
+			style, script {
+				all: unset; /* Avoid inheriting typography that could still render text if shown */
+				display: none !important;
+			}
+
+			.MuiSvgIcon-root {
+				width: 1em;
+				height: 1em;
+				fill: currentColor;
+				flex-shrink: 0;
+				user-select: none;
+				display: inline-block;
+				font-size: 24px; /* Match typical icon size for consistency */
+			}
+
 			@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
 		`;
 
 		this._shadowRoot.appendChild(this._styleElement);
 
-		// Create mount point for React
 		this._mountPoint = document.createElement('div');
 		this._mountPoint.id = 'chatbot-root';
 		this._shadowRoot.appendChild(this._mountPoint);
 
-		// Load global CSS from the build
 		this._injectGlobalStyles();
 	}
 
 	private async _injectGlobalStyles() {
-		// In production, the CSS is bundled. We need to fetch and inject it.
 		const baseUrl = (window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '';
-		
+		let loadedGlobal = false;
 		if (baseUrl) {
 			try {
-				// Try to find the global CSS file
-				const cssResponse = await fetch(`${baseUrl}/global.css`).catch(() => null);
-				
+				const url = `${baseUrl}/global.css`;
+				const cssResponse = await fetch(url).catch(() => null);
 				if (cssResponse && cssResponse.ok) {
 					const cssText = await cssResponse.text();
+					let sheetApplied = false;
+					if (this._shadowRoot && 'adoptedStyleSheets' in this._shadowRoot) {
+						try {
+							const sheet = new CSSStyleSheet();
+							sheet.replaceSync(cssText);
+							this._shadowRoot.adoptedStyleSheets = [...this._shadowRoot.adoptedStyleSheets, sheet];
+							sheetApplied = true;
+						} catch (e) {
+							// eslint-disable-next-line no-console
+							console.warn('[Chatbot] Failed to apply constructable stylesheet, falling back to <style>', e);
+						}
+					}
+
+					if (!sheetApplied) {
 					const cssElement = document.createElement('style');
+					cssElement.setAttribute('data-source', 'global.css');
 					cssElement.textContent = cssText;
 					this._shadowRoot?.insertBefore(cssElement, this._mountPoint);
+					}
+					loadedGlobal = true;
+					if (/all:\s*initial/.test(cssText)) {
+						// eslint-disable-next-line no-console
+						console.debug('[Chatbot] Detected `all: initial` in global.css');
+					}
+					// eslint-disable-next-line no-console
+					console.log('[Chatbot] Successfully loaded styles from', url);
 				}
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.warn('[Chatbot] Could not load global styles, using inline styles', error);
+			}
+		}
+
+		// Final protective overrides appended LAST to ensure visibility rules win cascade.
+		if (this._shadowRoot) {
+			const override = document.createElement('style');
+			override.setAttribute('data-source', 'chatbot-overrides');
+			override.textContent = `style, script { display: none !important; }`;
+			this._shadowRoot.appendChild(override);
+			if (loadedGlobal) {
+				// eslint-disable-next-line no-console
+				console.debug('[Chatbot] Applied protective overrides after global.css');
 			}
 		}
 	}
@@ -144,7 +181,7 @@ class EuChatbotElement extends HTMLElement {
 		const language = this.getAttribute('language') || 'en';
 
 		try {
-			this._root.render(
+			const content = (
 				<Provider store={store}>
 					<SimplifiedMainProvider>
 						<Chatbot
@@ -164,6 +201,10 @@ class EuChatbotElement extends HTMLElement {
 						/>
 					</SimplifiedMainProvider>
 				</Provider>
+			);
+
+			this._root.render(
+				this._emotionCache ? <CacheProvider value={this._emotionCache}>{content}</CacheProvider> : content
 			);
 		} catch (error) {
 			// eslint-disable-next-line no-console

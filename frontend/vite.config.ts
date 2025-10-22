@@ -5,17 +5,19 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
 	plugins: [react(), tailwindcss()],
+	publicDir: 'public', // Explicitly set public directory (Vite should copy this to dist)
 	build: {
 		target: 'esnext',
 		modulePreload: false,
 		minify: 'esbuild',
 		cssCodeSplit: false,
 		emptyOutDir: true,
+		copyPublicDir: true, // Explicitly enable copying public directory
 		rollupOptions: {
 			output: {
 				format: 'es',
-				// Use content-based hashing for better caching
-				entryFileNames: '[name]-[hash].js',
+				// For standalone chatbot, we need predictable filenames for the loader
+				entryFileNames: 'index.js',
 				chunkFileNames: '[name]-[hash].js',
 				// Ensure CSS is extracted to a predictable filename
 				assetFileNames: assetInfo => {

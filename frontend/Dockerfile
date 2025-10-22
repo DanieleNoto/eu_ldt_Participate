@@ -1,33 +1,30 @@
 # Production Dockerfile for EU LDT Participate Chatbot Frontend
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 
 WORKDIR /app
 
 # Install dependencies for building
 RUN apk add --no-cache python3 make g++
 
-# Copy package files
+# Copy package files first for better layer caching
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production --ignore-scripts
+# Install ALL dependencies (we need devDependencies for building)
+RUN npm ci
 
-# Copy source code
+# Copy ALL source files
 COPY . .
 
-# Clean any previous build artifacts then build
-RUN rm -rf dist && npm run build && ls -l dist
+# Clean any previous build artifacts and build fresh
+RUN rm -rf dist && \
+    npm run build && \
+    echo "Build complete. Dist contents:" && \
+    ls -la dist/ && \
+    echo "Verifying chatbot-loader.js first 25 lines:" && \
+    head -25 dist/chatbot-loader.js
 
-# Production stage - serve with nginx
-FROM nginx:alpine
+# Expose port 5001
+EXPOSE 5001
 
-# Copy built files from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose port 80
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# Serve the built files
+CMD ["npx", "http-server", "dist", "-p", "5001", "--cors", "-a", "0.0.0.0"]

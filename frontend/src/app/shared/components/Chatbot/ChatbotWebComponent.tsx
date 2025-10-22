@@ -11,9 +11,6 @@ interface ChatbotWebComponentProps {
 	className?: string;
 }
 
-// NOTE: This component is intentionally referencing window.__CHATBOT_BASE_URL__ at runtime.
-// The explicit string '__CHATBOT_BASE_URL__' and dynamic config fetch MUST remain so the
-// federation build can rewrite asset URLs correctly. Do not inline /config/config.json without baseUrl.
 const ChatbotWebComponent: React.FC<ChatbotWebComponentProps> = ({
 	language = 'en',
 	onSupportSent,

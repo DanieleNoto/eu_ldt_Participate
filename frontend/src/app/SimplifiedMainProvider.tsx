@@ -94,37 +94,28 @@ const RuntimeConfigInitializer = ({
 	const [initialized, setInitialized] = useState(false);
 
 	useEffect(() => {
-		console.log('[SimplifiedMainProvider] RuntimeConfigInitializer useEffect started');
 		let active = true;
 		const baseConfig = chatbotConfig;
 		const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
 		const envBaseVar = normalizeBaseUrl(metaEnv?.VITE_API_URL ?? '');
-		console.log('[SimplifiedMainProvider] envBaseVar:', envBaseVar);
 
 		const applyWithEnvOverride = (override?: Partial<ConfigState>) => {
-			console.log('[SimplifiedMainProvider] applyWithEnvOverride called, active:', active, 'override:', override);
 			if (!active) return;
 			const merged = mergeConfig(baseConfig, override);
 			const finalConfig = envBaseVar
 				? mergeConfig(merged, { backend: { baseUrl: envBaseVar, api: merged.backend.api } })
 				: merged;
-			console.log('[SimplifiedMainProvider] finalConfig:', finalConfig);
 			(window as { __CHATBOT_CONFIG__?: ConfigState }).__CHATBOT_CONFIG__ = finalConfig;
 			onConfigResolved(finalConfig);
 			const finalBase = finalConfig.backend?.baseUrl;
-			console.log('[SimplifiedMainProvider] finalBase:', finalBase);
 			if (finalBase) {
 				dispatch(setBackendBaseUrl(finalBase));
-				console.log('[SimplifiedMainProvider] Dispatched setBackendBaseUrl');
 			}
 			setInitialized(true); // Mark as initialized after config is set
-			console.log('[SimplifiedMainProvider] setInitialized(true) called');
 		};
 
 		const dynamicConfig = (window as { __CHATBOT_CONFIG__?: ConfigState }).__CHATBOT_CONFIG__;
-		console.log('[SimplifiedMainProvider] dynamicConfig:', dynamicConfig);
 		if (dynamicConfig) {
-			console.log('[SimplifiedMainProvider] Using dynamicConfig from window');
 			applyWithEnvOverride(dynamicConfig);
 			return () => {
 				active = false;
@@ -132,7 +123,9 @@ const RuntimeConfigInitializer = ({
 		}
 
 		const baseUrl = normalizeBaseUrl((window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '');
-		console.log('[SimplifiedMainProvider] baseUrl from window.__CHATBOT_BASE_URL__:', baseUrl);
+		console.log('[SimplifiedMainProvider] window.__CHATBOT_BASE_URL__:', (window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__);
+		console.log('[SimplifiedMainProvider] Normalized baseUrl:', baseUrl);
+		
 		if (!baseUrl) {
 			console.log('[SimplifiedMainProvider] No baseUrl, using defaults');
 			applyWithEnvOverride();
@@ -143,15 +136,13 @@ const RuntimeConfigInitializer = ({
 
 		const controller = new AbortController();
 		const fetchConfig = async () => {
-			console.log('[SimplifiedMainProvider] Fetching config from:', `${baseUrl}/config/config.json`);
 			try {
+				console.log('[SimplifiedMainProvider] Fetching config from:', `${baseUrl}/config/config.json`);
 				const response = await fetch(`${baseUrl}/config/config.json`, { signal: controller.signal });
-				console.log('[SimplifiedMainProvider] Fetch response status:', response.status);
 				if (!response.ok) {
 					throw new Error(`HTTP ${response.status}`);
 				}
 				const config = (await response.json()) as Partial<ConfigState>;
-				console.log('[SimplifiedMainProvider] Fetched config:', config);
 				if (!active) return;
 				applyWithEnvOverride(config);
 			} catch (error) {
@@ -173,15 +164,12 @@ const RuntimeConfigInitializer = ({
 		};
 	}, [dispatch, onConfigResolved]);
 
-	console.log('[SimplifiedMainProvider] Render - initialized:', initialized);
 	
 	// Don't render children until config is initialized
 	if (!initialized) {
-		console.log('[SimplifiedMainProvider] Returning null - not initialized yet');
 		return null;
 	}
 
-	console.log('[SimplifiedMainProvider] Rendering children');
 	return <>{children}</>;
 };
 

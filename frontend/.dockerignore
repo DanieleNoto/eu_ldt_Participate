@@ -5,10 +5,12 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Build outputs
+# Build outputs (will be built fresh in container)
 dist/
 build/
 .vite/
+
+# Test coverage
 coverage/
 
 # Testing
@@ -34,7 +36,7 @@ Thumbs.db
 .git/
 .gitignore
 
-# Documentation
+# Documentation (keep README.md for reference)
 *.md
 !README.md
 
