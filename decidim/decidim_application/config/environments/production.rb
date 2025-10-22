@@ -87,8 +87,9 @@ Rails.application.configure do
     :user_name      => Rails.application.secrets.smtp_username,
     :password       => Rails.application.secrets.smtp_password,
     :domain         => Rails.application.secrets.smtp_domain,
-    :enable_starttls_auto => Rails.application.secrets.smtp_starttls_auto,
-    :openssl_verify_mode => 'none',
+    :enable_starttls_auto => Rails.application.secrets.smtp_starttls_auto == 'true',
+    :tls            => Rails.application.secrets.smtp_tls == 'true',
+    :openssl_verify_mode => Rails.application.secrets.smtp_openssl_verify_mode,
     :open_timeout   => (Rails.application.secrets.smtp_open_timeout || 300).to_i,
     :read_timeout   => (Rails.application.secrets.smtp_read_timeout || 300).to_i
   }
