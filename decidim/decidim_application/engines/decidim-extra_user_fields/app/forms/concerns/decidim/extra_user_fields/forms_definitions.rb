@@ -52,6 +52,7 @@ module Decidim
                   presence: true,
                   "valid_email_2/email": { disposable: true },
                   if: :underage_accepted?
+        validates :statutory_representative_email, length: { maximum: 100 }, if: :underage_accepted?
         validate :birth_date_under_limit
 
         # EndBlock

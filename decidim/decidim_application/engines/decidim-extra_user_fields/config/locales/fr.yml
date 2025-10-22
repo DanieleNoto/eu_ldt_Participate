@@ -20,15 +20,13 @@ fr:
                 parentale
             phone_number:
               invalid: n'est pas un format de téléphone valide
-              too_long: est trop long (maximum 1000 caractères)
-            country:
-              too_long: est trop long (maximum 1000 caractères)
+              too_long: est trop long (maximum 100 caractères)
             postal_code:
-              too_long: est trop long (maximum 1000 caractères)
+              too_long: est trop long (maximum 50 caractères)
             location:
-              too_long: est trop long (maximum 1000 caractères)
+              too_long: est trop long (maximum 100 caractères)
             statutory_representative_email:
-              too_long: est trop long (maximum 1000 caractères)
+              too_long: est trop long (maximum 100 caractères)
   decidim:
     admin:
       actions:
