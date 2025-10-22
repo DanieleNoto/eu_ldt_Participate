@@ -15,6 +15,17 @@ de:
           attributes:
             date_of_birth:
               underage: ungültig. Wenn Sie minderjährig sind, müssen Sie die Erlaubnis der Eltern einholen
+            phone_number:
+              invalid: ist kein gültiges Telefonformat
+              too_long: ist zu lang (maximal 1000 Zeichen)
+            country:
+              too_long: ist zu lang (maximal 1000 Zeichen)
+            postal_code:
+              too_long: ist zu lang (maximal 1000 Zeichen)
+            location:
+              too_long: ist zu lang (maximal 1000 Zeichen)
+            statutory_representative_email:
+              too_long: ist zu lang (maximal 1000 Zeichen)
   decidim:
     admin:
       actions:

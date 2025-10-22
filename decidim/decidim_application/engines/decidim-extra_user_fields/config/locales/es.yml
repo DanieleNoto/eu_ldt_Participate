@@ -18,6 +18,17 @@ es:
             date_of_birth:
               underage: no válido. Si eres menor de edad, deberás obtener autorización
                 parental.
+            phone_number:
+              invalid: no es un formato de teléfono válido
+              too_long: es demasiado largo (máximo 1000 caracteres)
+            country:
+              too_long: es demasiado largo (máximo 1000 caracteres)
+            postal_code:
+              too_long: es demasiado largo (máximo 1000 caracteres)
+            location:
+              too_long: es demasiado largo (máximo 1000 caracteres)
+            statutory_representative_email:
+              too_long: es demasiado largo (máximo 1000 caracteres)
   decidim:
     admin:
       actions:

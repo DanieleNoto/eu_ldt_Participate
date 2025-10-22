@@ -28,16 +28,25 @@ module Decidim
 
         validates :country, presence: true, if: :country?
         validates :postal_code, presence: true, if: :postal_code?
+        validates :postal_code, length: { maximum: 50 }, if: :postal_code?
         validates :date_of_birth, presence: true, if: :date_of_birth?
-        validates :gender, presence: true, inclusion: { in: Decidim::ExtraUserFields::Engine::DEFAULT_GENDER_OPTIONS.map(&:to_s) }, if: :gender?
+        validates :gender, presence: true, if: :gender?
+        validates :gender, inclusion: { in: Decidim::ExtraUserFields::Engine::DEFAULT_GENDER_OPTIONS.map(&:to_s) }, if: :gender?
         validates :phone_number, presence: true, if: :phone_number?
+        validates :phone_number, length: { maximum: 100 }, if: :phone_number?
         validates(
           :phone_number,
-          format: { with: ->(form) { Regexp.new(form.current_organization.extra_user_field_configuration(:phone_number)["pattern"]) } },
+          format: { 
+            with: ->(form) { 
+              pattern = form.current_organization.extra_user_field_configuration(:phone_number)["pattern"]
+              pattern.present? ? Regexp.new(pattern) : /.*/ 
+            } 
+          },
           if: :phone_number_format?
         )
 
         validates :location, presence: true, if: :location?
+        validates :location, length: { maximum: 100 }, if: :location?
         validates :underage, presence: true, if: :underage?
         validates :statutory_representative_email,
                   presence: true,
