@@ -46,6 +46,8 @@ services:
             - MATOMO_SITE_ID=${MATOMO_SITE_ID}
             - MATOMO_SERVER_ADDRESS=${MATOMO_SERVER_ADDRESS}
             - MATOMO_TOKEN_AUTH=${MATOMO_TOKEN_AUTH}
+            # Tool0 Keycloak Configuration
+            - TOOL0_FULL_URL=${TOOL0_FULL_URL}
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
