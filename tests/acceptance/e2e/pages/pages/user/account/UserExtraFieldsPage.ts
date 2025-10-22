@@ -159,23 +159,45 @@ export class UserExtraFieldsPage extends AuthenticatedPage {
 	}
 
 	/**
+	 * Verifies that a field is marked as invalid (real-time validation)
+	 * @param fieldId The ID of the input field
+	 */
+	async expectFieldInvalid(fieldId: string): Promise<void> {
+		const input = this.page.locator(`#${fieldId}`);
+		const label = this.page.locator(`label[for="${fieldId}"]`);
+
+		// Check if the input field is marked as invalid (red border)
+		await expect(input).toHaveClass(/is-invalid-input/);
+		// Check if the label has the error class
+		await expect(label).toHaveClass(/is-invalid-label/);
+	}
+
+	/**
+	 * Verifies that a field is marked as valid (real-time validation)
+	 * @param fieldId The ID of the input field
+	 */
+	async expectFieldValid(fieldId: string): Promise<void> {
+		const input = this.page.locator(`#${fieldId}`);
+		const label = this.page.locator(`label[for="${fieldId}"]`);
+
+		// Check if the input field does not have the invalid class
+		await expect(input).not.toHaveClass(/is-invalid-input/);
+		// Check if the label does not have the error class
+		await expect(label).not.toHaveClass(/is-invalid-label/);
+	}
+
+	/**
 	 * Verifies that the Personal URL field is marked as invalid
 	 */
 	async expectPersonalUrlInvalid(): Promise<void> {
-		// Check if the input field is marked as invalid (red border)
-		await expect(this.personalUrlInput).toHaveClass(/is-invalid-input/);
-		// Check if the label has the error class
-		await expect(this.personalUrlLabel).toHaveClass(/is-invalid-label/);
+		await this.expectFieldInvalid('user_personal_url');
 	}
 
 	/**
 	 * Verifies that the Personal URL field is marked as valid
 	 */
 	async expectPersonalUrlValid(): Promise<void> {
-		// Check if the input field does NOT have the invalid class
-		await expect(this.personalUrlInput).not.toHaveClass(/is-invalid-input/);
-		// Check if the label does NOT have the error class
-		await expect(this.personalUrlLabel).not.toHaveClass(/is-invalid-label/);
+		await this.expectFieldValid('user_personal_url');
 	}
 
 	/**

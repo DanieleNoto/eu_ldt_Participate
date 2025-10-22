@@ -32,4 +32,10 @@ export class ExtraUserFieldsTestDataGenerator {
 			location: 'Test Location'
 		};
 	}
+
+	static generateInvalidUserDataMaxLength(uniqueId: string = Date.now().toString()): Partial<UserFieldsData> {
+		return {
+			phoneNumber: `325802391${uniqueId.slice(-2)}` // 11 digits - exceeds max length
+		};
+	}
 }

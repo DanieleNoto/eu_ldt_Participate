@@ -53,7 +53,7 @@ export class SignUpPage {
 	}
 
 	get phoneNumberInput(): Locator {
-		return this.page.getByRole('textbox', { name: 'Phone number*' });
+		return this.page.getByRole('textbox', { name: 'Phone number' });
 	}
 
 	get locationInput(): Locator {
@@ -208,6 +208,48 @@ export class SignUpPage {
 
 		await expect(errorLocator).toContainText(errorMessage);
 		await expect(errorLocator).toBeVisible();
+	}
+
+	/**
+	 * Verifies that a field is marked as invalid (real-time validation)
+	 * @param fieldId The ID of the input field
+	 */
+	async expectFieldInvalid(fieldId: string): Promise<void> {
+		const input = this.page.locator(`#${fieldId}`);
+		const label = this.page.locator(`label[for="${fieldId}"]`);
+
+		// Check if the input field is marked as invalid (red border)
+		await expect(input).toHaveClass(/is-invalid-input/);
+		// Check if the label has the error class
+		await expect(label).toHaveClass(/is-invalid-label/);
+	}
+
+	/**
+	 * Verifies that a field is marked as valid (real-time validation)
+	 * @param fieldId The ID of the input field
+	 */
+	async expectFieldValid(fieldId: string): Promise<void> {
+		const input = this.page.locator(`#${fieldId}`);
+		const label = this.page.locator(`label[for="${fieldId}"]`);
+
+		// Check if the input field does not have the invalid class
+		await expect(input).not.toHaveClass(/is-invalid-input/);
+		// Check if the label does not have the error class
+		await expect(label).not.toHaveClass(/is-invalid-label/);
+	}
+
+	/**
+	 * Verifies that the phone number field is marked as invalid
+	 */
+	async expectPhoneNumberInvalid(): Promise<void> {
+		await this.expectFieldInvalid('registration_user_phone_number');
+	}
+
+	/**
+	 * Verifies that the phone number field is marked as valid
+	 */
+	async expectPhoneNumberValid(): Promise<void> {
+		await this.expectFieldValid('registration_user_phone_number');
 	}
 
 	/**

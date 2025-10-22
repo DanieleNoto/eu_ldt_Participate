@@ -112,4 +112,14 @@ export class ExtraUserFieldsAdminPage extends BaseAdminPage {
 		await this.enableAllExtraUserFields();
 		await this.saveConfiguration();
 	}
+
+	/**
+	 * Sets the phone number validation regex
+	 * @param regex The regex pattern to validate phone numbers
+	 */
+	async setPhoneNumberValidationRegex(regex: string): Promise<void> {
+		const phoneValidationInput = this.page.getByRole('textbox', { name: 'Phone numbers validation' });
+		await phoneValidationInput.click();
+		await phoneValidationInput.fill(regex);
+	}
 }

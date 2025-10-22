@@ -61,6 +61,7 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 			await extraUserFieldsAdminPage.navigateToSettings();
 			await extraUserFieldsAdminPage.navigateToExtraUserFields();
 			await extraUserFieldsAdminPage.enableAllExtraUserFields();
+			await extraUserFieldsAdminPage.setPhoneNumberValidationRegex('^[3-9][0-9]{9}$');
 			await extraUserFieldsAdminPage.saveConfiguration();
 			await extraUserFieldsAdminPage.expectConfigurationSaved();
 
@@ -343,10 +344,18 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 			});
 
 			await test.step('3. User: Submits the form with missing or invalid data in required fields', async () => {
-				// Fill basic fields (with invalid email and missing extra fields)
+				// Get invalid data from fixtures
+				const invalidData = ExtraUserFieldsTestDataGenerator.generateInvalidUserData();
+				const maxLengthData = ExtraUserFieldsTestDataGenerator.generateInvalidUserDataMaxLength();
+
+				// Fill basic fields + extra fields (with missing/invalid data)
 				await signUpPage.fillName(testUserName);
 				await signUpPage.fillEmail('invalidemail.com');
 				await signUpPage.fillPassword(testUserPassword);
+
+				await signUpPage.fillDateOfBirth(invalidData.dateOfBirth!);
+
+				await signUpPage.fillPhoneNumber(maxLengthData.phoneNumber!);
 
 				// Accept newsletter only (leave terms and conditions unchecked)
 				await signUpPage.checkNewsletterSubscription();
@@ -371,6 +380,9 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 					await signUpPage.expectFieldValidationError(fieldId);
 				}
 
+				// Verify field shows as invalid (red border)
+				await signUpPage.expectPhoneNumberInvalid();
+
 				console.log('Validation errors displayed for missing/invalid fields');
 
 				// Now correct the fields but leave terms unchecked to verify terms validation
@@ -382,6 +394,9 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 				await signUpPage.fillPostalCode(testPostalCode);
 				await signUpPage.fillPhoneNumber(testPhoneNumber);
 				await signUpPage.fillLocation(testLocation);
+
+				// Verify phone number field shows as valid now
+				await signUpPage.expectPhoneNumberValid();
 
 				console.log('Fields corrected except terms and conditions');
 
