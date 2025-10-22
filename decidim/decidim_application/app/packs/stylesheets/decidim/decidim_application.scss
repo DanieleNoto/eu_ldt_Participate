@@ -19,3 +19,12 @@
     -ms-hyphens: auto;
     word-wrap: break-word;
 }
+// Hide external link icon for help button in admin header
+.help-button,
+.ldt-admin-header a[target="_blank"] {
+    &::after,
+    &::before {
+        display: none !important;
+        content: none !important;
+    }
+}

@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function initializeToolsDropdown() {
   const toolsButton = document.getElementById('tools-dropdown-button');
   const toolsDropdown = document.getElementById('tools-dropdown');
+  const userDropdown = document.getElementById('user-dropdown');
   
   if (toolsButton && toolsDropdown) {
     
@@ -15,6 +16,11 @@ function initializeToolsDropdown() {
       
       const isVisible = toolsDropdown.style.display === 'block';
       toolsDropdown.style.display = isVisible ? 'none' : 'block';
+      
+      // Close user dropdown when opening tools dropdown
+      if (userDropdown && toolsDropdown.style.display === 'block') {
+        userDropdown.classList.add('hidden');
+      }
       
       if (!isVisible) {
         loadApplications();
@@ -87,22 +93,24 @@ function initializeToolsDropdown() {
       const link = document.createElement('a');
       link.href = escapeHtml(app.url);
       link.target = '_blank';
-      link.className = 'flex items-center px-4 py-2 text-gray-800 hover:bg-[#F6F6F6] no-underline group';
+      link.className = 'application-link';
+      
+      // Mark "Participate" as selected (check by name)
+      if (app.name && app.name.toLowerCase().includes('participate')) {
+        link.classList.add('selected');
+      }
       
       if (svgMarkup) {
         const iconSpan = document.createElement('span');
-        iconSpan.className = 'flex-shrink-0 mr-1';
         iconSpan.innerHTML = svgMarkup; // Safe because it's from base64-decoded SVG
         link.appendChild(iconSpan);
       } else {
-        const iconDiv = document.createElement('div');
-        iconDiv.className = 'w-6 h-6 mr-1 bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center rounded';
-        iconDiv.innerHTML = '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>';
+        const iconDiv = document.createElement('span');
+        iconDiv.innerHTML = '<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>';
         link.appendChild(iconDiv);
       }
       
       const nameSpan = document.createElement('span');
-      nameSpan.className = 'text-xl font-bold group-hover:text-[#004494]';
       nameSpan.textContent = app.name;
       link.appendChild(nameSpan);
       
@@ -120,25 +128,17 @@ function initializeToolsDropdown() {
       const groupDiv = document.createElement('div');
       groupDiv.className = 'application-group';
       
-      // Add separator before all groups except first
-      if (index > 0) {
-        const sep = document.createElement('div');
-        sep.className = 'border-t border-gray-200 my-2 mx-2 p-1';
-        groupDiv.appendChild(sep);
-      }
-      
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'w-full flex items-center px-4 pt-3 pb-1 group-header-toggle focus:outline-none';
+      btn.className = 'group-header-toggle';
       btn.setAttribute('data-group', groupId);
+      btn.setAttribute('aria-expanded', 'true');
       
       const nameSpan = document.createElement('span');
-      nameSpan.className = 'text-lg text-start font-semibold text-gray-500 uppercase tracking-wider flex-1';
       nameSpan.textContent = group.name;
       btn.appendChild(nameSpan);
       
       const arrow = document.createElement('svg');
-      arrow.className = 'w-4 h-4 ml-2 transition-transform duration-200 text-gray-400';
       arrow.setAttribute('data-arrow', groupId);
       arrow.setAttribute('fill', 'currentColor');
       arrow.setAttribute('viewBox', '0 0 20 20');
@@ -148,7 +148,7 @@ function initializeToolsDropdown() {
       groupDiv.appendChild(btn);
       
       const appsContainer = document.createElement('div');
-      appsContainer.className = 'group-apps';
+      appsContainer.className = 'group-applications';
       appsContainer.id = groupId;
       
       sortedApps.forEach(app => {
@@ -173,23 +173,20 @@ function initializeToolsDropdown() {
     document.querySelectorAll('.group-header-toggle').forEach(btn => {
       btn.addEventListener('click', function(e) {
         e.preventDefault();
+        e.stopPropagation();
         const groupId = btn.getAttribute('data-group');
         const groupDiv = document.getElementById(groupId);
-        const arrow = document.querySelector(`[data-arrow="${groupId}"]`);
-        if (groupDiv.style.display === 'none' || groupDiv.style.display === '') {
-          groupDiv.style.display = 'block';
-          arrow.style.transform = 'rotate(180deg)';
+        const arrow = btn.querySelector('svg');
+        const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+        
+        if (isExpanded) {
+          groupDiv.classList.add('collapsed');
+          btn.setAttribute('aria-expanded', 'false');
         } else {
-          groupDiv.style.display = 'none';
-          arrow.style.transform = 'rotate(0deg)';
+          groupDiv.classList.remove('collapsed');
+          btn.setAttribute('aria-expanded', 'true');
         }
       });
-      // By default, open all groups
-      const groupId = btn.getAttribute('data-group');
-      const groupDiv = document.getElementById(groupId);
-      groupDiv.style.display = 'block';
-      const arrow = document.querySelector(`[data-arrow="${groupId}"]`);
-      arrow.style.transform = 'rotate(180deg)';
     });
   }
   

@@ -11,28 +11,30 @@ module Decidim
             # Get auth data before calling parent
             auth_data = request.env["omniauth.auth"]
             
-            puts "[DEVISE] === DEVISE_EXTENSION CREATE CALLED ==="
-            puts "[DEVISE] auth_data present: #{auth_data.present?}, provider: #{auth_data&.provider}"
-            puts "[DEVISE] auth_data.extra keys: #{auth_data&.extra&.keys.inspect}" if auth_data
-            puts "[DEVISE] auth_data.credentials keys: #{auth_data&.credentials&.keys.inspect}" if auth_data
-            
             # Call parent create (handles user creation/sign-in)
             result = super
             
-            puts "[DEVISE] After super, current_user: #{current_user.present?}"
-            
             # After user is signed in, save token to cache
             if auth_data&.provider == "keycloakopenid" && current_user
-              puts "[DEVISE] CONDITIONS MET - Calling save_keycloak_token_to_cache"
               save_keycloak_token_to_cache(current_user, auth_data)
-            else
-              puts "[DEVISE] CONDITIONS NOT MET - provider=#{auth_data&.provider.inspect}, user=#{current_user.present?}"
+              
+              # Mark session as Keycloak authenticated for Single Logout
+              session[:keycloak_authenticated] = true
+              
+              # Save id_token for logout (needed for automatic logout without confirmation page)
+              id_token = auth_data&.extra&.dig('id_token') || auth_data&.credentials&.dig('id_token')
+              
+              if id_token.present?
+                session[:keycloak_id_token] = id_token
+                Rails.logger.info "[Keycloak] Saved id_token to session for user #{current_user.id}"
+              else
+                Rails.logger.warn "[Keycloak] No id_token found in auth_data for user #{current_user.id}"
+              end
             end
             
             result
           rescue => e
-            puts "[DEVISE] ERROR in DeviseExtension#create: #{e.class} - #{e.message}"
-            puts "[DEVISE] #{e.backtrace.join("\n")}"
+            Rails.logger.error "[Keycloak] ERROR in DeviseExtension#create: #{e.class} - #{e.message}"
             raise
           end
         end
@@ -40,28 +42,15 @@ module Decidim
         private
 
         def save_keycloak_token_to_cache(user, auth_data)
-          puts "[SAVE_TOKEN] save_keycloak_token_to_cache called for user id=#{user.id}"
-          puts "[SAVE_TOKEN] auth_data.class: #{auth_data.class}, auth_data.provider: #{auth_data&.provider}"
-          puts "[SAVE_TOKEN] auth_data.credentials keys: #{auth_data&.credentials&.keys.inspect}"
-          puts "[SAVE_TOKEN] auth_data.extra keys: #{auth_data&.extra&.keys&.inspect}"
-          
           # Try multiple ways to get the token
           access_token = auth_data&.extra&.dig('access_token') || 
-                        auth_data&.credentials&.dig('token') ||
-                        auth_data&.credentials&.fetch('token', nil)
+                        auth_data&.credentials&.dig('token')
           refresh_token = auth_data&.extra&.dig('refresh_token') || 
-                         auth_data&.credentials&.dig('refresh_token') ||
-                         auth_data&.credentials&.fetch('refresh_token', nil)
+                         auth_data&.credentials&.dig('refresh_token')
           token_expires_in = auth_data&.extra&.dig('token_expires_in') || 
                             auth_data&.extra&.dig('expires_in') ||
-                            auth_data&.credentials&.dig('expires_in') ||
-                            auth_data&.credentials&.fetch('expires_in', nil)
+                            auth_data&.credentials&.dig('expires_in')
           token_expires_in = token_expires_in.to_i if token_expires_in
-          user_uid = auth_data&.uid
-          
-          puts "[SAVE_TOKEN] access_token present: #{access_token.present?}"
-          puts "[SAVE_TOKEN] refresh_token present: #{refresh_token.present?}"
-          puts "[SAVE_TOKEN] token_expires_in: #{token_expires_in}"
 
           if access_token
             # Use TokenService to save tokens to cookies
@@ -72,18 +61,16 @@ module Decidim
             }
             
             Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, tokens)
-            puts "[SAVE_TOKEN] ✓ Keycloak: Tokens saved to HTTP cookies using TokenService"
+            Rails.logger.info "[Keycloak] Tokens saved to cookies for user #{user.id}"
 
             # Sync admin role
             if auth_data.extra && auth_data.extra['is_decidim_admin']
-              puts "[SAVE_TOKEN] User is admin in Keycloak - updating admin flag"
               user.update!(admin: true) unless user.admin?
             elsif user.admin?
-              puts "[SAVE_TOKEN] User is NOT admin in Keycloak - removing admin flag"
               user.update!(admin: false)
             end
           else
-            puts "[SAVE_TOKEN] ✗ Keycloak: Could not save token - access_token nil"
+            Rails.logger.error "[Keycloak] Could not save token - access_token nil for user #{user.id}"
           end
         end
     end

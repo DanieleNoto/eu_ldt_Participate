@@ -70,11 +70,13 @@
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  min-width: 20rem;
+  box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+  min-width: 240px;
+  max-width: 280px;
   z-index: 1000;
   margin-top: 4px;
   overflow-y: auto;
+  max-height: 600px;
 }
 
 .tools-dropdown.hidden {
@@ -87,8 +89,224 @@
   color: #64748b;
   font-size: 14px;
 }
+
+/* Group Header Styles */
+.application-group {
+  margin: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  .group-header-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+    
+    span {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.54);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex: 1;
+    }
+    
+    svg {
+      width: 20px;
+      height: 20px;
+      fill: rgba(0, 0, 0, 0.54);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    
+    &[aria-expanded="false"] svg {
+      transform: rotate(-90deg);
+    }
+  }
+  
+  .group-applications {
+    display: block;
+    
+    &.collapsed {
+      display: none;
+    }
+  }
+}
+
+/* Application Item Styles */
 .application-item {
-  svg {
-    scale: 0.75;
+  margin: 0;
+  
+  a {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 14px;
+    font-weight: 400;
+    transition: background-color 0.2s ease;
+    gap: 12px;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+    
+    &.selected {
+      background-color: rgba(0, 69, 148, 0.08);
+      color: #004494;
+      font-weight: 500;
+    }
+    
+    span:first-child {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+    
+    svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+  }
+}
+
+/* Help Button Styles */
+.help-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  position: relative;
+  
+  // Hide external link icon - multiple approaches
+  &::after,
+  &::before {
+    display: none !important;
+    content: none !important;
+  }
+  
+  // Hide any SVG or icon that might be added by external link indicators
+  svg:not(img svg) {
+    display: none !important;
+  }
+  
+  // Remove any external link styling
+  &[target="_blank"] {
+    &::after {
+      display: none !important;
+    }
+  }
+  
+  &:hover {
+    transform: scale(1.2);
+    text-decoration: none;
+    
+  }
+  
+  &:active {
+    transform: scale(1);
+  }
+  
+  img {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
+/* User Button and Dropdown Styles */
+.user-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.2);
+
+  }
+  
+  &:active {
+    transform: scale(1);
+  }
+  
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: rgb(255, 255, 255);
+  color: rgba(0, 0, 0, 0.87);
+  box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  z-index: 1001;
+  min-width: 160px;
+  overflow: hidden;
+  margin-top: 14px;
+  
+  &.hidden {
+    display: none;
+  }
+}
+
+.logout-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  color: rgba(0, 0, 0, 0.87);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 400;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+  
+  .logout-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+  
+  span {
+    flex: 1;
   }
 }
