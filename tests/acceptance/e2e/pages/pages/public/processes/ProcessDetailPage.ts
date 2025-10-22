@@ -326,73 +326,73 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Make sure the meeting list is visible
 	 * and that each card contains the title, date/time, and location.
 	 */
-async verifyMeetingsCardListVisibleEnhanced(): Promise<void> {
-    const count = await this.meetingCards.count();
-    expect(count).toBeGreaterThan(0);
+	async verifyMeetingsCardListVisibleEnhanced(): Promise<void> {
+		const count = await this.meetingCards.count();
+		expect(count).toBeGreaterThan(0);
 
-    for (let i = 0; i < count; i++) {
-        const card = this.meetingCards.nth(i);
-        await expect(card.locator('.card__list-title')).toBeVisible();
-        await expect(card.locator('time.card__calendar')).toBeVisible();
-        const locationText = await card.locator('.card__list-metadata div:nth-child(2)').textContent();
-        expect(locationText?.trim()).toMatch(/Online|In-person|Hybrid/);
-        const commentsLocator = card.locator('.card__list-metadata div[data-comments-count]');
-        await expect(commentsLocator).toBeVisible();
-    }
-}
+		for (let i = 0; i < count; i++) {
+			const card = this.meetingCards.nth(i);
+			await expect(card.locator('.card__list-title')).toBeVisible();
+			await expect(card.locator('time.card__calendar')).toBeVisible();
+			const locationText = await card.locator('.card__list-metadata div:nth-child(2)').textContent();
+			expect(locationText?.trim()).toMatch(/Online|In-person|Hybrid/);
+			const commentsLocator = card.locator('.card__list-metadata div[data-comments-count]');
+			await expect(commentsLocator).toBeVisible();
+		}
+	}
 
 	/**
- * Retrieves the first online meeting card details
- * @returns An object with meeting details or null if no online meeting is found
- */
+	 * Retrieves the first online meeting card details
+	 * @returns An object with meeting details or null if no online meeting is found
+	 */
 
-async getFirstOnlineMeeting(): Promise<{
-    index: number;
-    title: string;
-    date: string;
-    type: string;
-    link: string;
-    comments: number;
-} | null> {
-    const count = await this.meetingCards.count();
+	async getFirstOnlineMeeting(): Promise<{
+		index: number;
+		title: string;
+		date: string;
+		type: string;
+		link: string;
+		comments: number;
+	} | null> {
+		const count = await this.meetingCards.count();
 
-    for (let i = 0; i < count; i++) {
-        const card = this.meetingCards.nth(i);
+		for (let i = 0; i < count; i++) {
+			const card = this.meetingCards.nth(i);
 
-        const title = await card.locator('.card__list-title').textContent();
-        const dateAttr = await card.locator('time.card__calendar').getAttribute('datetime');
-        const link = await card.getAttribute('href');
+			const title = await card.locator('.card__list-title').textContent();
+			const dateAttr = await card.locator('time.card__calendar').getAttribute('datetime');
+			const link = await card.getAttribute('href');
 
-        // Extract type (Online, Hybrid, In-person)
-        const metadataItems = card.locator('.card__list-metadata div');
-        const metadataCount = await metadataItems.count();
+			// Extract type (Online, Hybrid, In-person)
+			const metadataItems = card.locator('.card__list-metadata div');
+			const metadataCount = await metadataItems.count();
 
-        let type = '';
-        for (let j = 0; j < metadataCount; j++) {
-            const text = await metadataItems.nth(j).textContent();
-            if (text?.match(/Online|Hybrid|In-person/)) {
-                type = text.trim();
-                break;
-            }
-        }
+			let type = '';
+			for (let j = 0; j < metadataCount; j++) {
+				const text = await metadataItems.nth(j).textContent();
+				if (text?.match(/Online|Hybrid|In-person/)) {
+					type = text.trim();
+					break;
+				}
+			}
 
-        if (type === 'Online') {
-            const commentsText = await card.locator('.card__list-metadata div[data-comments-count]').textContent();
-            const comments = parseInt(commentsText?.trim() ?? '0', 10);
+			if (type === 'Online') {
+				const commentsText = await card.locator('.card__list-metadata div[data-comments-count]').textContent();
+				const comments = parseInt(commentsText?.trim() ?? '0', 10);
 
-            return {
-                index: i,
-                title: title?.trim() ?? '',
-                date: dateAttr ?? '',
-                type,
-                link: link ?? '',
-                comments: isNaN(comments) ? 0 : comments
-            };
-        }
-    }
+				return {
+					index: i,
+					title: title?.trim() ?? '',
+					date: dateAttr ?? '',
+					type,
+					link: link ?? '',
+					comments: isNaN(comments) ? 0 : comments
+				};
+			}
+		}
 
-    return null;
-}
+		return null;
+	}
 
 	async clickMeetingCardByIndex(index: number): Promise<void> {
 		const meetingCard = this.meetingCards.nth(index);
