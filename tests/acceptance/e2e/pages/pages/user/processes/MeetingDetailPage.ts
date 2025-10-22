@@ -16,10 +16,6 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	public shareCalendarModalComponent: ShareCalendarModalComponent;
 	readonly joinLink: Locator;
 	readonly registerButton: Locator;
-	readonly registrationDialog: Locator;
-	readonly registrationDialogTitle: Locator;
-	readonly registrationConfirmButton: Locator;
-	readonly registrationCancelButton: Locator;
 	readonly registrationCodeContainer: Locator;
 	readonly registrationCodeValue: Locator;
 	readonly registrationStatusLabel: Locator;
@@ -42,16 +38,6 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		this.registerButton = this.registerButton = this.page
 			.locator('form.button_to >> button:has-text("Register"):visible')
 			.first();
-		this.registrationDialog = this.page.locator('#meeting-registration-confirm-1-content');
-		this.registrationDialogTitle = this.page.locator(
-			'#meeting-registration-confirm-1-content h2:has-text("Register")'
-		);
-		this.registrationConfirmButton = this.page.locator(
-			'#meeting-registration-confirm-1-content form button[type="submit"]:has-text("Confirm")'
-		);
-		this.registrationCancelButton = this.page.locator(
-			'#meeting-registration-confirm-1-content button[data-dialog-close]:has-text("Cancel")'
-		);
 		this.registrationCodeContainer = this.page
 			.locator('.meeting__aside-block__item:has(h3:has-text("Your registration code")):visible')
 			.first();
@@ -156,7 +142,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 
 	// Cancel registration by clicking the Cancel button inside the dialog.
 	// Waits for the dialog to become hidden after the click.
-	async cancelRegistration(dialogId = 'meeting-registration-confirm-1'): Promise<void> {
+	async abortRegistration(dialogId = 'meeting-registration-confirm-1'): Promise<void> {
 		const dialogSelector = `#${dialogId}-content`;
 		const cancelButton = this.page.locator(`${dialogSelector} button[data-dialog-close]:has-text("Cancel")`);
 		await this.page.waitForSelector(dialogSelector, { state: 'visible' });
@@ -201,13 +187,6 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		await expect(this.flashSuccessMessage).toContainText(expectedSubstring);
 	}
 
-	async expectConfirmationMessageVisibleAndGet(expectedText: string): Promise<string> {
-		await this.page.waitForSelector('div.flash.success[role="alert"]', { state: 'visible' });
-		await expect(this.flashSuccess).toBeVisible();
-		const message = (await this.flashSuccessMessage.textContent())?.trim() ?? '';
-		expect(message).toContain(expectedText);
-		return message;
-	}
 
 	async CancelRegistration(): Promise<void> {
 		const btn = this.page.getByRole('button', { name: 'Cancel your registration' });
@@ -236,6 +215,15 @@ export class MeetingDetailPage extends AuthenticatedPage {
 			await this.page.waitForSelector('div.flash.success[role="alert"]', { state: 'hidden' }).catch(() => null);
 		}
 	}
+
+
+	async expectMeetingFullMessageVisible(): Promise<void> {
+	  // Disabled button with text "No slots available" — role-based and scoped to the body
+	  	const disabledButton = this.page.getByRole('button', { name: 'No slots available', disabled: true }).first();
+	  	await expect(disabledButton).toBeVisible();
+	}
+
+
 
 	async expectLinkToJoinMeetingNotYetAvailable() {
 		await expect(this.page.locator('.meeting__online')).toBeVisible();

@@ -1,4 +1,4 @@
-import { Page, expect, Download } from '@playwright/test';
+import { Page, expect, Download, Locator} from '@playwright/test';
 import { BasePage } from '@pages/base/BasePage';
 import { EMAIL_URLS } from '@utils/constants';
 import { existsSync, unlinkSync } from 'fs';
@@ -266,6 +266,99 @@ export class LetterOpenerPage extends BasePage {
 			throw error;
 		}
 	}
+	
+	/**
+	 * Extract email header information: From, Subject, Date, Attachments
+	 */
+
+async getEmailHeaderInfo(): Promise<{
+    from: string;
+    subject: string;
+    date: string;
+    attachments: string[];
+}> {
+    const decodeHtmlEntities = (text: string): string =>
+        text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+
+    const safeText = async (locator: Locator): Promise<string> => {
+        try {
+            await expect(locator).toBeVisible();
+            const raw = await locator.textContent();
+            const cleaned = raw?.trim().replace(/\s+/g, ' ') ?? '';
+            return decodeHtmlEntities(cleaned);
+        } catch (e) {
+            console.warn(`Text extraction failed: ${e}`);
+            return '';
+        }
+    };
+
+    const activeMessage = this.page.locator('li.list-group-item.active');
+
+    const fromLocator = activeMessage.locator('dt:has-text("From:") + dd');
+    const subjectLocator = activeMessage.locator('dt:has-text("Subject:") + dd strong');
+    const dateLocator = activeMessage.locator('dt:has-text("Date:") + dd');
+
+    const from = await safeText(fromLocator);
+    const subject = await safeText(subjectLocator);
+    const date = await safeText(dateLocator);
+
+    return {
+        from,
+        subject,
+        date,
+        attachments: []
+    };
+}
+
+ /**
+/**
+ * Extract meeting information: Name, Link, Registration Code
+ */
+async getMeetingInfo(): Promise<{
+    meetingName: string;
+    meetingLink: string;
+    registrationCode: string;
+}> {
+    return await this.withEmailContentFrame(async (frame) => {
+        const safeText = async (locator: Locator): Promise<string> => {
+            try {
+                const text = await locator.textContent();
+                return text?.trim().replace(/\s+/g, ' ') ?? '';
+            } catch (e) {
+                console.warn(`Text extraction failed: ${e}`);
+                return '';
+            }
+        };
+
+        const meetingLinkLocator = frame.locator('p.email-instructions a');
+        const registrationCodeLocator = frame.locator('p:has-text("Your registration code is")');
+
+        let meetingName = '';
+        let meetingLink = '';
+        let registrationCode = '';
+
+        try {
+            meetingName = await safeText(meetingLinkLocator);
+            meetingLink = await meetingLinkLocator.getAttribute('href') ?? '';
+        } catch (e) {
+            console.warn(`Meeting link extraction failed: ${e}`);
+        }
+
+        try {
+            const regText = await safeText(registrationCodeLocator);
+            const match = regText.match(/code is (\w+)/);
+            if (match) registrationCode = match[1];
+        } catch (e) {
+            console.warn(`Registration code extraction failed: ${e}`);
+        }
+
+        return {
+            meetingName,
+            meetingLink,
+            registrationCode
+        };
+    });
+}
 
 	// Validation methods
 	async expectToBeOnLetterOpener(): Promise<void> {
