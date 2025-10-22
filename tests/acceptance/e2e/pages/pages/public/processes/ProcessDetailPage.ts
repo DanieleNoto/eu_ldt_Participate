@@ -1,5 +1,8 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { Download, expect, Locator, Page } from '@playwright/test';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
+import { join } from 'path';
+import { tmpdir } from 'os';
+import { existsSync, unlinkSync } from 'fs';
 
 /**
  * Page Object Model for the participatory process detail page.
@@ -25,7 +28,11 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	// Help elements
 	private readonly debatesLink: Locator;
 	private readonly meetingsLink: Locator;
-	private meetingCards;
+	private meetingCards: Locator;
+
+	// Related documents section
+	private readonly relatedDocumentsHeading: Locator;
+	private readonly attachmentLinks: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -51,6 +58,11 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		this.debatesLink = page.locator('a[href$="/debates"]:visible').first();
 		this.meetingsLink = page.locator('a[href$="/meetings"]:visible').first();
 		this.meetingCards = this.page.locator('.card__list-list .card__list');
+		// Related documents section
+		this.relatedDocumentsHeading = page
+			.locator('.content-block__title h2.decorator')
+			.filter({ hasText: 'Related documents' });
+		this.attachmentLinks = page.locator('a[title="Download file"]');
 	}
 
 	// Navigation methods
@@ -324,6 +336,208 @@ export class ProcessDetailPage extends AuthenticatedPage {
 
 	/**
 	 * Make sure the meeting list is visible
+	 * and that each card contains the title, date/time, location, comments count visible, link to meeting detail.
+	 */
+	async verifyMeetingsCardListVisible(): Promise<void> {
+		// Ensure there is at least one card
+		const count = await this.meetingCards.count();
+		expect(count).toBeGreaterThan(0);
+
+		for (let i = 0; i < count; i++) {
+			const card = this.meetingCards.nth(i);
+
+			// Title
+			await expect(card.locator('.card__list-title')).toBeVisible();
+
+			// Date/time (time element)
+			await expect(card.locator('time.card__calendar')).toBeVisible();
+			await expect(card.locator('.card__calendar-month')).toBeVisible();
+			await expect(card.locator('.card__calendar-day')).toBeVisible();
+			await expect(card.locator('.card__calendar-year')).toBeVisible();
+
+			// Location (icon + type text "Online", "In-person", "Hybrid")
+			await expect(card.locator('.card__list-metadata')).toContainText(['Online', 'In-person', 'Hybrid']);
+
+			// Availability: comments count visible (can be zero)
+			await expect(card.locator('[data-comments-count]')).toBeVisible();
+
+			// Link to meeting detail
+			await expect(card).toHaveAttribute('href', /\/meetings\/\d+/);
+		}
+	}
+
+	/**	
+												   
+							
+  
+
+												   
+											   
+												 
+  
+	/**
+	 * Verifies that the "Related documents" section is visible on the page
+																				 
+	 */
+	async expectRelatedDocumentsSectionToBeVisible(): Promise<void> {
+		await expect(this.relatedDocumentsHeading).toBeVisible();
+	}
+
+	/**
+	 * Verifies that an attachment with the given title is visible and downloads the file
+	 * @param attachmentTitle - The title of the attachment to verify and download
+	 */
+	async verifyAndDownloadAttachment(attachmentTitle: string): Promise<void> {
+		// First verify the Related documents section is visible
+		await this.expectRelatedDocumentsSectionToBeVisible();
+
+		// Look for the attachment link by title text within the card content
+		const attachmentTitleLink = this.getPage().locator('.card__list-title').filter({ hasText: attachmentTitle });
+
+		// Verify the attachment title link is visible
+		await expect(attachmentTitleLink).toBeVisible();
+		console.log(`Attachment "${attachmentTitle}" is visible on the page`);
+
+		try {
+			console.log('Setting up popup and download listeners...');
+
+			// Register event listeners before any action
+			const popupPromise: Promise<Page> = this.getPage().waitForEvent('popup');
+			const downloadPromise: Promise<Download> = this.getPage().waitForEvent('download');
+
+			console.log('Listeners registered, now clicking...');
+
+			// Now perform the click
+			await attachmentTitleLink.click();
+
+			console.log('Click performed, waiting for events...');
+
+			// Wait for both events to complete
+			const [popup, download] = await Promise.all([popupPromise, downloadPromise]);
+
+			console.log('Both popup and download received successfully');
+
+			// Close the popup immediately
+			await popup.close();
+			console.log('Popup closed');
+
+			// Process the download
+			const suggestedFilename = download.suggestedFilename();
+			console.log(`Downloaded filename: "${suggestedFilename}"`);
+
+			// Save to temp directory for verification
+			const tempDir = tmpdir();
+			const downloadPath = join(tempDir, suggestedFilename);
+
+			try {
+				console.log(`Saving download to: ${downloadPath}`);
+				await download.saveAs(downloadPath);
+				console.log(`File saved successfully: ${downloadPath}`);
+
+				// Verify file exists and cleanup
+				if (existsSync(downloadPath)) {
+					console.log('Downloaded file exists and is accessible');
+					unlinkSync(downloadPath);
+					console.log(`Cleaned up downloaded file: ${downloadPath}`);
+				} else {
+					throw new Error('Downloaded file not found on disk');
+				}
+
+				console.log(`Attachment "${attachmentTitle}" download completed successfully`);
+			} catch (saveError: unknown) {
+				const errorMessage = saveError instanceof Error ? saveError.message : String(saveError);
+				console.error(`Failed to save or verify download: ${errorMessage}`);
+				throw new Error(`Download verification failed: ${errorMessage}`);
+			}
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.error(`Attachment download verification failed: ${errorMessage}`);
+			throw new Error(`Failed to verify attachment download for "${attachmentTitle}": ${errorMessage}`);
+		}
+	}
+
+	/**
+	 * Verifies that an attachment link with the given title is visible and opens correctly
+	 * @param attachmentTitle - The title of the attachment link to verify
+	 * @param expectedUrl - Expected URL to verify
+	 */
+	async verifyAndOpenAttachmentLink(attachmentTitle: string, expectedUrl?: string | RegExp): Promise<void> {
+		// First verify the Related documents section is visible
+		await this.expectRelatedDocumentsSectionToBeVisible();
+
+		// Look for the attachment link by title text within the card content
+		const attachmentTitleLink = this.getPage().locator('.card__list-title').filter({ hasText: attachmentTitle });
+
+		// Verify the attachment title link is visible
+		await expect(attachmentTitleLink).toBeVisible();
+		console.log(`Attachment link "${attachmentTitle}" is visible on the page`);
+
+		try {
+			console.log('Setting up popup listener for external link...');
+
+			// Setup listener for the external link popup (new browser tab)
+			const externalLinkPopupPromise = this.getPage().waitForEvent('popup');
+
+			console.log('Clicking on attachment link...');
+
+			// Click the attachment title link to open the confirmation modal
+			await attachmentTitleLink.click();
+
+			console.log('Waiting for confirmation modal to appear...');
+
+			// Wait for the modal dialog to be visible
+			const modalDialog = this.getPage().locator('#external-domain-warning-content');
+			await expect(modalDialog).toBeVisible();
+
+			console.log('Confirmation modal appeared');
+
+			// Find and click the "Proceed" button in the modal
+			const proceedButton = modalDialog.getByRole('link', { name: 'Proceed' });
+			await expect(proceedButton).toBeVisible();
+
+			console.log('Clicking "Proceed" button in confirmation modal');
+			await proceedButton.click();
+
+			// Wait for the external link to open in new tab
+			const externalLinkPage = await externalLinkPopupPromise;
+
+			console.log('External link opened in new tab');
+
+			// Wait for the external page to load
+			await externalLinkPage.waitForLoadState('networkidle');
+
+			// Verify the opened URL if expected value is provided
+			if (expectedUrl) {
+				const actualUrl = externalLinkPage.url();
+
+				if (typeof expectedUrl === 'string') {
+					// Direct string comparison for exact match
+					expect(actualUrl).toBe(expectedUrl);
+					console.log(`External link URL matches expected: ${expectedUrl}`);
+				} else {
+					// Regex pattern matching
+					await expect(externalLinkPage).toHaveURL(expectedUrl);
+					console.log(`External link URL matches expected pattern: ${expectedUrl}`);
+				}
+			}
+
+			const openedUrl = externalLinkPage.url();
+			console.log(`Opened URL: ${openedUrl}`);
+
+			// Close the external link tab
+			await externalLinkPage.close();
+			console.log('Closed external link tab');
+
+			console.log(`Attachment link "${attachmentTitle}" opened successfully`);
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.error(`Attachment link verification failed: ${errorMessage}`);
+			throw new Error(`Failed to verify attachment link for "${attachmentTitle}": ${errorMessage}`);
+		}
+	}
+
+	/**
+	 * Make sure the meeting list is visible
 	 * and that each card contains the title, date/time, and location.
 	 */
 	async enhancedVerifyMeetingsCardListVisible(): Promise<void> {
@@ -332,10 +546,13 @@ export class ProcessDetailPage extends AuthenticatedPage {
 
 		for (let i = 0; i < count; i++) {
 			const card = this.meetingCards.nth(i);
+
 			await expect(card.locator('.card__list-title')).toBeVisible();
+
 			await expect(card.locator('time.card__calendar')).toBeVisible();
 			const locationText = await card.locator('.card__list-metadata div:nth-child(2)').textContent();
 			expect(locationText?.trim()).toMatch(/Online|In-person|Hybrid/);
+
 			const commentsLocator = card.locator('.card__list-metadata div[data-comments-count]');
 			await expect(commentsLocator).toBeVisible();
 		}
