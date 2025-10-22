@@ -83,7 +83,18 @@ function fetchExperimentDetail(experimentId) {
     .catch(error => {
       console.error('Error fetching experiment detail:', error);
       if (infoDiv) {
-        infoDiv.innerHTML = `<div class="text-red-600 py-2"><p>Error loading details: ${error.message}</p></div>`;
+        // Clear previous content
+        infoDiv.innerHTML = '';
+        
+        // Create error message safely without innerHTML injection
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'text-red-600 py-2';
+        
+        const errorPara = document.createElement('p');
+        errorPara.textContent = `Error loading details: ${error.message || 'Unknown error'}`;
+        
+        errorDiv.appendChild(errorPara);
+        infoDiv.appendChild(errorDiv);
       }
     });
 }
@@ -92,14 +103,42 @@ function showFormWithDetails(experiment) {
   // Update info div with experiment details
   const infoDiv = document.querySelector('[data-selected-experiment-info]');
   if (infoDiv) {
-    infoDiv.innerHTML = `
-      <div style="margin-bottom: 20px; padding: 15px; background-color: #f0f0f0; border-left: 4px solid #0066cc;">
-        <h4>Selected Experiment</h4>
-        <p><strong>Name:</strong> ${escapeHtml(experiment?.name || 'N/A')}</p>
-        <p><strong>ID:</strong> ${escapeHtml(experiment?.id || 'N/A')}</p>
-        <p><strong>Status:</strong> ${escapeHtml(experiment?.status || 'N/A')}</p>
-      </div>
-    `;
+    // Clear previous content
+    infoDiv.innerHTML = '';
+    
+    // Create elements safely without innerHTML injection
+    const container = document.createElement('div');
+    container.style.marginBottom = '20px';
+    container.style.padding = '15px';
+    container.style.backgroundColor = '#f0f0f0';
+    container.style.borderLeft = '4px solid #0066cc';
+    
+    const heading = document.createElement('h4');
+    heading.textContent = 'Selected Experiment';
+    container.appendChild(heading);
+    
+    const namePara = document.createElement('p');
+    const nameStrong = document.createElement('strong');
+    nameStrong.textContent = 'Name: ';
+    namePara.appendChild(nameStrong);
+    namePara.appendChild(document.createTextNode(experiment?.name || 'N/A'));
+    container.appendChild(namePara);
+    
+    const idPara = document.createElement('p');
+    const idStrong = document.createElement('strong');
+    idStrong.textContent = 'ID: ';
+    idPara.appendChild(idStrong);
+    idPara.appendChild(document.createTextNode(experiment?.id || 'N/A'));
+    container.appendChild(idPara);
+    
+    const statusPara = document.createElement('p');
+    const statusStrong = document.createElement('strong');
+    statusStrong.textContent = 'Status: ';
+    statusPara.appendChild(statusStrong);
+    statusPara.appendChild(document.createTextNode(experiment?.status || 'N/A'));
+    container.appendChild(statusPara);
+    
+    infoDiv.appendChild(container);
   }
   
   // Focus on name input
