@@ -326,7 +326,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Make sure the meeting list is visible
 	 * and that each card contains the title, date/time, and location.
 	 */
-	async verifyMeetingsCardListVisibleEnhanced(): Promise<void> {
+	async enhancedVerifyMeetingsCardListVisible(): Promise<void> {
 		const count = await this.meetingCards.count();
 		expect(count).toBeGreaterThan(0);
 

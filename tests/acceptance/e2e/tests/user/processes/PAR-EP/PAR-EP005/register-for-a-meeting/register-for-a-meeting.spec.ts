@@ -70,7 +70,7 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 			});
 			await test.step('4. System: Displays a list of available meetings, including relevant details such as title, date, time, location, and availability.', async () => {
 				await processDetailPage.expectUrlContainsMeetings();
-				await processDetailPage.verifyMeetingsCardListVisibleEnhanced();
+				await processDetailPage.enhancedVerifyMeetingsCardListVisible();
 			});
 			await test.step('5. User: Selects a specific meeting to view more details.', async () => {
 				const onlineMeeting = await processDetailPage.getFirstOnlineMeeting();
