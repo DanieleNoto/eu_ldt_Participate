@@ -1,0 +1,16 @@
+<div class="decidim-admin">
+  <div class="row">
+    <div class="columns mediumlarge-8">
+      <h1><%= t(".title") %></h1>
+      
+      <%= form_with model: @form, url: "#", local: true do |form| %>
+        <div class="field">
+          <%= form.label :name %>
+          <%= form.text_field :name %>
+        </div>
+        
+        <%= form.submit t(".submit"), class: "button" %>
+      <% end %>
+    </div>
+  </div>
+</div>

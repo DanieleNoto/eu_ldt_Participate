@@ -1,9 +1,9 @@
 # EU LDT Participate - Development Makefile
 # This Makefile automates the setup and testing of the EU LDT Participate platform
 
-.PHONY: help setup install-deps check-env check-prerequisites setup-node setup-decidim setup-playwright setup-frontend setup-backend setup-jitsi
+.PHONY: help setup install-deps check-env check-prerequisites setup-node setup-decidim setup-playwright setup-frontend setup-backend setup-jitsi setup-matomo setup-grafana
 .PHONY: start setup-initial-environment stop restart logs test test-playwright test-frontend test-backend test-all clean
-.PHONY: dev-decidim dev-frontend dev-backend dev-all status check-services
+.PHONY: dev-decidim dev-frontend dev-backend dev-all status check-services build-matomo build-grafana build-analytics-images
 
 # Default target
 .DEFAULT_GOAL := help
@@ -95,32 +95,73 @@ setup-jitsi: ## Setup Jitsi configuration directories
 	@mkdir -p jitsi-meet-cfg/{web,prosody,jicofo,jvb}
 	@echo "$(GREEN)✓ Jitsi configuration directories created$(NC)"
 
+setup-matomo: ## Setup Matomo with custom Docker image
+	@echo "$(YELLOW)Setting up Matomo...$(NC)"
+	@if [ -d analytics/matomo ]; then \
+		echo "Building custom Matomo Docker image..."; \
+		docker build -t matomo-custom ./analytics/matomo; \
+		echo "$(GREEN)✓ Custom Matomo image built$(NC)"; \
+	else \
+		echo "$(RED)Error: analytics/matomo directory not found$(NC)"; \
+		exit 1; \
+	fi
+
+setup-grafana: ## Setup Grafana with custom Docker image
+	@echo "$(YELLOW)Setting up Grafana...$(NC)"
+	@if [ -d analytics/grafana ]; then \
+		echo "Building custom Grafana Docker image..."; \
+		docker build -t grafana-custom ./analytics/grafana; \
+		echo "$(GREEN)✓ Custom Grafana image built$(NC)"; \
+	else \
+		echo "$(RED)Error: analytics/grafana directory not found$(NC)"; \
+		exit 1; \
+	fi
+
+build-matomo: ## Build custom Matomo Docker image
+	@echo "$(YELLOW)Building custom Matomo Docker image...$(NC)"
+	@docker build -t matomo-custom ./analytics/matomo
+	@echo "$(GREEN)✓ Custom Matomo image built successfully$(NC)"
+
+build-grafana: ## Build custom Grafana Docker image
+	@echo "$(YELLOW)Building custom Grafana Docker image...$(NC)"
+	@docker build -t grafana-custom ./analytics/grafana
+	@echo "$(GREEN)✓ Custom Grafana image built successfully$(NC)"
+
+build-analytics-images: build-matomo build-grafana ## Build both Matomo and Grafana custom Docker images
+	@echo "$(GREEN)✓ All analytics images built successfully$(NC)"
+
 setup-decidim: check-prerequisites ## Setup Decidim with Docker Compose
 	@echo "$(YELLOW)Setting up Decidim...$(NC)"
 	@docker compose build --build-arg RAILS_ENV=development --build-arg NODE_ENV=development --progress=plain
 	@echo "$(GREEN)✓ Decidim setup completed$(NC)"
 
-setup: setup-node install-deps setup-playwright setup-frontend setup-backend setup-jitsi setup-decidim ## Complete environment setup
+setup: setup-node install-deps setup-playwright setup-frontend setup-backend setup-jitsi setup-matomo setup-grafana setup-decidim ## Complete environment setup
 	@echo "$(GREEN)🎉 Complete environment setup finished!$(NC)"
 	@echo "$(YELLOW)Next steps:$(NC)"
 	@echo "  1. Run 'make setup-initial-environment' for first time setup with DB reset and data initialization"
 	@echo "  2. Or run 'make start' for regular startup"
 	@echo "  3. Run 'make test-all' to run all tests"
 	@echo "  4. Access Decidim at $(DECIDIM_URL)"
+	@echo "  5. Access Grafana at http://localhost:3001"
+	@echo "  6. Access Matomo at http://localhost:8081"
 
 start: ## Start all services
-	@echo "$(YELLOW)Starting Decidim services...$(NC)"
+	@echo "$(YELLOW)Starting services...$(NC)"
 	@export FORCE_DB_RESET=false FORCE_DATA_SETUP=false && docker compose up -d
-	@echo "$(GREEN)✓ Decidim services started$(NC)"
+	@echo "$(GREEN)✓ All services started$(NC)"
 	@echo "$(YELLOW)Decidim will be available at: $(DECIDIM_URL)$(NC)"
+	@echo "$(YELLOW)Grafana will be available at: http://localhost:3001$(NC)"
+	@echo "$(YELLOW)Matomo will be available at: http://localhost:8081$(NC)"
 	@echo "$(YELLOW)Default admin credentials: admin@example.org / decidim123456789$(NC)"
 	@echo "$(YELLOW)Default user credentials: user@example.org / decidim123456789$(NC)"
 
 setup-initial-environment: ## Start all services with database reset and initial data setup
-	@echo "$(YELLOW)Starting Decidim services with database reset and initial data setup...$(NC)"
+	@echo "$(YELLOW)Starting all services with database reset and initial data setup...$(NC)"
 	@export FORCE_DB_RESET=true FORCE_DATA_SETUP=true && docker compose up -d
-	@echo "$(GREEN)✓ Decidim services started with fresh database and initial data$(NC)"
+	@echo "$(GREEN)✓ All services started with fresh database and initial data$(NC)"
 	@echo "$(YELLOW)Decidim will be available at: $(DECIDIM_URL)$(NC)"
+	@echo "$(YELLOW)Grafana will be available at: http://localhost:3001$(NC)"
+	@echo "$(YELLOW)Matomo will be available at: http://localhost:8081$(NC)"
 	@echo "$(YELLOW)Default admin credentials: admin@example.org / decidim123456789$(NC)"
 	@echo "$(YELLOW)Default user credentials: user@example.org / decidim123456789$(NC)"
 
@@ -201,7 +242,7 @@ clean-deps: ## Remove all node_modules directories
 reset: clean clean-deps setup ## Complete reset and setup
 
 # Development workflow shortcuts
-quick-setup: check-prerequisites setup-node install-deps setup-jitsi setup-decidim ## Quick setup without Playwright
+quick-setup: check-prerequisites setup-node install-deps setup-jitsi setup-matomo setup-grafana setup-decidim ## Quick setup without Playwright
 	@echo "$(GREEN)Quick setup completed! Run 'make start' to begin.$(NC)"
 
 ci-test: setup test-all ## CI/CD pipeline test target
@@ -228,8 +269,9 @@ urls: ## Show all service URLs
 	@echo "  Frontend:  $(FRONTEND_URL)"
 	@echo "  Backend:   $(BACKEND_URL)"
 	@echo "  Shakapacker: http://localhost:3035"
-	@echo "  Grafana:   http://localhost:3000/grafana/"
-	@echo "  Matomo:    http://localhost:8080"
+	@echo "  Grafana:   http://localhost:3001"
+	@echo "  Matomo:    http://localhost:8081"
+	@echo "  Jitsi:     http://localhost:8000"
 
 # Validation targets
 validate-env: ## Validate environment setup

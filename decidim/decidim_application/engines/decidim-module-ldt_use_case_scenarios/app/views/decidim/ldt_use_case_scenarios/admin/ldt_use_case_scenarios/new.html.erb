@@ -1,0 +1,86 @@
+<% add_decidim_page_title(t(".title")) %>
+
+<div class="item_show__header">
+  <h1 class="item_show__header-title">
+    <%= t(".title") %>
+  </h1>
+</div>
+
+<div class="item__edit item__edit-1col">
+  <div class="item__edit-form">
+    <div class="card experiments-association" data-admin-path="<%= "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/ldt_use_case_scenarios" %>" data-i18n-name-required="<%= t(".name_required") %>" data-i18n-save-error="<%= t(".save_error") %>">
+
+      <div id="experiments-container" style="display: none;">
+        <div class="table-stacked">
+          <table class="table-list">
+            <thead id="experiments-thead">
+              <tr>
+                <th><%= t(".experiment_id") %></th>
+                <th class="!text-left"><%= t(".experiment_name") %></th>
+                <th><%= t(".description") %></th>
+                <th><%= t(".actions") %></th>
+              </tr>
+            </thead>
+            <tbody id="experiments-tbody">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-controls">
+          <button type="button" id="prev-page-button" class="button button__secondary"><%= t(".previous_page") %></button>
+          <span id="page-info"></span>
+          <button type="button" id="next-page-button" class="button button__secondary"><%= t(".next_page") %></button>
+        </div>
+      </div>
+
+      <div id="loading-state">
+        <p><%= t(".loading_experiments") %></p>
+      </div>
+
+      <div id="error-state" style="display: none;">
+        <div class="callout alert">
+          <p id="error-message"></p>
+        </div>
+      </div>
+
+      <!-- Form Section - Always Visible -->
+      <div id="form-section" class="card-section">
+        <!-- Selected Experiment Info -->
+        <div id="selected-experiment-info" style="display: none; margin-bottom: 20px;">
+          <div class="callout">
+            <p><strong><%= t(".selected_experiment") %>:</strong> <span id="selected-exp-name"></span></p>
+          </div>
+        </div>
+
+        <!-- Association Name Field -->
+        <div class="row column">
+          <label for="association-name"><strong><%= t(".association_name") %></strong></label>
+          <input 
+            type="text" 
+            id="association-name" 
+            name="association_name" 
+            placeholder="<%= t('.enter_association_name') %>"
+            class="form-control"
+            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-top: 8px; font-size: 14px;">
+          <small class="help-text" style="display: block; margin-top: 5px; color: #666;"><%= t(".name_required") %></small>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Sticky Footer -->
+  <div class="item__edit-sticky">
+    <div class="item__edit-sticky-container">
+      <button type="button" id="reset-button" class="button button__sm"><%= t(".cancel") %></button>
+      <button type="button" id="save-button" class="button button__sm button__secondary"><%= t(".save") %></button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden i18n for JS -->
+<span data-i18n="name_required" style="display: none;"><%= t(".name_required") %></span>
+<span data-i18n="save_error" style="display: none;"><%= t(".save_error") %></span>
+
+<%= append_stylesheet_pack_tag "experiments_association" %>
+<%= append_javascript_pack_tag "experiments_association" %>

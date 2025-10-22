@@ -1,0 +1,77 @@
+/* Matomo iframe styling to prevent navigation issues */
+.analytics-iframe {
+  border: none;
+  overflow: hidden;
+  display: block;
+  max-width: 100%;
+  
+  /* Ensure proper containment */
+  contain: layout style paint;
+  
+  /* Prevent any potential navigation triggers */
+  pointer-events: auto;
+}
+
+#matomo-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  
+  /* Create a proper container for the iframe */
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+/* Loading state styling */
+#matomo-container::before {
+  content: "Loading analytics dashboard...";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 4px;
+  z-index: 1;
+  font-size: 14px;
+  color: #666;
+  display: none;
+}
+
+#matomo-container.loading::before {
+  display: block;
+}
+
+/* Error state styling */
+#matomo-error {
+  margin: 20px 0;
+  padding: 15px;
+  border-left: 4px solid #f04124;
+  background: #fdeaea;
+  border-radius: 0 4px 4px 0;
+}
+
+#matomo-error strong {
+  color: #d32f2f;
+}
+
+#matomo-error code {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-family: monospace;
+}
+
+/* Responsive iframe */
+@media (max-width: 768px) {
+  .analytics-iframe {
+    height: 3000px;
+  }
+}
+
+@media (max-width: 480px) {
+  .analytics-iframe {
+    height: 2500px;
+  }
+}

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jitsi-prosody
+  labels:
+    io.kompose.service: jitsi-prosody
+spec:
+  selector:
+    app: jitsi-prosody
+  ports:
+    - name: bosh
+      port: 5280
+      targetPort: 5280
+      protocol: TCP
+  type: ClusterIP

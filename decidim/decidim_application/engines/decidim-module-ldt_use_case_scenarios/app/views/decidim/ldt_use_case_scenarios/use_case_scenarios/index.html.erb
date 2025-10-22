@@ -1,0 +1,19 @@
+<div class="decidim-pages">
+  <div class="row">
+    <div class="columns mediumlarge-8 mediumlarge-offset-2">
+      <h1><%= t(".title") %></h1>
+      
+      <% if @use_case_scenarios.any? %>
+        <div class="use-case-scenarios">
+          <% @use_case_scenarios.each do |scenario| %>
+            <div class="use-case-scenario">
+              <%= scenario.title %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p><%= t(".no_scenarios") %></p>
+      <% end %>
+    </div>
+  </div>
+</div>

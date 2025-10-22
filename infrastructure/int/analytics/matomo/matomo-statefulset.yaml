@@ -19,7 +19,7 @@ spec:
             automountServiceAccountToken: false
             containers:
                 - name: matomo
-                  image: matomo:5
+                  image: euldtshared.azurecr.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_
                   resources:
                       requests:
                           memory: '256Mi'
@@ -30,39 +30,13 @@ spec:
                           cpu: '500m'
                           ephemeral-storage: '2Gi'
                   ports:
-                      - containerPort: 80
+                      - containerPort: 8080
                         protocol: TCP
-                  env:
-                    - name: DATABASE_HOST
-                      valueFrom:
-                        configMapKeyRef:
-                          name: matomo-configmap
-                          key: MATOMO_DATABASE_HOST
-                    - name: DATABASE_USERNAME
-                      valueFrom:
-                        secretKeyRef:
-                          name: matomo-secrets
-                          key: MATOMO_DATABASE_USERNAME
-                    - name: DATABASE_PASSWORD
-                      valueFrom:
-                        secretKeyRef:
-                          name: matomo-secrets
-                          key: MATOMO_DATABASE_PASSWORD
-                    - name: DATABASE_NAME
-                      valueFrom:
-                        configMapKeyRef:
-                          name: matomo-configmap
-                          key:  MATOMO_DATABASE_DBNAME
-                    - name: MATOMO_DATABASE_ADAPTER
-                      valueFrom:
-                        configMapKeyRef:
-                          name: matomo-configmap
-                          key: MATOMO_DATABASE_ADAPTER
-                    - name: MATOMO_DATABASE_TABLES_PREFIX
-                      valueFrom:
-                        configMapKeyRef:
-                          name: matomo-configmap
-                          key: MATOMO_DATABASE_TABLES_PREFIX
+                  envFrom:
+                      - secretRef:
+                            name: matomo-secrets
+                      - configMapRef:
+                            name: matomo-configmap
                   volumeMounts:
                       - name: matomo-data
                         mountPath: /var/www/html
