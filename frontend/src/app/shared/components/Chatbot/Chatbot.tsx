@@ -57,6 +57,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 	const initializationRef = useRef(false);
 	// Floating open/close state
 	const [open, setOpen] = useState(false);
+	const [disclaimerDismissed, setDisclaimerDismissed] = useState(false);
 	const fabRef = useRef<HTMLButtonElement | null>(null);
 	const closeBtnRef = useRef<HTMLButtonElement | null>(null);
 	const loadingRef = useRef(false);
@@ -297,9 +298,28 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 					</button>
 				</div>
 
+				{/* Disclaimer */}
+				{!disclaimerDismissed && (
+					<div className="bg-[#FFF4E6] border-b border-[#FFB74D] px-6 py-3 relative">
+						<p className="text-[13px] leading-5 text-[#663C00] flex items-start gap-2 pr-6" style={{ fontFamily: "'Open Sans', sans-serif" }}>
+							<span className="text-[#F57C00] font-bold mt-0.5">⚠</span>
+							<span>
+								{t('chatbot.disclaimer')}
+							</span>
+						</p>
+						<button
+							onClick={() => setDisclaimerDismissed(true)}
+							className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-[#663C00] hover:bg-[#FFE0B2] rounded focus:outline-none focus-visible:ring focus-visible:ring-[#F57C00]/40 transition-all duration-200"
+							aria-label={t('chatbot.dismissDisclaimer')}
+						>
+							<CloseIcon sx={{ fontSize: 18 }} />
+						</button>
+					</div>
+				)}
+
 				{/* Conditional content based on FAQ detail mode */}
 				{faqDetailMode && selectedFaq ? (
-					<div style={{height: 'calc(600px - 72px - 80px)', maxHeight: 'calc(95vh - 72px - 80px)'}} className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6">
+					<div style={{height: disclaimerDismissed ? 'calc(600px - 72px - 80px)' : 'calc(600px - 72px - 80px - 50px)', maxHeight: disclaimerDismissed ? 'calc(95vh - 72px - 80px)' : 'calc(95vh - 72px - 80px - 50px)'}} className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6">
 						{/* Bot message introducing the question */}
 						<div className="flex items-start gap-4 w-full">
 							<Avatar size={36} />
@@ -360,7 +380,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 					</div>
 				) : (
 					/* Regular chat view */
-					<div style={{height: 'calc(600px - 72px - 80px)', maxHeight: 'calc(95vh - 72px - 80px)'}} className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6"
+					<div style={{height: disclaimerDismissed ? 'calc(600px - 72px - 80px)' : 'calc(600px - 72px - 80px - 50px)', maxHeight: disclaimerDismissed ? 'calc(95vh - 72px - 80px)' : 'calc(95vh - 72px - 80px - 50px)'}} className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6"
 						role="log"
 						aria-live="polite"
 						aria-relevant="additions text"
