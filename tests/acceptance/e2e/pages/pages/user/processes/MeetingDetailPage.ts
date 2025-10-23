@@ -55,7 +55,6 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	async expectOnMeetingDetailPage(): Promise<void> {
 		await expect(this.meetingTitle).toBeVisible();
 		await expect(this.meetingCalendarContainer).toBeVisible();
-		
 	}
 
 	/**
@@ -187,7 +186,6 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		await expect(this.flashSuccessMessage).toContainText(expectedSubstring);
 	}
 
-
 	async CancelRegistration(): Promise<void> {
 		const btn = this.page.getByRole('button', { name: 'Cancel your registration' });
 		await expect(btn).toBeVisible();
@@ -199,13 +197,12 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		await expect(confirmBtn).toBeVisible();
 		await expect(confirmBtn).toBeEnabled();
 		await Promise.all([
-		  confirmBtn.click(),
-		  cancelDialog.waitFor({ state: 'hidden' }).catch(() => null),
-		  this.page.waitForLoadState('networkidle').catch(() => null),
-	]);
+			confirmBtn.click(),
+			cancelDialog.waitFor({ state: 'hidden' }).catch(() => null),
+			this.page.waitForLoadState('networkidle').catch(() => null)
+		]);
 		await expect(cancelDialog).not.toBeVisible();
 	}
- 
 
 	// Optional helper to dismiss the flash notification
 	async dismissConfirmationMessage(): Promise<void> {
@@ -216,14 +213,11 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		}
 	}
 
-
 	async expectMeetingFullMessageVisible(): Promise<void> {
-	  // Disabled button with text "No slots available" — role-based and scoped to the body
-	  	const disabledButton = this.page.getByRole('button', { name: 'No slots available', disabled: true }).first();
-	  	await expect(disabledButton).toBeVisible();
+		// Disabled button with text "No slots available" — role-based and scoped to the body
+		const disabledButton = this.page.getByRole('button', { name: 'No slots available', disabled: true }).first();
+		await expect(disabledButton).toBeVisible();
 	}
-
-
 
 	async expectLinkToJoinMeetingNotYetAvailable() {
 		await expect(this.page.locator('.meeting__online')).toBeVisible();
