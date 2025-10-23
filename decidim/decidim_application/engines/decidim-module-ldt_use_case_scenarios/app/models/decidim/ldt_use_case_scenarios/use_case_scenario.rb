@@ -5,7 +5,6 @@ module Decidim
     class UseCaseScenario < ApplicationRecord
       include Decidim::HasComponent
       include Decidim::Resourceable
-      include Decidim::HasReference
       include Decidim::Traceable
       
       self.table_name = "decidim_ldt_use_case_scenarios_use_case_scenarios"
