@@ -42,7 +42,22 @@ def create_organization
         "primary" => config[:colors][:primary],
         "secondary" => config[:colors][:secondary],
         "tertiary" => config[:colors][:tertiary]
-      }
+      },
+      file_upload_settings: {
+        "allowed_file_extensions" => {
+          "default" => %w[jpg jpeg png webp pdf rtf txt],
+          "image" => %w[jpg jpeg png webp],
+          "admin" => %w[jpg jpeg png webp pdf doc docx xls xlsx ppt pptx ppx rtf txt odt ott odf otg ods ots csv json md]
+        },
+        "allowed_content_types" => {
+          "default" => %w[image/* application/pdf application/rtf text/plain],
+          "admin" => %w[image/* application/pdf application/rtf application/json text/markdown text/plain text/csv]
+        },
+        "maximum_file_size" => {
+          "default" => 10.0,
+          "avatar" => 5.0
+        }
+      },
     )
   end
   

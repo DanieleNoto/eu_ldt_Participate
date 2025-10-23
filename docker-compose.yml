@@ -42,6 +42,10 @@ services:
             - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
             - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
             - SMTP_OPENSSL_VERIFY_MODE=${SMTP_OPENSSL_VERIFY_MODE}
+            # Matomo Analytics Configuration
+            - MATOMO_SITE_ID=${MATOMO_SITE_ID}
+            - MATOMO_SERVER_ADDRESS=${MATOMO_SERVER_ADDRESS}
+            - MATOMO_TOKEN_AUTH=${MATOMO_TOKEN_AUTH}
             # Chatbot configuration
             - CHATBOT_ENABLED=${CHATBOT_ENABLED}
             - CHATBOT_URL=${CHATBOT_URL}
@@ -58,6 +62,8 @@ services:
             redis:
                 condition: service_started
             db:
+                condition: service_started
+            shakapacker:
                 condition: service_started
         healthcheck:
             test: ["CMD", "test", "-d", "node_modules"]
@@ -178,7 +184,8 @@ services:
             start_period: 40s
             retries: 3
     grafana:
-        image: grafana/grafana:11.0.0
+        build:
+            context: ./analytics/grafana
         ports:
             - "3001:3000"
         env_file:
@@ -215,15 +222,15 @@ services:
             - GF_SERVER_DOMAIN=${GF_SERVER_DOMAIN}
         volumes:
             - grafana_data:/var/lib/grafana
-            - ./analytics/grafana/provisioning:/etc/grafana/provisioning
-            - ./analytics/grafana/dashboards:/var/lib/grafana/dashboards
         networks:
             - private
         depends_on:
             - db
 
     matomo:
-        image: matomo:5
+        build:
+            context: ./analytics/matomo
+            dockerfile: Dockerfile
         ports:
             - "8081:80"
         env_file:

@@ -2,8 +2,9 @@
 	"name": "decidim-development-app",
 	"private": true,
 	"dependencies": {
-		"@decidim/browserslist-config": "^0.30.1",
-		"@decidim/core": "^0.30.1",
+		"@decidim/browserslist-config": "^0.30.2",
+		"@decidim/core": "^0.30.2",
+		"@decidim/webpacker": "^0.30.2",
 		"@fullcalendar/core": "^6.1.19",
 		"@fullcalendar/daygrid": "^6.1.19",
 		"@fullcalendar/interaction": "^6.1.19",
@@ -17,16 +18,16 @@
 		"graphql": "^16.11.0",
 		"inline-attacher": "^0.0.7",
 		"jsrender": "^1.0.16",
+		"keycloak-js": "^26.2.1",
 		"leaflet.featuregroup.subgroup": "^1.0.2",
 		"markdown-it": "^14.1.0"
 	},
 	"version": "0.1.0",
 	"devDependencies": {
-		"@decidim/dev": "^0.30.1",
-		"@decidim/eslint-config": "^0.30.1",
-		"@decidim/prettier-config": "^0.30.1",
-		"@decidim/stylelint-config": "^0.30.1",
-		"@decidim/webpacker": "^0.30.1",
+		"@decidim/dev": "^0.30.2",
+		"@decidim/eslint-config": "^0.30.2",
+		"@decidim/prettier-config": "^0.30.2",
+		"@decidim/stylelint-config": "^0.30.2",
 		"webpack": "^5.99.9",
 		"webpack-cli": "^6.0.1"
 	},

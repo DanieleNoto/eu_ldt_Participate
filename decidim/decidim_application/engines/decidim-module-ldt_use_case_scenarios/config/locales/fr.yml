@@ -1,0 +1,50 @@
+---
+fr:
+  decidim:
+    components:
+      ldt_use_case_scenarios:
+        name: Scénarios de cas d'usage LDT
+        settings:
+          global:
+            title: Titre
+    ldt_use_case_scenarios:
+      use_case_scenarios:
+        index:
+          title: Scénarios de cas d'usage
+          no_scenarios: Aucun scénario disponible
+      admin:
+        ldt_use_case_scenarios:
+          index:
+            title: Gérer les scénarios de cas d'usage
+            scenario_name: Nom du Scénario
+            experiment_id: ID Expérience
+            experiment_name: Nom de l'Expérience
+            actions: Actions
+            associate_experiments: Associer les résultats des expériences
+            new: Ajouter un nouveau scénario
+            no_scenarios: Aucun scénario disponible pour le moment
+            edit: Modifier
+            delete: Supprimer
+          new:
+            title: Créer un scénario de cas d'usage
+            submit: Créer
+            save: Enregistrer
+            loading_experiments: Chargement des expériences...
+            experiment_id: ID
+            experiment_name: Nom de l'Expérience
+            description: Description
+            actions: Actions
+            confirm_title: Associer les résultats des expériences?
+            confirm_message: En cliquant sur "confirmer", vous créerez une nouvelle association.
+            association_name: Nom de l'Association
+            enter_association_name: Entrez le nom de l'association
+            cancel: Annuler
+            confirm: Confirmer
+            name_required: Le nom de l'association est requis
+            save_error: Erreur lors de l'enregistrement de l'association. Veuillez réessayer.
+            previous_page: Page Précédente
+            next_page: Page Suivante
+            select: Sélectionner
+            selected_experiment: Expérience Sélectionnée
+          create:
+            success: Association d'expériences créée avec succès.

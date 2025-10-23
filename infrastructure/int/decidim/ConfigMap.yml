@@ -7,8 +7,7 @@ metadata:
 data:
     DATABASE_HOST: db
     DATABASE_NAME: decidim_application_development
-    DATABASE_USERNAME: postgres
-    DECIDIM_FORCE_SSL: 'false'
+    DECIDIM_FORCE_SSL: 'true'
     DECIDIM_MAILER_SENDER: info@ldttoolbox.eu
     DOCKER_HOST_ADDRESS: 127.0.0.1
     KEYCLOAK_DISABLE_SSL_VERIFY: 'false'
@@ -16,11 +15,9 @@ data:
     OMNIAUTH_KEYCLOAK_CLIENT_ID: tool3
     OMNIAUTH_KEYCLOAK_REALM: LDT
     OMNIAUTH_KEYCLOAK_SITE: https://im-int.ldttoolbox.app/
-    PUBLIC_URL: https://part-int.ldttoolbox.app/jitsi
     QUEUE_ADAPTER: sidekiq
     RAILS_ENV: production
     REDIS_URL: redis://redis:6379/0
-    RESTART_POLICY: unless-stopped
     SMTP_ADDRESS: ssl0.ovh.net
     SMTP_AUTHENTICATION: plain
     SMTP_DOMAIN: ssl0.ovh.net
