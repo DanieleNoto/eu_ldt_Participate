@@ -7,12 +7,14 @@ This directory contains the updated Grafana configuration for monitoring Decidim
 This directory now contains a Dockerfile that builds a custom Grafana image with pre-configured dashboards and data sources. The dashboard and provisioning files are directly baked into the image, eliminating the need for external volume mounts.
 
 Key benefits:
+
 - Self-contained image with all configurations
 - Easier deployment in Kubernetes
 - No dependency on persistent volume claims for configuration
 - Consistent dashboard setup across environments
 
 ### Usage
+
 - For local development: Built via docker-compose
 - For integration/production: Built and pushed to ACR via Azure DevOps pipeline
 

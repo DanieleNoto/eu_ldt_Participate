@@ -28,7 +28,7 @@ export class AccountDeletionPage {
 	}
 
 	get deleteReasonTextarea(): Locator {
-		return this.page.locator('textarea[name="delete_account[delete_reason]"]');
+		return this.page.getByRole('textbox', { name: 'Reason to delete your account' });
 	}
 
 	get deleteReasonLabel(): Locator {

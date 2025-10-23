@@ -131,15 +131,15 @@ test.describe('[PAR-EP004] – Flow meeting admin + user', () => {
 			});
 
 			await test.step('7. User: Clicks on the "Join Online Meeting" button to join the online meeting.', async () => {
-			const [newPage] = await Promise.all([
-    			meetingDetailPage.getPage().context().waitForEvent('page'),
-   				meetingDetailPage.clickJoinMeetingButton()
+				const [newPage] = await Promise.all([
+					meetingDetailPage.getPage().context().waitForEvent('page'),
+					meetingDetailPage.clickJoinMeetingButton()
 				]);
-			    await newPage.waitForLoadState('domcontentloaded');
-    		await newPage.screenshot({
-        		path: `test-results/screenshots/join-meeting-${Date.now()}.png`,
-        		fullPage: true
-    			});	
+				await newPage.waitForLoadState('domcontentloaded');
+				await newPage.screenshot({
+					path: `test-results/screenshots/join-meeting-${Date.now()}.png`,
+					fullPage: true
+				});
 			});
 
 			await test.step('8. System: Redirects the citizen to the meeting link using the provided video conferencing tool.', async () => {
@@ -149,7 +149,6 @@ test.describe('[PAR-EP004] – Flow meeting admin + user', () => {
 			await test.step('Result: The citizen successfully joins the online meeting and can participate in discussions and activities.', async () => {
 				if (joined.success) {
 					console.log(`Join successful: scenario = ${joined.outcome}`);
-					
 				} else {
 					throw new Error(`Join KO: outcome = ${joined.outcome}`);
 				}
