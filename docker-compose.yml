@@ -48,6 +48,9 @@ services:
             - MATOMO_TOKEN_AUTH=${MATOMO_TOKEN_AUTH}
             # Tool0 Keycloak Configuration
             - TOOL0_FULL_URL=${TOOL0_FULL_URL}
+            # JSON Logging for ELK Stack
+            - ENABLE_JSON_LOGS=${ENABLE_JSON_LOGS:-false}
+            - RAILS_LOG_TO_STDOUT=true
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
