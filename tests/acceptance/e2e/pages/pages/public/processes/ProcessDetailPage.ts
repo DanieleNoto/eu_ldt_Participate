@@ -334,38 +334,6 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		return -1;
 	}
 
-	/**
-	 * Make sure the meeting list is visible
-	 * and that each card contains the title, date/time, location, comments count visible, link to meeting detail.
-	 */
-	async verifyMeetingsCardListVisible(): Promise<void> {
-		// Ensure there is at least one card
-		const count = await this.meetingCards.count();
-		expect(count).toBeGreaterThan(0);
-
-		for (let i = 0; i < count; i++) {
-			const card = this.meetingCards.nth(i);
-
-			// Title
-			await expect(card.locator('.card__list-title')).toBeVisible();
-
-			// Date/time (time element)
-			await expect(card.locator('time.card__calendar')).toBeVisible();
-			await expect(card.locator('.card__calendar-month')).toBeVisible();
-			await expect(card.locator('.card__calendar-day')).toBeVisible();
-			await expect(card.locator('.card__calendar-year')).toBeVisible();
-
-			// Location (icon + type text "Online", "In-person", "Hybrid")
-			await expect(card.locator('.card__list-metadata')).toContainText(['Online', 'In-person', 'Hybrid']);
-
-			// Availability: comments count visible (can be zero)
-			await expect(card.locator('[data-comments-count]')).toBeVisible();
-
-			// Link to meeting detail
-			await expect(card).toHaveAttribute('href', /\/meetings\/\d+/);
-		}
-	}
-
 	async clickMeetingCardByIndex(index: number): Promise<void> {
 		const meetingCard = this.meetingCards.nth(index);
 		await meetingCard.click();
