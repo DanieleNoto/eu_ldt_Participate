@@ -477,7 +477,6 @@ export class ComponentsPage extends BaseAdminPage {
 		const link = this.getComponentLinkByName(componentName);
 		await link.click();
 	}
-
 	/**
 	 * Click on the Export button to open export dropdown/modal
 	 */

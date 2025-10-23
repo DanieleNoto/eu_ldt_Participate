@@ -5,7 +5,7 @@ metadata:
     labels:
         io.kompose.service: matomo-db
 spec:
-    serviceName: matomo-db
+    serviceName: matomo-db-svc
     replicas: 1
     selector:
         matchLabels:

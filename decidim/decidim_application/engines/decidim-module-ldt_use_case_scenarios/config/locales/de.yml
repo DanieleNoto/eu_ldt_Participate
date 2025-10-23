@@ -1,0 +1,50 @@
+---
+de:
+  decidim:
+    components:
+      ldt_use_case_scenarios:
+        name: LDT-Anwendungsfallszenarien
+        settings:
+          global:
+            title: Titel
+    ldt_use_case_scenarios:
+      use_case_scenarios:
+        index:
+          title: Anwendungsfallszenarien
+          no_scenarios: Keine Szenarien verfügbar
+      admin:
+        ldt_use_case_scenarios:
+          index:
+            title: Anwendungsfallszenarien verwalten
+            scenario_name: Szenarioname
+            experiment_id: Experiment-ID
+            experiment_name: Name des Experiments
+            actions: Aktionen
+            associate_experiments: Experimentiergebnisse zuordnen
+            new: Neues Szenario hinzufügen
+            no_scenarios: Noch keine Szenarien verfügbar
+            edit: Bearbeiten
+            delete: Löschen
+          new:
+            title: Anwendungsfallszenario erstellen
+            submit: Erstellen
+            save: Speichern
+            loading_experiments: Experimente werden geladen...
+            experiment_id: ID
+            experiment_name: Name des Experiments
+            description: Beschreibung
+            actions: Aktionen
+            confirm_title: Experimentiergebnisse zuordnen?
+            confirm_message: Durch Klicken auf "Bestätigen" erstellen Sie eine neue Zuordnung.
+            association_name: Zuordnungsname
+            enter_association_name: Geben Sie den Zuordnungsnamen ein
+            cancel: Abbrechen
+            confirm: Bestätigen
+            name_required: Der Name der Zuordnung ist erforderlich
+            save_error: Fehler beim Speichern der Zuordnung. Bitte versuchen Sie es erneut.
+            previous_page: Vorherige Seite
+            next_page: Nächste Seite
+            select: Auswählen
+            selected_experiment: Ausgewähltes Experiment
+          create:
+            success: Experimentzuordnung erfolgreich erstellt.

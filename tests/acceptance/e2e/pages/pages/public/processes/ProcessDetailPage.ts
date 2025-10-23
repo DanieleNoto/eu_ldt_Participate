@@ -366,15 +366,15 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		}
 	}
 
-	/**	
-												   
-							
-  
+	async clickMeetingCardByIndex(index: number): Promise<void> {
+		const meetingCard = this.meetingCards.nth(index);
+		await meetingCard.click();
+	}
 
-												   
-											   
-												 
-  
+	async expectUrlContainsMeetings(): Promise<void> {
+		await this.page.waitForURL(/.*\/meetings.*/);
+		expect(this.page.url()).toContain('/meetings');
+	}
 	/**
 	 * Verifies that the "Related documents" section is visible on the page
 																				 
@@ -609,15 +609,5 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		}
 
 		return null;
-	}
-
-	async clickMeetingCardByIndex(index: number): Promise<void> {
-		const meetingCard = this.meetingCards.nth(index);
-		await meetingCard.click();
-	}
-
-	async expectUrlContainsMeetings(): Promise<void> {
-		await this.page.waitForURL(/.*\/meetings.*/);
-		expect(this.page.url()).toContain('/meetings');
 	}
 }

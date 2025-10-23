@@ -72,3 +72,9 @@ export const BASE_URLS = {
 export const EMAIL_URLS = {
 	LETTER_OPENER: `${process.env.FE_BASE_URL || 'http://localhost:3000'}/letter_opener/`
 } as const;
+
+export const GRAFANA_URLS = {
+	BASE: process.env.GRAFANA_BASE_URL || 'http://localhost:3001',
+	LOGIN: `${process.env.GRAFANA_BASE_URL || 'http://localhost:3001'}/login`,
+	API_ORG: `${process.env.GRAFANA_BASE_URL || 'http://localhost:3001'}/api/org`
+} as const;

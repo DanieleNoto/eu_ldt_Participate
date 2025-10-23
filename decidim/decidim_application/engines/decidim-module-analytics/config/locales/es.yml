@@ -1,0 +1,25 @@
+---
+es:
+  decidim:
+    analytics:
+      menu:
+        analytics: Analíticas
+        statistics: Estadísticas
+      admin:
+        missing_configuration: "Falta la configuración de Matomo. Por favor, configure server_address, site_id y token_auth en sus credenciales o secretos."
+        statistics:
+          description: "Accede al panel de analíticas de Grafana para ver estadísticas y métricas completas de la plataforma."
+          open_full_dashboard: "Abrir en Nueva Pestaña"
+          refresh: "Actualizar"
+          unable_to_load: "No se puede cargar el panel de Grafana."
+          check_configuration: "Por favor verifique:"
+          grafana_running: "El servidor Grafana está ejecutándose en %{server}"
+          dashboards_configured: "Los paneles están configurados correctamente"
+          network_connectivity: "Conectividad de red entre servicios"
+          try_accessing: "Intente acceder a"
+          grafana_directly: "Grafana directamente"
+          verify_configuration: "para verificar la configuración."
+    admin:
+      titles:
+        analytics: Analíticas
+        statistics: Estadísticas

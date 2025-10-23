@@ -79,14 +79,38 @@ module Decidim
       def get_auth_token(current_user)
         Rails.logger.debug "=== Auth Token Debug ==="
         
-        # Try to get token from current user's session/omniauth data
-        if current_user&.respond_to?(:oauth_token)
-          Rails.logger.debug "Found oauth_token from user"
-          return current_user.oauth_token
+        # Try to get JWT token from current user's session or request
+        if current_user
+          Rails.logger.debug "Looking for JWT token for user #{current_user.id}"
+          
+          # Try to get JWT token from session (if stored during OAuth login)
+          jwt_token = get_jwt_from_session
+          if jwt_token
+            Rails.logger.debug "Found JWT token in session"
+            return jwt_token
+          end
+          
+          # Try to get from user's OAuth data if available
+          begin
+            # Look for any OAuth access token that might contain JWT info
+            access_token = Doorkeeper::AccessToken.where(resource_owner_id: current_user.id)
+                                                  .where(revoked_at: nil)
+                                                  .where("expires_in IS NULL OR (created_at + INTERVAL '1 second' * expires_in) > ?", Time.current)
+                                                  .order(created_at: :desc)
+                                                  .first
+            
+            if access_token
+              Rails.logger.debug "Found OAuth access token, checking if it's JWT"
+              # If the token looks like a JWT (has dots), use it
+              if access_token.token.include?('.')
+                Rails.logger.debug "OAuth token appears to be JWT format"
+                return access_token.token
+              end
+            end
+          rescue => e
+            Rails.logger.error "Error retrieving OAuth token for user #{current_user.id}: #{e.message}"
+          end
         end
-        
-        # Try session data if available
-        # This would need to be passed from the controller
         
         # Fallback to environment variables
         keycloak_token = ENV['KEYCLOAK_ACCESS_TOKEN']
@@ -95,10 +119,35 @@ module Decidim
         Rails.logger.debug "KEYCLOAK_ACCESS_TOKEN: #{keycloak_token.present? ? '[SET]' : '[MISSING]'}"
         Rails.logger.debug "TOOL0_AUTH_TOKEN: #{tool0_token.present? ? '[SET]' : '[MISSING]'}"
         
+        # Check if the token is just a placeholder
+        if tool0_token == 'your_auth_token_here'
+          Rails.logger.warn "TOOL0_AUTH_TOKEN is set to placeholder value 'your_auth_token_here' - please configure a valid JWT token"
+          return nil
+        end
+        
         token = keycloak_token || tool0_token
-        Rails.logger.debug "Final token: #{token.present? ? '[SET]' : '[MISSING]'}"
+        Rails.logger.debug "Final fallback token: #{token.present? ? '[SET]' : '[MISSING]'}"
         
         token
+      end
+      
+      private
+      
+      def get_jwt_from_session
+        # Try to get JWT token from current request/session
+        # This might be available in different places depending on the OAuth setup
+        
+        # Check if there's a JWT in the session
+        session_jwt = session['jwt_token'] || session['id_token'] || session['access_token']
+        return session_jwt if session_jwt
+        
+        # Check cookies for JWT
+        cookies_jwt = cookies['jwt_token'] || cookies['id_token'] || cookies['access_token']
+        return cookies_jwt if cookies_jwt
+        
+        nil
+      rescue
+        nil
       end
     end
   end
