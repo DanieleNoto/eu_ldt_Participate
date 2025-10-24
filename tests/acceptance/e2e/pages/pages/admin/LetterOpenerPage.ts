@@ -245,7 +245,6 @@ export class LetterOpenerPage extends BasePage {
 					} else {
 						console.log('File not found for cleanup but download was successful');
 					}
-
 					console.log('Download completed successfully');
 					return;
 				} catch (saveError: unknown) {
@@ -255,10 +254,6 @@ export class LetterOpenerPage extends BasePage {
 					return;
 				}
 			}
-			await this.page.screenshot({
-				path: `test-results/screenshots/DE003/errorDownload.png`,
-				fullPage: true
-			});
 			console.log('No download detected - this indicates the export file is not available');
 			throw new Error(
 				'Export file download failed: No download was initiated after clicking the download link. This may indicate the file is not ready or not available.'

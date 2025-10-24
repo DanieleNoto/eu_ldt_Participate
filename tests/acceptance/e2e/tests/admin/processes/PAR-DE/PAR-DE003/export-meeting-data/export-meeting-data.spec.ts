@@ -113,13 +113,11 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 					// Navigate to Letter Opener and refresh to get latest emails
 					await letterOpenerPage.navigateToLetterOpener();
 					await letterOpenerPage.refreshEmails();
-
 					console.log('Letter Opener opened and refreshed. Ready to search for export email.');
 					// Find and click on the most recent export email (should be first after refresh)
 					await letterOpenerPage.clickMostRecentExportEmailByType('meetings');
 					// Verify the export email content
 					await letterOpenerPage.verifyExportEmail();
-
 					// Download and verify the export file
 					await letterOpenerPage.downloadExportFile();
 				});
