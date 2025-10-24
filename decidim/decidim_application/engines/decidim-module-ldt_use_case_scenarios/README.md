@@ -29,7 +29,7 @@ We expect the contributions to follow the [Decidim's contribution guide](https:/
 
 ## Security
 
-Security is very important to us. If you have any issue regarding security, please disclose the information responsibly by sending an email to ____ and not by creating a GitHub issue.
+Security is very important to us. If you have any issue regarding security, please disclose the information responsibly by sending an email to \_\_\_\_ and not by creating a GitHub issue.
 
 ## License
 

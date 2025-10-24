@@ -151,8 +151,16 @@ export default defineConfig({
 				...devices['Desktop Chrome']
 			},
 			testMatch: ['tests/guest/**/*.spec.ts', '**/tests/guest/**/*.spec.ts']
-		}
+		},
 
+		// Grafana tests
+		{
+			name: 'grafana-tests',
+			use: {
+				...devices['Desktop Chrome']
+			},
+			testMatch: ['tests/admin/reports/**/*.spec.ts']
+		}
 		// {
 		//   name: 'firefox',
 		//   use: { ...devices['Desktop Firefox'] },
