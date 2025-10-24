@@ -15,6 +15,8 @@ module Decidim
           collection do
             resources :exports, only: [:create]
             get :external_experiments
+            get :experiment_detail
+            post :save_experiment
           end
         end
         root to: "ldt_use_case_scenarios#index"

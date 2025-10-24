@@ -1,16 +1,113 @@
-<div class="decidim-admin">
-  <div class="row">
-    <div class="columns mediumlarge-8">
-      <h1><%= t(".title") %></h1>
-      
-      <%= form_with model: @form, url: "#", local: true do |form| %>
-        <div class="field">
-          <%= form.label :name %>
-          <%= form.text_field :name %>
+<% add_decidim_page_title(t(".title")) %>
+
+<div class="item_show__header">
+  <h1 class="item_show__header-title">
+    <%= t(".title") %>
+  </h1>
+</div>
+
+<div class="item__edit item__edit-1col">
+  <div class="item__edit-form">
+    <div class="card maps-association" 
+         data-admin-path="<%= "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/map_visualizations" %>"
+         data-i18n-name-required="<%= t(".name_required") %>" 
+         data-i18n-save-error="<%= t(".save_error") %>">
+
+      <% if @maps_error.present? %>
+        <div id="error-state">
+          <div class="callout alert">
+            <p id="error-message"><%= @maps_error %></p>
+          </div>
         </div>
-        
-        <%= form.submit t(".submit"), class: "button" %>
+      <% elsif @maps.nil? || @maps.empty? %>
+        <div id="empty-state">
+          <p><%= t(".no_maps") %></p>
+        </div>
+      <% else %>
+        <div id="maps-container" style="display: block;">
+          <div class="table-stacked">
+            <table class="table-list w-full" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th><%= t('.map_image') %></th>
+                  <th class="!text-left"><%= t('.name') %></th>
+                  <th><%= t('.owner') %></th>
+                  <th><%= t('.scope') %></th>
+                  <th><%= t('.description') %></th>
+                </tr>
+              </thead>
+              <tbody id="maps-tbody">
+                <% @maps.each do |map| %>
+                  <tr data-map-id="<%= map['id'] %>">
+                    <td data-label="Select">
+                      <input type="radio" name="selected_map" value="<%= map['id'] %>" class="select-map-radio" />
+                    </td>
+                    <td data-label="Preview">
+                      <% if map['map_image'].present? %>
+                        <img src="<%= map['map_image'] %>" alt="<%= map['name'] || 'Map' %>" style="max-width: 80px; max-height: 80px; object-fit: contain;" />
+                      <% else %>
+                        <span style="color: #999;">No image</span>
+                      <% end %>
+                    </td>
+                    <td class="!text-left" data-label="Name">
+                      <%= map['name'] || '' %>
+                    </td>
+                    <td data-label="Owner">
+                      <%= map['owner'] || '' %>
+                    </td>
+                    <td data-label="Scope">
+                      <%= map['scope'] || '' %>
+                    </td>
+                    <td data-label="Description">
+                      <%= (map['description'] || '-')[0..100] %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
       <% end %>
+
+      <!-- Form Section - Always visible -->
+      <%= form_tag "#{request.path.sub(/\/new$/, '')}", method: :post, id: "map-form" do %>
+        <div id="form-section" class="card-section">
+          <!-- Hidden field for map_id -->
+          <%= hidden_field_tag 'map_visualization[map_id]', "", id: "map-id-field" %>
+          <%= hidden_field_tag 'map_visualization[map_data]', "", id: "map-data-field" %>
+          
+          <!-- Selected map info will be inserted here by JavaScript -->
+          <div data-selected-map-info></div>
+          
+          <!-- Map Name Field -->
+          <div class="row column">
+            <label for="map-name"><strong><%= t(".map_name") %></strong></label>
+            <%= text_field_tag 'map_visualization[name]', "", 
+                id: "map-name",
+                placeholder: t('.enter_map_name'),
+                class: "form-control",
+                style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-top: 8px; font-size: 14px;",
+                required: true %>
+            <small class="help-text" style="display: block; margin-top: 5px; color: #666;"><%= t(".name_required") %></small>
+          </div>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+
+  <!-- Sticky Footer - Always visible -->
+  <div class="item__edit-sticky">
+    <div class="item__edit-sticky-container">
+      <%= button_tag t(".cancel"), type: "button", id: "reset-button", class: "button button__sm" %>
+      <%= button_tag t(".submit"), type: "submit", form: "map-form", id: "save-button", class: "button button__sm button__secondary" %>
     </div>
   </div>
 </div>
+
+<!-- Hidden i18n for JS -->
+<span data-i18n="name_required" style="display: none;"><%= t(".name_required") %></span>
+<span data-i18n="save_error" style="display: none;"><%= t(".save_error") %></span>
+
+<%= append_javascript_pack_tag "decidim_ldt_map_visualization" %>

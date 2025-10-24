@@ -5,7 +5,11 @@
     <h1 class="item_show__header-title">
       <%= t(".title") %>
       <div class="flex align-middle gap-x-4 ml-auto">
-        <%= link_to t(".new"), new_admin_map_visualization_path, class: "button button__sm button__secondary" if allowed_to? :create, :map_visualization %>
+        <% if allowed_to? :create, :ldt_map_visualization or current_user&.admin? %>
+          <%= link_to t(".new"), 
+          "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/map_visualizations/new", 
+          class: "button button__sm button__secondary" %>
+        <% end %>
         <%= render partial: "decidim/admin/components/resource_action" %>
       </div>
     </h1>
@@ -13,22 +17,44 @@
 
   <% if @map_visualizations.any? %>
     <div class="table-stacked">
-      <table class="table-list">
+      <table class="table-list w-full" style="width: 100%;">
         <thead>
           <tr>
+            <th><%= t(".preview") %></th>
             <th><%= t(".name") %></th>
+            <th><%= t(".map_id") %></th>
+            <th><%= t(".owner") %></th>
             <th><%= t(".actions") %></th>
           </tr>
         </thead>
         <tbody>
           <% @map_visualizations.each do |map_viz| %>
             <tr>
-              <td><%= map_viz.name %></td>
-              <td>
-                <div class="flex gap-x-2">
-                  <%= link_to t(".edit"), edit_admin_map_visualization_path(map_viz), class: "button button__xs button__secondary" if allowed_to? :update, :map_visualization %>
-                  <%= link_to t(".delete"), admin_map_visualization_path(map_viz), method: :delete, data: { confirm: t("decidim.admin.actions.confirm_delete") }, class: "button button__xs button__alert" if allowed_to? :destroy, :map_visualization %>
-                </div>
+              <td data-label="<%= t(".preview") %>">
+                <% if map_viz.map_image.present? %>
+                  <%= image_tag map_viz.map_image, alt: map_viz.name, style: "max-width: 80px; max-height: 80px; object-fit: contain;" %>
+                <% else %>
+                  <span style="color: #999;"><%= t(".no_image") %></span>
+                <% end %>
+              </td>
+              <td data-label="<%= t(".name") %>"><%= map_viz.name %></td>
+              <td data-label="<%= t(".map_id") %>"><%= map_viz.map_id %></td>
+              <td data-label="<%= t(".owner") %>"><%= map_viz.map_owner || "-" %></td>
+              <td class="table-list__actions" data-label="<%= t(".actions") %>">
+                <p class="inline-block has-tip">
+                  <a class="action-icon action-icon--delete"
+                     href="<%= map_visualization_path(map_viz) %>"
+                     data-method="delete"
+                     rel="nofollow"
+                     title="<%= t('decidim.admin.actions.destroy') %>"
+                     data-confirm="<%= t('decidim.admin.actions.confirm_destroy') %>">
+                    <span class="has-tip">
+                      <svg width="1em" height="1em" role="img" aria-hidden="true" aria-label="<%= t('decidim.admin.actions.destroy') %>">
+                        <use href="/decidim-packs/media/images/remixicon.symbol-e643e553623ffcd49f94.svg#ri-delete-bin-line"></use>
+                      </svg>
+                    </span>
+                  </a>
+                </p>
               </td>
             </tr>
           <% end %>

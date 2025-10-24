@@ -1,272 +1,177 @@
 let selectedExperiment = null;
-let currentPage = 0;
-let totalPages = 1;
-let pageSize = 10;
+let i18n = {}; // Store translations
 
-document.addEventListener('DOMContentLoaded', function () {
-	loadExperiments(0);
-	setupFormHandlers();
-	setupPaginationHandlers();
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOMContentLoaded fired - initializing experiments_association');
+  
+  // Load translations from data attributes
+  loadTranslations();
+  
+  // Setup event handlers
+  setupRadioHandlers();
+  setupCancelHandler();
+  console.log('Handlers setup complete');
 });
 
-function setupPaginationHandlers() {
-	document.getElementById('prev-page-button').addEventListener('click', function () {
-		if (currentPage > 0) {
-			loadExperiments(currentPage - 1);
-		}
-	});
-
-	document.getElementById('next-page-button').addEventListener('click', function () {
-		if (currentPage < totalPages - 1) {
-			loadExperiments(currentPage + 1);
-		}
-	});
+function loadTranslations() {
+  const container = document.querySelector('.experiments-association');
+  if (container) {
+    i18n = {
+      details: {
+        title: container.dataset.i18nDetailsTitle || 'Selected Experiment',
+        name: container.dataset.i18nDetailsName || 'Name:',
+        id: container.dataset.i18nDetailsId || 'ID:',
+        status: container.dataset.i18nDetailsStatus || 'Status:',
+        loading: container.dataset.i18nDetailsLoading || 'Loading experiment details...',
+        error: container.dataset.i18nDetailsError || 'Error loading details:',
+        na: container.dataset.i18nDetailsNa || 'N/A'
+      }
+    };
+  }
 }
 
-function loadExperiments(page = 0) {
-	// Call server-side proxy which handles JWT token, TOOL2 handshake, and experiments fetch
-	const adminPath = document.querySelector('[data-admin-path]')?.getAttribute('data-admin-path');
-	const proxyUrl = `${adminPath}/external_experiments?page=${page}&size=${pageSize}`;
-
-	document.getElementById('loading-state').style.display = 'block';
-	document.getElementById('experiments-container').style.display = 'none';
-	document.getElementById('error-state').style.display = 'none';
-	document.getElementById('form-section').style.display = 'none';
-
-	fetch(proxyUrl, {
-		method: 'GET',
-		credentials: 'same-origin',
-		headers: {
-			Accept: 'application/json'
-		}
-	})
-		.then(response => {
-			if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
-			return response.json();
-		})
-		.then(data => {
-			// Handle different response structures
-			let experiments = [];
-
-			if (Array.isArray(data)) {
-				experiments = data;
-			} else if (Array.isArray(data.content)) {
-				experiments = data.content;
-			} else if (Array.isArray(data.experiments)) {
-				experiments = data.experiments;
-			} else if (typeof data === 'object' && data !== null) {
-				// Try to find an array in the response
-				const possibleArrays = Object.values(data).filter(v => Array.isArray(v));
-				if (possibleArrays.length > 0) {
-					experiments = possibleArrays[0];
-				}
-			}
-
-			if (!Array.isArray(experiments)) {
-				throw new Error(`Experiments data is not in expected format. Got: ${typeof experiments}`);
-			}
-
-			// Handle pagination metadata if available
-			totalPages = data.totalPages || Math.ceil(experiments.length / pageSize) || 1;
-			currentPage = page;
-
-			renderExperiments(experiments);
-			updatePaginationInfo();
-
-			document.getElementById('loading-state').style.display = 'none';
-			document.getElementById('experiments-container').style.display = 'block';
-		})
-		.catch(error => {
-			console.error('Error loading experiments:', error);
-			document.getElementById('loading-state').style.display = 'none';
-			document.getElementById('error-state').style.display = 'block';
-			document.getElementById('error-message').textContent = error.message;
-		});
+function setupRadioHandlers() {
+  // Wire up radio buttons to select experiment and show form
+  document.querySelectorAll('.select-experiment-radio').forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.checked) {
+        const experimentId = this.value;
+        console.log('Experiment selected:', experimentId);
+        
+        // Set experiment_id in hidden field
+        const hiddenField = document.getElementById('experiment-id-field');
+        if (hiddenField) hiddenField.value = experimentId;
+        
+        // Fetch and display experiment details
+        fetchExperimentDetail(experimentId);
+      }
+    });
+  });
+  console.log('Radio handlers registered for', document.querySelectorAll('.select-experiment-radio').length, 'radios');
 }
 
-function updatePaginationInfo() {
-	const pageInfo = document.getElementById('page-info');
-	const prevButton = document.getElementById('prev-page-button');
-	const nextButton = document.getElementById('next-page-button');
-
-	pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`;
-	prevButton.disabled = currentPage === 0;
-	nextButton.disabled = currentPage >= totalPages - 1;
+function setupCancelHandler() {
+  const cancelBtn = document.getElementById('reset-button');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('Cancel button clicked');
+      
+      // Clear selection
+      selectedExperiment = null;
+      document.querySelectorAll('.select-experiment-radio').forEach(r => r.checked = false);
+      
+      // Clear experiment info
+      const infoDiv = document.querySelector('[data-selected-experiment-info]');
+      if (infoDiv) infoDiv.innerHTML = '';
+      
+      // Clear inputs
+      const nameInput = document.getElementById('association-name');
+      if (nameInput) nameInput.value = '';
+      
+      const hiddenField = document.getElementById('experiment-id-field');
+      if (hiddenField) hiddenField.value = '';
+    });
+  }
 }
 
-function renderExperiments(experiments) {
-	const tbody = document.getElementById('experiments-tbody');
-	tbody.innerHTML = '';
-
-	if (!experiments || experiments.length === 0) {
-		const row = document.createElement('tr');
-		row.innerHTML = '<td colspan="4" style="text-align: center; padding: 20px;">No experiments found</td>';
-		tbody.appendChild(row);
-		return;
-	}
-
-	experiments.forEach(exp => {
-		const row = document.createElement('tr');
-		row.dataset.experimentId = exp.id;
-		row.innerHTML = `
-      <td data-label="ID">
-        ${exp.id}
-      </td>
-      <td class="!text-left" data-label="Name">
-        <strong>${escapeHtml(exp.name)}</strong>
-      </td>
-      <td data-label="Description">
-        ${escapeHtml((exp.description || '-').substring(0, 100))}
-      </td>
-      <td class="table-list__actions" data-label="Actions">
-        <button type="button" class="button button__sm button__secondary select-experiment" data-experiment='${escapeHtmlAttr(JSON.stringify(exp))}'>
-          Select
-        </button>
-      </td>
-    `;
-		tbody.appendChild(row);
-	});
-
-	document.querySelectorAll('.select-experiment').forEach(btn => {
-		btn.addEventListener('click', function () {
-			const experimentJson = this.dataset.experiment;
-			selectedExperiment = JSON.parse(experimentJson);
-			showFormSection();
-		});
-	});
+function fetchExperimentDetail(experimentId) {
+  const adminPath = document.querySelector('[data-admin-path]')?.getAttribute('data-admin-path');
+  const detailUrl = `${adminPath}/experiment_detail?experiment_id=${encodeURIComponent(experimentId)}`;
+  
+  console.log('Fetching experiment detail from:', detailUrl);
+  
+  // Show loading in info div
+  const infoDiv = document.querySelector('[data-selected-experiment-info]');
+  if (infoDiv) {
+    infoDiv.innerHTML = `<div class="text-center py-2"><p>${i18n.details.loading}</p></div>`;
+  }
+  
+  fetch(detailUrl, {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: { 'Accept': 'application/json' }
+  })
+    .then(response => {
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      return response.json();
+    })
+    .then(data => {
+      console.log('Experiment detail loaded:', data);
+      selectedExperiment = data;
+      showFormWithDetails(data);
+    })
+    .catch(error => {
+      console.error('Error fetching experiment detail:', error);
+      if (infoDiv) {
+        // Clear previous content
+        infoDiv.innerHTML = '';
+        
+        // Create error message safely without innerHTML injection
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'text-red-600 py-2';
+        
+        const errorPara = document.createElement('p');
+        errorPara.textContent = `${i18n.details.error} ${error.message || 'Unknown error'}`;
+        
+        errorDiv.appendChild(errorPara);
+        infoDiv.appendChild(errorDiv);
+      }
+    });
 }
 
-function escapeHtmlAttr(text) {
-	return text
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#039;');
+function showFormWithDetails(experiment) {
+  // Update info div with experiment details
+  const infoDiv = document.querySelector('[data-selected-experiment-info]');
+  if (infoDiv) {
+    // Clear previous content
+    infoDiv.innerHTML = '';
+    
+    // Create elements safely without innerHTML injection
+    const container = document.createElement('div');
+    container.style.marginBottom = '20px';
+    container.style.padding = '15px';
+    container.style.backgroundColor = '#f0f0f0';
+    container.style.borderLeft = '4px solid #0066cc';
+    
+    const heading = document.createElement('h4');
+    heading.textContent = i18n.details.title;
+    container.appendChild(heading);
+    
+    const namePara = document.createElement('p');
+    const nameStrong = document.createElement('strong');
+    nameStrong.textContent = i18n.details.name + ' ';
+    namePara.appendChild(nameStrong);
+    namePara.appendChild(document.createTextNode(experiment?.name || i18n.details.na));
+    container.appendChild(namePara);
+    
+    const idPara = document.createElement('p');
+    const idStrong = document.createElement('strong');
+    idStrong.textContent = i18n.details.id + ' ';
+    idPara.appendChild(idStrong);
+    idPara.appendChild(document.createTextNode(experiment?.id || i18n.details.na));
+    container.appendChild(idPara);
+    
+    const statusPara = document.createElement('p');
+    const statusStrong = document.createElement('strong');
+    statusStrong.textContent = i18n.details.status + ' ';
+    statusPara.appendChild(statusStrong);
+    statusPara.appendChild(document.createTextNode(experiment?.status || i18n.details.na));
+    container.appendChild(statusPara);
+    
+    infoDiv.appendChild(container);
+  }
+  
+  // Focus on name input
+  const nameInput = document.getElementById('association-name');
+  if (nameInput) {
+    nameInput.value = '';
+    nameInput.focus();
+  }
 }
 
 function escapeHtml(text) {
-	const div = document.createElement('div');
-	div.textContent = text;
-	return div.innerHTML;
-}
-
-function showFormSection() {
-	// Show the form section and selected experiment info
-	document.getElementById('form-section').style.display = 'block';
-	document.getElementById('selected-experiment-info').style.display = 'block';
-	document.getElementById('selected-exp-name').textContent = selectedExperiment.name;
-
-	// Clear and focus the input field
-	document.getElementById('association-name').value = '';
-	document.getElementById('association-name').focus();
-
-	// Scroll to form
-	document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
-}
-
-function setupFormHandlers() {
-	// Save button
-	document.getElementById('save-button').addEventListener('click', function () {
-		if (!selectedExperiment) {
-			alert('Please select an experiment first');
-			return;
-		}
-
-		const associationName = document.getElementById('association-name').value;
-		const nameRequiredMessage =
-			document.querySelector('[data-i18n="name_required"]')?.textContent || 'Association name is required';
-
-		if (!associationName.trim()) {
-			alert(nameRequiredMessage);
-			return;
-		}
-
-		submitExperimentAssociation(associationName);
-	});
-
-	// Reset/Cancel button
-	document.getElementById('reset-button').addEventListener('click', function () {
-		selectedExperiment = null;
-		document.getElementById('association-name').value = '';
-		document.getElementById('form-section').style.display = 'none';
-		document.getElementById('selected-experiment-info').style.display = 'none';
-	});
-}
-
-function submitExperimentAssociation(name) {
-	const formData = new FormData();
-	formData.append('use_case_scenario[name]', name);
-	formData.append('use_case_scenario[experiment_id]', selectedExperiment.id);
-	formData.append('use_case_scenario[experiment_name]', selectedExperiment.name);
-	formData.append('use_case_scenario[experiment_data]', JSON.stringify(selectedExperiment));
-
-	const adminPath =
-		document.querySelector('[data-admin-path]')?.getAttribute('data-admin-path') ||
-		'/admin/components/ldt_use_case_scenarios';
-
-	const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-	console.log('Submitting to:', adminPath);
-	console.log('With data:', {
-		name: name,
-		experiment_id: selectedExperiment.id,
-		experiment_name: selectedExperiment.name
-	});
-	console.log('CSRF Token present:', !!csrfToken);
-
-	fetch(adminPath, {
-		method: 'POST',
-		headers: {
-			'X-CSRF-Token': csrfToken,
-			Accept: 'application/json'
-		},
-		body: formData,
-		credentials: 'same-origin'
-	})
-		.then(response => {
-			console.log('Response status:', response.status);
-			if (response.status === 200 || response.status === 201) {
-				// Success - parse JSON response
-				return response.json().then(data => {
-					if (data.success && data.redirect_url) {
-						// Validate redirect URL to prevent open redirect attacks
-						try {
-							const url = new URL(data.redirect_url, window.location.origin);
-							if (url.origin === window.location.origin && url.pathname.startsWith('/admin/')) {
-								// Use only the safe pathname and search/hash to prevent open redirects
-								window.location.href = url.pathname + url.search + url.hash;
-							} else {
-								window.location.reload();
-							}
-						} catch (e) {
-							window.location.reload();
-						}
-					} else {
-						window.location.reload();
-					}
-				});
-			} else if (response.status === 422 || response.status === 400) {
-				return response.json().then(data => {
-					const errors = data.errors || ['Validation error'];
-					const errorMessage = errors.join(', ');
-					const saveErrorMessage =
-						document.querySelector('[data-i18n="save_error"]')?.textContent ||
-						'Error saving association. Please try again.';
-					alert(`${saveErrorMessage}\n${errorMessage}`);
-				});
-			} else {
-				return response.text().then(text => {
-					const saveErrorMessage =
-						document.querySelector('[data-i18n="save_error"]')?.textContent ||
-						'Error saving association. Please try again.';
-					alert(`${saveErrorMessage}\nStatus: ${response.status}`);
-				});
-			}
-		})
-		.catch(error => {
-			const saveErrorMessage =
-				document.querySelector('[data-i18n="save_error"]')?.textContent ||
-				'Error saving association. Please try again.';
-			alert(saveErrorMessage);
-		});
+  const div = document.createElement('div');
+  div.textContent = String(text || '');
+  return div.innerHTML;
 }

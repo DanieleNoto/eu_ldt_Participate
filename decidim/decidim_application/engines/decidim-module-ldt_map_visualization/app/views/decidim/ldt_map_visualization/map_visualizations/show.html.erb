@@ -1,0 +1,95 @@
+<% provide(:title, @map_visualization.name) %>
+<% add_decidim_meta_tags(
+  title: @map_visualization.name,
+  description: @map_visualization.map_description,
+  url: map_visualization_url(@map_visualization),
+  resource: @map_visualization
+) %>
+
+<%= render layout: "layouts/decidim/shared/layout_center", locals: { columns: 8 } do %>
+  <section class="layout-main__section layout-main__heading">
+    <div class="flex justify-center">
+      <h1 class="title-decorator my-12"><%= @map_visualization.name %></h1>
+    </div>
+    
+    <% if @map_visualization.map_image.present? %>
+      <div class="blog__image grow">
+        <%= image_tag @map_visualization.map_image, 
+                      alt: @map_visualization.name,
+                      style: "width: 100%; height: auto; border-radius: 4px;" %>
+      </div>
+    <% end %>
+    
+    <div class="layout-author">
+      <div class="relative flex items-center justify-center w-full">
+        <div class="w-10/12 flex items-center gap-4">
+          <% if @map_visualization.map_owner.present? %>
+            <div class="flex flex-col">
+              <div class="text-sm text-secondary">
+                <%= t("decidim.ldt_map_visualization.map_visualizations.show.owner") %>
+              </div>
+              <div class="font-semibold">
+                <%= @map_visualization.map_owner %>
+              </div>
+            </div>
+          <% end %>
+          
+          <div class="flex flex-col">
+            <div class="text-sm text-secondary">
+              <%= t("decidim.ldt_map_visualization.map_visualizations.show.created_at") %>
+            </div>
+            <div class="font-semibold">
+              <%= l @map_visualization.created_at, format: :decidim_short %>
+            </div>
+          </div>
+        </div>
+        
+        <div class="w-2/12 flex justify-end">
+          <%= link_to map_visualizations_path, class: "button button--sc small hollow" do %>
+            ← <%= t("decidim.ldt_map_visualization.map_visualizations.show.back_to_list") %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="layout-main__section">
+    <% if @map_visualization.map_description.present? %>
+      <div class="editor-content">
+        <%= simple_format(@map_visualization.map_description) %>
+      </div>
+    <% end %>
+    
+    <% if @map_visualization.map_id.present? || @map_visualization.map_scope.present? %>
+      <div class="card mt-4">
+        <div class="card__content">
+          <h3 class="h5"><%= t("decidim.ldt_map_visualization.map_visualizations.show.map_details") %></h3>
+          
+          <% if @map_visualization.map_id.present? %>
+            <p class="mt-2">
+              <strong><%= t("decidim.ldt_map_visualization.map_visualizations.show.map_id") %>:</strong> 
+              <%= @map_visualization.map_id %>
+            </p>
+          <% end %>
+          
+          <% if @map_visualization.map_scope.present? %>
+            <p class="mt-2">
+              <strong><%= t("decidim.ldt_map_visualization.map_visualizations.show.scope") %>:</strong> 
+              <%= @map_visualization.map_scope %>
+            </p>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </section>
+  
+  <!-- Full map data JSON for debugging/advanced use -->
+  <% if Rails.env.development? %>
+    <section class="layout-main__section">
+      <details>
+        <summary style="cursor: pointer; font-weight: bold;">Debug: Raw Map Data</summary>
+        <pre style="background: #f5f5f5; padding: 1rem; overflow-x: auto; font-size: 0.85rem; margin-top: 1rem;"><%= JSON.pretty_generate(@map_visualization.parsed_map_data) %></pre>
+      </details>
+    </section>
+  <% end %>
+<% end %>

@@ -79,7 +79,6 @@ Rails.application.configure do
   config.active_support.report_deprecations = false
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
-  config.log_formatter = ::Logger::Formatter.new
   config.action_mailer.smtp_settings = {
     :address        => Rails.application.secrets.smtp_address,
     :port           => Rails.application.secrets.smtp_port,
@@ -87,8 +86,9 @@ Rails.application.configure do
     :user_name      => Rails.application.secrets.smtp_username,
     :password       => Rails.application.secrets.smtp_password,
     :domain         => Rails.application.secrets.smtp_domain,
-    :enable_starttls_auto => Rails.application.secrets.smtp_starttls_auto,
-    :openssl_verify_mode => 'none',
+    :enable_starttls_auto => Rails.application.secrets.smtp_starttls_auto == 'true',
+    :tls            => Rails.application.secrets.smtp_tls == 'true',
+    :openssl_verify_mode => Rails.application.secrets.smtp_openssl_verify_mode,
     :open_timeout   => (Rails.application.secrets.smtp_open_timeout || 300).to_i,
     :read_timeout   => (Rails.application.secrets.smtp_read_timeout || 300).to_i
   }
@@ -98,9 +98,12 @@ Rails.application.configure do
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new "app-name")
 
   if ENV["RAILS_LOG_TO_STDOUT"].present?
-    logger           = ActiveSupport::Logger.new(STDOUT)
+    logger = ActiveSupport::Logger.new(STDOUT)
+    
+    # Use JSON formatter if enabled (set in application.rb)
     logger.formatter = config.log_formatter
-    config.logger    = ActiveSupport::TaggedLogging.new(logger)
+    
+    config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
 
   # Do not dump schema after migrations.

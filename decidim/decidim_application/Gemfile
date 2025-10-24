@@ -32,6 +32,8 @@ gem 'decidim-meetings-jitsi', path: './engines/decidim-meetings-jitsi'
 gem 'decidim-admin_header', path: './engines/decidim-admin_header'
 
 gem "decidim-decidim_awesome", "~> 0.13.1", git: "https://github.com/decidim-ice/decidim-module-decidim_awesome.git"
+gem 'lograge'
+gem 'logstash-event'
 
 group :development, :test do
   gem "byebug", "~> 11.0", platform: :mri
