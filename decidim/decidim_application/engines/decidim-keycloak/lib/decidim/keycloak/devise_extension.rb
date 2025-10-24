@@ -11,6 +11,15 @@ module Decidim
             # Get auth data before calling parent
             auth_data = request.env["omniauth.auth"]
             
+            # Restore locale from session if it was stored during OAuth initiation
+            # This ensures the user stays in their selected language after Keycloak redirect
+            if session['omniauth.locale'].present?
+              stored_locale = session['omniauth.locale']
+              I18n.locale = stored_locale
+              session['decidim-locale'] = stored_locale
+              Rails.logger.info "[Keycloak] Restored locale: #{stored_locale}"
+            end
+            
             # Call parent create (handles user creation/sign-in)
             result = super
             

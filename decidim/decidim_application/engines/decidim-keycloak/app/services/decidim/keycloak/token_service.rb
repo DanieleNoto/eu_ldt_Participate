@@ -52,26 +52,33 @@ module Decidim
         
         access_token_chunks = access_token.scan(/.{1,#{chunk_size}}/m)
         
-        # Clear old chunks first
+        # Clear old chunks first - be aggressive and try to delete more than needed
         old_count = cookies_obj['keycloak_access_token_count'].to_i
-        old_count.times do |i|
+        # Delete up to 20 possible old chunks to handle edge cases
+        [old_count, 20].max.times do |i|
           cookies_obj.delete("keycloak_access_token_#{i}")
         end
         
-        # Save new chunks
+        # Also clean up any legacy token cookie names
+        cookies_obj.delete('access_token')
+        cookies_obj.delete('id_token')
+        cookies_obj.delete('jwt_token')
+        
+        # Save new chunks with shorter expiration to reduce cookie bloat
+        # Access tokens typically expire in 5-15 minutes, so 1 hour cookie is sufficient
         access_token_chunks.each_with_index do |chunk, index|
           cookies_obj["keycloak_access_token_#{index}"] = {
             value: chunk,
             httponly: true,
             secure: Rails.env.production?,
             same_site: :lax,
-            expires: 1.day.from_now
+            expires: 1.hour.from_now  # Reduced from 1 day to 1 hour
           }
         end
         cookies_obj['keycloak_access_token_count'] = {
           value: access_token_chunks.length.to_s,
           httponly: true,
-          expires: 1.day.from_now
+          expires: 1.hour.from_now  # Reduced from 1 day to 1 hour
         }
         
         # Save refresh token in chunks
@@ -79,26 +86,31 @@ module Decidim
           refresh_token = tokens[:refresh_token]
           refresh_token_chunks = refresh_token.scan(/.{1,#{chunk_size}}/m)
           
-          # Clear old chunks
+          # Clear old chunks - be aggressive and try to delete more than needed
           old_refresh_count = cookies_obj['keycloak_refresh_token_count'].to_i
-          old_refresh_count.times do |i|
+          # Delete up to 20 possible old chunks to handle edge cases
+          [old_refresh_count, 20].max.times do |i|
             cookies_obj.delete("keycloak_refresh_token_#{i}")
           end
           
-          # Save new chunks
+          # Also clean up any legacy refresh token cookie names
+          cookies_obj.delete('refresh_token')
+          
+          # Save new chunks with shorter expiration (refresh tokens last 30 days but cookie can be shorter)
+          # Setting to 7 days reduces cookie bloat while still maintaining reasonable session length
           refresh_token_chunks.each_with_index do |chunk, index|
             cookies_obj["keycloak_refresh_token_#{index}"] = {
               value: chunk,
               httponly: true,
               secure: Rails.env.production?,
               same_site: :lax,
-              expires: 30.days.from_now
+              expires: 7.days.from_now  # Reduced from 30 days to 7 days
             }
           end
           cookies_obj['keycloak_refresh_token_count'] = {
             value: refresh_token_chunks.length.to_s,
             httponly: true,
-            expires: 30.days.from_now
+            expires: 7.days.from_now  # Reduced from 30 days to 7 days
           }
         end
         
