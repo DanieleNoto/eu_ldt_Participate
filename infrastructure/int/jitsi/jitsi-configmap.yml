@@ -24,6 +24,8 @@ data:
     JVB_PORT: '10000'
     JVB_STUN_SERVERS: stun.l.google.com:19302,stun1.l.google.com:19302
     JWT_APP_ID: tool3
+    JWT_ACCEPTED_ISSUERS: part-int.ldttoolbox.app/
+    JWT_ACCEPTED_AUDIENCES: jitsi-part-int.ldttoolbox.app/ part-int.ldttoolbox.app/
     PUBLIC_URL: https://jitsi-part-int.ldttoolbox.app/
     RESTART_POLICY: unless-stopped
     TZ: Europe/Rome
