@@ -25,6 +25,10 @@ module DecidimApplication
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
     
+    # Load custom middleware for cookie cleanup
+    require_relative '../app/middleware/cookie_cleanup_middleware'
+    config.middleware.use CookieCleanupMiddleware
+    
     # JSON Logging for ELK Stack
     if ENV['ENABLE_JSON_LOGS'].present? && ENV['ENABLE_JSON_LOGS'] != 'false'
       # Load custom JSON formatter
