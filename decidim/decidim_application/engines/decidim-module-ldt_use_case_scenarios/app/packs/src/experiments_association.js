@@ -1,13 +1,34 @@
 let selectedExperiment = null;
+let i18n = {}; // Store translations
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOMContentLoaded fired - initializing experiments_association');
+  
+  // Load translations from data attributes
+  loadTranslations();
   
   // Setup event handlers
   setupRadioHandlers();
   setupCancelHandler();
   console.log('Handlers setup complete');
 });
+
+function loadTranslations() {
+  const container = document.querySelector('.experiments-association');
+  if (container) {
+    i18n = {
+      details: {
+        title: container.dataset.i18nDetailsTitle || 'Selected Experiment',
+        name: container.dataset.i18nDetailsName || 'Name:',
+        id: container.dataset.i18nDetailsId || 'ID:',
+        status: container.dataset.i18nDetailsStatus || 'Status:',
+        loading: container.dataset.i18nDetailsLoading || 'Loading experiment details...',
+        error: container.dataset.i18nDetailsError || 'Error loading details:',
+        na: container.dataset.i18nDetailsNa || 'N/A'
+      }
+    };
+  }
+}
 
 function setupRadioHandlers() {
   // Wire up radio buttons to select experiment and show form
@@ -63,7 +84,7 @@ function fetchExperimentDetail(experimentId) {
   // Show loading in info div
   const infoDiv = document.querySelector('[data-selected-experiment-info]');
   if (infoDiv) {
-    infoDiv.innerHTML = '<div class="text-center py-2"><p>Loading experiment details...</p></div>';
+    infoDiv.innerHTML = `<div class="text-center py-2"><p>${i18n.details.loading}</p></div>`;
   }
   
   fetch(detailUrl, {
@@ -91,7 +112,7 @@ function fetchExperimentDetail(experimentId) {
         errorDiv.className = 'text-red-600 py-2';
         
         const errorPara = document.createElement('p');
-        errorPara.textContent = `Error loading details: ${error.message || 'Unknown error'}`;
+        errorPara.textContent = `${i18n.details.error} ${error.message || 'Unknown error'}`;
         
         errorDiv.appendChild(errorPara);
         infoDiv.appendChild(errorDiv);
@@ -114,28 +135,28 @@ function showFormWithDetails(experiment) {
     container.style.borderLeft = '4px solid #0066cc';
     
     const heading = document.createElement('h4');
-    heading.textContent = 'Selected Experiment';
+    heading.textContent = i18n.details.title;
     container.appendChild(heading);
     
     const namePara = document.createElement('p');
     const nameStrong = document.createElement('strong');
-    nameStrong.textContent = 'Name: ';
+    nameStrong.textContent = i18n.details.name + ' ';
     namePara.appendChild(nameStrong);
-    namePara.appendChild(document.createTextNode(experiment?.name || 'N/A'));
+    namePara.appendChild(document.createTextNode(experiment?.name || i18n.details.na));
     container.appendChild(namePara);
     
     const idPara = document.createElement('p');
     const idStrong = document.createElement('strong');
-    idStrong.textContent = 'ID: ';
+    idStrong.textContent = i18n.details.id + ' ';
     idPara.appendChild(idStrong);
-    idPara.appendChild(document.createTextNode(experiment?.id || 'N/A'));
+    idPara.appendChild(document.createTextNode(experiment?.id || i18n.details.na));
     container.appendChild(idPara);
     
     const statusPara = document.createElement('p');
     const statusStrong = document.createElement('strong');
-    statusStrong.textContent = 'Status: ';
+    statusStrong.textContent = i18n.details.status + ' ';
     statusPara.appendChild(statusStrong);
-    statusPara.appendChild(document.createTextNode(experiment?.status || 'N/A'));
+    statusPara.appendChild(document.createTextNode(experiment?.status || i18n.details.na));
     container.appendChild(statusPara);
     
     infoDiv.appendChild(container);

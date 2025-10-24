@@ -63,6 +63,14 @@ fr:
             save_error: Erreur lors de l'enregistrement de l'association. Veuillez réessayer.
             previous_page: Page Précédente
             next_page: Page Suivante
+            experiment_details:
+              title: Expérience Sélectionnée
+              name: "Nom:"
+              id: "ID:"
+              status: "Statut:"
+              loading: Chargement des détails de l'expérience...
+              error: "Erreur lors du chargement des détails:"
+              not_available: N/A
             select: Sélectionner
             selected_experiment: Expérience Sélectionnée
           create:

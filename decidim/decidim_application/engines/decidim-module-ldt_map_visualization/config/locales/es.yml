@@ -20,7 +20,7 @@ es:
             other: "%{count} visualizaciones de mapa"
           no_maps: No hay visualizaciones de mapa disponibles
           owner: Propietario
-          scope: Ámbito
+          scope: Alcance
           view_map: Ver mapa
           map_id: ID de mapa
         show:
@@ -28,7 +28,7 @@ es:
           map_details: Detalles del mapa
           map_id: ID de mapa
           owner: Propietario
-          scope: Ámbito
+          scope: Alcance
           actions: Acciones
           back_to_list: Volver a la lista
           edit: Editar
@@ -41,7 +41,7 @@ es:
             name: Nombre
             map_id: ID de mapa
             owner: Propietario
-            scope: Ámbito
+            scope: Alcance
             description: Descripción
             actions: Acciones
             new: Agregar Nuevo Mapa
@@ -55,14 +55,14 @@ es:
             submit: Crear
             name: Nombre
             map_name: Nombre de la Visualización
-            enter_map_name: Ingrese un nombre para esta visualización de mapa
+            enter_map_name: Ingrese un nombre para la visualización de este mapa
             name_required: El nombre de la visualización es obligatorio
-            save_error: Error al guardar la visualización de mapa. Por favor intente de nuevo.
+            save_error: Error al guardar la visualización de este mapa. Por favor, intente de nuevo.
             loading_maps: Cargando mapas disponibles...
             cancel: Cancelar
             map_image: Vista Previa
             owner: Propietario
-            scope: Ámbito
+            scope: Alcance
             description: Descripción
             map_id: ID de mapa
             preview: Vista Previa

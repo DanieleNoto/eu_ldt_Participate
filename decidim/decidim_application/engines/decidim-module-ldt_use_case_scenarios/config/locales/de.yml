@@ -63,6 +63,14 @@ de:
             version: Version
             cancel: Abbrechen
             confirm: Bestätigen
+            experiment_details:
+              title: Ausgewähltes Experiment
+              name: "Name:"
+              id: "ID:"
+              status: "Status:"
+              loading: Experimentdetails werden geladen...
+              error: "Fehler beim Laden der Details:"
+              not_available: N/V
             name_required: Der Name der Zuordnung ist erforderlich
             save_error: Fehler beim Speichern der Zuordnung. Bitte versuchen Sie es erneut.
             previous_page: Vorherige Seite

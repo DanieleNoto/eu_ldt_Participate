@@ -58,6 +58,14 @@ en:
             created: Created
             version: Version
             cancel: Cancel
+            experiment_details:
+              title: Selected Experiment
+              name: "Name:"
+              id: "ID:"
+              status: "Status:"
+              loading: Loading experiment details...
+              error: "Error loading details:"
+              not_available: N/A
             confirm: Confirm
             name_required: Association name is required
             save_error: Error saving association. Please try again.

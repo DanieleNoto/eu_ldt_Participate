@@ -11,7 +11,14 @@
     <div class="card experiments-association" 
          data-admin-path="<%= "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/ldt_use_case_scenarios" %>"
          data-i18n-name-required="<%= t(".name_required") %>" 
-         data-i18n-save-error="<%= t(".save_error") %>">
+         data-i18n-save-error="<%= t(".save_error") %>"
+         data-i18n-details-title="<%= t(".experiment_details.title") %>"
+         data-i18n-details-name="<%= t(".experiment_details.name") %>"
+         data-i18n-details-id="<%= t(".experiment_details.id") %>"
+         data-i18n-details-status="<%= t(".experiment_details.status") %>"
+         data-i18n-details-loading="<%= t(".experiment_details.loading") %>"
+         data-i18n-details-error="<%= t(".experiment_details.error") %>"
+         data-i18n-details-na="<%= t(".experiment_details.not_available") %>">
 
       <% if @experiments_error.present? %>
         <div id="error-state">
