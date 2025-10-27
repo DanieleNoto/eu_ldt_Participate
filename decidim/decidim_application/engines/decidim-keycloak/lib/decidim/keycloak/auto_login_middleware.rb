@@ -59,6 +59,7 @@ module Decidim
       def valid_tokens_present?(request)
         cookies = request.cookies
 
+        Rails.logger.debug "[Keycloak AutoLogin] All cookies in request: #{cookies.keys.join(', ')}"
         Rails.logger.debug "[Keycloak AutoLogin] Checking cookies: #{cookies.keys.grep(/access_token|refresh_token|id_token|token_expires/).join(', ')}"
 
         # Check for access token cookie (should be present if user was logged in)
@@ -114,35 +115,53 @@ module Decidim
       def reconstruct_token_from_cookies(cookies, token_type)
         # First try to get the token as a single cookie (new format without chunking)
         single_cookie = cookies[token_type]
+        Rails.logger.debug "[Keycloak AutoLogin] Single cookie #{token_type}: #{single_cookie ? 'PRESENT' : 'NOT FOUND'}"
         return single_cookie if single_cookie.present?
 
         # Fallback to chunked cookies (old format) for backward compatibility
+        Rails.logger.debug "[Keycloak AutoLogin] Trying chunked cookies for #{token_type}"
         token_parts = []
         index = 0
 
         loop do
           cookie_name = "#{token_type}_#{index}"
-          break unless cookies[cookie_name]
-          token_parts << cookies[cookie_name]
+          cookie_value = cookies[cookie_name]
+          Rails.logger.debug "[Keycloak AutoLogin] Chunk cookie #{cookie_name}: #{cookie_value ? 'PRESENT' : 'NOT FOUND'}"
+          break unless cookie_value
+          token_parts << cookie_value
           index += 1
         end
 
-        token_parts.empty? ? nil : token_parts.join('')
+        result = token_parts.empty? ? nil : token_parts.join('')
+        Rails.logger.debug "[Keycloak AutoLogin] Reconstructed #{token_type}: #{result ? 'SUCCESS' : 'FAILED'}"
+        result
       end
 
       def validate_and_extract_user(access_token)
         begin
+          Rails.logger.debug "[Keycloak AutoLogin] Validating access token"
           # Decode JWT token to extract claims
           token_parts = access_token.split('.')
+          Rails.logger.debug "[Keycloak AutoLogin] Token parts: #{token_parts.length}"
           return nil unless token_parts.length >= 2
 
           # Decode payload (second part)
           payload = Base64.decode64(token_parts[1].ljust((token_parts[1].length + 3) / 4 * 4, '='))
           claims = JSON.parse(payload)
 
+          Rails.logger.debug "[Keycloak AutoLogin] Token claims extracted: sub=#{claims['sub']}, email=#{claims['email']}, exp=#{claims['exp']}"
+
           # Extract user identifier (sub claim)
           user_sub = claims['sub']
+          Rails.logger.debug "[Keycloak AutoLogin] User sub: #{user_sub}"
           return nil unless user_sub
+
+          # Check if token is expired
+          exp = claims['exp']
+          if exp && Time.at(exp) < Time.now
+            Rails.logger.debug "[Keycloak AutoLogin] Token expired at #{Time.at(exp)}"
+            return nil
+          end
 
           # Return user info
           {
@@ -157,11 +176,19 @@ module Decidim
       end
 
       def find_user_by_identity(user_info)
+        Rails.logger.debug "[Keycloak AutoLogin] Finding user by identity for sub: #{user_info[:sub]}"
         # Find user by Keycloak identity
         identity = Decidim::Identity.find_by(
           provider: 'keycloakopenid',
           uid: user_info[:sub]
         )
+
+        Rails.logger.debug "[Keycloak AutoLogin] Identity found: #{identity ? identity.id : 'NOT FOUND'}"
+        if identity
+          Rails.logger.debug "[Keycloak AutoLogin] User found: #{identity.user.id} - #{identity.user.email}"
+        else
+          Rails.logger.debug "[Keycloak AutoLogin] No identity found for provider=keycloakopenid, uid=#{user_info[:sub]}"
+        end
 
         identity&.user
       end
