@@ -10,6 +10,8 @@ module Decidim
       isolate_namespace Decidim::Keycloak
 
       initializer "decidim.keycloak.middleware" do |app|
+        # Ensure OmniAuth uses Devise paths (/users/auth/...)
+        OmniAuth.config.path_prefix = "/users/auth"
         omniauth_config = Rails.application.secrets[:omniauth]
         next if omniauth_config[:keycloakopenid].blank?
 
@@ -43,6 +45,9 @@ module Decidim
               userinfo_endpoint: "/realms/#{realm}/protocol/openid-connect/userinfo",
               jwks_uri: "/realms/#{realm}/protocol/openid-connect/certs"
             }
+
+            # Ensure we request the OpenID Connect scopes so access_token can be used with userinfo
+            strategy.options[:scope] = 'openid profile email'
             
             # Additional JWT options to handle verification issues
             strategy.options[:jwt_options] = {
@@ -86,13 +91,13 @@ module Decidim
             hash[:id_info] = id_info if respond_to?(:id_info) && id_info
             hash[:id_token] = access_token.params['id_token'] if access_token.params['id_token']
             
-            # Store the access_token for Tool0 API calls
+            
+            # Store the access_token and refresh_token for session saving
+            # These will be saved to session/extended_data by DeviseExtension
             hash[:access_token] = access_token.token if access_token.token
+            hash[:refresh_token] = access_token.params['refresh_token'] if access_token.params['refresh_token']
             hash[:token_expires_in] = access_token.params['expires_in'] if access_token.params['expires_in']
-            
-            # NOTE: Token is NOT saved to session here - it will be saved to cache in the OmniAuth callback
-            # to avoid cookie overflow issues
-            
+
             # Add Keycloak roles to the extra hash for Decidim to use
             if raw_info && raw_info['resource_access']
               hash[:keycloak_roles] = raw_info['resource_access']
@@ -121,11 +126,14 @@ module Decidim
       end
 
       # Token caching and admin role sync using Devise extension
+      # This extension overrides the create method in OmniauthRegistrationsController
+      # to save Keycloak tokens to session after successful authentication
       initializer "decidim_keycloak.integrate_devise_extension" do
         # Include our Devise extension in OmniAuth controller
         # We use to_prepare to ensure the class is loaded before inclusion
         config.to_prepare do
-          Decidim::Devise::OmniauthRegistrationsController.include Decidim::Keycloak::DeviseExtension
+          Decidim::Devise::OmniauthRegistrationsController.prepend Decidim::Keycloak::DeviseExtension
+          
         end
       end
 

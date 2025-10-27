@@ -15,14 +15,8 @@ module Decidim
       end
 
       def fetch_applications
-        Rails.logger.debug "=== Tool0ApiService Debug Info ==="
-        Rails.logger.debug "TOOL0_TENANT_ID: #{@tenant_id.present? ? '[SET]' : '[MISSING]'}"
-        Rails.logger.debug "TOOL0_DOMAIN: #{@domain.present? ? '[SET]' : '[MISSING]'}"
-        Rails.logger.debug "Auth token: #{@auth_token.present? ? '[SET]' : '[MISSING]'}"
-        Rails.logger.debug "API configured: #{api_configured?}"
-        
         unless api_configured?
-          Rails.logger.warn "API not configured"
+          Rails.logger.warn "Tool0 API not configured"
           return 
         end
 
@@ -30,14 +24,12 @@ module Decidim
           response = make_api_request
           
           if response&.code == '200'
-            Rails.logger.debug "API call successful, parsing response"
             parse_response(response.body)
           else
-            Rails.logger.warn "Tool0 API returned status: #{response&.code}, body: #{response&.body}"            
+            Rails.logger.warn "Tool0 API returned status: #{response&.code}"            
           end
         rescue StandardError => e
           Rails.logger.error "Tool0 API error: #{e.message}"
-          Rails.logger.error e.backtrace.join("\n")
         end
       end
 
@@ -58,18 +50,11 @@ module Decidim
         request['authorization'] = "Bearer #{@auth_token}"
         request['Content-Type'] = 'application/json'
 
-        Rails.logger.debug "Making API request to: #{uri}"
-        Rails.logger.debug "Headers: x-tenant-id=#{@tenant_id}, authorization=Bearer [REDACTED]"
-
         http.request(request)
       end
 
       def parse_response(response_body)
         data = JSON.parse(response_body)
-        
-        # Log the response structure for debugging
-        Rails.logger.debug "API Response: #{data}"
-        
         # Return the data as-is if it already has the expected structure
         data
       rescue JSON::ParserError => e
@@ -77,35 +62,22 @@ module Decidim
       end
 
       def get_auth_token(current_user)
-        Rails.logger.debug "=== Auth Token Debug ==="
-        
         # Try to get JWT token from current user's session or request
         if current_user
-          Rails.logger.debug "Looking for JWT token for user #{current_user.id}"
-          
           # Try to get JWT token from session (if stored during OAuth login)
           jwt_token = get_jwt_from_session
-          if jwt_token
-            Rails.logger.debug "Found JWT token in session"
-            return jwt_token
-          end
+          return jwt_token if jwt_token
           
           # Try to get from user's OAuth data if available
           begin
-            # Look for any OAuth access token that might contain JWT info
             access_token = Doorkeeper::AccessToken.where(resource_owner_id: current_user.id)
                                                   .where(revoked_at: nil)
                                                   .where("expires_in IS NULL OR (created_at + INTERVAL '1 second' * expires_in) > ?", Time.current)
                                                   .order(created_at: :desc)
                                                   .first
             
-            if access_token
-              Rails.logger.debug "Found OAuth access token, checking if it's JWT"
-              # If the token looks like a JWT (has dots), use it
-              if access_token.token.include?('.')
-                Rails.logger.debug "OAuth token appears to be JWT format"
-                return access_token.token
-              end
+            if access_token && access_token.token.include?('.')
+              return access_token.token
             end
           rescue => e
             Rails.logger.error "Error retrieving OAuth token for user #{current_user.id}: #{e.message}"
@@ -116,19 +88,13 @@ module Decidim
         keycloak_token = ENV['KEYCLOAK_ACCESS_TOKEN']
         tool0_token = ENV['TOOL0_AUTH_TOKEN']
         
-        Rails.logger.debug "KEYCLOAK_ACCESS_TOKEN: #{keycloak_token.present? ? '[SET]' : '[MISSING]'}"
-        Rails.logger.debug "TOOL0_AUTH_TOKEN: #{tool0_token.present? ? '[SET]' : '[MISSING]'}"
-        
         # Check if the token is just a placeholder
         if tool0_token == 'your_auth_token_here'
-          Rails.logger.warn "TOOL0_AUTH_TOKEN is set to placeholder value 'your_auth_token_here' - please configure a valid JWT token"
+          Rails.logger.warn "TOOL0_AUTH_TOKEN is set to placeholder value - please configure a valid JWT token"
           return nil
         end
         
-        token = keycloak_token || tool0_token
-        Rails.logger.debug "Final fallback token: #{token.present? ? '[SET]' : '[MISSING]'}"
-        
-        token
+        keycloak_token || tool0_token
       end
       
       private

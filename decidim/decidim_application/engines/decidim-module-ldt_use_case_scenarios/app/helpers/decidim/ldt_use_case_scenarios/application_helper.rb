@@ -4,6 +4,7 @@ module Decidim
   module LdtUseCaseScenarios
     # Custom helpers, scoped to the ldt_use_case_scenarios engine.
     #
+    include PaginateHelper
     module ApplicationHelper
     end
   end

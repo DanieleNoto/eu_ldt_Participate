@@ -8,72 +8,106 @@
 
 <div class="item__edit item__edit-1col">
   <div class="item__edit-form">
-    <div class="card experiments-association" data-admin-path="<%= "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/ldt_use_case_scenarios" %>" data-i18n-name-required="<%= t(".name_required") %>" data-i18n-save-error="<%= t(".save_error") %>">
+    <div class="card experiments-association" 
+         data-admin-path="<%= "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/ldt_use_case_scenarios" %>"
+         data-i18n-name-required="<%= t(".name_required") %>" 
+         data-i18n-save-error="<%= t(".save_error") %>"
+         data-i18n-details-title="<%= t(".experiment_details.title") %>"
+         data-i18n-details-name="<%= t(".experiment_details.name") %>"
+         data-i18n-details-id="<%= t(".experiment_details.id") %>"
+         data-i18n-details-status="<%= t(".experiment_details.status") %>"
+         data-i18n-details-loading="<%= t(".experiment_details.loading") %>"
+         data-i18n-details-error="<%= t(".experiment_details.error") %>"
+         data-i18n-details-na="<%= t(".experiment_details.not_available") %>">
 
-      <div id="experiments-container" style="display: none;">
-        <div class="table-stacked">
-          <table class="table-list">
-            <thead id="experiments-thead">
-              <tr>
-                <th><%= t(".experiment_id") %></th>
-                <th class="!text-left"><%= t(".experiment_name") %></th>
-                <th><%= t(".description") %></th>
-                <th><%= t(".actions") %></th>
-              </tr>
-            </thead>
-            <tbody id="experiments-tbody">
-            </tbody>
-          </table>
-        </div>
-
-        <div class="table-controls">
-          <button type="button" id="prev-page-button" class="button button__secondary"><%= t(".previous_page") %></button>
-          <span id="page-info"></span>
-          <button type="button" id="next-page-button" class="button button__secondary"><%= t(".next_page") %></button>
-        </div>
-      </div>
-
-      <div id="loading-state">
-        <p><%= t(".loading_experiments") %></p>
-      </div>
-
-      <div id="error-state" style="display: none;">
-        <div class="callout alert">
-          <p id="error-message"></p>
-        </div>
-      </div>
-
-      <!-- Form Section - Always Visible -->
-      <div id="form-section" class="card-section">
-        <!-- Selected Experiment Info -->
-        <div id="selected-experiment-info" style="display: none; margin-bottom: 20px;">
-          <div class="callout">
-            <p><strong><%= t(".selected_experiment") %>:</strong> <span id="selected-exp-name"></span></p>
+      <% if @experiments_error.present? %>
+        <div id="error-state">
+          <div class="callout alert">
+            <p id="error-message"><%= @experiments_error %></p>
           </div>
         </div>
-
-        <!-- Association Name Field -->
-        <div class="row column">
-          <label for="association-name"><strong><%= t(".association_name") %></strong></label>
-          <input 
-            type="text" 
-            id="association-name" 
-            name="association_name" 
-            placeholder="<%= t('.enter_association_name') %>"
-            class="form-control"
-            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-top: 8px; font-size: 14px;">
-          <small class="help-text" style="display: block; margin-top: 5px; color: #666;"><%= t(".name_required") %></small>
+      <% elsif @experiments.nil? || @experiments.empty? %>
+        <div id="empty-state">
+          <p><%= t(".no_experiments") %></p>
         </div>
-      </div>
+      <% else %>
+        <div id="experiments-container" style="display: block;">
+          <div class="table-stacked">
+            <table class="table-list w-full" style="width: 100%;">
+              <thead id="experiments-thead">
+                <tr>
+                  <th></th>
+                  <th class="!text-left"><%= t(".experiment_name") %></th>
+                  <th><%= t(".description") %></th>
+                  <th><%= t(".created") %></th>
+                  <th><%= t(".version") %></th>
+                </tr>
+              </thead>
+              <tbody id="experiments-tbody">
+                <% @experiments.each do |exp| %>
+                  <tr data-experiment-id="<%= exp['id'] %>">
+                    <td data-label="Select">
+                      <input type="radio" name="selected_experiment" value="<%= exp['id'] %>" class="select-experiment-radio" />
+                    </td>
+                    <td class="!text-left" data-label="ID/Name">
+                      <div><strong><%= exp['name'] || exp['id'] %></strong></div>
+                      <div class="text-sm text-gray-600"><%= exp['id'] %></div>
+                    </td>
+                    <td data-label="Description">
+                      <%= (exp['description'] || '-')[0..100] %>
+                    </td>
+                    <td data-label="Created">
+                      <% if exp['createdAt'] || exp['created_at'] %>
+                        <%= Time.parse(exp['createdAt'] || exp['created_at']).strftime('%Y-%m-%d %H:%M') rescue exp['createdAt'] || exp['created_at'] %>
+                      <% end %>
+                    </td>
+                    <td data-label="Version">
+                      <%= exp['version'] %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-controls">
+            <div data-pagination></div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Form Section - Always visible -->
+      <%= form_tag save_experiment_ldt_use_case_scenarios_path, method: :post, id: "experiment-form" do %>
+        <div id="form-section" class="card-section">
+          <!-- Hidden field for experiment_id -->
+          <%= hidden_field_tag :experiment_id, "", id: "experiment-id-field" %>
+          <%= hidden_field_tag :component_id, current_component.id %>
+          
+          <!-- Selected experiment info will be inserted here by JavaScript -->
+          <div data-selected-experiment-info></div>
+          
+          <!-- Association Name Field -->
+          <div class="row column">
+            <label for="association-name"><strong><%= t(".association_name") %></strong></label>
+            <%= text_field_tag :scenario_name, "", 
+                id: "association-name",
+                placeholder: t('.enter_association_name'),
+                class: "form-control",
+                style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-top: 8px; font-size: 14px;",
+                required: true %>
+            <small class="help-text" style="display: block; margin-top: 5px; color: #666;"><%= t(".name_required") %></small>
+          </div>
+        </div>
+      <% end %>
 
     </div>
   </div>
 
-  <!-- Sticky Footer -->
+  <!-- Sticky Footer - Always visible -->
   <div class="item__edit-sticky">
     <div class="item__edit-sticky-container">
-      <button type="button" id="reset-button" class="button button__sm"><%= t(".cancel") %></button>
-      <button type="button" id="save-button" class="button button__sm button__secondary"><%= t(".save") %></button>
+      <%= button_tag t(".cancel"), type: "button", id: "reset-button", class: "button button__sm" %>
+      <%= button_tag t(".save"), type: "submit", form: "experiment-form", id: "save-button", class: "button button__sm button__secondary" %>
     </div>
   </div>
 </div>

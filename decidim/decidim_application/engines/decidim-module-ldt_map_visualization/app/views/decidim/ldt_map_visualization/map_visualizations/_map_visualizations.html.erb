@@ -1,0 +1,15 @@
+<% if @map_visualizations.blank? %>
+  <div class="callout warning">
+    <p><%= t(".empty") %></p>
+  </div>
+<% else %>
+  <h2 class="h5 md:h3 decorator">
+    <%= t("decidim.ldt_map_visualization.map_visualizations.map_visualizations.count", count: @map_visualizations.total_count) %>
+  </h2>
+
+  <% @map_visualizations.each do |map_visualization| %>
+    <%= render partial: "decidim/ldt_map_visualization/map_visualizations/map_visualization", locals: { map_visualization: map_visualization } %>
+  <% end %>
+
+  <%= decidim_paginate @map_visualizations %>
+<% end %>

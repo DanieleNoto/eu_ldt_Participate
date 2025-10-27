@@ -18,6 +18,7 @@ data:
     DECIDIM_ENABLE_HTML_HEADER_SNIPPETS: 'true'
     DOCKER_HOST_ADDRESS: 127.0.0.1
     GF_SERVER_DOMAIN: part-int.ldttoolbox.app/analytics/grafana
+    HELP_URL: https://interoperable-europe.ec.europa.eu/collection/ldttoolbox
     KEYCLOAK_DISABLE_SSL_VERIFY: 'false'
     MATOMO_SITE_ID: '1'
     MATOMO_SERVER_ADDRESS: https://part-int.ldttoolbox.app/analytics/matomo/
@@ -35,18 +36,19 @@ data:
     SMTP_ADDRESS: ssl0.ovh.net
     SMTP_AUTHENTICATION: login
     SMTP_DOMAIN: part-int.ldttoolbox.app
-    SMTP_STARTTLS_AUTO: 'true'
-    SMTP_PORT: '587'
+    SMTP_STARTTLS_AUTO: 'false'
+    SMTP_PORT: '465'
+    SMTP_TLS: 'true'
     SMTP_USERNAME: info@ldttoolbox.eu
-    SMTP_OPEN_TIMEOUT: '300'
-    SMTP_READ_TIMEOUT: '300'
+    SMTP_OPEN_TIMEOUT: '120'
+    SMTP_READ_TIMEOUT: '120'
     TOOL0_API_TOOLBAR_APPLICATIONS: /api/dashboard/applications/external-tools
     TOOL0_FULL_URL: https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools
     TOOL0_DOMAIN: https://ie-int.ldttoolbox.app
-    TOOL0_TENANT_ID: a6b3523b-b882-4a10-82d9-0db4dbe12f8e
     TOOL2_EXPERIMENTS_URL: https://ucs-int.ldttoolbox.app/api/v1/experiments
+    TOOL2_IFRAME_URL: https://ucs-int.ldttoolbox.app/embed/experiment-execution
     TOOL1_MAPS_URL: https://pv-int.ldttoolbox.app/api/maps
-#    CONFIG: ./jitsi-meet-cfg
+#   CONFIG: ./jitsi-meet-cfg
 #  DATABASE_HOST: db
 #  DATABASE_NAME: decidim_application_development
 #  DATABASE_PASSWORD: postgres

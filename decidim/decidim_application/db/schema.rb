@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_10_16_143700) do
+ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "ltree"
   enable_extension "pg_trgm"
@@ -1051,6 +1051,19 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_16_143700) do
     t.index ["decidim_author_id"], name: "index_decidim_initiatives_votes_on_decidim_author_id"
     t.index ["decidim_initiative_id"], name: "index_decidim_initiatives_votes_on_decidim_initiative_id"
     t.index ["hash_id"], name: "index_decidim_initiatives_votes_on_hash_id"
+  end
+
+  create_table "decidim_ldt_map_visualizations", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "map_id", null: false
+    t.text "map_data"
+    t.bigint "decidim_component_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "reference"
+    t.index ["decidim_component_id", "map_id"], name: "index_ldt_map_viz_on_component_and_map_id", unique: true
+    t.index ["decidim_component_id"], name: "index_ldt_map_viz_on_decidim_component_id"
+    t.index ["reference"], name: "index_decidim_ldt_map_visualizations_on_reference", unique: true
   end
 
   create_table "decidim_ldt_use_case_scenarios_use_case_scenarios", force: :cascade do |t|
@@ -2190,6 +2203,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_16_143700) do
   add_foreign_key "decidim_editor_images", "decidim_users", column: "decidim_author_id"
   add_foreign_key "decidim_identities", "decidim_organizations"
   add_foreign_key "decidim_initiatives_settings", "decidim_organizations"
+  add_foreign_key "decidim_ldt_map_visualizations", "decidim_components"
   add_foreign_key "decidim_ldt_use_case_scenarios_use_case_scenarios", "decidim_components"
   add_foreign_key "decidim_newsletters", "decidim_users", column: "author_id"
   add_foreign_key "decidim_participatory_process_steps", "decidim_participatory_processes"
