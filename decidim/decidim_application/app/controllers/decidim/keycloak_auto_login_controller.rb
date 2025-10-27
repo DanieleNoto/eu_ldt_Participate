@@ -11,8 +11,14 @@ module Decidim
         <head>
           <title>Redirecting to Keycloak...</title>
           <script>
+            var submitted = false;
             window.onload = function() {
-              document.getElementById('keycloak-form').submit();
+              if (!submitted) {
+                submitted = true;
+                setTimeout(function() {
+                  document.getElementById('keycloak-form').submit();
+                }, 500); // Small delay to avoid rate limiting
+              }
             }
           </script>
         </head>
