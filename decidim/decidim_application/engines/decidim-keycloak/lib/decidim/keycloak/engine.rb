@@ -2,7 +2,6 @@
 
 require "omniauth/strategies/keycloak-openid"
 require_relative "devise_extension"
-require_relative "auto_login_middleware"
 
 module Decidim
   module Keycloak
@@ -102,11 +101,6 @@ module Decidim
             Rails.logger.error "Error strategy: #{env['omniauth.error.strategy']}"
           end
         end
-      end
-
-      # Auto-login middleware for SSO between tools
-      initializer "decidim.keycloak.auto_login_middleware" do |app|
-        app.config.middleware.insert_before Warden::Manager, Decidim::Keycloak::AutoLoginMiddleware
       end
 
       config.to_prepare do
