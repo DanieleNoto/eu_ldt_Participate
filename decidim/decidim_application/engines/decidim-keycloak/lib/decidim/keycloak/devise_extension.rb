@@ -56,6 +56,8 @@ module Decidim
                         auth_data&.credentials&.dig('token')
           refresh_token = auth_data&.extra&.dig('refresh_token') || 
                          auth_data&.credentials&.dig('refresh_token')
+          id_token = auth_data&.extra&.dig('id_token') || 
+                    auth_data&.credentials&.dig('id_token')
           token_expires_in = auth_data&.extra&.dig('token_expires_in') || 
                             auth_data&.extra&.dig('expires_in') ||
                             auth_data&.credentials&.dig('expires_in')
@@ -66,6 +68,7 @@ module Decidim
             tokens = {
               access_token: access_token,
               refresh_token: refresh_token,
+              id_token: id_token,
               expires_in: token_expires_in
             }
             

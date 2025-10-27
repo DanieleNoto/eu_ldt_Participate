@@ -12,10 +12,9 @@ module Decidim
       end
 
       def ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil)
-        # Get tokens from cookies - they are stored as separate chunks in HTTP cookies
-        access_token = reconstruct_token_from_cookies(cookies_hash, 'keycloak_access_token')
-        expires_at = cookies_hash&.dig('keycloak_token_expires_at')&.to_i if cookies_hash
-        refresh_token = reconstruct_token_from_cookies(cookies_hash, 'keycloak_refresh_token')
+        access_token = reconstruct_token_from_cookies(cookies_hash, 'access_token')
+        expires_at = cookies_hash&.dig('token_expires_at')&.to_i if cookies_hash
+        refresh_token = reconstruct_token_from_cookies(cookies_hash, 'refresh_token')
         
         return nil unless access_token
 
@@ -41,89 +40,60 @@ module Decidim
       end
 
       def save_tokens_to_cookies(cookies_obj, tokens)
-        # Optimize chunk size: smaller chunks = more flexible, less risk of hitting single cookie limit
-        # Max single cookie size is typically 4KB, we use 1500 bytes to be safe
-        chunk_size = 1500
+        # Domain for cross-subdomain cookie sharing
+        # In production with ldttoolbox.app domains, use .ldttoolbox.app
+        # In development with localhost, don't set domain (nil = current domain only)
+        decidim_host = ENV['DECIDIM_HOST'] || 'localhost'
+        cookie_domain = decidim_host.include?('ldttoolbox.app') ? '.ldttoolbox.app' : nil
         
-        # Save access token in chunks
-        access_token = tokens[:access_token]
-        
-        # Log token size for monitoring
-        
-        access_token_chunks = access_token.scan(/.{1,#{chunk_size}}/m)
-        
-        # Clear old chunks first - be aggressive and try to delete more than needed
-        old_count = cookies_obj['keycloak_access_token_count'].to_i
-        # Delete up to 20 possible old chunks to handle edge cases
-        [old_count, 20].max.times do |i|
-          cookies_obj.delete("keycloak_access_token_#{i}")
-        end
-        
-        # Also clean up any legacy token cookie names
-        cookies_obj.delete('access_token')
-        cookies_obj.delete('id_token')
-        cookies_obj.delete('jwt_token')
-        
-        # Save new chunks with shorter expiration to reduce cookie bloat
-        # Access tokens typically expire in 5-15 minutes, so 1 hour cookie is sufficient
-        access_token_chunks.each_with_index do |chunk, index|
-          cookies_obj["keycloak_access_token_#{index}"] = {
-            value: chunk,
+        # Save access token
+        if tokens[:access_token]
+          cookies_obj['access_token'] = {
+            value: tokens[:access_token],
             httponly: true,
             secure: Rails.env.production?,
             same_site: :lax,
-            expires: 1.hour.from_now  # Reduced from 1 day to 1 hour
+            domain: cookie_domain,
+            expires: 1.hour.from_now
           }
         end
-        cookies_obj['keycloak_access_token_count'] = {
-          value: access_token_chunks.length.to_s,
-          httponly: true,
-          expires: 1.hour.from_now  # Reduced from 1 day to 1 hour
-        }
         
-        # Save refresh token in chunks
+        # Save refresh token
         if tokens[:refresh_token]
-          refresh_token = tokens[:refresh_token]
-          refresh_token_chunks = refresh_token.scan(/.{1,#{chunk_size}}/m)
-          
-          # Clear old chunks - be aggressive and try to delete more than needed
-          old_refresh_count = cookies_obj['keycloak_refresh_token_count'].to_i
-          # Delete up to 20 possible old chunks to handle edge cases
-          [old_refresh_count, 20].max.times do |i|
-            cookies_obj.delete("keycloak_refresh_token_#{i}")
-          end
-          
-          # Also clean up any legacy refresh token cookie names
-          cookies_obj.delete('refresh_token')
-          
-          # Save new chunks with shorter expiration (refresh tokens last 30 days but cookie can be shorter)
-          # Setting to 7 days reduces cookie bloat while still maintaining reasonable session length
-          refresh_token_chunks.each_with_index do |chunk, index|
-            cookies_obj["keycloak_refresh_token_#{index}"] = {
-              value: chunk,
-              httponly: true,
-              secure: Rails.env.production?,
-              same_site: :lax,
-              expires: 7.days.from_now  # Reduced from 30 days to 7 days
-            }
-          end
-          cookies_obj['keycloak_refresh_token_count'] = {
-            value: refresh_token_chunks.length.to_s,
+          cookies_obj['refresh_token'] = {
+            value: tokens[:refresh_token],
             httponly: true,
-            expires: 7.days.from_now  # Reduced from 30 days to 7 days
+            secure: Rails.env.production?,
+            same_site: :lax,
+            domain: cookie_domain,
+            expires: 7.days.from_now
+          }
+        end
+        
+        # Save id_token
+        if tokens[:id_token]
+          cookies_obj['id_token'] = {
+            value: tokens[:id_token],
+            httponly: true,
+            secure: Rails.env.production?,
+            same_site: :lax,
+            domain: cookie_domain,
+            expires: 7.days.from_now
           }
         end
         
         # Save token expiry
         if tokens[:expires_in] && tokens[:expires_in] > 0
           expires_at = Time.current + tokens[:expires_in].seconds
-          cookies_obj['keycloak_token_expires_at'] = {
+          cookies_obj['token_expires_at'] = {
             value: expires_at.to_i.to_s,
             httponly: true,
+            secure: Rails.env.production?,
+            same_site: :lax,
+            domain: cookie_domain,
             expires: expires_at
           }
         end
-        
       end
 
       # Exchange an incoming token (subject_token) for a token targeted at a specific audience/client
@@ -163,7 +133,6 @@ module Decidim
                 client_id: client_id
               }
 
-              # Attach client authentication
               if auth_method == :post
                 form[:client_secret] = client_secret
               else
@@ -176,13 +145,7 @@ module Decidim
 
               if response.code == '200'
                 result = JSON.parse(response.body)
-                if result['access_token']
-                  return result['access_token']
-                else
-                  return nil
-                end
-              else
-                # Try next combination
+                return result['access_token'] if result['access_token']
               end
             rescue StandardError => e
             end
@@ -195,25 +158,8 @@ module Decidim
       private
 
       def reconstruct_token_from_cookies(cookies_hash, token_key)
-        # Reconstruct token from chunks stored in HTTP cookies
         return nil unless cookies_hash
-        
-        chunk_count = cookies_hash["#{token_key}_count"].to_i
-        return nil if chunk_count == 0
-        
-        
-        chunks = []
-        chunk_count.times do |i|
-          chunk = cookies_hash["#{token_key}_#{i}"]
-          if chunk
-            chunks << chunk
-          else
-            break
-          end
-        end
-        
-        return nil if chunks.length != chunk_count
-        chunks.join
+        cookies_hash[token_key]
       end
 
       def refresh_access_token(refresh_token)
@@ -246,8 +192,7 @@ module Decidim
           end
 
           result = JSON.parse(response.body)
-          
-          
+
           {
             access_token: result['access_token'],
             refresh_token: result['refresh_token'] || refresh_token, # Keep old refresh_token if not provided

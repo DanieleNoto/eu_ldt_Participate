@@ -30,25 +30,19 @@ module Decidim
       private
 
       def cleanup_keycloak_cookies
-        # Delete all possible Keycloak token cookies
-        # This prevents cookie bloat and 400 Bad Request errors
+        # Delete all Keycloak token cookies
+        # Use the same domain logic as when they were set
         
-        # Delete chunked tokens (up to 50 chunks to be safe)
-        (0..50).each do |i|
-          cookies.delete("keycloak_access_token_#{i}", domain: :all)
-          cookies.delete("keycloak_refresh_token_#{i}", domain: :all)
-        end
+        decidim_host = ENV['DECIDIM_HOST'] || 'localhost'
+        cookie_domain = decidim_host.include?('ldttoolbox.app') ? '.ldttoolbox.app' : nil
         
-        # Delete count cookies
-        cookies.delete('keycloak_access_token_count', domain: :all)
-        cookies.delete('keycloak_refresh_token_count', domain: :all)
-        cookies.delete('keycloak_token_expires_at', domain: :all)
-        
-        # Delete legacy token cookies
-        cookies.delete('access_token', domain: :all)
-        cookies.delete('id_token', domain: :all)
-        cookies.delete('jwt_token', domain: :all)
-        cookies.delete('refresh_token', domain: :all)
+        # Delete current token cookies with correct domain
+        # Use the determined domain, or :all if domain is nil (localhost)
+        delete_domain = cookie_domain || :all
+        cookies.delete('access_token', domain: delete_domain)
+        cookies.delete('refresh_token', domain: delete_domain)
+        cookies.delete('id_token', domain: delete_domain)
+        cookies.delete('token_expires_at', domain: delete_domain)
         
         Rails.logger.info "🧹 Cleaned up all Keycloak cookies on logout"
       end
