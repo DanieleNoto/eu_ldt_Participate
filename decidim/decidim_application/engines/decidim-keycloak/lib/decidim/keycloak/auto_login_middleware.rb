@@ -62,10 +62,10 @@ module Decidim
         Rails.logger.debug "[Keycloak AutoLogin] All cookies in request: #{cookies.keys.join(', ')}"
         Rails.logger.debug "[Keycloak AutoLogin] Checking cookies: #{cookies.keys.grep(/access_token|refresh_token|id_token|token_expires/).join(', ')}"
 
-        # Check for access token cookie (should be present if user was logged in)
-        access_token = reconstruct_token_from_cookies(cookies, 'access_token')
-        Rails.logger.debug "[Keycloak AutoLogin] Access token present: #{access_token ? 'YES' : 'NO'}"
-        return false unless access_token
+        # Check for id token cookie (should be present if user was logged in)
+        id_token = reconstruct_token_from_cookies(cookies, 'id_token')
+        Rails.logger.debug "[Keycloak AutoLogin] ID token present: #{id_token ? 'YES' : 'NO'}"
+        return false unless id_token
 
         # Check if token is not expired
         expires_at = cookies['token_expires_at']&.to_i
@@ -84,11 +84,11 @@ module Decidim
 
         begin
           cookies = request.cookies
-          access_token = reconstruct_token_from_cookies(cookies, 'access_token')
-          Rails.logger.debug "[Keycloak AutoLogin] Reconstructed access token: #{access_token ? 'PRESENT' : 'MISSING'}"
+          id_token = reconstruct_token_from_cookies(cookies, 'id_token')
+          Rails.logger.debug "[Keycloak AutoLogin] Reconstructed ID token: #{id_token ? 'PRESENT' : 'MISSING'}"
 
           # Validate token by decoding it
-          user_info = validate_and_extract_user(access_token)
+          user_info = validate_and_extract_user(id_token)
           Rails.logger.debug "[Keycloak AutoLogin] User info extracted: #{user_info ? user_info[:sub] : 'FAILED'}"
           return @app.call(env) unless user_info
 
@@ -137,11 +137,11 @@ module Decidim
         result
       end
 
-      def validate_and_extract_user(access_token)
+      def validate_and_extract_user(id_token)
         begin
-          Rails.logger.debug "[Keycloak AutoLogin] Validating access token"
+          Rails.logger.debug "[Keycloak AutoLogin] Validating ID token"
           # Decode JWT token to extract claims
-          token_parts = access_token.split('.')
+          token_parts = id_token.split('.')
           Rails.logger.debug "[Keycloak AutoLogin] Token parts: #{token_parts.length}"
           return nil unless token_parts.length >= 2
 
