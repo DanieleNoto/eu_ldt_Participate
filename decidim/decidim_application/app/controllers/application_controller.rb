@@ -24,9 +24,9 @@ class ApplicationController < ActionController::Base
     # Check for valid Keycloak cookies
     return unless keycloak_cookies_present_and_valid?
 
-    # Redirect to Keycloak login to trigger auto-login
+        # Redirect to Keycloak login to trigger auto-login
     Rails.logger.info "[Keycloak AutoLogin] Redirecting to Keycloak login for auto-login"
-    redirect_to "/users/auth/keycloakopenid"
+    redirect_to keycloak_auto_login_path
   end
 
   def check_keycloak_auto_logout
