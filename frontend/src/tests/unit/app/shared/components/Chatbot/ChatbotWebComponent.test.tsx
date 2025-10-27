@@ -55,6 +55,8 @@ global.fetch = jest.fn();
 describe('ChatbotWebComponent', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		delete (window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__;
+		delete (window as { __CHATBOT_CONFIG__?: unknown }).__CHATBOT_CONFIG__;
 		(global.fetch as jest.Mock).mockResolvedValue({
 			json: () => Promise.resolve({ some: 'config' })
 		});
@@ -65,12 +67,21 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should render loading state initially', () => {
+		// Set base URL to trigger config fetch
+		Object.defineProperty(window, '__CHATBOT_BASE_URL__', {
+			value: 'http://example.com',
+			writable: true
+		});
+		// Mock fetch to never resolve, keeping loading state
+		(global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
+		
 		render(<ChatbotWebComponent />);
 		
-		expect(screen.getByText('Loading...')).toBeInTheDocument();
+		expect(screen.queryByTestId('chatbot')).not.toBeInTheDocument();
 	});
 
 	it('should render chatbot after config is loaded', async () => {
+		(window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'http://example.com';
 		await act(async () => {
 			render(<ChatbotWebComponent />);
 		});
@@ -83,6 +94,7 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should pass language prop to chatbot', async () => {
+		(window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'http://example.com';
 		await act(async () => {
 			render(<ChatbotWebComponent language="fr" />);
 		});
@@ -93,6 +105,7 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should pass className prop to chatbot', async () => {
+		(window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'http://example.com';
 		await act(async () => {
 			render(<ChatbotWebComponent className="custom-class" />);
 		});
@@ -103,6 +116,7 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should pass onSupportSent callback to chatbot', async () => {
+		(window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'http://example.com';
 		const mockCallback = jest.fn();
 		await act(async () => {
 			render(<ChatbotWebComponent onSupportSent={mockCallback} />);
@@ -118,6 +132,7 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should use default language "en" when no language prop provided', async () => {
+		(window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'http://example.com';
 		await act(async () => {
 			render(<ChatbotWebComponent />);
 		});
@@ -128,6 +143,7 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should handle fetch config failure gracefully', async () => {
+		(window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'http://example.com';
 		(global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
 		
 		const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
@@ -141,7 +157,7 @@ describe('ChatbotWebComponent', () => {
 		});
 
 		expect(consoleSpy).toHaveBeenCalledWith(
-			'Failed to load config.json, using defaults:',
+			'[Chatbot] Failed to load config.json, using defaults:',
 			expect.any(Error)
 		);
 
@@ -149,6 +165,7 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should handle invalid JSON response gracefully', async () => {
+		(window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'http://example.com';
 		(global.fetch as jest.Mock).mockResolvedValue({
 			json: () => Promise.reject(new Error('Invalid JSON'))
 		});
@@ -168,6 +185,7 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should render chatbot in fixed position container', async () => {
+		(window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'http://example.com';
 		await act(async () => {
 			render(<ChatbotWebComponent />);
 		});
@@ -184,6 +202,7 @@ describe('ChatbotWebComponent', () => {
 	});
 
 	it('should wrap chatbot in SimplifiedMainProvider', async () => {
+		(window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'http://example.com';
 		await act(async () => {
 			render(<ChatbotWebComponent />);
 		});

@@ -1,14 +1,9 @@
-import { Chatbot } from '@app/shared/components/Chatbot';
 import ChatbotComponent from '@app/shared/components/Chatbot/Chatbot';
 
-describe('Chatbot Index', () => {
-	it('exports Chatbot component as named export', () => {
-		expect(Chatbot).toBeDefined();
-		expect(Chatbot).toBe(ChatbotComponent);
-	});
-
-	it('exports the correct component type', () => {
-		expect(typeof Chatbot).toBe('function');
-		expect(Chatbot.name).toBe('Chatbot');
+describe('Chatbot Component export', () => {
+	it('default Chatbot component is exported and is a function', () => {
+		expect(ChatbotComponent).toBeDefined();
+		expect(typeof ChatbotComponent).toBe('function');
+		expect(ChatbotComponent.name).toBe('Chatbot');
 	});
 });

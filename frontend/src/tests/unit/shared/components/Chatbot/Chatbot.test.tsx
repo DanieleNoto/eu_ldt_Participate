@@ -145,7 +145,7 @@ describe('Chatbot Component', () => {
 			
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			expect(floatingButton).toBeInTheDocument();
-			expect(floatingButton).toHaveClass('fixed', 'bottom-5', 'right-5');
+			expect(floatingButton).toHaveClass('w-14', 'h-14', 'rounded-full');
 		});
 
 		it('does not show chat dialog initially', () => {

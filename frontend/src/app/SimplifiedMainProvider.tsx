@@ -96,8 +96,17 @@ const RuntimeConfigInitializer = ({
 	useEffect(() => {
 		let active = true;
 		const baseConfig = chatbotConfig;
-		const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
-		const envBaseVar = normalizeBaseUrl(metaEnv?.VITE_API_URL ?? '');
+		const getViteApiUrl = () => {
+			if (typeof process !== 'undefined' && (process.env as any)?.VITE_API_URL) {
+				return (process.env as any).VITE_API_URL;
+			}
+			if (typeof globalThis !== 'undefined' && (globalThis as any).__VITE_API_URL__) {
+				return (globalThis as any).__VITE_API_URL__;
+			}
+			return undefined;
+		};
+
+		const envBaseVar = normalizeBaseUrl(getViteApiUrl() ?? '');
 
 		const applyWithEnvOverride = (override?: Partial<ConfigState>) => {
 			if (!active) return;

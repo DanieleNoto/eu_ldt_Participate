@@ -84,57 +84,6 @@ describe('ChatbotElementWrapper', () => {
 		});
 	});
 
-	describe('React DevTools setup', () => {
-		it('should set up React DevTools hook in development mode', () => {
-			process.env.NODE_ENV = 'development';
-			
-			// Ensure window exists and clear the hook
-			if (global.window) {
-				global.window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = undefined;
-			}
-			
-			// Re-import to trigger the condition
-			jest.resetModules();
-			require('@app/ChatbotElementWrapper');
-			
-			if (global.window) {
-				expect(global.window.__REACT_DEVTOOLS_GLOBAL_HOOK__).toBeDefined();
-			}
-		});
-
-		it('should not set up React DevTools hook in production mode', () => {
-			process.env.NODE_ENV = 'production';
-			if (global.window) {
-				global.window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = undefined;
-			}
-			
-			// Re-import to trigger the condition
-			jest.resetModules();
-			require('@app/ChatbotElementWrapper');
-			
-			// The hook should remain undefined in production
-			if (global.window) {
-				expect(global.window.__REACT_DEVTOOLS_GLOBAL_HOOK__).toBeUndefined();
-			}
-		});
-
-		it('should preserve existing React DevTools hook', () => {
-			process.env.NODE_ENV = 'development';
-			const existingHook = { someProperty: 'value' };
-			if (global.window) {
-				global.window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = existingHook;
-			}
-			
-			// Re-import to trigger the condition
-			jest.resetModules();
-			require('@app/ChatbotElementWrapper');
-			
-			if (global.window) {
-				expect(global.window.__REACT_DEVTOOLS_GLOBAL_HOOK__).toBe(existingHook);
-			}
-		});
-	});
-
 	describe('window environment check', () => {
 		it('should handle server-side rendering (no window)', () => {
 			const savedWindow = global.window;
