@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   end
 
   # Keycloak auto-login route
-  get 'keycloak_auto_login', to: 'decidim/keycloak_auto_login#show'
+  get 'auth/keycloak_auto_login', to: 'decidim/keycloak_auto_login#show'
 
   mount Decidim::Core::Engine => '/'
   mount Decidim::AdminHeader::Engine, at: '/'

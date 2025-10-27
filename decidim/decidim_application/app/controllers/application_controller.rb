@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
 
         # Redirect to Keycloak login to trigger auto-login
     Rails.logger.info "[Keycloak AutoLogin] Redirecting to Keycloak login for auto-login"
-    redirect_to keycloak_auto_login_path
+    redirect_to '/auth/keycloak_auto_login'
   end
 
   def check_keycloak_auto_logout
