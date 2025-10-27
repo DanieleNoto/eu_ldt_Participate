@@ -43,8 +43,16 @@ module Decidim
         # Domain for cross-subdomain cookie sharing
         # In production with ldttoolbox.app domains, use .ldttoolbox.app
         # In development with localhost, don't set domain (nil = current domain only)
+        # Can be overridden with KEYCLOAK_COOKIE_DOMAIN env var for testing
+        # If KEYCLOAK_COOKIE_DOMAIN is set to 'localhost', use '.localhost' for local testing
         decidim_host = ENV['DECIDIM_HOST'] || 'localhost'
-        cookie_domain = decidim_host.include?('ldttoolbox.app') ? '.ldttoolbox.app' : nil
+        cookie_domain = ENV['KEYCLOAK_COOKIE_DOMAIN'] || 
+                       (decidim_host.include?('ldttoolbox.app') ? '.ldttoolbox.app' : nil)
+        
+        # Special case for local testing with subdomains
+        if Rails.env.development? && ENV['KEYCLOAK_COOKIE_DOMAIN'] == 'localhost'
+          cookie_domain = '.localhost'
+        end
         
         # Save access token
         if tokens[:access_token]

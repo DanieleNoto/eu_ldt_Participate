@@ -34,7 +34,13 @@ module Decidim
         # Use the same domain logic as when they were set
         
         decidim_host = ENV['DECIDIM_HOST'] || 'localhost'
-        cookie_domain = decidim_host.include?('ldttoolbox.app') ? '.ldttoolbox.app' : nil
+        cookie_domain = ENV['KEYCLOAK_COOKIE_DOMAIN'] || 
+                       (decidim_host.include?('ldttoolbox.app') ? '.ldttoolbox.app' : nil)
+        
+        # Special case for local testing with subdomains
+        if Rails.env.development? && ENV['KEYCLOAK_COOKIE_DOMAIN'] == 'localhost'
+          cookie_domain = '.localhost'
+        end
         
         # Delete current token cookies with correct domain
         # Use the determined domain, or :all if domain is nil (localhost)
