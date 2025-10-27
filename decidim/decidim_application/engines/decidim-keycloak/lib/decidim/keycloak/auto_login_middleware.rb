@@ -10,16 +10,28 @@ module Decidim
 
       def call(env)
         request = Rack::Request.new(env)
+        path = request.path
+
+        Rails.logger.debug "[Keycloak AutoLogin] Processing request: #{request.request_method} #{path}"
 
         # Skip auto-login for certain paths
-        return @app.call(env) if skip_auto_login?(request)
+        if skip_auto_login?(request)
+          Rails.logger.debug "[Keycloak AutoLogin] Skipping auto-login for path: #{path}"
+          return @app.call(env)
+        end
 
         # Check if user is already authenticated
-        return @app.call(env) if user_authenticated?(env)
+        if user_authenticated?(env)
+          Rails.logger.debug "[Keycloak AutoLogin] User already authenticated, skipping"
+          return @app.call(env)
+        end
 
         # Check for valid Keycloak tokens in cookies
         if valid_tokens_present?(request)
+          Rails.logger.debug "[Keycloak AutoLogin] Valid tokens found, attempting auto-login"
           return handle_auto_login(env, request)
+        else
+          Rails.logger.debug "[Keycloak AutoLogin] No valid tokens found in cookies"
         end
 
         @app.call(env)
@@ -47,31 +59,45 @@ module Decidim
       def valid_tokens_present?(request)
         cookies = request.cookies
 
+        Rails.logger.debug "[Keycloak AutoLogin] Checking cookies: #{cookies.keys.grep(/access_token|refresh_token|id_token|token_expires/).join(', ')}"
+
         # Check for access token cookie (should be present if user was logged in)
         access_token = reconstruct_token_from_cookies(cookies, 'access_token')
+        Rails.logger.debug "[Keycloak AutoLogin] Access token present: #{access_token ? 'YES' : 'NO'}"
         return false unless access_token
 
         # Check if token is not expired
         expires_at = cookies['token_expires_at']&.to_i
-        return false if expires_at && Time.at(expires_at) <= Time.current
+        Rails.logger.debug "[Keycloak AutoLogin] Token expires at: #{expires_at ? Time.at(expires_at) : 'NO EXPIRY'}"
+        if expires_at && Time.at(expires_at) <= Time.current
+          Rails.logger.debug "[Keycloak AutoLogin] Token is expired"
+          return false
+        end
 
+        Rails.logger.debug "[Keycloak AutoLogin] Tokens are valid"
         true
       end
 
       def handle_auto_login(env, request)
+        Rails.logger.debug "[Keycloak AutoLogin] Starting auto-login process"
+
         begin
           cookies = request.cookies
           access_token = reconstruct_token_from_cookies(cookies, 'access_token')
+          Rails.logger.debug "[Keycloak AutoLogin] Reconstructed access token: #{access_token ? 'PRESENT' : 'MISSING'}"
 
           # Validate token by decoding it
           user_info = validate_and_extract_user(access_token)
+          Rails.logger.debug "[Keycloak AutoLogin] User info extracted: #{user_info ? user_info[:sub] : 'FAILED'}"
           return @app.call(env) unless user_info
 
           # Find user by identity
           user = find_user_by_identity(user_info)
+          Rails.logger.debug "[Keycloak AutoLogin] User found: #{user ? user.id : 'NOT FOUND'}"
           return @app.call(env) unless user
 
           # Set up warden authentication
+          Rails.logger.debug "[Keycloak AutoLogin] Setting up warden authentication"
           env['warden'].set_user(user, scope: :user)
 
           # Log successful auto-login
@@ -80,12 +106,17 @@ module Decidim
           @app.call(env)
         rescue => e
           Rails.logger.error "[Keycloak] Auto-login failed: #{e.class} - #{e.message}"
+          Rails.logger.error "[Keycloak] Backtrace: #{e.backtrace.first(5).join("\n")}"
           @app.call(env)
         end
       end
 
       def reconstruct_token_from_cookies(cookies, token_type)
-        # Reconstruct token from cookie chunks (same logic as TokenService)
+        # First try to get the token as a single cookie (new format without chunking)
+        single_cookie = cookies[token_type]
+        return single_cookie if single_cookie.present?
+
+        # Fallback to chunked cookies (old format) for backward compatibility
         token_parts = []
         index = 0
 
