@@ -38,15 +38,8 @@ module Decidim
               # Mark session as Keycloak authenticated for Single Logout
               session[:keycloak_authenticated] = true
               
-              # Save id_token for logout (needed for automatic logout without confirmation page)
-              id_token = auth_data&.extra&.dig('id_token') || auth_data&.credentials&.dig('id_token')
-              
-              if id_token.present?
-                session[:keycloak_id_token] = id_token
-                Rails.logger.info "[Keycloak] Saved id_token to session for user #{current_user.id}"
-              else
-                Rails.logger.warn "[Keycloak] No id_token found in auth_data for user #{current_user.id}"
-              end
+              # Note: id_token is now stored in cookies, not session, to avoid session cookie size limits
+              Rails.logger.info "[Keycloak] User #{current_user.id} authenticated via Keycloak"
             end
             
             result

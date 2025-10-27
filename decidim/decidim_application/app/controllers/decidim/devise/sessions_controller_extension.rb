@@ -50,7 +50,11 @@ module Decidim
         cookies.delete('id_token', domain: delete_domain)
         cookies.delete('token_expires_at', domain: delete_domain)
         
-        Rails.logger.info "🧹 Cleaned up all Keycloak cookies on logout"
+        # Clean up session data
+        session.delete(:keycloak_authenticated)
+        session.delete(:keycloak_id_token) # Remove any leftover id_token from session
+        
+        Rails.logger.info "🧹 Cleaned up all Keycloak cookies and session data on logout"
       end
 
       def build_keycloak_logout_url
@@ -66,8 +70,8 @@ module Decidim
           decidim.root_url
         end
         
-        # Get id_token from session for automatic logout
-        id_token = session[:keycloak_id_token]
+        # Get id_token from cookies (not session) for automatic logout
+        id_token = cookies['id_token']
         
         # Keycloak logout endpoint with redirect and id_token_hint for automatic logout
         keycloak_logout_path = "/realms/#{realm}/protocol/openid-connect/logout"
