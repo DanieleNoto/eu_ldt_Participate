@@ -67,11 +67,11 @@ module Decidim
         Rails.logger.debug "[Keycloak AutoLogin] ID token present: #{id_token ? 'YES' : 'NO'}"
         return false unless id_token
 
-        # Check if token is not expired
+        # Check if token is not expired (using cookie expiry as fallback)
         expires_at = cookies['token_expires_at']&.to_i
-        Rails.logger.debug "[Keycloak AutoLogin] Token expires at: #{expires_at ? Time.at(expires_at) : 'NO EXPIRY'}"
+        Rails.logger.debug "[Keycloak AutoLogin] Token expires at (cookie): #{expires_at ? Time.at(expires_at) : 'NO EXPIRY'}"
         if expires_at && Time.at(expires_at) <= Time.current
-          Rails.logger.debug "[Keycloak AutoLogin] Token is expired"
+          Rails.logger.debug "[Keycloak AutoLogin] Token is expired (cookie check)"
           return false
         end
 
@@ -158,9 +158,14 @@ module Decidim
 
           # Check if token is expired
           exp = claims['exp']
-          if exp && Time.at(exp) < Time.now
-            Rails.logger.debug "[Keycloak AutoLogin] Token expired at #{Time.at(exp)}"
-            return nil
+          if exp
+            # Handle both seconds and milliseconds timestamps
+            exp_time = exp > 1_000_000_000_000 ? Time.at(exp / 1000) : Time.at(exp)
+            Rails.logger.debug "[Keycloak AutoLogin] Token exp timestamp: #{exp}, converted time: #{exp_time}"
+            if exp_time < Time.now
+              Rails.logger.debug "[Keycloak AutoLogin] Token expired at #{exp_time}"
+              return nil
+            end
           end
 
           # Return user info
@@ -176,21 +181,30 @@ module Decidim
       end
 
       def find_user_by_identity(user_info)
-        Rails.logger.debug "[Keycloak AutoLogin] Finding user by identity for sub: #{user_info[:sub]}"
-        # Find user by Keycloak identity
+        Rails.logger.debug "[Keycloak AutoLogin] Finding user by identity for sub: #{user_info[:sub]}, email: #{user_info[:email]}"
+
+        # First try to find by Keycloak identity (sub)
         identity = Decidim::Identity.find_by(
           provider: 'keycloakopenid',
           uid: user_info[:sub]
         )
 
-        Rails.logger.debug "[Keycloak AutoLogin] Identity found: #{identity ? identity.id : 'NOT FOUND'}"
         if identity
-          Rails.logger.debug "[Keycloak AutoLogin] User found: #{identity.user.id} - #{identity.user.email}"
-        else
-          Rails.logger.debug "[Keycloak AutoLogin] No identity found for provider=keycloakopenid, uid=#{user_info[:sub]}"
+          Rails.logger.debug "[Keycloak AutoLogin] User found by identity: #{identity.user.id} - #{identity.user.email}"
+          return identity.user
         end
 
-        identity&.user
+        # Fallback: try to find user directly by email
+        if user_info[:email]
+          user = Decidim::User.find_by(email: user_info[:email])
+          if user
+            Rails.logger.debug "[Keycloak AutoLogin] User found by email: #{user.id} - #{user.email}"
+            return user
+          end
+        end
+
+        Rails.logger.debug "[Keycloak AutoLogin] No user found for sub=#{user_info[:sub]} or email=#{user_info[:email]}"
+        nil
       end
     end
   end
