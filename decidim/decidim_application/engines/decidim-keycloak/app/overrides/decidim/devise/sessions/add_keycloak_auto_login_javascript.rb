@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const currentTime = Math.floor(Date.now() / 1000);
       return payload.exp > currentTime;
     } catch (e) {
+      console.log("Token validation error:", e);
       return false;
     }
   }
@@ -28,13 +29,26 @@ document.addEventListener("DOMContentLoaded", function() {
   const idToken = getCookie("id_token");
   const accessToken = getCookie("access_token");
 
+  console.log("Keycloak auto-login check:");
+  console.log("- id_token present:", !!idToken);
+  console.log("- access_token present:", !!accessToken);
+
   if (idToken && accessToken && isTokenValid(idToken)) {
+    console.log("Valid Keycloak tokens found, attempting auto-login");
+
     // Find and click the Keycloak button
     const keycloakButton = document.querySelector(".login__omniauth-button--keycloakopenid");
     if (keycloakButton) {
-      console.log("Valid Keycloak tokens found, auto-clicking Keycloak login button");
+      console.log("Found Keycloak button, clicking...");
       keycloakButton.click();
+    } else {
+      console.log("Keycloak button not found!");
+      // Log all available omniauth buttons
+      const allButtons = document.querySelectorAll("[class*=\"omniauth\"]");
+      console.log("Available omniauth buttons:", Array.from(allButtons).map(btn => btn.className));
     }
+  } else {
+    console.log("No valid Keycloak tokens found or tokens expired");
   }
 });
 </script>
