@@ -5,6 +5,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     get 'jwt_token', to: 'jwt_tokens#show'
+    resources :assets, only: [:index, :show], param: :id
   end
 
   mount Decidim::Core::Engine => '/'
