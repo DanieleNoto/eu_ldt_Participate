@@ -5,7 +5,9 @@ export const STORAGE_STATE = {
 	USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/user-state.json'),
 	ADMIN: path.resolve(__dirname, '../../../acceptance/e2e/auth/admin-state.json'),
 	ACCOUNT_DELETION_USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/account-deletion-user-state.json'),
-	USER_WITHOUT_MESSAGES: path.resolve(__dirname, '../../../acceptance/e2e/auth/user-without-messages-state.json')
+	USER_WITHOUT_MESSAGES: path.resolve(__dirname, '../../../acceptance/e2e/auth/user-without-messages-state.json'),
+	KEYCLOAK_ADMIN: path.resolve(__dirname, '../../../acceptance/e2e/auth/keycloak-admin-state.json'),
+    KEYCLOAK_USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/keycloak-user-state.json')
 } as const;
 
 export const TEST_SELECTORS = {
@@ -50,7 +52,33 @@ export const TEST_SELECTORS = {
 		MARKETING_TOGGLE: 'label[for="dc-marketing"]',
 		SAVE_BUTTON: '#dc-modal-save'
 	},
-
+    PROCESS: {
+    PROCESS_GRID: 'a.card__grid',
+    // Menu container
+    NAV_MENU: '#dropdown-menu-participatory-space',
+    // Link to specific entry (visible text)
+    USE_CASE_SCENARIOS_BUTTON: 'a.participatory-space__nav-item:has-text("LDT Use Case Scenarios")',
+    USE_CASE_SCENARIOS_DYNAMIC: 'a.participatory-space__nav-item[href*="use_case_scenarios"]',
+    DEBATES_BUTTON: 'a.participatory-space__nav-item:has-text("Test Debates")',
+    MEETINGS_BUTTON: 'a.participatory-space__nav-item:has-text("Meetings")',
+    CONVOCATION_BUTTON: 'a.participatory-space__nav-item:has-text("Convocation Page")',
+    SURVEYS_BUTTON: 'a.participatory-space__nav-item:has-text("Surveys")',
+    // Scenarios Section
+    SCENARIO_SECTION: '#use-case-scenarios',
+    SCENARIO_LIST: 'section#use-case-scenarios a.card__list',
+    FIRST_SCENARIO: 'section#use-case-scenarios a.card__list:first-of-type',
+	// After clicking a scenario: content area
+	USE_CASE_CONTENT: '#content .card__content',
+	SCENARIO_HEADING: '#content h2.section-heading',
+	BACK_TO_LIST_BUTTON: '#content a.button[href*="use_case_scenarios"]',	
+	// AI disclaimer
+	AI_LABEL: '#content .callout.warning strong',	
+	// Experiment metadata and interactive iframe
+	EXPERIMENT_ID_TITLE: '#content .definition-data__title',
+	EXPERIMENT_ID_TEXT: '#content .definition-data__text',
+	METRICS_IFRAME_CONTAINER: '.experiment-iframe-container',
+	METRICS_IFRAME: '#experiment-iframe'	
+},
 	SUCCESS_MESSAGE: '[data-testid="success-message"]',
 	ERROR_MESSAGE: '[data-testid="error-message"]',
 	ADMIN_BAR: '#admin-bar'
@@ -63,7 +91,7 @@ export const TEST_ASSETS = {
 } as const;
 
 export const BASE_URLS = {
-	USED: process.env.FE_BASE_URL || 'http://localhost:3000',
+	USED: process.env.FE_BASE_URL || 'https://part-int.ldttoolbox.app',
 	LOCAL: 'http://localhost:3000',
 	STAGING: process.env.STAGING_URL || 'https://staging.example.com',
 	PRODUCTION: process.env.PROD_URL || 'https://production.example.com'

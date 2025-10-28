@@ -5,9 +5,17 @@ import { STORAGE_STATE } from '@utils/constants';
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+dotenv.config({ path: path.resolve(__dirname, '.env.development') });
+
+const storageStateAdmin = process.env.USE_KEYCLOAK === 'true'
+    ? STORAGE_STATE.KEYCLOAK_ADMIN
+    : STORAGE_STATE.ADMIN;
+
+const storageStateUser = process.env.USE_KEYCLOAK === 'true'
+    ? STORAGE_STATE.KEYCLOAK_USER
+    : STORAGE_STATE.USER;
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -37,7 +45,7 @@ export default defineConfig({
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
 	use: {
 		/* Base URL to use in actions like `await page.goto('/')`. */
-		baseURL: process.env.FE_BASE_URL || 'http://localhost:3000',
+		baseURL: process.env.FE_BASE_URL || 'https://part-int.ldttoolbox.app',
 
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: 'on-first-retry',
@@ -85,7 +93,7 @@ export default defineConfig({
 			name: 'user-tests',
 			use: {
 				...devices['Desktop Chrome'],
-				storageState: STORAGE_STATE.USER
+				storageState: storageStateUser
 			},
 			dependencies: ['user-setup'],
 			testMatch: [
@@ -101,7 +109,7 @@ export default defineConfig({
 			name: 'admin-tests',
 			use: {
 				...devices['Desktop Chrome'],
-				storageState: STORAGE_STATE.ADMIN
+				storageState: storageStateAdmin
 			},
 			dependencies: ['admin-setup'],
 			testMatch: ['../admin/**/*.spec.ts', 'tests/admin/**/*.spec.ts', '**/tests/admin/**/*.spec.ts']
