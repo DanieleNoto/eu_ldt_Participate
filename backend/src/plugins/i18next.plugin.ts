@@ -1,6 +1,6 @@
 /* eslint-disable prefer-arrow/prefer-arrow-functions */
-import * as fs from 'fs';
-import path from 'path';
+import * as fs from 'node:fs';
+import path from 'node:path';
 import fp from 'fastify-plugin';
 import i18next from 'i18next';
 
@@ -9,17 +9,15 @@ const loadTranslations = () => {
 	const languages = ['en', 'es', 'fr', 'de'];
 
 	for (const lang of languages) {
-		try {
-			const filePath = path.join(__dirname, '..', 'i18n', lang, 'translation.json');
+		const filePath = path.join(__dirname, '..', 'i18n', lang, 'translation.json');
+		if (fs.existsSync(filePath)) {
 			const content = fs.readFileSync(filePath, 'utf8');
 			translations[lang] = { translation: JSON.parse(content) };
-		} catch (error) {
-			try {
-				const devPath = path.join(__dirname, '..', '..', 'src', 'i18n', lang, 'translation.json');
+		} else {
+			const devPath = path.join(__dirname, '..', '..', 'src', 'i18n', lang, 'translation.json');
+			if (fs.existsSync(devPath)) {
 				const content = fs.readFileSync(devPath, 'utf8');
 				translations[lang] = { translation: JSON.parse(content) };
-			} catch (devError) {
-				// Ignore missing translation files
 			}
 		}
 	}

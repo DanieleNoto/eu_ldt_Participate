@@ -50,32 +50,20 @@ const theme = createTheme({
 
 // Internal component to initialize dynamic runtime values in Redux store
 const mergeConfig = (base: ConfigState, override?: Partial<ConfigState>): ConfigState => {
-	if (!override) {
-		return { ...base };
-	}
-	return {
-		appName: override.appName ?? base.appName,
-		backend: {
-			api: override.backend?.api ?? base.backend.api,
-			baseUrl: override.backend?.baseUrl ?? base.backend.baseUrl
-		},
-		frontend: {
-			...base.frontend,
-			...(override.frontend ?? {})
-		},
-		logger: {
-			...base.logger,
-			...(override.logger ?? {})
-		},
-		toastr: {
-			...base.toastr,
-			...(override.toastr ?? {})
-		},
-		dateFns: {
-			...base.dateFns,
-			...(override.dateFns ?? {})
-		}
-	};
+    if (!override) {
+        return { ...base };
+    }
+    return {
+        appName: override.appName ?? base.appName,
+        backend: {
+            api: override.backend?.api ?? base.backend.api,
+            baseUrl: override.backend?.baseUrl ?? base.backend.baseUrl
+        },
+        frontend: override.frontend ? { ...base.frontend, ...override.frontend } : base.frontend,
+        logger: override.logger ? { ...base.logger, ...override.logger } : base.logger,
+        toastr: override.toastr ? { ...base.toastr, ...override.toastr } : base.toastr,
+        dateFns: override.dateFns ? { ...base.dateFns, ...override.dateFns } : base.dateFns
+    };
 };
 
 const normalizeBaseUrl = (value: string) => {
@@ -97,11 +85,12 @@ const RuntimeConfigInitializer = ({
 		let active = true;
 		const baseConfig = chatbotConfig;
 		const getViteApiUrl = () => {
-			if (typeof process !== 'undefined' && (process.env as any)?.VITE_API_URL) {
-				return (process.env as any).VITE_API_URL;
+			const env = typeof process !== 'undefined' ? (process.env as Record<string, string | undefined>) : undefined;
+			if (env?.VITE_API_URL) {
+				return env.VITE_API_URL;
 			}
-			if (typeof globalThis !== 'undefined' && (globalThis as any).__VITE_API_URL__) {
-				return (globalThis as any).__VITE_API_URL__;
+			if (typeof globalThis !== 'undefined' && (globalThis as { __VITE_API_URL__?: string }).__VITE_API_URL__) {
+				return (globalThis as { __VITE_API_URL__?: string }).__VITE_API_URL__;
 			}
 			return undefined;
 		};
@@ -114,7 +103,7 @@ const RuntimeConfigInitializer = ({
 			const finalConfig = envBaseVar
 				? mergeConfig(merged, { backend: { baseUrl: envBaseVar, api: merged.backend.api } })
 				: merged;
-			(window as { __CHATBOT_CONFIG__?: ConfigState }).__CHATBOT_CONFIG__ = finalConfig;
+			(globalThis as { __CHATBOT_CONFIG__?: ConfigState }).__CHATBOT_CONFIG__ = finalConfig;
 			onConfigResolved(finalConfig);
 			const finalBase = finalConfig.backend?.baseUrl;
 			if (finalBase) {
@@ -123,7 +112,7 @@ const RuntimeConfigInitializer = ({
 			setInitialized(true); // Mark as initialized after config is set
 		};
 
-		const dynamicConfig = (window as { __CHATBOT_CONFIG__?: ConfigState }).__CHATBOT_CONFIG__;
+		const dynamicConfig = (globalThis as { __CHATBOT_CONFIG__?: ConfigState }).__CHATBOT_CONFIG__;
 		if (dynamicConfig) {
 			applyWithEnvOverride(dynamicConfig);
 			return () => {
@@ -131,12 +120,9 @@ const RuntimeConfigInitializer = ({
 			};
 		}
 
-		const baseUrl = normalizeBaseUrl((window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '');
-		console.log('[SimplifiedMainProvider] window.__CHATBOT_BASE_URL__:', (window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__);
-		console.log('[SimplifiedMainProvider] Normalized baseUrl:', baseUrl);
+		const baseUrl = normalizeBaseUrl((globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '');
 		
 		if (!baseUrl) {
-			console.log('[SimplifiedMainProvider] No baseUrl, using defaults');
 			applyWithEnvOverride();
 			return () => {
 				active = false;
@@ -146,7 +132,6 @@ const RuntimeConfigInitializer = ({
 		const controller = new AbortController();
 		const fetchConfig = async () => {
 			try {
-				console.log('[SimplifiedMainProvider] Fetching config from:', `${baseUrl}/config/config.json`);
 				const response = await fetch(`${baseUrl}/config/config.json`, { signal: controller.signal });
 				if (!response.ok) {
 					throw new Error(`HTTP ${response.status}`);

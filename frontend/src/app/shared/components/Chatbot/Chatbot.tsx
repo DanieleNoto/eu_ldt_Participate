@@ -122,18 +122,16 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 
 	const scrollToBottom = () => {
 		setTimeout(() => {
-			try {
-				if (bottomRef.current) {
-					const chatContainer = bottomRef.current.closest('[role="log"], .overflow-y-auto');
-					if (chatContainer) {
-						chatContainer.scrollTo({
-							top: chatContainer.scrollHeight,
-							behavior: 'smooth'
-						});
-					}
+			if (bottomRef.current) {
+				const chatContainer = bottomRef.current.closest('[role="log"], .overflow-y-auto');
+				if (chatContainer) {
+					chatContainer.scrollTo({
+						top: chatContainer.scrollHeight,
+						behavior: 'smooth'
+					});
 				}
-			} catch (e) {}
-		}, 100); // Increased delay slightly for better visual timing
+			}
+		}, 100);
 	};
 
 	const startSupport = () => {
@@ -198,8 +196,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 				closeChat();
 			}
 		};
-		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
+		globalThis.addEventListener('keydown', onKey);
+		return () => globalThis.removeEventListener('keydown', onKey);
 	}, [open]);
 
 	useEffect(() => {
@@ -264,337 +262,346 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 
 	const lastBotMessage = [...messages].reverse().find(m => m.from === 'bot');
 	return (
-		   <div
-			   role="dialog"
-			   aria-labelledby="chatbot-header-title"
-			   aria-modal="true"
-			   className={`flex flex-col w-[430px] max-w-[95vw] h-[600px] max-h-[95vh] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className || ''}`}
-		   >
-				{/* Header - conditional based on FAQ detail mode */}
-				<div className="flex items-center gap-3 h-[72px] px-6 py-3 border-b border-[#D2D7DB] bg-white relative">
-					{faqDetailMode && (
-						<button
-							className="w-12 h-12 flex items-center justify-center text-[#696F72] hover:bg-black/5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 -ml-2 transition-all duration-200 hover:scale-110"
-							aria-label={t('chatbot.goBackToFaqList')}
-							onClick={goBackFromFaqDetail}
-						>
-							<ArrowBackIcon sx={{ fontSize: 24 }} />
-						</button>
-					)}
-					<h2
-						id="chatbot-header-title"
-						className="flex-1 text-[22px] leading-[28px] font-semibold tracking-[0.05px] text-[#696F72]"
+		<dialog
+			aria-labelledby="chatbot-header-title"
+			aria-modal="true"
+			className={`flex flex-col w-[430px] max-w-[95vw] h-[600px] max-h-[95vh] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className || ''}`}
+		>
+			{/* Header - conditional based on FAQ detail mode */}
+			<div className="flex items-center gap-3 h-[72px] px-6 py-3 border-b border-[#D2D7DB] bg-white relative">
+				{faqDetailMode && (
+					<button
+						className="w-12 h-12 flex items-center justify-center text-[#696F72] hover:bg-black/5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 -ml-2 transition-all duration-200 hover:scale-110"
+						aria-label={t('chatbot.goBackToFaqList')}
+						onClick={goBackFromFaqDetail}
+					>
+						<ArrowBackIcon sx={{ fontSize: 24 }} />
+					</button>
+				)}
+				<h2
+					id="chatbot-header-title"
+					className="flex-1 text-[22px] leading-[28px] font-semibold tracking-[0.05px] text-[#696F72]"
+					style={{ fontFamily: "'Open Sans', sans-serif" }}
+				>
+					{faqDetailMode && currentTopicName ? currentTopicName : t('chatbot.title')}
+				</h2>
+				<button
+					ref={closeBtnRef}
+					className="w-8 h-8 flex items-center justify-center text-[#696F72] hover:bg-black/5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-110"
+					aria-label={t('chatbot.closeHelpAssistant')}
+					onClick={closeChat}
+				>
+					<CloseIcon sx={{ fontSize: 24 }} />
+				</button>
+			</div>
+
+			{/* Disclaimer */}
+			{!disclaimerDismissed && (
+				<div className="bg-[#FFF4E6] border-b border-[#FFB74D] px-6 py-3 relative">
+					<p
+						className="text-[13px] leading-5 text-[#663C00] flex items-start gap-2 pr-6"
 						style={{ fontFamily: "'Open Sans', sans-serif" }}
 					>
-						{faqDetailMode && currentTopicName ? currentTopicName : t('chatbot.title')}
-					</h2>
+						<span className="text-[#F57C00] font-bold mt-0.5">⚠</span>
+						<span>{t('chatbot.disclaimer')}</span>
+					</p>
 					<button
-						ref={closeBtnRef}
-						className="w-8 h-8 flex items-center justify-center text-[#696F72] hover:bg-black/5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-110"
-						aria-label={t('chatbot.closeHelpAssistant')}
-						onClick={closeChat}
+						onClick={() => setDisclaimerDismissed(true)}
+						className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-[#663C00] hover:bg-[#FFE0B2] rounded focus:outline-none focus-visible:ring focus-visible:ring-[#F57C00]/40 transition-all duration-200"
+						aria-label={t('chatbot.dismissDisclaimer')}
 					>
-						<CloseIcon sx={{ fontSize: 24 }} />
+						<CloseIcon sx={{ fontSize: 18 }} />
 					</button>
 				</div>
+			)}
 
-				{/* Disclaimer */}
-				{!disclaimerDismissed && (
-					<div className="bg-[#FFF4E6] border-b border-[#FFB74D] px-6 py-3 relative">
-						<p className="text-[13px] leading-5 text-[#663C00] flex items-start gap-2 pr-6" style={{ fontFamily: "'Open Sans', sans-serif" }}>
-							<span className="text-[#F57C00] font-bold mt-0.5">⚠</span>
-							<span>
-								{t('chatbot.disclaimer')}
-							</span>
-						</p>
-						<button
-							onClick={() => setDisclaimerDismissed(true)}
-							className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-[#663C00] hover:bg-[#FFE0B2] rounded focus:outline-none focus-visible:ring focus-visible:ring-[#F57C00]/40 transition-all duration-200"
-							aria-label={t('chatbot.dismissDisclaimer')}
-						>
-							<CloseIcon sx={{ fontSize: 18 }} />
-						</button>
-					</div>
-				)}
-
-				{/* Conditional content based on FAQ detail mode */}
-				{faqDetailMode && selectedFaq ? (
-					<div style={{height: disclaimerDismissed ? 'calc(600px - 72px - 80px)' : 'calc(600px - 72px - 80px - 50px)', maxHeight: disclaimerDismissed ? 'calc(95vh - 72px - 80px)' : 'calc(95vh - 72px - 80px - 50px)'}} className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6">
-						{/* Bot message introducing the question */}
-						<div className="flex items-start gap-4 w-full">
-							<Avatar size={36} />
-							<div className="flex flex-col gap-4 flex-1">
-								<div
-									className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-left text-[#3C4245] text-[16px] leading-[24px] tracking-[0.5px]"
-									style={{ fontFamily: "'Open Sans', sans-serif" }}
-								>
-									{t('chatbot.hereArePossibleAnswers')}
-								</div>
-								<div
-									className="text-[#21272A] text-[18px] leading-[26px] tracking-[0.5px]"
-									style={{ fontFamily: "'Open Sans', sans-serif" }}
-								>
-									{selectedFaq.answer}
-								</div>
-							</div>
-						</div>
-
-						{/* Support section */}
-						<div className="flex items-start gap-4 w-full">
-							<Avatar size={36} />
-							<div className="flex flex-col gap-4 flex-1">
-								<div
-									className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-left text-[#3C4245] text-[16px] leading-[24px] tracking-[0.5px]"
-									style={{ fontFamily: "'Open Sans', sans-serif" }}
-								>
-									{t('chatbot.ifYouNeedMoreHelp')}
-								</div>
-								<button
-									onClick={startSupport}
-									disabled={supportMode || loading}
-									className="self-start px-6 py-2.5 h-10 text-[14px] font-bold tracking-[0.1px] rounded-lg border border-[#6F797A] bg-white text-[#004494] hover:bg-[#F6F8FA] focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition disabled:opacity-50"
-									style={{ fontFamily: "'Open Sans', sans-serif" }}
-								>
-									{t('chatbot.askSupport')}
-								</button>
-							</div>
-						</div>
-
-						{/* Display FAQ-specific support messages */}
-						{faqMessages.map(m => (
+			{/* Conditional content based on FAQ detail mode */}
+			{faqDetailMode && selectedFaq ? (
+				<div
+					style={{
+						height: disclaimerDismissed ? 'calc(600px - 72px - 80px)' : 'calc(600px - 72px - 80px - 50px)',
+						maxHeight: disclaimerDismissed ? 'calc(95vh - 72px - 80px)' : 'calc(95vh - 72px - 80px - 50px)'
+					}}
+					className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6"
+				>
+					{/* Bot message introducing the question */}
+					<div className="flex items-start gap-4 w-full">
+						<Avatar size={36} />
+						<div className="flex flex-col gap-4 flex-1">
 							<div
-								key={m.id}
-								className={`flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-300 ${m.from === 'user' ? 'flex-row-reverse' : ''}`}
+								className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-left text-[#3C4245] text-[16px] leading-[24px] tracking-[0.5px]"
+								style={{ fontFamily: "'Open Sans', sans-serif" }}
 							>
-								<Avatar size={36} />
-								<div
-									className={`rounded-lg px-3 py-2 max-w-[80%] text-[16px] leading-[24px] tracking-[0.5px] ${m.from === 'bot' ? 'bg-[#E9EBEF] text-[#000000]' : 'bg-[#004494] text-white'}`}
+								{t('chatbot.hereArePossibleAnswers')}
+							</div>
+							<div
+								className="text-[#21272A] text-[18px] leading-[26px] tracking-[0.5px]"
+								style={{ fontFamily: "'Open Sans', sans-serif" }}
+							>
+								{selectedFaq.answer}
+							</div>
+						</div>
+					</div>
+
+					{/* Support section */}
+					<div className="flex items-start gap-4 w-full">
+						<Avatar size={36} />
+						<div className="flex flex-col gap-4 flex-1">
+							<div
+								className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-left text-[#3C4245] text-[16px] leading-[24px] tracking-[0.5px]"
+								style={{ fontFamily: "'Open Sans', sans-serif" }}
+							>
+								{t('chatbot.ifYouNeedMoreHelp')}
+							</div>
+							<button
+								onClick={startSupport}
+								disabled={supportMode || loading}
+								className="self-start px-6 py-2.5 h-10 text-[14px] font-bold tracking-[0.1px] rounded-lg border border-[#6F797A] bg-white text-[#004494] hover:bg-[#F6F8FA] focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition disabled:opacity-50"
+								style={{ fontFamily: "'Open Sans', sans-serif" }}
+							>
+								{t('chatbot.askSupport')}
+							</button>
+						</div>
+					</div>
+
+					{/* Display FAQ-specific support messages */}
+					{faqMessages.map(m => (
+						<div
+							key={m.id}
+							className={`flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-300 ${m.from === 'user' ? 'flex-row-reverse' : ''}`}
+						>
+							<Avatar size={36} />
+							<div
+								className={`rounded-lg px-3 py-2 max-w-[80%] text-[16px] leading-[24px] tracking-[0.5px] ${m.from === 'bot' ? 'bg-[#E9EBEF] text-[#000000]' : 'bg-[#004494] text-white'}`}
+								style={{ fontFamily: "'Open Sans', sans-serif" }}
+							>
+								{m.text}
+							</div>
+						</div>
+					))}
+
+					<div ref={bottomRef} />
+				</div>
+			) : (
+				/* Regular chat view */
+				<div
+					style={{
+						height: disclaimerDismissed ? 'calc(600px - 72px - 80px)' : 'calc(600px - 72px - 80px - 50px)',
+						maxHeight: disclaimerDismissed ? 'calc(95vh - 72px - 80px)' : 'calc(95vh - 72px - 80px - 50px)'
+					}}
+					className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6"
+					role="log"
+					aria-live="polite"
+					aria-relevant="additions text"
+				>
+					{/* Initial helper intro (if no messages yet) */}
+					{messages.length === 0 && !loading && (
+						<div className="flex flex-col items-center gap-6 pt-2 text-center">
+							<div className="flex flex-col items-center gap-4">
+								<p
+									className="text-[14px] leading-5 tracking-[0.25px] text-[#3C4245]"
 									style={{ fontFamily: "'Open Sans', sans-serif" }}
 								>
-									{m.text}
-								</div>
+									{t('chatbot.chatWithVirtualAssistant')}
+								</p>
+								<Avatar size={64} />
 							</div>
-						))}
-
-						<div ref={bottomRef} />
-					</div>
-				) : (
-					/* Regular chat view */
-					<div style={{height: disclaimerDismissed ? 'calc(600px - 72px - 80px)' : 'calc(600px - 72px - 80px - 50px)', maxHeight: disclaimerDismissed ? 'calc(95vh - 72px - 80px)' : 'calc(95vh - 72px - 80px - 50px)'}} className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6"
-						role="log"
-						aria-live="polite"
-						aria-relevant="additions text"
-					>
-						{/* Initial helper intro (if no messages yet) */}
-						{messages.length === 0 && !loading && (
-							<div className="flex flex-col items-center gap-6 pt-2 text-center">
-								<div className="flex flex-col items-center gap-4">
-									<p
-										className="text-[14px] leading-5 tracking-[0.25px] text-[#3C4245]"
+							{/* Initial bot message with suggestion chips */}
+							<div className="flex items-start gap-4 w-full">
+								<Avatar size={36} />
+								<div className="flex flex-col gap-4 flex-1">
+									<div
+										className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-left text-[#000] text-[16px] leading-[24px] tracking-[0.5px]"
 										style={{ fontFamily: "'Open Sans', sans-serif" }}
 									>
-										{t('chatbot.chatWithVirtualAssistant')}
-									</p>
-									<Avatar size={64} />
-								</div>
-								{/* Initial bot message with suggestion chips */}
-								<div className="flex items-start gap-4 w-full">
-									<Avatar size={36} />
-									<div className="flex flex-col gap-4 flex-1">
-										<div
-											className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-left text-[#000] text-[16px] leading-[24px] tracking-[0.5px]"
-											style={{ fontFamily: "'Open Sans', sans-serif" }}
-										>
-											{t('root')}
+										{t('root')}
+									</div>
+									{/* Initial suggestion chips */}
+									{suggestions.length > 0 && (
+										<div className="flex flex-wrap gap-2" aria-label={t('chatbot.suggestions')}>
+											{suggestions.map(s => (
+												<button
+													key={s.id}
+													disabled={loading}
+													onClick={() => handleSuggestionClick(s)}
+													className="px-4 py-1.5 h-8 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition"
+													style={{ fontFamily: "'Open Sans', sans-serif" }}
+												>
+													{s.text}
+												</button>
+											))}
 										</div>
-										{/* Initial suggestion chips */}
-										{suggestions.length > 0 && (
+									)}
+								</div>
+							</div>
+						</div>
+					)}
+					{messages.map((m, index) => {
+						const isLastBotMessage = m.from === 'bot' && index === messages.length - 1;
+						const showFaqs = isLastBotMessage && faqs.length > 0;
+						const showSuggestions = isLastBotMessage && suggestions.length > 0;
+
+						return (
+							<div
+								key={m.id}
+								className="flex flex-col gap-4 animate-in slide-in-from-bottom-2 duration-300"
+							>
+								<div
+									className={`flex items-start gap-4 w-full ${m.from === 'user' ? 'flex-row-reverse' : ''}`}
+								>
+									<Avatar size={36} />
+									<div
+										className={`rounded-lg px-3 py-2 max-w-[80%] text-[16px] leading-[24px] tracking-[0.5px] ${m.from === 'bot' ? 'bg-[#E9EBEF] text-[#000000]' : 'bg-[#004494] text-white'}`}
+										style={{ fontFamily: "'Open Sans', sans-serif" }}
+									>
+										{m.text}
+									</div>
+								</div>
+
+								{/* Show FAQ list after bot message */}
+								{showFaqs && (
+									<div className="flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-400">
+										<div className="w-9 flex-shrink-0" /> {/* Spacer for alignment with avatar */}
+										<ul className="flex flex-col gap-2 list-disc pl-6">
+											{faqs.map(faq => (
+												<li key={faq.id} className="list-item">
+													<button
+														disabled={loading}
+														onClick={() => handleFaqClick(faq)}
+														className="text-left text-[16px] font-bold leading-[24px] tracking-[0.5px] text-[#004494] underline hover:text-[#003366] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200"
+														style={{ fontFamily: "'Open Sans', sans-serif" }}
+													>
+														{faq.question}
+													</button>
+												</li>
+											))}
+										</ul>
+									</div>
+								)}
+
+								{/* Show suggestion chips after the FAQ list or when no FAQs */}
+								{showSuggestions && (
+									<div className="flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-500">
+										<div className="w-9 flex-shrink-0" /> {/* Spacer for alignment with avatar */}
+										<div className="flex flex-col gap-3">
+											{/* Label for other topics when FAQs are also shown */}
+											{showFaqs && (
+												<p
+													className="text-[14px] font-medium text-[#696F72] tracking-[0.25px]"
+													style={{ fontFamily: "'Open Sans', sans-serif" }}
+												>
+													{t('chatbot.orSelectAnotherTopic')}
+												</p>
+											)}
 											<div className="flex flex-wrap gap-2" aria-label={t('chatbot.suggestions')}>
 												{suggestions.map(s => (
 													<button
 														key={s.id}
 														disabled={loading}
 														onClick={() => handleSuggestionClick(s)}
-														className="px-4 py-1.5 h-8 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition"
+														className="px-4 py-1.5 h-8 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
 														style={{ fontFamily: "'Open Sans', sans-serif" }}
 													>
 														{s.text}
 													</button>
 												))}
 											</div>
-										)}
-									</div>
-								</div>
-							</div>
-						)}
-						{messages.map((m, index) => {
-							const isLastBotMessage = m.from === 'bot' && index === messages.length - 1;
-							const showFaqs = isLastBotMessage && faqs.length > 0;
-							const showSuggestions = isLastBotMessage && suggestions.length > 0;
-
-							return (
-								<div key={m.id} className="flex flex-col gap-4 animate-in slide-in-from-bottom-2 duration-300">
-									<div
-										className={`flex items-start gap-4 w-full ${m.from === 'user' ? 'flex-row-reverse' : ''}`}
-									>
-										<Avatar size={36} />
-										<div
-											className={`rounded-lg px-3 py-2 max-w-[80%] text-[16px] leading-[24px] tracking-[0.5px] ${m.from === 'bot' ? 'bg-[#E9EBEF] text-[#000000]' : 'bg-[#004494] text-white'}`}
-											style={{ fontFamily: "'Open Sans', sans-serif" }}
-										>
-											{m.text}
 										</div>
-									</div>
-
-									{/* Show FAQ list after bot message */}
-									{showFaqs && (
-										<div className="flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-400">
-											<div className="w-9 flex-shrink-0" />{' '}
-											{/* Spacer for alignment with avatar */}
-											<ul className="flex flex-col gap-2 list-disc pl-6">
-												{faqs.map(faq => (
-													<li key={faq.id} className="list-item">
-														<button
-															disabled={loading}
-															onClick={() => handleFaqClick(faq)}
-															className="text-left text-[16px] font-bold leading-[24px] tracking-[0.5px] text-[#004494] underline hover:text-[#003366] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200"
-															style={{ fontFamily: "'Open Sans', sans-serif" }}
-														>
-															{faq.question}
-														</button>
-													</li>
-												))}
-											</ul>
-										</div>
-									)}
-
-									{/* Show suggestion chips after the FAQ list or when no FAQs */}
-									{showSuggestions && (
-										<div className="flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-500">
-											<div className="w-9 flex-shrink-0" />{' '}
-											{/* Spacer for alignment with avatar */}
-											<div className="flex flex-col gap-3">
-												{/* Label for other topics when FAQs are also shown */}
-												{showFaqs && (
-													<p
-														className="text-[14px] font-medium text-[#696F72] tracking-[0.25px]"
-														style={{ fontFamily: "'Open Sans', sans-serif" }}
-													>
-														{t('chatbot.orSelectAnotherTopic')}
-													</p>
-												)}
-												<div
-													className="flex flex-wrap gap-2"
-													aria-label={t('chatbot.suggestions')}
-												>
-													{suggestions.map(s => (
-														<button
-															key={s.id}
-															disabled={loading}
-															onClick={() => handleSuggestionClick(s)}
-															className="px-4 py-1.5 h-8 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
-															style={{ fontFamily: "'Open Sans', sans-serif" }}
-														>
-															{s.text}
-														</button>
-													))}
-												</div>
-											</div>
-										</div>
-									)}
-								</div>
-							);
-						})}
-						{loading && (
-							<div className="flex items-start gap-4">
-								<Avatar size={36} />
-								<div
-									className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-[#000] text-[16px] leading-[24px] tracking-[0.5px]"
-									style={{ fontFamily: "'Open Sans', sans-serif" }}
-								>
-									...
-								</div>
-							</div>
-						)}
-						<div ref={bottomRef} />
-						<div className="sr-only" aria-live="polite">
-							{lastBotMessage?.text}
-						</div>
-					</div>
-				)}
-
-				{/* Footer - matches Figma structure, show when not in FAQ detail mode OR when in support mode */}
-				{(!faqDetailMode || supportMode) && (
-					<div className="px-6 pb-4 pt-2 flex flex-col gap-4 bg-white border-t border-[#D2D7DB]">
-						{!supportMode && (
-							<>
-								{/* Option buttons (restart/support) - only show these, not suggestion chips */}
-								{options && (
-									<div className="flex flex-wrap gap-2 animate-in slide-in-from-bottom-2 duration-300">
-										{options.map(o => (
-											<button
-												key={o.action}
-												disabled={loading}
-												onClick={() => handleOption(o.action)}
-												className="px-3 py-1.5 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
-												style={{ fontFamily: "'Open Sans', sans-serif" }}
-											>
-												{o.label}
-											</button>
-										))}
 									</div>
 								)}
-							</>
-						)}
-						{supportMode && (
-							<form
-								onSubmit={e => {
-									e.preventDefault();
-									if (!loading && supportText.trim()) sendSupport();
-								}}
-								className="flex flex-col gap-3"
+							</div>
+						);
+					})}
+					{loading && (
+						<div className="flex items-start gap-4">
+							<Avatar size={36} />
+							<div
+								className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-[#000] text-[16px] leading-[24px] tracking-[0.5px]"
+								style={{ fontFamily: "'Open Sans', sans-serif" }}
 							>
-								<label
-									className="flex flex-col gap-2 text-[14px] tracking-[0.25px] text-[#3C4245]"
+								...
+							</div>
+						</div>
+					)}
+					<div ref={bottomRef} />
+					<div className="sr-only" aria-live="polite">
+						{lastBotMessage?.text}
+					</div>
+				</div>
+			)}
+
+			{/* Footer - matches Figma structure, show when not in FAQ detail mode OR when in support mode */}
+			{(!faqDetailMode || supportMode) && (
+				<div className="px-6 pb-4 pt-2 flex flex-col gap-4 bg-white border-t border-[#D2D7DB]">
+					{!supportMode && (
+						<>
+							{/* Option buttons (restart/support) - only show these, not suggestion chips */}
+							{options && (
+								<div className="flex flex-wrap gap-2 animate-in slide-in-from-bottom-2 duration-300">
+									{options.map(o => (
+										<button
+											key={o.action}
+											disabled={loading}
+											onClick={() => handleOption(o.action)}
+											className="px-3 py-1.5 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
+											style={{ fontFamily: "'Open Sans', sans-serif" }}
+										>
+											{o.label}
+										</button>
+									))}
+								</div>
+							)}
+						</>
+					)}
+					{supportMode && (
+						<form
+							onSubmit={e => {
+								e.preventDefault();
+								if (!loading && supportText.trim()) sendSupport();
+							}}
+							className="flex flex-col gap-3"
+						>
+							<label
+								className="flex flex-col gap-2 text-[14px] tracking-[0.25px] text-[#3C4245]"
+								style={{ fontFamily: "'Open Sans', sans-serif" }}
+							>
+								<span className="font-medium">{t('chatbot.describeYourIssue')}</span>
+								<textarea
+									value={supportText}
+									maxLength={500}
+									minLength={20}
+									onChange={e => setSupportText(e.target.value)}
+									onKeyDown={handleSupportTextareaKey}
+									placeholder={t('chatbot.typeHere')}
+									className="w-full resize-y min-h-[100px] rounded-lg border border-[#CBD5E1] bg-white px-3 py-2 text-[14px] leading-5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
+									style={{ fontFamily: "'Open Sans', sans-serif" }}
+								/>
+							</label>
+							<div className="flex justify-end gap-3">
+								<button
+									type="button"
+									onClick={() => setSupportMode(false)}
+									disabled={loading}
+									className="px-5 py-2 rounded-lg border border-[#BFC8CA] bg-white text-[14px] tracking-[0.1px] text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
 									style={{ fontFamily: "'Open Sans', sans-serif" }}
 								>
-									<span className="font-medium">{t('chatbot.describeYourIssue')}</span>
-									<textarea
-										value={supportText}
-										maxLength={500}
-										minLength={20}
-										onChange={e => setSupportText(e.target.value)}
-										onKeyDown={handleSupportTextareaKey}
-										placeholder={t('chatbot.typeHere')}
-										className="w-full resize-y min-h-[100px] rounded-lg border border-[#CBD5E1] bg-white px-3 py-2 text-[14px] leading-5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
-										style={{ fontFamily: "'Open Sans', sans-serif" }}
-									/>
-								</label>
-								<div className="flex justify-end gap-3">
-									<button
-										type="button"
-										onClick={() => setSupportMode(false)}
-										disabled={loading}
-										className="px-5 py-2 rounded-lg border border-[#BFC8CA] bg-white text-[14px] tracking-[0.1px] text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
-										style={{ fontFamily: "'Open Sans', sans-serif" }}
-									>
-										{t('chatbot.cancel')}
-									</button>
-									<button
-										type="submit"
-										disabled={loading || !supportText.trim()}
-										className="px-5 py-2 rounded-lg bg-[#004494] text-white text-[14px] tracking-[0.1px] font-medium hover:brightness-110 disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#004494]/40 transition-all duration-200 hover:scale-105 hover:shadow-lg"
-										style={{ fontFamily: "'Open Sans', sans-serif" }}
-									>
-										{t('chatbot.send')}
-									</button>
-								</div>
-							</form>
-						)}
-					</div>
-				)}
-		   </div>
-	   );
+									{t('chatbot.cancel')}
+								</button>
+								<button
+									type="submit"
+									disabled={loading || !supportText.trim()}
+									className="px-5 py-2 rounded-lg bg-[#004494] text-white text-[14px] tracking-[0.1px] font-medium hover:brightness-110 disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#004494]/40 transition-all duration-200 hover:scale-105 hover:shadow-lg"
+									style={{ fontFamily: "'Open Sans', sans-serif" }}
+								>
+									{t('chatbot.send')}
+								</button>
+							</div>
+						</form>
+					)}
+				</div>
+			)}
+		</dialog>
+	);
 };
 
 export default Chatbot;

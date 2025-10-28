@@ -28,10 +28,10 @@ const ChatbotWebComponent: React.FC<ChatbotWebComponentProps> = ({
 
 	useEffect(() => {
 		// Resolve base URL (loader sets window.__CHATBOT_BASE_URL__)
-		const baseUrl = (window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '';
+		const baseUrl = (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '';
 		const normalized = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 		// If we have a config injected already (SSR or earlier script), skip network fetch
-		if ((window as { __CHATBOT_CONFIG__?: unknown }).__CHATBOT_CONFIG__) {
+		if ((globalThis as { __CHATBOT_CONFIG__?: unknown }).__CHATBOT_CONFIG__) {
 			setConfigLoaded(true);
 			return;
 		}
@@ -49,7 +49,7 @@ const ChatbotWebComponent: React.FC<ChatbotWebComponentProps> = ({
 				return r.json();
 			})
 			.then((config) => {
-				(window as { __CHATBOT_CONFIG__?: unknown }).__CHATBOT_CONFIG__ = config;
+				(globalThis as { __CHATBOT_CONFIG__?: unknown }).__CHATBOT_CONFIG__ = config;
 				setConfigLoaded(true);
 			})
 			.catch(error => {

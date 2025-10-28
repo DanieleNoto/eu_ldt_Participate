@@ -19,6 +19,14 @@ echo "PostgreSQL is up - checking if database exists..."
 PGPASSWORD=$DATABASE_PASSWORD psql -h "$DATABASE_HOST" -U "$DATABASE_USERNAME" -d "postgres" -tc "SELECT 1 FROM pg_database WHERE datname = '$DATABASE_NAME'" | grep -q 1 || \
 PGPASSWORD=$DATABASE_PASSWORD psql -h "$DATABASE_HOST" -U "$DATABASE_USERNAME" -d "postgres" -c "CREATE DATABASE $DATABASE_NAME"
 
+echo "Database created - checking if schema exists..."
+
+# Create schema if it doesn't exist
+if [ -n "$DB_SCHEMA" ] && [ "$DB_SCHEMA" != "public" ]; then
+  PGPASSWORD=$DATABASE_PASSWORD psql -h "$DATABASE_HOST" -U "$DATABASE_USERNAME" -d "$DATABASE_NAME" -c "CREATE SCHEMA IF NOT EXISTS $DB_SCHEMA"
+  echo "Schema '$DB_SCHEMA' is ready!"
+fi
+
 echo "Database is ready!"
 
 # Start the application

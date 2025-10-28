@@ -15,7 +15,7 @@ class EuChatbotElement extends HTMLElement {
 	private _shadowRoot: ShadowRoot | null = null;
 	private _mountPoint: HTMLDivElement | null = null;
 	private _styleElement: HTMLStyleElement | null = null;
-	private _emotionCache: ReturnType<typeof createCache> | null = null;
+	private readonly _emotionCache: ReturnType<typeof createCache> | null = null;
 
 	constructor() {
 		super();
@@ -109,57 +109,86 @@ class EuChatbotElement extends HTMLElement {
 	}
 
 	private async _injectGlobalStyles() {
-		const baseUrl = (window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '';
-		let loadedGlobal = false;
-		if (baseUrl) {
-			try {
-				const url = `${baseUrl}/global.css`;
-				const cssResponse = await fetch(url).catch(() => null);
-				if (cssResponse && cssResponse.ok) {
-					const cssText = await cssResponse.text();
-					let sheetApplied = false;
-					if (this._shadowRoot && 'adoptedStyleSheets' in this._shadowRoot) {
-						try {
-							const sheet = new CSSStyleSheet();
-							sheet.replaceSync(cssText);
-							this._shadowRoot.adoptedStyleSheets = [...this._shadowRoot.adoptedStyleSheets, sheet];
-							sheetApplied = true;
-						} catch (e) {
-							// eslint-disable-next-line no-console
-							console.warn('[Chatbot] Failed to apply constructable stylesheet, falling back to <style>', e);
-						}
-					}
+		const baseUrl = (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '';
+		const loadedGlobal = baseUrl ? await this._loadGlobalCSS(baseUrl) : false;
+		this._applyProtectiveOverrides(loadedGlobal);
+	}
 
-					if (!sheetApplied) {
-					const cssElement = document.createElement('style');
-					cssElement.setAttribute('data-source', 'global.css');
-					cssElement.textContent = cssText;
-					this._shadowRoot?.insertBefore(cssElement, this._mountPoint);
-					}
-					loadedGlobal = true;
-					if (/all:\s*initial/.test(cssText)) {
-						// eslint-disable-next-line no-console
-						console.debug('[Chatbot] Detected `all: initial` in global.css');
-					}
-					// eslint-disable-next-line no-console
-					console.log('[Chatbot] Successfully loaded styles from', url);
-				}
-			} catch (error) {
-				// eslint-disable-next-line no-console
-				console.warn('[Chatbot] Could not load global styles, using inline styles', error);
+	private async _loadGlobalCSS(baseUrl: string): Promise<boolean> {
+		try {
+			const url = `${baseUrl}/global.css`;
+			const cssResponse = await fetch(url).catch(() => null);
+			
+			if (!cssResponse?.ok) {
+				return false;
 			}
+
+			const cssText = await cssResponse.text();
+			const sheetApplied = await this._applyCSSSheet(cssText);
+
+			if (!sheetApplied) {
+				this._insertCSSElement(cssText);
+			}
+
+			this._logCSSLoadSuccess(cssText, url);
+			return true;
+		} catch (error) {
+			// eslint-disable-next-line no-console
+			console.warn('[Chatbot] Could not load global styles, using inline styles', error);
+			return false;
+		}
+	}
+
+	private async _applyCSSSheet(cssText: string): Promise<boolean> {
+		if (!this._shadowRoot || !('adoptedStyleSheets' in this._shadowRoot)) {
+			return false;
 		}
 
-		// Final protective overrides appended LAST to ensure visibility rules win cascade.
-		if (this._shadowRoot) {
-			const override = document.createElement('style');
-			override.setAttribute('data-source', 'chatbot-overrides');
-			override.textContent = `style, script { display: none !important; }`;
-			this._shadowRoot.appendChild(override);
-			if (loadedGlobal) {
-				// eslint-disable-next-line no-console
-				console.debug('[Chatbot] Applied protective overrides after global.css');
-			}
+		try {
+			const sheet = new CSSStyleSheet();
+			sheet.replaceSync(cssText);
+			this._shadowRoot.adoptedStyleSheets = [...this._shadowRoot.adoptedStyleSheets, sheet];
+			return true;
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.warn('[Chatbot] Failed to apply constructable stylesheet, falling back to <style>', e);
+			return false;
+		}
+	}
+
+	private _insertCSSElement(cssText: string): void {
+		if (!this._shadowRoot) {
+			return;
+		}
+
+	const cssElement = document.createElement('style');
+	cssElement.dataset.source = 'global.css';
+	cssElement.textContent = cssText;
+		this._shadowRoot.insertBefore(cssElement, this._mountPoint);
+	}
+
+	private _logCSSLoadSuccess(cssText: string, url: string): void {
+		if (/all:\s*initial/.test(cssText)) {
+			// eslint-disable-next-line no-console
+			console.debug('[Chatbot] Detected `all: initial` in global.css');
+		}
+		// eslint-disable-next-line no-console
+		console.log('[Chatbot] Successfully loaded styles from', url);
+	}
+
+	private _applyProtectiveOverrides(loadedGlobal: boolean): void {
+		if (!this._shadowRoot) {
+			return;
+		}
+
+		const override = document.createElement('style');
+		override.dataset.source = 'chatbot-overrides';
+		override.textContent = `style, script { display: none !important; }`;
+		this._shadowRoot.appendChild(override);
+
+		if (loadedGlobal) {
+			// eslint-disable-next-line no-console
+			console.debug('[Chatbot] Applied protective overrides after global.css');
 		}
 	}
 

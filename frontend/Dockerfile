@@ -4,7 +4,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Install dependencies for building
-RUN apk add --no-cache python3 make g++
+RUN apk add --no-cache g++ make python3
 
 # Copy package files first for better layer caching
 COPY package*.json ./
@@ -19,9 +19,7 @@ COPY . .
 RUN rm -rf dist && \
     npm run build && \
     echo "Build complete. Dist contents:" && \
-    ls -la dist/ && \
-    echo "Verifying chatbot-loader.js first 25 lines:" && \
-    head -25 dist/chatbot-loader.js
+    ls -la dist/
 
 # Expose port 5001
 EXPOSE 5001

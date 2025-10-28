@@ -20,11 +20,9 @@ RUN npm run build && \
 
 # Copy initialization script
 COPY scripts/init-db.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/init-db.sh
-
-RUN addgroup -S app && adduser -S -G app app
-
-RUN chown -R app:app /app && chown app:app /usr/local/bin/init-db.sh
+RUN chmod +x /usr/local/bin/init-db.sh && \
+	addgroup -S app && adduser -S -G app app && \
+	chown -R app:app /app && chown app:app /usr/local/bin/init-db.sh
 
 # Run the container as the non-root user from here on
 USER app
