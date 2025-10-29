@@ -7,11 +7,11 @@ require 'json'
 module Decidim
   module Keycloak
     class TokenService
-      def self.ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil, request_host = nil)
-        new.ensure_valid_token(user, cookies_hash, cookies_obj, request_host)
+      def self.ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil, request_host = nil, controller = nil)
+        new.ensure_valid_token(user, cookies_hash, cookies_obj, request_host, controller)
       end
 
-      def ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil, request_host = nil)
+      def ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil, request_host = nil, controller = nil)
         access_token = reconstruct_token_from_cookies(cookies_hash, 'access_token')
         expires_at = cookies_hash&.dig('token_expires_at')&.to_i if cookies_hash
         refresh_token = reconstruct_token_from_cookies(cookies_hash, 'refresh_token')
@@ -31,6 +31,8 @@ module Decidim
         if refresh_token && cookies_obj
           new_tokens = refresh_access_token(refresh_token)
           if new_tokens
+            # Clear existing cookies from all domains before saving new ones to prevent duplicates
+            controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
             save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
             return new_tokens[:access_token]
           end
@@ -40,6 +42,9 @@ module Decidim
       end
 
       def save_tokens_to_cookies(cookies_obj, tokens, request_host = nil)
+        # Clear existing Keycloak cookies from all domains before saving new ones to prevent duplicates
+        clear_existing_keycloak_cookies(cookies_obj, request_host)
+        
         # Domain for cross-subdomain cookie sharing
         # Use the same logic as ApplicationController#keycloak_cookie_domain
         cookie_domain = determine_keycloak_cookie_domain(request_host)
@@ -95,6 +100,38 @@ module Decidim
       end
 
       private
+
+      def clear_existing_keycloak_cookies(cookies_obj, request_host = nil)
+        # Clear existing Keycloak cookies from all possible domains to prevent duplicates
+        # Use the same domain logic as determine_keycloak_cookie_domain
+        
+        host = request_host || ENV['DECIDIM_HOST'] || 'localhost'
+        
+        # Domains to clear cookies from (most specific to least specific)
+        domains_to_clear = [
+          host,                    # e.g., "part-int.ldttoolbox.app"
+          determine_keycloak_cookie_domain(request_host), # e.g., ".ldttoolbox.app"
+          nil                              # No domain (current host only)
+        ].uniq
+        
+        domains_to_clear.each do |domain|
+          Rails.logger.debug "[Keycloak TokenService] Clearing existing cookies for domain: #{domain || 'current host'}"
+          
+          # Clear named Keycloak cookies
+          ['access_token', 'refresh_token', 'id_token', 'token_expires_at'].each do |cookie_name|
+            cookies_obj.delete(cookie_name, domain: domain) if cookies_obj[cookie_name].present?
+          end
+          
+          # Clear any cookies starting with 'kc_' (Keycloak pattern)
+          cookies_obj.each do |name, _value|
+            if name.start_with?('kc_')
+              cookies_obj.delete(name, domain: domain)
+            end
+          end
+        end
+        
+        Rails.logger.debug "[Keycloak TokenService] Cleared existing Keycloak cookies from all domains"
+      end
 
       def determine_keycloak_cookie_domain(request_host = nil)
         host = request_host || ENV['DECIDIM_HOST'] || 'localhost'
