@@ -201,4 +201,12 @@ export class LDTUseCaseScenariosComponentPage extends BaseAdminPage {
 			`/admin/participatory_processes/${processSlug}/components/${componentId}/manage/ldt_use_case_scenarios`
 		);
 	}
+
+	/**
+	 * Verifies that the "Association name is required" error message is displayed.
+	 */
+	async verifyAssociationNameRequiredError(): Promise<void> {
+		await expect(this.page.locator('small.help-text')).toBeVisible();
+		await expect(this.page.locator('small.help-text')).toHaveText('Association name is required');
+	}
 }

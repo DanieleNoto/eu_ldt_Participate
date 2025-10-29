@@ -4,7 +4,7 @@
  * Simone Bianchelli
  */
 
-import { Page, expect, Locator } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 import { BasePage } from '../../../base/BasePage';
 
 /**

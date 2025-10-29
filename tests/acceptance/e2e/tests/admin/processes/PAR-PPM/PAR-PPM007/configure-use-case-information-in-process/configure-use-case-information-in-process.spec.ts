@@ -47,7 +47,7 @@ test.describe('[PAR-PPM007] - Configure use case information in process', () => 
 
 	test.beforeEach(async ({ browser }) => {
 		// create a new browser context and page
-		context = await browser.newContext();
+		context = await browser.newContext({ locale: 'en-US' });
 		page = await context.newPage();
 
 		// Navigate to admin dashboard
@@ -124,7 +124,7 @@ test.describe('[PAR-PPM007] - Configure use case information in process', () => 
 	});
 
 	test.describe('Main Flow', () => {
-		test('should configure use case information in process', async ({ browser }) => {
+		test('should configure use case information in process', async () => {
 			const timestamp = Date.now();
 			componentName = `LDT_Use_Case_Scenarios_${timestamp}`;
 			const componentTitle = `Test LDT Use Case Scenarios ${timestamp}`;
@@ -287,6 +287,388 @@ test.describe('[PAR-PPM007] - Configure use case information in process', () => 
 				await useCaseScenariosPage.clickAssociationLink(selectedExperimentId);
 
 				// Verify experiment details are visible
+				await useCaseScenariosPage.verifyExperimentIdDetailVisible(selectedExperimentId);
+				console.log(`"Experiment ID ${selectedExperimentId}" is visible on the detail page`);
+			});
+		});
+	});
+
+	test.describe('Alternative Flow: Submission error', () => {
+		test('should show submission error when no experiment is selected', async () => {
+			const timestamp = Date.now();
+			componentName = `LDT_Use_Case_Scenarios_${timestamp}`;
+			const componentTitle = `Test LDT Use Case Scenarios ${timestamp}`;
+
+			await test.step('1. User: Navigates to the "Processes" section.', async () => {
+				// Navigate to processes section using admin nav
+				await adminHomePage.navigateViaAdminNav('processes');
+				await processAdminPage.waitForLoadState('networkidle');
+
+				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+				expect(isOnProcessesPage).toBe(true);
+				console.log('Navigated to Processes section');
+			});
+
+			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
+				await processAdminPage.expectToBeOnProcessesAdminPage();
+				// Verify processes table is visible and has content
+				const hasProcesses = await processAdminPage.processTable.hasProcesses();
+				expect(hasProcesses).toBe(true);
+				console.log('Processes list displayed with available processes');
+			});
+
+			await test.step('3. User: Selects the process that want to update.', async () => {
+				// Click "Configure" button for the process (this navigates to /edit page)
+				await surveysManagePage.searchAndSelectProcess(processTitle);
+				console.log(`Selected process "${processTitle}" for configuration`);
+			});
+
+			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
+				await page.waitForURL(new RegExp(`/admin/participatory_processes/${processSlug}/edit`));
+				await page.waitForLoadState('networkidle');
+
+				// Verify we're on the edit page with process information
+				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
+				console.log('Process loaded with editable form containing existing information');
+			});
+
+			await test.step('5. User: Navigates to the "Components" section in the admin panel.', async () => {
+				await updateProcessAdminPage.navigateToComponents();
+				console.log('Navigated to Components section');
+			});
+
+			await test.step('6. User: Clicks on "Add Component" and select LDT Use Case Scenarios', async () => {
+				// Select LDT Use Case Scenarios component type
+				await ldtUseCaseScenariosPage.addComponentAndSelectLDTUseCaseScenarios(componentsPage, processSlug);
+				console.log('Selected LDT Use Case Scenarios component type');
+
+				// Fill the component form
+				await ldtUseCaseScenariosPage.fillComponentForm(componentName, componentTitle);
+				console.log('Component form filled');
+
+				// Save the component
+				await ldtUseCaseScenariosPage.saveComponent();
+				console.log('Component saved successfully');
+
+				// await page.waitForLoadState('networkidle');
+
+				// Verify redirect to components page
+				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
+				console.log('Redirected to components page');
+
+				// Verify success message is displayed
+				await componentsPage.verifyComponentCreatedSuccessfully();
+
+				// Verify component exists in the table
+				await componentsPage.expectComponentExists(componentName);
+				console.log(`Component "${componentName}" found in table`);
+
+				// Publish the component
+				await componentsPage.publishComponent(componentName);
+				console.log(`Published component: ${componentName}`);
+
+				// Verify it was published successfully
+				const isPublished = await componentsPage.isComponentPublished(componentName);
+				expect(isPublished).toBeTruthy();
+				console.log(`Component "${componentName}" is now published`);
+
+				// Click on component name to navigate to detail page
+				await componentsPage.clickComponentLink(componentName);
+				await page.waitForLoadState('networkidle');
+
+				// Verify navigation to component manage page
+				await page.waitForURL(
+					new RegExp(`/admin/participatory_processes/${processSlug}/components/\\d+/manage/`)
+				);
+				console.log(`Navigated to component detail/manage page`);
+
+				const currentUrl = page.url();
+				const match = currentUrl.match(/\/components\/(\d+)\//);
+				if (match) {
+					componentId = match[1];
+					console.log(`Component ID extracted for cleanup: ${componentId}`);
+				}
+
+				// Click on "Associate experiments results" button
+				await ldtUseCaseScenariosPage.clickAssociateExperimentsResults();
+
+				await page.waitForLoadState('networkidle');
+				console.log('Clicked on "Associate experiments results"');
+			});
+
+			await test.step('7. User: Clicks on "Save Configuration"', async () => {
+				// Save the association configuration without selecting anything
+				await ldtUseCaseScenariosPage.saveAssociationConfiguration();
+				console.log('Clicked Save without selecting experiment');
+
+				// Verify that we remain on the same page
+				await expect(page).toHaveURL(
+					new RegExp(
+						`/admin/participatory_processes/${processSlug}/components/\\d+/manage/ldt_use_case_scenarios/new`
+					)
+				);
+			});
+
+			await test.step('8. System: Displays an error message', async () => {
+				// Verify native browser submission error message for required field
+				const errorMessage = await page.$eval(
+					'#association-name',
+					el => (el as HTMLInputElement).validationMessage
+				);
+				expect(errorMessage).toBe('Please fill out this field.');
+				console.log('Error message displayed as expected');
+			});
+
+			await test.step('9. User: Corrects the invalid configuration details.', async () => {
+				// Select the first experiment and get its ID
+				selectedExperimentId = await ldtUseCaseScenariosPage.selectFirstExperiment();
+				console.log(`Selected experiment: ${selectedExperimentId}`);
+
+				// Fill Association Name with experiment ID
+				const associationName = `association test ${selectedExperimentId}`;
+				await ldtUseCaseScenariosPage.fillAssociationName(associationName);
+				console.log(`Filled Association Name: ${associationName}`);
+			});
+
+			await test.step('10. User: May choose to retry saving', async () => {
+				// Save the association configuration
+				await ldtUseCaseScenariosPage.saveAssociationConfiguration();
+				console.log('Clicked Save to confirm association configuration');
+
+				// Verify redirect back to component manage page
+				await expect(page).toHaveURL(
+					new RegExp(
+						`/admin/participatory_processes/${processSlug}/components/\\d+/manage/ldt_use_case_scenarios`
+					)
+				);
+				console.log('Configuration saved and redirected to component manage page');
+			});
+
+			await test.step('11. System: Saves the configuration and links the Use Case information to the process', async () => {
+				if (!selectedExperimentId) {
+					throw new Error('selectedExperimentId is null - test setup failed');
+				}
+
+				// Verify success message
+				await ldtUseCaseScenariosPage.verifyExperimentSavedSuccessfully();
+				console.log('Success message displayed: Experiment saved successfully');
+
+				// Verify the association exists in the table
+				const associationName = `association test ${selectedExperimentId}`;
+				await ldtUseCaseScenariosPage.verifyAssociationExists(associationName, selectedExperimentId);
+				console.log(
+					`Verified association exists - Name: "${associationName}", Experiment ID: ${selectedExperimentId}`
+				);
+			});
+
+			await test.step('Result: Citizens can view the Use Case details directly within the process', async () => {
+				if (!selectedExperimentId) {
+					throw new Error('selectedExperimentId is null - test setup failed');
+				}
+
+				// Navigate to process public page
+				await processDetailPage.navigateToProcess(processSlug);
+				console.log(`Navigated to process public page: /processes/${processSlug}`);
+
+				await processDetailPage.navigateToComponent(componentName);
+				console.log(`Navigated to component "${componentName}"`);
+
+				await useCaseScenariosPage.verifyExperimentIdVisible(selectedExperimentId);
+				console.log(`Experiment ID "${selectedExperimentId}" is visible on the public page`);
+
+				// Click on the association link
+				await useCaseScenariosPage.clickAssociationLink(selectedExperimentId);
+
+				// Verify that the experiment details are visible
+				await useCaseScenariosPage.verifyExperimentIdDetailVisible(selectedExperimentId);
+				console.log(`"Experiment ID ${selectedExperimentId}" is visible on the detail page`);
+			});
+		});
+	});
+
+	test.describe('Alternative Flow: Field/s validation fail', () => {
+		test('should show validation error when no experiment is selected', async () => {
+			const timestamp = Date.now();
+			componentName = `LDT_Use_Case_Scenarios_${timestamp}`;
+			const componentTitle = `Test LDT Use Case Scenarios ${timestamp}`;
+
+			await test.step('1. User: Navigates to the "Processes" section.', async () => {
+				// Navigate to processes section using admin nav
+				await adminHomePage.navigateViaAdminNav('processes');
+				await processAdminPage.waitForLoadState('networkidle');
+
+				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+				expect(isOnProcessesPage).toBe(true);
+				console.log('Navigated to Processes section');
+			});
+
+			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
+				await processAdminPage.expectToBeOnProcessesAdminPage();
+				// Verify processes table is visible and has content
+				const hasProcesses = await processAdminPage.processTable.hasProcesses();
+				expect(hasProcesses).toBe(true);
+				console.log('Processes list displayed with available processes');
+			});
+
+			await test.step('3. User: Selects the process that want to update.', async () => {
+				// Click "Configure" button for the process (this navigates to /edit page)
+				await surveysManagePage.searchAndSelectProcess(processTitle);
+				console.log(`Selected process "${processTitle}" for configuration`);
+			});
+
+			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
+				await page.waitForURL(new RegExp(`/admin/participatory_processes/${processSlug}/edit`));
+				await page.waitForLoadState('networkidle');
+
+				// Verify we're on the edit page with process information
+				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
+				console.log('Process loaded with editable form containing existing information');
+			});
+
+			await test.step('5. User: Navigates to the "Components" section in the admin panel.', async () => {
+				await updateProcessAdminPage.navigateToComponents();
+				console.log('Navigated to Components section');
+			});
+
+			await test.step('6. User: Clicks on "Add Component" and select LDT Use Case Scenarios', async () => {
+				// Select LDT Use Case Scenarios component type
+				await ldtUseCaseScenariosPage.addComponentAndSelectLDTUseCaseScenarios(componentsPage, processSlug);
+				console.log('Selected LDT Use Case Scenarios component type');
+
+				// Fill the component form
+				await ldtUseCaseScenariosPage.fillComponentForm(componentName, componentTitle);
+				console.log('Component form filled');
+
+				// Save the component
+				await ldtUseCaseScenariosPage.saveComponent();
+				console.log('Component saved successfully');
+
+				// await page.waitForLoadState('networkidle');
+
+				// Verify redirect to components page
+				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
+				console.log('Redirected to components page');
+
+				// Verify success message is displayed
+				await componentsPage.verifyComponentCreatedSuccessfully();
+
+				// Verify component exists in the table
+				await componentsPage.expectComponentExists(componentName);
+				console.log(`Component "${componentName}" found in table`);
+
+				// Publish the component
+				await componentsPage.publishComponent(componentName);
+				console.log(`Published component: ${componentName}`);
+
+				// Verify it was published successfully
+				const isPublished = await componentsPage.isComponentPublished(componentName);
+				expect(isPublished).toBeTruthy();
+				console.log(`Component "${componentName}" is now published`);
+
+				// Click on component name to navigate to detail page
+				await componentsPage.clickComponentLink(componentName);
+				await page.waitForLoadState('networkidle');
+
+				// Verify navigation to component manage page
+				await page.waitForURL(
+					new RegExp(`/admin/participatory_processes/${processSlug}/components/\\d+/manage/`)
+				);
+				console.log(`Navigated to component detail/manage page`);
+
+				const currentUrl = page.url();
+				const match = currentUrl.match(/\/components\/(\d+)\//);
+				if (match) {
+					componentId = match[1];
+					console.log(`Component ID extracted for cleanup: ${componentId}`);
+				}
+
+				// Click on "Associate experiments results" button
+				await ldtUseCaseScenariosPage.clickAssociateExperimentsResults();
+
+				await page.waitForLoadState('networkidle');
+				console.log('Clicked on "Associate experiments results"');
+			});
+
+			await test.step('7. User: Clicks on "Save Configuration" to confirm the selection', async () => {
+				// Save the association configuration without selecting anything
+				await ldtUseCaseScenariosPage.saveAssociationConfiguration();
+				console.log('Clicked Save without selecting experiment');
+
+				// Verify that we remain on the same page
+				await expect(page).toHaveURL(
+					new RegExp(
+						`/admin/participatory_processes/${processSlug}/components/\\d+/manage/ldt_use_case_scenarios/new`
+					)
+				);
+			});
+
+			await test.step('8. System: Displays appropriate error messages highlighting the issues', async () => {
+				// Verify validation error message is displayed
+				await ldtUseCaseScenariosPage.verifyAssociationNameRequiredError();
+				console.log('Validation error displayed');
+			});
+
+			await test.step('9. User: Corrects the invalid configuration details.', async () => {
+				// Select the first experiment and get its ID
+				selectedExperimentId = await ldtUseCaseScenariosPage.selectFirstExperiment();
+				console.log(`Selected experiment: ${selectedExperimentId}`);
+
+				// Fill Association Name with experiment ID
+				const associationName = `association test ${selectedExperimentId}`;
+				await ldtUseCaseScenariosPage.fillAssociationName(associationName);
+				console.log(`Filled Association Name: ${associationName}`);
+			});
+
+			await test.step('10. User: Clicks "Save Configuration" again.', async () => {
+				// Save the association configuration
+				await ldtUseCaseScenariosPage.saveAssociationConfiguration();
+				console.log('Clicked Save to confirm association configuration');
+
+				// Verify redirect back to component manage page
+				await expect(page).toHaveURL(
+					new RegExp(
+						`/admin/participatory_processes/${processSlug}/components/\\d+/manage/ldt_use_case_scenarios`
+					)
+				);
+				console.log('Configuration saved and redirected to component manage page');
+			});
+
+			await test.step('11. System: Saves the configuration and links the Use Case information to the process', async () => {
+				if (!selectedExperimentId) {
+					throw new Error('selectedExperimentId is null - test setup failed');
+				}
+
+				// Verify success message
+				await ldtUseCaseScenariosPage.verifyExperimentSavedSuccessfully();
+				console.log('Success message displayed: Experiment saved successfully');
+
+				// Verify the association exists in the table
+				const associationName = `association test ${selectedExperimentId}`;
+				await ldtUseCaseScenariosPage.verifyAssociationExists(associationName, selectedExperimentId);
+				console.log(
+					`Verified association exists - Name: "${associationName}", Experiment ID: ${selectedExperimentId}`
+				);
+			});
+
+			await test.step('Result: Citizens can view the Use Case details directly within the process', async () => {
+				if (!selectedExperimentId) {
+					throw new Error('selectedExperimentId is null - test setup failed');
+				}
+
+				// Navigate to process public page
+				await processDetailPage.navigateToProcess(processSlug);
+				console.log(`Navigated to process public page: /processes/${processSlug}`);
+
+				await processDetailPage.navigateToComponent(componentName);
+				console.log(`Navigated to component "${componentName}"`);
+
+				await useCaseScenariosPage.verifyExperimentIdVisible(selectedExperimentId);
+				console.log(`Experiment ID "${selectedExperimentId}" is visible on the public page`);
+
+				// Click on the association link
+				await useCaseScenariosPage.clickAssociationLink(selectedExperimentId);
+
+				// Verify that the experiment details are visible
 				await useCaseScenariosPage.verifyExperimentIdDetailVisible(selectedExperimentId);
 				console.log(`"Experiment ID ${selectedExperimentId}" is visible on the detail page`);
 			});
