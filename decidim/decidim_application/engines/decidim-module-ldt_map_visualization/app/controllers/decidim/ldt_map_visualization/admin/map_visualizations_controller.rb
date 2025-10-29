@@ -26,58 +26,23 @@ module Decidim
 
         def new
           @form = ::Decidim::LdtMapVisualization::MapVisualizationForm.new
-          
-          # Fetch maps from TOOL1 when rendering the form
-          begin
-            # Get token from cookies (this is the user's actual Keycloak token from browser login)
-            access_token = get_jwt_token
-            
-            if access_token.blank?
-              Rails.logger.warn("No Keycloak access token in cookies for user #{current_user&.id}")
-              @maps = []
-              @maps_error = "No valid authentication token. Please log in again or refresh the page."
-              return
-            end
-
-            Rails.logger.info("Using access token (#{access_token.length} chars) for user #{current_user&.id}")
-
-            # Fetch maps from TOOL1
-            maps_url = ENV['TOOL1_MAPS_URL'] || 'https://maps-int.ldttoolbox.app/api/v1/maps'
-
-            # Try to exchange the token for TOOL1 audience/client if possible
-            begin
-              exchanged = Decidim::Keycloak::TokenService.new.exchange_token_for_audience(access_token, ENV['TOOL1_CLIENT_ID'] || 'tool1')
-              if exchanged.present?
-                token_to_use = exchanged
-              else       
-                token_to_use = access_token
-              end
-            rescue => e
-              Rails.logger.warn("Token exchange attempt raised: #{e.class} - #{e.message}; falling back to original token")
-              token_to_use = access_token
-            end
-
-            # Use the chosen token to fetch maps
-            result = fetch_from_tool1(token_to_use, maps_url)
-
-            # Parse maps data
-            @maps = parse_maps_response(result)
-            
-            @maps_error = nil
-            
-          rescue => e
-            Rails.logger.error("Error fetching maps: #{e.class} - #{e.message}")
-            Rails.logger.error(e.backtrace.first(3).join("\n"))
-            @maps = []
-            @maps_error = "Error loading maps: #{e.message}"
-          end
+          fetch_maps_for_form
         end
 
         def create
+          @form = ::Decidim::LdtMapVisualization::MapVisualizationForm.from_params(params)
+          
+          if @form.invalid?
+            # Re-fetch maps for the form
+            fetch_maps_for_form
+            render :new
+            return
+          end
+          
           begin
-            map_id = params.dig(:map_visualization, :map_id)
-            map_name = params.dig(:map_visualization, :name)
-            map_data = params.dig(:map_visualization, :map_data)
+            map_id = @form.map_id
+            map_name = @form.name
+            map_data = @form.map_data
             
             # Validate params
             unless map_id.present? && map_name.present?
@@ -271,6 +236,55 @@ module Decidim
 
           # Parse and return data
           JSON.parse(response.body)
+        end
+
+        private
+
+        def fetch_maps_for_form
+          # Fetch maps from TOOL1 when rendering the form
+          begin
+            # Get token from cookies (this is the user's actual Keycloak token from browser login)
+            access_token = get_jwt_token
+            
+            if access_token.blank?
+              Rails.logger.warn("No Keycloak access token in cookies for user #{current_user&.id}")
+              @maps = []
+              @maps_error = "No valid authentication token. Please log in again or refresh the page."
+              return
+            end
+
+            Rails.logger.info("Using access token (#{access_token.length} chars) for user #{current_user&.id}")
+
+            # Fetch maps from TOOL1
+            maps_url = ENV['TOOL1_MAPS_URL'] || 'https://maps-int.ldttoolbox.app/api/v1/maps'
+
+            # Try to exchange the token for TOOL1 audience/client if possible
+            begin
+              exchanged = Decidim::Keycloak::TokenService.new.exchange_token_for_audience(access_token, ENV['TOOL1_CLIENT_ID'] || 'tool1')
+              if exchanged.present?
+                token_to_use = exchanged
+              else       
+                token_to_use = access_token
+              end
+            rescue => e
+              Rails.logger.warn("Token exchange attempt raised: #{e.class} - #{e.message}; falling back to original token")
+              token_to_use = access_token
+            end
+
+            # Use the chosen token to fetch maps
+            result = fetch_from_tool1(token_to_use, maps_url)
+
+            # Parse maps data
+            @maps = parse_maps_response(result)
+            
+            @maps_error = nil
+            
+          rescue => e
+            Rails.logger.error("Error fetching maps: #{e.class} - #{e.message}")
+            Rails.logger.error(e.backtrace.first(3).join("\n"))
+            @maps = []
+            @maps_error = "Error loading maps: #{e.message}"
+          end
         end
       end
     end
