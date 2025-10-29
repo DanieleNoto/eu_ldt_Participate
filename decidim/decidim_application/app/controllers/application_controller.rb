@@ -36,6 +36,61 @@ class ApplicationController < ActionController::Base
     config[:site].present? && config[:client_id].present? && config[:client_secret].present?
   end
 
+  # Determine the correct cookie domain for Keycloak tokens
+  def keycloak_cookie_domain
+    host = request.host
+
+    # In production/development with subdomains, use the second-level domain
+    # to allow cookie sharing across subdomains
+    if Rails.env.production? || Rails.env.development?
+      # Extract domain parts: part-int.ldttoolbox.app -> ['part-int', 'ldttoolbox', 'app']
+      domain_parts = host.split('.')
+
+      # For domains like *.ldttoolbox.app, use .ldttoolbox.app
+      if domain_parts.length >= 3
+        # Return domain with leading dot for cross-subdomain cookies
+        ".#{domain_parts[-2]}.#{domain_parts[-1]}"
+      else
+        # Fallback to current host
+        host
+      end
+    else
+      # In other environments, use the current host
+      host
+    end
+  end
+
+  # Clear Keycloak cookies from all possible domains to prevent accumulation
+  def clear_keycloak_cookies
+    keycloak_cookie_names = ['id_token', 'access_token', 'refresh_token', 'kc_state']
+
+    # Domains to clear cookies from (most specific to least specific)
+    domains_to_clear = [
+      request.host,                    # e.g., "part-int.ldttoolbox.app"
+      keycloak_cookie_domain,          # e.g., ".ldttoolbox.app"
+      request.domain,                  # e.g., "ldttoolbox.app"
+      nil                              # No domain (current host only)
+    ].uniq
+
+    domains_to_clear.each do |domain|
+      Rails.logger.debug "[Keycloak Cookie Cleanup] Clearing cookies for domain: #{domain || 'current host'}"
+
+      # Clear named Keycloak cookies
+      keycloak_cookie_names.each do |cookie_name|
+        cookies.delete(cookie_name, domain: domain) if cookies[cookie_name].present?
+      end
+
+      # Clear any cookies starting with 'kc_' (Keycloak pattern)
+      cookies.each do |name, _value|
+        if name.start_with?('kc_')
+          cookies.delete(name, domain: domain)
+        end
+      end
+    end
+
+    Rails.logger.info "[Keycloak Cookie Cleanup] Cleared Keycloak cookies from all domains"
+  end
+
   def check_keycloak_auto_login
     # Skip for API requests, assets, admin paths, auth callbacks, and AJAX requests
     return if request.path.start_with?('/api/')
@@ -86,18 +141,8 @@ class ApplicationController < ActionController::Base
     unless keycloak_token_still_valid?
       Rails.logger.info "[Keycloak AutoLogout] Keycloak session invalid, logging out user #{current_user.id}"
 
-      # Clear all Keycloak-related cookies
-      keycloak_cookie_names = ['id_token', 'access_token', 'refresh_token', 'kc_state']
-      keycloak_cookie_names.each do |cookie_name|
-        cookies.delete(cookie_name, domain: request.domain) if cookies[cookie_name].present?
-      end
-
-      # Also clear any cookies starting with 'kc_' (Keycloak pattern)
-      cookies.each do |name, _value|
-        if name.start_with?('kc_')
-          cookies.delete(name, domain: request.domain)
-        end
-      end
+      # Clear all Keycloak-related cookies from all possible domains
+      clear_keycloak_cookies
 
       # Sign out the user - let Devise handle the redirect automatically
       sign_out current_user

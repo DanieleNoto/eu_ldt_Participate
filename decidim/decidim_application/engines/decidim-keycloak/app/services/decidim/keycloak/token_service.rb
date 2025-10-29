@@ -7,11 +7,11 @@ require 'json'
 module Decidim
   module Keycloak
     class TokenService
-      def self.ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil)
-        new.ensure_valid_token(user, cookies_hash, cookies_obj)
+      def self.ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil, request_host = nil)
+        new.ensure_valid_token(user, cookies_hash, cookies_obj, request_host)
       end
 
-      def ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil)
+      def ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil, request_host = nil)
         access_token = reconstruct_token_from_cookies(cookies_hash, 'access_token')
         expires_at = cookies_hash&.dig('token_expires_at')&.to_i if cookies_hash
         refresh_token = reconstruct_token_from_cookies(cookies_hash, 'refresh_token')
@@ -31,7 +31,7 @@ module Decidim
         if refresh_token && cookies_obj
           new_tokens = refresh_access_token(refresh_token)
           if new_tokens
-            save_tokens_to_cookies(cookies_obj, new_tokens)
+            save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
             return new_tokens[:access_token]
           end
         end
@@ -39,21 +39,11 @@ module Decidim
         nil
       end
 
-      def save_tokens_to_cookies(cookies_obj, tokens)
+      def save_tokens_to_cookies(cookies_obj, tokens, request_host = nil)
         # Domain for cross-subdomain cookie sharing
-        # In production with ldttoolbox.app domains, use .ldttoolbox.app
-        # In development with localhost, don't set domain (nil = current domain only)
-        # Can be overridden with KEYCLOAK_COOKIE_DOMAIN env var for testing
-        # If KEYCLOAK_COOKIE_DOMAIN is set to 'localhost', use '.localhost' for local testing
-        decidim_host = ENV['DECIDIM_HOST'] || 'localhost'
-        cookie_domain = ENV['KEYCLOAK_COOKIE_DOMAIN'] || 
-                       (decidim_host.include?('ldttoolbox.app') ? '.ldttoolbox.app' : nil)
-        
-        # Special case for local testing with subdomains
-        if Rails.env.development? && ENV['KEYCLOAK_COOKIE_DOMAIN'] == 'localhost'
-          cookie_domain = '.localhost'
-        end
-        
+        # Use the same logic as ApplicationController#keycloak_cookie_domain
+        cookie_domain = determine_keycloak_cookie_domain(request_host)
+
         # Save access token
         if tokens[:access_token]
           cookies_obj['access_token'] = {
@@ -101,6 +91,31 @@ module Decidim
             domain: cookie_domain,
             expires: expires_at
           }
+        end
+      end
+
+      private
+
+      def determine_keycloak_cookie_domain(request_host = nil)
+        host = request_host || ENV['DECIDIM_HOST'] || 'localhost'
+
+        # In production/development with subdomains, use the second-level domain
+        # to allow cookie sharing across subdomains
+        if Rails.env.production? || Rails.env.development?
+          # Extract domain parts: part-int.ldttoolbox.app -> ['part-int', 'ldttoolbox', 'app']
+          domain_parts = host.split('.')
+
+          # For domains like *.ldttoolbox.app, use .ldttoolbox.app
+          if domain_parts.length >= 3
+            # Return domain with leading dot for cross-subdomain cookies
+            ".#{domain_parts[-2]}.#{domain_parts[-1]}"
+          else
+            # Fallback to current host
+            host
+          end
+        else
+          # In other environments, use the current host or nil for localhost
+          host.include?('localhost') ? nil : host
         end
       end
 

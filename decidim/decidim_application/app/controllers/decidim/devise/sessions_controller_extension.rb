@@ -30,35 +30,66 @@ module Decidim
       private
 
       def cleanup_keycloak_cookies
-        # Delete all Keycloak token cookies
-        # Use the same domain logic as when they were set
+        # Delete all Keycloak token cookies from all possible domains to prevent accumulation
+        # Use the same domain logic as ApplicationController#keycloak_cookie_domain
         
-        decidim_host = ENV['DECIDIM_HOST'] || 'localhost'
-        cookie_domain = ENV['KEYCLOAK_COOKIE_DOMAIN'] || 
-                       (decidim_host.include?('ldttoolbox.app') ? '.ldttoolbox.app' : nil)
+        # Domains to clear cookies from (most specific to least specific)
+        domains_to_clear = [
+          request.host,                    # e.g., "part-int.ldttoolbox.app"
+          determine_keycloak_cookie_domain, # e.g., ".ldttoolbox.app"
+          request.domain,                  # e.g., "ldttoolbox.app"
+          nil                              # No domain (current host only)
+        ].uniq
         
-        # Special case for local testing with subdomains
-        if Rails.env.development? && ENV['KEYCLOAK_COOKIE_DOMAIN'] == 'localhost'
-          cookie_domain = '.localhost'
+        domains_to_clear.each do |domain|
+          Rails.logger.debug "[Keycloak Cookie Cleanup] Clearing cookies for domain: #{domain || 'current host'}"
+          
+          # Clear named Keycloak cookies
+          ['access_token', 'refresh_token', 'id_token', 'token_expires_at'].each do |cookie_name|
+            cookies.delete(cookie_name, domain: domain) if cookies[cookie_name].present?
+          end
+          
+          # Clear any cookies starting with 'kc_' (Keycloak pattern)
+          cookies.each do |name, _value|
+            if name.start_with?('kc_')
+              cookies.delete(name, domain: domain)
+            end
+          end
         end
-        
-        # Delete current token cookies with correct domain
-        # Use the determined domain, or :all if domain is nil (localhost)
-        delete_domain = cookie_domain || :all
-        cookies.delete('access_token', domain: delete_domain)
-        cookies.delete('refresh_token', domain: delete_domain)
-        cookies.delete('id_token', domain: delete_domain)
-        cookies.delete('token_expires_at', domain: delete_domain)
         
         # Clean up session data
         session.delete(:keycloak_authenticated)
         session.delete(:keycloak_id_token) # Remove any leftover id_token from session
         
-        Rails.logger.info "🧹 Cleaned up all Keycloak cookies and session data on logout"
+        Rails.logger.info "[Keycloak Cookie Cleanup] Cleared Keycloak cookies and session data from all domains"
+      end
+
+      private
+
+      def determine_keycloak_cookie_domain
+        host = request.host
+
+        # In production/development with subdomains, use the second-level domain
+        # to allow cookie sharing across subdomains
+        if Rails.env.production? || Rails.env.development?
+          # Extract domain parts: part-int.ldttoolbox.app -> ['part-int', 'ldttoolbox', 'app']
+          domain_parts = host.split('.')
+
+          # For domains like *.ldttoolbox.app, use .ldttoolbox.app
+          if domain_parts.length >= 3
+            # Return domain with leading dot for cross-subdomain cookies
+            ".#{domain_parts[-2]}.#{domain_parts[-1]}"
+          else
+            # Fallback to current host
+            host
+          end
+        else
+          # In other environments, use the current host
+          host
+        end
       end
 
       def build_keycloak_logout_url
-        keycloak_site = ENV['OMNIAUTH_KEYCLOAK_SITE']
         realm = ENV['OMNIAUTH_KEYCLOAK_REALM']
         
         return nil unless keycloak_site.present? && realm.present?
