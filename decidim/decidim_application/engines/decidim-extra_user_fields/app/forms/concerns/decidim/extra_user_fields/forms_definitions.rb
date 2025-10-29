@@ -22,6 +22,10 @@ module Decidim
         attribute :underage, ActiveRecord::Type::Boolean
         attribute :statutory_representative_email, String
 
+        # Account profile attributes
+        attribute :about, String
+        attribute :personal_url, String
+
         # EndBlock
 
         # Block ExtraUserFields Validations
@@ -48,6 +52,10 @@ module Decidim
         validates :location, presence: true, if: :location?
         validates :location, length: { maximum: 100 }, if: :location?
         validates :underage, presence: true, if: :underage?
+
+        # Account profile validations
+        validates :about, length: { maximum: 500 }, allow_blank: true
+        validates :personal_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: :invalid_url }, allow_blank: true
         validates :statutory_representative_email,
                   presence: true,
                   "valid_email_2/email": { disposable: true },

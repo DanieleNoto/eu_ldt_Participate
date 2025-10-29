@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test';
+import { Page, expect, Locator } from '@playwright/test';
 import { BaseAdminPage } from '../../../BaseAdminPage';
 
 /**
@@ -290,5 +290,55 @@ export class MeetingsPage extends BaseAdminPage {
 		const hasUnpublish = await actions.unpublish.isVisible().catch(() => false);
 
 		expect(hasPublish || hasUnpublish).toBeTruthy();
+	}
+
+	/**
+	 * Counts how many meetings in the admin table are marked as "Closed = Yes".
+	 * The method waits for the table to be visible, normalizes text, and tolerates missing data.
+	 */
+	async countClosedMeetings(): Promise<number> {
+		// Wait for the table to be present and visible
+		const table = this.page.locator('table.table-list');
+		await expect(table).toBeVisible({});
+		
+		// Wait until at least one row is loaded
+		const rows = table.locator('tbody tr');
+		await expect(rows.first()).toBeVisible({});
+		
+		const rowCount = await rows.count();
+		let closedCount = 0;
+		
+		for (let i = 0; i < rowCount; i++) {
+		  const row = rows.nth(i);
+		  // Find the cell that contains the "Closed" column dynamically
+		  // by matching its header text, to avoid breaking if column order changes
+		  const closedCell = await this.getCellByHeader(row, 'Closed');
+		
+		  const cellText = (await closedCell?.textContent())?.trim().toLowerCase() || '';
+		  if (cellText === 'yes') {
+		    closedCount++;
+		  }
+		}
+	
+		console.log(`Found ${closedCount} closed meetings out of ${rowCount}`);
+		return closedCount;
+	}
+
+	/**
+	 * Helper: find the correct cell in a row by header text.
+	 * This makes the method robust against column reordering.
+	 */
+	private async getCellByHeader(row: Locator, headerName: string): Promise<Locator | null> {
+		const table = this.page.locator('table.table-list');
+		const headers = table.locator('thead th');
+		const headerCount = await headers.count();
+		for (let i = 0; i < headerCount; i++) {
+			const headerText = (await headers.nth(i).textContent())?.trim().toLowerCase();
+			if (headerText === headerName.toLowerCase()) {
+			  return row.locator(`td:nth-child(${i + 1})`);
+			}
+		}
+		console.warn(`Header "${headerName}" not found in table.`);
+			return null;
 	}
 }

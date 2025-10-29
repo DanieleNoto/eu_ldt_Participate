@@ -9,17 +9,20 @@ module Decidim
 
       attr_accessor :name, :map_id, :map_data
 
+      validates :name, presence: true
+      validates :map_id, presence: true
+
       # Build from strong params-like hash
       def self.from_params(params)
         form = new
         if params.respond_to?(:require)
           begin
-            permitted = params.require(:map_visualization).permit(:name, :map_id, :map_data)
+            permitted = params.require(:map_visualization_form).permit(:name, :map_id, :map_data)
           rescue => _e
             permitted = {}
           end
         elsif params.is_a?(Hash)
-          permitted = params[:map_visualization] || {}
+          permitted = params[:map_visualization_form] || {}
         else
           permitted = {}
         end

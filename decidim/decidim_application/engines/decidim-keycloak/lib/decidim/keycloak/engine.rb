@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "omniauth/strategies/keycloak-openid"
+require "deface"
 require_relative "devise_extension"
 
 module Decidim
@@ -31,6 +32,11 @@ module Decidim
             base_url = config[:site].chomp('/')
             realm = config[:realm]
             
+            # Extract current locale from session or request
+            # This ensures Keycloak login page shows in the correct language
+            session = env['rack.session'] || {}
+            current_locale = session['decidim-locale'] || request.params['locale'] || organization.default_locale || 'en'
+            
             # Force override all strategy options
             strategy = env["omniauth.strategy"]
             strategy.options[:client_id] = config[:client_id]
@@ -48,6 +54,32 @@ module Decidim
 
             # Ensure we request the OpenID Connect scopes so access_token can be used with userinfo
             strategy.options[:scope] = 'openid profile email'
+            
+            # Store locale in session to preserve it through OAuth redirect
+            # OmniAuth preserves session data even during external redirects
+            session['omniauth.locale'] = current_locale.to_s
+            
+            # Pass current locale to Keycloak for localized login/error messages
+            # This fixes the "invalid credentials" issue when using non-English locales
+            strategy.options[:authorize_params] = {
+              ui_locales: current_locale.to_s,
+              kc_locale: current_locale.to_s  # Fallback for older Keycloak versions
+            }
+            
+            # Force callback_url without locale parameter to match Keycloak configuration
+            # Decidim adds locale to URLs automatically, but Keycloak requires exact redirect_uri match
+            # Must use callback_url (full URL) not callback_path to override Decidim's locale injection
+            protocol = request.ssl? ? 'https' : 'http'
+            callback_url = "#{protocol}://#{request.host_with_port}/users/auth/keycloakopenid/callback"
+            strategy.options[:callback_url] = callback_url
+            
+            # Override the callback_url method to ensure it returns the URL without query parameters
+            # This is critical because OmniAuth uses callback_url() during token exchange
+            def strategy.callback_url
+              options[:callback_url]
+            end
+            
+            Rails.logger.info "🌍 Keycloak login with locale: #{current_locale}, callback: #{callback_url}"
             
             # Additional JWT options to handle verification issues
             strategy.options[:jwt_options] = {

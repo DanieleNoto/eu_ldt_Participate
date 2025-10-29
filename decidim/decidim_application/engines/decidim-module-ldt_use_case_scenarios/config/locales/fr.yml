@@ -75,6 +75,7 @@ fr:
             selected_experiment: Expérience Sélectionnée
           create:
             success: Association d'expériences créée avec succès.
+            error: Erreur lors de la création de l'association d'expériences.
     admin:
       actions:
         confirm_delete: "Êtes-vous sûr de vouloir supprimer cet élément ?"

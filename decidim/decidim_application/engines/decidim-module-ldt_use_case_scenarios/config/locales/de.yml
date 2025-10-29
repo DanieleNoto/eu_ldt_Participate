@@ -79,3 +79,4 @@ de:
             selected_experiment: Ausgewähltes Experiment
           create:
             success: Experimentzuordnung erfolgreich erstellt.
+            error: Fehler beim Erstellen der Experimentzuordnung.
