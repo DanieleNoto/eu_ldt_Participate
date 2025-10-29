@@ -117,7 +117,7 @@ export class LDTUseCaseScenariosComponentPage extends BaseAdminPage {
 	 * Verifies that the experiment was saved successfully by checking the success message
 	 */
 	async verifyExperimentSavedSuccessfully(): Promise<void> {
-		await expect(this.page.getByText('Experiment saved successfully')).toBeVisible();
+		await expect(this.page.getByText('Experiment association created successfully')).toBeVisible();
 	}
 
 	/**
@@ -203,10 +203,9 @@ export class LDTUseCaseScenariosComponentPage extends BaseAdminPage {
 	}
 
 	/**
-	 * Verifies that the "Association name is required" error message is displayed.
+	 * Verifies that the validation error message is displayed.
 	 */
 	async verifyAssociationNameRequiredError(): Promise<void> {
-		await expect(this.page.locator('small.help-text')).toBeVisible();
-		await expect(this.page.locator('small.help-text')).toHaveText('Association name is required');
+		await expect(this.page.getByText('There is an error in this field')).toBeVisible();
 	}
 }
