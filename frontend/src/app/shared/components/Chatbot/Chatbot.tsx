@@ -124,7 +124,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 		setTimeout(() => {
 			if (bottomRef.current) {
 				const chatContainer = bottomRef.current.closest('[role="log"], .overflow-y-auto');
-				if (chatContainer) {
+				if (chatContainer && typeof chatContainer.scrollTo === 'function') {
 					chatContainer.scrollTo({
 						top: chatContainer.scrollHeight,
 						behavior: 'smooth'
@@ -263,6 +263,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 	const lastBotMessage = [...messages].reverse().find(m => m.from === 'bot');
 	return (
 		<dialog
+			open
 			aria-labelledby="chatbot-header-title"
 			aria-modal="true"
 			className={`flex flex-col w-[430px] max-w-[95vw] h-[600px] max-h-[95vh] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className || ''}`}

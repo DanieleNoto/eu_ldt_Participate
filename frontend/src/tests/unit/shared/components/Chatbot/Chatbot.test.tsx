@@ -14,8 +14,9 @@ jest.mock('uuid', () => ({
 	v4: jest.fn()
 }));
 
-// Mock scrollIntoView since it's not available in JSDOM
+// Mock scrollIntoView and scrollTo since they're not available in JSDOM
 global.Element.prototype.scrollIntoView = jest.fn();
+global.Element.prototype.scrollTo = jest.fn();
 
 // Mock Material-UI icons
 jest.mock('@mui/icons-material/ChatBubbleOutline', () => {
@@ -46,21 +47,21 @@ i18n.init({
 		en: {
 			common: {
 				chatbot: {
-					title: "Chat",
-					openHelpAssistant: "Open help assistant",
-					closeHelpAssistant: "Close help assistant",
-					goBackToFaqList: "Go back to FAQ list",
-					chatWithVirtualAssistant: "Chat with the virtual assistant",
-					suggestions: "Suggestions",
-					hereArePossibleAnswers: "Here are possible answers related to the question:",
-					ifYouNeedMoreHelp: "If you need more help:",
-					askSupport: "Ask support",
-					orSelectAnotherTopic: "Or select another topic:",
-					describeYourIssue: "Describe your issue",
-					typeHere: "Type here...",
-					cancel: "Cancel",
-					send: "Send",
-					supportRequestSent: "Support request sent. Our team will contact you."
+					title: 'Chat',
+					openHelpAssistant: 'Open help assistant',
+					closeHelpAssistant: 'Close help assistant',
+					goBackToFaqList: 'Go back to FAQ list',
+					chatWithVirtualAssistant: 'Chat with the virtual assistant',
+					suggestions: 'Suggestions',
+					hereArePossibleAnswers: 'Here are possible answers related to the question:',
+					ifYouNeedMoreHelp: 'If you need more help:',
+					askSupport: 'Ask support',
+					orSelectAnotherTopic: 'Or select another topic:',
+					describeYourIssue: 'Describe your issue',
+					typeHere: 'Type here...',
+					cancel: 'Cancel',
+					send: 'Send',
+					supportRequestSent: 'Support request sent. Our team will contact you.'
 				}
 			}
 		}
@@ -71,11 +72,7 @@ i18n.init({
 });
 
 const renderWithI18n = (component: React.ReactElement) => {
-	return render(
-		<I18nextProvider i18n={i18n}>
-			{component}
-		</I18nextProvider>
-	);
+	return render(<I18nextProvider i18n={i18n}>{component}</I18nextProvider>);
 };
 
 describe('Chatbot Component', () => {
@@ -98,15 +95,15 @@ describe('Chatbot Component', () => {
 	beforeEach(() => {
 		// Clean up DOM between tests
 		cleanup();
-		
+
 		// Reset UUID counter and clear all mocks
 		uuidCounter = 0;
 		jest.clearAllMocks();
-		
+
 		// Generate unique UUIDs for each test to prevent React key conflicts
 		jest.mocked(jest.requireMock('uuid').v4).mockImplementation(() => `test-uuid-${++uuidCounter}`);
-		
-		mockUseApiRequest.mockImplementation((config) => {
+
+		mockUseApiRequest.mockImplementation(config => {
 			if (config.model === ChatResponseModel) {
 				return mockChatApi as ReturnType<typeof useApiRequest>;
 			}
@@ -142,7 +139,7 @@ describe('Chatbot Component', () => {
 	describe('Initial State', () => {
 		it('renders floating button when closed', () => {
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			expect(floatingButton).toBeInTheDocument();
 			expect(floatingButton).toHaveClass('w-14', 'h-14', 'rounded-full');
@@ -150,7 +147,7 @@ describe('Chatbot Component', () => {
 
 		it('does not show chat dialog initially', () => {
 			renderWithI18n(<Chatbot />);
-			
+
 			expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 		});
 	});
@@ -159,23 +156,23 @@ describe('Chatbot Component', () => {
 		it('opens chat dialog when floating button is clicked', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			expect(screen.getByRole('dialog')).toBeInTheDocument();
 		});
 
 		it('makes API call when chat is opened', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalledWith({
-					body: { 
+					body: {
 						conversationId: undefined,
 						nodeId: undefined,
 						language: 'en'
@@ -187,20 +184,20 @@ describe('Chatbot Component', () => {
 		it('closes dialog when close button is clicked', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			// Open dialog
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			// Wait for dialog to appear
 			await waitFor(() => {
 				expect(screen.getByRole('dialog')).toBeInTheDocument();
 			});
-			
+
 			// Close dialog
 			const closeButton = screen.getByRole('button', { name: /close help assistant/i });
 			await user.click(closeButton);
-			
+
 			expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 		});
 	});
@@ -209,10 +206,10 @@ describe('Chatbot Component', () => {
 		it('displays API response in chat', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(screen.getAllByText('How can I help you?')[0]).toBeInTheDocument();
 			});
@@ -237,10 +234,10 @@ describe('Chatbot Component', () => {
 
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(screen.getByRole('button', { name: 'Billing questions' })).toBeInTheDocument();
 			});
@@ -250,7 +247,7 @@ describe('Chatbot Component', () => {
 
 			await waitFor(() => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalledWith({
-					body: { 
+					body: {
 						conversationId: 'test-conversation-1',
 						nodeId: 'sug1',
 						language: 'en'
@@ -261,21 +258,25 @@ describe('Chatbot Component', () => {
 
 		it('displays loading state during API request', async () => {
 			// Mock delayed response
-			const delayedPromise = new Promise(resolve => 
-				setTimeout(() => resolve({
-					conversationId: 'test-conversation-1',
-					answer: 'Response after loading',
-					suggestions: [],
-					faqs: [],
-					options: []
-				}), 100)
+			const delayedPromise = new Promise(resolve =>
+				setTimeout(
+					() =>
+						resolve({
+							conversationId: 'test-conversation-1',
+							answer: 'Response after loading',
+							suggestions: [],
+							faqs: [],
+							options: []
+						}),
+					100
+				)
 			);
-			
+
 			mockChatApi.requestWithOptions.mockReturnValue(delayedPromise);
 
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
 
@@ -293,10 +294,10 @@ describe('Chatbot Component', () => {
 		it('enters support mode when support option is clicked', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalled();
 			});
@@ -312,10 +313,10 @@ describe('Chatbot Component', () => {
 		it('sends support request when Send button is clicked', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalled();
 			});
@@ -339,10 +340,10 @@ describe('Chatbot Component', () => {
 		it('cancels support mode when Cancel button is clicked', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalled();
 			});
@@ -361,10 +362,10 @@ describe('Chatbot Component', () => {
 		it('handles Enter key in support textarea', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalled();
 			});
@@ -386,10 +387,10 @@ describe('Chatbot Component', () => {
 		it('handles Shift+Enter for new lines in textarea', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalled();
 			});
@@ -409,10 +410,10 @@ describe('Chatbot Component', () => {
 		it('disables Send button when textarea is empty', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalled();
 			});
@@ -427,16 +428,16 @@ describe('Chatbot Component', () => {
 		it('calls onSupportSent callback when provided', async () => {
 			const onSupportSent = jest.fn();
 			const user = userEvent.setup();
-			
+
 			mockSupportApi.requestWithOptions.mockResolvedValue({
 				response: 'Support request sent successfully'
 			});
 
 			renderWithI18n(<Chatbot onSupportSent={onSupportSent} />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalled();
 			});
@@ -471,8 +472,16 @@ describe('Chatbot Component', () => {
 					answer: 'Here are some FAQs about billing:',
 					suggestions: [{ id: 'sug2', text: 'Other topics' }],
 					faqs: [
-						{ id: 'faq1', question: 'How do I pay my bill?', answer: 'You can pay online through our portal.' },
-						{ id: 'faq2', question: 'When is payment due?', answer: 'Payment is due on the 15th of each month.' }
+						{
+							id: 'faq1',
+							question: 'How do I pay my bill?',
+							answer: 'You can pay online through our portal.'
+						},
+						{
+							id: 'faq2',
+							question: 'When is payment due?',
+							answer: 'Payment is due on the 15th of each month.'
+						}
 					],
 					options: []
 				});
@@ -481,10 +490,10 @@ describe('Chatbot Component', () => {
 		it('displays FAQ list after suggestion click', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(screen.getByRole('button', { name: 'Billing questions' })).toBeInTheDocument();
 			});
@@ -502,10 +511,10 @@ describe('Chatbot Component', () => {
 		it('enters FAQ detail mode when FAQ question is clicked', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(screen.getByRole('button', { name: 'Billing questions' })).toBeInTheDocument();
 			});
@@ -528,10 +537,10 @@ describe('Chatbot Component', () => {
 		it('goes back from FAQ detail mode when back button is clicked', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(screen.getByRole('button', { name: 'Billing questions' })).toBeInTheDocument();
 			});
@@ -557,10 +566,10 @@ describe('Chatbot Component', () => {
 		it('shows ask support button in FAQ detail mode', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(screen.getByRole('button', { name: 'Billing questions' })).toBeInTheDocument();
 			});
@@ -582,7 +591,7 @@ describe('Chatbot Component', () => {
 	describe('Additional Features', () => {
 		it('handles restart option correctly', async () => {
 			const user = userEvent.setup();
-			
+
 			mockChatApi.requestWithOptions
 				.mockResolvedValueOnce({
 					conversationId: 'test-conversation-1',
@@ -600,10 +609,10 @@ describe('Chatbot Component', () => {
 				});
 
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(screen.getAllByText('Initial response')[0]).toBeInTheDocument();
 			});
@@ -619,17 +628,17 @@ describe('Chatbot Component', () => {
 		it('shows custom className when provided', async () => {
 			const user = userEvent.setup();
 			renderWithI18n(<Chatbot className="custom-test-class" />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			const dialog = screen.getByRole('dialog');
 			expect(dialog).toHaveClass('custom-test-class');
 		});
 
 		it('handles multiple messages in conversation', async () => {
 			const user = userEvent.setup();
-			
+
 			mockChatApi.requestWithOptions
 				.mockResolvedValueOnce({
 					conversationId: 'test-conversation-1',
@@ -647,10 +656,10 @@ describe('Chatbot Component', () => {
 				});
 
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(screen.getAllByText('First response')[0]).toBeInTheDocument();
 			});
@@ -669,17 +678,20 @@ describe('Chatbot Component', () => {
 		it('handles chat API errors gracefully', async () => {
 			const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 			const user = userEvent.setup();
-			
+
 			mockChatApi.requestWithOptions.mockRejectedValue(new Error('API Error'));
 
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
 
-			await waitFor(() => {
-				expect(consoleSpy).toHaveBeenCalledWith('Chat request failed:', expect.any(Error));
-			}, { timeout: 3000 });
+			await waitFor(
+				() => {
+					expect(consoleSpy).toHaveBeenCalledWith('Chat request failed:', expect.any(Error));
+				},
+				{ timeout: 3000 }
+			);
 
 			consoleSpy.mockRestore();
 		});
@@ -687,7 +699,7 @@ describe('Chatbot Component', () => {
 		it('handles support API errors gracefully', async () => {
 			const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 			const user = userEvent.setup();
-			
+
 			mockChatApi.requestWithOptions.mockResolvedValue({
 				conversationId: 'test-conversation-1',
 				answer: 'How can I help you?',
@@ -699,10 +711,10 @@ describe('Chatbot Component', () => {
 			mockSupportApi.requestWithOptions.mockRejectedValue(new Error('Support API Error'));
 
 			renderWithI18n(<Chatbot />);
-			
+
 			const floatingButton = screen.getByRole('button', { name: /open help assistant/i });
 			await user.click(floatingButton);
-			
+
 			await waitFor(() => {
 				expect(mockChatApi.requestWithOptions).toHaveBeenCalled();
 			});
@@ -716,9 +728,12 @@ describe('Chatbot Component', () => {
 			const sendButton = screen.getByRole('button', { name: 'Send' });
 			await user.click(sendButton);
 
-			await waitFor(() => {
-				expect(consoleSpy).toHaveBeenCalledWith('Support request failed:', expect.any(Error));
-			}, { timeout: 3000 });
+			await waitFor(
+				() => {
+					expect(consoleSpy).toHaveBeenCalledWith('Support request failed:', expect.any(Error));
+				},
+				{ timeout: 3000 }
+			);
 
 			consoleSpy.mockRestore();
 		});

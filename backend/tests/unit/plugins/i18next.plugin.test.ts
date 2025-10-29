@@ -10,6 +10,7 @@ jest.mock('i18next', () => ({
 }));
 
 jest.mock('fs', () => ({
+	existsSync: jest.fn(),
 	readFileSync: jest.fn()
 }));
 
@@ -28,7 +29,8 @@ describe('i18next Plugin', () => {
 
 		mockRequest = {} as any;
 
-		// Mock successful file reading
+		// Mock file existence check and successful file reading
+		(mockFs.existsSync as jest.Mock).mockReturnValue(true);
 		mockFs.readFileSync.mockReturnValue('{"hello": "Hello", "world": "World"}');
 	});
 
@@ -66,9 +68,7 @@ describe('i18next Plugin', () => {
 	});
 
 	test('should handle missing translation files gracefully', async () => {
-		mockFs.readFileSync.mockImplementation(() => {
-			throw new Error('File not found');
-		});
+		(mockFs.existsSync as jest.Mock).mockReturnValue(false);
 
 		await expect(i18nextPlugin(mockFastify)).resolves.not.toThrow();
 		expect(mockI18next.init).toHaveBeenCalled();
