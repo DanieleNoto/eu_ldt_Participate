@@ -15,7 +15,8 @@ module Api
           owner: asset[:owner],
           entity_id: asset[:id],
           created_at: asset[:created_at].iso8601,
-          last_modified: asset[:last_modified].iso8601
+          updatedAt: asset[:last_modified].iso8601,
+          deleted: asset[:deleted] || false
         }
       end
     end
@@ -115,7 +116,10 @@ module Api
         name: extract_name(record),
         owner: extract_owner(record),
         created_at: record.created_at.iso8601,
-        last_modified: record.updated_at.iso8601
+        updatedAt: record.updated_at.iso8601,
+        deleted: record.respond_to?(:deleted_at) ? record.deleted_at.present? : false,
+        lineage: [], # TODO: Implement lineage tracking
+        changes: []  # TODO: Implement change history
       }
     end
 

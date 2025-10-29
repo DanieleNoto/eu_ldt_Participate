@@ -36,6 +36,7 @@ module Api
           owner: process.decidim_organization_id,
           created_at: process.created_at,
           last_modified: process.updated_at,
+          deleted: process.deleted_at.present?,
           entity: process
         }
       end
@@ -50,6 +51,7 @@ module Api
           owner: assembly.decidim_organization_id,
           created_at: assembly.created_at,
           last_modified: assembly.updated_at,
+          deleted: assembly.deleted_at.present?,
           entity: assembly
         }
       end
@@ -73,6 +75,7 @@ module Api
           owner: meeting.component.participatory_space.decidim_organization_id,
           created_at: meeting.created_at,
           last_modified: meeting.updated_at,
+          deleted: meeting.deleted_at.present?,
           entity: meeting
         }
       end
@@ -96,6 +99,7 @@ module Api
           owner: proposal.component.participatory_space.decidim_organization_id,
           created_at: proposal.created_at,
           last_modified: proposal.updated_at,
+          deleted: proposal.deleted_at.present?,
           entity: proposal
         }
       end
@@ -118,6 +122,7 @@ module Api
           owner: survey.component.participatory_space.decidim_organization_id,
           created_at: survey.created_at,
           last_modified: survey.updated_at,
+          deleted: survey.deleted_at.present?,
           entity: survey
         }
       end
@@ -132,6 +137,7 @@ module Api
           owner: conference.decidim_organization_id,
           created_at: conference.created_at,
           last_modified: conference.updated_at,
+          deleted: conference.deleted_at.present?,
           entity: conference
         }
       end
@@ -154,6 +160,7 @@ module Api
           owner: debate.component.participatory_space.decidim_organization_id,
           created_at: debate.created_at,
           last_modified: debate.updated_at,
+          deleted: debate.deleted_at.present?,
           entity: debate
         }
       end
@@ -168,6 +175,7 @@ module Api
           owner: initiative.decidim_organization_id,
           created_at: initiative.created_at,
           last_modified: initiative.updated_at,
+          deleted: initiative.respond_to?(:deleted_at) ? initiative.deleted_at.present? : false,
           entity: initiative
         }
       end
@@ -189,6 +197,7 @@ module Api
           owner: map_visualization.component.participatory_space.decidim_organization_id,
           created_at: map_visualization.created_at,
           last_modified: map_visualization.updated_at,
+          deleted: map_visualization.respond_to?(:deleted_at) ? map_visualization.deleted_at.present? : false,
           entity: map_visualization
         }
       end
@@ -210,6 +219,7 @@ module Api
           owner: use_case_scenario.component.participatory_space.decidim_organization_id,
           created_at: use_case_scenario.created_at,
           last_modified: use_case_scenario.updated_at,
+          deleted: use_case_scenario.respond_to?(:deleted_at) ? use_case_scenario.deleted_at.present? : false,
           entity: use_case_scenario
         }
       end
