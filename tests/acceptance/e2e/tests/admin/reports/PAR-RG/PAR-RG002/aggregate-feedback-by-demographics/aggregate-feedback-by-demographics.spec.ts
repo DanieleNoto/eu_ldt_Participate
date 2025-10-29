@@ -1,7 +1,7 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { GrafanaAuthHelper } from '../../../../../../utils/grafana-auth-helper';
 import { GrafanaDashboardPage } from '../../../../../../pages/pages/admin/reports/GrafanaDashboardPage';
-import { GRAFANA_URLS } from '@utils/constants';
+import { setupGrafanaDataSource } from '@utils/grafana-setup-helper';
 
 /**
  * User Story: As a System Administrator, I want to aggregate feedback by demographics so that I can understand different community segments.
@@ -11,46 +11,67 @@ import { GRAFANA_URLS } from '@utils/constants';
  * Prerequisites:
  * - The system administrator has an active account on the platform and is logged in.
  * - The platform has sufficient data on community engagement and communication activities
-*/
+ */
 
 /** SPDX-License-Identifier: EUPL-1.2
-* Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
-* Authors:
-* Denise Scarcelli
-*/
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ */
 
-test.describe('[PAR-RG002] - View reports and analytics', () => {
-    let grafanaAuth: GrafanaAuthHelper;
-    let grafanaDashboardPage: GrafanaDashboardPage;
+test.describe('[PAR-RG002] - Aggregate feedback by demographics', () => {
+	let grafanaAuth: GrafanaAuthHelper;
+	let grafanaDashboardPage: GrafanaDashboardPage;
 
-    test.beforeEach(async ({ page }) => {
-        grafanaAuth = new GrafanaAuthHelper();
-        await grafanaAuth.injectSessionIntoPage(page);
+	test.beforeEach(async ({ page }) => {
+		grafanaAuth = new GrafanaAuthHelper();
+		await grafanaAuth.injectSessionIntoPage(page);
 
-        grafanaDashboardPage = new GrafanaDashboardPage(page);
-    });
+		grafanaDashboardPage = new GrafanaDashboardPage(page);
+		await setupGrafanaDataSource(page);
+	});
 
-    test.afterEach(async () => {
-        await grafanaAuth.dispose();
-    });
+	test.afterEach(async () => {
+		await grafanaAuth.dispose();
+	});
 
 	test.describe('Main Flow', () => {
 		test('Admin can view and interact with reports', async ({ page }) => {
-			await test.step('1. User: Navigates to the "Grafana Dashboard"', async () => {
-            //await grafanaAuth.injectSessionIntoPage(page);
-            await page.goto(`${GRAFANA_URLS.BASE}/dashboards`);
-            await page.waitForLoadState('networkidle');
-            await page.waitForFunction(() => document.title && document.title.includes('Dashboards'), { timeout: 10000 });
-            await expect(page).toHaveTitle('Dashboards - Grafana', { timeout: 5000 });
-            const nav = page.locator('nav');
-            await nav.waitFor({ state: 'visible', timeout: 10000 });
-            await expect(nav).toBeVisible();
-            await expect(page.getByText('Create and manage dashboards to visualize your data')).toBeVisible();
-				
-                
-                
-                //await grafanaDashboardPage.navigateGrafanaDashboard();
+			const dashboard = new GrafanaDashboardPage(page);
+
+			await test.step('1. User: Navigate to the Participation Demographics report from the Grafana dashboard', async () => {
+				await test.step('1.1 Verify user is on the Grafana dashboard page', async () => {
+					await dashboard.verifyDashboardPageLoaded();
+				});
+
+				await test.step('1.2 Open the "Decidim" section', async () => {
+					await dashboard.openDecidimSection();
+				});
+
+				await test.step('1.3 Open the "Participation Demographics" report', async () => {
+					await dashboard.openParticipationDemographicsReport();
+				});
 			});
-        });
-    });
+
+			await test.step('2. System: Displays options to configure demographic aggregation parameters', async () => {
+				await dashboard.verifyDashboardControlsVisible();
+			});
+
+			await test.step('3. User: Configures the demographic and additional filters', async () => {
+				await dashboard.configureTimePeriodFilter();
+			});
+
+			await test.step('4. System: Processes the parameters and generates a demographic-specific feedback report', async () => {
+				await dashboard.verifyPanelHeaderVisible();
+			});
+
+			await test.step('5. User: Views the aggregated feedback report with visual representations', async () => {
+				await dashboard.verifyPanelHeadingVisible();
+			});
+
+			await test.step('Result. Simulate the interaction with the time filter and verify the visual response of the report ', async () => {
+				await grafanaDashboardPage.verifyMonthlyRegistrationTrendPanel();
+			});
+		});
+	});
 });

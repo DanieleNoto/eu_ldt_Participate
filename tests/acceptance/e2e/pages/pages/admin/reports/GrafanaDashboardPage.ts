@@ -104,6 +104,97 @@ export class GrafanaDashboardPage {
 	}
 
 	/**
+	 * Locator for the dashboard title element.
+	 */
+	get dashboardTitle(): Locator {
+		return this.page.getByTitle('Dashboards - Grafana');
+	}
+
+	/**
+	 * Locator for the introductory text shown on the dashboard page.
+	 */
+	get dashboardIntroText(): Locator {
+		return this.page.getByText('Create and manage dashboards to visualize your data');
+	}
+
+	/**
+	 * Locator for the "Decidim" link in the dashboard.
+	 */
+	get decidimLink(): Locator {
+		return this.page.getByRole('link', { name: 'Decidim' });
+	}
+
+	/**
+	 * Locator for the heading of the "Decidim" section.
+	 */
+	get decidimHeading(): Locator {
+		return this.page.getByRole('heading', { name: 'Decidim' });
+	}
+
+	/**
+	 * Locator for the "Participation Demographics" report link.
+	 */
+	get participationDemographicsLink(): Locator {
+		return this.page.getByRole('link', { name: 'Participation Demographics' });
+	}
+
+	/**
+	 * Locator for the dashboard controls container.
+	 */
+	get dashboardControls(): Locator {
+		return this.page.getByTestId('data-testid dashboard controls');
+	}
+
+	/**
+	 * Locator for the TimePicker open button.
+	 */
+	get timePickerButton(): Locator {
+		return this.page.getByTestId('data-testid TimePicker Open Button');
+	}
+
+	/**
+	 * Locator for the "Last 1 year" option in the TimePicker.
+	 */
+	get lastOneYearOption(): Locator {
+		return this.page.getByText('Last 1 year');
+	}
+
+	/**
+	 * Locator for the panel header of the "Monthly Registration Trend" report.
+	 */
+	get monthlyRegistrationPanel(): Locator {
+		return this.page.getByTestId('data-testid Panel header Monthly Registration Trend');
+	}
+
+	/**
+	 * Locator for the content inside the "Monthly Registration Trend" panel.
+	 */
+	get monthlyRegistrationContent(): Locator {
+		return this.monthlyRegistrationPanel.locator('[data-testid="data-testid panel content"]');
+	}
+
+	/**
+	 * Locator for the canvas chart inside the "Monthly Registration Trend" panel.
+	 */
+	get monthlyRegistrationCanvas(): Locator {
+		return this.monthlyRegistrationContent.locator('canvas');
+	}
+
+	/**
+	 * Locator for the chart axes inside the "Monthly Registration Trend" panel.
+	 */
+	get monthlyRegistrationAxes(): Locator {
+		return this.monthlyRegistrationContent.locator('.u-axis');
+	}
+
+	/**
+	 * Locator for the legend item "New Registrations" inside the panel.
+	 */
+	get monthlyRegistrationLegend(): Locator {
+		return this.monthlyRegistrationContent.getByTestId('data-testid VizLegend series New Registrations');
+	}
+
+	/**
 	 * Navigate to Grafana dashboards page and verify successful navigation
 	 */
 	async navigateGrafanaDashboard(): Promise<void> {
@@ -471,5 +562,69 @@ export class GrafanaDashboardPage {
 		}
 
 		return results;
+	}
+
+	/**
+	 * Verifies that the user is on the Grafana dashboard page and that key elements are visible.
+	 */
+	async verifyDashboardPageLoaded() {
+		await expect(this.page).toHaveURL(`${GRAFANA_URLS.BASE}/dashboards`);
+		await this.page.waitForFunction(() => document.title && document.title.includes('Dashboards'));
+		await expect(this.page).toHaveTitle('Dashboards - Grafana');
+		await expect(this.dashboardIntroText).toBeVisible();
+	}
+	/**
+	 * Opens the "Decidim" section from the dashboard and verifies its heading is visible.
+	 */
+	async openDecidimSection() {
+		await expect(this.decidimLink).toBeVisible();
+		await this.decidimLink.click();
+		await this.page.waitForLoadState('networkidle');
+		await expect(this.decidimHeading).toBeVisible();
+	}
+	/**
+	 * Opens the "Participation Demographics" report and verifies the URL contains the expected path.
+	 */
+	async openParticipationDemographicsReport() {
+		await expect(this.participationDemographicsLink).toBeVisible();
+		await this.participationDemographicsLink.click();
+		await this.page.waitForLoadState('networkidle');
+		expect(this.page.url()).toContain(`${GRAFANA_URLS.BASE}/d/decidim_demographics/participation-demographics`);
+	}
+	/**
+	 * Verifies that the dashboard controls section is visible.
+	 */
+	async verifyDashboardControlsVisible() {
+		await expect(this.dashboardControls).toBeVisible();
+	}
+	/**
+	 * Opens the TimePicker and selects the "Last 1 year" option to filter data.
+	 */
+	async configureTimePeriodFilter() {
+		await expect(this.timePickerButton).toBeVisible();
+		await this.timePickerButton.click();
+		await this.lastOneYearOption.click();
+	}
+	/**
+	 * Verifies that the panel header for "Monthly Registration Trend" is visible.
+	 */
+	async verifyPanelHeaderVisible() {
+		await expect(this.monthlyRegistrationPanel).toBeVisible();
+	}
+	/**
+	 * Verifies that the heading "Monthly Registration Trend" is visible on the page.
+	 */
+	async verifyPanelHeadingVisible() {
+		await expect(this.monthlyRegistrationPanel).toBeVisible();
+	}
+	/**
+	 * Verifies that the visual feedback report is rendered with chart, axes, and legend.
+	 */
+	async verifyMonthlyRegistrationTrendPanel() {
+	  await expect(this.monthlyRegistrationContent).toBeVisible();
+	  await expect(this.monthlyRegistrationCanvas).toBeVisible();
+	  await expect(this.monthlyRegistrationAxes).toHaveCount(2);
+	  await expect(this.monthlyRegistrationLegend).toBeVisible();
+	  await expect(this.monthlyRegistrationPanel).toBeVisible();
 	}
 }
