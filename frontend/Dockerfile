@@ -15,11 +15,16 @@ RUN npm ci
 # Copy ALL source files
 COPY . .
 
-# Clean any previous build artifacts and build fresh
+# Build application, create non-root user, and set permissions
 RUN rm -rf dist && \
     npm run build && \
     echo "Build complete. Dist contents:" && \
-    ls -la dist/
+    ls -la dist/ && \
+    addgroup -S app && adduser -S -G app app && \
+    chown -R app:app /app
+
+# Switch to non-root user
+USER app
 
 # Expose port 5001
 EXPOSE 5001

@@ -85,7 +85,7 @@ const RuntimeConfigInitializer = ({
 		let active = true;
 		const baseConfig = chatbotConfig;
 		const getViteApiUrl = () => {
-			const env = typeof process !== 'undefined' ? (process.env as Record<string, string | undefined>) : undefined;
+			const env = typeof process === 'undefined' ? undefined : (process.env as Record<string, string | undefined>);
 			if (env?.VITE_API_URL) {
 				return env.VITE_API_URL;
 			}
