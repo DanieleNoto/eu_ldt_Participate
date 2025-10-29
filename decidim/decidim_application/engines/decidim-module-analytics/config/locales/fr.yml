@@ -1,0 +1,25 @@
+---
+fr:
+  decidim:
+    analytics:
+      menu:
+        analytics: Analytiques
+        statistics: Statistiques
+      admin:
+        missing_configuration: "La configuration Matomo est manquante. Veuillez configurer server_address, site_id et token_auth dans vos credentials ou secrets."
+        statistics:
+          description: "Accédez au tableau de bord Grafana pour afficher des statistiques et métriques complètes de la plateforme."
+          open_full_dashboard: "Ouvrir dans un Nouvel Onglet"
+          refresh: "Actualiser"
+          unable_to_load: "Impossible de charger le tableau de bord Grafana."
+          check_configuration: "Veuillez vérifier :"
+          grafana_running: "Le serveur Grafana fonctionne à %{server}"
+          dashboards_configured: "Les tableaux de bord sont correctement configurés"
+          network_connectivity: "Connectivité réseau entre les services"
+          try_accessing: "Essayez d'accéder à"
+          grafana_directly: "Grafana directement"
+          verify_configuration: "pour vérifier la configuration."
+    admin:
+      titles:
+        analytics: Analytiques
+        statistics: Statistiques

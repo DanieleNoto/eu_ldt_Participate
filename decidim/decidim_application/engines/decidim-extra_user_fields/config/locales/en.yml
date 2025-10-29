@@ -17,6 +17,15 @@ en:
           attributes:
             date_of_birth:
               underage: invalid. If you are underage, you must obtain parental authorization
+            phone_number:
+              invalid: is not a valid phone number format
+              too_long: is too long (maximum is 100 characters)
+            postal_code:
+              too_long: is too long (maximum is 50 characters)
+            location:
+              too_long: is too long (maximum is 100 characters)
+            statutory_representative_email:
+              too_long: is too long (maximum is 100 characters)
   decidim:
     admin:
       actions:

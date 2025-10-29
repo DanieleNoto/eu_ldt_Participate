@@ -122,7 +122,7 @@ export class LetterOpenerPage extends BasePage {
 	 * After refresh, the newest export email should be at the top of the list
 	 */
 	async clickMostRecentDebatesExportEmail(): Promise<void> {
-		await this.page.waitForSelector('li.list-group-item', { timeout: 10000 });
+		await this.page.waitForSelector('li.list-group-item');
 
 		// Look for the first debates export email (most recent after refresh)
 		const exportEmail = this.page
@@ -140,6 +140,51 @@ export class LetterOpenerPage extends BasePage {
 		await this.page.waitForLoadState('networkidle');
 
 		console.log('Clicked on the most recent debates export email');
+	}
+
+	/**
+	 * Find and click on the most recent account registration confirmation email
+	 * After refresh, the newest confirmation email should be at the top of the list
+	 */
+	async clickMostRecentAccountRegistrationEmail(): Promise<void> {
+		await this.page.waitForSelector('li.list-group-item');
+
+		// Look for the first confirmation instructions email (most recent after refresh)
+		const confirmationEmail = this.page
+			.locator('li.list-group-item')
+			.filter({
+				has: this.page.locator('dd:has-text("Confirmation instructions")')
+			})
+			.first();
+
+		// Verify we found a confirmation email
+		await expect(confirmationEmail).toBeVisible();
+
+		// Click on the email link within the list item
+		await confirmationEmail.locator('a[target="mail"]').click();
+
+		// Wait only for the email content iframe to be visible (faster than networkidle)
+		await this.page.waitForSelector('iframe[name="mail"]', { state: 'visible' });
+	}
+
+	/**
+	 * Get the confirmation URL from the "Confirm my account" link
+	 * @returns The confirmation URL
+	 */
+	async getConfirmMyAccountUrl(): Promise<string> {
+		let confirmationUrl: string | null = null;
+
+		await this.withEmailContentFrame(async contentFrame => {
+			const confirmLink = contentFrame.getByRole('link', { name: 'Confirm my account' });
+			await expect(confirmLink).toBeVisible();
+			confirmationUrl = await confirmLink.getAttribute('href');
+		});
+
+		if (!confirmationUrl) {
+			throw new Error('Confirmation URL not found in email');
+		}
+
+		return confirmationUrl;
 	}
 
 	/**

@@ -1,0 +1,83 @@
+---
+en:
+  decidim:
+    components:
+      ldt_use_case_scenarios:
+        name: LDT Use Case Scenarios
+        settings:
+          global:
+            title: Title
+    ldt_use_case_scenarios:
+      use_case_scenarios:
+        index:
+          title: Use Case Scenarios
+          empty: No scenarios available yet
+          count:
+            one: "%{count} scenario"
+            other: "%{count} scenarios"
+        use_case_scenario:
+          experiment_id: Experiment ID
+          view_details: View Details
+        show:
+          title: Experiment Details
+          experiment_id: Experiment ID
+          description: Description
+          back_to_list: Back to List
+          not_found: Scenario not found
+          transparency_disclaimer: "This experiment execution uses AI algorithms and machine learning models. The following information provides transparency about the datasets, algorithms, and models used. This includes their purpose, type, training datasets, expected outcomes, limitations, and potential biases. (change me in source code: decidim-module-ldt_use_case_scenarios/config/locales/en.yml)"
+      admin:
+        ldt_use_case_scenarios:
+          index:
+            title: Manage Use Case Scenarios
+            scenario_name: Scenario Name
+            association_name: Association Name
+            experiment_id: Experiment ID
+            associated_experiment_results: Associated Experiment results
+            created: Created
+            version: Version
+            experiment_name: Experiment Name
+            actions: Actions
+            associate_experiments: Associate experiments results
+            new: Add New Scenario
+            no_scenarios: No scenarios available yet
+            edit: Edit
+            delete: Delete
+          new:
+            title: Associate Experiment Results
+            submit: Create
+            save: Save
+            loading_experiments: Loading experiments...
+            experiment_id: ID
+            experiment_name: Experiment Name
+            description: Description
+            actions: Actions
+            confirm_title: Associate experiments results?
+            confirm_message: By clicking "confirm" you will create a new association.
+            association_name: Association Name
+            enter_association_name: Enter association name
+            created: Created
+            version: Version
+            cancel: Cancel
+            experiment_details:
+              title: Selected Experiment
+              name: "Name:"
+              id: "ID:"
+              status: "Status:"
+              loading: Loading experiment details...
+              error: "Error loading details:"
+              not_available: N/A
+            confirm: Confirm
+            name_required: Association name is required
+            save_error: Error saving association. Please try again.
+            previous_page: Previous Page
+            next_page: Next Page
+            select: Select
+            selected_experiment: Selected Experiment
+          create:
+            success: Experiment association created successfully.
+    admin:
+      actions:
+        confirm_delete: "Are you sure you want to delete this item?"
+        deleted: "Item deleted successfully."
+        not_allowed: "You are not allowed to perform this action."
+        not_found: "Item not found."

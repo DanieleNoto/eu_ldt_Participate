@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "omniauth/strategies/keycloak-openid"
+require_relative "devise_extension"
 
 module Decidim
   module Keycloak
@@ -9,6 +10,8 @@ module Decidim
       isolate_namespace Decidim::Keycloak
 
       initializer "decidim.keycloak.middleware" do |app|
+        # Ensure OmniAuth uses Devise paths (/users/auth/...)
+        OmniAuth.config.path_prefix = "/users/auth"
         omniauth_config = Rails.application.secrets[:omniauth]
         next if omniauth_config[:keycloakopenid].blank?
 
@@ -42,6 +45,9 @@ module Decidim
               userinfo_endpoint: "/realms/#{realm}/protocol/openid-connect/userinfo",
               jwks_uri: "/realms/#{realm}/protocol/openid-connect/certs"
             }
+
+            # Ensure we request the OpenID Connect scopes so access_token can be used with userinfo
+            strategy.options[:scope] = 'openid profile email'
             
             # Additional JWT options to handle verification issues
             strategy.options[:jwt_options] = {
@@ -85,6 +91,13 @@ module Decidim
             hash[:id_info] = id_info if respond_to?(:id_info) && id_info
             hash[:id_token] = access_token.params['id_token'] if access_token.params['id_token']
             
+            
+            # Store the access_token and refresh_token for session saving
+            # These will be saved to session/extended_data by DeviseExtension
+            hash[:access_token] = access_token.token if access_token.token
+            hash[:refresh_token] = access_token.params['refresh_token'] if access_token.params['refresh_token']
+            hash[:token_expires_in] = access_token.params['expires_in'] if access_token.params['expires_in']
+
             # Add Keycloak roles to the extra hash for Decidim to use
             if raw_info && raw_info['resource_access']
               hash[:keycloak_roles] = raw_info['resource_access']
@@ -92,9 +105,17 @@ module Decidim
             end
             
             # Store admin role information for later use in Decidim callbacks
-            if raw_info && raw_info['resource_access'] && raw_info['resource_access']['Tool3']
-              tool3_roles = raw_info['resource_access']['Tool3']['roles'] || []
-              hash[:is_decidim_admin] = tool3_roles.include?('Admin')
+            if raw_info && raw_info['resource_access']
+              # Prefer explicit environment variable OMNIAUTH_KEYCLOAK_CLIENT_ID if present
+              client_key = ENV['OMNIAUTH_KEYCLOAK_CLIENT_ID'] || Rails.application.secrets.dig(:omniauth, :keycloakopenid, :client_id) || 'tool3'
+              client_key = client_key.to_s
+
+              if raw_info['resource_access'][client_key]
+                client_roles = raw_info['resource_access'][client_key]['roles'] || []
+                hash[:is_decidim_admin] = client_roles.include?('Admin')
+              else
+                hash[:is_decidim_admin] = false
+              end
             else
               hash[:is_decidim_admin] = false
             end
@@ -104,47 +125,15 @@ module Decidim
         end
       end
 
-      # Add callback for admin role synchronization using Decidim's OmniAuth callbacks
-      initializer "decidim_keycloak.sync_admin_roles" do
-        # Hook into Decidim's OmniAuth callbacks that fire during user registration/authentication
-        ActiveSupport.on_load(:after_initialize) do
-          # Override the Decidim OmniAuth registration controller to sync admin roles
-          Decidim::Devise::OmniauthRegistrationsController.class_eval do
-            # Override create method to handle admin role sync after successful auth
-            alias_method :original_create, :create
-            
-            def create
-              # Store OmniAuth auth data before calling original create
-              auth_data = request.env["omniauth.auth"]
-              
-              # Call original create method
-              result = original_create
-              
-              # After successful authentication, sync admin roles if this was Keycloak auth
-              if auth_data&.provider == "keycloakopenid" && current_user
-                sync_keycloak_admin_role(current_user, auth_data)
-              end
-              
-              result
-            end
-            
-            private
-            
-            def sync_keycloak_admin_role(user, auth_data)
-              begin
-                if auth_data.extra && auth_data.extra['is_decidim_admin']
-                  user.update!(admin: true)
-                else
-                  # Optionally remove admin role if user no longer has it in Keycloak
-                  if user.admin?
-                    user.update!(admin: false)
-                  end
-                end
-              rescue => e
-                Rails.logger.error "Error syncing Keycloak admin role: #{e.message}"
-              end
-            end
-          end
+      # Token caching and admin role sync using Devise extension
+      # This extension overrides the create method in OmniauthRegistrationsController
+      # to save Keycloak tokens to session after successful authentication
+      initializer "decidim_keycloak.integrate_devise_extension" do
+        # Include our Devise extension in OmniAuth controller
+        # We use to_prepare to ensure the class is loaded before inclusion
+        config.to_prepare do
+          Decidim::Devise::OmniauthRegistrationsController.prepend Decidim::Keycloak::DeviseExtension
+          
         end
       end
 

@@ -1,0 +1,83 @@
+---
+fr:
+  decidim:
+    components:
+      ldt_use_case_scenarios:
+        name: Scénarios de cas d'usage LDT
+        settings:
+          global:
+            title: Titre
+    ldt_use_case_scenarios:
+      use_case_scenarios:
+        index:
+          title: Scénarios de cas d'usage
+          empty: Aucun scénario disponible pour le moment
+          count:
+            one: "%{count} scénario"
+            other: "%{count} scénarios"
+        use_case_scenario:
+          experiment_id: ID Expérience
+          view_details: Voir les Détails
+        show:
+          title: Détails de l'Expérience
+          experiment_id: ID Expérience
+          description: Description
+          back_to_list: Retour à la Liste
+          not_found: Scénario introuvable
+          transparency_disclaimer: "Cette exécution d'expérience utilise des algorithmes d'IA et des modèles d'apprentissage automatique. Les informations suivantes fournissent une transparence sur les ensembles de données, les algorithmes et les modèles utilisés. Cela inclut leur objectif, leur type, les ensembles de données d'entraînement, les résultats attendus, les limitations et les biais potentiels. (à modifier dans le code source: decidim-module-ldt_use_case_scenarios/config/locales/fr.yml)"
+      admin:
+        ldt_use_case_scenarios:
+          index:
+            title: Gérer les scénarios de cas d'usage
+            scenario_name: Nom du Scénario
+            association_name: Nom de l'Association
+            experiment_id: ID Expérience
+            associated_experiment_results: Résultats de l'expérience associés
+            created: Créé
+            version: Version
+            experiment_name: Nom de l'Expérience
+            actions: Actions
+            associate_experiments: Associer les résultats des expériences
+            new: Ajouter un nouveau scénario
+            no_scenarios: Aucun scénario disponible pour le moment
+            edit: Modifier
+            delete: Supprimer
+          new:
+            title: Créer un scénario de cas d'usage
+            submit: Créer
+            save: Enregistrer
+            loading_experiments: Chargement des expériences...
+            experiment_id: ID
+            experiment_name: Nom de l'Expérience
+            description: Description
+            actions: Actions
+            confirm_title: Associer les résultats des expériences?
+            confirm_message: En cliquant sur "confirmer", vous créerez une nouvelle association.
+            association_name: Nom de l'Association
+            enter_association_name: Entrez le nom de l'association
+            created: Créé
+            version: Version
+            cancel: Annuler
+            confirm: Confirmer
+            name_required: Le nom de l'association est requis
+            save_error: Erreur lors de l'enregistrement de l'association. Veuillez réessayer.
+            previous_page: Page Précédente
+            next_page: Page Suivante
+            experiment_details:
+              title: Expérience Sélectionnée
+              name: "Nom:"
+              id: "ID:"
+              status: "Statut:"
+              loading: Chargement des détails de l'expérience...
+              error: "Erreur lors du chargement des détails:"
+              not_available: N/A
+            select: Sélectionner
+            selected_experiment: Expérience Sélectionnée
+          create:
+            success: Association d'expériences créée avec succès.
+    admin:
+      actions:
+        confirm_delete: "Êtes-vous sûr de vouloir supprimer cet élément ?"
+        deleted: "Élément supprimé avec succès."
+        not_allowed: "Vous n'êtes pas autorisé à effectuer cette action."
+        not_found: "Élément introuvable."

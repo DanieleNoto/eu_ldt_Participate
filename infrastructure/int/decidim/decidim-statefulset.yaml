@@ -16,6 +16,10 @@ spec:
                 app: decidim
         spec:
             automountServiceAccountToken: false
+            securityContext:
+              fsGroup: 1000  # group ID of decidim user
+              runAsUser: 1000
+              runAsGroup: 1000
             containers:
                 - name: decidim
                   resources:
@@ -48,36 +52,11 @@ spec:
                   volumeMounts:
                       - mountPath: /code/data
                         name: decidim-pvc
-                      - mountPath: /usr/local/bundle
-                        name: bundle-cache
-                      - mountPath: /app/vendor/bundle
-                        name: vendor-bundle
-                      - mountPath: /code/node_modules
-                        name: node-modules
+                      - mountPath: /code/storage
+                        name: decidim-pvc
     volumeClaimTemplates:
         - metadata:
               name: decidim-pvc
-          spec:
-              accessModes: ['ReadWriteOnce']
-              resources:
-                  requests:
-                      storage: 1Gi
-        - metadata:
-              name: bundle-cache
-          spec:
-              accessModes: ['ReadWriteOnce']
-              resources:
-                  requests:
-                      storage: 1Gi
-        - metadata:
-              name: vendor-bundle
-          spec:
-              accessModes: ['ReadWriteOnce']
-              resources:
-                  requests:
-                      storage: 1Gi
-        - metadata:
-              name: node-modules
           spec:
               accessModes: ['ReadWriteOnce']
               resources:

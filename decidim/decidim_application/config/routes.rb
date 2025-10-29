@@ -3,6 +3,10 @@ Rails.application.routes.draw do
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
   end
 
+  namespace :api do
+    get 'jwt_token', to: 'jwt_tokens#show'
+  end
+
   mount Decidim::Core::Engine => '/'
   mount Decidim::AdminHeader::Engine, at: '/'
   

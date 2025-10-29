@@ -1145,15 +1145,15 @@
   resolved "https://registry.npmjs.org/@csstools/utilities/-/utilities-1.0.0.tgz"
   integrity sha512-tAgvZQe/t2mlvpNosA4+CkMiZ2azISW5WPAcdSalZlEjQvUfghHxfQcrCiK/7/CrfAWVxyM88kGFYO82heIGDg==
 
-"@decidim/browserslist-config@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/browserslist-config/-/browserslist-config-0.30.1.tgz"
-  integrity sha512-SGG9J1G/wmK0XSLg/I3mT0KbYai+6SsJXSdzsfRw7tqFywU/bk9qkERY2Wm6Y9NVewjCKDuov9AUG2TApE1NJg==
+"@decidim/browserslist-config@^0.30.2":
+  version "0.30.2"
+  resolved "https://registry.npmjs.org/@decidim/browserslist-config/-/browserslist-config-0.30.2.tgz"
+  integrity sha512-agxCEMe3+hZeCo1doa5A2Ft6hOfeIlEYuzNhJKQ5jTsIXy8xRXTWQxJQ4MGRLzg/5vwtpHpStE2whv+xkOykoQ==
 
-"@decidim/core@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/core/-/core-0.30.1.tgz"
-  integrity sha512-ncwMZ60w4ltW4xUf99eSV/pdDDrKt9utVg1IgtJKEA94BqIwvjIqY8oEGpcA1uz67AvqDSSmKv6FU8PHCN+ulA==
+"@decidim/core@^0.30.2":
+  version "0.30.2"
+  resolved "https://registry.npmjs.org/@decidim/core/-/core-0.30.2.tgz"
+  integrity sha512-/EUSH0AoQCLynicec8ZqqhlfxfJkHCcbvJ05wDnzRTxU7ZM1z/Q8QA/RYo0p/L9sPtJ2yjyvU2syeGvWSKWOPw==
   dependencies:
     "@emoji-mart/data" "^1.1.2"
     "@rails/activestorage" "^7.0.8"
@@ -1220,34 +1220,34 @@
     tom-select "2.2.2"
     wc-datepicker "^0.5.2"
 
-"@decidim/dev@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/dev/-/dev-0.30.1.tgz"
-  integrity sha512-X1VihtpKyRn2zmLkzBby94TlQZj4s7CyPdhKF5fHa166LDhKh/l9Pc/8b5Xxvjt2l/G7KbQIfsWCbz85UOpeDA==
+"@decidim/dev@^0.30.2":
+  version "0.30.2"
+  resolved "https://registry.npmjs.org/@decidim/dev/-/dev-0.30.2.tgz"
+  integrity sha512-ChdlamKpmDaYqHyNL2rc0AfJ4x471A966DXCyvloeNcKUppyWM8Y2Ds7iLy76/t08rEnPP0ZD97SqqQpNN2zAQ==
   dependencies:
     "@linthtml/linthtml" "^0.9.6"
     axe-core "^4.7.2"
     markdownlint-cli "^0.35.0"
 
-"@decidim/eslint-config@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/eslint-config/-/eslint-config-0.30.1.tgz"
-  integrity sha512-ZVjRs+5B0mIweOOozdL7G357nySLK6joEhHMyyYGc9RXb1EGo4J95o5HXWrWxLMjF3zoJhIqd0dmNdBCkFnVYQ==
+"@decidim/eslint-config@^0.30.2":
+  version "0.30.2"
+  resolved "https://registry.npmjs.org/@decidim/eslint-config/-/eslint-config-0.30.2.tgz"
+  integrity sha512-6OD4M5KPDzztlMK8gmOkNwIwrxbQgsdhg7rj6P1ysHxwd4Fj7KFZHm11J9Cy9ELz6I+euR6PqGi7LJ0q8Nty/w==
 
-"@decidim/prettier-config@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/prettier-config/-/prettier-config-0.30.1.tgz"
-  integrity sha512-GHSGeK9hgtxpAm23iVHP4z5SKVl+oHUlCX3DXe3bgCtTa+fesu9fzJiMDtCzbleyutCdTCB40uNjXieSeSLEfw==
+"@decidim/prettier-config@^0.30.2":
+  version "0.30.2"
+  resolved "https://registry.npmjs.org/@decidim/prettier-config/-/prettier-config-0.30.2.tgz"
+  integrity sha512-PorfxYA+UniXqBL8a5FbfDobFvKMCLyf6DjaWfJAQUj27W1FNAfZovlbjGgPUQJEx3Ne7GN2DSRwCpkBWbtSDA==
 
-"@decidim/stylelint-config@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/stylelint-config/-/stylelint-config-0.30.1.tgz"
-  integrity sha512-dilg0EBLC/9Lmi6w5GB7QaAsy5zkrrGjvUDlDIAPb/qdwa6bMQ2+Y7EloPuQE/BFTCrA4dpJf9/4Zh8rLAyDtg==
+"@decidim/stylelint-config@^0.30.2":
+  version "0.30.2"
+  resolved "https://registry.npmjs.org/@decidim/stylelint-config/-/stylelint-config-0.30.2.tgz"
+  integrity sha512-9XfoaTpNbF7UGrg8umNWe2Gn1erqV4t84Dje6AdKMuiQhZ63gNL5INjOu0ZBk4SMj1dCuaXrOotM4CjUeqVsTQ==
 
-"@decidim/webpacker@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.npmjs.org/@decidim/webpacker/-/webpacker-0.30.1.tgz"
-  integrity sha512-dBgjHSwNLVLXbMpsRMmMfPSitVh03pL7MVSYVgeFq1E8mltMtToyKklEHe2tZwTUqbdBA0kkvbCjweZ9YwMuxA==
+"@decidim/webpacker@^0.30.2":
+  version "0.30.2"
+  resolved "https://registry.npmjs.org/@decidim/webpacker/-/webpacker-0.30.2.tgz"
+  integrity sha512-zFbROaMAg8/3BlF6i05j/ZzK5oraD/zK/GQcOOLpZv1qao/lSw7UCiFx39kX4G8/xDiZhKYkGta69rkZ+UrntA==
   dependencies:
     "@rails/ujs" "^6.1.7"
     "@tailwindcss/typography" "^0.5.2"
@@ -5929,6 +5929,11 @@ kebabcase@1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/kebabcase/-/kebabcase-1.0.1.tgz"
   integrity sha512-YSP7DnNnodPG0nkHGEICNx5vUl/lOKkryQlILRqRFmcjWFNomEvPhJlpFvE7sop9t2EDfthZssx3nvwTx5ty0w==
+
+keycloak-js@^26.2.1:
+  version "26.2.1"
+  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-26.2.1.tgz#644e8b8403268f7a39c3980183e22a6fb64f17db"
+  integrity sha512-bZt6fQj/TLBAmivXSxSlqAJxBx/knNZDQGJIW4ensGYGN4N6tUKV8Zj3Y7/LOV8eIpvWsvqV70fbACihK8Ze0Q==
 
 kind-of@^6.0.2, kind-of@^6.0.3:
   version "6.0.3"
