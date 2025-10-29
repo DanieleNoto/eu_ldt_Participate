@@ -28,6 +28,6 @@
         content: none !important;
     }
 }
-div.upload-modal {
+[data-dialog]>* {
     --tw-translate-x: -50% !important;
 }
