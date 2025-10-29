@@ -118,7 +118,7 @@ module Api
         created_at: record.created_at.iso8601,
         updatedAt: record.updated_at.iso8601,
         deleted: record.respond_to?(:deleted_at) ? record.deleted_at.present? : false,
-        lineage: [], # TODO: Implement lineage tracking
+        lineage: build_lineage(record),
         changes: []  # TODO: Implement change history
       }
     end
@@ -140,6 +140,46 @@ module Api
       else
         record.title || record.name || "Asset #{record.id}"
       end
+    end
+
+    def self.build_lineage(record)
+      lineage = []
+
+      case record
+      when Decidim::ParticipatoryProcess, Decidim::Assembly, Decidim::Conference
+        # Questi sono spazi partecipativi di primo livello, non hanno genitori
+        lineage
+      when Decidim::Initiative
+        # Le iniziative sono direttamente sotto l'organizzazione
+        lineage
+      when Decidim::Meetings::Meeting, Decidim::Proposals::Proposal, Decidim::Surveys::Survey, Decidim::Debates::Debate,
+           Decidim::LdtMapVisualization::MapVisualization, Decidim::LdtUseCaseScenarios::UseCaseScenario
+        # Questi hanno un component che punta a uno participatory_space
+        if record.component&.participatory_space
+          space = record.component.participatory_space
+          lineage << build_lineage_item(space, 'parent')
+        end
+        lineage
+      else
+        lineage
+      end
+    end
+
+    def self.build_lineage_item(record, relationship)
+      type = case record.class.name
+             when 'Decidim::ParticipatoryProcess' then 'ParticipatoryProcess'
+             when 'Decidim::Assembly' then 'Assembly'
+             when 'Decidim::Conference' then 'Conference'
+             when 'Decidim::Initiative' then 'Initiative'
+             else record.class.name.split('::').last
+             end
+
+      {
+        id: generate_composite_id(type, record.id),
+        type: type,
+        name: extract_name(record),
+        relationship: relationship
+      }
     end
 
     def self.extract_owner(record)
