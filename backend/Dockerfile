@@ -8,14 +8,14 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Copy source code
 COPY . .
 
 # Build the application and remove dev dependencies after build to keep image size smaller
 RUN npm run build && \
-	npm ci --only=production && \
+	npm ci --only=production --ignore-scripts && \
 	npm cache clean --force
 
 # Copy initialization script
