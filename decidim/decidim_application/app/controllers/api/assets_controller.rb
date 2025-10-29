@@ -4,7 +4,7 @@ module Api
   class AssetsController < ApplicationController
     before_action :set_asset, only: [:show]
 
-    # GET /api/assets
+        # GET /api/assets
     def index
       collector = AssetCollector.new(current_organization)
       @assets = collector.collect_all
@@ -64,6 +64,7 @@ module Api
     end
 
     def set_asset
+      raise ActiveRecord::RecordNotFound unless current_organization
       @asset = AssetFormatter.find_asset_by_composite_id(params[:id], current_organization)
       raise ActiveRecord::RecordNotFound unless @asset
     end
