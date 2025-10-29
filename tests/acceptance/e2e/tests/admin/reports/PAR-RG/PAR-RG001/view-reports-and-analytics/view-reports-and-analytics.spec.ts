@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { GrafanaAuthHelper } from '../../../../../../utils/grafana-auth-helper';
 import { GrafanaDashboardPage } from '../../../../../../pages/pages/admin/reports/GrafanaDashboardPage';
+import { setupGrafanaDataSource } from '@utils/grafana-setup-helper';
 
 /**
  * Allows administrators to view reports on community engagement and communication effectiveness to evaluate participation and optimize strategies.
@@ -9,6 +10,12 @@ import { GrafanaDashboardPage } from '../../../../../../pages/pages/admin/report
  * Prerequisites:
  * - The system administrator has an active account on the platform and is logged in.
  * - The platform has sufficient data on community engagement and communication activities
+ */
+
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Simone Bianchelli
  */
 
 test.describe('[PAR-RG001] - View reports and analytics', () => {
@@ -20,6 +27,7 @@ test.describe('[PAR-RG001] - View reports and analytics', () => {
 		await grafanaAuth.injectSessionIntoPage(page);
 
 		grafanaDashboardPage = new GrafanaDashboardPage(page);
+		await setupGrafanaDataSource(page);
 	});
 
 	test.afterEach(async () => {
