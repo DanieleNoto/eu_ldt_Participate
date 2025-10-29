@@ -15,9 +15,11 @@ module Decidim
 
         def debug_token
           render json: {
-            cookies_keys: request.cookies.keys.grep(/keycloak/),
-            access_token_count: request.cookies['keycloak_access_token_count'],
-            refresh_token_count: request.cookies['keycloak_refresh_token_count'],
+            cookies_keys: request.cookies.keys.grep(/token/),
+            access_token_present: request.cookies['access_token'].present?,
+            refresh_token_present: request.cookies['refresh_token'].present?,
+            id_token_present: request.cookies['id_token'].present?,
+            token_expires_at: request.cookies['token_expires_at'],
             session_keys: session.keys.grep(/jwt|token|keycloak/)
           }
         end
@@ -38,17 +40,6 @@ module Decidim
             end
 
             Rails.logger.info("Using access token (#{access_token.length} chars) for user #{current_user&.id}")
-            
-            # Debug: log token payload
-            begin
-              payload_part = access_token.split('.')[1]
-              if payload_part
-                decoded_payload = Base64.decode64(payload_part.ljust((payload_part.length + 3) / 4 * 4, '='))
-                token_data = JSON.parse(decoded_payload) rescue {}
-              end
-            rescue => e
-              
-            end
 
             # Fetch maps from TOOL1
             maps_url = ENV['TOOL1_MAPS_URL'] || 'https://maps-int.ldttoolbox.app/api/v1/maps'
@@ -116,24 +107,19 @@ module Decidim
             )
 
             if @map_visualization.save
-              
               flash[:notice] = I18n.t("map_visualizations.create.success", scope: "decidim.ldt_map_visualization.admin")
               redirect_to map_visualizations_path
             else
-              Rails.logger.error("Failed to save map visualization: #{@map_visualization.errors.full_messages.join(', ')}")
               flash[:alert] = I18n.t("map_visualizations.create.error", scope: "decidim.ldt_map_visualization.admin")
               redirect_to new_map_visualization_path
             end
           rescue ActiveRecord::RecordNotUnique => e
-            Rails.logger.error("Duplicate map: #{e.message}")
             flash[:alert] = "This map has already been added to this component."
             redirect_to map_visualizations_path
           rescue JSON::ParserError => e
-            Rails.logger.error("JSON parsing error: #{e.message}")
             flash[:alert] = "Error parsing map data: #{e.message}"
             redirect_to new_map_visualization_path
           rescue => e
-            Rails.logger.error("Unexpected error in create: #{e.class} - #{e.message}")
             flash[:alert] = "Unexpected error: #{e.message}"
             redirect_to new_map_visualization_path
           end
@@ -185,51 +171,18 @@ module Decidim
           # Use Keycloak TokenService to get a fresh token, with automatic refresh if needed
           jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies, cookies)
           return jwt if jwt.present?
-          
-          # Fallback: try to get JWT token from cookies directly (stored as chunks during OAuth login)
-          access_token = reconstruct_token_from_cookies(cookies, 'keycloak_access_token')
+
+          # Fallback: try to get JWT token from cookies directly
+          access_token = cookies['access_token']
           return access_token if access_token.present?
-          
+
           # Try session as last resort
           session_token = session['jwt_token'] || session['id_token'] || session['access_token']
           return session_token if session_token.present?
-          
+
           nil
         end
         
-        def reconstruct_token_from_cookies(cookies_obj, token_key)
-          return nil unless cookies_obj
-          
-          chunk_count = cookies_obj["#{token_key}_count"].to_i
-          return nil if chunk_count.zero?
-          
-          Rails.logger.debug "Reconstructing #{token_key} from #{chunk_count} chunks"
-          
-          chunks = []
-          chunk_count.times do |i|
-            chunk = cookies_obj["#{token_key}_#{i}"]
-            if chunk
-              Rails.logger.debug "  Chunk #{i}: found (#{chunk.length} bytes)"
-              chunks << chunk
-            else
-              Rails.logger.debug "  Chunk #{i}: NOT FOUND"
-              break
-            end
-          end
-          
-          if chunks.length != chunk_count
-            Rails.logger.debug "Could not reconstruct #{token_key}: expected #{chunk_count} chunks, got #{chunks.length}"
-            return nil
-          end
-          
-          reconstructed = chunks.join
-          Rails.logger.debug "Reconstructed #{token_key} (#{reconstructed.length} bytes)"
-          reconstructed
-        rescue => e
-          Rails.logger.debug "Error reconstructing token: #{e.message}"
-          nil
-        end
-
         def collection
           @collection ||= Decidim::LdtMapVisualization::MapVisualization
                             .where(component: current_component)
@@ -248,11 +201,8 @@ module Decidim
           end
         end
 
-        # Helper method to fetch maps from TOOL1 API
-        # Pass token as cookie parameter, not as Bearer authorization
         def fetch_from_tool1(jwt, maps_url)
-          # Fetching maps from TOOL1 using Cookie for auth
-          Rails.logger.info("Fetching maps from TOOL1: #{maps_url} with token in Cookie")
+          Rails.logger.info("Fetching maps from TOOL1: #{maps_url}")
           uri = URI(maps_url)
           
           http = Net::HTTP.new(uri.host, uri.port)
@@ -260,89 +210,48 @@ module Decidim
           http.read_timeout = 10
           http.open_timeout = 10
           
-          # Initialize GET request with headers including Cookie, Authorization, and User-Agent to mimic curl
-          # headers = {
-          #   'Accept' => 'application/json',
-          #   'Content-Type' => 'application/json',
-          #   'Cookie' => "access_token=#{jwt}",
-          #   'Authorization' => "Bearer #{jwt}",
-          #   'Host' => uri.host
-          # }
           headers = {
             'Accept' => '*/*',
             'Authorization' => "Bearer #{jwt}",
-            # Send cookie for the target host; do not hardcode Host header
             'Cookie' => "access_token=#{jwt}",
             'User-Agent' => 'curl/8.5.0',
             'Host' => uri.host
           }
-          # Use full URI for proper Host header and cookie domain handling
           request = Net::HTTP::Get.new(uri, headers)
           Rails.logger.info("Sending request to TOOL1 (#{uri.host}) with access_token in Cookie and Authorization Bearer token")
-          Rails.logger.debug("Cookie header: #{request['Cookie'][0..200] rescue request['Cookie']}")
           Rails.logger.debug("Request headers: #{request.to_hash.inspect}")
           
           response = http.request(request)
 
-          # Mask sensitive header values for logs
-          def mask_header_value(val)
-            return nil unless val
-            if val.length > 40
-              "<redacted>" + val[-8..-1]
-            else
-              "<redacted>"
-            end
-          end
-
-          # Log status and headers (mask Authorization and Cookie)
-          logged_headers = response.to_hash.transform_values do |vals|
-            vals.map do |v|
-              if v =~ /Bearer\s+/i || v.include?('access_token')
-                mask_header_value(v)
-              else
-                v
-              end
-            end
-          end
-
           Rails.logger.info("TOOL1 response status: #{response.code}")
-          Rails.logger.debug("TOOL1 response headers: #{logged_headers.inspect}")
 
-          # Truncate and try to pretty-print JSON body for readability
+          # Truncate response body for logging
           raw_body = response.body.to_s
-          truncated = raw_body.length > 10_000 ? raw_body[0..9_999] + "...<truncated>" : raw_body
-          begin
-            parsed = JSON.parse(raw_body)
-            pretty = JSON.pretty_generate(parsed)
-            pretty = pretty[0..9_999] + "...<truncated>" if pretty.length > 10_000
-            Rails.logger.debug("TOOL1 response body (json, truncated): #{pretty}")
-          rescue JSON::ParserError
-            Rails.logger.debug("TOOL1 response body (raw, truncated): #{truncated}")
-          end
+          truncated = raw_body.length > 2000 ? raw_body[0..1999] + "...<truncated>" : raw_body
 
           unless response.code == '200'
             # If unauthorized (401), try refreshing token and retry once
             if response.code == '401'
               Rails.logger.warn("TOOL1 API returned 401 - attempting token refresh and retry")
-              
+
               # Force token refresh
-              refresh_token = reconstruct_token_from_cookies(request.cookies, 'keycloak_refresh_token')
+              refresh_token = cookies['refresh_token']
               if refresh_token.present?
                 new_tokens = Decidim::Keycloak::TokenService.new.send(:refresh_access_token, refresh_token)
-                
+
                 if new_tokens
                   # Save new tokens and retry request
                   Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, new_tokens)
                   jwt = new_tokens[:access_token]
-                  
+
                   # Retry the request with new token
                   request['Authorization'] = "Bearer #{jwt}"
                   request['Cookie'] = "access_token=#{jwt}"
                   response = http.request(request)
-                  
+
                   unless response.code == '200'
                     error_body = response.body.to_s[0..500]
-                    Rails.logger.error("TOOL1 API error after token refresh - Status: #{response.code}, Body: #{error_body}")
+                    Rails.logger.error("TOOL1 API error after token refresh - Status: #{response.code}")
                     raise "TOOL1 returned status #{response.code}: #{error_body}"
                   end
                 else
@@ -355,16 +264,13 @@ module Decidim
               end
             else
               error_body = truncated[0..500]
-              Rails.logger.error("TOOL1 API error - Status: #{response.code}, Body: #{error_body}")
+              Rails.logger.error("TOOL1 API error - Status: #{response.code}")
               raise "TOOL1 returned status #{response.code}: #{error_body}"
             end
           end
 
           # Parse and return data
-          data = JSON.parse(response.body)
-          Rails.logger.info("Successfully fetched data from TOOL1 (#{data.class})")
-
-          data
+          JSON.parse(response.body)
         end
       end
     end

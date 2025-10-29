@@ -285,7 +285,7 @@ module Decidim
               Rails.logger.warn("TOOL2 API returned 401 - attempting token refresh and retry")
               
               # Force token refresh
-              refresh_token = reconstruct_token_from_cookies(request.cookies, 'keycloak_refresh_token')
+              refresh_token = reconstruct_token_from_cookies(request.cookies, 'refresh_token')
               if refresh_token.present?
                 new_tokens = Decidim::Keycloak::TokenService.new.send(:refresh_access_token, refresh_token)
                 
@@ -342,26 +342,9 @@ module Decidim
         end
 
         def reconstruct_token_from_cookies(cookies_hash, token_key)
+          # Read token directly from cookie (no chunking)
           return nil unless cookies_hash
-          
-          chunk_count = cookies_hash["#{token_key}_count"].to_i
-          return nil if chunk_count.zero?
-          
-          chunks = []
-          chunk_count.times do |i|
-            chunk = cookies_hash["#{token_key}_#{i}"]
-            if chunk
-              chunks << chunk
-            else
-              break
-            end
-          end
-          
-          return nil if chunks.length != chunk_count
-          chunks.join
-        rescue => e
-          Rails.logger.debug "Error reconstructing token: #{e.message}"
-          nil
+          cookies_hash[token_key]
         end
       end
     end

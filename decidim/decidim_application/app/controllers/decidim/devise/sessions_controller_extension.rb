@@ -12,6 +12,9 @@ module Decidim
         should_logout_from_keycloak = session[:keycloak_authenticated].present?
         keycloak_logout_url = build_keycloak_logout_url if should_logout_from_keycloak
         
+        # Clean up ALL Keycloak cookies on logout to prevent cookie bloat
+        cleanup_keycloak_cookies
+        
         # If user authenticated via Keycloak, redirect to Keycloak logout instead of normal logout
         if should_logout_from_keycloak && keycloak_logout_url.present?
           signed_out = (::Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
@@ -26,6 +29,34 @@ module Decidim
 
       private
 
+      def cleanup_keycloak_cookies
+        # Delete all Keycloak token cookies
+        # Use the same domain logic as when they were set
+        
+        decidim_host = ENV['DECIDIM_HOST'] || 'localhost'
+        cookie_domain = ENV['KEYCLOAK_COOKIE_DOMAIN'] || 
+                       (decidim_host.include?('ldttoolbox.app') ? '.ldttoolbox.app' : nil)
+        
+        # Special case for local testing with subdomains
+        if Rails.env.development? && ENV['KEYCLOAK_COOKIE_DOMAIN'] == 'localhost'
+          cookie_domain = '.localhost'
+        end
+        
+        # Delete current token cookies with correct domain
+        # Use the determined domain, or :all if domain is nil (localhost)
+        delete_domain = cookie_domain || :all
+        cookies.delete('access_token', domain: delete_domain)
+        cookies.delete('refresh_token', domain: delete_domain)
+        cookies.delete('id_token', domain: delete_domain)
+        cookies.delete('token_expires_at', domain: delete_domain)
+        
+        # Clean up session data
+        session.delete(:keycloak_authenticated)
+        session.delete(:keycloak_id_token) # Remove any leftover id_token from session
+        
+        Rails.logger.info "🧹 Cleaned up all Keycloak cookies and session data on logout"
+      end
+
       def build_keycloak_logout_url
         keycloak_site = ENV['OMNIAUTH_KEYCLOAK_SITE']
         realm = ENV['OMNIAUTH_KEYCLOAK_REALM']
@@ -39,8 +70,8 @@ module Decidim
           decidim.root_url
         end
         
-        # Get id_token from session for automatic logout
-        id_token = session[:keycloak_id_token]
+        # Get id_token from cookies (not session) for automatic logout
+        id_token = cookies['id_token']
         
         # Keycloak logout endpoint with redirect and id_token_hint for automatic logout
         keycloak_logout_path = "/realms/#{realm}/protocol/openid-connect/logout"
