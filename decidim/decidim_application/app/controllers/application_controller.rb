@@ -36,6 +36,61 @@ class ApplicationController < ActionController::Base
     config[:site].present? && config[:client_id].present? && config[:client_secret].present?
   end
 
+  # Determine the correct cookie domain for Keycloak tokens
+  def keycloak_cookie_domain
+    host = request.host
+
+    # In production/development with subdomains, use the second-level domain
+    # to allow cookie sharing across subdomains
+    if Rails.env.production? || Rails.env.development?
+      # Extract domain parts: part-int.ldttoolbox.app -> ['part-int', 'ldttoolbox', 'app']
+      domain_parts = host.split('.')
+
+      # For domains like *.ldttoolbox.app, use .ldttoolbox.app
+      if domain_parts.length >= 3
+        # Return domain with leading dot for cross-subdomain cookies
+        ".#{domain_parts[-2]}.#{domain_parts[-1]}"
+      else
+        # Fallback to current host
+        host
+      end
+    else
+      # In other environments, use the current host
+      host
+    end
+  end
+
+  # Clear Keycloak cookies from all possible domains to prevent accumulation
+  def clear_keycloak_cookies
+    keycloak_cookie_names = ['id_token', 'access_token', 'refresh_token', 'kc_state']
+
+    # Domains to clear cookies from (most specific to least specific)
+    domains_to_clear = [
+      request.host,                    # e.g., "part-int.ldttoolbox.app"
+      keycloak_cookie_domain,          # e.g., ".ldttoolbox.app"
+      request.domain,                  # e.g., "ldttoolbox.app"
+      nil                              # No domain (current host only)
+    ].uniq
+
+    domains_to_clear.each do |domain|
+      Rails.logger.debug "[Keycloak Cookie Cleanup] Clearing cookies for domain: #{domain || 'current host'}"
+
+      # Clear named Keycloak cookies
+      keycloak_cookie_names.each do |cookie_name|
+        cookies.delete(cookie_name, domain: domain) if cookies[cookie_name].present?
+      end
+
+      # Clear any cookies starting with 'kc_' (Keycloak pattern)
+      cookies.each do |name, _value|
+        if name.start_with?('kc_')
+          cookies.delete(name, domain: domain)
+        end
+      end
+    end
+
+    Rails.logger.info "[Keycloak Cookie Cleanup] Cleared Keycloak cookies from all domains"
+  end
+
   def check_keycloak_auto_login
     # Skip for API requests, assets, admin paths, auth callbacks, and AJAX requests
     return if request.path.start_with?('/api/')
@@ -86,11 +141,8 @@ class ApplicationController < ActionController::Base
     unless keycloak_token_still_valid?
       Rails.logger.info "[Keycloak AutoLogout] Keycloak session invalid, logging out user #{current_user.id}"
 
-      # Clear Keycloak cookies to prevent auto-login after logout
-      keycloak_cookie_names = ['id_token', 'access_token', 'refresh_token', 'kc_state']
-      keycloak_cookie_names.each do |cookie_name|
-        cookies.delete(cookie_name, domain: request.domain) if cookies[cookie_name].present?
-      end
+      # Clear all Keycloak-related cookies from all possible domains
+      clear_keycloak_cookies
 
       # Sign out the user - let Devise handle the redirect automatically
       sign_out current_user
@@ -156,15 +208,30 @@ class ApplicationController < ActionController::Base
 
     Rails.logger.debug "[Keycloak Token Validation] Validating token with Keycloak"
 
+    # First, check if token is locally expired to avoid unnecessary network calls
+    if token_locally_expired?(id_token)
+      Rails.logger.info "[Keycloak Token Validation] Token locally expired for user #{current_user&.id}, attempting refresh"
+
+      # Try to refresh the token before giving up
+      if refresh_keycloak_token
+        Rails.logger.info "[Keycloak Token Validation] Token refreshed successfully for user #{current_user&.id}"
+        return true
+      else
+        Rails.logger.info "[Keycloak Token Validation] Token refresh failed for user #{current_user&.id}"
+        return false
+      end
+    end
+
     begin
       # Get access token for introspection using Net::HTTP with timeout and SSL
       uri = URI("#{config[:site]}/realms/#{config[:realm]}/protocol/openid-connect/token")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      http.ca_file = '/etc/ssl/certs/ca-certificates.crt' if File.exist?('/etc/ssl/certs/ca-certificates.crt')
-      http.open_timeout = 5  # 5 seconds
-      http.read_timeout = 10 # 10 seconds
+      # Use system CA certificates instead of hardcoded path
+      http.cert_store = OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
+      http.open_timeout = 10  # 10 seconds (increased from 5s)
+      http.read_timeout = 20 # 20 seconds (increased from 10s)
 
       request = Net::HTTP::Post.new(uri)
       request['Content-Type'] = 'application/x-www-form-urlencoded'
@@ -196,19 +263,27 @@ class ApplicationController < ActionController::Base
       introspection_result = JSON.parse(introspect_response.body)
       is_active = introspection_result['active'] == true
 
-      # Cache the result for 30 seconds
-      Rails.cache.write(cache_key, is_active, expires_in: 30.seconds)
+      # Log token validation result for debugging
+      if is_active
+        Rails.logger.debug "[Keycloak Token Validation] Token is valid for user #{current_user&.id}"
+      else
+        Rails.logger.info "[Keycloak Token Validation] Token is invalid/revoked for user #{current_user&.id} - forcing logout"
+        return false  # Don't attempt refresh for revoked tokens
+      end
+
+      # Cache the result for 10 seconds (reduced from 30s for better security)
+      Rails.cache.write(cache_key, is_active, expires_in: 10.seconds)
 
       is_active
     rescue Net::OpenTimeout, Net::ReadTimeout => e
-      Rails.logger.warn "[Keycloak Token Validation] Network timeout during validation"
-      true  # Assume token is still valid on network issues
+      Rails.logger.error "[Keycloak Token Validation] Network timeout during validation: #{e.message}"
+      false  # Force logout on network issues for security
     rescue JSON::ParserError => e
-      Rails.logger.warn "[Keycloak Token Validation] Invalid JSON response during validation"
-      true  # Assume token is still valid on parse errors
+      Rails.logger.error "[Keycloak Token Validation] Invalid JSON response during validation: #{e.message}"
+      false  # Force logout on invalid responses
     rescue => e
-      Rails.logger.warn "[Keycloak Token Validation] Unexpected error during validation"
-      true  # Assume token is still valid on unexpected errors
+      Rails.logger.error "[Keycloak Token Validation] Unexpected error during validation: #{e.class} - #{e.message}"
+      false  # Force logout on unexpected errors
     end
   end
 
@@ -243,5 +318,127 @@ class ApplicationController < ActionController::Base
     cache_key = "keycloak_token_#{Digest::SHA256.hexdigest(id_token)}"
     Rails.cache.delete(cache_key)
     Rails.logger.info "[Keycloak Cache] Invalidated cache for token"
+  end
+
+  # Check if token is locally expired (fast check before network call)
+  def token_locally_expired?(id_token)
+    return true unless id_token.present?
+
+    begin
+      token_parts = id_token.split('.')
+      return true unless token_parts.length >= 2
+
+      payload = Base64.decode64(token_parts[1].ljust((token_parts[1].length + 3) / 4 * 4, '='))
+      claims = JSON.parse(payload)
+
+      exp = claims['exp']
+      return true unless exp
+
+      # Handle both seconds and milliseconds timestamps
+      exp_time = exp > 1_000_000_000_000 ? Time.at(exp / 1000) : Time.at(exp)
+      exp_time < Time.now
+    rescue => e
+      Rails.logger.warn "[Keycloak Local Check] Error parsing token: #{e.message}"
+      true # Assume expired if we can't parse it
+    end
+  end
+
+  # Attempt to refresh the Keycloak token using refresh_token
+  def refresh_keycloak_token
+    refresh_token = cookies['refresh_token']
+    return false unless refresh_token.present? && keycloak_config_valid?
+
+    config = keycloak_config
+
+    begin
+      Rails.logger.debug "[Keycloak Token Refresh] Attempting token refresh"
+
+      uri = URI("#{config[:site]}/realms/#{config[:realm]}/protocol/openid-connect/token")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.scheme == 'https'
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      http.cert_store = OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
+      http.open_timeout = 10
+      http.read_timeout = 20
+
+      request = Net::HTTP::Post.new(uri)
+      request['Content-Type'] = 'application/x-www-form-urlencoded'
+      request.body = URI.encode_www_form({
+        grant_type: 'refresh_token',
+        client_id: config[:client_id],
+        client_secret: config[:client_secret],
+        refresh_token: refresh_token
+      })
+
+      response = http.request(request)
+
+      unless response.is_a?(Net::HTTPSuccess)
+        Rails.logger.warn "[Keycloak Token Refresh] Refresh failed with status #{response.code}"
+        return false
+      end
+
+      token_data = JSON.parse(response.body)
+
+      # Validate that we got the required tokens
+      unless token_data['access_token'] && token_data['refresh_token']
+        Rails.logger.warn "[Keycloak Token Refresh] Refresh response missing required tokens"
+        return false
+      end
+
+      # Save the new tokens to cookies
+      save_keycloak_tokens_to_cookies(token_data)
+
+      Rails.logger.info "[Keycloak Token Refresh] Token refresh successful"
+      true
+    rescue Net::OpenTimeout, Net::ReadTimeout => e
+      Rails.logger.error "[Keycloak Token Refresh] Network timeout during refresh: #{e.message}"
+      false
+    rescue JSON::ParserError => e
+      Rails.logger.error "[Keycloak Token Refresh] Invalid JSON response during refresh: #{e.message}"
+      false
+    rescue => e
+      Rails.logger.error "[Keycloak Token Refresh] Unexpected error during refresh: #{e.class} - #{e.message}"
+      false
+    end
+  end
+
+  # Save Keycloak tokens to cookies (extracted for reuse)
+  def save_keycloak_tokens_to_cookies(token_data)
+    # Set cookie expiry based on token expiry or default to 1 hour
+    expires_at = 1.hour.from_now
+    if token_data['expires_in']
+      expires_at = token_data['expires_in'].to_i.seconds.from_now
+    end
+
+    # Save tokens to cookies
+    cookies['access_token'] = {
+      value: token_data['access_token'],
+      expires: expires_at,
+      secure: Rails.env.production?,
+      httponly: true,
+      same_site: :lax
+    }
+
+    cookies['refresh_token'] = {
+      value: token_data['refresh_token'],
+      expires: 30.days.from_now, # Refresh tokens typically last longer
+      secure: Rails.env.production?,
+      httponly: true,
+      same_site: :lax
+    }
+
+    # Save ID token if present
+    if token_data['id_token']
+      cookies['id_token'] = {
+        value: token_data['id_token'],
+        expires: expires_at,
+        secure: Rails.env.production?,
+        httponly: true,
+        same_site: :lax
+      }
+    end
+
+    # Clear any cached validation results since we have new tokens
+    invalidate_keycloak_token_cache
   end
 end

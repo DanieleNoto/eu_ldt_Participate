@@ -130,55 +130,63 @@ module Decidim
         end
 
         def new
-          # Fetch experiments from TOOL2 when rendering the form
-          begin
-            # Ensure token is valid
-            jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies)
-            
-            unless jwt
-              Rails.logger.warn("No valid Keycloak JWT token available")
-              @experiments = []
-              @experiments_error = "No valid Keycloak JWT token. Please log in again."
-              return
-            end
-
-            # Fetch experiments list (first page, 100 results)
-            result = fetch_from_tool2(jwt, "/experiment-executions?page=0&size=100")
-            
-            # Extract experiments array
-            experiments_data = result[:data]
-            @experiments = if experiments_data.is_a?(Array)
-                            experiments_data
-                          elsif experiments_data.is_a?(Hash) && experiments_data['content'].is_a?(Array)
-                            experiments_data['content']
-                          else
-                            []
-                          end
-            
-            @total_pages = experiments_data.is_a?(Hash) ? (experiments_data['totalPages'] || 1) : 1
-          rescue => e
-            Rails.logger.error("Error fetching experiments in new action: #{e.message}")
-            @experiments = []
-            @experiments_error = "Error loading experiments: #{e.message}"
-          end
+          @form = ::Decidim::LdtUseCaseScenarios::UseCaseScenarioForm.new
+          fetch_experiments_for_form
         end
 
         def create
-          @scenario = UseCaseScenario.new(scenario_params)
-          @scenario.decidim_component_id = current_component.id
+          @form = ::Decidim::LdtUseCaseScenarios::UseCaseScenarioForm.from_params(params)
 
-          if @scenario.save
-            # Return JSON response with redirect URL for the JavaScript to handle
-            render json: { 
-              success: true, 
-              redirect_url: "/admin/participatory_processes/#{params[:participatory_process_slug]}/components/#{params[:component_id]}/manage/ldt_use_case_scenarios",
-              message: t(".success")
-            }, status: :ok
-          else
-            render json: { 
-              success: false, 
-              errors: @scenario.errors.full_messages 
-            }, status: :unprocessable_entity
+          if @form.invalid?
+            # Re-fetch experiments for the form
+            fetch_experiments_for_form
+            render :new
+            return
+          end
+
+          begin
+            experiment_id = @form.experiment_id
+            scenario_name = @form.name
+
+            # Validate params
+            unless experiment_id.present? && scenario_name.present?
+              flash[:alert] = I18n.t("ldt_use_case_scenarios.create.error", scope: "decidim.ldt_use_case_scenarios.admin")
+              redirect_to new_ldt_use_case_scenario_path
+              return
+            end
+
+            # Get JWT token for API access
+            jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies)
+
+            unless jwt
+              flash[:alert] = "No valid Keycloak JWT token. Please log in again."
+              redirect_to new_ldt_use_case_scenario_path
+              return
+            end
+
+            # Fetch experiment data from TOOL2 API
+            result = fetch_from_tool2(jwt, "/experiment-executions/#{experiment_id}")
+            experiment_data = result[:data]
+
+            # Create new scenario
+            @scenario = UseCaseScenario.new(
+              name: scenario_name,
+              experiment_id: experiment_id,
+              experiment_data: experiment_data,
+              decidim_component_id: current_component.id
+            )
+
+            if @scenario.save
+              flash[:notice] = I18n.t("ldt_use_case_scenarios.create.success", scope: "decidim.ldt_use_case_scenarios.admin")
+              redirect_to ldt_use_case_scenarios_path
+            else
+              flash[:alert] = @scenario.errors.full_messages.to_sentence
+              redirect_to new_ldt_use_case_scenario_path
+            end
+          rescue => e
+            Rails.logger.error("Error creating use case scenario: #{e.message}")
+            flash[:alert] = "Error creating scenario: #{e.message}"
+            redirect_to new_ldt_use_case_scenario_path
           end
         end
 
@@ -223,11 +231,46 @@ module Decidim
         end
 
         def scenario_params
-          params.require(:use_case_scenario).permit(:name, :experiment_id, :experiment_data)
+          params.require(:use_case_scenario_form).permit(:name, :experiment_id)
         end
 
         def current_component
           @current_component ||= Decidim::Component.find(params[:component_id])
+        end
+
+        def fetch_experiments_for_form
+          # Fetch experiments from TOOL2 when rendering the form
+          begin
+            # Ensure token is valid
+            jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies)
+            
+            unless jwt
+              Rails.logger.warn("No valid Keycloak JWT token available for user #{current_user&.id}")
+              @experiments = []
+              @experiments_error = "No valid Keycloak JWT token. Please log in again."
+              return
+            end
+
+            # Fetch experiments list (first page, 100 results)
+            result = fetch_from_tool2(jwt, "/experiment-executions?page=0&size=100")
+            
+            # Extract experiments array
+            experiments_data = result[:data]
+            @experiments = if experiments_data.is_a?(Array)
+                            experiments_data
+                          elsif experiments_data.is_a?(Hash) && experiments_data['content'].is_a?(Array)
+                            experiments_data['content']
+                          else
+                            []
+                          end
+            
+            @total_pages = experiments_data.is_a?(Hash) ? (experiments_data['totalPages'] || 1) : 1
+            @experiments_error = nil
+          rescue => e
+            Rails.logger.error("Error fetching experiments in fetch_experiments_for_form: #{e.message}")
+            @experiments = []
+            @experiments_error = "Error loading experiments: #{e.message}"
+          end
         end
 
         # Helper method to fetch data from TOOL2 API

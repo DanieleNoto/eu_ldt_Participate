@@ -15,7 +15,8 @@ module Api
           owner: asset[:owner],
           entity_id: asset[:id],
           created_at: asset[:created_at].iso8601,
-          last_modified: asset[:last_modified].iso8601
+          updatedAt: asset[:last_modified].iso8601,
+          deleted: asset[:deleted] || false
         }
       end
     end
@@ -37,7 +38,8 @@ module Api
       id = id_str.to_i
       return nil if id.zero? # Invalid if id is 0 or not a number
 
-      # Convert slug back to type
+      # Convert slug back to type - handle both formats: with and without internal dashes
+      # First try the exact match, then try removing dashes
       type = case type_slug
              when 'meeting' then 'Meeting'
              when 'proposal' then 'Proposal'
@@ -49,6 +51,7 @@ module Api
              when 'survey' then 'Survey'
              when 'mapvisualization' then 'MapVisualization'
              when 'use-case-scenario' then 'UseCaseScenario'
+             when 'participatory-process' then 'ParticipatoryProcess' # Handle dash format
              else nil
              end
 
@@ -79,8 +82,15 @@ module Api
       Rails.logger.info "Model class: #{model_class}"
       return nil unless model_class
 
-      record = model_class.find_by(id: id)
-      Rails.logger.info "Found record: #{record.inspect}"
+      # Find record filtered by organization if the model belongs to an organization
+      if model_class.column_names.include?('decidim_organization_id')
+        record = model_class.find_by(id: id, decidim_organization_id: organization.id)
+        Rails.logger.info "Found record for organization #{organization.id}: #{record.inspect}"
+      else
+        record = model_class.find_by(id: id)
+        Rails.logger.info "Found record (no organization filter): #{record.inspect}"
+      end
+
       format_asset_from_record(record) if record
     end
 
@@ -106,7 +116,10 @@ module Api
         name: extract_name(record),
         owner: extract_owner(record),
         created_at: record.created_at.iso8601,
-        last_modified: record.updated_at.iso8601
+        updatedAt: record.updated_at.iso8601,
+        deleted: record.respond_to?(:deleted_at) ? record.deleted_at.present? : false,
+        lineage: build_lineage(record),
+        changes: []  # TODO: Implement change history
       }
     end
 
@@ -127,6 +140,46 @@ module Api
       else
         record.title || record.name || "Asset #{record.id}"
       end
+    end
+
+    def self.build_lineage(record)
+      lineage = []
+
+      case record
+      when Decidim::ParticipatoryProcess, Decidim::Assembly, Decidim::Conference
+        # Questi sono spazi partecipativi di primo livello, non hanno genitori
+        lineage
+      when Decidim::Initiative
+        # Le iniziative sono direttamente sotto l'organizzazione
+        lineage
+      when Decidim::Meetings::Meeting, Decidim::Proposals::Proposal, Decidim::Surveys::Survey, Decidim::Debates::Debate,
+           Decidim::LdtMapVisualization::MapVisualization, Decidim::LdtUseCaseScenarios::UseCaseScenario
+        # Questi hanno un component che punta a uno participatory_space
+        if record.component&.participatory_space
+          space = record.component.participatory_space
+          lineage << build_lineage_item(space, 'parent')
+        end
+        lineage
+      else
+        lineage
+      end
+    end
+
+    def self.build_lineage_item(record, relationship)
+      type = case record.class.name
+             when 'Decidim::ParticipatoryProcess' then 'ParticipatoryProcess'
+             when 'Decidim::Assembly' then 'Assembly'
+             when 'Decidim::Conference' then 'Conference'
+             when 'Decidim::Initiative' then 'Initiative'
+             else record.class.name.split('::').last
+             end
+
+      {
+        id: generate_composite_id(type, record.id),
+        type: type,
+        name: extract_name(record),
+        relationship: relationship
+      }
     end
 
     def self.extract_owner(record)

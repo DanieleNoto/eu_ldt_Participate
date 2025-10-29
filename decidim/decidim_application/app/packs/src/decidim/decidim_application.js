@@ -3,6 +3,10 @@
 
 // Load images
 require.context('../../images', true);
+
+// Import custom styles
+import '../../stylesheets/decidim/decidim_application.scss';
+
 import * as ActiveStorage from '@rails/activestorage';
 
 ActiveStorage.start();

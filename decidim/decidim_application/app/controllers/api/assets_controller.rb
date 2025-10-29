@@ -4,7 +4,7 @@ module Api
   class AssetsController < ApplicationController
     before_action :set_asset, only: [:show]
 
-    # GET /api/assets
+        # GET /api/assets
     def index
       collector = AssetCollector.new(current_organization)
       @assets = collector.collect_all
@@ -12,23 +12,34 @@ module Api
       # Apply filters if provided
       apply_filters if params[:filters].present?
 
-      # Apply pagination
-      page = (params[:page] || 1).to_i
-      per_page = (params[:per_page] || 25).to_i.clamp(1, 100) # Max 100 per page
-      offset = (page - 1) * per_page
+      # Apply pagination only if explicitly requested
+      if params[:page].present? || params[:per_page].present?
+        page = (params[:page] || 1).to_i
+        per_page = (params[:per_page] || 25).to_i.clamp(1, 100) # Max 100 per page
+        offset = (page - 1) * per_page
 
-      total_count = @assets.size
-      paginated_assets = @assets[offset, per_page] || []
+        total_count = @assets.size
+        paginated_assets = @assets[offset, per_page] || []
 
-      render json: {
-        data: AssetFormatter.format_assets(paginated_assets),
-        meta: {
-          page: page,
-          per_page: per_page,
-          total_count: total_count,
-          total_pages: (total_count.to_f / per_page).ceil
+        render json: {
+          data: AssetFormatter.format_assets(paginated_assets),
+          meta: {
+            page: page,
+            per_page: per_page,
+            total_count: total_count,
+            total_pages: (total_count.to_f / per_page).ceil
+          }
         }
-      }
+      else
+        # Return all assets without pagination
+        render json: {
+          data: AssetFormatter.format_assets(@assets),
+          meta: {
+            total_count: @assets.size,
+            paginated: false
+          }
+        }
+      end
     rescue ArgumentError => e
       render json: { error: e.message }, status: :bad_request
     rescue => e
@@ -53,6 +64,7 @@ module Api
     end
 
     def set_asset
+      raise ActiveRecord::RecordNotFound unless current_organization
       @asset = AssetFormatter.find_asset_by_composite_id(params[:id], current_organization)
       raise ActiveRecord::RecordNotFound unless @asset
     end

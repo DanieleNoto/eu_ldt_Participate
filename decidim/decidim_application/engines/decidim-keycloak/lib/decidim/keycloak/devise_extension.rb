@@ -115,7 +115,7 @@ module Decidim
               expires_in: token_expires_in
             }
             
-            Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, tokens)
+            Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, tokens, request.host)
             Rails.logger.info "[Keycloak] Tokens saved to cookies for user #{user.id}"
 
             # Sync admin role
