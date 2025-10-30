@@ -1,3 +1,11 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Gianfranco Cedro
+ * Simone Bianchelli
+ * Denise Scarcelli
+ */
+
 import path = require('path');
 
 // Constants for test organization
@@ -7,7 +15,7 @@ export const STORAGE_STATE = {
 	ACCOUNT_DELETION_USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/account-deletion-user-state.json'),
 	USER_WITHOUT_MESSAGES: path.resolve(__dirname, '../../../acceptance/e2e/auth/user-without-messages-state.json'),
 	KEYCLOAK_ADMIN: path.resolve(__dirname, '../../../acceptance/e2e/auth/keycloak-admin-state.json'),
-    KEYCLOAK_USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/keycloak-user-state.json')
+	KEYCLOAK_USER: path.resolve(__dirname, '../../../acceptance/e2e/auth/keycloak-user-state.json')
 } as const;
 
 export const TEST_SELECTORS = {
@@ -52,33 +60,7 @@ export const TEST_SELECTORS = {
 		MARKETING_TOGGLE: 'label[for="dc-marketing"]',
 		SAVE_BUTTON: '#dc-modal-save'
 	},
-    PROCESS: {
-    PROCESS_GRID: 'a.card__grid',
-    // Menu container
-    NAV_MENU: '#dropdown-menu-participatory-space',
-    // Link to specific entry (visible text)
-    USE_CASE_SCENARIOS_BUTTON: 'a.participatory-space__nav-item:has-text("LDT Use Case Scenarios")',
-    USE_CASE_SCENARIOS_DYNAMIC: 'a.participatory-space__nav-item[href*="use_case_scenarios"]',
-    DEBATES_BUTTON: 'a.participatory-space__nav-item:has-text("Test Debates")',
-    MEETINGS_BUTTON: 'a.participatory-space__nav-item:has-text("Meetings")',
-    CONVOCATION_BUTTON: 'a.participatory-space__nav-item:has-text("Convocation Page")',
-    SURVEYS_BUTTON: 'a.participatory-space__nav-item:has-text("Surveys")',
-    // Scenarios Section
-    SCENARIO_SECTION: '#use-case-scenarios',
-    SCENARIO_LIST: 'section#use-case-scenarios a.card__list',
-    FIRST_SCENARIO: 'section#use-case-scenarios a.card__list:first-of-type',
-	// After clicking a scenario: content area
-	USE_CASE_CONTENT: '#content .card__content',
-	SCENARIO_HEADING: '#content h2.section-heading',
-	BACK_TO_LIST_BUTTON: '#content a.button[href*="use_case_scenarios"]',	
-	// AI disclaimer
-	AI_LABEL: '#content .callout.warning strong',	
-	// Experiment metadata and interactive iframe
-	EXPERIMENT_ID_TITLE: '#content .definition-data__title',
-	EXPERIMENT_ID_TEXT: '#content .definition-data__text',
-	METRICS_IFRAME_CONTAINER: '.experiment-iframe-container',
-	METRICS_IFRAME: '#experiment-iframe'	
-},
+
 	SUCCESS_MESSAGE: '[data-testid="success-message"]',
 	ERROR_MESSAGE: '[data-testid="error-message"]',
 	ADMIN_BAR: '#admin-bar'
@@ -101,11 +83,6 @@ export const EMAIL_URLS = {
 	LETTER_OPENER: `${process.env.FE_BASE_URL || 'http://localhost:3000'}/letter_opener/`
 } as const;
 
-// export const GRAFANA_URLS = {
-//     BASE: process.env.GRAFANA_BASE_URL || 'https://part-int.ldttoolbox.app/analytics/grafana',
-//     LOGIN: `${process.env.GRAFANA_BASE_URL || 'https://part-int.ldttoolbox.app/analytics/grafana'}/login`,
-//     API_ORG: `${process.env.GRAFANA_BASE_URL || 'https://part-int.ldttoolbox.app/analytics/grafana'}/api/org`
-// } as const;
 export const GRAFANA_URLS = {
 	ORIGIN: process.env.GRAFANA_ORIGIN || 'https://part-int.ldttoolbox.app',
 	BASE_PATH: process.env.GRAFANA_BASE_PATH || '/analytics/grafana',

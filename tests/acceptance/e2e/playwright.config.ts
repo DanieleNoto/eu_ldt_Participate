@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Gianfranco Cedro
+ * Simone Bianchelli
+ */
+
 import { defineConfig, devices } from '@playwright/test';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -7,15 +14,11 @@ import { STORAGE_STATE } from '@utils/constants';
  */
 import * as dotenv from 'dotenv';
 import * as path from 'path';
-dotenv.config({ path: path.resolve(__dirname, '.env.development') });
+dotenv.config({ path: path.resolve(__dirname, '.env.ci') });
 
-const storageStateAdmin = process.env.USE_KEYCLOAK === 'true'
-    ? STORAGE_STATE.KEYCLOAK_ADMIN
-    : STORAGE_STATE.ADMIN;
+const storageStateAdmin = process.env.USE_KEYCLOAK === 'true' ? STORAGE_STATE.KEYCLOAK_ADMIN : STORAGE_STATE.ADMIN;
 
-const storageStateUser = process.env.USE_KEYCLOAK === 'true'
-    ? STORAGE_STATE.KEYCLOAK_USER
-    : STORAGE_STATE.USER;
+const storageStateUser = process.env.USE_KEYCLOAK === 'true' ? STORAGE_STATE.KEYCLOAK_USER : STORAGE_STATE.USER;
 
 /**
  * See https://playwright.dev/docs/test-configuration.

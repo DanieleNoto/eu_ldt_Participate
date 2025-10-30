@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Simone Bianchelli
+ * Denise Scarcelli
+ */
+
 import { Page, expect, Locator } from '@playwright/test';
 import { GRAFANA_URLS } from '../../../../utils/constants';
 import { existsSync, unlinkSync } from 'fs';

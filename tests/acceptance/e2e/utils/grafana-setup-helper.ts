@@ -1,3 +1,9 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ */
+
 import { Page, expect } from '@playwright/test';
 import { GRAFANA_URLS } from './constants';
 
@@ -6,6 +12,7 @@ import { GRAFANA_URLS } from './constants';
  * Navigates to the data source settings, triggers a "Save and Test" action,
  * and verifies that the database connection is successfully established.
  */
+
 export async function setupGrafanaDataSource(page: Page): Promise<void> {
     await page.goto(`${GRAFANA_URLS.BASE}/dashboards`);
     await page.waitForLoadState('networkidle');  
