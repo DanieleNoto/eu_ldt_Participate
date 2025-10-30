@@ -11,6 +11,23 @@ module Decidim
             # Get auth data before calling parent
             auth_data = request.env["omniauth.auth"]
             
+            # Try to extract user's locale from Keycloak token first
+            user_locale = extract_locale_from_keycloak_token(auth_data)
+            Rails.logger.debug "[Keycloak] Locale extraction result: #{user_locale.inspect}"
+            
+            # Fallback to session locale if token doesn't have locale info
+            if user_locale.blank? && session['omniauth.locale'].present?
+              user_locale = session['omniauth.locale']
+              Rails.logger.debug "[Keycloak] Using fallback session locale: #{user_locale}"
+            end
+            
+            # Set locale if we have one
+            if user_locale.present?
+              I18n.locale = user_locale
+              session['decidim-locale'] = user_locale
+              Rails.logger.info "[Keycloak] Set locale from token/session: #{user_locale}"
+            end
+            
             # Call parent create (handles user creation/sign-in)
             result = super
             
@@ -21,15 +38,8 @@ module Decidim
               # Mark session as Keycloak authenticated for Single Logout
               session[:keycloak_authenticated] = true
               
-              # Save id_token for logout (needed for automatic logout without confirmation page)
-              id_token = auth_data&.extra&.dig('id_token') || auth_data&.credentials&.dig('id_token')
-              
-              if id_token.present?
-                session[:keycloak_id_token] = id_token
-                Rails.logger.info "[Keycloak] Saved id_token to session for user #{current_user.id}"
-              else
-                Rails.logger.warn "[Keycloak] No id_token found in auth_data for user #{current_user.id}"
-              end
+              # Note: id_token is now stored in cookies, not session, to avoid session cookie size limits
+              Rails.logger.info "[Keycloak] User #{current_user.id} authenticated via Keycloak"
             end
             
             result
@@ -41,12 +51,56 @@ module Decidim
 
         private
 
+        def extract_locale_from_keycloak_token(auth_data)
+          return nil unless auth_data&.extra&.dig('id_token')
+          
+          begin
+            # Decode JWT token to extract claims
+            token_parts = auth_data.extra['id_token'].split('.')
+            return nil unless token_parts.length >= 2
+            
+            # Decode payload (second part)
+            payload = Base64.decode64(token_parts[1].ljust((token_parts[1].length + 3) / 4 * 4, '='))
+            claims = JSON.parse(payload)
+            
+            Rails.logger.debug "[Keycloak] Token claims for locale extraction: #{claims.keys.join(', ')}"
+            
+            # Try different locale claims in order of preference
+            user_locale = claims['locale'] || claims['preferred_locale'] || claims['ui_locales']&.first
+            
+            Rails.logger.debug "[Keycloak] Extracted locale from token: #{user_locale.inspect}"
+            
+            # Validate locale is supported by Decidim
+            if user_locale.present?
+              available_locales = Decidim.available_locales.map(&:to_s)
+              Rails.logger.debug "[Keycloak] Available locales: #{available_locales.join(', ')}"
+              
+              return user_locale if available_locales.include?(user_locale.to_s)
+              
+              # Try with language code only (e.g., 'en' from 'en-US')
+              language_code = user_locale.to_s.split('-').first
+              Rails.logger.debug "[Keycloak] Trying language code: #{language_code}"
+              return language_code if available_locales.include?(language_code)
+              
+              Rails.logger.warn "[Keycloak] Locale #{user_locale} not supported by Decidim"
+            else
+              Rails.logger.debug "[Keycloak] No locale found in token claims"
+            end
+          rescue => e
+            Rails.logger.warn "[Keycloak] Failed to extract locale from token: #{e.message}"
+          end
+          
+          nil
+        end
+
         def save_keycloak_token_to_cache(user, auth_data)
           # Try multiple ways to get the token
           access_token = auth_data&.extra&.dig('access_token') || 
                         auth_data&.credentials&.dig('token')
           refresh_token = auth_data&.extra&.dig('refresh_token') || 
                          auth_data&.credentials&.dig('refresh_token')
+          id_token = auth_data&.extra&.dig('id_token') || 
+                    auth_data&.credentials&.dig('id_token')
           token_expires_in = auth_data&.extra&.dig('token_expires_in') || 
                             auth_data&.extra&.dig('expires_in') ||
                             auth_data&.credentials&.dig('expires_in')
@@ -57,10 +111,11 @@ module Decidim
             tokens = {
               access_token: access_token,
               refresh_token: refresh_token,
+              id_token: id_token,
               expires_in: token_expires_in
             }
             
-            Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, tokens)
+            Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, tokens, request.host)
             Rails.logger.info "[Keycloak] Tokens saved to cookies for user #{user.id}"
 
             # Sync admin role

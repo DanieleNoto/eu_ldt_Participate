@@ -75,6 +75,7 @@ es:
             selected_experiment: Experimento Seleccionado
           create:
             success: Asociación de experimentos creada exitosamente.
+            error: Error al crear la asociación de experimentos.
     admin:
       actions:
         confirm_delete: "¿Está seguro de que desea eliminar este elemento?"
