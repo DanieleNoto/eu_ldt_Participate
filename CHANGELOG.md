@@ -57,7 +57,7 @@
 - added disclaimer
 - Refactor LdtUseCaseScenariosController and UseCaseScenario model for improved error handling and routing
 - merge main into PAR-PIM/PAR-PIM002
-- updated [PAR-PIM002] ��� Collect additional personal data on registration
+- updated [PAR-PIM002] - Collect additional personal data on registration
 - Add Keycloak configuration for TOOL0 in docker-compose
 - Implement Keycloak Single Logout and enhance admin header
 - improve error handling and display for experiment details
@@ -66,14 +66,14 @@
 - implement token refresh logic for TOOL1 and TOOL2 API calls
 - remove CreateMapVisualization and DestroyMapVisualization services
 - removed unused variable uploadedFileName
-- updated [PAR-PIM002] ��� Collect additional personal data on registration
+- updated [PAR-PIM002] - Collect additional personal data on registration
 - Implement map visualization management
 - intragrated the chatbot as a web component into decidim
 - implement Redis token storage and enhance cookie handling for large JWT tokens
 - refactor Keycloak token handling to improve cookie management and refresh logic
 - enhance Keycloak token handling in applications and LDT use case scenarios controllers
 - Enhance Use Case Scenarios Management
-- updated [PAR-PIM002] ��� Collect additional personal data on registration
+- updated [PAR-PIM002] - Collect additional personal data on registration
 - enhance LDT Use Case Scenarios management with improved deletion handling, pagination, and localization updates
 - implement Keycloak token validation and refresh mechanism in Devise extension
 - increase minimum width of tools dropdown for improved usability
@@ -82,7 +82,7 @@
 - optimize Dockerfile and entrypoint script by removing redundant commands and improving asset verification
 - enhance redirect handling in submitExperimentAssociation to prevent open redirects
 - remove console logs and improve redirect URL validation in experiment association submission
-- [PAR-PIM002] ��� Collect additional personal data on registration
+- [PAR-PIM002] - Collect additional personal data on registration
 - refactor API calls in ApplicationsController and LdtUseCaseScenariosController to use Net::HTTP instead of shell commands; enhance experiments loading logic in experiments_association.js for better response handling and security
 - update sonar exclusions to include analytics directory
 - refactor map visualizations index view for improved layout and styling
@@ -121,18 +121,18 @@
 - add Dockerfile for custom Grafana image and update CI/CD pipeline for building and pushing
 - update dependencies to version 0.30.2 and add matomo-db-service.yaml
 - updated PAR-DI/PAR-DI001 - Upload file on specific process
-- updated [PAR-DI001] ��� Upload file on specific process
+- updated [PAR-DI001] - Upload file on specific process
 - fix grafana secrets fields
-- updated PAR-AF001 ��� Admin panel colour and style configuration
+- updated PAR-AF001 - Admin panel colour and style configuration
 - modified Dockerfile
 - merged from branch ISSUE-SEP/ISSUE-SEP08
-- [PAR-DI001] ��� Upload file on specific process
-- [PAR-DI001] ��� Upload file on specific process
+- [PAR-DI001] - Upload file on specific process
+- [PAR-DI001] - Upload file on specific process
 - add script to apply Decidim resources including ConfigMap, StatefulSet, and Redis
 - add token replacement step for decidim-sidekiq deployment in buildAndDeploy_INT.yml
 - add Sidekiq deployment configuration and initializer
 - add Sidekiq for background job processing in production environment
-- updated [PAR-AF001] ��� Admin panel colour and style configuration
+- updated [PAR-AF001] - Admin panel colour and style configuration
 - updated AdminHomePage.ts
 - update gem decidim awesome to new version
 - resolved PR issues
@@ -174,7 +174,7 @@
 - startup chatbot BE structure
 
 ## PR Merge
-- [PAR-CA001] - Chatbot webcomponent- chore: update sbom generation- Some bug fixes- test: updated [PAR-PPM007] - Configure use case information in process- test: [PAR-PPM007] - Configure use case information in process- Bug fixes- Test - [PAR-DE003] ��� Export meeting data- Test [PAR-EP005] ��� Register for a meeting- Last Integrations and bug fixing- Test: [PAR-PIM002] ��� Collect additional personal data on registration- Test - [PAR-EP004] ��� Join online meeting- test: [PAR-RG001] - View reports and analytics- AKS configuration and other features and fixes- [PAR-EA002] ��� Create an official event- Test: [PAR-DI001] - Upload file on specific process- Test: PAR-AF001] ��� Admin panel colour and style configuration
+- [PAR-CA001] - Chatbot webcomponent- chore: update sbom generation- Some bug fixes- test: updated [PAR-PPM007] - Configure use case information in process- test: [PAR-PPM007] - Configure use case information in process- Bug fixes- Test - [PAR-DE003] - Export meeting data- Test [PAR-EP005] - Register for a meeting- Last Integrations and bug fixing- Test: [PAR-PIM002] - Collect additional personal data on registration- Test - [PAR-EP004] - Join online meeting- test: [PAR-RG001] - View reports and analytics- AKS configuration and other features and fixes- [PAR-EA002] - Create an official event- Test: [PAR-DI001] - Upload file on specific process- Test: PAR-AF001] - Admin panel colour and style configuration
 
 ## refactor
 - remove obsolete process moderation e2e test
@@ -288,16 +288,16 @@
 
 ## feat
 
-- updated [PAR-MACT001] ��� Send mass email communications
+- updated [PAR-MACT001] - Send mass email communications
 - merge main into PAR-DE/PAR-DE001
-- updated [PAR-MACT001] ��� Send mass email communications
+- updated [PAR-MACT001] - Send mass email communications
 - added download of the file in all formats and downloadExportFile function
 - renamed the function to more generic downloadExportFile
-- updated [PAR-DE002] ��� Export debate data
-- [PAR-DE002] ��� Export debate data
+- updated [PAR-DE002] - Export debate data
+- [PAR-DE002] - Export debate data
 - refactor configurations
 - move gem jitsi under engines and refactor build
-- [PAR-DE001] ��� Export survey answers
+- [PAR-DE001] - Export survey answers
 - add Kubernetes tasks to apply Matomo and Grafana secrets, update secret values for consistency
 - add Kubernetes task to apply Grafana secrets in build and deployment pipeline
 - removed timeouts from NewsletterAdminPage.ts
@@ -305,12 +305,12 @@
 - update Grafana and Matomo configurations, add StatefulSets and services
 - fixed comments PR 1543
 - add JWT_APP_SECRET to Jitsi secrets configuration
-- [PAR-MACT001] ��� Send mass email communications
+- [PAR-MACT001] - Send mass email communications
 - add custom styles for rich text links in application stylesheet
 - update Grafana and Jitsi configurations for improved database handling and WebSocket support
 - fixed SonarQube warnings - PR 1543
 - update custom admin header to improve layout structure
-- [PAR-CP004] ��� Citizen invitation to participate in a private process
+- [PAR-CP004] - Citizen invitation to participate in a private process
 - add new fork of module updated to decidim 0.30.1
 - implement API service for fetching external tools applications
 - enhance tools dropdown functionality and styling
@@ -322,7 +322,7 @@
 - fixed comments of PR 1504
 - fixed comments of PR 1504
 - fixing conflict of SurveysManagePage.ts file
-- [PAR-PAS005] ��� Review result of specific surveys
+- [PAR-PAS005] - Review result of specific surveys
 - restructure build and deployment pipeline for Tool3 with enhanced Kubernetes configurations
 - enhance Kubernetes deployment configuration for Decidim, Jitsi, and Matomo services
 - add system user creation and admin assignment in test database preparation
@@ -330,14 +330,14 @@
 - remove deprecated DecidimAwesome configuration script
 - refactor docker-compose
 - update database connection pool settings and add timeout; adjust development log level and enable query log tags; enhance shakapacker asset watching configuration
-- [PAR-PAS004] ��� Reply to a survey
+- [PAR-PAS004] - Reply to a survey
 - merge main into PAR-PAS/PAR-PAS003
 - remove unused import and variable from PAR-PAS002 and PAR-PAS003
 - update Dockerfile and docker-compose configurations for improved build efficiency and dependency management
-- updated [PAR-PAS002] ��� Create single question polls
-- updated [PAR-PAS003] ��� Create detailed surveys with configurable options
+- updated [PAR-PAS002] - Create single question polls
+- updated [PAR-PAS003] - Create detailed surveys with configurable options
 - implement variable tokenization and secrets management across Grafana, Matomo, Decidim, and Jitsi configurations
-- updated [PAR-PAS003] ��� Create detailed surveys with configurable options
+- updated [PAR-PAS003] - Create detailed surveys with configurable options
 - update ingress configurations for platform components with new routing rules and host adjustments
 - improve user creation logic in prepare-db-for-tests script to skip in development environment
 - added missing empty fields verification also for alternative fields
@@ -350,11 +350,11 @@
 - add Kubernetes configuration for Jitsi Meet deployment, including deployments, services, ingress, and persistent volume claims
 - updated PAR-PAS003 - Create detailed surveys with configurable options
 - updated PAR-PAS002 - Create single-question polls
-- implemented [PAR-PAS003] ��� Create detailed surveys with configurable options
+- implemented [PAR-PAS003] - Create detailed surveys with configurable options
 - enhance Dockerfile and entrypoint for asset management and user creation, update Gemfile for mutex_m, and adjust production config for static file serving
 - add Kubernetes manifests for Decidim, Grafana and Matomo, including deployment, service, and persistent volume claims
-- updated [PAR-PAS002] ��� Create single-question polls
-- updated [PAR-PAS002] ��� Create single-question polls
+- updated [PAR-PAS002] - Create single-question polls
+- updated [PAR-PAS002] - Create single-question polls
 - add migrations and webpacker installation for decidim_decidim_awesome
 - add Keycloak OAuth2 configuration to Grafana setup
 - update organization colors for improved branding consistency
@@ -362,7 +362,7 @@
 
 ## PR Merge
 
-- test: [PAR-MACT001] ��� Send mass email communications- test: [PAR-DE002] ��� Export debate data- test: [PAR-DE001] ��� Export survey answers- decidim variables configuration updated- [PAR-EA001] ��� Add meetings component to a specific process- test: [PAR-CP004] ��� Citizen invitation to participate in a private process- Tool3 infraestructure deploy- test [PAR-PAS005] ��� Review result of specific surveys- test: [PAR-PAS004] ��� Reply to a survey- db files added- Deploy Integration Env- [ISSUE-SEP01] Add keycloack auth to grafana and matomo- [PAR-PAS003] ��� Create detailed surveys with configurable options- Deleting Files whith name OLD or COPY- [PAR-PAS002] ��� Create single-question polls- Solved Problems and Vuls QA
+- test: [PAR-MACT001] - Send mass email communications- test: [PAR-DE002] - Export debate data- test: [PAR-DE001] - Export survey answers- decidim variables configuration updated- [PAR-EA001] - Add meetings component to a specific process- test: [PAR-CP004] - Citizen invitation to participate in a private process- Tool3 infraestructure deploy- test [PAR-PAS005] - Review result of specific surveys- test: [PAR-PAS004] - Reply to a survey- db files added- Deploy Integration Env- [ISSUE-SEP01] Add keycloack auth to grafana and matomo- [PAR-PAS003] - Create detailed surveys with configurable options- Deleting Files whith name OLD or COPY- [PAR-PAS002] - Create single-question polls- Solved Problems and Vuls QA
 
 ## refactor
 
@@ -462,7 +462,7 @@
 
 ## PR Merge
 
-- [ISSUE-AUG09] - First login keycloack admin- [PAR-RG001] ��� View reports and analytics | Configuration- ISSUE-AUG02: Fields up to 1 GB of data- [PAR-EA001] - Configure Jitsi- pipeline order execution changes- New update aggents for Ruby- Apply Install Java and delete warn Deprecated- images buildAndPush cancelled- more changes reverted- reverting last changes- secretid fixed- manage acr-secret- variable group added- container changes- image container changed- added acr-secret- new image apply to FE- change tool3-back image- port change attemp 6- port change attemp 3- port change attemp 2- format applied- Port changed for FE- services fixed in BuildandDeploy- Service ports fixed- Undo changes- dockerfile added- service endpoint name changed- New format applied- Applying new format- Applying new format- general troubleshouting Tool3- troubleshouting CrashLoopBackOff- app changes- ServiceName Issue- nested issue- storage changes- host name fixed- storage changes- fixec comment issue- storage modified- storage modified- storage shared added- containers order creation modified- change port tool3-front in ingress- Troubleshouthing - configuring less containers- postgresq volume excluded from statefulset- troubleshouting postgres- Env variables modified- ConfigMap Renamed- ConfigMap change- postgres key added- host key added in configMap- ConfigMap changes- VolumeMounts change- Ports numbers changed in Ingress- port changes in services configuration- service fe modified- port tool3-fe modified in Statefulset- Defautl Microsoft image applied- Folders tool3-ts created- replace token section commented- fixed missing directory- Push images- shared-files mount options changed- tool3-shared-volume mount options changed- tool3-shared-files changes- tool3-shared-files volume changes- namespace issue fixed- configuration from Tool0 copied- secrets added- change postgres user- change tcp port in fe- Backend service port changed- secret added to tool3-config- tool3-fe-config copied- configmap changes- configmap changes- configmap modified- volume fe data added in configmap- configmap FE fixed- variables updated- namespace fixed in ConfigMap Frontend- BuildandDeploy yaml renamed- BuildandDeploy configs- Deploy default image- Service Endpoint name changed- pipeline name changed- BuildandDeploy renamed- Update FE and Postgresql configurations- FE container and postgresql added- changed service port- renamed service name in ingress- renamed image name in statefullset- service changed in ingress.yml- [ISSUE] - Keycloak authentication- [PAR-MACT001] ��� Send mass email communications - CONFIGURATION- type StringData changed- Azure Endpoint modified- Added Apply SecretsMap in Deploy- host changed in ingress.yml- [PAR-EA008] - Cancel an event- [PAR-EA006] ��� Manage meeting agenda- [PAR-EA005] ��� Unpublish a meeting- ConfigMap backend modified- Service Connection renamed- Creation structure yaml files for infraestructure- [ISSUE-AUG08] Create a new make command- [PAR-INI04] - Configure Jitsi local instance- Delete comments in spanish- Update Version Ruby- [PAR-CS001] - Share content on social media platforms- [PAR-DPACM002] - Revoke consent for data processing- [PAR-PAS001] - Create survey template- [PAR-EA004] ��� Publish a meeting- [PAR-EA003] ��� Edit event details- [PAR-NOT003] ��� Unfollow items- [PAR-NOT002] ��� Follow items- [PAR-UPM001] ��� Send private messages- [PAR-UPM002] ��� View all conversations
+- [ISSUE-AUG09] - First login keycloack admin- [PAR-RG001] - View reports and analytics | Configuration- ISSUE-AUG02: Fields up to 1 GB of data- [PAR-EA001] - Configure Jitsi- pipeline order execution changes- New update aggents for Ruby- Apply Install Java and delete warn Deprecated- images buildAndPush cancelled- more changes reverted- reverting last changes- secretid fixed- manage acr-secret- variable group added- container changes- image container changed- added acr-secret- new image apply to FE- change tool3-back image- port change attemp 6- port change attemp 3- port change attemp 2- format applied- Port changed for FE- services fixed in BuildandDeploy- Service ports fixed- Undo changes- dockerfile added- service endpoint name changed- New format applied- Applying new format- Applying new format- general troubleshouting Tool3- troubleshouting CrashLoopBackOff- app changes- ServiceName Issue- nested issue- storage changes- host name fixed- storage changes- fixec comment issue- storage modified- storage modified- storage shared added- containers order creation modified- change port tool3-front in ingress- Troubleshouthing - configuring less containers- postgresq volume excluded from statefulset- troubleshouting postgres- Env variables modified- ConfigMap Renamed- ConfigMap change- postgres key added- host key added in configMap- ConfigMap changes- VolumeMounts change- Ports numbers changed in Ingress- port changes in services configuration- service fe modified- port tool3-fe modified in Statefulset- Defautl Microsoft image applied- Folders tool3-ts created- replace token section commented- fixed missing directory- Push images- shared-files mount options changed- tool3-shared-volume mount options changed- tool3-shared-files changes- tool3-shared-files volume changes- namespace issue fixed- configuration from Tool0 copied- secrets added- change postgres user- change tcp port in fe- Backend service port changed- secret added to tool3-config- tool3-fe-config copied- configmap changes- configmap changes- configmap modified- volume fe data added in configmap- configmap FE fixed- variables updated- namespace fixed in ConfigMap Frontend- BuildandDeploy yaml renamed- BuildandDeploy configs- Deploy default image- Service Endpoint name changed- pipeline name changed- BuildandDeploy renamed- Update FE and Postgresql configurations- FE container and postgresql added- changed service port- renamed service name in ingress- renamed image name in statefullset- service changed in ingress.yml- [ISSUE] - Keycloak authentication- [PAR-MACT001] - Send mass email communications - CONFIGURATION- type StringData changed- Azure Endpoint modified- Added Apply SecretsMap in Deploy- host changed in ingress.yml- [PAR-EA008] - Cancel an event- [PAR-EA006] - Manage meeting agenda- [PAR-EA005] - Unpublish a meeting- ConfigMap backend modified- Service Connection renamed- Creation structure yaml files for infraestructure- [ISSUE-AUG08] Create a new make command- [PAR-INI04] - Configure Jitsi local instance- Delete comments in spanish- Update Version Ruby- [PAR-CS001] - Share content on social media platforms- [PAR-DPACM002] - Revoke consent for data processing- [PAR-PAS001] - Create survey template- [PAR-EA004] - Publish a meeting- [PAR-EA003] - Edit event details- [PAR-NOT003] - Unfollow items- [PAR-NOT002] - Follow items- [PAR-UPM001] - Send private messages- [PAR-UPM002] - View all conversations
 
 ## refactor
 
@@ -555,7 +555,7 @@
 
 ## PR Merge
 
-- [PAR-NOT005] ��� Manage notification settings- [PAR-NOT004] ��� Mark notifications as reads- [PAR-NOT001] ��� View notifications- [PAR-EP007] ��� Add in personal calendar- [PAR-EP006] ��� View calendar- [PAR-EP003] ��� Share events- [PAR-EP002] ��� View meeting details- [PAR-EP001] ��� View all meetings related to specific process- refactor: new fake data implementation- [PAR-MOD002] - Process Moderation- [PAR-MOD001] - Global Moderation- Correccion Fichero Participate- Repo Mirror to Lot5.yml- Update Lot5- feat: add Makefile for automated setup and enhance README with development instructions- [PAR-INI03] Initializate project (Grafana/Matomo)- Resolucion de problema- Ajustamos variable correctamente del LOT5- [PAR-PPM006] ��� Delete category in process- [PAR-PPM005] ��� Edit category in process- [PAR-PPM004] ��� Manage categories in process- [PAR-PPM003] ��� Configure available components- [PAR-PPM002] ��� Manage process phases- [PAR-DAAP001] - View privacy policy page- Updated EU LDT Participate- Repo Mirror to Lot5.yml- Added EU LDT Participate- Repo Mirror to Lot5.yml
+- [PAR-NOT005] - Manage notification settings- [PAR-NOT004] - Mark notifications as reads- [PAR-NOT001] - View notifications- [PAR-EP007] - Add in personal calendar- [PAR-EP006] - View calendar- [PAR-EP003] - Share events- [PAR-EP002] - View meeting details- [PAR-EP001] - View all meetings related to specific process- refactor: new fake data implementation- [PAR-MOD002] - Process Moderation- [PAR-MOD001] - Global Moderation- Correccion Fichero Participate- Repo Mirror to Lot5.yml- Update Lot5- feat: add Makefile for automated setup and enhance README with development instructions- [PAR-INI03] Initializate project (Grafana/Matomo)- Resolucion de problema- Ajustamos variable correctamente del LOT5- [PAR-PPM006] - Delete category in process- [PAR-PPM005] - Edit category in process- [PAR-PPM004] - Manage categories in process- [PAR-PPM003] - Configure available components- [PAR-PPM002] - Manage process phases- [PAR-DAAP001] - View privacy policy page- Updated EU LDT Participate- Repo Mirror to Lot5.yml- Added EU LDT Participate- Repo Mirror to Lot5.yml
 
 ## refactor
 
@@ -650,7 +650,7 @@
 
 ## PR Merge
 
-- [PAR-PPR003] ��� Delete an existing process administrator- [PAR-PPP001] ��� Manage private participants (Only If the process is private)- [PAR-PPM008] - Added QA Tests- [PAR-PPA003] | Delete an existing attachment- PAR-PPA001 | PAR-PPA002- PAR-CP002 | View and participate in a specific process- PAR-CP001 | Visualize all processes in the system- PAR-DAD006 | Mention user in a message- PAR-DAD/PAR-DAD005 | test: add endorsement tests- PAR-DAD004 | test: add close debate tests- test: user patecipate to a debates- [PAR-DPACM001] - Added QA Tests- test: add create-debates page tests- test: add add-debates page tests- test: add public convocation page tests- test: add convocation page tests- PAR-DAAP003- ci: added testing pipeline and refactor test base structure
+- [PAR-PPR003] - Delete an existing process administrator- [PAR-PPP001] - Manage private participants (Only If the process is private)- [PAR-PPM008] - Added QA Tests- [PAR-PPA003] | Delete an existing attachment- PAR-PPA001 | PAR-PPA002- PAR-CP002 | View and participate in a specific process- PAR-CP001 | Visualize all processes in the system- PAR-DAD006 | Mention user in a message- PAR-DAD/PAR-DAD005 | test: add endorsement tests- PAR-DAD004 | test: add close debate tests- test: user patecipate to a debates- [PAR-DPACM001] - Added QA Tests- test: add create-debates page tests- test: add add-debates page tests- test: add public convocation page tests- test: add convocation page tests- PAR-DAAP003- ci: added testing pipeline and refactor test base structure
 
 # Changelog from Initial commit to D03.05.Jun
 
@@ -696,5 +696,5 @@
 
 ## PR Merge
 
-- [PAR-PPM001] ��� Create new process- [PAR-PIM003] ��� Update personal information- [PAR-PIM001] ��� Configure form for additional personal data on first login- Startup Participate project
+- [PAR-PPM001] - Create new process- [PAR-PIM003] - Update personal information- [PAR-PIM001] - Configure form for additional personal data on first login- Startup Participate project
 
