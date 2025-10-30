@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  backend:
+    # Use development Dockerfile
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile.dev
+    # Override the command to use nodemon for development
+    command: npm run dev
+    environment:
+      # Ensure we're in development mode
+      - NODE_ENV=development
+      # Add any additional dev environment variables here
+    volumes:
+      # Mount source code for hot reloading
+      - ./backend:/app
+      # Exclude node_modules to avoid conflicts
+      - /app/node_modules
+      # Mount build directory to avoid permission issues
+      - /app/build

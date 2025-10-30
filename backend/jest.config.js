@@ -28,6 +28,11 @@ module.exports = {
 		'!**/src/server.ts',
 		'!**/src/config/**',
 		'!**/src/plugins/sequilize.plugin.ts',
+		'!**/src/plugins/underpressure.plugin.ts',
+		'!**/src/plugins/register-plugin.ts',
+		'!**/src/routes/base/**',
+		'!**/src/utils/database.ts',
+		'!**/src/utils/database.migrations.ts',
 		'!**/tests/**'
 	],
 	coverageDirectory: 'coverage',

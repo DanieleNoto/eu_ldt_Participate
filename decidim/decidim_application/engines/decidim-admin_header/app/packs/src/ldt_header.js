@@ -35,10 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	if (userButton && userDropdown) {
 		// Toggle dropdown on button click
-		userButton.addEventListener('click', (e) => {
+		userButton.addEventListener('click', e => {
 			e.stopPropagation();
 			userDropdown.classList.toggle('hidden');
-			
+
 			// Close tools dropdown when opening user dropdown
 			if (toolsDropdown && !userDropdown.classList.contains('hidden')) {
 				toolsDropdown.style.display = 'none';
@@ -46,11 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 		// Close dropdown when clicking outside
-		document.addEventListener('click', (e) => {
+		document.addEventListener('click', e => {
 			if (!userButton.contains(e.target) && !userDropdown.contains(e.target)) {
 				userDropdown.classList.add('hidden');
 			}
 		});
 	}
 });
-

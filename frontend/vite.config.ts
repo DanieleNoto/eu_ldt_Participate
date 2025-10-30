@@ -1,40 +1,33 @@
-import { federation } from '@module-federation/vite';
-import tailwindcss from '@tailwindcss/vite';
-import react from '@vitejs/plugin-react';
-// eslint-disable-next-line import/order
 import path from 'path';
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
-// https://vite.dev/config/
 export default defineConfig({
-	plugins: [
-		react(),
-		tailwindcss(),
-		federation({
-			filename: 'remoteEntry.js',
-			name: 'remote',
-			exposes: {
-				'./remote-routes': './src/app/RemoteRoot.tsx'
-			},
-			remotes: {},
-			shared: {
-				react: {
-					singleton: true
-				},
-				'react-dom': {
-					singleton: true
-				},
-				'react-router': {
-					singleton: true
-				}
-			}
-		})
-	],
+	plugins: [react(), tailwindcss()],
+	publicDir: 'public', // Explicitly set public directory (Vite should copy this to dist)
 	build: {
 		target: 'esnext',
 		modulePreload: false,
-		minify: false,
-		assetsDir: ''
+		minify: 'esbuild',
+		cssCodeSplit: false,
+		emptyOutDir: true,
+		copyPublicDir: true, // Explicitly enable copying public directory
+		rollupOptions: {
+			output: {
+				format: 'es',
+				// For standalone chatbot, we need predictable filenames for the loader
+				entryFileNames: 'index.js',
+				chunkFileNames: '[name]-[hash].js',
+				// Ensure CSS is extracted to a predictable filename
+				assetFileNames: assetInfo => {
+					if (assetInfo.name === 'style.css' || assetInfo.name?.endsWith('.css')) {
+						return 'global.css';
+					}
+					return '[name]-[hash].[ext]';
+				}
+			}
+		}
 	},
 	resolve: {
 		alias: {
@@ -51,12 +44,22 @@ export default defineConfig({
 	},
 	server: {
 		port: 5001,
+		host: '0.0.0.0',
+		origin: 'http://localhost:5001',
+		fs: {
+			// Allow serving files from dist folder
+			allow: ['..']
+		},
 		proxy: {
 			'/api/v1': {
-				target: 'http://localhost:3000',
+				target: process.env.VITE_API_URL || 'http://backend:3002',
 				changeOrigin: true,
 				secure: false
 			}
 		}
+	},
+	preview: {
+		port: 5001,
+		host: '0.0.0.0'
 	}
 });

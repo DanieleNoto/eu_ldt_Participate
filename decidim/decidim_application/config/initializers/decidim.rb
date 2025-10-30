@@ -461,9 +461,19 @@ Decidim.configure do |config|
   if Rails.env.development?
     config.content_security_policies_extra["script-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
     config.content_security_policies_extra["style-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
-    config.content_security_policies_extra["connect-src"] += %w(http://localhost:3035 ws://localhost:3035 http://0.0.0.0:3035 ws://0.0.0.0:3035)
-    config.content_security_policies_extra["font-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
+    config.content_security_policies_extra["connect-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
+  end
+
+  # Add chatbot URL to CSP if configured
+  if ENV['CHATBOT_ENABLED'] == 'true' && ENV['CHATBOT_URL'].present?
+    chatbot_url = ENV['CHATBOT_URL']
+    config.content_security_policies_extra["script-src"] += [chatbot_url]
+    config.content_security_policies_extra["style-src"] += [chatbot_url]
+    config.content_security_policies_extra["connect-src"] += [chatbot_url]
     
+    # Add chatbot backend API URL for AJAX requests
+    chatbot_backend_url = ENV.fetch('CHATBOT_BACKEND_URL', 'http://localhost:3002')
+    config.content_security_policies_extra["connect-src"] += [chatbot_backend_url]
     # Allow Matomo analytics in development
     if ENV['MATOMO_SERVER_ADDRESS'].present?
       matomo_uri = URI.parse(ENV['MATOMO_SERVER_ADDRESS'])
@@ -492,6 +502,19 @@ Decidim.configure do |config|
       config.content_security_policies_extra["connect-src"] += [keycloak_url]
     end
   end
+
+  # Allow Matomo analytics in development
+  if Rails.env.development? && ENV['MATOMO_URL'].present?
+    matomo_host = URI.parse(ENV['MATOMO_URL']).host
+    matomo_port = URI.parse(ENV['MATOMO_URL']).port
+    matomo_full = "http://#{matomo_host}:#{matomo_port}"
+    
+    config.content_security_policies_extra["script-src"] += [matomo_full]
+    config.content_security_policies_extra["connect-src"] += [matomo_full]
+    config.content_security_policies_extra["img-src"] ||= %w('self' data:)
+    config.content_security_policies_extra["img-src"] += [matomo_full]
+  end
+
 
   # Admin admin password configurations
   Rails.application.secrets.dig(:decidim, :admin_password, :strong).tap do |strong_pw|

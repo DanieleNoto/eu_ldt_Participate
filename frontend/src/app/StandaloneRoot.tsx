@@ -4,7 +4,7 @@ import App from './App';
 const StandaloneRoot = () => {
 	return (
 		<BrowserRouter>
-			<App standalone={true} />
+			<App />
 		</BrowserRouter>
 	);
 };

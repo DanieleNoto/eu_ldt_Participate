@@ -402,21 +402,49 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # Extract token expiry from JWT id_token
+  def extract_token_expiry_from_jwt(id_token)
+    return nil unless id_token.present?
+
+    begin
+      token_parts = id_token.split('.')
+      return nil unless token_parts.length >= 2
+
+      # Decode payload
+      payload = Base64.decode64(token_parts[1].ljust((token_parts[1].length + 3) / 4 * 4, '='))
+      claims = JSON.parse(payload)
+
+      # Get expiry claim
+      exp = claims['exp']
+      return nil unless exp
+
+      # Handle both seconds and milliseconds timestamps
+      exp > 1_000_000_000_000 ? Time.at(exp / 1000) : Time.at(exp)
+    rescue => e
+      Rails.logger.warn "[Keycloak Token Expiry] Error extracting expiry from JWT: #{e.message}"
+      nil
+    end
+  end
+
   # Save Keycloak tokens to cookies (extracted for reuse)
   def save_keycloak_tokens_to_cookies(token_data)
-    # Set cookie expiry based on token expiry or default to 1 hour
-    expires_at = 1.hour.from_now
-    if token_data['expires_in']
-      expires_at = token_data['expires_in'].to_i.seconds.from_now
-    end
+    # Clear existing Keycloak cookies first to prevent duplication
+    clear_keycloak_cookies
 
-    # Save tokens to cookies
+    # Extract correct expiry from JWT id_token if available
+    expires_at = extract_token_expiry_from_jwt(token_data['id_token']) || 1.hour.from_now
+
+    # Get the correct cookie domain for cross-subdomain sharing
+    cookie_domain = keycloak_cookie_domain
+
+    # Save tokens to cookies with proper domain and expiry
     cookies['access_token'] = {
       value: token_data['access_token'],
       expires: expires_at,
       secure: Rails.env.production?,
       httponly: true,
-      same_site: :lax
+      same_site: :lax,
+      domain: cookie_domain
     }
 
     cookies['refresh_token'] = {
@@ -424,7 +452,8 @@ class ApplicationController < ActionController::Base
       expires: 30.days.from_now, # Refresh tokens typically last longer
       secure: Rails.env.production?,
       httponly: true,
-      same_site: :lax
+      same_site: :lax,
+      domain: cookie_domain
     }
 
     # Save ID token if present
@@ -434,11 +463,14 @@ class ApplicationController < ActionController::Base
         expires: expires_at,
         secure: Rails.env.production?,
         httponly: true,
-        same_site: :lax
+        same_site: :lax,
+        domain: cookie_domain
       }
     end
 
     # Clear any cached validation results since we have new tokens
     invalidate_keycloak_token_cache
+
+    Rails.logger.info "[Keycloak Token Save] Saved tokens to cookies with domain: #{cookie_domain}"
   end
 end

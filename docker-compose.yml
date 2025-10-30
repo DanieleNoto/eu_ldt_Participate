@@ -51,6 +51,10 @@ services:
             # JSON Logging for ELK Stack
             - ENABLE_JSON_LOGS=${ENABLE_JSON_LOGS:-false}
             - RAILS_LOG_TO_STDOUT=true
+            # Chatbot configuration
+            - CHATBOT_ENABLED=${CHATBOT_ENABLED}
+            - CHATBOT_URL=${CHATBOT_URL}
+            - CHATBOT_ASSET_VERSION=${CHATBOT_ASSET_VERSION}
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
@@ -102,7 +106,7 @@ services:
             args:
                 RAILS_ENV: development
                 NODE_ENV: development
-        entrypoint: ["bin/shakapacker-dev-server"]
+        command: sh -c "yarn install && bin/shakapacker-dev-server"
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
@@ -130,6 +134,105 @@ services:
             retries: 20
             start_period: 30s
 
+    backend:
+        build: ./backend/
+        ports:
+            - '3002:3002'
+        env_file:
+            - .env
+        environment:
+            - NODE_ENV=${NODE_ENV}
+            - PORT=${PORT}
+            - CONTEXT_URL=${CONTEXT_URL}
+            # CORS
+            - CORS_ORIGINS=${CORS_ORIGINS}
+            # Swagger
+            - SWAGGER_GEN_DOC_FILE=${SWAGGER_GEN_DOC_FILE}
+            # Security
+            - DISABLE_HELMET=${DISABLE_HELMET}
+            # JWT
+            - JWT_ISSUER_PUBKEY=${JWT_ISSUER_PUBKEY}
+            - JWT_ENABLE_CHECK=${JWT_ENABLE_CHECK}
+            - JWT_TOKEN_URL=${JWT_TOKEN_URL}
+            # Database
+            - DATABASE_SYNC=${DATABASE_SYNC}
+            - DB_USERNAME=${DB_USERNAME}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+            - DB_DIALECT=${DB_DIALECT}
+            - SEQUELIZE_SEEDER_STORAGE=${SEQUELIZE_SEEDER_STORAGE}
+            - SEQUELIZE_SEEDER_STORAGE_TABLE_NAME=${SEQUELIZE_SEEDER_STORAGE_TABLE_NAME}
+            - SEQUELIZE_MIGRATION_STORAGE=${SEQUELIZE_MIGRATION_STORAGE}
+            - SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME=${SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME}
+            - DATABASE_URL=${DATABASE_URL}
+            - DB_MAX_POOL=${DB_MAX_POOL}
+            - DB_MIN_POOL=${DB_MIN_POOL}
+            - DB_IDLE_POOL=${DB_IDLE_POOL}
+            - DB_SCHEMA=${DB_SCHEMA}
+            # Logger
+            - LOGGER_TARGET=${LOGGER_TARGET}
+            - LOGGER_LEVEL=${LOGGER_LEVEL}
+            # Cypher
+            - CYPHER_SECRET=${CYPHER_SECRET}
+            - CYPHER_SALT=${CYPHER_SALT}
+            # SMTP/Email Configuration
+            - SMTP_ADDRESS=${SMTP_ADDRESS}
+            - SMTP_PORT=${SMTP_PORT}
+            - SMTP_USER_NAME=${SMTP_USER_NAME}
+            - SMTP_PASSWORD=${SMTP_PASSWORD}
+            - SMTP_DOMAIN=${SMTP_DOMAIN}
+            - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
+            - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
+            - SMTP_OPENSSL_VERIFY_MODE=${SMTP_OPENSSL_VERIFY_MODE}
+            - CHATBOT_SUPPORT_EMAIL=${CHATBOT_SUPPORT_EMAIL}
+            - CHATBOT_FROM_EMAIL=${CHATBOT_FROM_EMAIL}
+            # Redis
+            - REDIS_URL=${REDIS_URL}
+            # Service URLs
+            - GRAFANA_URL=http://grafana:3000
+            - DECIDIM_URL=http://decidim:3000
+            - MATOMO_URL=http://matomo:80
+            - JITSI_WEB_URL=http://jitsi-web:80
+            - SHAKAPACKER_URL=http://shakapacker:3035
+        volumes:
+            - ./backend:/app
+            - /app/node_modules
+        networks:
+            - private
+        depends_on:
+            - db
+            - redis
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:3002/api/v1/health']
+            interval: 30s
+            timeout: 10s
+            start_period: 40s
+            retries: 3
+
+    chatbot-frontend:
+        build:
+            context: ./frontend/
+        ports:
+            - '${FRONTEND_PORT}:${FRONTEND_PORT}'
+        env_file:
+            - .env
+        environment:
+            - NODE_ENV=${NODE_ENV}
+            - VITE_API_URL=${VITE_API_URL}
+        volumes:
+            - /app/node_modules
+        networks:
+            - private
+        depends_on:
+            - backend
+        healthcheck:
+            test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:5001/']
+            interval: 30s
+            timeout: 10s
+            start_period: 40s
+            retries: 3
     grafana:
         build:
             context: ./analytics/grafana

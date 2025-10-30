@@ -253,6 +253,7 @@ The /example directory under src/app/pages/example serves as a template for how 
 
 - **Node.js** (v14 or later recommended)
 - **npm** (or yarn)
+- **Docker & Docker Compose** (for containerized development)
 
 ### Installation
 
@@ -266,9 +267,47 @@ The /example directory under src/app/pages/example serves as a template for how 
         npm install
     ```
 3. **Running the Development Server**
-   Start the development server using Vite:
-   `     npm run dev  `
-   By default, the application runs on http://localhost:5001.
+
+    **Option A: Local Development (without Docker)**
+
+    Start the development server using Vite:
+
+    ```bash
+    npm run dev
+    ```
+
+    By default, the application runs on http://localhost:5001.
+
+    **Option B: Docker Development**
+
+    The chatbot-frontend container automatically builds the application during image creation:
+
+    ```bash
+    # Build and start the container
+    docker compose up chatbot-frontend
+
+    # To rebuild with fresh code (recommended after source code changes)
+    docker compose build chatbot-frontend --no-cache
+    docker compose up chatbot-frontend
+
+    # Or in one command
+    docker compose up chatbot-frontend --build
+    ```
+
+    **How the Docker Build Works:**
+
+    1. `Dockerfile.dev` copies all source code into the image
+    2. Runs `npm ci` to install all dependencies (including devDependencies)
+    3. Executes `npm run build` to create fresh production build in `dist/`
+    4. The entrypoint script serves the built files using `http-server`
+
+    **Key Points:**
+
+    - The build happens **inside the container** during image creation
+    - No need to manually build on the host machine
+    - The `dist/` folder is kept inside the container (not mounted from host)
+    - Source code changes require rebuilding the Docker image
+    - For hot-reload development, use local development (Option A)
 
 ## API Client
 
@@ -447,11 +486,25 @@ This project is set up to enforce best practices in code quality through:
 
 Application settings are managed via several configuration files:
 
-- API Configuration: src/config/api-config.ts defines endpoints and methods.
-- Logger Configuration: src/config/logger.config.ts for log level settings.
-- Date Formatting: src/config/dateFns.config.ts for date-related configurations.
-- Toastr (Toast Notifications): src/config/toastr.config.ts for notification settings.
-- Environment-specific configurations are loaded at runtime into the RUNTIME_APP_CONFIG object, ensuring flexibility and ease of deployment.
+- **API Configuration**: `src/config/api-config.ts` defines endpoints and methods.
+- **Logger Configuration**: `src/config/logger.config.ts` for log level settings.
+- **Date Formatting**: `src/config/dateFns.config.ts` for date-related configurations.
+- **Toastr (Toast Notifications)**: `src/config/toastr.config.ts` for notification settings.
+- **Chatbot Configuration**: `src/config/chatbot.config.ts` for simplified chatbot setup with environment variable support.
+
+### Environment Variables
+
+The chatbot configuration supports the following environment variable:
+
+- `BACKEND_URL`: Backend API base URL (default: `http://localhost:3000`)
+
+To configure the backend URL:
+
+1. Copy `.env.example` to `.env.local`
+2. Modify the `BACKEND_URL` value as needed for your environment
+3. The application will automatically use this value at runtime
+
+Environment-specific configurations are loaded at runtime, ensuring flexibility and ease of deployment.
 
 ## Additional Information
 

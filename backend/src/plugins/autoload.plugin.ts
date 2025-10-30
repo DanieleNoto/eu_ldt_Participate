@@ -4,8 +4,12 @@ import fp from 'fastify-plugin';
 const path = require('path');
 
 export default fp(async function (fastify, opts) {
+	const routesDir = path.join(__dirname, '..', 'routes');
+	fastify.log.info(`Autoload plugin: Loading routes from directory: ${routesDir}`);
+	fastify.log.info(`Autoload plugin: CONTEXT_URL prefix: ${process.env.CONTEXT_URL}`);
+
 	fastify.register(autoload, {
-		dir: path.join(__dirname, '..', 'routes'),
+		dir: routesDir,
 		options: Object.assign({ prefix: process.env.CONTEXT_URL }, opts)
 	});
 });
