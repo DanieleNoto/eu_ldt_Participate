@@ -37,6 +37,7 @@ PATH
   specs:
     decidim-keycloak (0.30.1)
       decidim-core (~> 0.30.0)
+      deface (~> 1.5)
       omniauth-keycloak (~> 1.5)
 
 PATH

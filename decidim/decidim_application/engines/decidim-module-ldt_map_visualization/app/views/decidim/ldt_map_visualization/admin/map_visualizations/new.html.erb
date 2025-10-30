@@ -71,39 +71,33 @@
       <% end %>
 
       <!-- Form Section - Always visible -->
-      <%= form_tag "#{request.path.sub(/\/new$/, '')}", method: :post, id: "map-form" do %>
-        <div id="form-section" class="card-section">
-          <!-- Hidden field for map_id -->
-          <%= hidden_field_tag 'map_visualization[map_id]', "", id: "map-id-field" %>
-          <%= hidden_field_tag 'map_visualization[map_data]', "", id: "map-data-field" %>
-          
-          <!-- Selected map info will be inserted here by JavaScript -->
-          <div data-selected-map-info></div>
-          
-          <!-- Map Name Field -->
-          <div class="row column">
-            <label for="map-name"><strong><%= t(".map_name") %></strong></label>
-            <%= text_field_tag 'map_visualization[name]', "", 
-                id: "map-name",
-                placeholder: t('.enter_map_name'),
-                class: "form-control",
-                style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-top: 8px; font-size: 14px;",
-                required: true %>
-            <small class="help-text" style="display: block; margin-top: 5px; color: #666;"><%= t(".name_required") %></small>
+      <%= decidim_form_for(@form, url: map_visualizations_path, html: { class: "form-defaults form map_visualization_form new_map_visualization" }) do |f| %>
+        <div class="form__wrapper">
+          <div id="form-section" class="card-section">
+            <!-- Hidden field for map_id -->
+            <%= f.hidden_field :map_id, id: "map-id-field" %>
+            <%= f.hidden_field :map_data, id: "map-data-field" %>
+            
+            <!-- Selected map info will be inserted here by JavaScript -->
+            <div data-selected-map-info></div>
+            
+            <!-- Map Name Field -->
+            <div class="field">
+              <%= f.text_field :name, 
+                  id: "map-name",
+                  placeholder: t('.enter_map_name'),
+                  required: true %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Footer - Always visible -->
+        <div class="item__edit-sticky">
+          <div class="item__edit-sticky-container">
+            <%= f.submit t(".submit"), id: "save-button", class: "button button__sm button__secondary" %>
           </div>
         </div>
       <% end %>
-
-    </div>
-  </div>
-
-  <!-- Sticky Footer - Always visible -->
-  <div class="item__edit-sticky">
-    <div class="item__edit-sticky-container">
-      <%= button_tag t(".cancel"), type: "button", id: "reset-button", class: "button button__sm" %>
-      <%= button_tag t(".submit"), type: "submit", form: "map-form", id: "save-button", class: "button button__sm button__secondary" %>
-    </div>
-  </div>
 </div>
 
 <!-- Hidden i18n for JS -->

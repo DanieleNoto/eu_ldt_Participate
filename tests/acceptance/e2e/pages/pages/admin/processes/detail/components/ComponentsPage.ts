@@ -1,3 +1,11 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Gianfranco Cedro
+ * Simone Bianchelli
+ * Denise Scarcelli
+ */
+
 import { expect, Locator, Page } from '@playwright/test';
 import { SidebarProcessDetailComponent } from '../../../../../components/admin/process/detail/SidebarProcessDetailComponent';
 import { BaseAdminPage } from '../../../BaseAdminPage';
@@ -31,6 +39,7 @@ export class ComponentsPage extends BaseAdminPage {
 	private readonly proposalsLink: Locator;
 	private readonly sortitionsLink: Locator;
 	private readonly surveysLink: Locator;
+	private readonly ldtUseCaseScenariosLink: Locator;
 
 	// Components table
 	private readonly tableHeaders: Locator;
@@ -60,6 +69,9 @@ export class ComponentsPage extends BaseAdminPage {
 		this.proposalsLink = page.locator('a.proposals[href*="components/new?type=proposals"]');
 		this.sortitionsLink = page.locator('a.sortitions[href*="components/new?type=sortitions"]');
 		this.surveysLink = page.locator('a.surveys[href*="components/new?type=surveys"]');
+		this.ldtUseCaseScenariosLink = page.locator(
+			'a.ldt_use_case_scenarios[href*="components/new?type=ldt_use_case_scenarios"]'
+		);
 
 		// Components table
 		this.tableHeaders = page.locator('.table-list thead th');
@@ -174,6 +186,12 @@ export class ComponentsPage extends BaseAdminPage {
 		await this.page.waitForLoadState('networkidle');
 	}
 
+	async addLDTUseCaseScenariosComponent() {
+		await this.openAddComponentDropdown();
+		await this.ldtUseCaseScenariosLink.click();
+		await this.page.waitForLoadState('networkidle');
+	}
+
 	// Generic method to add component by type
 	async addComponentByType(componentType: string) {
 		const componentMap: { [key: string]: () => Promise<void> } = {
@@ -267,11 +285,27 @@ export class ComponentsPage extends BaseAdminPage {
 		await this.page.waitForLoadState('networkidle');
 	}
 
-	async unpublishComponent(componentName: string) {
+	/**
+	 * Hide component by clicking the "Hide from menu" action link.
+	 */
+	async hideComponentByName(componentName: string): Promise<void> {
 		const row = this.getComponentRow(componentName);
-		const unpublishLink = row.locator('a.action-icon--unpublish');
-		await unpublishLink.click();
-		await this.page.waitForLoadState('networkidle');
+		const hideLink = row.locator('a.action-icon--unpublish');
+		if (await hideLink.isVisible()) {
+			await hideLink.click();
+		}
+	}
+
+	/**
+	 * Click on the "Unpublish" action link to unpublish a component.
+	 */
+	async unpublishComponentByName(componentName: string): Promise<void> {
+		const row = this.getComponentRow(componentName);
+		const unpublishLink = row.locator('a.action-icon--menu-hidden');
+		await unpublishLink.waitFor({ state: 'visible' });
+		if (await unpublishLink.isVisible()) {
+			await unpublishLink.click();
+		}
 	}
 
 	async publishComponent(componentName: string) {
@@ -456,7 +490,8 @@ export class ComponentsPage extends BaseAdminPage {
 		await deleteLink.first().click();
 
 		// confirm the deletion (adjust the button name if necessary)
-		await this.page.getByRole('button', { name: 'OK' }).click();
+		const okButton = this.page.getByRole('button', { name: 'OK' });
+		await okButton.evaluate((element: HTMLElement) => element.click());
 
 		// wait for success message or for the row to be removed
 		const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
@@ -509,5 +544,12 @@ export class ComponentsPage extends BaseAdminPage {
 	 */
 	async expectExportConfirmationMessage(): Promise<void> {
 		await expect(this.page.getByText('Your export is currently in')).toBeVisible();
+	}
+
+	/**
+	 * Verifies that the component was created successfully by checking the success message
+	 */
+	async verifyComponentCreatedSuccessfully(): Promise<void> {
+		await expect(this.page.getByText('Component created successfully')).toBeVisible();
 	}
 }

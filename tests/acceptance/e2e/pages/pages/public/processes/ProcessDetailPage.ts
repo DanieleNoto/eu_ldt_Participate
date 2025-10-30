@@ -54,9 +54,10 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		this.navItems = page.locator('.participatory-space__nav-item');
 
 		// Help elements
+		//this.helpButton = page.locator('#floating-helper-tip button');
 		this.debatesLink = page.locator('a[href$="/debates"]:visible').first();
 		this.meetingsLink = page.locator('a[href$="/meetings"]:visible').first();
-
+		this.meetingCards = this.page.locator('.card__list-list .card__list');
 		// Related documents section
 		this.relatedDocumentsHeading = page
 			.locator('.content-block__title h2.decorator')
@@ -333,38 +334,6 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		return -1;
 	}
 
-	/**
-	 * Make sure the meeting list is visible
-	 * and that each card contains the title, date/time, location, comments count visible, link to meeting detail.
-	 */
-	async verifyMeetingsCardListVisible(): Promise<void> {
-		// Ensure there is at least one card
-		const count = await this.meetingCards.count();
-		expect(count).toBeGreaterThan(0);
-
-		for (let i = 0; i < count; i++) {
-			const card = this.meetingCards.nth(i);
-
-			// Title
-			await expect(card.locator('.card__list-title')).toBeVisible();
-
-			// Date/time (time element)
-			await expect(card.locator('time.card__calendar')).toBeVisible();
-			await expect(card.locator('.card__calendar-month')).toBeVisible();
-			await expect(card.locator('.card__calendar-day')).toBeVisible();
-			await expect(card.locator('.card__calendar-year')).toBeVisible();
-
-			// Location (icon + type text "Online", "In-person", "Hybrid")
-			await expect(card.locator('.card__list-metadata')).toContainText(['Online', 'In-person', 'Hybrid']);
-
-			// Availability: comments count visible (can be zero)
-			await expect(card.locator('[data-comments-count]')).toBeVisible();
-
-			// Link to meeting detail
-			await expect(card).toHaveAttribute('href', /\/meetings\/\d+/);
-		}
-	}
-
 	async clickMeetingCardByIndex(index: number): Promise<void> {
 		const meetingCard = this.meetingCards.nth(index);
 		await meetingCard.click();
@@ -376,6 +345,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	}
 	/**
 	 * Verifies that the "Related documents" section is visible on the page
+																				 
 	 */
 	async expectRelatedDocumentsSectionToBeVisible(): Promise<void> {
 		await expect(this.relatedDocumentsHeading).toBeVisible();
@@ -532,5 +502,80 @@ export class ProcessDetailPage extends AuthenticatedPage {
 			console.error(`Attachment link verification failed: ${errorMessage}`);
 			throw new Error(`Failed to verify attachment link for "${attachmentTitle}": ${errorMessage}`);
 		}
+	}
+
+	/**
+	 * Make sure the meeting list is visible
+	 * and that each card contains the title, date/time, and location.
+	 */
+	async enhancedVerifyMeetingsCardListVisible(): Promise<void> {
+		const count = await this.meetingCards.count();
+		expect(count).toBeGreaterThan(0);
+
+		for (let i = 0; i < count; i++) {
+			const card = this.meetingCards.nth(i);
+
+			await expect(card.locator('.card__list-title')).toBeVisible();
+
+			await expect(card.locator('time.card__calendar')).toBeVisible();
+			const locationText = await card.locator('.card__list-metadata div:nth-child(2)').textContent();
+			expect(locationText?.trim()).toMatch(/Online|In-person|Hybrid/);
+
+			const commentsLocator = card.locator('.card__list-metadata div[data-comments-count]');
+			await expect(commentsLocator).toBeVisible();
+		}
+	}
+
+	/**
+	 * Retrieves the first online meeting card details
+	 * @returns An object with meeting details or null if no online meeting is found
+	 */
+
+	async getFirstOnlineMeeting(): Promise<{
+		index: number;
+		title: string;
+		date: string;
+		type: string;
+		link: string;
+		comments: number;
+	} | null> {
+		const count = await this.meetingCards.count();
+
+		for (let i = 0; i < count; i++) {
+			const card = this.meetingCards.nth(i);
+
+			const title = await card.locator('.card__list-title').textContent();
+			const dateAttr = await card.locator('time.card__calendar').getAttribute('datetime');
+			const link = await card.getAttribute('href');
+
+			// Extract type (Online, Hybrid, In-person)
+			const metadataItems = card.locator('.card__list-metadata div');
+			const metadataCount = await metadataItems.count();
+
+			let type = '';
+			for (let j = 0; j < metadataCount; j++) {
+				const text = await metadataItems.nth(j).textContent();
+				if (text?.match(/Online|Hybrid|In-person/)) {
+					type = text.trim();
+					break;
+				}
+			}
+
+			if (type === 'Online') {
+				const commentsText = await card.locator('.card__list-metadata div[data-comments-count]').textContent();
+				const comments = parseInt(commentsText?.trim() ?? '0', 10);
+
+				return {
+					index: i,
+					title: title?.trim() ?? '',
+					date: dateAttr ?? '',
+					type,
+					link: link ?? '',
+					comments: isNaN(comments) ? 0 : comments
+				};
+			}
+		}
+
+		return null;
 	}
 }

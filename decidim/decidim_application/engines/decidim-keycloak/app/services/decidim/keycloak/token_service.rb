@@ -7,15 +7,14 @@ require 'json'
 module Decidim
   module Keycloak
     class TokenService
-      def self.ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil)
-        new.ensure_valid_token(user, cookies_hash, cookies_obj)
+      def self.ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil, request_host = nil, controller = nil)
+        new.ensure_valid_token(user, cookies_hash, cookies_obj, request_host, controller)
       end
 
-      def ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil)
-        # Get tokens from cookies - they are stored as separate chunks in HTTP cookies
-        access_token = reconstruct_token_from_cookies(cookies_hash, 'keycloak_access_token')
-        expires_at = cookies_hash&.dig('keycloak_token_expires_at')&.to_i if cookies_hash
-        refresh_token = reconstruct_token_from_cookies(cookies_hash, 'keycloak_refresh_token')
+      def ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil, request_host = nil, controller = nil)
+        access_token = reconstruct_token_from_cookies(cookies_hash, 'access_token')
+        expires_at = cookies_hash&.dig('token_expires_at')&.to_i if cookies_hash
+        refresh_token = reconstruct_token_from_cookies(cookies_hash, 'refresh_token')
         
         return nil unless access_token
 
@@ -32,7 +31,9 @@ module Decidim
         if refresh_token && cookies_obj
           new_tokens = refresh_access_token(refresh_token)
           if new_tokens
-            save_tokens_to_cookies(cookies_obj, new_tokens)
+            # Clear existing cookies from all domains before saving new ones to prevent duplicates
+            controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
+            save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
             return new_tokens[:access_token]
           end
         end
@@ -40,78 +41,119 @@ module Decidim
         nil
       end
 
-      def save_tokens_to_cookies(cookies_obj, tokens)
-        # Optimize chunk size: smaller chunks = more flexible, less risk of hitting single cookie limit
-        # Max single cookie size is typically 4KB, we use 1500 bytes to be safe
-        chunk_size = 1500
+      def save_tokens_to_cookies(cookies_obj, tokens, request_host = nil)
+        # Clear existing Keycloak cookies from all domains before saving new ones to prevent duplicates
+        clear_existing_keycloak_cookies(cookies_obj, request_host)
         
-        # Save access token in chunks
-        access_token = tokens[:access_token]
-        
-        # Log token size for monitoring
-        
-        access_token_chunks = access_token.scan(/.{1,#{chunk_size}}/m)
-        
-        # Clear old chunks first
-        old_count = cookies_obj['keycloak_access_token_count'].to_i
-        old_count.times do |i|
-          cookies_obj.delete("keycloak_access_token_#{i}")
-        end
-        
-        # Save new chunks
-        access_token_chunks.each_with_index do |chunk, index|
-          cookies_obj["keycloak_access_token_#{index}"] = {
-            value: chunk,
+        # Domain for cross-subdomain cookie sharing
+        # Use the same logic as ApplicationController#keycloak_cookie_domain
+        cookie_domain = determine_keycloak_cookie_domain(request_host)
+
+        # Save access token
+        if tokens[:access_token]
+          cookies_obj['access_token'] = {
+            value: tokens[:access_token],
             httponly: true,
             secure: Rails.env.production?,
             same_site: :lax,
-            expires: 1.day.from_now
+            domain: cookie_domain,
+            expires: 1.hour.from_now
           }
         end
-        cookies_obj['keycloak_access_token_count'] = {
-          value: access_token_chunks.length.to_s,
-          httponly: true,
-          expires: 1.day.from_now
-        }
         
-        # Save refresh token in chunks
+        # Save refresh token
         if tokens[:refresh_token]
-          refresh_token = tokens[:refresh_token]
-          refresh_token_chunks = refresh_token.scan(/.{1,#{chunk_size}}/m)
-          
-          # Clear old chunks
-          old_refresh_count = cookies_obj['keycloak_refresh_token_count'].to_i
-          old_refresh_count.times do |i|
-            cookies_obj.delete("keycloak_refresh_token_#{i}")
-          end
-          
-          # Save new chunks
-          refresh_token_chunks.each_with_index do |chunk, index|
-            cookies_obj["keycloak_refresh_token_#{index}"] = {
-              value: chunk,
-              httponly: true,
-              secure: Rails.env.production?,
-              same_site: :lax,
-              expires: 30.days.from_now
-            }
-          end
-          cookies_obj['keycloak_refresh_token_count'] = {
-            value: refresh_token_chunks.length.to_s,
+          cookies_obj['refresh_token'] = {
+            value: tokens[:refresh_token],
             httponly: true,
-            expires: 30.days.from_now
+            secure: Rails.env.production?,
+            same_site: :lax,
+            domain: cookie_domain,
+            expires: 7.days.from_now
+          }
+        end
+        
+        # Save id_token
+        if tokens[:id_token]
+          cookies_obj['id_token'] = {
+            value: tokens[:id_token],
+            httponly: true,
+            secure: Rails.env.production?,
+            same_site: :lax,
+            domain: cookie_domain,
+            expires: 7.days.from_now
           }
         end
         
         # Save token expiry
         if tokens[:expires_in] && tokens[:expires_in] > 0
           expires_at = Time.current + tokens[:expires_in].seconds
-          cookies_obj['keycloak_token_expires_at'] = {
+          cookies_obj['token_expires_at'] = {
             value: expires_at.to_i.to_s,
             httponly: true,
+            secure: Rails.env.production?,
+            same_site: :lax,
+            domain: cookie_domain,
             expires: expires_at
           }
         end
+      end
+
+      private
+
+      def clear_existing_keycloak_cookies(cookies_obj, request_host = nil)
+        # Clear existing Keycloak cookies from all possible domains to prevent duplicates
+        # Use the same domain logic as determine_keycloak_cookie_domain
         
+        host = request_host || ENV['DECIDIM_HOST'] || 'localhost'
+        
+        # Domains to clear cookies from (most specific to least specific)
+        domains_to_clear = [
+          host,                    # e.g., "part-int.ldttoolbox.app"
+          determine_keycloak_cookie_domain(request_host), # e.g., ".ldttoolbox.app"
+          nil                              # No domain (current host only)
+        ].uniq
+        
+        domains_to_clear.each do |domain|
+          Rails.logger.debug "[Keycloak TokenService] Clearing existing cookies for domain: #{domain || 'current host'}"
+          
+          # Clear named Keycloak cookies
+          ['access_token', 'refresh_token', 'id_token', 'token_expires_at'].each do |cookie_name|
+            cookies_obj.delete(cookie_name, domain: domain) if cookies_obj[cookie_name].present?
+          end
+          
+          # Clear any cookies starting with 'kc_' (Keycloak pattern)
+          cookies_obj.each do |name, _value|
+            if name.start_with?('kc_')
+              cookies_obj.delete(name, domain: domain)
+            end
+          end
+        end
+        
+        Rails.logger.debug "[Keycloak TokenService] Cleared existing Keycloak cookies from all domains"
+      end
+
+      def determine_keycloak_cookie_domain(request_host = nil)
+        host = request_host || ENV['DECIDIM_HOST'] || 'localhost'
+
+        # In production/development with subdomains, use the second-level domain
+        # to allow cookie sharing across subdomains
+        if Rails.env.production? || Rails.env.development?
+          # Extract domain parts: part-int.ldttoolbox.app -> ['part-int', 'ldttoolbox', 'app']
+          domain_parts = host.split('.')
+
+          # For domains like *.ldttoolbox.app, use .ldttoolbox.app
+          if domain_parts.length >= 3
+            # Return domain with leading dot for cross-subdomain cookies
+            ".#{domain_parts[-2]}.#{domain_parts[-1]}"
+          else
+            # Fallback to current host
+            host
+          end
+        else
+          # In other environments, use the current host or nil for localhost
+          host.include?('localhost') ? nil : host
+        end
       end
 
       # Exchange an incoming token (subject_token) for a token targeted at a specific audience/client
@@ -151,7 +193,6 @@ module Decidim
                 client_id: client_id
               }
 
-              # Attach client authentication
               if auth_method == :post
                 form[:client_secret] = client_secret
               else
@@ -164,13 +205,7 @@ module Decidim
 
               if response.code == '200'
                 result = JSON.parse(response.body)
-                if result['access_token']
-                  return result['access_token']
-                else
-                  return nil
-                end
-              else
-                # Try next combination
+                return result['access_token'] if result['access_token']
               end
             rescue StandardError => e
             end
@@ -183,25 +218,8 @@ module Decidim
       private
 
       def reconstruct_token_from_cookies(cookies_hash, token_key)
-        # Reconstruct token from chunks stored in HTTP cookies
         return nil unless cookies_hash
-        
-        chunk_count = cookies_hash["#{token_key}_count"].to_i
-        return nil if chunk_count == 0
-        
-        
-        chunks = []
-        chunk_count.times do |i|
-          chunk = cookies_hash["#{token_key}_#{i}"]
-          if chunk
-            chunks << chunk
-          else
-            break
-          end
-        end
-        
-        return nil if chunks.length != chunk_count
-        chunks.join
+        cookies_hash[token_key]
       end
 
       def refresh_access_token(refresh_token)
@@ -234,8 +252,7 @@ module Decidim
           end
 
           result = JSON.parse(response.body)
-          
-          
+
           {
             access_token: result['access_token'],
             refresh_token: result['refresh_token'] || refresh_token, # Keep old refresh_token if not provided

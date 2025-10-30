@@ -17,11 +17,13 @@ data:
     DECIDIM_PROTOCOL: https
     DECIDIM_ENABLE_HTML_HEADER_SNIPPETS: 'true'
     DOCKER_HOST_ADDRESS: 127.0.0.1
+    ENABLE_JSON_LOGS: 'true'
     GF_SERVER_DOMAIN: part-int.ldttoolbox.app/analytics/grafana
     HELP_URL: https://interoperable-europe.ec.europa.eu/collection/ldttoolbox
     KEYCLOAK_DISABLE_SSL_VERIFY: 'false'
     MATOMO_SITE_ID: '1'
     MATOMO_SERVER_ADDRESS: https://part-int.ldttoolbox.app/analytics/matomo/
+    MEETINGS_EMBEDDABLE_SERVICES: jitsi-part-int.ldttoolbox.app www.youtube.com www.twitch.tv meet.jit.si
     NODE_ENV: production
     OMNIAUTH_KEYCLOAK_CLIENT_ID: tool3
     OMNIAUTH_KEYCLOAK_REALM: LDT

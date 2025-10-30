@@ -132,7 +132,7 @@ build-analytics-images: build-matomo build-grafana ## Build both Matomo and Graf
 
 setup-decidim: check-prerequisites ## Setup Decidim with Docker Compose
 	@echo "$(YELLOW)Setting up Decidim...$(NC)"
-	@docker compose build --build-arg RAILS_ENV=development --build-arg NODE_ENV=development --progress=plain
+	@docker compose build --build-arg RAILS_ENV=development --build-arg NODE_ENV=development --progress=plain --no-cache
 	@echo "$(GREEN)✓ Decidim setup completed$(NC)"
 
 setup: setup-node install-deps setup-playwright setup-frontend setup-backend setup-jitsi setup-matomo setup-grafana setup-decidim ## Complete environment setup

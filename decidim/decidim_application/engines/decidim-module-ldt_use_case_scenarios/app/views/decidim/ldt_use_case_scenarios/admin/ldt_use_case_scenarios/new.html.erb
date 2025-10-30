@@ -77,39 +77,34 @@
       <% end %>
 
       <!-- Form Section - Always visible -->
-      <%= form_tag save_experiment_ldt_use_case_scenarios_path, method: :post, id: "experiment-form" do %>
-        <div id="form-section" class="card-section">
-          <!-- Hidden field for experiment_id -->
-          <%= hidden_field_tag :experiment_id, "", id: "experiment-id-field" %>
-          <%= hidden_field_tag :component_id, current_component.id %>
-          
-          <!-- Selected experiment info will be inserted here by JavaScript -->
-          <div data-selected-experiment-info></div>
-          
-          <!-- Association Name Field -->
-          <div class="row column">
-            <label for="association-name"><strong><%= t(".association_name") %></strong></label>
-            <%= text_field_tag :scenario_name, "", 
-                id: "association-name",
-                placeholder: t('.enter_association_name'),
-                class: "form-control",
-                style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-top: 8px; font-size: 14px;",
-                required: true %>
-            <small class="help-text" style="display: block; margin-top: 5px; color: #666;"><%= t(".name_required") %></small>
+      <%= decidim_form_for(@form, url: ldt_use_case_scenarios_path, html: { class: "form-defaults form use_case_scenario_form new_use_case_scenario" }) do |f| %>
+        <div class="form__wrapper">
+          <div id="form-section" class="card-section">
+            <!-- Hidden field for experiment_id -->
+            <%= f.hidden_field :experiment_id, id: "experiment-id-field" %>
+            <%= f.hidden_field :component_id, value: current_component.id %>
+            
+            <!-- Selected experiment info will be inserted here by JavaScript -->
+            <div data-selected-experiment-info></div>
+            
+            <!-- Association Name Field -->
+            <div class="field">
+              <%= f.text_field :name, 
+                  id: "association-name",
+                  placeholder: t('.enter_association_name'),
+                  required: true %>
+              
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Footer - Always visible -->
+        <div class="item__edit-sticky">
+          <div class="item__edit-sticky-container">
+            <%= f.submit t(".save"), id: "save-button", class: "button button__sm button__secondary" %>
           </div>
         </div>
       <% end %>
-
-    </div>
-  </div>
-
-  <!-- Sticky Footer - Always visible -->
-  <div class="item__edit-sticky">
-    <div class="item__edit-sticky-container">
-      <%= button_tag t(".cancel"), type: "button", id: "reset-button", class: "button button__sm" %>
-      <%= button_tag t(".save"), type: "submit", form: "experiment-form", id: "save-button", class: "button button__sm button__secondary" %>
-    </div>
-  </div>
 </div>
 
 <!-- Hidden i18n for JS -->
