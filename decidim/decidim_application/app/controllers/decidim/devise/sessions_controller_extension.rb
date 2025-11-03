@@ -90,6 +90,7 @@ module Decidim
       end
 
       def build_keycloak_logout_url
+        keycloak_site = ENV['OMNIAUTH_KEYCLOAK_SITE']
         realm = ENV['OMNIAUTH_KEYCLOAK_REALM']
         
         return nil unless keycloak_site.present? && realm.present?

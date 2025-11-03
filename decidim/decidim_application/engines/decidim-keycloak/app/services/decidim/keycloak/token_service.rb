@@ -103,14 +103,16 @@ module Decidim
 
       def clear_existing_keycloak_cookies(cookies_obj, request_host = nil)
         # Clear existing Keycloak cookies from all possible domains to prevent duplicates
-        # Use the same domain logic as determine_keycloak_cookie_domain
+        # Use the same domain logic as ApplicationController#keycloak_cookie_domain
         
-        host = request_host || ENV['DECIDIM_HOST'] || 'localhost'
+        host = request_host || 'localhost'
         
         # Domains to clear cookies from (most specific to least specific)
+        # Match the logic from ApplicationController#clear_keycloak_cookies
         domains_to_clear = [
           host,                    # e.g., "part-int.ldttoolbox.app"
           determine_keycloak_cookie_domain(request_host), # e.g., ".ldttoolbox.app"
+          extract_domain_from_host(host), # e.g., "ldttoolbox.app" (like request.domain)
           nil                              # No domain (current host only)
         ].uniq
         
@@ -134,7 +136,7 @@ module Decidim
       end
 
       def determine_keycloak_cookie_domain(request_host = nil)
-        host = request_host || ENV['DECIDIM_HOST'] || 'localhost'
+        host = request_host || 'localhost'
 
         # In production/development with subdomains, use the second-level domain
         # to allow cookie sharing across subdomains
@@ -151,9 +153,20 @@ module Decidim
             host
           end
         else
-          # In other environments, use the current host or nil for localhost
-          host.include?('localhost') ? nil : host
+          # In other environments, use the current host
+          host
         end
+      end
+
+      # Extract domain part similar to request.domain (removes subdomain)
+      def extract_domain_from_host(host)
+        return nil unless host.present?
+        
+        domain_parts = host.split('.')
+        return nil unless domain_parts.length >= 2
+        
+        # For domains like part-int.ldttoolbox.app, return ldttoolbox.app
+        "#{domain_parts[-2]}.#{domain_parts[-1]}"
       end
 
       # Exchange an incoming token (subject_token) for a token targeted at a specific audience/client
