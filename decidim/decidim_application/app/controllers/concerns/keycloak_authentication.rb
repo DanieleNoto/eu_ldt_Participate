@@ -44,11 +44,20 @@ module KeycloakAuthentication
     return unless organization&.enabled_omniauth_providers&.dig(:keycloakopenid).present?
 
     # Check for valid Keycloak cookies
-    return unless keycloak_cookies_present_and_valid?
+    cookies_valid = keycloak_cookies_present_and_valid?
+    
+    # If we're already on the login page with valid cookies, set the flag directly
+    if request.path == new_user_session_path && cookies_valid
+      session[:keycloak_auto_login_pending] = true
+      Rails.logger.info "[Keycloak AutoLogin] Setting auto-login flag on login page"
+      return
+    end
+    
+    return unless cookies_valid
 
     # Set session flag for frontend auto-login and redirect to login page
     session[:keycloak_auto_login_pending] = true
-    Rails.logger.info "[Keycloak AutoLogin] Setting auto-login flag and redirecting to login page"
+    Rails.logger.info "[Keycloak AutoLogin] Redirecting to login page for auto-login"
     redirect_to new_user_session_path
   end
 

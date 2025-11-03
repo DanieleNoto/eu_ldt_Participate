@@ -21,14 +21,20 @@ module KeycloakCookieHandling
   # Check if Keycloak cookies are present and valid
   # CENTRALIZED: Uses Decidim::Keycloak::JwtParser
   def keycloak_cookies_present_and_valid?
+    access_token = cookies['access_token']
     id_token = cookies['id_token']
-    return false unless id_token.present?
+    
+    return false unless id_token.present? && access_token.present?
 
-    # Use centralized JWT validation
+    # Use centralized JWT validation for structure
     return false unless Decidim::Keycloak::JwtParser.valid_structure?(id_token)
-    return false if Decidim::Keycloak::JwtParser.locally_expired?(id_token)
+    
+    # IMPORTANT: Even if JWT is locally expired, we should trigger auto-login
+    # because Keycloak might have a valid session and will handle refresh automatically
+    if Decidim::Keycloak::JwtParser.locally_expired?(id_token)
+      Rails.logger.info "[Keycloak AutoLogin] JWT expired, Keycloak will handle refresh during SSO"
+    end
 
-    Rails.logger.debug "[Keycloak AutoLogin] Valid Keycloak cookies found, redirecting for auto-login"
     true
   rescue => e
     Rails.logger.warn "[Keycloak AutoLogin] Error validating cookies: #{e.message}"
