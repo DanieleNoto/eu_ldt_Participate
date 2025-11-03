@@ -52,12 +52,8 @@ Rails.application.configure do
 
   # Configure CSP nonces based on the current request
   config.content_security_policy_nonce_generator = ->(request) {
-    # Allow unsafe-inline for authentication pages (Devise scripts)
-    if request.path.match?(%r{/users/(sign_in|sign_up|password|confirmation|unlock)})
-      nil  # Disable nonces for auth pages to allow unsafe-inline
-    else
-      request.session.id.to_s  # Use session-based nonces for other pages
-    end
+    # Always use session-based nonces for all pages, including authentication
+    request.session.id.to_s
   }
 
   config.content_security_policy_nonce_directives = %w(script-src)

@@ -7,6 +7,9 @@ require.context('../../images', true);
 // Import custom styles
 import '../../stylesheets/decidim/decidim_application.scss';
 
+// Import Keycloak auto-login functionality
+import './keycloak_auto_login';
+
 import * as ActiveStorage from '@rails/activestorage';
 
 ActiveStorage.start();
