@@ -22,6 +22,10 @@ if [ "$RAILS_ENV" = "production" ]; then
   fi
   echo "--- Database setup completed ---"
   
+  # Run storage cleanup on production startup
+  echo "--- Running storage cleanup ---"
+  bin/rails storage:cleanup_orphaned_blobs
+  
   # Asset verification (must be precompiled)
   # shakapacker is configured to output to `public/decidim-packs` (see config/shakapacker.yml)
   echo "--- Verifying precompiled assets (public/decidim-packs) ---"
