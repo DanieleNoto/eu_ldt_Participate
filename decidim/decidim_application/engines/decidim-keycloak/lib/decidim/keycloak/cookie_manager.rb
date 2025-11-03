@@ -138,9 +138,15 @@ module Decidim
         
         # Save refresh token (longer expiry)
         if tokens[:refresh_token]
+          refresh_expires_at = if tokens[:refresh_token_expires_in] && tokens[:refresh_token_expires_in] > 0
+                                Time.current + tokens[:refresh_token_expires_in].seconds
+                              else
+                                30.days.from_now
+                              end
+          
           cookies_obj['refresh_token'] = {
             value: tokens[:refresh_token],
-            expires: 30.days.from_now,
+            expires: refresh_expires_at,
             secure: Rails.env.production?,
             httponly: true,
             same_site: :lax,

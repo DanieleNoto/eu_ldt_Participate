@@ -84,6 +84,15 @@ module Decidim
                             auth_data&.extra&.dig('expires_in') ||
                             auth_data&.credentials&.dig('expires_in')
           token_expires_in = token_expires_in.to_i if token_expires_in
+          
+          # Try to get refresh_token_expires_in from auth data
+          refresh_token_expires_in = auth_data&.extra&.dig('refresh_token_expires_in') ||
+                                    auth_data&.credentials&.dig('refresh_token_expires_in')
+          
+          # Note: refresh_token_expires_in is typically not provided in initial OAuth response
+          # It will be obtained during the first refresh operation
+          
+          refresh_token_expires_in = refresh_token_expires_in.to_i if refresh_token_expires_in
 
           if access_token
             # Use TokenService to save tokens to cookies
@@ -91,7 +100,8 @@ module Decidim
               access_token: access_token,
               refresh_token: refresh_token,
               id_token: id_token,
-              expires_in: token_expires_in
+              expires_in: token_expires_in,
+              refresh_token_expires_in: refresh_token_expires_in
             }
             
             Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, tokens, request.host)
@@ -105,8 +115,8 @@ module Decidim
             end
           else
             Rails.logger.error "[Keycloak] Could not save token - access_token nil for user #{user.id}"
-          end
         end
+      end
     end
   end
 end

@@ -11,6 +11,10 @@ module Decidim
         new.ensure_valid_token(user, cookies_hash, cookies_obj, request_host, controller)
       end
 
+      def self.revoke_tokens(access_token, refresh_token = nil)
+        new.revoke_tokens(access_token, refresh_token)
+      end
+
       def ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil, request_host = nil, controller = nil)
         access_token = reconstruct_token_from_cookies(cookies_hash, 'access_token')
         expires_at = cookies_hash&.dig('token_expires_at')&.to_i if cookies_hash
@@ -170,10 +174,63 @@ module Decidim
           {
             access_token: result['access_token'],
             refresh_token: result['refresh_token'] || refresh_token, # Keep old refresh_token if not provided
-            expires_in: result['expires_in'].to_i
+            expires_in: result['expires_in'].to_i,
+            refresh_token_expires_in: result['refresh_token_expires_in']&.to_i
           }
         rescue StandardError => e
           nil
+        end
+      end
+
+      def revoke_tokens(access_token, refresh_token = nil)
+        revoked = false
+
+        if access_token.present?
+          revoked = revoke_token(access_token) || revoked
+        end
+
+        if refresh_token.present?
+          revoked = revoke_token(refresh_token) || revoked
+        end
+
+        revoked
+      end
+
+      def revoke_token(token)
+        return false unless token.present?
+
+        keycloak_site = ENV['OMNIAUTH_KEYCLOAK_SITE']
+        realm = ENV['OMNIAUTH_KEYCLOAK_REALM'] || 'master'
+        client_id = ENV['OMNIAUTH_KEYCLOAK_CLIENT_ID']
+        client_secret = ENV['OMNIAUTH_KEYCLOAK_CLIENT_SECRET']
+
+        revoke_endpoint = "#{keycloak_site}/realms/#{realm}/protocol/openid-connect/revoke"
+
+        begin
+          uri = URI(revoke_endpoint)
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl = uri.scheme == 'https'
+
+          request = Net::HTTP::Post.new(uri)
+          request['Content-Type'] = 'application/x-www-form-urlencoded'
+          request.set_form_data(
+            token: token,
+            client_id: client_id,
+            client_secret: client_secret
+          )
+
+          response = http.request(request)
+
+          if response.code == '200'
+            Rails.logger.info "✓ Successfully revoked token"
+            true
+          else
+            Rails.logger.warn "✗ Failed to revoke token: HTTP #{response.code} - #{response.body}"
+            false
+          end
+        rescue StandardError => e
+          Rails.logger.error "Error revoking token: #{e.message}"
+          false
         end
       end
     end

@@ -72,9 +72,17 @@ module KeycloakAuthentication
     organization = current_organization
     return unless organization&.enabled_omniauth_providers&.dig(:keycloakopenid).present?
 
-    # Use proper token introspection instead of local validation
-    unless Decidim::Keycloak::TokenValidator.valid?(cookies['id_token'], current_user)
-      Rails.logger.info "[Keycloak AutoLogout] Keycloak session invalid, logging out user #{current_user.id}"
+    # Try to refresh token first before checking validity
+    valid_token = Decidim::Keycloak::TokenService.ensure_valid_token(
+      current_user, 
+      cookies.to_h, 
+      cookies, 
+      request.host, 
+      self
+    )
+
+    unless valid_token
+      Rails.logger.info "[Keycloak AutoLogout] Keycloak session invalid and refresh failed, logging out user #{current_user.id}"
 
       # Clear all Keycloak-related cookies from all possible domains
       clear_keycloak_cookies

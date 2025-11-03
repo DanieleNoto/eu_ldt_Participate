@@ -12,6 +12,20 @@ module Decidim
         should_logout_from_keycloak = session[:keycloak_authenticated].present?
         keycloak_logout_url = build_keycloak_logout_url if should_logout_from_keycloak
         
+        # Extract tokens from cookies BEFORE clearing them for revocation
+        access_token = cookies['access_token']
+        refresh_token = cookies['refresh_token']
+        
+        # Revoke OAuth2 tokens before logout if available
+        if access_token.present? || refresh_token.present?
+          token_revoked = Decidim::Keycloak::TokenService.revoke_tokens(access_token, refresh_token)
+          if token_revoked
+            Rails.logger.info "✓ Successfully revoked OAuth2 tokens during logout"
+          else
+            Rails.logger.warn "✗ Failed to revoke some OAuth2 tokens during logout"
+          end
+        end
+        
         # Perform normal Devise logout first
         signed_out = (::Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
         set_flash_message! :notice, :signed_out if signed_out

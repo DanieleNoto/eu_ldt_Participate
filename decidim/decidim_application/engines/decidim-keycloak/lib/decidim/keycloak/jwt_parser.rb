@@ -56,7 +56,10 @@ module Decidim
         expiry_time = extract_expiry(jwt_token)
         return true unless expiry_time
         
-        expiry_time < Time.now
+        # Add 1-minute buffer to account for clock skew between servers
+        # This prevents false positives due to slight time differences
+        buffer_time = 1.minutes
+        expiry_time < (Time.now + buffer_time)
       end
       
       # Extract user locale from JWT token
