@@ -60,14 +60,7 @@ Rails.application.configure do
     end
   }
 
-  config.content_security_policy_nonce_directives = ->(request) {
-    # Skip nonces for authentication pages to allow Devise inline scripts
-    if request.path.match?(%r{/users/(sign_in|sign_up|password|confirmation|unlock)})
-      []  # No nonce directives for auth pages
-    else
-      %w(script-src)  # Use nonces for script-src on other pages
-    end
-  }
+  config.content_security_policy_nonce_directives = %w(script-src)
 
   # Report violations without enforcing the policy.
   # config.content_security_policy_report_only = true
