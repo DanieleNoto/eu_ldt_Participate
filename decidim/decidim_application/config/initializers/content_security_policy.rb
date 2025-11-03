@@ -44,34 +44,30 @@ Rails.application.configure do
         connect_sources << chatbot_url
       end
 
-      # Allow unsafe-inline for authentication pages (Devise scripts)
-      if request&.path&.match?(%r{/users/(sign_in|sign_up|password|confirmation|unlock)})
-        script_sources << :unsafe_inline
-      end
-
       policy.script_src *script_sources.compact
       policy.style_src  :self, :unsafe_inline
       policy.connect_src *connect_sources.compact
     end
   end
 
-  # Don't use nonces in development to allow unsafe-inline
-  if Rails.env.development?
-    config.content_security_policy_nonce_generator = nil
-    config.content_security_policy_nonce_directives = []
-  else
-    # Generate session nonces for permitted importmap and inline scripts in production
-    # Skip nonces for authentication pages to allow Devise inline scripts
-    if request&.path&.match?(%r{/users/(sign_in|sign_up|password|confirmation|unlock)})
-      policy.script_src :self, :unsafe_inline
-      config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
-      config.content_security_policy_nonce_directives = %w(script-src)
+  # Configure CSP nonces based on the current request
+  config.content_security_policy_nonce_generator = ->(request) {
+    # Allow unsafe-inline for authentication pages (Devise scripts)
+    if request.path.match?(%r{/users/(sign_in|sign_up|password|confirmation|unlock)})
+      nil  # Disable nonces for auth pages to allow unsafe-inline
     else
-      policy.script_src :self
-      config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
-      config.content_security_policy_nonce_directives = %w(script-src)
+      request.session.id.to_s  # Use session-based nonces for other pages
     end
-  end
+  }
+
+  config.content_security_policy_nonce_directives = ->(request) {
+    # Skip nonces for authentication pages to allow Devise inline scripts
+    if request.path.match?(%r{/users/(sign_in|sign_up|password|confirmation|unlock)})
+      []  # No nonce directives for auth pages
+    else
+      %w(script-src)  # Use nonces for script-src on other pages
+    end
+  }
 
   # Report violations without enforcing the policy.
   # config.content_security_policy_report_only = true

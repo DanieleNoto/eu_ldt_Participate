@@ -2,7 +2,7 @@ Deface::Override.new(
   virtual_path: "decidim/devise/sessions/new",
   name: "add_keycloak_auto_login_session_check",
   insert_bottom: ".login__info",
-  text: '
+  text: %q{
 <script<%= " nonce=\"#{request.content_security_policy_nonce}\"" if request.respond_to?(:content_security_policy_nonce) %>>
 document.addEventListener("DOMContentLoaded", function() {
   // Check if auto-login is pending from session
@@ -74,5 +74,5 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 });
 </script>
-'
+}
 )
