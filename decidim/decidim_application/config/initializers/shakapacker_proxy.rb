@@ -38,6 +38,13 @@ if Rails.env.development?
           end
           
           response = http.request(http_request)
+          
+          # Check if response is valid and has required methods
+          if response.nil? || !response.respond_to?(:each_header) || !response.respond_to?(:body) || !response.respond_to?(:code)
+            Rails.logger.error "ShakapackerProxy: Invalid or incomplete response received from shakapacker server"
+            return @app.call(env)
+          end
+          
           Rails.logger.debug "ShakapackerProxy: Got response #{response.code}"
           
           # Return the proxied response

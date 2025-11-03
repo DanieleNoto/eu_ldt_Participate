@@ -15,6 +15,10 @@ module Decidim
         new.revoke_tokens(access_token, refresh_token)
       end
 
+      def self.introspect_token(access_token)
+        new.introspect_token(access_token)
+      end
+
       def ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil, request_host = nil, controller = nil)
         access_token = reconstruct_token_from_cookies(cookies_hash, 'access_token')
         expires_at = cookies_hash&.dig('token_expires_at')&.to_i if cookies_hash
@@ -26,9 +30,17 @@ module Decidim
         # If no expiration set, assume it's still valid
         return access_token unless expires_at
         
-        # If token not expired, return it
+        # If token not expired, check if it's still active with Keycloak (introspection)
         if Time.at(expires_at) > Time.current
-          return access_token
+          # Perform token introspection to detect if token was revoked from other applications
+          if introspect_token(access_token)
+            return access_token
+          else
+            Rails.logger.info "[Keycloak Token Validation] Token revoked or invalid, clearing cookies"
+            # Token was revoked, clear cookies and return nil
+            controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
+            return nil
+          end
         end
         
         # Token is expired, try to refresh
@@ -48,6 +60,61 @@ module Decidim
       def save_tokens_to_cookies(cookies_obj, tokens, request_host = nil)
         # CENTRALIZED: Uses Decidim::Keycloak::CookieManager
         Decidim::Keycloak::CookieManager.save_tokens(cookies_obj, tokens, request_host)
+      end
+
+      def revoke_tokens(access_token, refresh_token = nil)
+        revoked = false
+
+        if access_token.present?
+          revoked = revoke_token(access_token) || revoked
+        end
+
+        if refresh_token.present?
+          revoked = revoke_token(refresh_token) || revoked
+        end
+
+        revoked
+      end
+
+      def introspect_token(access_token)
+        return false unless access_token.present?
+
+        keycloak_site = ENV['OMNIAUTH_KEYCLOAK_SITE']
+        realm = ENV['OMNIAUTH_KEYCLOAK_REALM'] || 'master'
+        client_id = ENV['OMNIAUTH_KEYCLOAK_CLIENT_ID']
+        client_secret = ENV['OMNIAUTH_KEYCLOAK_CLIENT_SECRET']
+
+        introspect_endpoint = "#{keycloak_site}/realms/#{realm}/protocol/openid-connect/token/introspect"
+
+        begin
+          uri = URI(introspect_endpoint)
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl = uri.scheme == 'https'
+
+          request = Net::HTTP::Post.new(uri)
+          request['Content-Type'] = 'application/x-www-form-urlencoded'
+          request.set_form_data(
+            token: access_token,
+            client_id: client_id,
+            client_secret: client_secret
+          )
+
+          response = http.request(request)
+
+          if response.code == '200'
+            result = JSON.parse(response.body)
+            active = result['active']
+
+            Rails.logger.debug "[Keycloak Token Introspection] Token active: #{active}"
+            active == true
+          else
+            Rails.logger.warn "[Keycloak Token Introspection] Failed: HTTP #{response.code}"
+            false
+          end
+        rescue StandardError => e
+          Rails.logger.error "[Keycloak Token Introspection] Error: #{e.message}"
+          false
+        end
       end
 
       private
@@ -182,19 +249,7 @@ module Decidim
         end
       end
 
-      def revoke_tokens(access_token, refresh_token = nil)
-        revoked = false
-
-        if access_token.present?
-          revoked = revoke_token(access_token) || revoked
-        end
-
-        if refresh_token.present?
-          revoked = revoke_token(refresh_token) || revoked
-        end
-
-        revoked
-      end
+      private
 
       def revoke_token(token)
         return false unless token.present?

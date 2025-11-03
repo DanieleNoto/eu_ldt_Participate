@@ -87,8 +87,11 @@ module KeycloakAuthentication
       # Clear all Keycloak-related cookies from all possible domains
       clear_keycloak_cookies
 
-      # Sign out the user - let Devise handle the redirect automatically
+      # Sign out the user and redirect immediately to prevent further processing
       sign_out current_user
+      
+      # Redirect to login page or home page to prevent errors on admin pages
+      redirect_to new_user_session_path and return
     end
   end
 
