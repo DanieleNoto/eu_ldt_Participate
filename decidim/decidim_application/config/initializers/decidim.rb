@@ -453,16 +453,16 @@ Decidim.configure do |config|
     "script-src" => %w('self' 'unsafe-inline' 'unsafe-eval'),
     "style-src" => %w('self' 'unsafe-inline'),
     "connect-src" => %w('self'),
-    "font-src" => %w('self'),
+    "font-src" => %w('self' data: https: ms-browser-extension:),
     "frame-src" => frame_src_hosts,
   }
 
   # Allow webpack dev server in development
   if Rails.env.development?
-    config.content_security_policies_extra["script-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
+    config.content_security_policies_extra["script-src"] += %w(http://localhost:3035 http://0.0.0.0:3035 ws://0.0.0.0:3035 ws://localhost:3035)
     config.content_security_policies_extra["style-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
     config.content_security_policies_extra["connect-src"] += %w(http://localhost:3035 http://0.0.0.0:3035 ws://0.0.0.0:3035 ws://localhost:3035)
-    config.content_security_policies_extra["font-src"] += %w(http://localhost:3035 http://0.0.0.0:3035 ws://0.0.0.0:3035 ws://localhost:3035)
+    config.content_security_policies_extra["font-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
   end
 
   # Add chatbot URL to CSP if configured
