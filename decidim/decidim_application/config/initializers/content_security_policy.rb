@@ -13,7 +13,7 @@ Rails.application.configure do
     policy.object_src  :none
 
     # Get chatbot URL from environment
-    chatbot_url = ENV['CHATBOT_URL']
+    chatbot_url = ENV['CHATBOT_URL']&.strip
 
     # Allow scripts from self and webpack dev server
     if Rails.env.development?
@@ -30,10 +30,10 @@ Rails.application.configure do
         font_sources << chatbot_url
       end
 
-      policy.script_src *script_sources
-      policy.style_src  *style_sources
-      policy.connect_src *connect_sources
-      policy.font_src   *font_sources
+      policy.script_src *script_sources.compact
+      policy.style_src  *style_sources.compact
+      policy.connect_src *connect_sources.compact
+      policy.font_src   *font_sources.compact
     else
       script_sources = [:self]
       connect_sources = [:self]
@@ -44,9 +44,9 @@ Rails.application.configure do
         connect_sources << chatbot_url
       end
 
-      policy.script_src *script_sources
+      policy.script_src *script_sources.compact
       policy.style_src  :self, :unsafe_inline
-      policy.connect_src *connect_sources
+      policy.connect_src *connect_sources.compact
     end
   end
 

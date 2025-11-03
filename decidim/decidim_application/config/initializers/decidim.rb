@@ -471,14 +471,18 @@ Decidim.configure do |config|
 
   # Add chatbot URL to CSP if configured
   if ENV['CHATBOT_ENABLED'] == 'true' && ENV['CHATBOT_URL'].present?
-    chatbot_url = ENV['CHATBOT_URL']
-    config.content_security_policies_extra["script-src"] += [chatbot_url]
-    config.content_security_policies_extra["style-src"] += [chatbot_url]
-    config.content_security_policies_extra["connect-src"] += [chatbot_url]
-    
+    chatbot_url = ENV['CHATBOT_URL']&.strip
+    if chatbot_url.present?
+      config.content_security_policies_extra["script-src"] += [chatbot_url]
+      config.content_security_policies_extra["style-src"] += [chatbot_url]
+      config.content_security_policies_extra["connect-src"] += [chatbot_url]
+    end
+
     # Add chatbot backend API URL for AJAX requests
-    chatbot_backend_url = ENV.fetch('CHATBOT_BACKEND_URL', 'http://localhost:3002')
-    config.content_security_policies_extra["connect-src"] += [chatbot_backend_url]
+    chatbot_backend_url = ENV.fetch('CHATBOT_BACKEND_URL', 'http://localhost:3002')&.strip
+    if chatbot_backend_url.present?
+      config.content_security_policies_extra["connect-src"] += [chatbot_backend_url]
+    end
     # Allow Matomo analytics in development
     if ENV['MATOMO_SERVER_ADDRESS'].present?
       matomo_uri = URI.parse(ENV['MATOMO_SERVER_ADDRESS'])
