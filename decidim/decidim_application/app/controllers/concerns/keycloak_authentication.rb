@@ -59,7 +59,9 @@ module KeycloakAuthentication
     # Set session flag for frontend auto-login and redirect to login page
     session[:keycloak_auto_login_pending] = true
     Rails.logger.info "[Keycloak AutoLogin] Redirecting to login page for auto-login"
-    redirect_to new_user_session_path
+    
+    # Use 302 redirect to avoid CSRF token issues
+    redirect_to new_user_session_path, status: :found
   end
 
   def check_keycloak_auto_logout

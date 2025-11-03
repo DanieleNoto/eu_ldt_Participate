@@ -391,9 +391,10 @@ Decidim.configure do |config|
     begin
       matomo_uri = URI.parse(ENV['MATOMO_SERVER_ADDRESS'])
       matomo_host_with_port = "#{matomo_uri.host}:#{matomo_uri.port}"
-      matomo_hosts = [matomo_host_with_port, ENV['MATOMO_SERVER_ADDRESS']]
+      matomo_hosts = [matomo_host_with_port, ENV['MATOMO_SERVER_ADDRESS']].compact
     rescue URI::InvalidURIError
       Rails.logger.warn "Invalid MATOMO_SERVER_ADDRESS: #{ENV['MATOMO_SERVER_ADDRESS']}"
+      matomo_hosts = []
     end
   end
   
@@ -428,9 +429,10 @@ Decidim.configure do |config|
     begin
       keycloak_uri = URI.parse(ENV['OMNIAUTH_KEYCLOAK_SITE'])
       keycloak_host_with_port = "#{keycloak_uri.host}:#{keycloak_uri.port}"
-      keycloak_hosts = [keycloak_host_with_port, ENV['OMNIAUTH_KEYCLOAK_SITE'].chomp('/')]
+      keycloak_hosts = [keycloak_host_with_port, ENV['OMNIAUTH_KEYCLOAK_SITE'].chomp('/')].compact
     rescue URI::InvalidURIError
       Rails.logger.warn "Invalid OMNIAUTH_KEYCLOAK_SITE: #{ENV['OMNIAUTH_KEYCLOAK_SITE']}"
+      keycloak_hosts = []
     end
   end
   
@@ -440,13 +442,15 @@ Decidim.configure do |config|
     begin
       tool0_uri = URI.parse(ENV['TOOL0_DOMAIN'])
       tool0_host_with_port = "#{tool0_uri.host}:#{tool0_uri.port}"
-      tool0_hosts = [tool0_host_with_port, ENV['TOOL0_DOMAIN'].chomp('/')]
+      tool0_hosts = [tool0_host_with_port, ENV['TOOL0_DOMAIN'].chomp('/')].compact
     rescue URI::InvalidURIError
       Rails.logger.warn "Invalid TOOL0_DOMAIN: #{ENV['TOOL0_DOMAIN']}"
+      tool0_hosts = []
     end
   end
   
-  frame_src_hosts = %w('self') + embeddable_services + matomo_hosts + grafana_hosts + keycloak_hosts + tool0_hosts
+  # Safely build frame_src_hosts array, filtering out nil values
+  frame_src_hosts = (%w('self') + embeddable_services + matomo_hosts + grafana_hosts + keycloak_hosts + tool0_hosts).compact
   
   config.content_security_policies_extra = {
     "default-src" => %w('self' https:),
