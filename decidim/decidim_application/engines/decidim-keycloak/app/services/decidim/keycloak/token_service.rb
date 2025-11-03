@@ -30,16 +30,28 @@ module Decidim
         # If no expiration set, assume it's still valid
         return access_token unless expires_at
         
-        # If token not expired, check if it's still active with Keycloak (introspection)
+        # If token not expired, check introspection but with throttling to avoid performance issues
         if Time.at(expires_at) > Time.current
-          # Perform token introspection to detect if token was revoked from other applications
-          if introspect_token(access_token)
-            return access_token
+          # Only perform introspection periodically (every 2 minutes) to detect cross-app logouts
+          # This balances security with performance
+          last_introspection = cookies_hash&.dig('last_introspection')&.to_i
+          should_introspect = last_introspection.nil? || (Time.current.to_i - last_introspection) > 120 # 2 minutes
+
+          if should_introspect
+            Rails.logger.debug "[Keycloak Token Validation] Performing periodic introspection check"
+            if introspect_token(access_token)
+              # Token is valid, update last introspection timestamp
+              cookies_obj['last_introspection'] = Time.current.to_i if cookies_obj
+              return access_token
+            else
+              Rails.logger.info "[Keycloak Token Validation] Token revoked or invalid, clearing cookies"
+              # Token was revoked, clear cookies and return nil
+              controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
+              return nil
+            end
           else
-            Rails.logger.info "[Keycloak Token Validation] Token revoked or invalid, clearing cookies"
-            # Token was revoked, clear cookies and return nil
-            controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
-            return nil
+            # Skip introspection, trust local expiration
+            return access_token
           end
         end
         
