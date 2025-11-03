@@ -45,6 +45,7 @@ module KeycloakAuthentication
 
     # Check for valid Keycloak cookies
     cookies_valid = keycloak_cookies_present_and_valid?
+    Rails.logger.info "[Keycloak AutoLogin] Cookies valid: #{cookies_valid}, Controller: #{controller_name}, Action: #{action_name}"
     
     # If we're already on the login page with valid cookies, set the flag directly
     # Check controller and action instead of comparing paths to avoid parameter inheritance issues

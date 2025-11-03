@@ -44,6 +44,11 @@ Rails.application.configure do
         connect_sources << chatbot_url
       end
 
+      # Allow unsafe-inline for authentication pages (Devise scripts)
+      if request&.path&.match?(%r{/users/(sign_in|sign_up|password|confirmation|unlock)})
+        script_sources << :unsafe_inline
+      end
+
       policy.script_src *script_sources.compact
       policy.style_src  :self, :unsafe_inline
       policy.connect_src *connect_sources.compact
@@ -56,8 +61,16 @@ Rails.application.configure do
     config.content_security_policy_nonce_directives = []
   else
     # Generate session nonces for permitted importmap and inline scripts in production
-    config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
-    config.content_security_policy_nonce_directives = %w(script-src)
+    # Skip nonces for authentication pages to allow Devise inline scripts
+    if request&.path&.match?(%r{/users/(sign_in|sign_up|password|confirmation|unlock)})
+      policy.script_src :self, :unsafe_inline
+      config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
+      config.content_security_policy_nonce_directives = %w(script-src)
+    else
+      policy.script_src :self
+      config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
+      config.content_security_policy_nonce_directives = %w(script-src)
+    end
   end
 
   # Report violations without enforcing the policy.
