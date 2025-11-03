@@ -42,123 +42,24 @@ module Decidim
       end
 
       def save_tokens_to_cookies(cookies_obj, tokens, request_host = nil)
-        # Clear existing Keycloak cookies from all domains before saving new ones to prevent duplicates
-        clear_existing_keycloak_cookies(cookies_obj, request_host)
-        
-        # Domain for cross-subdomain cookie sharing
-        # Use the same logic as ApplicationController#keycloak_cookie_domain
-        cookie_domain = determine_keycloak_cookie_domain(request_host)
-
-        # Save access token
-        if tokens[:access_token]
-          cookies_obj['access_token'] = {
-            value: tokens[:access_token],
-            httponly: true,
-            secure: Rails.env.production?,
-            same_site: :lax,
-            domain: cookie_domain,
-            expires: 1.hour.from_now
-          }
-        end
-        
-        # Save refresh token
-        if tokens[:refresh_token]
-          cookies_obj['refresh_token'] = {
-            value: tokens[:refresh_token],
-            httponly: true,
-            secure: Rails.env.production?,
-            same_site: :lax,
-            domain: cookie_domain,
-            expires: 7.days.from_now
-          }
-        end
-        
-        # Save id_token
-        if tokens[:id_token]
-          cookies_obj['id_token'] = {
-            value: tokens[:id_token],
-            httponly: true,
-            secure: Rails.env.production?,
-            same_site: :lax,
-            domain: cookie_domain,
-            expires: 7.days.from_now
-          }
-        end
-        
-        # Save token expiry
-        if tokens[:expires_in] && tokens[:expires_in] > 0
-          expires_at = Time.current + tokens[:expires_in].seconds
-          cookies_obj['token_expires_at'] = {
-            value: expires_at.to_i.to_s,
-            httponly: true,
-            secure: Rails.env.production?,
-            same_site: :lax,
-            domain: cookie_domain,
-            expires: expires_at
-          }
-        end
+        # CENTRALIZED: Uses Decidim::Keycloak::CookieManager
+        Decidim::Keycloak::CookieManager.save_tokens(cookies_obj, tokens, request_host)
       end
 
       private
 
       def clear_existing_keycloak_cookies(cookies_obj, request_host = nil)
-        # Clear existing Keycloak cookies from all possible domains to prevent duplicates
-        # Use the same domain logic as ApplicationController#keycloak_cookie_domain
-        
-        host = request_host || 'localhost'
-        
-        # Domains to clear cookies from (most specific to least specific)
-        # Match the logic from ApplicationController#clear_keycloak_cookies
-        domains_to_clear = [
-          host,                    # e.g., "part-int.ldttoolbox.app"
-          determine_keycloak_cookie_domain(request_host), # e.g., ".ldttoolbox.app"
-          extract_domain_from_host(host), # e.g., "ldttoolbox.app" (like request.domain)
-          nil                              # No domain (current host only)
-        ].uniq
-        
-        domains_to_clear.each do |domain|
-          Rails.logger.debug "[Keycloak TokenService] Clearing existing cookies for domain: #{domain || 'current host'}"
-          
-          # Clear named Keycloak cookies
-          ['access_token', 'refresh_token', 'id_token', 'token_expires_at'].each do |cookie_name|
-            cookies_obj.delete(cookie_name, domain: domain) if cookies_obj[cookie_name].present?
-          end
-          
-          # Clear any cookies starting with 'kc_' (Keycloak pattern)
-          cookies_obj.each do |name, _value|
-            if name.start_with?('kc_')
-              cookies_obj.delete(name, domain: domain)
-            end
-          end
-        end
-        
-        Rails.logger.debug "[Keycloak TokenService] Cleared existing Keycloak cookies from all domains"
+        # CENTRALIZED: Uses Decidim::Keycloak::CookieManager
+        Decidim::Keycloak::CookieManager.clear_all_cookies(cookies_obj, request_host)
       end
 
       def determine_keycloak_cookie_domain(request_host = nil)
-        host = request_host || 'localhost'
-
-        # In production/development with subdomains, use the second-level domain
-        # to allow cookie sharing across subdomains
-        if Rails.env.production? || Rails.env.development?
-          # Extract domain parts: part-int.ldttoolbox.app -> ['part-int', 'ldttoolbox', 'app']
-          domain_parts = host.split('.')
-
-          # For domains like *.ldttoolbox.app, use .ldttoolbox.app
-          if domain_parts.length >= 3
-            # Return domain with leading dot for cross-subdomain cookies
-            ".#{domain_parts[-2]}.#{domain_parts[-1]}"
-          else
-            # Fallback to current host
-            host
-          end
-        else
-          # In other environments, use the current host
-          host
-        end
+        # CENTRALIZED: Uses Decidim::Keycloak::CookieManager
+        Decidim::Keycloak::CookieManager.calculate_cookie_domain(request_host)
       end
 
       # Extract domain part similar to request.domain (removes subdomain)
+      # This method is kept for backward compatibility but delegates to CookieManager
       def extract_domain_from_host(host)
         return nil unless host.present?
         
