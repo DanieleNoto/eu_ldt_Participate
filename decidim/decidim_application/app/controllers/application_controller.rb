@@ -18,6 +18,7 @@ class ApplicationController < ActionController::Base
 
   before_action :check_keycloak_auto_login
   before_action :check_keycloak_auto_logout
+  before_action :check_keycloak_locale_sync
 
   private
 
@@ -115,6 +116,37 @@ class ApplicationController < ActionController::Base
     session[:keycloak_auto_login_pending] = true
     Rails.logger.info "[Keycloak AutoLogin] Setting auto-login flag and redirecting to login page"
     redirect_to new_user_session_path
+  end
+
+  def check_keycloak_locale_sync
+    # Skip for API requests, assets, admin paths, auth callbacks, and AJAX requests
+    return if request.path.start_with?('/api/')
+    return if request.path.start_with?('/assets/')
+    return if request.path.start_with?('/admin/')
+    return if request.path.start_with?('/users/auth/')
+    return if request.path.match?(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)
+    return if request.xhr?
+    return if request.format.json?
+
+    # Only check for authenticated users who logged in with Keycloak
+    return unless current_user.present? && user_logged_in_with_keycloak?(current_user)
+
+    # Check if Keycloak provider is enabled for this organization
+    organization = current_organization
+    return unless organization&.enabled_omniauth_providers&.dig(:keycloakopenid).present?
+
+    # Extract current locale from id_token and sync if different
+    id_token = cookies['id_token']
+    if id_token.present?
+      current_token_locale = extract_locale_from_jwt_token(id_token)
+      current_session_locale = session['decidim-locale'] || I18n.locale.to_s
+
+      if current_token_locale.present? && current_token_locale != current_session_locale
+        I18n.locale = current_token_locale
+        session['decidim-locale'] = current_token_locale
+        Rails.logger.info "[Keycloak Locale Sync] Updated locale from #{current_session_locale} to #{current_token_locale} for user #{current_user.id}"
+      end
+    end
   end
 
   def check_keycloak_auto_logout
@@ -422,6 +454,38 @@ class ApplicationController < ActionController::Base
       exp > 1_000_000_000_000 ? Time.at(exp / 1000) : Time.at(exp)
     rescue => e
       Rails.logger.warn "[Keycloak Token Expiry] Error extracting expiry from JWT: #{e.message}"
+      nil
+    end
+  end
+
+  # Extract locale from JWT id_token (similar to devise_extension logic)
+  def extract_locale_from_jwt_token(id_token)
+    return nil unless id_token.present?
+
+    begin
+      token_parts = id_token.split('.')
+      return nil unless token_parts.length >= 2
+
+      # Decode payload
+      payload = Base64.decode64(token_parts[1].ljust((token_parts[1].length + 3) / 4 * 4, '='))
+      claims = JSON.parse(payload)
+
+      # Try different locale claims in order of preference
+      user_locale = claims['locale'] || claims['preferred_locale'] || claims['ui_locales']&.first
+
+      # Validate locale is supported by Decidim
+      if user_locale.present?
+        available_locales = Decidim.available_locales.map(&:to_s)
+        return user_locale if available_locales.include?(user_locale.to_s)
+
+        # Try with language code only (e.g., 'en' from 'en-US')
+        language_code = user_locale.to_s.split('-').first
+        return language_code if available_locales.include?(language_code)
+      end
+
+      nil
+    rescue => e
+      Rails.logger.warn "[Keycloak Locale Sync] Error extracting locale from JWT: #{e.message}"
       nil
     end
   end
