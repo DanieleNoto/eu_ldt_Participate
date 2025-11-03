@@ -47,7 +47,8 @@ module KeycloakAuthentication
     cookies_valid = keycloak_cookies_present_and_valid?
     
     # If we're already on the login page with valid cookies, set the flag directly
-    if request.path == new_user_session_path && cookies_valid
+    # Check controller and action instead of comparing paths to avoid parameter inheritance issues
+    if cookies_valid && controller_name == "sessions" && action_name == "new"
       session[:keycloak_auto_login_pending] = true
       Rails.logger.info "[Keycloak AutoLogin] Setting auto-login flag on login page"
       return
