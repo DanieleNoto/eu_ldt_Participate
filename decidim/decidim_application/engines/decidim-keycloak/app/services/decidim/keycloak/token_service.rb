@@ -43,8 +43,20 @@ module Decidim
                 cookies_obj['last_introspection'] = Time.current.to_i if cookies_obj
                 return access_token
               else
-                Rails.logger.info "[Keycloak Token Validation] Token revoked or invalid, clearing cookies"
-                # Token was revoked, clear cookies and return nil
+                Rails.logger.info "[Keycloak Token Validation] Token revoked or invalid, attempting refresh"
+                # Token was revoked, try to refresh before giving up
+                if refresh_token && cookies_obj
+                  new_tokens = refresh_access_token(refresh_token)
+                  if new_tokens
+                    # Clear existing cookies from all domains before saving new ones
+                    controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
+                    save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
+                    Rails.logger.info "[Keycloak Token Validation] Token refreshed successfully after introspection failure"
+                    return new_tokens[:access_token]
+                  end
+                end
+                # Refresh failed or no refresh token, clear cookies
+                Rails.logger.info "[Keycloak Token Validation] Refresh failed, clearing cookies"
                 controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
                 return nil
               end
@@ -259,6 +271,7 @@ module Decidim
           {
             access_token: result['access_token'],
             refresh_token: result['refresh_token'] || refresh_token, # Keep old refresh_token if not provided
+            id_token: result['id_token'], # Include id_token from refresh response
             expires_in: result['expires_in'].to_i,
             refresh_token_expires_in: result['refresh_token_expires_in']&.to_i
           }

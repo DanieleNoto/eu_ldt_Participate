@@ -63,8 +63,8 @@ module KeycloakAuthentication
     session.save if session.respond_to?(:save)
     Rails.logger.info "[Keycloak AutoLogin] Session saved, redirecting to login page for auto-login"
     
-    # Use 302 redirect with a parameter to indicate auto-login
-    redirect_to new_user_session_path(keycloak_auto_login: '1'), status: :found
+    # Use 302 redirect with a parameter to indicate auto-login (using string path to avoid route helper issues)
+    redirect_to "/users/sign_in?keycloak_auto_login=1", status: :found
   end
 
   def check_keycloak_auto_logout
@@ -105,8 +105,8 @@ module KeycloakAuthentication
       # Sign out the user and redirect immediately to prevent further processing
       sign_out current_user
       
-      # Redirect to login page or home page to prevent errors on admin pages
-      redirect_to new_user_session_path and return
+      # Redirect to login page using string path to avoid route helper issues in admin controllers
+      redirect_to "/users/sign_in" and return
     end
   end
 
