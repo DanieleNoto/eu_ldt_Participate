@@ -20,6 +20,56 @@ spec:
               fsGroup: 1000  # group ID of decidim user
               runAsUser: 1000
               runAsGroup: 1000
+            initContainers:
+                - name: asset-compiler
+                  image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  resources:
+                      requests:
+                          memory: '2Gi'
+                          cpu: '1000m'
+                          ephemeral-storage: '2Gi'
+                      limits:
+                          memory: '4Gi'
+                          cpu: '2'
+                          ephemeral-storage: '4Gi'
+                  envFrom:
+                      - secretRef:
+                            name: decidim-secret
+                      - configMapRef:
+                            name: decidim-configmap
+                  env:
+                      - name: NODE_OPTIONS
+                        value: "--max-old-space-size=3072"
+                      - name: RAILS_ENV
+                        value: production
+                  command:
+                      - /bin/bash
+                      - -c
+                      - |
+                        echo "=== ASSET COMPILATION INIT CONTAINER ==="
+                        cd /code
+                        
+                        # Wait for database to be ready
+                        echo "Waiting for database..."
+                        while ! bin/rails db:version >/dev/null 2>&1; do
+                          echo "Database not ready, waiting..."
+                          sleep 5
+                        done
+                        
+                        # Compile assets
+                        echo "Compiling assets..."
+                        if bin/rails assets:precompile; then
+                          echo "Assets compiled successfully"
+                          exit 0
+                        else
+                          echo "Asset compilation failed"
+                          exit 1
+                        fi
+                  volumeMounts:
+                      - mountPath: /code/data
+                        name: decidim-pvc
+                      - mountPath: /code/storage
+                        name: decidim-pvc
             containers:
                 - name: decidim
                   resources:
