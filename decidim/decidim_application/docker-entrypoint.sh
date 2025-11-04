@@ -30,6 +30,8 @@ if [ "$RAILS_ENV" = "production" ]; then
   echo "--- Checking assets for production ---"
   if [ ! -d "public/decidim-packs" ] || [ -z "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
     echo "--- No precompiled assets found, compiling now ---"
+    echo "--- Increasing Node.js heap memory for asset compilation ---"
+    export NODE_OPTIONS="--max-old-space-size=4096"
     if ! bin/rails assets:precompile; then
       echo "ERROR: Asset precompilation failed"
       exit 1
