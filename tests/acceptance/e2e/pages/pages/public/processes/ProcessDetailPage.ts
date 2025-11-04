@@ -1,3 +1,11 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Simone Bianchelli
+ * Gianfranco Cedro
+ */
+
 import { Download, expect, Locator, Page } from '@playwright/test';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
 import { join } from 'path';
@@ -8,6 +16,9 @@ import { existsSync, unlinkSync } from 'fs';
  * Page Object Model for the participatory process detail page.
  * Manages the display of process details and navigation to its components.
  */
+
+export type FoundItem = { text: string; href: string | null; index: number };
+
 export class ProcessDetailPage extends AuthenticatedPage {
 	// Main content elements
 	private readonly contentContainer: Locator;
@@ -577,5 +588,61 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Collects and verifies that the participatory space dropdown exists and contains at least one item.
+	 * Returns the list of found items { text, href, index }.
+	 */
+	public async collectAndVerifyParticipatoryMenuItems(openIfHidden = true): Promise<FoundItem[]> {
+		// Ensures that the container is present in the DOM
+		await expect(this.navDropdownMenu).toHaveCount(1);
+
+		// If the menu is initially hidden, try opening it by clicking the trigger
+		const ariaHidden = await this.navDropdownMenu.getAttribute('aria-hidden');
+		if (ariaHidden === 'true' && openIfHidden) {
+			if ((await this.navDropdownTrigger.count()) > 0) {
+				await this.navDropdownTrigger.click();
+				await this.navDropdownMenu.waitFor({ state: 'visible' }).catch(() => null);
+				await expect(this.navDropdownMenu).toBeVisible();
+			}
+		}
+
+		// Collect the items inside the menu (li > a)
+		const items = this.navDropdownMenu.locator('li[role="menuitem"] a.participatory-space__nav-item');
+		const count = await items.count();
+
+		if (count === 0) {
+			throw new Error('No items found within #dropdown-menu-participatory-space');
+		}
+
+		const found: FoundItem[] = [];
+		for (let i = 0; i < count; i++) {
+			const item = items.nth(i);
+			await expect(item).toBeVisible();
+			const text = (await item.innerText()).trim();
+			const href = await item.getAttribute('href');
+			found.push({ text, href, index: i });
+		}
+
+		return found;
+	}
+
+	public async verifyProcessDescriptionSection(): Promise<void> {
+		// 1. Verify title
+		const heading = this.page.getByRole('heading', { level: 2, name: 'About this process' });
+		await expect(heading).toBeVisible();
+
+		// 2. Make sure there are at least two description blocks
+		const blocks = this.page.locator('.content-block__description.editor-content');
+		await expect(blocks).toHaveCount(2);
+
+		// 3. Make sure both are visible and have content
+		for (let i = 0; i < 2; i++) {
+			const block = blocks.nth(i);
+			await expect(block).toBeVisible();
+			const text = await block.innerText();
+			expect(text.trim().length).toBeGreaterThan(0);
+		}
 	}
 }
