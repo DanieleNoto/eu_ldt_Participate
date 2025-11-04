@@ -19,7 +19,6 @@ module Decidim
             access_token_present: request.cookies['access_token'].present?,
             refresh_token_present: request.cookies['refresh_token'].present?,
             id_token_present: request.cookies['id_token'].present?,
-            token_expires_at: request.cookies['token_expires_at'],
             session_keys: session.keys.grep(/jwt|token|keycloak/)
           }
         end

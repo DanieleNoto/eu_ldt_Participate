@@ -149,16 +149,38 @@ module KeycloakAuthentication
     organization = current_organization
     return unless organization&.enabled_omniauth_providers&.dig(:keycloakopenid).present?
 
-    # Extract current locale from id_token and sync if different
-    id_token = cookies['id_token']
-    if id_token.present?
-      current_session_locale = session['decidim-locale'] || I18n.locale.to_s
-      new_locale = Decidim::Keycloak::LocaleSynchronizer.sync_from_token(id_token, current_session_locale)
-      if new_locale.present?
-        I18n.locale = new_locale
-        session['decidim-locale'] = new_locale
-        Rails.logger.info "[Keycloak Locale Sync] Updated locale from #{current_session_locale} to #{new_locale} for user #{current_user.id}"
+    current_session_locale = session['decidim-locale'] || I18n.locale.to_s
+    new_locale = nil
+
+    # First priority: Check for i18next cookie from Keycloak
+    i18next_cookie = cookies['i18next']
+    if i18next_cookie.present?
+      # Keycloak i18next cookie format is typically just the locale code (e.g., "en", "it", "pt-BR")
+      keycloak_locale = i18next_cookie.strip
+      
+      # Map Keycloak locale to Decidim available locales
+      if current_organization.available_locales.include?(keycloak_locale)
+        new_locale = keycloak_locale
+        Rails.logger.info "[Keycloak Locale Sync] Using locale from i18next cookie: #{keycloak_locale} for user #{current_user.id}"
+      else
+        Rails.logger.debug "[Keycloak Locale Sync] i18next cookie locale '#{keycloak_locale}' not available in organization locales"
       end
+    end
+
+    # Second priority: Extract locale from id_token if i18next cookie not present or invalid
+    if new_locale.nil?
+      id_token = cookies['id_token']
+      if id_token.present?
+        new_locale = Decidim::Keycloak::LocaleSynchronizer.sync_from_token(id_token, current_session_locale)
+        Rails.logger.info "[Keycloak Locale Sync] Using locale from id_token claim: #{new_locale} for user #{current_user.id}" if new_locale.present?
+      end
+    end
+
+    # Apply the new locale if found and different from current
+    if new_locale.present? && new_locale != current_session_locale
+      I18n.locale = new_locale
+      session['decidim-locale'] = new_locale
+      Rails.logger.info "[Keycloak Locale Sync] Updated locale from #{current_session_locale} to #{new_locale} for user #{current_user.id}"
     end
   end
 end

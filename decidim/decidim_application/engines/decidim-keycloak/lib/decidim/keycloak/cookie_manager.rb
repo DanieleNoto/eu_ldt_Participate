@@ -61,7 +61,7 @@ module Decidim
       # @param request_host [String] The request host
       # @param session_obj [ActionDispatch::Request::Session, nil] Optional session object to clean
       def self.clear_all_cookies(cookies_obj, request_host, session_obj = nil)
-        cookie_names = ['access_token', 'refresh_token', 'id_token', 'token_expires_at', 'kc_state']
+        cookie_names = ['access_token', 'refresh_token', 'id_token']
         domains = calculate_all_cookie_domains(request_host)
         
         Rails.logger.debug "[Keycloak CookieManager] Clearing cookies from domains: #{domains.inspect}"
@@ -85,15 +85,6 @@ module Decidim
               httponly: true,
               same_site: :lax
             }
-          end
-          
-          # Clear any cookies starting with 'kc_' (Keycloak session pattern)
-          cookies_obj.each do |name, _value|
-            if name.start_with?('kc_')
-              cookies_obj.delete(name, domain: domain, secure: true, httponly: true, same_site: :lax)
-              cookies_obj.delete(name, domain: domain, secure: false, httponly: true, same_site: :lax)
-              cookies_obj.delete(name, domain: domain)
-            end
           end
         end
         
@@ -158,18 +149,6 @@ module Decidim
         if tokens[:id_token]
           cookies_obj['id_token'] = {
             value: tokens[:id_token],
-            expires: expires_at,
-            secure: Rails.env.production?,
-            httponly: true,
-            same_site: :lax,
-            domain: cookie_domain
-          }
-        end
-        
-        # Save token expiry timestamp
-        if expires_at
-          cookies_obj['token_expires_at'] = {
-            value: expires_at.to_i.to_s,
             expires: expires_at,
             secure: Rails.env.production?,
             httponly: true,
