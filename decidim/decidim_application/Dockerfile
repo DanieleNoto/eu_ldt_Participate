@@ -68,7 +68,8 @@ ENV RAILS_SERVE_STATIC_FILES=true
 # is now performed at container startup in docker-entrypoint.sh
 
 
-RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
+# Clean up build artifacts but keep node_modules for runtime asset compilation
+RUN rm -rf tmp/cache vendor/bundle/spec \
   && rm -rf /usr/local/bundle/cache/*.gem \
   && find /usr/local/bundle/gems/ -name "*.c" -delete \
   && find /usr/local/bundle/gems/ -name "*.o" -delete \
