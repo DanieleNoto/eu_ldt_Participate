@@ -21,12 +21,21 @@ document.addEventListener("DOMContentLoaded", function() {
   const autoLoginParam = urlParams.get('keycloak_auto_login');
   const autoLoginFlag = window.keycloakAutoLogin === true;
   
-  if (!autoLoginMeta && !autoLoginParam && !autoLoginFlag) {
-    console.log("[Keycloak] Auto-login not enabled - no meta tag, URL parameter, or session flag found");
+  // Check if there's a CSRF error message on the page
+  const csrfError = document.body.textContent.includes('Csrf detected') || 
+                    document.body.textContent.includes('CSRF detected') ||
+                    document.body.textContent.includes('csrf_detected');
+  
+  if (!autoLoginMeta && !autoLoginParam && !autoLoginFlag && !csrfError) {
+    console.log("[Keycloak] Auto-login not enabled - no meta tag, URL parameter, session flag, or CSRF error found");
     return;
   }
 
-  console.log("[Keycloak] Auto-login enabled - attempting auto-login");
+  if (csrfError) {
+    console.log("[Keycloak] CSRF error detected - attempting auto-login retry");
+  } else {
+    console.log("[Keycloak] Auto-login enabled - attempting auto-login");
+  }
 
   /**
    * Find and click the Keycloak authentication button
