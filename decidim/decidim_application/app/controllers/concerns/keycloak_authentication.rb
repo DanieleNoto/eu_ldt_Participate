@@ -35,6 +35,9 @@ module KeycloakAuthentication
     return if request.path.match?(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)
     return if request.xhr?
     return if request.format.json?
+    
+    # Skip for error pages (404, 500, etc.) to avoid auto-login loops
+    return if controller_name == 'errors' || action_name == 'not_found' || action_name == 'internal_server_error'
 
     # Skip if user is already authenticated
     return if current_user.present?
