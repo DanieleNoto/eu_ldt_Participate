@@ -38,6 +38,20 @@ module KeycloakAuthentication
 
     # Skip if user is already authenticated
     return if current_user.present?
+    
+    # Skip if user manually logged out (don't auto-login after manual logout)
+    if session[:manual_logout]
+      Rails.logger.info "[Keycloak AutoLogin] Skipping auto-login - user manually logged out"
+      session.delete(:manual_logout) # Clear flag for next session
+      return
+    end
+    
+    # Skip if automatic logout occurred due to expired/invalid token (don't auto-login after session expired)
+    if session[:automatic_logout_no_autologin]
+      Rails.logger.info "[Keycloak AutoLogin] Skipping auto-login - automatic logout due to expired/invalid token"
+      session.delete(:automatic_logout_no_autologin) # Clear flag for next session
+      return
+    end
 
     # Check if Keycloak provider is enabled for this organization
     organization = current_organization
@@ -87,7 +101,7 @@ module KeycloakAuthentication
     organization = current_organization
     return unless organization&.enabled_omniauth_providers&.dig(:keycloakopenid).present?
 
-    # Try to refresh token first before checking validity
+    # Try to validate and refresh token if needed
     valid_token = Decidim::Keycloak::TokenService.ensure_valid_token(
       current_user, 
       cookies.to_h, 
@@ -96,18 +110,26 @@ module KeycloakAuthentication
       self
     )
 
-    unless valid_token
-      Rails.logger.info "[Keycloak AutoLogout] Keycloak session invalid and refresh failed, logging out user #{current_user.id}"
-
-      # Clear all Keycloak-related cookies from all possible domains
-      clear_keycloak_cookies
-
-      # Sign out the user and redirect immediately to prevent further processing
-      sign_out current_user
-      
-      # Redirect to login page using string path to avoid route helper issues in admin controllers
-      redirect_to "/users/sign_in" and return
+    # If token is valid or was successfully refreshed, keep the session active
+    if valid_token
+      Rails.logger.debug "[Keycloak AutoLogout] Token valid or refreshed successfully, keeping session active for user #{current_user.id}"
+      return
     end
+
+    # Token is invalid and refresh failed - perform automatic logout without auto-login
+    Rails.logger.info "[Keycloak AutoLogout] Keycloak session invalid and refresh failed, performing automatic logout for user #{current_user.id}"
+
+    # Set flag to prevent auto-login after automatic logout (session expired, not manual logout)
+    session[:automatic_logout_no_autologin] = true
+
+    # Clear all Keycloak-related cookies from all possible domains
+    clear_keycloak_cookies
+
+    # Sign out the user and redirect immediately to prevent further processing
+    sign_out current_user
+    
+    # Redirect to login page using string path to avoid route helper issues in admin controllers
+    redirect_to "/users/sign_in" and return
   end
 
   def check_keycloak_locale_sync

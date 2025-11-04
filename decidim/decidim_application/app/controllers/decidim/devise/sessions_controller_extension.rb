@@ -12,6 +12,9 @@ module Decidim
         should_logout_from_keycloak = session[:keycloak_authenticated].present?
         keycloak_logout_url = build_keycloak_logout_url if should_logout_from_keycloak
         
+        # Mark this as a manual logout to prevent auto-login on next visit
+        session[:manual_logout] = true
+        
         # Extract tokens from cookies BEFORE clearing them for revocation
         access_token = cookies['access_token']
         refresh_token = cookies['refresh_token']
