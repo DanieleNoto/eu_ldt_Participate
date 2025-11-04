@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: chatbot-webapp
+    namespace: participate
+spec:
+    selector:
+        matchLabels:
+            app: chatbot-webapp
+    serviceName: chatbot-webapp
+    replicas: 1
+    minReadySeconds: 10
+    template:
+        metadata:
+            labels:
+                app: chatbot-webapp
+        spec:
+            terminationGracePeriodSeconds: 10
+            hostname: chatbot-webapp
+            imagePullSecrets:
+                - name: acr-secret
+            #----------ADD ASR-------------------------------------
+            serviceAccountName: default
+            automountServiceAccountToken: false
+            #------------------------------------------------------
+            containers:
+                - name: chatbot-backend
+                  image: euldtshared.azurecr.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  imagePullPolicy: Always
+                  resources:
+                      requests:
+                          cpu: '100m'
+                          memory: '128Mi'
+                          ephemeral-storage: '1Gi'
+                      limits:
+                          cpu: '250m'
+                          memory: '256Mi'
+                          ephemeral-storage: '2Gi'
+                  ports:
+                      - containerPort: 3002
+                        name: http-web
+                  volumeMounts:
+                      - name: chatbot-backend-storage
+                        mountPath: /mnt/shared
+                        readOnly: false
+                  envFrom:
+                      - secretRef:
+                            name: chatbot-backend-secret
+                      - configMapRef:
+                            name: chatbot-backend-config
+                      - secretRef:
+                            name: chatbot-backend-db-secret
+                      - configMapRef:
+                            name: chatbot-backend-db-config
+                - name: chatbot-pg
+                  image: docker.io/library/postgres:17.3
+                  imagePullPolicy: IfNotPresent
+                  resources:
+                      requests:
+                          cpu: '100m'
+                          memory: '128Mi'
+                          ephemeral-storage: '1Gi'
+                      limits:
+                          cpu: '250m'
+                          memory: '256Mi'
+                          ephemeral-storage: '1Gi'
+                  ports:
+                      - containerPort: 5432
+                        name: postgres
+                  envFrom:
+                    - secretRef:
+                        name: chatbot-backend-db-secret
+                    - configMapRef:
+                        name: chatbot-backend-db-config
+                  volumeMounts:
+                      - name: chatbot-pg-storage
+                        mountPath: /var/lib/postgresql/data
+                - name: chatbot-frontend
+                  image: euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  imagePullPolicy: Always
+                  resources:
+                      requests:
+                          cpu: '100m'
+                          memory: '128Mi'
+                          ephemeral-storage: '128Mi'
+                      limits:
+                          cpu: '250m'
+                          memory: '256Mi'
+                          ephemeral-storage: '256Mi'
+                  ports:
+                      - containerPort: 5001
+                        name: http
+                  volumeMounts:
+                      - name: chatbot-frontend-storage
+                        mountPath: /mnt/shared
+                        readOnly: false
+                  envFrom:
+                      - configMapRef:
+                            name: chatbot-frontend-config
+            volumes:
+                - name: chatbot-pg-storage
+                  persistentVolumeClaim:
+                      claimName: chatbot-postgres-pvc
+                - name: chatbot-frontend-storage
+                  persistentVolumeClaim:
+                      claimName: chatbot-frontend-pvc
+                - name: chatbot-backend-storage
+                  persistentVolumeClaim:
+                      claimName: chatbot-backend-pvc
+    volumeClaimTemplates:
+      - metadata:
+          name: chatbot-postgres-pvc
+        spec:
+          accessModes: [ 'ReadWriteOnce' ]
+          resources:
+            requests:
+              storage: 100Mi
+      - metadata:
+          name: chatbot-frontend-pvc
+        spec:
+          accessModes: [ 'ReadWriteOnce' ]
+          resources:
+            requests:
+              storage: 100Mi
+      - metadata:
+          name: chatbot-backend-pvc
+        spec:
+          accessModes: [ 'ReadWriteOnce' ]
+          resources:
+            requests:
+              storage: 100Mi

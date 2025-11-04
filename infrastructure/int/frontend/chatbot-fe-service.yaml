@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: chatbot-frontend-svc
+    namespace: participate
+spec:
+    type: ClusterIP
+    selector:
+        app: chatbot-webapp
+    ports:
+        - name: http
+          port: 80
+          targetPort: 5001
+          protocol: TCP
+

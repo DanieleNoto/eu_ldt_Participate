@@ -5,6 +5,9 @@ metadata:
     io.kompose.service: db-home-adminlnx-temp1-env
   name: decidim-configmap
 data:
+    CHATBOT_ENABLED: 'true'
+    CHATBOT_URL: https://chatbot-frontend-svc
+    CHATBOT_ASSET_VERSION: _%CONTAINER_IMAGE_TOOL_TAG%_
     DATABASE_HOST: db
     DATABASE_NAME: decidim_application_development
     # DATABASE_USERNAME: postgres
