@@ -60,22 +60,12 @@ RUN chmod +x docker-entrypoint.sh
 
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
-ARG SECRET_KEY_BASE
 ENV RAILS_ENV=${RAILS_ENV}
 ENV NODE_ENV=${NODE_ENV}
-ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 ENV RAILS_SERVE_STATIC_FILES=true
 
-
-# Production asset precompilation (separate layer for better caching)
-RUN if [ -n "${SECRET_KEY_BASE:-}" ]; then \
-  echo "=== Using SECRET_KEY_BASE from build-arg ==="; \
-  echo "=== Cleaning previous assets ==="; \
-  SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:clean; \
-  echo "=== Precompiling assets ==="; \
-  SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:precompile; \
-  echo "=== Assets precompiled successfully with build-arg ==="; \
-  fi
+# NOTE: SECRET_KEY_BASE is no longer required as build-arg since asset precompilation
+# is now performed at container startup in docker-entrypoint.sh
 
 
 RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
@@ -90,10 +80,8 @@ FROM decidim/decidim-dev:0.30.2 AS runtime
 # Inherit build arguments for runtime
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
-ARG SECRET_KEY_BASE
 ARG RAILS_SERVE_STATIC_FILES=true
 ENV RAILS_SERVE_STATIC_FILES=${RAILS_SERVE_STATIC_FILES}
-ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 
 # Install only runtime dependencies (no build tools) and ensure Node.js 22 + yarn
 ENV DEBIAN_FRONTEND=noninteractive

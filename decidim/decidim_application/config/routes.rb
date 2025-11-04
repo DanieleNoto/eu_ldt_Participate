@@ -11,6 +11,12 @@ Rails.application.routes.draw do
   mount Decidim::Core::Engine => '/'
   mount Decidim::AdminHeader::Engine, at: '/'
   
+  # Catch malformed URLs with "undefined" parameters to prevent routing errors
+  # This handles cases where frontend makes requests with undefined IDs
+  get '*path', to: 'errors#not_found', constraints: lambda { |request|
+    request.path.match?(/undefined/) && !request.path.start_with?('/api/')
+  }
+  
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")

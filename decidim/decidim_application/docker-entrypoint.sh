@@ -26,14 +26,17 @@ if [ "$RAILS_ENV" = "production" ]; then
   echo "--- Running storage cleanup ---"
   bin/rails storage:cleanup_orphaned_blobs
   
-  # Asset verification (must be precompiled)
-  # shakapacker is configured to output to `public/decidim-packs` (see config/shakapacker.yml)
-  echo "--- Verifying precompiled assets (public/decidim-packs) ---"
+  # Asset compilation/verification for production
+  echo "--- Checking assets for production ---"
   if [ ! -d "public/decidim-packs" ] || [ -z "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
-    echo "ERROR: No precompiled assets found in production"
-    echo "'public/decidim-packs' not exist or is empty. Assets must be precompiled during Docker image build"
+    echo "--- No precompiled assets found, compiling now ---"
+    if ! bin/rails assets:precompile; then
+      echo "ERROR: Asset precompilation failed"
+      exit 1
+    fi
+    echo "--- Assets compiled successfully ---"
   else
-    echo "--- 'public/decidim-packs' exist. Precompiled assets verified, ready to serve ---"
+    echo "--- Precompiled assets found, skipping compilation ---"
   fi
 
   # Ensure backwards compatibility: some tools/scripts may still look under public/packs
@@ -107,8 +110,17 @@ else
   echo "--- Database setup completed ---"
   
   # Asset precompilation for non-dev environments
-  echo "--- Precompiling assets ---"
-  bin/rails assets:precompile
+  echo "--- Checking assets for ${RAILS_ENV} ---"
+  if [ ! -d "public/decidim-packs" ] || [ -z "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
+    echo "--- No precompiled assets found, compiling now ---"
+    if ! bin/rails assets:precompile; then
+      echo "ERROR: Asset precompilation failed"
+      exit 1
+    fi
+    echo "--- Assets compiled successfully ---"
+  else
+    echo "--- Precompiled assets found, skipping compilation ---"
+  fi
 
   # After precompile, ensure compatibility symlink exists so any code expecting public/packs works
   if [ ! -e public/packs ] && [ -d public/decidim-packs ]; then
