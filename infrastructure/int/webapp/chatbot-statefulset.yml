@@ -97,33 +97,23 @@ spec:
                   envFrom:
                       - configMapRef:
                             name: chatbot-frontend-config
-            volumes:
-                - name: chatbot-pg-storage
-                  persistentVolumeClaim:
-                      claimName: chatbot-postgres-pvc
-                - name: chatbot-frontend-storage
-                  persistentVolumeClaim:
-                      claimName: chatbot-frontend-pvc
-                - name: chatbot-backend-storage
-                  persistentVolumeClaim:
-                      claimName: chatbot-backend-pvc
     volumeClaimTemplates:
       - metadata:
-          name: chatbot-postgres-pvc
+          name: chatbot-pg-storage
         spec:
           accessModes: [ 'ReadWriteOnce' ]
           resources:
             requests:
               storage: 100Mi
       - metadata:
-          name: chatbot-frontend-pvc
+          name: chatbot-frontend-storage
         spec:
           accessModes: [ 'ReadWriteOnce' ]
           resources:
             requests:
               storage: 100Mi
       - metadata:
-          name: chatbot-backend-pvc
+          name: chatbot-backend-storage
         spec:
           accessModes: [ 'ReadWriteOnce' ]
           resources:
