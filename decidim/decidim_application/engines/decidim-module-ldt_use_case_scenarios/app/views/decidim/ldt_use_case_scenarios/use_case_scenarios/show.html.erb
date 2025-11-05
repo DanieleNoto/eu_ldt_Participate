@@ -13,9 +13,9 @@
     </div>
   </div>
 
-  <div class="row">
+  <div class="row" style="margin: 1rem 1rem 2rem 0;">
     <div class="columns large-12">
-      <h2 class="section-heading"><%= @use_case_scenario.name %></h2>
+      <span class="section-heading decorator" style="font-size: 32px;"><%= @use_case_scenario.name %></span>
     </div>
   </div>
 
@@ -55,7 +55,7 @@
 </div>
 
 <div class="row">
-  <div class="columns large-12">
+  <div class="columns large-12" style="margin: 1rem;">
     <div class="card" style="margin-top: 2rem;">
       <div class="card__content">
         <h3 class="card__title"><%= t(".title") %></h3>
@@ -92,8 +92,8 @@
   function sendExperimentData() {
     if (iframe && iframe.contentWindow) {
       iframe.contentWindow.postMessage({
-        type: 'EXPERIMENT_DATA',
-        data: experimentData
+        type: 'FROM_PARENT',
+        payload: experimentData
       }, '<%= @tool2_iframe_url %>');
     }
   }
