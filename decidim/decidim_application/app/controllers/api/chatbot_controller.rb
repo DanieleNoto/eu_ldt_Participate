@@ -11,7 +11,6 @@ module Api
   # avoiding CORS issues and providing access to internal Kubernetes services.
   class ChatbotController < ApplicationController
     skip_before_action :verify_authenticity_token
-    skip_before_action :authenticate_user!
 
     def proxy
       chatbot_url = ENV['CHATBOT_FRONTEND_URL'] || 'http://chatbot-frontend-svc:5001'
