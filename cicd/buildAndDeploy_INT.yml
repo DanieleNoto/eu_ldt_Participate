@@ -727,7 +727,7 @@ jobs:
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
               command: 'apply'
-              arguments: '-f infrastructure/int/backend/chatbot-be-secrets.yml'
+              arguments: '-f infrastructure/int/backend/chatbot-be-secrets.yaml'
 
           - task: Kubernetes@1
             displayName: 'Apply Secrets - DB (Chatbot)'
@@ -738,7 +738,7 @@ jobs:
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
               command: 'apply'
-              arguments: '-f infrastructure/int/backend/chatbot-db-secrets.yml'
+              arguments: '-f infrastructure/int/backend/chatbot-db-secrets.yaml'
 
           - task: Kubernetes@1
             displayName: 'Apply ConfigMap - FE (Chatbot)'
