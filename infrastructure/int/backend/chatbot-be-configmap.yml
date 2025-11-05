@@ -24,8 +24,8 @@ data:
     MAX_RSS_BYTES: '90000000000'
     MAX_EVENT_LOOP_USE: '0.98'
     # Chatbot Configuration
-    CHATBOT_SUPPORT_EMAIL: 'support@yourcompany.com'
-    CHATBOT_FROM_EMAIL: 'chatbot-noreply@yourcompany.com'
+    CHATBOT_SUPPORT_EMAIL: 'info@ldttoolbox.eu'
+    CHATBOT_FROM_EMAIL: 'info@ldttoolbox.eu'
     # Database
     DB_NAME: chatbot_integration
     DB_HOST: chatbot-pg-svc
