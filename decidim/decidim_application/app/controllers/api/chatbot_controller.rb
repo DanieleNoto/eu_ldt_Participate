@@ -34,11 +34,11 @@ module Api
         http.use_ssl = (uri.scheme == 'https')
 
         request = Net::HTTP::Get.new(uri)
-        response = http.request(request)
+        http_response = http.request(request)
 
         # Forward relevant headers
         forwarded_headers = {}
-        response.each_header do |key, value|
+        http_response.each_header do |key, value|
           # Skip hop-by-hop headers
           next if ['connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers', 'transfer-encoding', 'upgrade'].include?(key.downcase)
 
@@ -50,12 +50,12 @@ module Api
           end
         end
 
-        # Set forwarded headers in response
+        # Set forwarded headers in Rails response
         forwarded_headers.each do |key, value|
-          response.set_header(key, value)
+          response.headers[key] = value
         end
 
-        render plain: response.body, status: response.code, content_type: response.content_type
+        render plain: http_response.body, status: http_response.code, content_type: http_response.content_type
       rescue Net::OpenTimeout, Net::ReadTimeout => e
         Rails.logger.error "[Chatbot Proxy] Network timeout: #{e.message}"
         render plain: 'Service timeout', status: 504
