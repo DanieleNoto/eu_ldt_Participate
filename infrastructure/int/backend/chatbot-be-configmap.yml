@@ -8,7 +8,7 @@ data:
     NODE_ENV: 'production'
     CONTEXT_URL: '/api/v1'
     # CORS
-    CORS_ORIGINS: https://chatbot-frontend-svc:80,https://part-int.ldttoolbox.app/
+    CORS_ORIGINS: http://chatbot-frontend-svc:80,https://part-int.ldttoolbox.app/
     SWAGGER_GEN_DOC_FILE: 'false'
     # Security
     DISABLE_HELMET: 'false'

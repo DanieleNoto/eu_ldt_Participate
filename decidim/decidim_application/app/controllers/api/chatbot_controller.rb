@@ -13,7 +13,7 @@ module Api
     skip_before_action :verify_authenticity_token
 
     def proxy
-      chatbot_url = ENV['CHATBOT_FRONTEND_URL'] || 'http://chatbot-frontend-svc:5001'
+      chatbot_url = ENV['CHATBOT_FRONTEND_URL'] || 'http://chatbot-frontend-svc'
       path = params[:path] || ''
       full_url = "#{chatbot_url}/#{path}"
 
