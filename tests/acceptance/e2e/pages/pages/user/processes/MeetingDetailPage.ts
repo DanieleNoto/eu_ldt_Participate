@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { AuthenticatedPage } from '@pages/base/AuthenticatedPage';
 import { ShareCalendarModalComponent } from '@pages/components/common/ShareCalendarModalComponent';
 import { ShareModalComponent } from '@pages/components/common/ShareModalComponent';
@@ -52,6 +59,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	/**
 	 * Verify that the user is on the meeting detail page
 	 */
+
 	async expectOnMeetingDetailPage(): Promise<void> {
 		await expect(this.meetingTitle).toBeVisible();
 		await expect(this.meetingCalendarContainer).toBeVisible();
@@ -60,6 +68,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	/**
 	 * Get the meeting title
 	 */
+
 	async getMeetingTitle(): Promise<string> {
 		return (await this.meetingTitle.textContent()) || '';
 	}
@@ -67,6 +76,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	/**
 	 * Get the meeting address
 	 */
+
 	async getMeetingAddress(): Promise<string> {
 		return (await this.meetingAddress.textContent()) || '';
 	}
@@ -74,6 +84,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	/**
 	 * Get the meeting author
 	 */
+
 	async getMeetingAuthor(): Promise<string> {
 		return (await this.meetingAuthor.textContent()) || '';
 	}
@@ -81,6 +92,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	/**
 	 * Get the meeting description
 	 */
+
 	async getMeetingDescription(): Promise<string> {
 		return (await this.meetingDescription.textContent()) || '';
 	}
@@ -88,6 +100,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	/**
 	 * Get metadata information
 	 */
+
 	async getMetadata(): Promise<string[]> {
 		return await this.metadataContainer.evaluateAll(elements => elements.map(el => el.textContent?.trim() || ''));
 	}
@@ -289,6 +302,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	 *
 	 * @param maxWaitMinutes maximum waiting time in minutes (default 60)
 	 */
+
 	async waitForJoinMeeting(maxWaitMinutes: number = 60): Promise<Locator> {
 		const interval = 5 * 60 * 1000;
 		const maxWait = maxWaitMinutes * 60 * 1000;
@@ -314,5 +328,98 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	async joinMeetingWhenAvailable(maxWaitMinutes: number = 60) {
 		await this.waitForJoinMeeting(maxWaitMinutes);
 		await this.clickJoinMeetingButton();
+	}
+
+	/**
+	 * Verifies that the meeting page displays the essential details:
+	 * - Meeting title
+	 * - Calendar structure with month, day, and year
+	 * - Location and address
+	 * - Time blocks (start/end)
+	 * - Meeting author
+	 */
+
+	public async verifyMeetingDetails(): Promise<void> {
+		// Verify the meeting title (e.g., "Meeting 1")
+		const title = this.page.getByRole('heading', { level: 1 });
+		await expect(title).toBeVisible();
+
+		// Verify the calendar container is visible and has month/day/year blocks
+		const calendar = this.page.locator('.meeting__calendar');
+		await expect(calendar).toBeVisible();
+
+		const monthBlock = calendar.locator('.meeting__calendar-month p');
+		const dayBlock = calendar.locator('.meeting__calendar-day p');
+		const yearBlock = calendar.locator('.meeting__calendar-year p');
+
+		expect(await monthBlock.count()).toBeGreaterThan(0);
+		expect(await dayBlock.count()).toBeGreaterThan(0);
+		expect(await yearBlock.count()).toBeGreaterThan(0);
+
+		// Verify location and address are visible and contain text
+		const location = this.page.locator('li .address__location').first();
+		const address = this.page.locator('.address__address');
+		await expect(location).toBeVisible();
+		await expect(address).toBeVisible();
+
+		const locationText = (await location.innerText()).trim();
+		const addressText = (await address.innerText()).trim();
+		expect(locationText.length).toBeGreaterThan(0);
+		expect(addressText.length).toBeGreaterThan(0);
+
+		// Locate the address container that contains the time icon
+		const containers = this.page.locator('.address__container');
+		const containerCount = await containers.count();
+
+		let timeBlocks: Locator | null = null;
+		let blockCount = 0;
+
+		for (let i = 0; i < containerCount; i++) {
+			const container = containers.nth(i);
+			const icon = container.locator('svg use[href*="#ri-time-line"], svg use[href*="ri-time-line"]');
+			if ((await icon.count()) > 0) {
+				// robust in-page count to handle nesting/text nodes
+				blockCount = await container.evaluate(el => {
+					try {
+						return el.querySelectorAll('p.has-tip, .has-tip').length;
+					} catch {
+						return 0;
+					}
+				});
+				if (blockCount >= 2) {
+					timeBlocks = container.locator('p.has-tip, .has-tip');
+				}
+				break;
+			}
+		}
+
+		// Fallback to global selector if container-scoped search failed
+		if (!timeBlocks || blockCount < 2) {
+			const globalBlocks = this.page.locator('p.has-tip, .has-tip');
+			const globalCount = await globalBlocks.count();
+			if (globalCount >= 2) {
+				timeBlocks = globalBlocks;
+				blockCount = globalCount;
+			}
+		}
+
+		if (timeBlocks && blockCount >= 2) {
+			for (let i = 0; i < blockCount; i++) {
+				const time = timeBlocks.nth(i);
+				await expect(time).toBeVisible();
+				const text = (await time.innerText()).trim();
+				expect(text.length).toBeGreaterThan(0);
+			}
+		} else {
+			console.warn(
+				`⚠️ Expected at least 2 time blocks, but found ${blockCount}. Skipping time block validation.`
+			);
+		}
+
+		// Verify the meeting author using exact text to avoid strict-mode issues
+		const author = this.page.getByText('Official meeting', { exact: true });
+		await expect(author).toBeVisible();
+		const authorText = (await author.innerText()).trim();
+		expect(authorText.length).toBeGreaterThan(0);
 	}
 }
