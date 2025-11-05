@@ -1,17 +1,22 @@
 // Test coverage for qaTree utility
 import * as fs from 'fs';
-import { loadTree } from '../../../src/utils/qaTree';
 
-// Mock fs to avoid file system dependencies
+// Mock fs to avoid file system dependencies - must be before import
 jest.mock('fs', () => ({
-	readFileSync: jest.fn()
+	readFileSync: jest.fn(),
+	existsSync: jest.fn().mockReturnValue(true)
 }));
+
+import { loadTree } from '../../../src/utils/qaTree';
 
 describe('QA Tree Utils', () => {
 	const mockReadFileSync = fs.readFileSync as jest.MockedFunction<typeof fs.readFileSync>;
+	const mockExistsSync = fs.existsSync as jest.MockedFunction<typeof fs.existsSync>;
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		// Ensure existsSync returns true for path checks
+		mockExistsSync.mockReturnValue(true);
 	});
 
 	test('should load and parse tree from file', () => {
