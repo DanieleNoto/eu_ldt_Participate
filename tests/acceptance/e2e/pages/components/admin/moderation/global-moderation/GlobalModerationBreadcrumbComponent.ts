@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { Locator, Page } from '@playwright/test';
 
 /**
@@ -185,36 +192,5 @@ export class GlobalModerationBreadcrumbComponent {
 		if (!currentPageAria) {
 			console.warn('Current page should have aria-current="page"');
 		}
-	}
-
-	/**
-	 * Debug helper - get all breadcrumb elements and their properties
-	 */
-	async debugBreadcrumb(): Promise<any> {
-		return {
-			container: {
-				visible: await this.getBreadcrumbContainer().isVisible(),
-				class: await this.getBreadcrumbContainer().getAttribute('class')
-			},
-			homeIcon: {
-				visible: await this.getHomeIcon().isVisible(),
-				class: await this.getHomeIcon().getAttribute('class')
-			},
-			homeLink: {
-				visible: await this.getHomeLink().isVisible(),
-				href: await this.getHomeLink().getAttribute('href'),
-				text: await this.getHomeLink().textContent()
-			},
-			adminLink: {
-				visible: await this.getAdminLink().isVisible(),
-				href: await this.getAdminLink().getAttribute('href'),
-				text: await this.getAdminLink().textContent()
-			},
-			currentPage: {
-				visible: await this.getCurrentPageText().isVisible(),
-				text: await this.getCurrentPageText().textContent()
-			},
-			separatorsCount: await this.getBreadcrumbSeparators().count()
-		};
 	}
 }

@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { Locator, Page } from '@playwright/test';
 
 /**
@@ -247,42 +254,5 @@ export class GlobalModerationPageHeaderComponent {
 				console.warn('Active filter should have aria-current attribute');
 			}
 		}
-	}
-
-	/**
-	 * Debug helper - get all header elements and their properties
-	 */
-	async debugHeader(): Promise<any> {
-		return {
-			container: {
-				visible: await this.getHeaderContainer().isVisible(),
-				class: await this.getHeaderContainer().getAttribute('class')
-			},
-			title: {
-				visible: await this.getHeaderTitle().isVisible(),
-				text: await this.getPageTitle(),
-				class: await this.getHeaderTitle().getAttribute('class')
-			},
-			cardFilter: {
-				visible: await this.getCardFilter().isVisible(),
-				class: await this.getCardFilter().getAttribute('class')
-			},
-			notHiddenFilter: {
-				visible: await this.getNotHiddenFilter().isVisible(),
-				text: await this.getNotHiddenFilterText(),
-				href: await this.getNotHiddenFilter().getAttribute('href'),
-				active: await this.isNotHiddenFilterActive(),
-				enabled: await this.getNotHiddenFilter().isEnabled()
-			},
-			hiddenFilter: {
-				visible: await this.getHiddenFilter().isVisible(),
-				text: await this.getHiddenFilterText(),
-				href: await this.getHiddenFilter().getAttribute('href'),
-				active: await this.isHiddenFilterActive(),
-				enabled: await this.getHiddenFilter().isEnabled()
-			},
-			activeFilter: await this.getActiveFilter(),
-			filterOptions: await this.getFilterOptions()
-		};
 	}
 }

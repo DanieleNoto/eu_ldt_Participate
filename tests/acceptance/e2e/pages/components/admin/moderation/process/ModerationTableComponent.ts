@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { Locator, Page } from '@playwright/test';
 
 /**
@@ -415,16 +422,24 @@ export class ModerationTableComponent {
 		return rowCount === 0;
 	}
 
-	// Debug methods
-	async debugTableState(): Promise<void> {
-		console.log('=== Moderation Table Debug State ===');
-		console.log('Table visible:', await this.isTableVisible());
-		console.log('Row count:', await this.getRowCount());
-		console.log('Has data:', await this.hasData());
-		console.log('Current sort column:', await this.getCurrentSortColumn());
-		console.log('Current sort direction:', await this.getCurrentSortDirection());
-		console.log('Table headers:', await this.getTableHeaders());
-		console.log('=====================================');
+	/**
+	 * Select all moderations using the header checkbox
+	 * @returns Promise<void>
+	 */
+	async selectAll(): Promise<void> {
+		const selectAllCheckbox = this.page.locator('input#moderations_bulk[value="all"]');
+		if (!(await selectAllCheckbox.isChecked())) {
+			await selectAllCheckbox.check();
+			await this.page.waitForLoadState('networkidle');
+		}
+	}
+
+	/**
+	 * Get count of selected moderations
+	 * @returns Promise<number>
+	 */
+	async getSelectedCount(): Promise<number> {
+		return await this.page.locator('tbody input[type="checkbox"]:checked').count();
 	}
 }
 

@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { Locator, Page } from '@playwright/test';
 
 /**
@@ -337,47 +344,5 @@ export class GlobalModerationFiltersComponent {
 				console.warn('Applied filter remove buttons should have aria-label');
 			}
 		}
-	}
-
-	/**
-	 * Debug helper - get all filter elements and their properties
-	 */
-	async debugFilters(): Promise<any> {
-		return {
-			section: {
-				visible: await this.getFiltersSection().isVisible(),
-				class: await this.getFiltersSection().getAttribute('class')
-			},
-			filterDropdown: {
-				visible: await this.getFilterDropdown().isVisible(),
-				open: await this.isFilterDropdownOpen(),
-				class: await this.getFilterDropdown().getAttribute('class')
-			},
-			filterButton: {
-				visible: await this.getFilterButton().isVisible(),
-				text: await this.getFilterButton().textContent(),
-				ariaExpanded: await this.getFilterButton().getAttribute('aria-expanded'),
-				enabled: await this.getFilterButton().isEnabled()
-			},
-			searchForm: {
-				visible: await this.getSearchForm().isVisible(),
-				class: await this.getSearchForm().getAttribute('class')
-			},
-			searchInput: {
-				visible: await this.getSearchInput().isVisible(),
-				value: await this.getCurrentSearchText(),
-				placeholder: await this.getSearchPlaceholder(),
-				enabled: await this.isSearchInputEnabled()
-			},
-			searchButton: {
-				visible: await this.getSearchButton().isVisible(),
-				enabled: await this.isSearchButtonEnabled()
-			},
-			appliedFilters: {
-				visible: await this.getAppliedFilters().isVisible(),
-				count: await this.getAppliedFiltersCount(),
-				texts: await this.getAppliedFiltersTexts()
-			}
-		};
 	}
 }

@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { Locator, Page } from '@playwright/test';
 
 /**
@@ -8,7 +15,6 @@ export class ModerationPageHeaderComponent {
 	private readonly page: Page;
 
 	// Main header container
-	private readonly itemShowWrapper: Locator;
 	private readonly itemShowHeader: Locator;
 	private readonly headerTitle: Locator;
 
@@ -30,18 +36,13 @@ export class ModerationPageHeaderComponent {
 
 	// Search section
 	private readonly searchSection: Locator;
-	private readonly searchForm: Locator;
 	private readonly searchInput: Locator;
 	private readonly searchButton: Locator;
-
-	// Applied filters section
-	private readonly appliedFiltersSection: Locator;
 
 	constructor(page: Page) {
 		this.page = page;
 
 		// Main containers
-		this.itemShowWrapper = page.locator('.item_show__wrapper');
 		this.itemShowHeader = page.locator('.item_show__header');
 		this.headerTitle = page.locator('.item_show__header-title');
 
@@ -67,12 +68,8 @@ export class ModerationPageHeaderComponent {
 
 		// Search
 		this.searchSection = page.locator('.fcell.search');
-		this.searchForm = page.locator('form.decidim\\/moderation_search');
 		this.searchInput = page.locator('input[name="q[reported_id_string_or_reported_content_cont]"]');
 		this.searchButton = page.locator('button[type="submit"][aria-label="Search"]');
-
-		// Applied filters
-		this.appliedFiltersSection = page.locator('[data-applied-filters-tags]');
 	}
 
 	// Visibility checks
@@ -213,18 +210,5 @@ export class ModerationPageHeaderComponent {
 
 	async getSearchPlaceholder(): Promise<string> {
 		return (await this.searchInput.getAttribute('placeholder')) || '';
-	}
-
-	// Debug methods
-	async debugHeaderState(): Promise<void> {
-		console.log('=== Moderation Header Debug State ===');
-		console.log('Header visible:', await this.isHeaderVisible());
-		console.log('Page title:', await this.getPageTitle());
-		console.log('Current filter state:', await this.getCurrentFilterState());
-		console.log('Active filters:', await this.getActiveFilters());
-		console.log('Search value:', await this.getSearchValue());
-		console.log('Has active filters:', await this.hasActiveFilters());
-		console.log('Current URL:', this.page.url());
-		console.log('======================================');
 	}
 }

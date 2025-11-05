@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { Locator, Page } from '@playwright/test';
 
 /**
@@ -406,38 +413,5 @@ export class GlobalModerationTableComponent {
 				console.warn('Action buttons should have aria-label attribute');
 			}
 		}
-	}
-
-	/**
-	 * Debug helper - get table structure and data
-	 */
-	async debugTable(): Promise<any> {
-		return {
-			container: {
-				visible: await this.getTableScrollContainer().isVisible(),
-				class: await this.getTableScrollContainer().getAttribute('class')
-			},
-			table: {
-				visible: await this.getTable().isVisible(),
-				class: await this.getTable().getAttribute('class')
-			},
-			structure: {
-				headerVisible: await this.getTableHeader().isVisible(),
-				bodyVisible: await this.getTableBody().isVisible(),
-				rowCount: await this.getRowCount(),
-				isEmpty: await this.isEmpty()
-			},
-			headers: await this.getColumnHeaders(),
-			sorting: {
-				sortedByReportedAt: await this.isSortedByReportedAtDesc(),
-				sortedByReportsCount: await this.isSortedByReportsCount()
-			},
-			actions: {
-				expandCount: await this.getExpandActions().count(),
-				unreportCount: await this.getUnreportActions().count(),
-				hideCount: await this.getHideActions().count(),
-				visitUrlCount: await this.getVisitUrlLinks().count()
-			}
-		};
 	}
 }
