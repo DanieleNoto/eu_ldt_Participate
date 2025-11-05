@@ -13,3 +13,4 @@ data:
   DB_SCHEMA: example_schema
   DB_NAME: chatbot_integration
   POSTGRES_DATABASE: chatbot_integration
+  PGDATA: /var/lib/postgresql/data/pgdata
