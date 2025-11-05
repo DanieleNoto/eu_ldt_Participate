@@ -156,11 +156,6 @@ const checkJitsiWeb = async (): Promise<HealthCheck> => {
 	return checkHttpService(jitsiUrl, 'Jitsi Web');
 };
 
-const checkShakapacker = async (): Promise<HealthCheck> => {
-	const shakapackerUrl = process.env.SHAKAPACKER_URL || 'http://shakapacker:3035';
-	return checkHttpService(shakapackerUrl, 'Shakapacker');
-};
-
 /**
  * Simulates a check on a critical internal component.
  */
@@ -209,25 +204,16 @@ class HealthService {
 	async health(): Promise<ServiceHealthResult> {
 		try {
 			// Execute various checks in parallel
-			const [
-				dbStatus,
-				redisStatus,
-				decidimStatus,
-				grafanaStatus,
-				matomoStatus,
-				jitsiWebStatus,
-				shakapackerStatus,
-				internalStatus
-			] = await Promise.allSettled([
-				checkDatabase(),
-				checkRedis(),
-				checkDecidim(),
-				checkGrafana(),
-				checkMatomo(),
-				checkJitsiWeb(),
-				checkShakapacker(),
-				checkInternalComponent()
-			]);
+			const [dbStatus, redisStatus, decidimStatus, grafanaStatus, matomoStatus, jitsiWebStatus, internalStatus] =
+				await Promise.allSettled([
+					checkDatabase(),
+					checkRedis(),
+					checkDecidim(),
+					checkGrafana(),
+					checkMatomo(),
+					checkJitsiWeb(),
+					checkInternalComponent()
+				]);
 
 			const checks: Record<string, HealthCheck> = {
 				database:
@@ -273,14 +259,6 @@ class HealthService {
 				jitsi_web:
 					jitsiWebStatus.status === 'fulfilled'
 						? jitsiWebStatus.value
-						: {
-								status: HealthStatus.UNHEALTHY,
-								timestamp: new Date().toISOString(),
-								details: 'Health check failed to execute'
-							},
-				shakapacker:
-					shakapackerStatus.status === 'fulfilled'
-						? shakapackerStatus.value
 						: {
 								status: HealthStatus.UNHEALTHY,
 								timestamp: new Date().toISOString(),
