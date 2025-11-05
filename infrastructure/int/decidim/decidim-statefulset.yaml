@@ -68,13 +68,10 @@ spec:
                   volumeMounts:
                       - mountPath: /code/data
                         name: decidim-pvc
-                        subPath: data
                       - mountPath: /code/storage
                         name: decidim-pvc
-                        subPath: storage
                       - mountPath: /code/public
                         name: decidim-pvc
-                        subPath: public
             containers:
                 - name: decidim
                   resources:
@@ -107,13 +104,10 @@ spec:
                   volumeMounts:
                       - mountPath: /code/data
                         name: decidim-pvc
-                        subPath: data
                       - mountPath: /code/storage
                         name: decidim-pvc
-                        subPath: storage
                       - mountPath: /code/public
                         name: decidim-pvc
-                        subPath: public
     volumeClaimTemplates:
         - metadata:
               name: decidim-pvc
