@@ -16,7 +16,7 @@ module Decidim
         return false unless @id_token.present?
         return false unless keycloak_config_valid?
 
-        # Check cache first (30-second TTL for production)
+        # Check cache first (5-minute TTL for production to reduce Keycloak API calls)
         cache_key = "keycloak_token_#{Digest::SHA256.hexdigest(@id_token)}"
         cached_result = Rails.cache.read(cache_key)
         return cached_result unless cached_result.nil?
@@ -76,8 +76,8 @@ module Decidim
             Rails.logger.info "[Keycloak Token Validation] Token is invalid/revoked for user #{@user&.id} - forcing logout"
           end
 
-          # Cache the result for 10 seconds (reduced from 30s for better security)
-          Rails.cache.write(cache_key, is_active, expires_in: 10.seconds)
+          # Cache the result for 1 minute to reduce Keycloak API calls and avoid rate limits
+          Rails.cache.write(cache_key, is_active, expires_in: 1.minutes)
 
           is_active
         rescue Net::OpenTimeout, Net::ReadTimeout => e
