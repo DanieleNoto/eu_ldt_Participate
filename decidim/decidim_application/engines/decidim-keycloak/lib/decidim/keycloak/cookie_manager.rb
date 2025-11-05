@@ -64,12 +64,15 @@ module Decidim
         cookie_names = ['access_token', 'refresh_token', 'id_token']
         domains = calculate_all_cookie_domains(request_host)
         
-        Rails.logger.debug "[Keycloak CookieManager] Clearing cookies from domains: #{domains.inspect}"
+        Rails.logger.info "[Keycloak CookieManager] Clearing cookies #{cookie_names.inspect} from domains: #{domains.inspect}"
+        Rails.logger.debug "[Keycloak CookieManager] Current cookies before clearing: access_token=#{cookies_obj['access_token']&.length}, refresh_token=#{cookies_obj['refresh_token']&.length}, id_token=#{cookies_obj['id_token']&.length}"
         
         domains.each do |domain|
           # Clear named Keycloak cookies with all possible attribute combinations
           cookie_names.each do |name|
             next unless cookies_obj[name].present?
+            
+            Rails.logger.debug "[Keycloak CookieManager] Clearing #{name} from domain: #{domain.inspect}"
             
             # Delete with domain attribute
             cookies_obj.delete(name, domain: domain, secure: true, httponly: true, same_site: :lax)
@@ -88,6 +91,21 @@ module Decidim
           end
         end
         
+        # Additional safety: clear without domain attribute at all
+        cookie_names.each do |name|
+          if cookies_obj[name].present?
+            Rails.logger.debug "[Keycloak CookieManager] Additional clearing of #{name} without domain"
+            cookies_obj.delete(name)
+            cookies_obj[name] = {
+              value: '',
+              expires: 1.year.ago,
+              secure: Rails.env.production?,
+              httponly: true,
+              same_site: :lax
+            }
+          end
+        end
+        
         # Clean session data if provided
         if session_obj
           session_obj.delete(:keycloak_authenticated)
@@ -95,7 +113,7 @@ module Decidim
           session_obj.delete(:keycloak_auto_login_pending)
         end
         
-        Rails.logger.info "[Keycloak CookieManager] Cleared all Keycloak cookies from #{domains.length} domain(s)"
+        Rails.logger.info "[Keycloak CookieManager] Cleared all Keycloak cookies from #{domains.length} domain(s). Final state: access_token=#{cookies_obj['access_token']&.length}, refresh_token=#{cookies_obj['refresh_token']&.length}, id_token=#{cookies_obj['id_token']&.length}"
       end
       
       # Save tokens to cookies with proper domain and expiry
