@@ -13,9 +13,8 @@ data:
     # Security
     DISABLE_HELMET: 'false'
     JWT_ENABLE_CHECK: 'false'
-    JWT_ISSUER_PUBKEY: '-----BEGIN PUBLIC KEY-----
------END PUBLIC KEY-----'
-    JWT_TOKEN_URL:
+    JWT_ISSUER_PUBKEY: ''
+    JWT_TOKEN_URL: ''
     DATABASE_SYNC: 'false'
     LOGGER_LEVEL: 'info'
     RATE_LIMIT_TIME_WINDOW: '1 minute'
@@ -30,11 +29,11 @@ data:
     # Database
     DB_NAME: chatbot_integration
     DB_HOST: chatbot-pg-svc
-    DB_PORT: 5432
+    DB_PORT: '5432'
     DB_DIALECT: postgres
-    DB_MAX_POOL: 100
-    DB_MIN_POOL: 2
-    DB_IDLE_POOL: 1000
+    DB_MAX_POOL: '100'
+    DB_MIN_POOL: '2'
+    DB_IDLE_POOL: '1000'
     DB_SCHEMA: example_schema
     #Sequelize
     SEQUELIZE_SEEDER_STORAGE: sequelize
@@ -42,14 +41,14 @@ data:
     SEQUELIZE_MIGRATION_STORAGE: sequelize
     SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME: SequelizeData
     # Logger
-    LOGGER_TARGET:
+    LOGGER_TARGET: ''
       # SMTP/Email Configuration
     SMTP_ADDRESS: ssl0.ovh.net
     SMTP_PORT: '465'
     SMTP_DOMAIN: part-int.ldttoolbox.app
     SMTP_AUTHENTICATION: login
     SMTP_ENABLE_STARTTLS_AUTO: 'true'
-    SMTP_OPENSSL_VERIFY_MODE:
+    SMTP_OPENSSL_VERIFY_MODE: ''
     SMTP_USER_NAME: info@ldttoolbox.eu
       # Service URLs
     GRAFANA_URL: https://grafana

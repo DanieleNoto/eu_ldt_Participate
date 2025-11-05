@@ -6,7 +6,7 @@ metadata:
 data:
   DB_MAX_POOL: "100"
   DB_MIN_POOL: "2"
-  DB_IDLE_POOL: 1000
+  DB_IDLE_POOL: "1000"
   DB_DIALECT: postgres
   DB_HOST: chatbot-pg-svc
   DB_PORT: "5432"
