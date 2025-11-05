@@ -125,11 +125,7 @@ class ChatbotInjector
   end
 
   def cache_buster_value
-    if Rails.env.development?
-      (Time.now.to_f * 1000).to_i.to_s
-    else
-      ENV['CHATBOT_ASSET_VERSION'].presence || ENV['APP_REVISION'].presence
-    end
+    (Time.now.to_f * 1000).to_i.to_s
   end
 
   def extract_locale(env)

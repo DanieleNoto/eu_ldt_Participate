@@ -128,7 +128,7 @@ jobs:
             displayName: 'Replace tokens decidim'
             inputs:
                 rootDirectory: infrastructure/int/decidim
-                targetFiles: 'decidim-statefulset.yaml,decidim-statefulset.yml,decidim-sidekiq-deployment.yaml'
+                targetFiles: 'decidim-statefulset.yaml,decidim-sidekiq-deployment.yaml,decidim-configmap.yml'
                 tokenPattern: custom
                 tokenPrefix: _%
                 tokenSuffix: '%_'
