@@ -21,7 +21,7 @@ spec:
       automountServiceAccountToken: false
       # Wait for Redis to be reachable before starting Sidekiq to avoid CrashLoopBackOff
       initContainers:
-        - name: wait-for-redis
+        - name: wait-for-dependencies
           # use an image that contains redis-cli so we can handle auth/URLs
           image: redis:7-alpine
           command:
@@ -33,17 +33,31 @@ spec:
               # otherwise fall back to REDIS_HOST/REDIS_PORT/REDIS_PASSWORD or defaults.
               if [ -n "${REDIS_URL:-}" ]; then
                 for i in $(seq 1 120); do
-                  redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1 && echo "redis reachable" && exit 0
+                  redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1 && echo "redis reachable" && break
                   echo "redis not reachable yet (attempt $i)"; sleep 1
                 done
               fi
-              echo "timeout waiting for redis"; exit 1
+              
+              echo "Waiting for decidim assets..."
+              # Wait for the manifest file to exist and contain content (up to 3 minutes)
+              for i in $(seq 1 90); do
+                if [ -f "/code/public/decidim-packs/manifest.json" ] && [ "$(cat /code/public/decidim-packs/manifest.json | wc -c)" -gt 2 ]; then
+                  echo "decidim assets manifest is ready"
+                  exit 0
+                fi
+                echo "decidim assets not ready yet (attempt $i)"; sleep 2
+              done
+              echo "timeout waiting for decidim assets"; exit 1
           # import the same envs the app uses so the initContainer can read REDIS_URL
           envFrom:
             - secretRef:
                 name: decidim-secret
             - configMapRef:
                 name: decidim-configmap
+          volumeMounts:
+            - name: decidim-assets
+              mountPath: /code/public
+              readOnly: true
       containers:
         - name: sidekiq
           image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
