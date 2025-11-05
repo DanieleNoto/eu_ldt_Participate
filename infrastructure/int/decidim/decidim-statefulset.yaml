@@ -49,12 +49,9 @@ spec:
                         echo "=== ASSET COMPILATION INIT CONTAINER ==="
                         cd /code
                         
-                        # Wait for database to be ready
-                        echo "Waiting for database..."
-                        while ! bin/rails db:version >/dev/null 2>&1; do
-                          echo "Database not ready, waiting..."
-                          sleep 5
-                        done
+                        # Clean existing assets first
+                        echo "Cleaning existing assets..."
+                        bin/rails assets:clean || true
                         
                         # Compile assets
                         echo "Compiling assets..."
