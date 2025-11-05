@@ -29,7 +29,7 @@ describe('Logs-check service test', () => {
 				}
 			},
 			source: {
-				environment: 'development',
+				environment: 'test',
 				file: '/api/test',
 				function: 'GET'
 			},

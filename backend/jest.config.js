@@ -2,8 +2,8 @@
 module.exports = {
 	preset: 'ts-jest',
 	testEnvironment: 'node',
-	setupFiles: ['dotenv/config', './tests/unit/setupEnv.ts'],
-	setupFilesAfterEnv: ['dotenv/config'],
+	setupFiles: [],
+	setupFilesAfterEnv: ['dotenv/config', './tests/unit/setupEnv.ts'],
 	extensionsToTreatAsEsm: ['.ts'],
 	transform: {
 		'^/test/unit/+.test.ts?$': ['ts-jest', { useESM: true }]
@@ -37,5 +37,9 @@ module.exports = {
 	],
 	coverageDirectory: 'coverage',
 	coverageReporters: ['text', 'html', 'lcov'],
-	modulePathIgnorePatterns: ['<rootDir>/build/']
+	modulePathIgnorePatterns: ['<rootDir>/build/'],
+	// Force exit to prevent hanging
+	forceExit: true,
+	// Detect open handles
+	detectOpenHandles: true
 };

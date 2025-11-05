@@ -1,7 +1,62 @@
-import HealthService from '../../src/services/health.service';
 import { HealthStatus } from '../../src/enums/health-status.enum';
+import HealthService from '../../src/services/health.service';
+
+// Mock external dependencies
+jest.mock('axios');
+jest.mock('ioredis');
+jest.mock('../../src/config/database');
+
+const mockAxios = require('axios');
+const mockIORedis = require('ioredis');
+const mockDatabase = require('../../src/config/database');
+
+// Mock implementations
+const mockSequelize = {
+	authenticate: jest.fn(),
+	query: jest.fn()
+};
+
+const mockRedis = {
+	ping: jest.fn(),
+	quit: jest.fn()
+};
+
+mockDatabase.sequelize = mockSequelize;
+mockAxios.get = jest.fn();
+mockIORedis.mockImplementation(() => mockRedis);
 
 describe('HealthService', () => {
+	beforeEach(() => {
+		// Reset all mocks
+		jest.clearAllMocks();
+
+		// Setup default mock behaviors
+		mockSequelize.authenticate.mockResolvedValue(undefined);
+		mockSequelize.query.mockResolvedValue(undefined);
+		mockRedis.ping.mockResolvedValue('PONG');
+		mockRedis.quit.mockResolvedValue(undefined);
+
+		// Mock HTTP calls for external services
+		mockAxios.get.mockImplementation((url: string) => {
+			if (url.includes('decidim')) {
+				return Promise.resolve({ status: 200 });
+			}
+			if (url.includes('grafana')) {
+				return Promise.resolve({ status: 200 });
+			}
+			if (url.includes('matomo')) {
+				return Promise.resolve({ status: 200 });
+			}
+			if (url.includes('jitsi-web')) {
+				return Promise.resolve({ status: 200 });
+			}
+			return Promise.reject(new Error('Service unavailable'));
+		});
+	});
+
+	afterEach(() => {
+		jest.clearAllTimers();
+	});
 	describe('liveness check', () => {
 		it('should always return healthy status for liveness', async () => {
 			const result = await HealthService.live();
@@ -37,7 +92,49 @@ describe('HealthService', () => {
 				expect(check.timestamp).toBeDefined();
 				expect([HealthStatus.HEALTHY, HealthStatus.DEGRADED, HealthStatus.UNHEALTHY]).toContain(check.status);
 			});
-		}, 60000); // 60 second timeout since services might be unreachable
+		});
+
+		it('should handle database connection failure', async () => {
+			mockSequelize.authenticate.mockRejectedValue(new Error('Connection failed'));
+
+			const result = await HealthService.health();
+
+			expect(result.checks.database.status).toBe(HealthStatus.UNHEALTHY);
+			expect(result.checks.database.details).toContain('Database connection failed');
+		});
+
+		it('should handle Redis connection failure', async () => {
+			mockRedis.ping.mockRejectedValue(new Error('Redis connection failed'));
+
+			const result = await HealthService.health();
+
+			expect(result.checks.redis.status).toBe(HealthStatus.UNHEALTHY);
+			expect(result.checks.redis.details).toContain('Redis connection failed');
+		});
+
+		it('should handle external service failures', async () => {
+			mockAxios.get.mockRejectedValue(new Error('Service unavailable'));
+
+			const result = await HealthService.health();
+
+			expect(result.checks.decidim.status).toBe(HealthStatus.DEGRADED);
+			expect(result.checks.grafana.status).toBe(HealthStatus.DEGRADED);
+			expect(result.checks.matomo.status).toBe(HealthStatus.DEGRADED);
+			expect(result.checks.jitsi_web.status).toBe(HealthStatus.DEGRADED);
+		});
+
+		it('should handle connection refused errors as unhealthy', async () => {
+			const connectionError = new Error('Connection refused');
+			(connectionError as any).code = 'ECONNREFUSED';
+			mockAxios.get.mockRejectedValue(connectionError);
+
+			const result = await HealthService.health();
+
+			expect(result.checks.decidim.status).toBe(HealthStatus.UNHEALTHY);
+			expect(result.checks.grafana.status).toBe(HealthStatus.UNHEALTHY);
+			expect(result.checks.matomo.status).toBe(HealthStatus.UNHEALTHY);
+			expect(result.checks.jitsi_web.status).toBe(HealthStatus.UNHEALTHY);
+		});
 	});
 
 	describe('readiness check', () => {
@@ -55,7 +152,7 @@ describe('HealthService', () => {
 			// Should not include optional services
 			expect(result.checks.grafana).toBeUndefined();
 			expect(result.checks.matomo).toBeUndefined();
-		}, 30000); // 30 second timeout
+		});
 	});
 
 	describe('kubernetes health check', () => {
@@ -68,7 +165,7 @@ describe('HealthService', () => {
 			expect(result.details.status).toBeDefined();
 			expect(result.details.checks).toBeDefined();
 			expect(result.details.timestamp).toBeDefined();
-		}, 60000);
+		});
 	});
 
 	describe('service statuses', () => {
@@ -84,6 +181,6 @@ describe('HealthService', () => {
 				expect(check.timestamp).toBeDefined();
 				expect([HealthStatus.HEALTHY, HealthStatus.DEGRADED, HealthStatus.UNHEALTHY]).toContain(check.status);
 			});
-		}, 60000);
+		});
 	});
 });
