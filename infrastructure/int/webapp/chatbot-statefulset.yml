@@ -23,6 +23,21 @@ spec:
             serviceAccountName: default
             automountServiceAccountToken: false
             #------------------------------------------------------
+            initContainers:
+                - name: init-postgres-data
+                  image: busybox
+                  command: ['sh', '-c', 'mkdir -p /var/lib/postgresql/data/pgdata && chown -R 999:999 /var/lib/postgresql/data/pgdata']
+                  volumeMounts:
+                      - name: chatbot-pg-storage
+                        mountPath: /var/lib/postgresql/data
+                - name: wait-for-postgres
+                  image: postgres:17.3
+                  command: ['sh', '-c', 'until pg_isready -h localhost -p 5432; do echo "PostgreSQL is unavailable - sleeping"; sleep 2; done; echo "PostgreSQL is ready!"']
+                  envFrom:
+                    - secretRef:
+                        name: chatbot-backend-db-secret
+                    - configMapRef:
+                        name: chatbot-backend-db-config
             containers:
                 - name: chatbot-backend
                   image: euldtshared.azurecr.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_
