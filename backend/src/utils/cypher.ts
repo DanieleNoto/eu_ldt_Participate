@@ -13,13 +13,13 @@ const getKey = async (): Promise<Buffer> => {
 	return keys;
 };
 
-const getCipher = async (): Promise<Cipheriv> => {
+const getCipher = async () => {
 	const key = await getKey();
 	const cipher = createCipheriv(config.algorithm, key, iv);
 	return cipher;
 };
 
-const getDecipher = async (ivv: BinaryLike): Promise<Decipheriv> => {
+const getDecipher = async (ivv: BinaryLike) => {
 	const key = await getKey();
 	const cipher = createDecipheriv(config.algorithm, key, ivv);
 	return cipher;

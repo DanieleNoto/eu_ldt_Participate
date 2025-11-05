@@ -30,6 +30,10 @@ USER app
 # Expose the port
 EXPOSE 3002
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3002/api/v1/health || exit 1
+  
 # Use initialization script as entrypoint
 ENTRYPOINT ["/usr/local/bin/init-db.sh"]
 

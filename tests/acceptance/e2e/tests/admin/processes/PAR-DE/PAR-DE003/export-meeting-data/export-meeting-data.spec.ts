@@ -86,9 +86,7 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 					expect(beforeMeetingCount).toBeGreaterThan(0);
 					const closedCount = await meetingsPage.countClosedMeetings();
 					console.log(
-						closedCount > 0
-							? `Closed meetings found: ${closedCount}`
-							: 'No closed meetings found.'
+						closedCount > 0 ? `Closed meetings found: ${closedCount}` : 'No closed meetings found.'
 					);
 					await componentsPage
 						.getPage()
