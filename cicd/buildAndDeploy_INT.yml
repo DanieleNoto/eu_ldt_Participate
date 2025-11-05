@@ -700,7 +700,7 @@ jobs:
             displayName: 'Apply ConfigMap - BE (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -711,7 +711,7 @@ jobs:
             displayName: 'Apply ConfigMap - DB (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -722,7 +722,7 @@ jobs:
             displayName: 'Apply Secrets - BE (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -733,7 +733,7 @@ jobs:
             displayName: 'Apply Secrets - DB (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -744,7 +744,7 @@ jobs:
             displayName: 'Apply ConfigMap - FE (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -755,7 +755,7 @@ jobs:
             displayName: 'Apply Statefulset - WebApp (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -766,7 +766,7 @@ jobs:
             displayName: 'Apply Service - BE (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -777,7 +777,7 @@ jobs:
             displayName: 'Apply Service - FE (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
