@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   namespace :api do
     get 'jwt_token', to: 'jwt_tokens#show'
     resources :assets, only: [:index, :show], param: :id
+    get 'chatbot/*path', to: 'chatbot#proxy'
   end
 
   mount Decidim::Core::Engine => '/'

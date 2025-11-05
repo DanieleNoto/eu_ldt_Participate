@@ -13,14 +13,15 @@
 #
 # Environment Variables:
 # - CHATBOT_ENABLED: 'true' to enable the chatbot
-# - CHATBOT_URL: Base URL where the chatbot is hosted (e.g., https://cdn.example.com/chatbot)
-# - CHATBOT_ASSET_VERSION or APP_REVISION: Optional cache busting version
+# - CHATBOT_FRONTEND_URL: Internal URL of the chatbot frontend service (default: http://chatbot-frontend-svc:5001)
+#   This is used by the API proxy controller, not directly by the frontend
 #
 # How it works:
 # 1. Intercepts HTML responses (200 status only)
-# 2. Injects <script> tag before </body>
-# 3. Loader script creates <eu-chatbot> element in the DOM
-# 4. Web component handles all UI, styling, and functionality
+# 2. Injects <script> tag that loads from Decidim's /api/chatbot/ proxy
+# 3. Proxy controller forwards requests to internal chatbot-frontend-svc:5001
+# 4. Loader script creates <eu-chatbot> element in the DOM
+# 5. Web component handles all UI, styling, and functionality
 #
 # See: frontend/CHATBOT_WEB_COMPONENT.md for technical details
 class ChatbotInjector
@@ -75,7 +76,7 @@ class ChatbotInjector
   end
 
   def chatbot_enabled?
-    ENV['CHATBOT_ENABLED'] == 'true' && ENV['CHATBOT_URL'].present?
+    ENV['CHATBOT_ENABLED'] == 'true'
   end
 
   def html_response?(headers)
@@ -103,9 +104,8 @@ class ChatbotInjector
   end
 
   def build_snippet(env)
-    base_url = ENV['CHATBOT_URL'].to_s.strip.chomp('/')
-    return if base_url.empty?
-
+    # Use Decidim's API proxy instead of direct service URL
+    base_url = "/api/chatbot"
     cache_token = cache_buster_value
     loader_src = "#{base_url}/chatbot-loader.js"
     loader_src = "#{loader_src}?v=#{cache_token}" if cache_token

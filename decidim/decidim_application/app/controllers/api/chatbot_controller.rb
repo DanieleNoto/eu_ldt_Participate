@@ -1,0 +1,68 @@
+# frozen_string_literal: true
+
+require 'net/http'
+require 'uri'
+
+module Api
+  # Chatbot Proxy Controller
+  #
+  # This controller proxies requests to the chatbot frontend service.
+  # It allows the browser to load chatbot assets through Decidim's backend,
+  # avoiding CORS issues and providing access to internal Kubernetes services.
+  class ChatbotController < ApplicationController
+    skip_before_action :verify_authenticity_token
+    skip_before_action :authenticate_user!
+
+    def proxy
+      chatbot_url = ENV['CHATBOT_FRONTEND_URL'] || 'http://chatbot-frontend-svc:5001'
+      path = params[:path] || ''
+      full_url = "#{chatbot_url}/#{path}"
+
+      # Remove any query parameters from the path and add them to the URL
+      query_string = request.query_string.presence
+      full_url = "#{full_url}?#{query_string}" if query_string
+
+      Rails.logger.info "[Chatbot Proxy] Proxying request to: #{full_url}"
+
+      begin
+        uri = URI.parse(full_url)
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.open_timeout = 10
+        http.read_timeout = 30
+
+        # Use SSL if HTTPS
+        http.use_ssl = (uri.scheme == 'https')
+
+        request = Net::HTTP::Get.new(uri)
+        response = http.request(request)
+
+        # Forward relevant headers
+        forwarded_headers = {}
+        response.each_header do |key, value|
+          # Skip hop-by-hop headers
+          next if ['connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers', 'transfer-encoding', 'upgrade'].include?(key.downcase)
+
+          # Handle CORS headers
+          if key.downcase == 'access-control-allow-origin'
+            forwarded_headers[key] = '*'  # Allow from any origin since we're proxying
+          else
+            forwarded_headers[key] = value
+          end
+        end
+
+        # Set forwarded headers in response
+        forwarded_headers.each do |key, value|
+          response.set_header(key, value)
+        end
+
+        render plain: response.body, status: response.code, content_type: response.content_type
+      rescue Net::OpenTimeout, Net::ReadTimeout => e
+        Rails.logger.error "[Chatbot Proxy] Network timeout: #{e.message}"
+        render plain: 'Service timeout', status: 504
+      rescue => e
+        Rails.logger.error "[Chatbot Proxy] Unexpected error: #{e.class} - #{e.message}"
+        render plain: 'Service unavailable', status: 503
+      end
+    end
+  end
+end
