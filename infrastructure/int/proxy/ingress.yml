@@ -18,6 +18,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffers-number: "8"
     nginx.ingress.kubernetes.io/client-header-buffer-size: "16k"
     nginx.ingress.kubernetes.io/large-client-header-buffers: "8 16k"
+    # Increase client max body size to allow large file uploads (10MB)
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
 
   # No global rewrite-target for analytics routes: use Prefix paths to avoid
   # accidental duplicated prefixes when upstream or local proxies also add paths.
