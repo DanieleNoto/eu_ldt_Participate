@@ -195,7 +195,6 @@ services:
             - DECIDIM_URL=http://decidim:3000
             - MATOMO_URL=http://matomo:80
             - JITSI_WEB_URL=http://jitsi-web:80
-            - SHAKAPACKER_URL=http://shakapacker:3035
         volumes:
             - ./backend:/app
             - /app/node_modules

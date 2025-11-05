@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: chatbot-frontend-config
+    namespace: participate
+data:
+    NODE_ENV: 'production'
+    VITE_API_URL: https://chatbot-backend-svc:3002/api/v1

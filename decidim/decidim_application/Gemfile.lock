@@ -115,8 +115,6 @@ GEM
       erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.1, >= 1.2.0)
-    active_hashcash (0.4.0)
-      rails (>= 5.2.0)
     active_link_to (1.0.5)
       actionpack
       addressable

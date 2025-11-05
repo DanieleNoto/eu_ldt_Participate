@@ -37,7 +37,7 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 	let headerComponent: HeaderComponent;
 	let notificationPage: NotificationPage;
 	let meetingDetailUrl: string;
-  let letterOpenerPage: LetterOpenerPage;
+	let letterOpenerPage: LetterOpenerPage;
 
 	test.beforeEach(async ({ page }) => {
 		processesOverviewPage = new ProcessesOverviewPage(page);
@@ -47,7 +47,7 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 		homePage = new HomePage(page);
 		headerComponent = new HeaderComponent(page);
 		notificationPage = new NotificationPage(page);
-    letterOpenerPage = new LetterOpenerPage(page);
+		letterOpenerPage = new LetterOpenerPage(page);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {
@@ -76,12 +76,12 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 				const onlineMeeting = await processDetailPage.getFirstOnlineMeeting();
 				expect(onlineMeeting).not.toBeNull();
 				expect(onlineMeeting?.link).toContain('/meetings/1');
-        await meetingsPage.clickMeetingCardByIndex(onlineMeeting.index);
+				await meetingsPage.clickMeetingCardByIndex(onlineMeeting.index);
 			});
 			await test.step('6. System: Displays the meeting details, including the "Register" button.', async () => {
 				await meetingDetailPage.expectOnMeetingDetailPage();
 				meetingDetailUrl = meetingDetailPage.getPage().url();
-        await meetingDetailPage.expectRegisterButtonVisible();
+				await meetingDetailPage.expectRegisterButtonVisible();
 				await meetingDetailPage
 					.getPage()
 					.screenshot({ path: 'test-results/screenshots/OnMeetingDetailPage.png', fullPage: true });
@@ -93,16 +93,22 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 				await meetingDetailPage.expectRegistrationPromptVisible();
 				await meetingDetailPage
 					.getPage()
-					.screenshot({ path: 'test-results/screenshots/OnMeetingDetailPageExpectRegistrationPromptVisible.png', fullPage: true });
+					.screenshot({
+						path: 'test-results/screenshots/OnMeetingDetailPageExpectRegistrationPromptVisible.png',
+						fullPage: true
+					});
 			});
 			await test.step('9. User: Confirms the registration.', async () => {
 				await meetingDetailPage.confirmRegistration();
-        await meetingDetailPage.waitForLoadState('networkidle');
-        await meetingDetailPage.getPage().reload({ waitUntil: 'networkidle' });
-        await meetingDetailPage.expectConfirmationMessageVisible();
+				await meetingDetailPage.waitForLoadState('networkidle');
+				await meetingDetailPage.getPage().reload({ waitUntil: 'networkidle' });
+				await meetingDetailPage.expectConfirmationMessageVisible();
 				await meetingDetailPage
 					.getPage()
-					.screenshot({ path: 'test-results/screenshots/OnMeetingDetailPageConfirmationMessageVisible.png', fullPage: true });        
+					.screenshot({
+						path: 'test-results/screenshots/OnMeetingDetailPageConfirmationMessageVisible.png',
+						fullPage: true
+					});
 			});
 			await test.step('10. System: Saves the registration information, adds the user to the attendee list, and provides a confirmation message.', async () => {
 				registrationCode = await meetingDetailPage.expectRegistrationCodeVisibleAndGet();
@@ -119,7 +125,7 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 				await letterOpenerPage.refreshEmails();
 				await letterOpenerPage
 					.getPage()
-					.screenshot({ path: 'test-results/screenshots/OnLetterOpenerPageEmail.png', fullPage: true });         
+					.screenshot({ path: 'test-results/screenshots/OnLetterOpenerPageEmail.png', fullPage: true });
 				emailInfo = await letterOpenerPage.getEmailHeaderInfo();
 				expect(emailInfo.from).toContain('changeme@example.org');
 				expect(emailInfo.subject).toMatch(/registration has been confirmed/i);

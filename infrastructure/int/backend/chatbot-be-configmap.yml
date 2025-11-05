@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: chatbot-backend-config
+    namespace: participate
+data:
+    PORT: '3002'
+    NODE_ENV: 'production'
+    CONTEXT_URL: '/api/v1'
+    # CORS
+    CORS_ORIGINS: https://chatbot-frontend-svc:80,https://part-int.ldttoolbox.app/
+    SWAGGER_GEN_DOC_FILE: 'false'
+    # Security
+    DISABLE_HELMET: 'false'
+    JWT_ENABLE_CHECK: 'false'
+    JWT_ISSUER_PUBKEY: '-----BEGIN PUBLIC KEY-----
+-----END PUBLIC KEY-----'
+    JWT_TOKEN_URL:
+    DATABASE_SYNC: 'false'
+    LOGGER_LEVEL: 'info'
+    RATE_LIMIT_TIME_WINDOW: '1 minute'
+    RATE_LIMIT_MAX: '100'
+    EVENT_LOOP_DELAY: '900000'
+    MAX_HEAP_USED_BYTES: '90000000000'
+    MAX_RSS_BYTES: '90000000000'
+    MAX_EVENT_LOOP_USE: '0.98'
+    # Chatbot Configuration
+    CHATBOT_SUPPORT_EMAIL: 'support@yourcompany.com'
+    CHATBOT_FROM_EMAIL: 'chatbot-noreply@yourcompany.com'
+    # Database
+    DB_NAME: chatbot_integration
+    DB_HOST: chatbot-pg-svc
+    DB_PORT: 5432
+    DB_DIALECT: postgres
+    DB_MAX_POOL: 100
+    DB_MIN_POOL: 2
+    DB_IDLE_POOL: 1000
+    DB_SCHEMA: example_schema
+    #Sequelize
+    SEQUELIZE_SEEDER_STORAGE: sequelize
+    SEQUELIZE_SEEDER_STORAGE_TABLE_NAME: SequelizeData
+    SEQUELIZE_MIGRATION_STORAGE: sequelize
+    SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME: SequelizeData
+    # Logger
+    LOGGER_TARGET:
+      # SMTP/Email Configuration
+    SMTP_ADDRESS: ssl0.ovh.net
+    SMTP_PORT: '465'
+    SMTP_DOMAIN: part-int.ldttoolbox.app
+    SMTP_AUTHENTICATION: login
+    SMTP_ENABLE_STARTTLS_AUTO: 'true'
+    SMTP_OPENSSL_VERIFY_MODE:
+    SMTP_USER_NAME: info@ldttoolbox.eu
+      # Service URLs
+    GRAFANA_URL: https://grafana
+    DECIDIM_URL: https://decidim
+    MATOMO_URL: https://matomo
+    JITSI_WEB_URL: https://jitsi-web

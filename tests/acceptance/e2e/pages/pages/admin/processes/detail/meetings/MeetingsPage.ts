@@ -300,26 +300,26 @@ export class MeetingsPage extends BaseAdminPage {
 		// Wait for the table to be present and visible
 		const table = this.page.locator('table.table-list');
 		await expect(table).toBeVisible({});
-		
+
 		// Wait until at least one row is loaded
 		const rows = table.locator('tbody tr');
 		await expect(rows.first()).toBeVisible({});
-		
+
 		const rowCount = await rows.count();
 		let closedCount = 0;
-		
+
 		for (let i = 0; i < rowCount; i++) {
-		  const row = rows.nth(i);
-		  // Find the cell that contains the "Closed" column dynamically
-		  // by matching its header text, to avoid breaking if column order changes
-		  const closedCell = await this.getCellByHeader(row, 'Closed');
-		
-		  const cellText = (await closedCell?.textContent())?.trim().toLowerCase() || '';
-		  if (cellText === 'yes') {
-		    closedCount++;
-		  }
+			const row = rows.nth(i);
+			// Find the cell that contains the "Closed" column dynamically
+			// by matching its header text, to avoid breaking if column order changes
+			const closedCell = await this.getCellByHeader(row, 'Closed');
+
+			const cellText = (await closedCell?.textContent())?.trim().toLowerCase() || '';
+			if (cellText === 'yes') {
+				closedCount++;
+			}
 		}
-	
+
 		console.log(`Found ${closedCount} closed meetings out of ${rowCount}`);
 		return closedCount;
 	}
@@ -335,10 +335,10 @@ export class MeetingsPage extends BaseAdminPage {
 		for (let i = 0; i < headerCount; i++) {
 			const headerText = (await headers.nth(i).textContent())?.trim().toLowerCase();
 			if (headerText === headerName.toLowerCase()) {
-			  return row.locator(`td:nth-child(${i + 1})`);
+				return row.locator(`td:nth-child(${i + 1})`);
 			}
 		}
 		console.warn(`Header "${headerName}" not found in table.`);
-			return null;
+		return null;
 	}
 }
