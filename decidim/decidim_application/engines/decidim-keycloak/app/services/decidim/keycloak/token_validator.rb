@@ -16,7 +16,7 @@ module Decidim
         return false unless @id_token.present?
         return false unless keycloak_config_valid?
 
-        # Check cache first (5-minute TTL for production to reduce Keycloak API calls)
+        # Check cache first (1-minute TTL for production to reduce Keycloak API calls)
         cache_key = "keycloak_token_#{Digest::SHA256.hexdigest(@id_token)}"
         cached_result = Rails.cache.read(cache_key)
         return cached_result unless cached_result.nil?
