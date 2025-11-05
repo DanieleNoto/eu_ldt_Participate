@@ -20,6 +20,7 @@ spec:
             containers:
                 - name: redis
                   image: redis:7
+                  imagePullPolicy: IfNotPresent
                   resources:
                       requests:
                           memory: '128Mi'

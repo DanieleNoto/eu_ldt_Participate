@@ -17,6 +17,7 @@ spec:
             containers:
                 - name: jitsi-jicofo
                   image: jitsi/jicofo:stable-8960
+                  imagePullPolicy: IfNotPresent
                   resources:
                       requests:
                           memory: '128Mi'

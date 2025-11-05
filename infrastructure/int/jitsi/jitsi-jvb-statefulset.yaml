@@ -19,6 +19,7 @@ spec:
             containers:
                 - name: jitsi-jvb
                   image: jitsi/jvb:stable-8960
+                  imagePullPolicy: IfNotPresent
                   resources:
                       requests:
                           memory: '256Mi'

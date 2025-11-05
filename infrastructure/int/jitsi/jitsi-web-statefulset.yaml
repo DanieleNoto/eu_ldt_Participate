@@ -20,6 +20,7 @@ spec:
             containers:
                 - name: jitsi-web
                   image: jitsi/web:stable-8960
+                  imagePullPolicy: IfNotPresent
                   resources:
                       requests:
                           memory: '128Mi'
