@@ -24,7 +24,7 @@ export class ChatService {
 
 		// Set the language for this request
 		if (request.i18n && typeof request.i18n.changeLanguage === 'function') {
-			request.i18n.changeLanguage(language);
+			await request.i18n.changeLanguage(language);
 		}
 
 		// Invoke handler if defined on request context

@@ -1,42 +1,45 @@
 #!/bin/bash
 
-# Script to apply all Decidim configurations
+# Script to apply Decidim (app), DB and Redis k8s manifests
 # Run with: bash apply-decidim-k8s.sh
 
-# Set the namespace
+set -euo pipefail
+
+# Namespace to use
 NAMESPACE=participate
 
-# Get the directory where the script is located
+# Directory of this script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Create namespace if it doesn't exist
-kubectl create namespace $NAMESPACE 2>/dev/null || true
+kubectl create namespace "$NAMESPACE" 2>/dev/null || true
 
-echo "Applying Decidim configurations..."
+echo "Applying Decidim resources in namespace $NAMESPACE"
 
-# Apply configurations in order
-echo "Creating ConfigMap and Secret..."
-kubectl apply -f "$SCRIPT_DIR/decidim-configmap.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/decidim-secrets.yml" -n $NAMESPACE
+echo "Applying Decidim ConfigMap and Secret (if present)..."
+kubectl apply -f "$SCRIPT_DIR/decidim-configmap.yml" -n "$NAMESPACE" || true
+kubectl apply -f "$SCRIPT_DIR/decidim-secret.yml" -n "$NAMESPACE" || true
 
-echo "Creating PersistentVolumeClaims..."
-kubectl apply -f "$SCRIPT_DIR/bundle-cache-pvc.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/node-modules-pvc.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/vendor-bundle-pvc.yml" -n $NAMESPACE
+echo "Applying Decidim StatefulSet and Service (if present)..."
+kubectl apply -f "$SCRIPT_DIR/decidim-statefulset.yaml" -n "$NAMESPACE" || true
+kubectl apply -f "$SCRIPT_DIR/decidim-service.yaml" -n "$NAMESPACE" || true
 
-echo "Deploying PostgreSQL database..."
-kubectl apply -f "$SCRIPT_DIR/db/postgres-service.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/db/postgres-statefulset.yml" -n $NAMESPACE
+echo "Applying Decidim Sidekiq Deployment (if present)..."
+kubectl apply -f "$SCRIPT_DIR/decidim-sidekiq-deployment.yaml" -n "$NAMESPACE" || true
 
-echo "Deploying Redis..."
-kubectl apply -f "$SCRIPT_DIR/redis/redis-pvc.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/redis/redis-service.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/redis/redis-deployment.yml" -n $NAMESPACE
+echo "Applying DB resources (db-*) in $SCRIPT_DIR/db"
+kubectl apply -f "$SCRIPT_DIR/db/db-configmap.yml" -n "$NAMESPACE" || true
+kubectl apply -f "$SCRIPT_DIR/db/db-secret.yml" -n "$NAMESPACE" || true
+kubectl apply -f "$SCRIPT_DIR/db/db-service.yaml" -n "$NAMESPACE" || true
+kubectl apply -f "$SCRIPT_DIR/db/db-statefulset.yaml" -n "$NAMESPACE" || true
 
-echo "Deploying Decidim application..."
-kubectl apply -f "$SCRIPT_DIR/decidim-service.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/decidim-deployment.yml" -n $NAMESPACE
+echo "Applying Redis resources (redis-*) in $SCRIPT_DIR/redis"
+kubectl apply -f "$SCRIPT_DIR/redis/redis-service.yaml" -n "$NAMESPACE" || true
+kubectl apply -f "$SCRIPT_DIR/redis/redis-statefulset.yaml" -n "$NAMESPACE" || true
 
-echo "Configuration completed!"
-echo "You can check the status with: kubectl -n $NAMESPACE get pods | grep -E 'decidim|postgres|redis'"
-echo "Access Decidim at: decidim.participate.local"
+echo "Decidim deployment apply completed. Check pods with: kubectl -n $NAMESPACE get pods | grep decidim -A5"
+
+echo "If you changed Secrets (like SECRET_KEY_BASE), make sure to rollout restart the StatefulSet to pick them up:"
+echo "  kubectl rollout restart statefulset/decidim -n $NAMESPACE"
+
+echo "Done."

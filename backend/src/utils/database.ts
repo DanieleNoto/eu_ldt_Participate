@@ -28,6 +28,14 @@ export const createDBConnection = async () => {
 		await sequelize.authenticate();
 		logger.info('Database connection established successfully');
 
+		// Create schema if it doesn't exist (for non-public schemas)
+		const dbSchema = process.env.DB_SCHEMA || 'public';
+		if (dbSchema !== 'public') {
+			logger.info(`Ensuring schema '${dbSchema}' exists...`);
+			await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${dbSchema}"`);
+			logger.info(`Schema '${dbSchema}' is ready`);
+		}
+
 		const executeSync = await needSync();
 		if (executeSync) {
 			logger.info('Syncing database schema...');

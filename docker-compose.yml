@@ -1,9 +1,12 @@
 services:
     decidim:
-        #image: decidim/decidim-dev:0.30.1
-        build: ./decidim/decidim_application/
+        build:
+            context: ./decidim/decidim_application/
+            args:
+                RAILS_ENV: development
+                NODE_ENV: development
         ports:
-            - '3000:3000'
+            - "3000:3000"
         env_file:
             - .env
         environment:
@@ -39,9 +42,23 @@ services:
             - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
             - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
             - SMTP_OPENSSL_VERIFY_MODE=${SMTP_OPENSSL_VERIFY_MODE}
+            # Matomo Analytics Configuration
+            - MATOMO_SITE_ID=${MATOMO_SITE_ID}
+            - MATOMO_SERVER_ADDRESS=${MATOMO_SERVER_ADDRESS}
+            - MATOMO_TOKEN_AUTH=${MATOMO_TOKEN_AUTH}
+            # Tool0 Keycloak Configuration
+            - TOOL0_FULL_URL=${TOOL0_FULL_URL}
+            # JSON Logging for ELK Stack
+            - ENABLE_JSON_LOGS=${ENABLE_JSON_LOGS:-false}
+            - RAILS_LOG_TO_STDOUT=true
+            # Chatbot configuration
+            - CHATBOT_ENABLED=${CHATBOT_ENABLED}
+            - CHATBOT_URL=${CHATBOT_URL}
+            - CHATBOT_ASSET_VERSION=${CHATBOT_ASSET_VERSION}
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
+            - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
         command: bash /code/docker-entrypoint.sh
         networks:
@@ -51,8 +68,10 @@ services:
                 condition: service_started
             db:
                 condition: service_started
+            shakapacker:
+                condition: service_started
         healthcheck:
-            test: ['CMD', 'test', '-d', 'node_modules']
+            test: ["CMD", "test", "-d", "node_modules"]
             interval: 10s
             timeout: 5s
             retries: 30
@@ -69,7 +88,7 @@ services:
         networks:
             - private
         ports:
-            - '5432:5432'
+            - "5432:5432"
     redis:
         image: redis:7
         volumes:
@@ -77,16 +96,21 @@ services:
         networks:
             - private
         healthcheck:
-            test: ['CMD', 'redis-cli', 'ping']
+            test: ["CMD", "redis-cli", "ping"]
             interval: 5s
             timeout: 3s
             retries: 5
     shakapacker:
-        build: ./decidim/decidim_application/
-        command: bash -c "cd /code && bundle exec bin/shakapacker-dev-server"
+        build:
+            context: ./decidim/decidim_application/
+            args:
+                RAILS_ENV: development
+                NODE_ENV: development
+        command: sh -c "yarn install && bin/shakapacker-dev-server"
         volumes:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
+            - vendor_bundle:/app/vendor/bundle
             - node_modules:/code/node_modules
         depends_on:
             - db
@@ -94,17 +118,17 @@ services:
         networks:
             - private
         ports:
-            - '3035:3035'
+            - "3035:3035"
         env_file:
             - .env
         environment:
-            - RAILS_ENV=${RAILS_ENV}
-            - NODE_ENV=${NODE_ENV}
+            - RAILS_ENV=development
+            - NODE_ENV=development
             - SHAKAPACKER_DEV_SERVER_HOST=0.0.0.0
             - SHAKAPACKER_DEV_SERVER_PORT=3035
             - SHAKAPACKER_DEV_SERVER_PUBLIC=0.0.0.0:3035
         healthcheck:
-            test: ['CMD', 'curl', '-f', 'http://localhost:3035']
+            test: ["CMD", "curl", "-f", "http://localhost:3035"]
             interval: 15s
             timeout: 10s
             retries: 20
@@ -115,13 +139,58 @@ services:
         ports:
             - '3002:3002'
         env_file:
-            - ./backend/.env
+            - .env
         environment:
-            - NODE_ENV=development
-            - REDIS_URL=redis://redis:6379/0
-            - DATABASE_URL=postgres://postgres:postgres@db:5432/decidim_application_development
-            - DB_HOST=db
-            - DB_PORT=5432
+            - NODE_ENV=${NODE_ENV}
+            - PORT=${PORT}
+            - CONTEXT_URL=${CONTEXT_URL}
+            # CORS
+            - CORS_ORIGINS=${CORS_ORIGINS}
+            # Swagger
+            - SWAGGER_GEN_DOC_FILE=${SWAGGER_GEN_DOC_FILE}
+            # Security
+            - DISABLE_HELMET=${DISABLE_HELMET}
+            # JWT
+            - JWT_ISSUER_PUBKEY=${JWT_ISSUER_PUBKEY}
+            - JWT_ENABLE_CHECK=${JWT_ENABLE_CHECK}
+            - JWT_TOKEN_URL=${JWT_TOKEN_URL}
+            # Database
+            - DATABASE_SYNC=${DATABASE_SYNC}
+            - DB_USERNAME=${DB_USERNAME}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - DB_NAME=${DB_NAME}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+            - DB_DIALECT=${DB_DIALECT}
+            - SEQUELIZE_SEEDER_STORAGE=${SEQUELIZE_SEEDER_STORAGE}
+            - SEQUELIZE_SEEDER_STORAGE_TABLE_NAME=${SEQUELIZE_SEEDER_STORAGE_TABLE_NAME}
+            - SEQUELIZE_MIGRATION_STORAGE=${SEQUELIZE_MIGRATION_STORAGE}
+            - SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME=${SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME}
+            - DATABASE_URL=${DATABASE_URL}
+            - DB_MAX_POOL=${DB_MAX_POOL}
+            - DB_MIN_POOL=${DB_MIN_POOL}
+            - DB_IDLE_POOL=${DB_IDLE_POOL}
+            - DB_SCHEMA=${DB_SCHEMA}
+            # Logger
+            - LOGGER_TARGET=${LOGGER_TARGET}
+            - LOGGER_LEVEL=${LOGGER_LEVEL}
+            # Cypher
+            - CYPHER_SECRET=${CYPHER_SECRET}
+            - CYPHER_SALT=${CYPHER_SALT}
+            # SMTP/Email Configuration
+            - SMTP_ADDRESS=${SMTP_ADDRESS}
+            - SMTP_PORT=${SMTP_PORT}
+            - SMTP_USER_NAME=${SMTP_USER_NAME}
+            - SMTP_PASSWORD=${SMTP_PASSWORD}
+            - SMTP_DOMAIN=${SMTP_DOMAIN}
+            - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
+            - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
+            - SMTP_OPENSSL_VERIFY_MODE=${SMTP_OPENSSL_VERIFY_MODE}
+            - CHATBOT_SUPPORT_EMAIL=${CHATBOT_SUPPORT_EMAIL}
+            - CHATBOT_FROM_EMAIL=${CHATBOT_FROM_EMAIL}
+            # Redis
+            - REDIS_URL=${REDIS_URL}
+            # Service URLs
             - GRAFANA_URL=http://grafana:3000
             - DECIDIM_URL=http://decidim:3000
             - MATOMO_URL=http://matomo:80
@@ -141,10 +210,34 @@ services:
             timeout: 10s
             start_period: 40s
             retries: 3
-    grafana:
-        image: grafana/grafana:11.0.0
+
+    chatbot-frontend:
+        build:
+            context: ./frontend/
         ports:
-            - '3001:3000'
+            - '${FRONTEND_PORT}:${FRONTEND_PORT}'
+        env_file:
+            - .env
+        environment:
+            - NODE_ENV=${NODE_ENV}
+            - VITE_API_URL=${VITE_API_URL}
+        volumes:
+            - /app/node_modules
+        networks:
+            - private
+        depends_on:
+            - backend
+        healthcheck:
+            test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:5001/']
+            interval: 30s
+            timeout: 10s
+            start_period: 40s
+            retries: 3
+    grafana:
+        build:
+            context: ./analytics/grafana
+        ports:
+            - "3001:3000"
         env_file:
             - .env
         environment:
@@ -152,10 +245,10 @@ services:
             - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
             - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
             - GF_SECURITY_ALLOW_EMBEDDING=true
-            - DATABASE_HOST=${DATABASE_HOST}
-            - DATABASE_NAME=${DATABASE_NAME}
-            - DATABASE_USERNAME=${DATABASE_USERNAME}
-            - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+            - GF_DATABASE_HOST=${DATABASE_HOST}
+            - GF_DATABASE_NAME=${DATABASE_NAME}
+            - GF_DATABASE_USER=${DATABASE_USERNAME}
+            - GF_DATABASE_PASSWORD=${DATABASE_PASSWORD}
             # OAuth/Keycloak configuration
             - GF_AUTH_GENERIC_OAUTH_ENABLED=${GF_AUTH_GENERIC_OAUTH_ENABLED}
             - GF_AUTH_GENERIC_OAUTH_NAME=${GF_AUTH_GENERIC_OAUTH_NAME}
@@ -179,17 +272,17 @@ services:
             - GF_SERVER_DOMAIN=${GF_SERVER_DOMAIN}
         volumes:
             - grafana_data:/var/lib/grafana
-            - ./analytics/grafana/provisioning:/etc/grafana/provisioning
-            - ./analytics/grafana/dashboards:/var/lib/grafana/dashboards
         networks:
             - private
         depends_on:
             - db
 
     matomo:
-        image: matomo:5
+        build:
+            context: ./analytics/matomo
+            dockerfile: Dockerfile
         ports:
-            - '8081:80'
+            - "8081:80"
         env_file:
             - .env
         environment:
@@ -224,10 +317,11 @@ services:
         image: jitsi/web:stable-8960
         restart: ${RESTART_POLICY:-unless-stopped}
         ports:
-            - '${JITSI_HTTP_PORT:-8000}:80'
-            - '${JITSI_HTTPS_PORT:-8443}:443'
+            - "${JITSI_HTTP_PORT:-8000}:80"
+            - "${JITSI_HTTPS_PORT:-8443}:443"
         volumes:
             - ${CONFIG:-./jitsi-meet-cfg}/web:/config:Z
+            - ./jitsi-meet-cfg/web/nginx/prosody-websocket.conf:/config/nginx/prosody-websocket.conf:Z
         environment:
             - ENABLE_AUTH
             - ENABLE_GUESTS
@@ -239,6 +333,7 @@ services:
             - XMPP_MUC_DOMAIN
             - XMPP_RECORDER_DOMAIN
             - TZ
+            - ENABLE_XMPP_WEBSOCKET
         networks:
             - private
         depends_on:
@@ -248,9 +343,9 @@ services:
         image: jitsi/prosody:stable-8960
         restart: ${RESTART_POLICY:-unless-stopped}
         expose:
-            - '5222'
-            - '5347'
-            - '5280'
+            - "5222"
+            - "5347"
+            - "5280"
         volumes:
             - ${CONFIG:-./jitsi-meet-cfg}/prosody/config:/config:Z
             - ${CONFIG:-./jitsi-meet-cfg}/prosody/prosody-plugins-custom:/prosody-plugins-custom:Z
@@ -270,6 +365,10 @@ services:
             - JVB_AUTH_USER
             - JVB_AUTH_PASSWORD
             - TZ
+            # JWT Keycloak settings
+            - JWT_APP_ID
+            - JWT_APP_SECRET
+            - ENABLE_XMPP_WEBSOCKET
         networks:
             - private
 
@@ -288,6 +387,9 @@ services:
             - JICOFO_AUTH_PASSWORD
             - JVB_BREWERY_MUC
             - TZ
+            # JWT Keycloak settings
+            - JWT_APP_ID
+            - JWT_APP_SECRET
         depends_on:
             - jitsi-prosody
         networks:
@@ -297,7 +399,7 @@ services:
         image: jitsi/jvb:stable-8960
         restart: ${RESTART_POLICY:-unless-stopped}
         ports:
-            - '${JVB_PORT:-10000}:${JVB_PORT:-10000}/udp'
+            - "${JVB_PORT:-10000}:${JVB_PORT:-10000}/udp"
         volumes:
             - ${CONFIG:-./jitsi-meet-cfg}/jvb:/config:Z
         environment:
@@ -312,6 +414,10 @@ services:
             - JVB_STUN_SERVERS
             - JVB_ENABLE_APIS
             - TZ
+            # JWT Keycloak settings
+            - JWT_APP_ID
+            - JWT_APP_SECRET
+            - JVB_ADVERTISE_IPS
         networks:
             - private
         depends_on:

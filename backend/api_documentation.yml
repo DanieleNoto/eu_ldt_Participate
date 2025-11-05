@@ -286,7 +286,8 @@ paths:
                   format: uuid
                 message:
                   type: string
-                  minLength: 1
+                  minLength: 20
+                  maxLength: 500
               required:
                 - conversationId
                 - message

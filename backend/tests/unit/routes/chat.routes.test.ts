@@ -47,6 +47,16 @@ describe('Chat Routes', () => {
 		);
 	});
 
+	test('should handle route with API prefix', () => {
+		// When deployed, routes are prefixed with /api/v1 via CONTEXT_URL
+		// The actual accessible path will be /api/v1/chat/
+		chatRoutes(mockFastify);
+
+		const routeCall = mockFastify.route.mock.calls[0][0];
+		expect(routeCall.url).toBe('/chat/');
+		// Note: In production, this becomes /api/v1/chat/ due to autoload plugin prefix
+	});
+
 	test('should configure route with proper schema', () => {
 		chatRoutes(mockFastify);
 
@@ -57,5 +67,7 @@ describe('Chat Routes', () => {
 			body: { type: 'object' },
 			response: { 200: { type: 'object' } }
 		});
+		// Note: The autoload plugin adds CONTEXT_URL prefix (/api/v1)
+		// So the full accessible route is: POST /api/v1/chat/
 	});
 });

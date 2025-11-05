@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: decidim
+    labels:
+        app: decidim
+spec:
+    serviceName: 'decidim' # requerido en StatefulSet
+    replicas: 1
+    selector:
+        matchLabels:
+            app: decidim
+    template:
+        metadata:
+            labels:
+                app: decidim
+        spec:
+            automountServiceAccountToken: false
+            securityContext:
+              fsGroup: 1000  # group ID of decidim user
+              runAsUser: 1000
+              runAsGroup: 1000
+            containers:
+                - name: decidim
+                  resources:
+                      requests:
+                          memory: '512Mi'
+                          cpu: '500m'
+                          ephemeral-storage: '2Gi'
+                      limits:
+                          memory: '1Gi'
+                          cpu: '1'
+                          ephemeral-storage: '4Gi'
+                  image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  envFrom:
+                      - secretRef:
+                            name: decidim-secret
+                      - configMapRef:
+                            name: decidim-configmap
+
+                  ports:
+                      - containerPort: 3000
+                  livenessProbe:
+                      exec:
+                          command:
+                              - test
+                              - -d
+                              - node_modules
+                      failureThreshold: 100
+                      periodSeconds: 100
+                      timeoutSeconds: 50
+                  volumeMounts:
+                      - mountPath: /code/data
+                        name: decidim-pvc
+                      - mountPath: /code/storage
+                        name: decidim-pvc
+    volumeClaimTemplates:
+        - metadata:
+              name: decidim-pvc
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 1Gi

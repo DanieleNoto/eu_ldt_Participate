@@ -17,23 +17,19 @@ export const createDatabaseConnection = () => {
 		return createInMemoryDB(storage, (process.env.DB_DIALECT || 'sqlite') as Dialect);
 	}
 
-	// Construct database URL from individual environment variables
-	const dbHost = process.env.DB_HOST || 'localhost';
-	const dbPort = process.env.DB_PORT || '5432';
-	const dbUsername = process.env.DB_USERNAME || 'postgres';
-	const dbPassword = process.env.DB_PASSWORD || 'postgres';
-	const dbName = process.env.DB_NAME || 'postgres';
-
-	const constructedDatabaseURL = `postgres://${dbUsername}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`;
-
-	const instance = new Sequelize(constructedDatabaseURL, {
-		dialect: 'postgres',
+	const options = {
+		dialect: (process.env.DB_DIALECT || 'postgres') as Dialect,
+		host: process.env.DATABASE_HOST || process.env.DB_HOST,
+		username: process.env.DATABASE_USERNAME || process.env.DB_USERNAME,
+		password: process.env.DATABASE_PASSWORD || process.env.DB_PASSWORD,
+		port: process.env.DB_PORT ? Number.parseInt(process.env.DB_PORT, 10) : 5432,
+		database: process.env.DATABASE_NAME || process.env.DB_NAME,
 		pool: {
-			max: process.env.DB_MAX_POOL ? parseInt(process.env.DB_MAX_POOL, 10) : 10,
-			min: process.env.DB_MIN_POOL ? parseInt(process.env.DB_MIN_POOL, 10) : 2,
-			idle: process.env.DB_IDLE_POOL ? parseInt(process.env.DB_IDLE_POOL, 10) : 10000,
-			acquire: process.env.DB_ACQUIRE_POOL ? parseInt(process.env.DB_ACQUIRE_POOL, 10) : 60000,
-			evict: process.env.DB_EVICT_POOL ? parseInt(process.env.DB_EVICT_POOL, 10) : 1000
+			max: process.env.DB_MAX_POOL ? Number.parseInt(process.env.DB_MAX_POOL, 10) : 10,
+			min: process.env.DB_MIN_POOL ? Number.parseInt(process.env.DB_MIN_POOL, 10) : 2,
+			idle: process.env.DB_IDLE_POOL ? Number.parseInt(process.env.DB_IDLE_POOL, 10) : 10000,
+			acquire: process.env.DB_ACQUIRE_POOL ? Number.parseInt(process.env.DB_ACQUIRE_POOL, 10) : 60000,
+			evict: process.env.DB_EVICT_POOL ? Number.parseInt(process.env.DB_EVICT_POOL, 10) : 1000
 		},
 		define: {
 			schema: process.env.DB_SCHEMA || 'public'
@@ -43,9 +39,9 @@ export const createDatabaseConnection = () => {
 		benchmark: true,
 		models: [modelsPath],
 		modelMatch
-	});
+	};
 
-	return instance;
+	return new Sequelize(options);
 };
 
 export const createInMemoryDB = (storage?: string, dialect?: Dialect) => {
@@ -53,9 +49,9 @@ export const createInMemoryDB = (storage?: string, dialect?: Dialect) => {
 		dialect,
 		storage,
 		pool: {
-			max: process.env.DB_MAX_POOL ? parseInt(process.env.DB_MAX_POOL, 10) : 10,
-			min: process.env.DB_MIN_POOL ? parseInt(process.env.DB_MIN_POOL, 10) : 2,
-			idle: process.env.DB_IDLE_POOL ? parseInt(process.env.DB_IDLE_POOL, 10) : 10000
+			max: process.env.DB_MAX_POOL ? Number.parseInt(process.env.DB_MAX_POOL, 10) : 10,
+			min: process.env.DB_MIN_POOL ? Number.parseInt(process.env.DB_MIN_POOL, 10) : 2,
+			idle: process.env.DB_IDLE_POOL ? Number.parseInt(process.env.DB_IDLE_POOL, 10) : 10000
 		},
 		logging: i => logger.info(i),
 		models: [modelsPath],

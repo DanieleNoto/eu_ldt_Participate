@@ -1,19 +1,38 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import SupportController from '../../../src/controllers/support.controller';
+import nodemailer from 'nodemailer';
+
+// Mock nodemailer
+jest.mock('nodemailer');
+const mockedNodemailer = nodemailer as jest.Mocked<typeof nodemailer>;
 
 describe('SupportController', () => {
 	let mockRequest: Partial<FastifyRequest>;
 	let mockReply: Partial<FastifyReply>;
+	let mockTransporter: any;
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+
+		// Create mock transporter
+		mockTransporter = {
+			verify: jest.fn().mockResolvedValue(true),
+			sendMail: jest.fn().mockResolvedValue({
+				messageId: 'test-message-id',
+				response: 'Email sent successfully'
+			})
+		};
+
+		// Mock nodemailer.createTransport
+		mockedNodemailer.createTransport = jest.fn().mockReturnValue(mockTransporter);
 
 		mockRequest = {
 			body: {}
 		};
 
 		mockReply = {
-			send: jest.fn().mockReturnThis()
+			send: jest.fn().mockReturnThis(),
+			status: jest.fn().mockReturnThis()
 		};
 	});
 

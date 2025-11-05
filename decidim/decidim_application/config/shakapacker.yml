@@ -82,7 +82,15 @@ development:
             'Access-Control-Allow-Origin': '*'
         static:
             watch:
-                ignored: '**/node_modules/**'
+                ignored: 
+                    - '**/node_modules/**'
+                    - '**/tmp/**'
+                    - '**/log/**'
+                    - '**/public/assets/**'
+                    - '**/storage/**'
+                # Reduce polling interval and use efficient watching
+                poll: 1000
+                aggregateTimeout: 300
 
 test:
     <<: *default
@@ -93,7 +101,7 @@ production:
     <<: *default
 
     # Production depends on precompilation of packs prior to booting for performance.
-    compile: false
+    compile: true
 
     # Use content hash for naming assets. Cannot be overridden by for production.
     useContentHash: true

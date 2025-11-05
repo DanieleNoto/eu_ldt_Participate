@@ -48,11 +48,12 @@ export class SidebarProcessDetailComponent {
 		this.phasesLink = page.locator('a[href*="/steps"]:has-text("Phases")');
 		this.componentsLink = page.locator('a[href*="/components"]:has-text("Components")');
 		this.categoriesLink = page.locator('a[href*="/categories"]:has-text("Categories")');
+		this.attachmentsLink = page.locator('a[href*="/attachments"]:has-text("Attachments")');
 		this.meetingsLink = page.locator('a:has-text("Meetings")');
 		this.processAdminsLink = page.locator('a[href*="/user_roles"]:has-text("Process admins")');
 		this.moderationsLink = page.locator('a[href*="/moderations"]:has-text("Moderations")');
 		this.privateParticipantsLink = page.locator(
-			'a[href*="/participatory_space_private_users"]:has-text("Private participants")'
+			'a[href*="/participatory_space_private_users"]:has-text("Members")'
 		);
 	}
 

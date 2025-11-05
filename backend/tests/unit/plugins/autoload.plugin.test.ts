@@ -17,7 +17,11 @@ describe('Autoload Plugin', () => {
 		jest.clearAllMocks();
 
 		mockFastify = {
-			register: jest.fn()
+			register: jest.fn(),
+			// Provide a minimal logger so plugin logging calls won't throw in tests
+			log: {
+				info: jest.fn()
+			}
 		} as any;
 
 		// Set environment variable
@@ -61,9 +65,7 @@ describe('Autoload Plugin', () => {
 
 		expect(mockFastify.register).toHaveBeenCalledWith(mockAutoload, {
 			dir: '/mocked/path/to/routes',
-			options: {
-				prefix: undefined
-			}
+			options: {}
 		});
 	});
 });

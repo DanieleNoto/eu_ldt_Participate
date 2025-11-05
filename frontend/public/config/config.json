@@ -1,6 +1,11 @@
 {
-	"backend.baseUrl": "http://localhost:3000",
-	"frontend.appBasePath": "localhost:5001",
-	"logger.level": "debug",
-	"dateFns.locale": "it"
+	"apiUrl": "/api/v1",
+	"environment": "production",
+	"defaultLanguage": "en",
+	"supportedLanguages": ["en", "de", "fr"],
+	"features": {
+		"chat": true,
+		"support": true,
+		"analytics": false
+	}
 }

@@ -3,7 +3,6 @@ import { ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { store } from './store/store';
-import { UIProvider } from './theme/context/UI';
 import { PALETTE } from './theme/styles/palette';
 
 // query client for tanstackQuery
@@ -160,9 +159,7 @@ const MainProvider = ({ children }: { children: ReactNode }) => {
 	return (
 		<Provider store={store}>
 			<ThemeProvider theme={theme}>
-				<QueryClientProvider client={queryClient}>
-					<UIProvider>{children}</UIProvider>
-				</QueryClientProvider>
+				<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 			</ThemeProvider>
 		</Provider>
 	);

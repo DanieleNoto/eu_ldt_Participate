@@ -7,7 +7,6 @@ import { frontendConfig, FrontendConfig } from '@config/front-end.config';
 import { loggerConfig, LoggerConfig } from '@config/logger.config';
 import { toastrConfig, ToastrConfig } from '@config/toastr.config';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { unflatten } from 'flat';
 import { LevelWithSilentOrString } from 'pino';
 import { configSliceName } from './config-slice.name';
 import { ConfigSliceState } from './config-slice.state';
@@ -87,6 +86,30 @@ const merge = <T>(dest: T, source: T): T => {
 };
 
 /**
+ * Unflattens an object with dot-separated keys into a nested object.
+ *
+ * @param obj - The flat object with dot-separated keys.
+ * @returns The nested object.
+ */
+const unflatten = <T>(obj: Record<string, any>): T => {
+	const result: any = {};
+	for (const key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			const keys = key.split('.');
+			let current = result;
+			for (let i = 0; i < keys.length - 1; i++) {
+				if (!current[keys[i]]) {
+					current[keys[i]] = {};
+				}
+				current = current[keys[i]];
+			}
+			current[keys[keys.length - 1]] = obj[key];
+		}
+	}
+	return result;
+};
+
+/**
  * Redux slice for managing the application's runtime configuration.
  */
 const configSlice = createSlice({
@@ -104,12 +127,21 @@ const configSlice = createSlice({
 		extendConfig: (state, action: PayloadAction<FlatAppConfig>) => {
 			const flatConfig = action.payload;
 			// Unflatten the configuration into a nested structure
-			const unflattened = unflatten<FlatAppConfig, ConfigState>(flatConfig);
+			const unflattened = unflatten<ConfigState>(flatConfig);
 			// Merge the current state with the unflattened configuration and return the result
 			state.config = merge(state.config, unflattened);
+		},
+		/**
+		 * Sets or overrides the backend.baseUrl at runtime (e.g. from env variables passed to the container).
+		 */
+		setBackendBaseUrl: (state, action: PayloadAction<string>) => {
+			if (!state.config.backend) {
+				state.config.backend = { api: API_CONFIG };
+			}
+			state.config.backend.baseUrl = action.payload;
 		}
 	}
 });
 
-export const { extendConfig } = configSlice.actions;
+export const { extendConfig, setBackendBaseUrl } = configSlice.actions;
 export const configReducer = configSlice.reducer;

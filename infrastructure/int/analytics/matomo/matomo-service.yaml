@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: matomo
+  labels:
+    io.kompose.service: matomo
+spec:
+  selector:
+    io.kompose.service: matomo
+  ports:
+    - port: 8081
+      targetPort: 8080
+  type: ClusterIP
+  #

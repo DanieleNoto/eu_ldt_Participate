@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { ChatRequestSchema, ChatResponseSchema } from '../schemas/chat.schema';
 import ChatController from '../controllers/chat.controller';
 
-export default (app: FastifyInstance) => {
+const chatRoutes = async (app: FastifyInstance) => {
 	app.route({
 		method: 'POST',
 		url: '/chat/',
@@ -13,3 +13,5 @@ export default (app: FastifyInstance) => {
 		handler: ChatController.chat.bind(ChatController)
 	});
 };
+
+export default chatRoutes;

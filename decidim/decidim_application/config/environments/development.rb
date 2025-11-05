@@ -59,7 +59,14 @@ Rails.application.configure do
   config.active_record.migration_error = :page_load
 
   # Highlight code that triggered database queries in logs.
-  config.active_record.verbose_query_logs = true
+  config.active_record.verbose_query_logs = false
+
+  # Set default log level to warn to reduce log spam
+  config.log_level = ENV.fetch('RAILS_LOG_LEVEL', :warn).to_sym
+  
+  # Add performance monitoring
+  config.active_record.query_log_tags_enabled = true
+  config.active_record.query_log_tags = [ :application, :controller, :action ]
 
   # Force enable Shakapacker dev server for development
   config.after_initialize do
@@ -96,5 +103,17 @@ Rails.application.configure do
     config.action_view.logger = nil
     # Compress the HTML responses with gzip
     config.middleware.use Rack::Deflater
+  end
+  
+  # Enable JSON logs in development if ENABLE_JSON_LOGS is set
+  if ENV["RAILS_LOG_TO_STDOUT"].present?
+    logger = ActiveSupport::Logger.new(STDOUT)
+    
+    # Use JSON formatter if enabled
+    if ENV['ENABLE_JSON_LOGS'].present? && ENV['ENABLE_JSON_LOGS'] != 'false'
+      logger.formatter = config.log_formatter  # JsonLogFormatter set in application.rb
+    end
+    
+    config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
 end

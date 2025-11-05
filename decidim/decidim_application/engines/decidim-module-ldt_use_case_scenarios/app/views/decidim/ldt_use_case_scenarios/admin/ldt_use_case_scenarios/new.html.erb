@@ -1,0 +1,115 @@
+<% add_decidim_page_title(t(".title")) %>
+
+<div class="item_show__header">
+  <h1 class="item_show__header-title">
+    <%= t(".title") %>
+  </h1>
+</div>
+
+<div class="item__edit item__edit-1col">
+  <div class="item__edit-form">
+    <div class="card experiments-association" 
+         data-admin-path="<%= "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/ldt_use_case_scenarios" %>"
+         data-i18n-name-required="<%= t(".name_required") %>" 
+         data-i18n-save-error="<%= t(".save_error") %>"
+         data-i18n-details-title="<%= t(".experiment_details.title") %>"
+         data-i18n-details-name="<%= t(".experiment_details.name") %>"
+         data-i18n-details-id="<%= t(".experiment_details.id") %>"
+         data-i18n-details-status="<%= t(".experiment_details.status") %>"
+         data-i18n-details-loading="<%= t(".experiment_details.loading") %>"
+         data-i18n-details-error="<%= t(".experiment_details.error") %>"
+         data-i18n-details-na="<%= t(".experiment_details.not_available") %>">
+
+      <% if @experiments_error.present? %>
+        <div id="error-state">
+          <div class="callout alert">
+            <p id="error-message"><%= @experiments_error %></p>
+          </div>
+        </div>
+      <% elsif @experiments.nil? || @experiments.empty? %>
+        <div id="empty-state">
+          <p><%= t(".no_experiments") %></p>
+        </div>
+      <% else %>
+        <div id="experiments-container" style="display: block;">
+          <div class="table-stacked">
+            <table class="table-list w-full" style="width: 100%;">
+              <thead id="experiments-thead">
+                <tr>
+                  <th></th>
+                  <th class="!text-left"><%= t(".experiment_name") %></th>
+                  <th><%= t(".description") %></th>
+                  <th><%= t(".created") %></th>
+                  <th><%= t(".version") %></th>
+                </tr>
+              </thead>
+              <tbody id="experiments-tbody">
+                <% @experiments.each do |exp| %>
+                  <tr data-experiment-id="<%= exp['id'] %>">
+                    <td data-label="Select">
+                      <input type="radio" name="selected_experiment" value="<%= exp['id'] %>" class="select-experiment-radio" />
+                    </td>
+                    <td class="!text-left" data-label="ID/Name">
+                      <div><strong><%= exp['name'] || exp['id'] %></strong></div>
+                      <div class="text-sm text-gray-600"><%= exp['id'] %></div>
+                    </td>
+                    <td data-label="Description">
+                      <%= (exp['description'] || '-')[0..100] %>
+                    </td>
+                    <td data-label="Created">
+                      <% if exp['createdAt'] || exp['created_at'] %>
+                        <%= Time.parse(exp['createdAt'] || exp['created_at']).strftime('%Y-%m-%d %H:%M') rescue exp['createdAt'] || exp['created_at'] %>
+                      <% end %>
+                    </td>
+                    <td data-label="Version">
+                      <%= exp['version'] %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-controls">
+            <div data-pagination></div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Form Section - Always visible -->
+      <%= decidim_form_for(@form, url: ldt_use_case_scenarios_path, html: { class: "form-defaults form use_case_scenario_form new_use_case_scenario" }) do |f| %>
+        <div class="form__wrapper">
+          <div id="form-section" class="card-section">
+            <!-- Hidden field for experiment_id -->
+            <%= f.hidden_field :experiment_id, id: "experiment-id-field" %>
+            <%= f.hidden_field :component_id, value: current_component.id %>
+            
+            <!-- Selected experiment info will be inserted here by JavaScript -->
+            <div data-selected-experiment-info></div>
+            
+            <!-- Association Name Field -->
+            <div class="field">
+              <%= f.text_field :name, 
+                  id: "association-name",
+                  placeholder: t('.enter_association_name'),
+                  required: true %>
+              
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Footer - Always visible -->
+        <div class="item__edit-sticky">
+          <div class="item__edit-sticky-container">
+            <%= f.submit t(".save"), id: "save-button", class: "button button__sm button__secondary" %>
+          </div>
+        </div>
+      <% end %>
+</div>
+
+<!-- Hidden i18n for JS -->
+<span data-i18n="name_required" style="display: none;"><%= t(".name_required") %></span>
+<span data-i18n="save_error" style="display: none;"><%= t(".save_error") %></span>
+
+<%= append_stylesheet_pack_tag "experiments_association" %>
+<%= append_javascript_pack_tag "experiments_association" %>

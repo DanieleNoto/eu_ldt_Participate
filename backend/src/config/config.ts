@@ -41,7 +41,7 @@ interface Config {
 
 // TODO [HIGH][20250205][piespedica]: Check config structure
 const appConfig: Config = {
-	port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
+	port: process.env.PORT ? Number.parseInt(process.env.PORT, 10) : 3002,
 	nodeEnv: process.env.NODE_ENV || 'development',
 	// jwtSecret: process.env.JWT_SECRET || 'changeme',
 	jwtConfig: {
@@ -54,7 +54,7 @@ const appConfig: Config = {
 	cypher: { algorithm: 'aes-256-ctr', seperator: ':' },
 	logger: getLoggerConfig(),
 	rateLimit: {
-		max: process.env.RATE_LIMIT_MAX ? parseInt(process.env.RATE_LIMIT_MAX, 10) : 100,
+		max: process.env.RATE_LIMIT_MAX ? Number.parseInt(process.env.RATE_LIMIT_MAX, 10) : 100,
 		timeWindow: process.env.RATE_LIMIT_TIME_WINDOW || '1 minute',
 		global: true,
 		errorResponseBuilder: (request, context) => {
@@ -66,10 +66,14 @@ const appConfig: Config = {
 		}
 	},
 	underPressure: {
-		maxEventLoopDelay: process.env.EVENT_LOOP_DELAY ? parseInt(process.env.EVENT_LOOP_DELAY, 10) : 900000,
-		maxHeapUsedBytes: process.env.MAX_HEAP_USED_BYTES ? parseInt(process.env.MAX_HEAP_USED_BYTES, 10) : 90000000000,
-		maxRssBytes: process.env.MAX_RSS_BYTES ? parseInt(process.env.MAX_RSS_BYTES, 10) : 90000000000,
-		maxEventLoopUtilization: process.env.MAX_EVENT_LOOP_USE ? parseInt(process.env.MAX_EVENT_LOOP_USE, 10) : 0.98
+		maxEventLoopDelay: process.env.EVENT_LOOP_DELAY ? Number.parseInt(process.env.EVENT_LOOP_DELAY, 10) : 900000,
+		maxHeapUsedBytes: process.env.MAX_HEAP_USED_BYTES
+			? Number.parseInt(process.env.MAX_HEAP_USED_BYTES, 10)
+			: 90000000000,
+		maxRssBytes: process.env.MAX_RSS_BYTES ? Number.parseInt(process.env.MAX_RSS_BYTES, 10) : 90000000000,
+		maxEventLoopUtilization: process.env.MAX_EVENT_LOOP_USE
+			? Number.parseInt(process.env.MAX_EVENT_LOOP_USE, 10)
+			: 0.98
 	}
 };
 

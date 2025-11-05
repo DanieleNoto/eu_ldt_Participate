@@ -5,7 +5,7 @@ source "https://rubygems.org"
 ruby RUBY_VERSION
 
 
-DECIDIM_VERSION = "0.30.1"
+DECIDIM_VERSION = "0.30.2"
 
 gem "decidim", DECIDIM_VERSION
 gem "decidim-calendar", git: "https://github.com/decidim-ice/decidim-module-calendar"
@@ -23,10 +23,17 @@ gem "puma", ">= 6.3.1"
 # Add mutex_m to fix warning in Ruby 3.3.4
 gem "mutex_m", "~> 0.2.0"
 
-gem "decidim-extra_user_fields", git: "https://github.com/PopulateTools/decidim-module-extra_user_fields.git", branch: "release/0.28-stable"
+gem "decidim-extra_user_fields", path: './engines/decidim-extra_user_fields'
 gem "decidim-keycloak", path: "./engines/decidim-keycloak"
+gem "decidim-analytics", path: "./engines/decidim-module-analytics"
+gem "decidim-ldt_use_case_scenarios", path: "./engines/decidim-module-ldt_use_case_scenarios"
+gem "decidim-ldt_map_visualization", path: "./engines/decidim-module-ldt_map_visualization"
+gem 'decidim-meetings-jitsi', path: './engines/decidim-meetings-jitsi'
+gem 'decidim-admin_header', path: './engines/decidim-admin_header'
 
-# gem "decidim-decidim_awesome", git: "https://github.com/decidim-ice/decidim-module-decidim_awesome.git"
+gem "decidim-decidim_awesome", "~> 0.13.1", git: "https://github.com/decidim-ice/decidim-module-decidim_awesome.git"
+gem 'lograge'
+gem 'logstash-event'
 
 group :development, :test do
   gem "byebug", "~> 11.0", platform: :mri
@@ -41,4 +48,6 @@ group :development do
   gem "web-console", "~> 4.2"
 end
 
-gem 'decidim-meetings-jitsi', path: 'decidim-meetings-jitsi'
+group :production do
+  gem "sidekiq", "~> 7.3"
+end

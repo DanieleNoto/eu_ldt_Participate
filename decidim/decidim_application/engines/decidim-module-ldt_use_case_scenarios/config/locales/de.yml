@@ -1,0 +1,82 @@
+---
+de:
+  decidim:
+    components:
+      ldt_use_case_scenarios:
+        name: LDT-Anwendungsfallszenarien
+        settings:
+          global:
+            title: Titel
+    ldt_use_case_scenarios:
+      use_case_scenarios:
+        index:
+          title: Anwendungsfallszenarien
+          empty: Noch keine Szenarien verfügbar
+          count:
+            one: "%{count} Szenario"
+            other: "%{count} Szenarien"
+        use_case_scenario:
+          experiment_id: Experiment-ID
+          view_details: Details anzeigen
+        show:
+          title: Experimentdetails
+          experiment_id: Experiment-ID
+          description: Beschreibung
+          back_to_list: Zurück zur Liste
+          not_found: Szenario nicht gefunden
+          transparency_disclaimer: "Diese Experimentausführung verwendet KI-Algorithmen und Machine-Learning-Modelle. Die folgenden Informationen bieten Transparenz über die verwendeten Datensätze, Algorithmen und Modelle. Dies umfasst ihren Zweck, Typ, Trainingsdatensätze, erwartete Ergebnisse, Einschränkungen und potenzielle Verzerrungen. (im Quellcode ändern: decidim-module-ldt_use_case_scenarios/config/locales/de.yml)"
+      admin:
+        ldt_use_case_scenarios:
+          index:
+            title: Anwendungsfallszenarien verwalten
+            scenario_name: Szenarioname
+            association_name: Zuordnungsname
+            experiment_id: Experiment-ID
+            associated_experiment_results: Zugeordnete Experimentergebnisse
+            created: Erstellt
+            version: Version
+            experiment_name: Name des Experiments
+            actions:
+              confirm_delete: "Sind Sie sicher, dass Sie dieses Element löschen möchten?"
+              deleted: "Eintrag erfolgreich gelöscht."
+              not_allowed: "Sie sind nicht berechtigt, diese Aktion auszuführen."
+              not_found: "Element nicht gefunden."
+            associate_experiments: Experimentiergebnisse zuordnen
+            new: Neues Szenario hinzufügen
+            no_scenarios: Noch keine Szenarien verfügbar
+            edit: Bearbeiten
+            delete: Löschen
+          new:
+            title: Anwendungsfallszenario erstellen
+            submit: Erstellen
+            save: Speichern
+            loading_experiments: Experimente werden geladen...
+            experiment_id: ID
+            experiment_name: Name des Experiments
+            description: Beschreibung
+            actions: Aktionen
+            confirm_title: Experimentiergebnisse zuordnen?
+            confirm_message: Durch Klicken auf "Bestätigen" erstellen Sie eine neue Zuordnung.
+            association_name: Zuordnungsname
+            enter_association_name: Geben Sie den Zuordnungsnamen ein
+            created: Erstellt
+            version: Version
+            cancel: Abbrechen
+            confirm: Bestätigen
+            experiment_details:
+              title: Ausgewähltes Experiment
+              name: "Name:"
+              id: "ID:"
+              status: "Status:"
+              loading: Experimentdetails werden geladen...
+              error: "Fehler beim Laden der Details:"
+              not_available: N/V
+            name_required: Der Name der Zuordnung ist erforderlich
+            save_error: Fehler beim Speichern der Zuordnung. Bitte versuchen Sie es erneut.
+            previous_page: Vorherige Seite
+            next_page: Nächste Seite
+            select: Auswählen
+            selected_experiment: Ausgewähltes Experiment
+          create:
+            success: Experimentzuordnung erfolgreich erstellt.
+            error: Fehler beim Erstellen der Experimentzuordnung.

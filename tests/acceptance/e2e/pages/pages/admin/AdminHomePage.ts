@@ -72,6 +72,10 @@ export class AdminHomePage extends BaseAdminPage {
 		await this.navigateToAdminHomePage();
 	}
 
+	async navigateToDecidimAwesome(): Promise<void> {
+		await this.page.getByRole('link', { name: 'Decidim awesome' }).click();
+	}
+
 	// Methods to verify the page structure
 	async isPageLayoutValid(): Promise<boolean> {
 		const main = await this.mainContent.isVisible();

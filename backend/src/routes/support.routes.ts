@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import SupportController from '../controllers/support.controller';
 import { SupportRequestSchema, SupportResponseSchema } from '../schemas/chat.schema';
 
-export default (app: FastifyInstance) => {
+const supportRoutes = (app: FastifyInstance) => {
 	app.route({
 		method: 'POST',
 		url: '/support/send',
@@ -10,6 +10,10 @@ export default (app: FastifyInstance) => {
 			body: SupportRequestSchema,
 			response: { 200: SupportResponseSchema }
 		},
-		handler: SupportController.send.bind(SupportController)
+		handler: async (request, reply) => {
+			return await SupportController.send(request, reply);
+		}
 	});
 };
+
+export default supportRoutes;

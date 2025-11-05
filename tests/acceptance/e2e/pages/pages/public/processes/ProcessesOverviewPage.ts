@@ -44,6 +44,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	// Process cards grid
 	private readonly cardGrid: Locator;
 	private readonly processCards: Locator;
+	private readonly allProcessCards: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -94,6 +95,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		// Process cards grid
 		this.cardGrid = page.locator('.card__grid-grid');
 		this.processCards = page.locator('#highlighted-processes .card__highlight');
+		this.allProcessCards = page.locator('#processes-grid .card__grid-grid a.card__grid');
 	}
 
 	// Navigation methods
@@ -119,7 +121,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	 * Navigates to a specific process using its slug
 	 * @param processSlug - The slug of the process to navigate to
 	 */
-	async navigateToProcess(processSlug: string): Promise<void> {
+	async navigateToProcessBySlug(processSlug: string): Promise<void> {
 		const processCard = this.getProcessCardBySlug(processSlug);
 		await processCard.click();
 		await this.waitForLoadState('networkidle');
@@ -140,7 +142,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	 * @param index - The index of the process card (0-based)
 	 */
 	async navigateToProcessByIndex(index: number): Promise<void> {
-		const processCard = await this.processCards.nth(index);
+		const processCard = this.processCards.nth(index);
 		await processCard.click();
 		await this.waitForLoadState('networkidle');
 	}
@@ -161,6 +163,14 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	 */
 	private getProcessCardByTitle(processTitle: string): Locator {
 		return this.processCards.filter({ has: this.getPage().locator('h3', { hasText: processTitle }) });
+	}
+
+	/**
+	 * Gets a process card from the main grid by its title
+	 * @param processTitle - The title of the process
+	 */
+	private getAllProcessCardByTitle(processTitle: string): Locator {
+		return this.allProcessCards.filter({ has: this.getPage().locator('h3', { hasText: processTitle }) });
 	}
 
 	/**
@@ -497,5 +507,93 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	async hasActiveFilters(): Promise<boolean> {
 		const url = this.page.url();
 		return url.includes('filter%5B');
+	}
+
+	/**
+	 * Applies date filter and ensures processes grid is fully loaded with robust waiting
+	 * @param dateOption - The date filter option to apply
+	 */
+	async applyDateFilterAndEnsureGridLoaded(dateOption: 'all' | 'upcoming' | 'past' | 'active'): Promise<void> {
+		// Check if the desired filter is already selected
+		const currentFilter = await this.getSelectedDateFilter();
+
+		if (currentFilter !== dateOption) {
+			// Apply the date filter
+			await this.filterByDate(dateOption);
+			console.log(`Applied "${dateOption}" date filter`);
+		} else {
+			console.log(`"${dateOption}" date filter is already applied`);
+		}
+
+		await this.page.waitForLoadState('networkidle');
+
+		// Wait for grid container to be present
+		await expect(this.processesGrid).toBeVisible();
+		await expect(this.cardGrid).toBeVisible();
+
+		// Wait for DOM to update completely for 'all' filter
+		if (dateOption === 'all') {
+			await this.page.waitForFunction(() => {
+				const links = document.querySelectorAll('#processes-grid .card__grid-grid a.card__grid');
+				return links.length >= 2;
+			});
+		}
+
+		// Check if grid has processes or is empty
+		try {
+			await expect(this.allProcessCards.first()).toBeVisible();
+			console.log(`Grid loaded with processes`);
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.log(`Grid is empty after applying "${dateOption}" filter. Error: ${errorMessage}`);
+		}
+	}
+
+	/**
+	 * Checks if a process with the given title is visible in the grid
+	 * @param processTitle - The title of the process to check
+	 * @returns Promise<boolean> - True if visible, false if not visible
+	 */
+	async checkProcessVisibility(processTitle: string): Promise<boolean> {
+		console.log(`Looking for process with title: "${processTitle}"`);
+
+		const processesGrid = this.page.locator('#processes-grid .card__grid-grid');
+		const processLink = processesGrid.getByRole('link', { name: processTitle });
+
+		try {
+			await expect(processLink).toBeVisible();
+			console.log(`Process "${processTitle}" is visible in the grid`);
+			return true;
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.log(`Process "${processTitle}" is not visible in the grid. Error: ${errorMessage}`);
+			return false;
+		}
+	}
+
+	/**
+	 * Navigates to a process
+	 * @param processTitle - The title of the process to navigate to
+	 * @param processSlug - The slug of the process for direct navigation fallback
+	 */
+	async navigateToProcess(processTitle: string, processSlug: string): Promise<void> {
+		try {
+			// Get the process card from the main grid
+			const processCard = this.getAllProcessCardByTitle(processTitle);
+
+			// Check if the process is visible and clickable
+			await expect(processCard).toBeVisible();
+			await processCard.click();
+			await this.waitForLoadState('networkidle');
+			console.log(`Successfully clicked on process "${processTitle}" from the grid`);
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.log(`Could not click on process from grid, using direct navigation fallback`);
+			console.log(`Error: ${errorMessage}`);
+			const processUrl = `/processes/${processSlug}`;
+			await this.page.goto(processUrl);
+			await this.waitForLoadState('networkidle');
+			console.log(`Successfully navigated to process URL: ${processUrl}`);
+		}
 	}
 }

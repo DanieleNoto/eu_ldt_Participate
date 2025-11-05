@@ -1,0 +1,40 @@
+<% if current_organization.extra_user_fields_enabled? %>
+  <!-- Ensure user locale param is submitted (not model attribute) -->
+  <%= hidden_field_tag :locale, I18n.locale %>
+  <% if current_organization.activated_extra_field?(:date_of_birth) %>
+    <%= f.date_field :date_of_birth %>
+  <% end %>
+
+  <% if current_organization.activated_extra_field?(:gender) %>
+    <%= f.collection_select :gender, f.object.gender_options_for_select, :first, :last %>
+  <% end %>
+
+  <% if current_organization.activated_extra_field?(:country) %>
+    <%= f.label :country do %>
+      <%= f.custom_country_select :country %>
+    <% end %>
+  <% end %>
+
+  <% if current_organization.activated_extra_field?(:postal_code) %>
+    <%= f.text_field :postal_code %>
+  <% end %>
+
+  <% if current_organization.activated_extra_field?(:phone_number) %>
+    <div class="field">
+      <%= f.label :phone_number %>
+      <%= f.telephone_field :phone_number, placeholder: translated_attribute(f.object.phone_number_extra_user_field_placeholder), pattern: f.object.phone_number_extra_user_field_pattern, class: "#{f.object.errors[:phone_number].any? ? 'is-invalid-input' : ''}" %>
+      <% if f.object.errors[:phone_number].any? %>
+        <small class="form-error is-visible"><%= f.object.errors[:phone_number].first %></small>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if current_organization.activated_extra_field?(:location) %>
+    <%= f.text_field :location %>
+  <% end %>
+
+  <% if current_organization.activated_extra_field?(:underage) %>
+    <%= f.hidden_field :underage, value: current_user.extended_data["underage"] || "0" %>
+    <%= f.hidden_field :statutory_representative_email, value: current_user.extended_data["statutory_representative_email"] || "" %>
+  <% end %>
+<% end %>

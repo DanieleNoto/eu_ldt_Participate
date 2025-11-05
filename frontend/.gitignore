@@ -1,6 +1,14 @@
 dist
 dist-ssr
 *.local
+
+# Built files copied to public folder (for dev server)
+/public/**/*.js
+/public/**/*.css
+/public/config/
+/public/i18n/
+/public/images/
+
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # env

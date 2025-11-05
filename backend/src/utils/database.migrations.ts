@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { Sequelize } from 'sequelize';
 import { SequelizeStorage, Umzug } from 'umzug';
 import { sequelize } from '../config/database';

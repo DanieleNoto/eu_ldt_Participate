@@ -25,7 +25,7 @@ export const ChatResponseSchema = z.object({
 
 export const SupportRequestSchema = z.object({
 	conversationId: z.string().uuid(),
-	message: z.string().min(1)
+	message: z.string().min(20).max(500)
 });
 
 export const SupportResponseSchema = z.object({ response: z.string() });

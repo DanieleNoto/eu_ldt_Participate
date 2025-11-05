@@ -1,18 +1,4 @@
-import { ApiConfigConstructor } from '@app/core/api-client/models/api-config.model';
-
-export interface ChatbotConfig {
-	backend: {
-		baseUrl: string;
-		api: ApiConfigConstructor[];
-	};
-	toastr: {
-		duration: number;
-	};
-	logger: {
-		level: string;
-	};
-	appName: string;
-}
+import { ConfigState } from '@app/store/config/config-slice';
 
 // Environment variable getter that works in both Vite and Jest environments
 const getEnvVar = (key: string, defaultValue: string): string => {
@@ -26,9 +12,10 @@ const getEnvVar = (key: string, defaultValue: string): string => {
 	return defaultValue;
 };
 
-export const chatbotConfig: ChatbotConfig = {
+export const chatbotConfig: ConfigState = {
+	appName: 'EU LDT Participate Chatbot',
 	backend: {
-		baseUrl: getEnvVar('BACKEND_URL', 'http://localhost:3000'),
+		baseUrl: getEnvVar('BACKEND_URL', 'http://localhost:3002'),
 		api: [
 			{
 				name: 'chatMessage',
@@ -48,11 +35,19 @@ export const chatbotConfig: ChatbotConfig = {
 			}
 		]
 	},
+	frontend: {
+		appBasePath: '/'
+	},
 	toastr: {
-		duration: 5000
+		delay: 5000,
+		vertical: 'bottom',
+		horizontal: 'right'
 	},
 	logger: {
 		level: 'info'
 	},
-	appName: 'EU LDT Participate Chatbot'
+	dateFns: {
+		format: 'dd/MM/yyyy',
+		locale: 'it'
+	}
 };

@@ -1,46 +1,37 @@
 #!/bin/bash
 
-# Script to apply all Jitsi configurations
+# Script to apply all Jitsi configurations (ConfigMap, Secret, StatefulSets, Services, Ingress)
 # Run with: bash apply-jitsi-k8s.sh
 
-# Set the namespace
 NAMESPACE=participate
-
-# Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Create namespace if it doesn't exist
 kubectl create namespace $NAMESPACE 2>/dev/null || true
 
 echo "Applying Jitsi configurations..."
 
-# Apply configurations in order
-echo "Creating ConfigMap and Secret..."
-kubectl apply -f "$SCRIPT_DIR/jitsi-configmap.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/jitsi-secrets.yml" -n $NAMESPACE
+# Apply Jitsi ConfigMap and Secret
+kubectl apply -f "$SCRIPT_DIR/jitsi-configmap.yml" -n $NAMESPACE || true
+kubectl apply -f "$SCRIPT_DIR/jitsi-secret.yml" -n $NAMESPACE || true
 
-echo "Creating PersistentVolumeClaims..."
-kubectl apply -f "$SCRIPT_DIR/jitsi-pvc.yml" -n $NAMESPACE
+# Apply StatefulSets
+kubectl apply -f "$SCRIPT_DIR/jitsi-web-statefulset.yaml" -n $NAMESPACE || true
+kubectl apply -f "$SCRIPT_DIR/jitsi-jicofo-statefulset.yaml" -n $NAMESPACE || true
+kubectl apply -f "$SCRIPT_DIR/jitsi-jvb-statefulset.yaml" -n $NAMESPACE || true
+kubectl apply -f "$SCRIPT_DIR/jitsi-prosody-statefulset.yaml" -n $NAMESPACE || true
 
-echo "Deploying Prosody (XMPP server)..."
-kubectl apply -f "$SCRIPT_DIR/jitsi-prosody-deployment.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/jitsi-prosody-service.yml" -n $NAMESPACE
+# Apply Services
+kubectl apply -f "$SCRIPT_DIR/jitsi-web-service.yaml" -n $NAMESPACE || true
 
-echo "Deploying Jicofo..."
-kubectl apply -f "$SCRIPT_DIR/jitsi-jicofo-deployment.yml" -n $NAMESPACE
+# Nginx configuration is now included in the main jitsi-configmap.yml
 
-echo "Deploying JVB (Videobridge)..."
-kubectl apply -f "$SCRIPT_DIR/jitsi-jvb-deployment.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/jitsi-jvb-service.yml" -n $NAMESPACE
+# Apply Ingress (entrypoint for Jitsi)
+INGRESS_PATH="$SCRIPT_DIR/../proxy/jitsi-ingress.yml"
+kubectl apply -f "$INGRESS_PATH" -n $NAMESPACE || true
 
-echo "Deploying Web frontend..."
-kubectl apply -f "$SCRIPT_DIR/jitsi-web-deployment.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/jitsi-web-service.yml" -n $NAMESPACE
+# Restart jitsi-web pod to pick up the new nginx configuration
+kubectl rollout restart statefulset/jitsi-web -n $NAMESPACE || true
 
-echo "Creating Ingress..."
-kubectl apply -f "$SCRIPT_DIR/jitsi-ingress.yml" -n $NAMESPACE
-
-echo "Configuration completed!"
-echo "Add 'jitsi.participate.local' to your /etc/hosts file to access Jitsi."
+echo "Jitsi configuration completed!"
 echo "You can check the status with: kubectl -n $NAMESPACE get pods | grep jitsi"
-echo "You can check the status with: kubectl -n $NAMESPACE get pods | grep jitsi"
+echo "Access Jitsi at: https://part-int.ldttoolbox.app/jitsi/"

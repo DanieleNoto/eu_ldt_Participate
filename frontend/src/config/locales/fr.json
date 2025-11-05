@@ -5,6 +5,8 @@
 		"closeHelpAssistant": "Fermer l'assistant d'aide",
 		"goBackToFaqList": "Retourner à la liste des questions fréquentes",
 		"chatWithVirtualAssistant": "Discuter avec l'assistant virtuel",
+		"disclaimer": "Veuillez noter : Les informations fournies par ce chatbot peuvent ne pas être exactes à 100%. Pour les questions critiques, veuillez contacter notre équipe d'assistance.",
+		"dismissDisclaimer": "Fermer l'avertissement",
 		"suggestions": "Suggestions",
 		"hereArePossibleAnswers": "Voici les réponses possibles liées à la question :",
 		"ifYouNeedMoreHelp": "Si vous avez besoin de plus d'aide :",

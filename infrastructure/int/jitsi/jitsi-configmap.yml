@@ -1,40 +1,46 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+    labels:
+        io.kompose.service: jitsi-config
     name: jitsi-config
-    namespace: participate
 data:
-    # General configuration
-    DOCKER_HOST_ADDRESS: '_%TOOL3_JITSI_DOCKER_HOST_ADDRESS%_'
-    PUBLIC_URL: '_%TOOL3_JITSI_PUBLIC_URL%_'
-    TZ: '_%TOOL3_JITSI_TZ%_'
-
-    # XMPP configuration
-    XMPP_DOMAIN: '_%TOOL3_JITSI_XMPP_DOMAIN%_'
-    XMPP_SERVER: '_%TOOL3_JITSI_XMPP_SERVER%_'
-    XMPP_BOSH_URL_BASE: '_%TOOL3_JITSI_XMPP_BOSH_URL_BASE%_'
-    XMPP_AUTH_DOMAIN: '_%TOOL3_JITSI_XMPP_AUTH_DOMAIN%_'
-    XMPP_MUC_DOMAIN: '_%TOOL3_JITSI_XMPP_MUC_DOMAIN%_'
-    XMPP_INTERNAL_MUC_DOMAIN: '_%TOOL3_JITSI_XMPP_INTERNAL_MUC_DOMAIN%_'
-    XMPP_GUEST_DOMAIN: '_%TOOL3_JITSI_XMPP_GUEST_DOMAIN%_'
-    XMPP_RECORDER_DOMAIN: '_%TOOL3_JITSI_XMPP_RECORDER_DOMAIN%_'
-    XMPP_MODULES: '_%TOOL3_JITSI_XMPP_MODULES%_'
-
-    # JVB configuration
-    JVB_BREWERY_MUC: '_%TOOL3_JITSI_JVB_BREWERY_MUC%_'
-    JVB_AUTH_USER: '_%TOOL3_JITSI_JVB_AUTH_USER%_'
-    JVB_PORT: '_%TOOL3_JITSI_JVB_PORT%_'
-    JVB_STUN_SERVERS: '_%TOOL3_JITSI_JVB_STUN_SERVERS%_'
-    JVB_ENABLE_APIS: '_%TOOL3_JITSI_JVB_ENABLE_APIS%_'
-
-    # Jicofo configuration
-    JICOFO_AUTH_USER: '_%TOOL3_JITSI_JICOFO_AUTH_USER%_'
-
-    # Authentication configuration
-    ENABLE_AUTH: '_%TOOL3_JITSI_ENABLE_AUTH%_'
-    ENABLE_GUESTS: '_%TOOL3_JITSI_ENABLE_GUESTS%_'
-    AUTH_TYPE: '_%TOOL3_JITSI_AUTH_TYPE%_'
-
-    # JWT configuration
-    JITSI_APP_ID: '_%TOOL3_JITSI_APP_ID%_'
-    JITSI_JWT_ALGORITHM: '_%TOOL3_JITSI_JWT_ALGORITHM%_'
+    AUTH_TYPE: jwt
+    CONFIG: ./jitsi-meet-cfg
+    DATABASE_HOST: db
+    DATABASE_NAME: decidim_application_development
+    DATABASE_USERNAME: postgres
+    POSTGRES_USER: admin
+    POSTGRES_PASSWORD: supersecret
+    ENABLE_AUTH: '0'
+    ENABLE_GUESTS: '1'
+    JICOFO_AUTH_USER: focus
+    JITSI_HTTP_PORT: '8000'
+    JITSI_HTTPS_PORT: '8443'
+    JITSI_UDP_PORT: '10000'
+    JVB_AUTH_USER: jvb
+    JVB_BREWERY_MUC: jvbbrewery
+    JVB_ENABLE_APIS: rest,colibri
+    JVB_PORT: '10000'
+    JVB_STUN_SERVERS: stun.l.google.com:19302,stun1.l.google.com:19302
+    JWT_APP_ID: tool3
+    JWT_ACCEPTED_ISSUERS: part-int.ldttoolbox.app/
+    JWT_ACCEPTED_AUDIENCES: jitsi-part-int.ldttoolbox.app/ part-int.ldttoolbox.app/
+    PUBLIC_URL: https://jitsi-part-int.ldttoolbox.app/
+    RESTART_POLICY: unless-stopped
+    TZ: Europe/Rome
+    XMPP_AUTH_DOMAIN: auth.meet.jitsi
+    XMPP_BOSH_URL_BASE: https://jitsi-prosody:5280/http-bind
+    XMPP_DOMAIN: meet.jitsi
+    XMPP_GUEST_DOMAIN: guest.meet.jitsi
+    XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
+    XMPP_MODULES: ''
+    XMPP_MUC_DOMAIN: muc.meet.jitsi
+    XMPP_RECORDER_DOMAIN: recorder.meet.jitsi
+    XMPP_SERVER: jitsi-prosody
+    ENABLE_XMPP_WEBSOCKET: '1'
+    SUBDIR: ''
+    ENABLE_SUBDOMAINS: 'true'
+    
+    # No embedded config.js here — rely on the image default config.js or mount a separate file
+    # If you need custom JS, mount a file at /config/web/config.js via a ConfigMap or a volume.
