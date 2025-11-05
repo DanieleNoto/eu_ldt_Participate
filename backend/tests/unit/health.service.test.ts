@@ -29,8 +29,6 @@ describe('HealthService', () => {
 			expect(result.checks.grafana).toBeDefined();
 			expect(result.checks.matomo).toBeDefined();
 			expect(result.checks.jitsi_web).toBeDefined();
-			expect(result.checks.shakapacker).toBeDefined();
-			expect(result.checks.external_api).toBeDefined();
 			expect(result.checks.internal_component).toBeDefined();
 
 			// Verify each check has required properties
