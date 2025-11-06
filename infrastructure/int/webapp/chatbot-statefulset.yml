@@ -34,6 +34,33 @@ spec:
                 - name: chatbot-backend
                   image: euldtshared.azurecr.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   imagePullPolicy: Always
+                  command:
+                      - /bin/sh
+                      - -c
+                      - |
+                        echo "Waiting for PostgreSQL to be ready..."
+                        DB_HOST=${DB_HOST:-127.0.0.1}
+                        DB_PORT=${DB_PORT:-5432}
+                        
+                        max_attempts=30
+                        attempt=0
+                        while [ $attempt -lt $max_attempts ]; do
+                          if nc -z $DB_HOST $DB_PORT 2>/dev/null; then
+                            echo "PostgreSQL is ready!"
+                            break
+                          fi
+                          attempt=$((attempt + 1))
+                          echo "PostgreSQL unavailable (attempt $attempt/$max_attempts)"
+                          sleep 2
+                        done
+                        
+                        if [ $attempt -eq $max_attempts ]; then
+                          echo "ERROR: PostgreSQL timeout"
+                          exit 1
+                        fi
+                        
+                        echo "Starting backend..."
+                        exec node dist/server.js
                   resources:
                       requests:
                           cpu: '100m'
@@ -50,6 +77,30 @@ spec:
                       - name: chatbot-backend-storage
                         mountPath: /mnt/shared
                         readOnly: false
+                  startupProbe:
+                      httpGet:
+                          path: /health
+                          port: 3002
+                      initialDelaySeconds: 30
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 30
+                  livenessProbe:
+                      httpGet:
+                          path: /health
+                          port: 3002
+                      initialDelaySeconds: 60
+                      periodSeconds: 30
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  readinessProbe:
+                      httpGet:
+                          path: /health
+                          port: 3002
+                      initialDelaySeconds: 10
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 3
                   envFrom:
                       - secretRef:
                             name: chatbot-backend-secret
@@ -101,6 +152,30 @@ spec:
                       - name: chatbot-frontend-storage
                         mountPath: /mnt/shared
                         readOnly: false
+                  startupProbe:
+                      httpGet:
+                          path: /
+                          port: 5001
+                      initialDelaySeconds: 30
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 30
+                  livenessProbe:
+                      httpGet:
+                          path: /
+                          port: 5001
+                      initialDelaySeconds: 60
+                      periodSeconds: 30
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  readinessProbe:
+                      httpGet:
+                          path: /
+                          port: 5001
+                      initialDelaySeconds: 10
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 3
                   envFrom:
                       - configMapRef:
                             name: chatbot-frontend-config

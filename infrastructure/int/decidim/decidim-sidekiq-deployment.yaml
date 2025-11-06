@@ -21,38 +21,6 @@ spec:
       automountServiceAccountToken: false
       # Wait for Redis to be reachable before starting Sidekiq to avoid CrashLoopBackOff
       initContainers:
-        - name: copy-assets
-          image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
-          command:
-            - /bin/sh
-            - -c
-            - |
-              echo "Waiting 5 minutes for Decidim initContainer to complete asset compilation..."
-              sleep 300
-              
-              echo "Copying assets from main PVC to Sidekiq volume..."
-              # Wait for assets to be available in main PVC
-              for i in $(seq 1 60); do
-                if [ -f "/source-assets/public/decidim-packs/manifest.json" ] && [ "$(cat /source-assets/public/decidim-packs/manifest.json | wc -c)" -gt 2 ]; then
-                  echo "Assets are ready, copying to Sidekiq volume..."
-                  cp -r /source-assets/public/* /dest-assets/public/ 2>/dev/null || true
-                  echo "Assets copied successfully"
-                  exit 0
-                fi
-                echo "Waiting for assets (attempt $i)"; sleep 5
-              done
-              echo "Timeout waiting for assets"; exit 1
-          envFrom:
-            - secretRef:
-                name: decidim-secret
-            - configMapRef:
-                name: decidim-configmap
-          volumeMounts:
-            - name: decidim-main-assets
-              mountPath: /source-assets/public
-              readOnly: true
-            - name: decidim-assets
-              mountPath: /dest-assets/public
         - name: wait-for-dependencies
           # use an image that contains redis-cli so we can handle auth/URLs
           image: redis:7-alpine
@@ -69,6 +37,10 @@ spec:
                   echo "redis not reachable yet (attempt $i)"; sleep 1
                 done
               fi
+
+              # Wait for assets to be compiled by Decidim
+              echo "Waiting 5 minutes for Decidim initContainer to complete asset compilation..."
+              sleep 300
               
               echo "Redis is ready, starting Sidekiq..."
           # import the same envs the app uses so the initContainer can read REDIS_URL
@@ -77,10 +49,6 @@ spec:
                 name: decidim-secret
             - configMapRef:
                 name: decidim-configmap
-          volumeMounts:
-            - name: decidim-assets
-              mountPath: /code/public
-              readOnly: true
       containers:
         - name: sidekiq
           image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
@@ -91,6 +59,25 @@ spec:
           args:
             - |
               set -e
+              
+              echo "Checking if assets are ready in main PVC..."
+              for i in $(seq 1 60); do
+                if [ -f "/source-assets/public/decidim-packs/manifest.json" ] && [ "$(cat /source-assets/public/decidim-packs/manifest.json | wc -c)" -gt 2 ]; then
+                  echo "Assets are ready, copying to local volume..."
+                  break
+                fi
+                echo "Waiting for assets (attempt $i)"; sleep 5
+              done
+              
+              # Copy assets from main PVC to local emptyDir if not already done
+              if [ ! -f "/code/public/decidim-packs/manifest.json" ]; then
+                echo "Copying assets from main PVC to local volume..."
+                cp -r /source-assets/public/* /code/public/ 2>/dev/null || true
+                echo "Assets copied to local volume"
+              else
+                echo "Assets already available in local volume"
+              fi
+              
               echo "Starting Sidekiq wrapper: waiting for redis..."
               # Prefer redis-cli if present (handles auth and URLs), otherwise fall back to nc TCP check.
               if command -v redis-cli >/dev/null 2>&1; then
@@ -160,9 +147,11 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
           volumeMounts:
+            - name: decidim-main-assets
+              mountPath: /source-assets/public
+              readOnly: true
             - name: decidim-assets
               mountPath: /code/public
-              readOnly: true
       restartPolicy: Always
       volumes:
        - name: decidim-main-assets

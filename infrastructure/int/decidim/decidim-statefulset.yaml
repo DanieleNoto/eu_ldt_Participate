@@ -167,7 +167,7 @@ spec:
         - metadata:
               name: decidim-pvc
           spec:
-              accessModes: ['ReadWriteMany']
+              accessModes: ['ReadWriteOnce']
               resources:
                   requests:
                       storage: 5Gi
