@@ -101,7 +101,7 @@ spec:
               -q decidim_production_close_meeting_reminder,1 \
               -q decidim_production_spam_analysis,1 \
               -q active_storage_analysis,1 \
-              -q active_storage_purge,1 \
+              -q active_storage_purge,1
               
           envFrom:
             - secretRef:
