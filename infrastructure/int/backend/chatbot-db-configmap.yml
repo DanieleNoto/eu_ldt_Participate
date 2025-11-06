@@ -11,6 +11,6 @@ data:
   DB_HOST: chatbot-pg-svc
   DB_PORT: "5432"
   DB_SCHEMA: public
-  DB_NAME: chatbot_integration
-  POSTGRES_DATABASE: chatbot_integration
+  DB_NAME: chatbot_db
+  POSTGRES_DATABASE: chatbot_db
   PGDATA: /var/lib/postgresql/data/pgdata
