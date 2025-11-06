@@ -42,25 +42,43 @@ spec:
                         DB_HOST=${DB_HOST:-127.0.0.1}
                         DB_PORT=${DB_PORT:-5432}
                         
+                        echo "Environment variables:"
+                        echo "  DB_HOST: $DB_HOST"
+                        echo "  DB_PORT: $DB_PORT"
+                        echo "  DB_NAME: $DB_NAME"
+                        echo "  DB_USER: $DB_USER"
+                        
+                        echo "Checking connection to PostgreSQL at $DB_HOST:$DB_PORT"
                         max_attempts=30
                         attempt=0
                         while [ $attempt -lt $max_attempts ]; do
-                          if nc -z $DB_HOST $DB_PORT 2>/dev/null; then
+                          if timeout 5 bash -c "</dev/tcp/$DB_HOST/$DB_PORT" 2>/dev/null; then
                             echo "PostgreSQL is ready!"
                             break
                           fi
                           attempt=$((attempt + 1))
-                          echo "PostgreSQL unavailable (attempt $attempt/$max_attempts)"
+                          echo "PostgreSQL unavailable (attempt $attempt/$max_attempts) - waiting..."
                           sleep 2
                         done
                         
                         if [ $attempt -eq $max_attempts ]; then
-                          echo "ERROR: PostgreSQL timeout"
+                          echo "ERROR: PostgreSQL connection timeout after $max_attempts attempts"
                           exit 1
                         fi
                         
                         echo "Starting backend..."
-                        exec node dist/server.js
+                        echo "Current directory: $(pwd)"
+                        echo "Files in directory: $(ls -la)"
+                        echo "Node version: $(node --version 2>/dev/null || echo 'Node not found')"
+                        echo "Checking if dist/server.js exists..."
+                        if [ -f "dist/server.js" ]; then
+                          echo "dist/server.js found, starting application..."
+                          exec node dist/server.js
+                        else
+                          echo "ERROR: dist/server.js not found!"
+                          ls -la dist/ 2>/dev/null || echo "dist directory not found"
+                          exit 1
+                        fi
                   resources:
                       requests:
                           cpu: '100m'
