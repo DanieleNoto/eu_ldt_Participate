@@ -51,4 +51,60 @@ export default class NotificationPage extends AuthenticatedPage {
 		const current = await this.getNotificationCount();
 		expect(current).toBeLessThan(previous);
 	}
+
+	/**
+	 * Verify notification contains expected message and comment text
+	 * @param expectedMessage The expected notification message
+	 * @param commentText The original comment text to verify
+	 * @returns Promise<boolean> True if both message and comment text are visible
+	 */
+	async verifyNotificationWithCommentText(expectedMessage: string, commentText: string): Promise<boolean> {
+		try {
+			console.log(`Searching for notification with message: "${expectedMessage}"`);
+
+			// Get the first notification snippet that contains the expected message
+			const notificationSnippet = this.page
+				.locator('.notification__snippet', { hasText: expectedMessage })
+				.first();
+
+			// Check if notification with expected message is visible
+			const isNotificationVisible = await notificationSnippet.isVisible();
+
+			if (!isNotificationVisible) {
+				console.warn(`Expected message "${expectedMessage}" not found in notification`);
+				console.warn(`Comment text "${commentText}" not found in notification`);
+				return false;
+			}
+
+			console.log(`Found notification with message: "${expectedMessage}"`);
+
+			// Get the full text content of the notification
+			const notificationText = await notificationSnippet.textContent();
+
+			if (!notificationText) {
+				console.warn('Notification content is empty');
+				return false;
+			}
+
+			// Normalize the text (remove extra whitespace)
+			const normalizedText = notificationText.replace(/\s+/g, ' ').trim();
+
+			// Check if comment text is present
+			const hasCommentText = normalizedText.includes(commentText);
+
+			if (!hasCommentText) {
+				console.warn(`Comment text "${commentText}" not found in notification`);
+				return false;
+			}
+
+			console.log(`Notification verified: Contains "${expectedMessage}" and comment text "${commentText}"`);
+
+			return true;
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error('Error verifying notification:', error.message);
+			}
+			return false;
+		}
+	}
 }

@@ -329,6 +329,7 @@ export class ProcessModerationPage {
 		reportedAt: string;
 		authors: string[];
 		participatorySpace: string;
+		reportedContent: string;
 	}> {
 		const metadata = {
 			url: '',
@@ -336,7 +337,8 @@ export class ProcessModerationPage {
 			type: '',
 			reportedAt: '',
 			authors: [] as string[],
-			participatorySpace: ''
+			participatorySpace: '',
+			reportedContent: ''
 		};
 
 		try {
@@ -359,6 +361,15 @@ export class ProcessModerationPage {
 				.locator('.moderation-details dt:has-text("Author(s)") + dd')
 				.textContent();
 			metadata.authors = authorsText ? [authorsText.trim()] : [];
+
+			// Extract reported content text from blockquote
+			const reportedContentElement = this.page.locator(
+				'.moderation-details dd.reported-content blockquote p[sanitize="true"]'
+			);
+			const reportedContentText = await reportedContentElement.first().textContent();
+			metadata.reportedContent = reportedContentText?.trim() || '';
+
+			console.log(`Extracted reported content text: "${metadata.reportedContent}"`);
 
 			return metadata;
 		} catch (error) {
@@ -383,10 +394,14 @@ export class ProcessModerationPage {
 				metadata.id !== '' &&
 				metadata.type !== '' &&
 				metadata.reportedAt !== '' &&
-				metadata.authors.length > 0;
+				metadata.authors.length > 0 &&
+				metadata.reportedContent !== '';
 
 			if (!isPopulated) {
 				console.warn('Detail page: Metadata not fully populated:', metadata);
+			} else {
+				console.log('Detail page: All metadata fields populated successfully');
+				console.log(`Reported content: "${metadata.reportedContent}"`);
 			}
 
 			return isPopulated;
@@ -868,6 +883,79 @@ export class ProcessModerationPage {
 				throw error;
 			}
 			throw new Error('Unknown error occurred while ensuring test comment is reported');
+		}
+	}
+
+	/**
+	 * Generate oversized text for testing submission limits
+	 */
+	generateOversizedText(): string {
+		const dummyParagraph =
+			'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ';
+		const repetitions = 10000;
+		const oversizedText = dummyParagraph.repeat(repetitions);
+		console.log(`Generated oversized text: ${(oversizedText.length / 1024 / 1024).toFixed(2)}MB`);
+		return oversizedText;
+	}
+
+	/**
+	 * Verify 413 error page is displayed
+	 * @returns Promise<boolean> True if 413 error is visible
+	 */
+	async verify413ErrorPage(): Promise<boolean> {
+		try {
+			const errorMessageVisible = await this.page
+				.locator('text=413')
+				.isVisible()
+				.catch(() => false);
+			const requestEntityErrorVisible = await this.page
+				.locator('text=Request Entity Too Large')
+				.isVisible()
+				.catch(() => false);
+
+			const hasError = errorMessageVisible || requestEntityErrorVisible;
+			if (hasError) {
+				console.log('413 Request Entity Too Large error page confirmed');
+			}
+			return hasError;
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error('Error checking 413 error page:', error.message);
+			}
+			return false;
+		}
+	}
+
+	/**
+	 * Wait for report success message after submitting a report
+	 * @returns Promise<boolean> True if success message is visible
+	 */
+	async waitForReportSuccessMessage(): Promise<boolean> {
+		try {
+			// Wait for flash container to appear
+			const flashContainer = this.page.locator('#flash-messages-container');
+			await flashContainer.waitFor({ state: 'visible' });
+
+			// Wait for success flash message
+			const successMessage = this.page.locator('.flash.success[role="alert"]');
+			await successMessage.waitFor({ state: 'visible' });
+
+			// Get the message text
+			const messageText = await successMessage.locator('.flash__message').textContent();
+			const hasExpectedMessage = messageText?.includes('The report has been created successfully');
+
+			if (hasExpectedMessage) {
+				console.log(`Report success message confirmed: "${messageText?.trim()}"`);
+			} else {
+				console.warn(`Unexpected success message: "${messageText?.trim()}"`);
+			}
+
+			return hasExpectedMessage || false;
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error('Error waiting for success message:', error.message);
+			}
+			return false;
 		}
 	}
 }
