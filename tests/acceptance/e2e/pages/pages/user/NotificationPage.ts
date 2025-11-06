@@ -52,6 +52,16 @@ export default class NotificationPage extends AuthenticatedPage {
 		expect(current).toBeLessThan(previous);
 	}
 
+	async isTextPresentInNotifications(text: string): Promise<boolean> {
+		const notifications = this.notificationsSection;
+		const count = await notifications.count();
+		for (let i = 0; i < count; i++) {
+			const content = await notifications.nth(i).textContent();
+			if (content?.includes(text)) return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Verify notification contains expected message and comment text
 	 * @param expectedMessage The expected notification message
