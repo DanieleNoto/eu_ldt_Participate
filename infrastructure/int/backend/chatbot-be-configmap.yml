@@ -28,7 +28,7 @@ data:
     CHATBOT_FROM_EMAIL: 'info@ldttoolbox.eu'
     # Database
     DB_NAME: chatbot_db
-    DB_HOST: chatbot-pg-svc
+    DB_HOST: 127.0.0.1
     DB_PORT: '5432'
     DB_DIALECT: postgres
     DB_MAX_POOL: '100'

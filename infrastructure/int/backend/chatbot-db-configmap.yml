@@ -8,7 +8,7 @@ data:
   DB_MIN_POOL: "2"
   DB_IDLE_POOL: "1000"
   DB_DIALECT: postgres
-  DB_HOST: chatbot-pg-svc
+  DB_HOST: 127.0.0.1
   DB_PORT: "5432"
   DB_SCHEMA: public
   DB_NAME: chatbot_db
