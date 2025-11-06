@@ -96,7 +96,7 @@ export default class NotificationPage extends AuthenticatedPage {
 				return false;
 			}
 
-			// Normalize the text (remove extra whitespace)
+			// Normalize the text
 			const normalizedText = notificationText.replace(/\s+/g, ' ').trim();
 
 			// Check if comment text is present
