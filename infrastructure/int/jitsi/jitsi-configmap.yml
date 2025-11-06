@@ -12,7 +12,7 @@ data:
     DATABASE_USERNAME: postgres
     POSTGRES_USER: admin
     POSTGRES_PASSWORD: supersecret
-    ENABLE_AUTH: '0'
+    ENABLE_AUTH: '1'
     ENABLE_GUESTS: '1'
     JICOFO_AUTH_USER: focus
     JITSI_HTTP_PORT: '8000'
