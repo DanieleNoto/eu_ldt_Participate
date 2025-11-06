@@ -1,10 +1,16 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Gianfranco Cedro
+ * Simone Bianchelli
+ * Denise Scarcelli
+ */
+
 import { expect, Locator, Page } from '@playwright/test';
 import { SidebarProcessDetailComponent } from '../../../../../components/admin/process/detail/SidebarProcessDetailComponent';
 import { BaseAdminPage } from '../../../BaseAdminPage';
 import { ManagePageComponentPage } from './ManagePageComponentPage';
 import { NewPageComponentPage } from './NewPageComponentPage';
-import { readdirSync, unlinkSync, existsSync } from 'fs';
-import { join } from 'path';
 
 /**
  * Page Object Model for the Components page in process detail management.
@@ -33,6 +39,7 @@ export class ComponentsPage extends BaseAdminPage {
 	private readonly proposalsLink: Locator;
 	private readonly sortitionsLink: Locator;
 	private readonly surveysLink: Locator;
+	private readonly ldtUseCaseScenariosLink: Locator;
 
 	// Components table
 	private readonly tableHeaders: Locator;
@@ -62,6 +69,9 @@ export class ComponentsPage extends BaseAdminPage {
 		this.proposalsLink = page.locator('a.proposals[href*="components/new?type=proposals"]');
 		this.sortitionsLink = page.locator('a.sortitions[href*="components/new?type=sortitions"]');
 		this.surveysLink = page.locator('a.surveys[href*="components/new?type=surveys"]');
+		this.ldtUseCaseScenariosLink = page.locator(
+			'a.ldt_use_case_scenarios[href*="components/new?type=ldt_use_case_scenarios"]'
+		);
 
 		// Components table
 		this.tableHeaders = page.locator('.table-list thead th');
@@ -176,6 +186,12 @@ export class ComponentsPage extends BaseAdminPage {
 		await this.page.waitForLoadState('networkidle');
 	}
 
+	async addLDTUseCaseScenariosComponent() {
+		await this.openAddComponentDropdown();
+		await this.ldtUseCaseScenariosLink.click();
+		await this.page.waitForLoadState('networkidle');
+	}
+
 	// Generic method to add component by type
 	async addComponentByType(componentType: string) {
 		const componentMap: { [key: string]: () => Promise<void> } = {
@@ -269,11 +285,27 @@ export class ComponentsPage extends BaseAdminPage {
 		await this.page.waitForLoadState('networkidle');
 	}
 
-	async unpublishComponent(componentName: string) {
+	/**
+	 * Hide component by clicking the "Hide from menu" action link.
+	 */
+	async hideComponentByName(componentName: string): Promise<void> {
 		const row = this.getComponentRow(componentName);
-		const unpublishLink = row.locator('a.action-icon--unpublish');
-		await unpublishLink.click();
-		await this.page.waitForLoadState('networkidle');
+		const hideLink = row.locator('a.action-icon--unpublish');
+		if (await hideLink.isVisible()) {
+			await hideLink.click();
+		}
+	}
+
+	/**
+	 * Click on the "Unpublish" action link to unpublish a component.
+	 */
+	async unpublishComponentByName(componentName: string): Promise<void> {
+		const row = this.getComponentRow(componentName);
+		const unpublishLink = row.locator('a.action-icon--menu-hidden');
+		await unpublishLink.waitFor({ state: 'visible' });
+		if (await unpublishLink.isVisible()) {
+			await unpublishLink.click();
+		}
 	}
 
 	async publishComponent(componentName: string) {
@@ -428,41 +460,58 @@ export class ComponentsPage extends BaseAdminPage {
 	}
 
 	/**
-	 * Deletes a component by name if it exists, including snapshots cleanup.
-	 * @param componentName Name or regex of the component to delete
-	 * @param snapshotsDir Directory containing snapshots to delete
+	 * Deletes a component by name or regex if it exists.
+	 * Works with pages that expose role="option" and with normal tables.
 	 */
-	async deleteComponentIfExists(componentName: string | RegExp, snapshotsDir: string) {
-		const rowLocator = this.page.getByRole('option', { name: componentName });
-		if ((await rowLocator.count()) > 0) {
-			const row = rowLocator.first();
-			const deleteLink = row.locator('a.action-icon--delete');
-			await deleteLink.click();
+	async deleteComponentIfExists(componentName: string | RegExp) {
+		// try the semantic locator (when present)
+		let rowLocator = this.page.getByRole('option', { name: componentName });
 
-			// Confirm deletion
-			await this.page.getByRole('button', { name: 'OK' }).click();
-
-			// Verify success message
-			const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
-			await expect(deletionSuccessMessage).toBeVisible();
-
-			// //commenting out snapshot deletion for permanence of snapshots -- uncomment if needed
-			// // Delete all files in snapshots directory
-			// if (existsSync(snapshotsDir)) {
-			//     const files = readdirSync(snapshotsDir);
-			//     for (const file of files) {
-			//         const filePath = join(snapshotsDir, file);
-			//         unlinkSync(filePath);
-			//         console.log(`Deleted: ${filePath}`);
-			//     }
-			// } else {
-			//     console.log(`Directory ${snapshotsDir} does not exist.`);
-			// }
-		} else {
-			console.log(`Component "${componentName}" not found, skipping deletion.`);
+		// fallback: find table rows that contain the text
+		if ((await rowLocator.count()) === 0) {
+			rowLocator = this.page.locator('table tbody tr', { hasText: componentName });
 		}
+
+		// if there are no matches, exit
+		if ((await rowLocator.count()) === 0) {
+			console.log(`Component "${componentName}" not found, skipping deletion.`);
+			return;
+		}
+
+		// take the first match and click the delete link in the actions cell
+		const row = rowLocator.first();
+		const deleteLink = row.locator('a.action-icon--delete');
+
+		if ((await deleteLink.count()) === 0) {
+			console.log(`Delete link not found for "${componentName}", skipping deletion.`);
+			return;
+		}
+
+		await deleteLink.first().click();
+
+		// confirm the deletion (adjust the button name if necessary)
+		const okButton = this.page.getByRole('button', { name: 'OK' });
+		await okButton.evaluate((element: HTMLElement) => element.click());
+
+		// wait for success message or for the row to be removed
+		const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
+		await expect(deletionSuccessMessage).toBeVisible();
 	}
 
+	/**
+	 * Returns the link of a component based on the text (e.g. "Meetings", "Accountability").
+	 * @param componentName Text of the link in the table
+	 */
+	getComponentLinkByName(componentName: string): Locator {
+		return this.componentRows.locator(`td a:has-text("${componentName}")`);
+	}
+	/**
+	 * Click on link component from name
+	 */
+	async clickComponentLink(componentName: string): Promise<void> {
+		const link = this.getComponentLinkByName(componentName);
+		await link.click();
+	}
 	/**
 	 * Click on the Export button to open export dropdown/modal
 	 */
@@ -495,5 +544,12 @@ export class ComponentsPage extends BaseAdminPage {
 	 */
 	async expectExportConfirmationMessage(): Promise<void> {
 		await expect(this.page.getByText('Your export is currently in')).toBeVisible();
+	}
+
+	/**
+	 * Verifies that the component was created successfully by checking the success message
+	 */
+	async verifyComponentCreatedSuccessfully(): Promise<void> {
+		await expect(this.page.getByText('Component created successfully')).toBeVisible();
 	}
 }

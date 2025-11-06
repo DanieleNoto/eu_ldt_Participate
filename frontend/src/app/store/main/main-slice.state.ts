@@ -2,8 +2,9 @@ import { MenuItem } from '@app/core/models/menuItem.model';
 import { SectionModel } from '@app/theme/components/section/section.model';
 
 export interface AppError {
-	title?: string;
 	message: string;
+	code?: string;
+	details?: unknown;
 }
 
 export interface MainSliceState {

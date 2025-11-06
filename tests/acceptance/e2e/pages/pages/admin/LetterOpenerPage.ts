@@ -1,9 +1,10 @@
-import { Page, expect, Download } from '@playwright/test';
+import { Page, expect, Download, Locator } from '@playwright/test';
 import { BasePage } from '@pages/base/BasePage';
 import { EMAIL_URLS } from '@utils/constants';
 import { existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
+export type ExportType = 'debates' | 'meetings';
 
 /**
  * Page Object for Letter Opener email interface
@@ -121,7 +122,7 @@ export class LetterOpenerPage extends BasePage {
 	 * After refresh, the newest export email should be at the top of the list
 	 */
 	async clickMostRecentDebatesExportEmail(): Promise<void> {
-		await this.page.waitForSelector('li.list-group-item', { timeout: 10000 });
+		await this.page.waitForSelector('li.list-group-item');
 
 		// Look for the first debates export email (most recent after refresh)
 		const exportEmail = this.page
@@ -139,6 +140,51 @@ export class LetterOpenerPage extends BasePage {
 		await this.page.waitForLoadState('networkidle');
 
 		console.log('Clicked on the most recent debates export email');
+	}
+
+	/**
+	 * Find and click on the most recent account registration confirmation email
+	 * After refresh, the newest confirmation email should be at the top of the list
+	 */
+	async clickMostRecentAccountRegistrationEmail(): Promise<void> {
+		await this.page.waitForSelector('li.list-group-item');
+
+		// Look for the first confirmation instructions email (most recent after refresh)
+		const confirmationEmail = this.page
+			.locator('li.list-group-item')
+			.filter({
+				has: this.page.locator('dd:has-text("Confirmation instructions")')
+			})
+			.first();
+
+		// Verify we found a confirmation email
+		await expect(confirmationEmail).toBeVisible();
+
+		// Click on the email link within the list item
+		await confirmationEmail.locator('a[target="mail"]').click();
+
+		// Wait only for the email content iframe to be visible (faster than networkidle)
+		await this.page.waitForSelector('iframe[name="mail"]', { state: 'visible' });
+	}
+
+	/**
+	 * Get the confirmation URL from the "Confirm my account" link
+	 * @returns The confirmation URL
+	 */
+	async getConfirmMyAccountUrl(): Promise<string> {
+		let confirmationUrl: string | null = null;
+
+		await this.withEmailContentFrame(async contentFrame => {
+			const confirmLink = contentFrame.getByRole('link', { name: 'Confirm my account' });
+			await expect(confirmLink).toBeVisible();
+			confirmationUrl = await confirmLink.getAttribute('href');
+		});
+
+		if (!confirmationUrl) {
+			throw new Error('Confirmation URL not found in email');
+		}
+
+		return confirmationUrl;
 	}
 
 	/**
@@ -221,6 +267,7 @@ export class LetterOpenerPage extends BasePage {
 				const isValidExportFile =
 					suggestedFilename === 'debates.zip' ||
 					suggestedFilename === 'survey_user_answers.zip' ||
+					suggestedFilename === 'meetings.zip' ||
 					/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(suggestedFilename);
 
 				if (!isValidExportFile) {
@@ -243,7 +290,6 @@ export class LetterOpenerPage extends BasePage {
 					} else {
 						console.log('File not found for cleanup but download was successful');
 					}
-
 					console.log('Download completed successfully');
 					return;
 				} catch (saveError: unknown) {
@@ -253,7 +299,6 @@ export class LetterOpenerPage extends BasePage {
 					return;
 				}
 			}
-
 			console.log('No download detected - this indicates the export file is not available');
 			throw new Error(
 				'Export file download failed: No download was initiated after clicking the download link. This may indicate the file is not ready or not available.'
@@ -267,8 +312,122 @@ export class LetterOpenerPage extends BasePage {
 		}
 	}
 
+	/**
+	 * Extract email header information: From, Subject, Date, Attachments
+	 */
+
+	async getEmailHeaderInfo(): Promise<{
+		from: string;
+		subject: string;
+		date: string;
+		attachments: string[];
+	}> {
+		const decodeHtmlEntities = (text: string): string =>
+			text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+
+		const safeText = async (locator: Locator): Promise<string> => {
+			try {
+				await expect(locator).toBeVisible();
+				const raw = await locator.textContent();
+				const cleaned = raw?.trim().replace(/\s+/g, ' ') ?? '';
+				return decodeHtmlEntities(cleaned);
+			} catch (e) {
+				console.warn(`Text extraction failed: ${e}`);
+				return '';
+			}
+		};
+
+		const activeMessage = this.page.locator('li.list-group-item.active');
+
+		const fromLocator = activeMessage.locator('dt:has-text("From:") + dd');
+		const subjectLocator = activeMessage.locator('dt:has-text("Subject:") + dd strong');
+		const dateLocator = activeMessage.locator('dt:has-text("Date:") + dd');
+
+		const from = await safeText(fromLocator);
+		const subject = await safeText(subjectLocator);
+		const date = await safeText(dateLocator);
+
+		return {
+			from,
+			subject,
+			date,
+			attachments: []
+		};
+	}
+
+	/**
+/**
+	 * Extract meeting information: Name, Link, Registration Code
+	 */
+	async getMeetingInfo(): Promise<{
+		meetingName: string;
+		meetingLink: string;
+		registrationCode: string;
+	}> {
+		return await this.withEmailContentFrame(async frame => {
+			const safeText = async (locator: Locator): Promise<string> => {
+				try {
+					const text = await locator.textContent();
+					return text?.trim().replace(/\s+/g, ' ') ?? '';
+				} catch (e) {
+					console.warn(`Text extraction failed: ${e}`);
+					return '';
+				}
+			};
+
+			const meetingLinkLocator = frame.locator('p.email-instructions a');
+			const registrationCodeLocator = frame.locator('p:has-text("Your registration code is")');
+
+			let meetingName = '';
+			let meetingLink = '';
+			let registrationCode = '';
+
+			try {
+				meetingName = await safeText(meetingLinkLocator);
+				meetingLink = (await meetingLinkLocator.getAttribute('href')) ?? '';
+			} catch (e) {
+				console.warn(`Meeting link extraction failed: ${e}`);
+			}
+
+			try {
+				const regText = await safeText(registrationCodeLocator);
+				const match = regText.match(/code is (\w+)/);
+				if (match) registrationCode = match[1];
+			} catch (e) {
+				console.warn(`Registration code extraction failed: ${e}`);
+			}
+
+			return {
+				meetingName,
+				meetingLink,
+				registrationCode
+			};
+		});
+	}
+
 	// Validation methods
 	async expectToBeOnLetterOpener(): Promise<void> {
 		await expect(this.page).toHaveURL(/letter_opener/);
+	}
+
+	/**
+	 * Find and click on the most recent export email of the given type.
+	 * After refresh, the newest export email should be at the top of the list.
+	 */
+	async clickMostRecentExportEmailByType(exportType: ExportType): Promise<void> {
+		await this.page.waitForSelector('li.list-group-item');
+		// Find the first email export matching the requested type
+		const exportEmail = this.page
+			.locator('li.list-group-item')
+			.filter({
+				has: this.page.locator(`dd:has-text("Your export \\"${exportType}\\" is ready")`)
+			})
+			.first();
+		// Verify that the email is visible
+		await expect(exportEmail).toBeVisible();
+		// Click on the email link inside the item
+		await exportEmail.locator('a[target="mail"]').click();
+		await this.page.waitForLoadState('networkidle');
+		console.log(`Clicked on the most recent ${exportType} export email`);
 	}
 }

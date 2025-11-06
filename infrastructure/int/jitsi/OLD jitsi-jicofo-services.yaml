@@ -1,40 +1,40 @@
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: jitsi-jicofo
-spec:
-  serviceName: "jitsi-jicofo"
-  replicas: 1
-  selector:
-    matchLabels:
-      app: jitsi-jicofo
-  template:
-    metadata:
-      labels:
-        app: jitsi-jicofo
-    spec:
-      containers:
-        - name: jitsi-jicofo
-          image: jitsi/jicofo:stable-8960
-          env:
-            - name: JICOFO_AUTH_USER
-              value: "focus"
-            - name: JICOFO_AUTH_PASSWORD
-              value: supersecurepassword
-            - name: JICOFO_COMPONENT_SECRET
-              value: "focus2"
-            - name: JVB_AUTH_USER
-              value: jvb
-            - name: JVB_AUTH_PASSWORD
-              value: supersecurejvbpassword
-          volumeMounts:
-            - mountPath: /config
-              name: jitsi-jicofo-storage
-  volumeClaimTemplates:
-    - metadata:
-        name: jitsi-jicofo-storage
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 100Mi
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   name: jitsi-jicofo
+# spec:
+#   serviceName: "jitsi-jicofo"
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: jitsi-jicofo
+#   template:
+#     metadata:
+#       labels:
+#         app: jitsi-jicofo
+#     spec:
+#       containers:
+#         - name: jitsi-jicofo
+#           image: jitsi/jicofo:stable-8960
+#           env:
+#             - name: JICOFO_AUTH_USER
+#               value: "focus"
+#             - name: JICOFO_AUTH_PASSWORD
+#               value: supersecurepassword
+#             - name: JICOFO_COMPONENT_SECRET
+#               value: "focus2"
+#             - name: JVB_AUTH_USER
+#               value: jvb
+#             - name: JVB_AUTH_PASSWORD
+#               value: supersecurejvbpassword
+#           volumeMounts:
+#             - mountPath: /config
+#               name: jitsi-jicofo-storage
+#   volumeClaimTemplates:
+#     - metadata:
+#         name: jitsi-jicofo-storage
+#       spec:
+#         accessModes: ["ReadWriteOnce"]
+#         resources:
+#           requests:
+#             storage: 100Mi

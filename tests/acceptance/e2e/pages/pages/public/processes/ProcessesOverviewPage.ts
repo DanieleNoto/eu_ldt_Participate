@@ -142,7 +142,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	 * @param index - The index of the process card (0-based)
 	 */
 	async navigateToProcessByIndex(index: number): Promise<void> {
-		const processCard = await this.processCards.nth(index);
+		const processCard = this.processCards.nth(index);
 		await processCard.click();
 		await this.waitForLoadState('networkidle');
 	}

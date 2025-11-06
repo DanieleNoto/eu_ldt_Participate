@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ScopeOptions, WhereAttributeHash } from 'sequelize/types/model';
-import { Search } from '../schemas/base/base.schema';
 import logger from './logger';
+
+interface Search {
+	field: string;
+	query: string[];
+}
 
 export const getModelScope = (
 	model: any,

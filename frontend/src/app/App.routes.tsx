@@ -1,6 +1,4 @@
 import { Outlet, RouteObject } from 'react-router';
-import Pages from './pages/Pages';
-import pagesRoutes from './pages/Pages.routes';
 
 const getRoutes: (standalone: boolean) => RouteObject[] = () => [
 	{
@@ -9,8 +7,7 @@ const getRoutes: (standalone: boolean) => RouteObject[] = () => [
 		children: [
 			{
 				path: '',
-				element: <Pages />,
-				children: pagesRoutes
+				element: <></>  // Empty placeholder since we only need the chatbot
 			}
 		]
 	}

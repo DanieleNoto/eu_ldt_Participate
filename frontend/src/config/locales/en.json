@@ -1,0 +1,21 @@
+{
+	"chatbot": {
+		"title": "Chat",
+		"openHelpAssistant": "Open help assistant",
+		"closeHelpAssistant": "Close help assistant",
+		"goBackToFaqList": "Go back to FAQ list",
+		"chatWithVirtualAssistant": "Chat with the virtual assistant",
+		"disclaimer": "Please note: The information provided by this chatbot may not be 100% accurate. For critical matters, please contact our support team.",
+		"dismissDisclaimer": "Dismiss disclaimer",
+		"suggestions": "Suggestions",
+		"hereArePossibleAnswers": "Here are possible answers related to the question:",
+		"ifYouNeedMoreHelp": "If you need more help:",
+		"askSupport": "Ask support",
+		"orSelectAnotherTopic": "Or select another topic:",
+		"describeYourIssue": "Describe your issue",
+		"typeHere": "Type here...",
+		"cancel": "Cancel",
+		"send": "Send",
+		"supportRequestSent": "Support request sent. Our team will contact you."
+	}
+}

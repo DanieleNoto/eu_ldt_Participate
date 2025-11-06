@@ -1,9 +1,7 @@
-FROM decidim/decidim-dev:0.30.1 AS builder
+FROM decidim/decidim-dev:0.30.2 AS builder
 
 # Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
-# Set build environment early for dependencies
-
 
 # Update system and install base dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -34,7 +32,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 # Set working directory
 WORKDIR /code
 
-
+RUN mkdir -p /code/storage
+RUN chown -R decidim:decidim /code/storage
+RUN chmod 775 /code/storage
 
 # Copy dependency files FIRST for better Docker layer caching
 COPY Gemfile Gemfile.lock ./
@@ -46,8 +46,9 @@ RUN bundle config set --local path '/usr/local/bundle' && \
   bundle install --retry 3
 
 COPY package.json yarn.lock* ./
-# Install Node.js dependencies (cached layer)
-RUN yarn install --network-timeout 100000 --include-dev
+
+# Install Node.js dependencies (cached layer) - reduced concurrency
+RUN yarn install --network-timeout 100000 --include-dev 
 
 # NOW copy the full application code
 COPY . .
@@ -62,19 +63,18 @@ ARG NODE_ENV=production
 ARG SECRET_KEY_BASE
 ENV RAILS_ENV=${RAILS_ENV}
 ENV NODE_ENV=${NODE_ENV}
+ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 ENV RAILS_SERVE_STATIC_FILES=true
 
 
 # Production asset precompilation (separate layer for better caching)
-# Supports both replacetokens (SECRET-KEY-BASE with hyphen) and build-arg (SECRET_KEY_BASE with underscore)
 RUN if [ -n "${SECRET_KEY_BASE:-}" ]; then \
   echo "=== Using SECRET_KEY_BASE from build-arg ==="; \
+  echo "=== Cleaning previous assets ==="; \
+  SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:clean; \
+  echo "=== Precompiling assets ==="; \
   SECRET_KEY_BASE="${SECRET_KEY_BASE}" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:precompile; \
   echo "=== Assets precompiled successfully with build-arg ==="; \
-  else \
-  echo "FATAL: SECRET_KEY_BASE is required but not provided."; \
-  echo "Provide it via --build-arg SECRET_KEY_BASE=<value> or replacetokens."; \
-  SECRET_KEY_BASE="_%SECRET-KEY-BASE%_" RAILS_ENV=production NODE_ENV=production bundle exec rake assets:precompile; \
   fi
 
 
@@ -85,14 +85,15 @@ RUN rm -rf node_modules tmp/cache vendor/bundle/spec \
   && rm -rf log/*.log
 
 ### Runtime stage: lean image with only runtime dependencies
-FROM decidim/decidim-dev:0.30.1 AS runtime
+FROM decidim/decidim-dev:0.30.2 AS runtime
 
 # Inherit build arguments for runtime
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
-ARG SECRET_KEY_BASE=_%SECRET-KEY-BASE%_
+ARG SECRET_KEY_BASE
 ARG RAILS_SERVE_STATIC_FILES=true
 ENV RAILS_SERVE_STATIC_FILES=${RAILS_SERVE_STATIC_FILES}
+ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 
 # Install only runtime dependencies (no build tools) and ensure Node.js 22 + yarn
 ENV DEBIAN_FRONTEND=noninteractive
@@ -124,5 +125,6 @@ RUN groupadd -r decidim 2>/dev/null || true && \
 USER decidim
 
 EXPOSE 3000
+EXPOSE 3035
 
 ENTRYPOINT ["/code/docker-entrypoint.sh"]
