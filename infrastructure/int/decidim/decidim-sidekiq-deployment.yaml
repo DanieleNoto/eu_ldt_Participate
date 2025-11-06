@@ -141,9 +141,6 @@ spec:
               mountPath: /code/public
               readOnly: true
       restartPolicy: Always
-      # Reuse same DNS/Network settings as the app; no extra volumes by default
-      # If you need access to persistent bundles, mount the same PVCs as decidim
-      # by uncommenting the volume and volumeMount sections below.
       volumes:
        - name: decidim-assets
          persistentVolumeClaim:
