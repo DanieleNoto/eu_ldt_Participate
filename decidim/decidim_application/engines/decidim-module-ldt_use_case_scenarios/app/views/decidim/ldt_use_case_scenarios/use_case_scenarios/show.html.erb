@@ -98,13 +98,13 @@
     }
   }
 
-  iframe.addEventListener('load', function() {
-    setTimeout(sendExperimentData, 500);
-  });
-
   window.addEventListener('message', function(event) {
     if (event.origin !== '<%= URI.parse(@tool2_iframe_url).origin %>') {
       return;
+    }
+
+    if (event.data.payload?.status === 'ready') {
+      sendExperimentData();
     }
 
     if (event.data.type === 'REQUEST_EXPERIMENT_DATA') {
