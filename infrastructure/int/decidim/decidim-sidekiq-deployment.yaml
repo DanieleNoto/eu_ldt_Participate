@@ -21,6 +21,38 @@ spec:
       automountServiceAccountToken: false
       # Wait for Redis to be reachable before starting Sidekiq to avoid CrashLoopBackOff
       initContainers:
+        - name: copy-assets
+          image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting 5 minutes for Decidim initContainer to complete asset compilation..."
+              sleep 300
+              
+              echo "Copying assets from main PVC to Sidekiq volume..."
+              # Wait for assets to be available in main PVC
+              for i in $(seq 1 60); do
+                if [ -f "/source-assets/public/decidim-packs/manifest.json" ] && [ "$(cat /source-assets/public/decidim-packs/manifest.json | wc -c)" -gt 2 ]; then
+                  echo "Assets are ready, copying to Sidekiq volume..."
+                  cp -r /source-assets/public/* /dest-assets/public/ 2>/dev/null || true
+                  echo "Assets copied successfully"
+                  exit 0
+                fi
+                echo "Waiting for assets (attempt $i)"; sleep 5
+              done
+              echo "Timeout waiting for assets"; exit 1
+          envFrom:
+            - secretRef:
+                name: decidim-secret
+            - configMapRef:
+                name: decidim-configmap
+          volumeMounts:
+            - name: decidim-main-assets
+              mountPath: /source-assets/public
+              readOnly: true
+            - name: decidim-assets
+              mountPath: /dest-assets/public
         - name: wait-for-dependencies
           # use an image that contains redis-cli so we can handle auth/URLs
           image: redis:7-alpine
@@ -38,16 +70,7 @@ spec:
                 done
               fi
               
-              echo "Waiting for decidim assets..."
-              # Wait for the manifest file to exist and contain content (up to 3 minutes)
-              for i in $(seq 1 90); do
-                if [ -f "/code/public/decidim-packs/manifest.json" ] && [ "$(cat /code/public/decidim-packs/manifest.json | wc -c)" -gt 2 ]; then
-                  echo "decidim assets manifest is ready"
-                  exit 0
-                fi
-                echo "decidim assets not ready yet (attempt $i)"; sleep 2
-              done
-              echo "timeout waiting for decidim assets"; exit 1
+              echo "Redis is ready, starting Sidekiq..."
           # import the same envs the app uses so the initContainer can read REDIS_URL
           envFrom:
             - secretRef:
@@ -142,6 +165,8 @@ spec:
               readOnly: true
       restartPolicy: Always
       volumes:
-       - name: decidim-assets
+       - name: decidim-main-assets
          persistentVolumeClaim:
            claimName: decidim-pvc-decidim-0
+       - name: decidim-assets
+         emptyDir: {}
