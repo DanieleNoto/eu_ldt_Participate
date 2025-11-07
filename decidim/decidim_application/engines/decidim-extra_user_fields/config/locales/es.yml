@@ -29,10 +29,6 @@ es:
               too_long: es demasiado largo (máximo 100 caracteres)
   decidim:
     admin:
-      actions:
-        export: Exportar
-      exports:
-        export_as: Exportar como %{export_format}
       extra_user_fields:
         menu:
           title: Administrar campos de usuario adicionales

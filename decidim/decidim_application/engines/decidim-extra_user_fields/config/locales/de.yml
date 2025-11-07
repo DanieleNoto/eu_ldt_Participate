@@ -26,10 +26,6 @@ de:
               too_long: ist zu lang (maximal 100 Zeichen)
   decidim:
     admin:
-      actions:
-        export: Exportieren
-      exports:
-        export_as: Exportieren im Format %{export_format}
       extra_user_fields:
         menu:
           title: Benutzerdefinierte Anmeldefelder verwalten
