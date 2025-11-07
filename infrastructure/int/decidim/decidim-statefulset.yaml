@@ -69,6 +69,8 @@ spec:
                         name: decidim-pvc
                       - mountPath: /code/public
                         name: decidim-pvc
+                      - mountPath: /code/tmp
+                        name: tmp-volume
             containers:
                 - name: decidim
                   resources:
@@ -105,6 +107,8 @@ spec:
                         name: decidim-pvc
                       - mountPath: /code/public
                         name: decidim-pvc
+                      - mountPath: /code/tmp
+                        name: tmp-volume
                 - name: open-data-exporter
                   image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   envFrom:
@@ -249,6 +253,11 @@ spec:
                     - mountPath: /code/public
                       name: decidim-pvc
                       readOnly: true
+                    - mountPath: /code/tmp
+                      name: tmp-volume
+            volumes:
+                - name: tmp-volume
+                  emptyDir: {}
     volumeClaimTemplates:
         - metadata:
               name: decidim-pvc
