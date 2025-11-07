@@ -42,11 +42,11 @@ describe('Health Routes', () => {
 		expect(mockFastify.route).toHaveBeenCalledTimes(5);
 	});
 
-	test('should register GET /health/ route', () => {
+	test('should register GET /health route', () => {
 		healthRoutes(mockFastify);
 
 		const healthRoute = mockFastify.route.mock.calls.find(
-			call => call[0].url === '/health/' && call[0].method === 'get'
+			call => call[0].url === '/health' && call[0].method === 'get'
 		);
 		expect(healthRoute).toBeDefined();
 	});
