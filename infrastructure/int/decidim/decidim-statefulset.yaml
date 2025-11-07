@@ -67,8 +67,8 @@ spec:
                         name: decidim-pvc
                       - mountPath: /code/storage
                         name: decidim-pvc
-#                      - mountPath: /code/public
-#                        name: decidim-pvc-decidim-rwx
+                      - mountPath: /code/public
+                        name: decidim-pvc-rwx
             containers:
                 - name: decidim
                   resources:
@@ -103,9 +103,9 @@ spec:
                         name: decidim-pvc
                       - mountPath: /code/storage
                         name: decidim-pvc
-#                      - mountPath: /code/public
-#                        name: decidim-pvc-decidim-rwx
-#                        readOnly: true
+                      - mountPath: /code/public
+                        name: decidim-pvc-rwx
+                        readOnly: true
                 - name: open-data-exporter
                   image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   envFrom:
@@ -155,9 +155,9 @@ spec:
                       - mountPath: /code/storage
                         name: decidim-pvc
                         readOnly: true
-#                      - mountPath: /code/public
-#                        name: decidim-pvc-decidim-rwx
-#                        readOnly: true
+                      - mountPath: /code/public
+                        name: decidim-pvc-rwx
+                        readOnly: true
                   resources:
                       requests:
                           memory: '256Mi'
