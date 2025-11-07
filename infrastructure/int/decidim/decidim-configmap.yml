@@ -18,6 +18,7 @@ data:
     DECIDIM_MAILER_SENDER: info@ldttoolbox.eu
     DECIDIM_PROTOCOL: https
     DECIDIM_ENABLE_HTML_HEADER_SNIPPETS: 'true'
+    DECIDIM_THROTTLING_MAX_REQUESTS: '500'
     DOCKER_HOST_ADDRESS: 127.0.0.1
     ENABLE_JSON_LOGS: 'true'
     GF_SERVER_DOMAIN: part-int.ldttoolbox.app/analytics/grafana
