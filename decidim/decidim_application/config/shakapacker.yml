@@ -48,9 +48,9 @@ development:
     # Reference: https://webpack.js.org/configuration/dev-server/
     dev_server:
         https: false
-        host: <%= ENV.fetch('SHAKAPACKER_DEV_SERVER_HOST', 'shakapacker') %>
+        host: <%= ENV.fetch('SHAKAPACKER_DEV_SERVER_HOST', '0.0.0.0') %>
         port: <%= ENV.fetch('SHAKAPACKER_DEV_SERVER_PORT', 3035).to_i %>
-        public: <%= ENV.fetch('SHAKAPACKER_DEV_SERVER_PUBLIC', 'shakapacker:3035') %>
+        public: <%= ENV.fetch('SHAKAPACKER_DEV_SERVER_PUBLIC', 'localhost:3035') %>
         # Disable host header checking for development
         disableHostCheck: true
         # Hot Module Replacement disabled for stability
@@ -71,9 +71,10 @@ development:
         client:
             # Disable full-screen overlay for cleaner development experience
             overlay: false
-            # Configure WebSocket URL for Docker container compatibility using hostname
+            # Configure WebSocket URL for browser to connect to localhost
+            # The browser cannot resolve 'shakapacker' hostname, so use localhost
             webSocketURL:
-                hostname: shakapacker
+                hostname: localhost
                 pathname: /ws
                 port: 3035
         # Enable gzip compression for faster transfers

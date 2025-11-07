@@ -76,13 +76,13 @@ Rails.application.configure do
       # Enable dev server
       dev_config['enabled'] = true
       
-      # Set host to Docker service hostname for container communication
-      dev_config['host'] = ENV.fetch('SHAKAPACKER_DEV_SERVER_HOST', 'shakapacker')
+      # Set host to 0.0.0.0 to bind to all interfaces in container
+      dev_config['host'] = ENV.fetch('SHAKAPACKER_DEV_SERVER_HOST', '0.0.0.0')
       dev_config['port'] = ENV.fetch('SHAKAPACKER_DEV_SERVER_PORT', 3035).to_i
       dev_config['https'] = false
       
-      # Set public URL for the browser (use environment variable or Docker hostname)
-      dev_config['public'] = ENV.fetch('SHAKAPACKER_DEV_SERVER_PUBLIC', 'shakapacker:3035')
+      # Set public URL for the browser (use localhost so browser can connect)
+      dev_config['public'] = ENV.fetch('SHAKAPACKER_DEV_SERVER_PUBLIC', 'localhost:3035')
       
       # Disable HMR for better stability, use LiveReload instead
       dev_config['hmr'] = false

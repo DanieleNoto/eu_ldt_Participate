@@ -3,21 +3,15 @@
 if Rails.env.development?
   begin
     # Set environment variables that Shakapacker reads
-    ENV['SHAKAPACKER_DEV_SERVER_HOST'] = '0.0.0.0'
-    ENV['SHAKAPACKER_DEV_SERVER_PORT'] = '3035'
-    ENV['SHAKAPACKER_DEV_SERVER_ENABLED'] = 'true'
-
-    # Also configure directly if possible
-    if defined?(Shakapacker) && Shakapacker.config
-      Shakapacker.configure do |config|
-        # In development, point to the shakapacker container
-        config.dev_server.enabled = true
-        config.dev_server.host = "0.0.0.0"
-        config.dev_server.port = 3035
-        config.dev_server.https = false
-        config.dev_server.hmr = false
-      end
-    end
+    # These environment variables are used by Shakapacker to configure the dev server
+    # Host should be 0.0.0.0 in container to bind to all interfaces
+    # Public should be localhost:3035 so browser can connect
+    ENV['SHAKAPACKER_DEV_SERVER_HOST'] ||= '0.0.0.0'
+    ENV['SHAKAPACKER_DEV_SERVER_PORT'] ||= '3035'
+    ENV['SHAKAPACKER_DEV_SERVER_PUBLIC'] ||= 'localhost:3035'
+    ENV['SHAKAPACKER_DEV_SERVER_ENABLED'] ||= 'true'
+    
+    Rails.logger.info "Shakapacker dev server configured: host=#{ENV['SHAKAPACKER_DEV_SERVER_HOST']}, public=#{ENV['SHAKAPACKER_DEV_SERVER_PUBLIC']}"
   rescue => e
     Rails.logger.warn "Shakapacker configuration failed: #{e.message}"
   end

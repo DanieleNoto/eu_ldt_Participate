@@ -25,9 +25,9 @@ services:
             - OMNIAUTH_KEYCLOAK_CLIENT_SECRET=${OMNIAUTH_KEYCLOAK_CLIENT_SECRET}
             - OMNIAUTH_KEYCLOAK_SITE=${OMNIAUTH_KEYCLOAK_SITE}
             - OMNIAUTH_KEYCLOAK_REALM=${OMNIAUTH_KEYCLOAK_REALM}
-            - SHAKAPACKER_DEV_SERVER_HOST=shakapacker
+            - SHAKAPACKER_DEV_SERVER_HOST=localhost
             - SHAKAPACKER_DEV_SERVER_PORT=3035
-            - SHAKAPACKER_DEV_SERVER_PUBLIC=shakapacker:3035
+            - SHAKAPACKER_DEV_SERVER_PUBLIC=localhost:3035
             # CSP Configuration for development
             - RAILS_CSP_DEVELOPMENT=true
             # Database reset and setup flags (controlled by make commands)
@@ -110,6 +110,8 @@ services:
         volumes:
             - ./decidim/decidim_application:/code
             - node_modules:/code/node_modules
+            - bundle_cache:/usr/local/bundle
+            - vendor_bundle:/app/vendor/bundle
         depends_on:
             - db
             - redis
@@ -122,9 +124,9 @@ services:
         environment:
             - RAILS_ENV=development
             - NODE_ENV=development
-            - SHAKAPACKER_DEV_SERVER_HOST=shakapacker
+            - SHAKAPACKER_DEV_SERVER_HOST=0.0.0.0
             - SHAKAPACKER_DEV_SERVER_PORT=3035
-            - SHAKAPACKER_DEV_SERVER_PUBLIC=shakapacker:3035
+            - SHAKAPACKER_DEV_SERVER_PUBLIC=localhost:3035
             - GIT_DISCOVERY_ACROSS_FILESYSTEM=1
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:3035"]
