@@ -103,9 +103,10 @@ module.exports = {
 			// This prevents warnings for large bundle files
 			maximumFileSizeToCacheInBytes: 5242880,
 
-			// Prevent warnings when running in watch mode
-			skipWaiting: true,
-			clientsClaim: true,
+			// Exclude files from precaching to prevent issues
+			exclude: [/\.map$/, /manifest\.json$/, /\.LICENSE\.txt$/],
+
+			// Don't cache bust URLs that already have a hash
 			dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./
 		})
 	]

@@ -48,9 +48,9 @@ development:
     # Reference: https://webpack.js.org/configuration/dev-server/
     dev_server:
         https: false
-        host: <%= ENV.fetch('SHAKAPACKER_DEV_SERVER_HOST', '0.0.0.0') %>
-        port: <%= ENV.fetch('SHAKAPACKER_DEV_SERVER_PORT', 3035).to_i %>
-        public: <%= ENV.fetch('SHAKAPACKER_DEV_SERVER_PUBLIC', 'localhost:3035') %>
+        host: localhost
+        port: 3035
+        public: localhost:3035
         # Disable host header checking for development
         disableHostCheck: true
         # Hot Module Replacement disabled for stability
