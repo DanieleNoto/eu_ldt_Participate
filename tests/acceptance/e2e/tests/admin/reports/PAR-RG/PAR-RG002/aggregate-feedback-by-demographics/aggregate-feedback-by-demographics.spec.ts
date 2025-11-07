@@ -21,13 +21,10 @@ import { setupGrafanaDataSource } from '@utils/grafana-setup-helper';
 
 test.describe('[PAR-RG002] - Aggregate feedback by demographics', () => {
 	let grafanaAuth: GrafanaAuthHelper;
-	let grafanaDashboardPage: GrafanaDashboardPage;
 
 	test.beforeEach(async ({ page }) => {
 		grafanaAuth = new GrafanaAuthHelper();
 		await grafanaAuth.injectSessionIntoPage(page);
-
-		grafanaDashboardPage = new GrafanaDashboardPage(page);
 		await setupGrafanaDataSource(page);
 	});
 
