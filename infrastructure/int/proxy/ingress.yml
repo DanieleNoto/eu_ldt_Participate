@@ -22,10 +22,11 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
     
     # Rate Limiting Configuration
-    # Increase limits to accommodate Sidekiq, background jobs, and multiple containers
-    nginx.ingress.kubernetes.io/limit-rps: "100"
-    nginx.ingress.kubernetes.io/limit-rpm: "6000"
-    nginx.ingress.kubernetes.io/limit-connections: "100"
+    # Increased limits for Sidekiq, background jobs, multiple containers, and high traffic
+    nginx.ingress.kubernetes.io/limit-rps: "500"
+    nginx.ingress.kubernetes.io/limit-rpm: "30000"
+    nginx.ingress.kubernetes.io/limit-connections: "500"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
     # Whitelist internal IPs and Keycloak to bypass rate limiting for internal services
     # Private networks + Keycloak domain
     nginx.ingress.kubernetes.io/limit-whitelist: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
