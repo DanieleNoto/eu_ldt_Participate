@@ -43,7 +43,6 @@ export class ProcessDetailPage extends AuthenticatedPage {
 
 	// Related documents section
 	private readonly relatedDocumentsHeading: Locator;
-	private readonly attachmentLinks: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -68,12 +67,12 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		//this.helpButton = page.locator('#floating-helper-tip button');
 		this.debatesLink = page.locator('a[href$="/debates"]:visible').first();
 		this.meetingsLink = page.locator('a[href$="/meetings"]:visible').first();
+
 		this.meetingCards = this.page.locator('.card__list-list .card__list');
 		// Related documents section
 		this.relatedDocumentsHeading = page
 			.locator('.content-block__title h2.decorator')
 			.filter({ hasText: 'Related documents' });
-		this.attachmentLinks = page.locator('a[title="Download file"]');
 	}
 
 	// Navigation methods
@@ -747,5 +746,45 @@ export class ProcessDetailPage extends AuthenticatedPage {
 			if (!visible) throw new Error('Process steps modal did not become visible within timeout');
 		}
 		return true;
+	}
+
+	async getProcessPhaseInfo(): Promise<{
+		title: string;
+		phaseName: string;
+		dateRange: string;
+		description: string;
+	}> {
+		// Locate the modal container
+		const modal = this.page.locator('#process-steps-modal-content');
+
+		// Ensure the modal title "Process phases" is present
+		const titleLocator = modal.locator('#dialog-title-process-steps-modal');
+		await expect(titleLocator).toHaveText('Process phases');
+
+		// Extract the phase name, removing "Current phase" if present
+		const phaseTitleLocator = modal.locator('.participatory-space__metadata-modal__step-title');
+		const rawPhaseText = await phaseTitleLocator.innerText();
+		const phaseName = rawPhaseText.replace('Current phase', '').trim();
+
+		// Extract the date range of the phase
+		const dateLocator = modal.locator('.participatory-space__metadata-modal__step-dates');
+		const dateRange = await dateLocator.innerText();
+
+		// Extract the phase description text
+		const descriptionLocator = modal.locator('.rich-text-display');
+		const description = await descriptionLocator.innerText();
+
+		// Click the close button to dismiss the modal
+		const closeButton = modal.locator('button[data-dialog-close="process-steps-modal"]');
+		await expect(closeButton).toBeVisible();
+		await closeButton.click();
+
+		// Return extracted information
+		return {
+			title: 'Process phases',
+			phaseName,
+			dateRange,
+			description
+		};
 	}
 }

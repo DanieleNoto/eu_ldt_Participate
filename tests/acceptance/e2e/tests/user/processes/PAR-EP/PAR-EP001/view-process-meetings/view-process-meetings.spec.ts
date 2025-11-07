@@ -26,6 +26,7 @@ import { STORAGE_STATE } from '@utils/constants';
  * - Meetings are created and published by the City Administrator.
  *
  */
+
 test.beforeAll(async ({ browser }) => {
 	const context = await browser.newContext();
 	const page = await context.newPage();
@@ -62,8 +63,7 @@ test.describe('[PAR-EP001] – View all meetings related to specific process', (
 				await processDetailPage.verifyProcessDescriptionSection();
 				await processDetailPage.collectAndVerifyParticipatoryMenuItems();
 				await processDetailPage.openProcessSteps();
-				// verifica popup
-
+				await processDetailPage.getProcessPhaseInfo();
 			});
 			await test.step('3. User: Navigate to the “Meetings” section of the process', async () => {
 				await processDetailPage.navigateToMeetingsPage();
