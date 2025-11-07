@@ -8,7 +8,7 @@
 # Architecture:
 # - The chatbot is a Web Component (<eu-chatbot>) built with React and Shadow DOM
 # - It's loaded via Module Federation for efficient code splitting
-# - The loader script (chatbot-loader.js) handles all initialization
+# - The loader script (index.js) handles all initialization
 # - Complete style isolation prevents conflicts with Decidim
 #
 # Environment Variables:
@@ -107,7 +107,7 @@ class ChatbotInjector
     # Use Decidim's API proxy instead of direct service URL
     base_url = "/api/chatbot"
     cache_token = cache_buster_value
-    loader_src = "#{base_url}/chatbot-loader.js"
+    loader_src = "#{base_url}/index.js"
     loader_src = "#{loader_src}?v=#{cache_token}" if cache_token
 
     # Detect language for the chatbot (priority: query param > path > session > default)

@@ -1,4 +1,4 @@
-import { FastifyInstance, FastifyRequest, FastifyReply, RouteOptions } from 'fastify';
+import { FastifyInstance, FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
 import { HttpMethod } from '../../enums/http-methods.enum';
 
 interface RegisterRouteOptions {
@@ -13,12 +13,12 @@ interface RegisterRouteOptions {
 }
 
 export const registerRoute = (options: RegisterRouteOptions) => {
-	const { app, resourceName, method, path = '/', bodySchema, response, controllerMethod } = options;
+	const { app, resourceName, method, path = '', bodySchema, response, controllerMethod } = options;
 
 	const fullPath = `/${resourceName}${path}`;
 
 	const routeOptions: RouteOptions = {
-		method: method.toLowerCase() as 'GET' | 'POST',
+		method: method.toLowerCase() as string,
 		url: fullPath,
 		handler: controllerMethod
 	};
