@@ -41,6 +41,8 @@ spec:
                         echo "Waiting for PostgreSQL to be ready..."
                         DB_HOST=${DB_HOST:-127.0.0.1}
                         DB_PORT=${DB_PORT:-5432}
+                        DB_NAME=${DB_NAME:-chatbot_db}
+                        DB_USER=${DB_USERNAME:-chatbot_user}
                         
                         echo "Environment variables:"
                         echo "  DB_HOST: $DB_HOST"
@@ -48,12 +50,20 @@ spec:
                         echo "  DB_NAME: $DB_NAME"
                         echo "  DB_USER: $DB_USER"
                         
-                        echo "Checking connection to PostgreSQL at $DB_HOST:$DB_PORT"
-                        max_attempts=30
+                        # Install pg_isready if not available
+                        if ! command -v pg_isready > /dev/null 2>&1; then
+                          echo "Installing postgresql-client..."
+                          apt-get update -qq && apt-get install -y -qq postgresql-client > /dev/null 2>&1
+                        fi
+                        
+                        echo "Checking PostgreSQL readiness at $DB_HOST:$DB_PORT"
+                        max_attempts=60
                         attempt=0
                         while [ $attempt -lt $max_attempts ]; do
-                          if timeout 5 bash -c "</dev/tcp/$DB_HOST/$DB_PORT" 2>/dev/null; then
-                            echo "PostgreSQL is ready!"
+                          if pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" > /dev/null 2>&1; then
+                            echo "PostgreSQL is ready and accepting connections!"
+                            # Additional wait to ensure full initialization
+                            sleep 2
                             break
                           fi
                           attempt=$((attempt + 1))
@@ -151,6 +161,36 @@ spec:
                   volumeMounts:
                       - name: chatbot-pg-storage
                         mountPath: /var/lib/postgresql/data
+                  startupProbe:
+                      exec:
+                          command:
+                              - /bin/sh
+                              - -c
+                              - pg_isready -U ${DB_USERNAME:-chatbot_user} -d ${DB_NAME:-chatbot_db}
+                      initialDelaySeconds: 10
+                      periodSeconds: 5
+                      timeoutSeconds: 5
+                      failureThreshold: 30
+                  livenessProbe:
+                      exec:
+                          command:
+                              - /bin/sh
+                              - -c
+                              - pg_isready -U ${DB_USERNAME:-chatbot_user} -d ${DB_NAME:-chatbot_db}
+                      initialDelaySeconds: 30
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  readinessProbe:
+                      exec:
+                          command:
+                              - /bin/sh
+                              - -c
+                              - pg_isready -U ${DB_USERNAME:-chatbot_user} -d ${DB_NAME:-chatbot_db}
+                      initialDelaySeconds: 5
+                      periodSeconds: 5
+                      timeoutSeconds: 5
+                      failureThreshold: 3
                 - name: chatbot-frontend
                   image: euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   imagePullPolicy: Always
