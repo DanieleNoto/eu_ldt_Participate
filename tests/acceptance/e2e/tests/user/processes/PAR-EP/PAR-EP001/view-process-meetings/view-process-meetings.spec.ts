@@ -57,11 +57,13 @@ test.describe('[PAR-EP001] – View all meetings related to specific process', (
 				await processesOverviewPage.navigateToProcess('Update Test0', 'test');
 				await processesOverviewPage.getPage().waitForLoadState('networkidle');
 			});
-			await test.step('2. System: Displays the details of the selected process, including the title, description, phases, key objectives.', async () => {
+			await test.step('2. System: Displays the details of the selected process, including the title, description, phases.', async () => {
 				await processDetailPage.expectToBeOnProcessDetailPage();
 				await processDetailPage.verifyProcessDescriptionSection();
-				const items = await processDetailPage.collectAndVerifyParticipatoryMenuItems();
-				console.log('menu items found', items);
+				await processDetailPage.collectAndVerifyParticipatoryMenuItems();
+				await processDetailPage.openProcessSteps();
+				// verifica popup
+
 			});
 			await test.step('3. User: Navigate to the “Meetings” section of the process', async () => {
 				await processDetailPage.navigateToMeetingsPage();

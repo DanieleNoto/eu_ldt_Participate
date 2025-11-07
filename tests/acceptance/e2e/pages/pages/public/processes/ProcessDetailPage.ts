@@ -82,6 +82,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Navigates to a specific process detail page using its slug
 	 * @param processSlug - The slug of the process to navigate to
 	 */
+
 	async navigateToProcess(processSlug: string): Promise<void> {
 		await this.navigateTo(`/processes/${processSlug}`);
 		await this.waitForPageLoad();
@@ -90,6 +91,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Waits for the page to load completely
 	 */
+
 	async waitForPageLoad(): Promise<void> {
 		await this.waitForElement('.participatory-space__container');
 		await this.waitForElement('section[data-process-hero]');
@@ -99,6 +101,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Navigates to the convocation page from the navigation dropdown
 	 */
+
 	async navigateToConvocationPage(): Promise<void> {
 		// Ensure the dropdown is open
 		await this.openNavigationDropdown();
@@ -112,6 +115,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Navigates to the debates page from the link
 	 */
+
 	async navigateToDebatesPage(): Promise<void> {
 		// Find and click the debates page link
 		await this.debatesLink.click();
@@ -121,6 +125,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Navigates to the meetings page from the link
 	 */
+
 	async navigateToMeetingsPage(): Promise<void> {
 		// Find and click the meetings page link
 		await this.meetingsLink.click();
@@ -131,6 +136,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Navigates to a specific component by its name from the navigation dropdown
 	 * @param componentName - The name of the component to navigate to
 	 */
+
 	async navigateToComponent(componentName: string): Promise<void> {
 		// Ensure the dropdown is open
 		await this.openNavigationDropdown();
@@ -146,6 +152,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Opens the navigation dropdown if not already open
 	 */
+
 	async openNavigationDropdown(): Promise<void> {
 		const isExpanded = await this.navDropdownTrigger.getAttribute('aria-expanded');
 		if (isExpanded !== 'true') {
@@ -157,6 +164,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Closes the navigation dropdown if open
 	 */
+
 	async closeNavigationDropdown(): Promise<void> {
 		const isExpanded = await this.navDropdownTrigger.getAttribute('aria-expanded');
 		if (isExpanded === 'true') {
@@ -168,6 +176,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Checks if the navigation dropdown is open
 	 */
+
 	async isNavigationDropdownOpen(): Promise<boolean> {
 		const isExpanded = await this.navDropdownTrigger.getAttribute('aria-expanded');
 		return isExpanded === 'true';
@@ -178,6 +187,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Gets the process title from the hero section
 	 */
+
 	async getProcessTitle(): Promise<string> {
 		return (await this.processTitle.textContent()) || '';
 	}
@@ -185,6 +195,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Gets the process slogan from the hero section
 	 */
+
 	async getProcessSlogan(): Promise<string> {
 		return (await this.processSlogan.textContent()) || '';
 	}
@@ -192,6 +203,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Gets all available navigation component names
 	 */
+
 	async getAvailableComponents(): Promise<string[]> {
 		await this.openNavigationDropdown();
 
@@ -214,6 +226,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Checks if a specific component is available in the navigation
 	 * @param componentName - The name of the component to check
 	 */
+
 	async hasComponent(componentName: string): Promise<boolean> {
 		const components = await this.getAvailableComponents();
 		return components.includes(componentName);
@@ -222,6 +235,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Checks if the convocation page is available
 	 */
+
 	async hasConvocationPage(): Promise<boolean> {
 		return await this.hasComponent('Convocation Page');
 	}
@@ -229,6 +243,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Gets the URL of the convocation page
 	 */
+
 	async getConvocationPageUrl(): Promise<string> {
 		await this.openNavigationDropdown();
 		const convocationLink = this.navItems.filter({ hasText: 'Convocation Page' });
@@ -240,6 +255,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Gets the URL of a specific component
 	 * @param componentName - The name of the component
 	 */
+
 	async getComponentUrl(componentName: string): Promise<string> {
 		await this.openNavigationDropdown();
 		const componentLink = this.navItems.filter({ hasText: componentName });
@@ -252,6 +268,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Verifies that the process detail page is properly loaded
 	 */
+
 	async expectToBeOnProcessDetailPage(): Promise<void> {
 		await expect(this.getPage()).toHaveURL(/\/processes\/[^\/]+$/);
 		await expect(this.heroSection).toBeVisible();
@@ -263,6 +280,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Expects the process to have a specific title
 	 * @param expectedTitle - The expected process title
 	 */
+
 	async expectProcessTitle(expectedTitle: string): Promise<void> {
 		await expect(this.processTitle).toHaveText(expectedTitle);
 	}
@@ -270,6 +288,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Expects the convocation page to be available
 	 */
+
 	async expectConvocationPageToBeAvailable(): Promise<void> {
 		const hasConvocation = await this.hasConvocationPage();
 		expect(hasConvocation).toBe(true);
@@ -279,6 +298,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Expects a specific component to be available
 	 * @param componentName - The name of the component
 	 */
+
 	async expectComponentToBeAvailable(componentName: string): Promise<void> {
 		const hasComponent = await this.hasComponent(componentName);
 		expect(hasComponent).toBe(true);
@@ -286,6 +306,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Expects the participatory container to be visible
 	 */
+
 	async expectParticipatoryContainerToBeVisible(): Promise<void> {
 		this.expectToBeOnProcessDetailPage();
 		expect(this.participatorySpaceContainer).toBeVisible();
@@ -294,6 +315,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Expects the current process to be a private process
 	 */
+
 	async expectToBePrivateProcess(): Promise<void> {
 		const privateProcessText = this.getPage().getByText('This is a private process');
 		await expect(privateProcessText).toBeVisible();
@@ -302,6 +324,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Expects to be on a process detail page with valid URL pattern
 	 */
+
 	async expectToBeOnValidProcessDetailPage(): Promise<void> {
 		await expect(this.getPage()).toHaveURL(/\/processes\/[^\/]+$/);
 	}
@@ -311,6 +334,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Checks if the page layout is properly loaded
 	 */
+
 	async isPageLayoutLoaded(): Promise<boolean> {
 		const contentLoaded = await this.contentContainer.isVisible();
 		const mainLoaded = await this.mainElement.isVisible();
@@ -323,6 +347,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Checks if the navigation dropdown is available and functional
 	 */
+
 	async isNavigationAvailable(): Promise<boolean> {
 		const navLoaded = await this.navContainer.isVisible();
 		const triggerLoaded = await this.navDropdownTrigger.isVisible();
@@ -358,6 +383,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Verifies that the "Related documents" section is visible on the page
 																				 
 	 */
+
 	async expectRelatedDocumentsSectionToBeVisible(): Promise<void> {
 		await expect(this.relatedDocumentsHeading).toBeVisible();
 	}
@@ -366,6 +392,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Verifies that an attachment with the given title is visible and downloads the file
 	 * @param attachmentTitle - The title of the attachment to verify and download
 	 */
+
 	async verifyAndDownloadAttachment(attachmentTitle: string): Promise<void> {
 		// First verify the Related documents section is visible
 		await this.expectRelatedDocumentsSectionToBeVisible();
@@ -440,6 +467,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * @param attachmentTitle - The title of the attachment link to verify
 	 * @param expectedUrl - Expected URL to verify
 	 */
+
 	async verifyAndOpenAttachmentLink(attachmentTitle: string, expectedUrl?: string | RegExp): Promise<void> {
 		// First verify the Related documents section is visible
 		await this.expectRelatedDocumentsSectionToBeVisible();
@@ -519,6 +547,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Make sure the meeting list is visible
 	 * and that each card contains the title, date/time, and location.
 	 */
+
 	async enhancedVerifyMeetingsCardListVisible(): Promise<void> {
 		const count = await this.meetingCards.count();
 		expect(count).toBeGreaterThan(0);
@@ -594,6 +623,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Collects and verifies that the participatory space dropdown exists and contains at least one item.
 	 * Returns the list of found items { text, href, index }.
 	 */
+
 	public async collectAndVerifyParticipatoryMenuItems(openIfHidden = true): Promise<FoundItem[]> {
 		// Ensures that the container is present in the DOM
 		await expect(this.navDropdownMenu).toHaveCount(1);
@@ -644,5 +674,78 @@ export class ProcessDetailPage extends AuthenticatedPage {
 			const text = await block.innerText();
 			expect(text.trim().length).toBeGreaterThan(0);
 		}
+	}
+
+	public async openProcessSteps(timeout = 7000): Promise<boolean> {
+		const modalSel = '#process-steps-modal-content';
+		const userMenuBtn = this.page.getByRole('button', { name: 'User menu' }).first();
+
+		if ((await userMenuBtn.count()) === 0) throw new Error('User menu button not found');
+
+		await userMenuBtn.hover();
+		await this.page.waitForTimeout(200);
+		await userMenuBtn.click().catch(() => {});
+
+		// tenta trovare un link vicino a "Current phase"
+		const currentPhase = this.page.getByLabel('User menu').getByText('Current phase').first();
+		let clicked = false;
+
+		if ((await currentPhase.count()) > 0) {
+			// nel contesto dell'ancestor prendi il primo link utile (assumiamo che esista sempre)
+			const candidate = await currentPhase.evaluate(node => {
+				const anc = node.closest('li') || node.closest('div') || node.parentElement;
+				const container = anc || node.parentElement;
+				const links = container ? Array.from(container.querySelectorAll('a')) : [];
+				// filtra link irrilevanti
+				const filtered = links.filter(a => {
+					const t = (a.textContent || '').trim().toLowerCase();
+					const h = a.getAttribute('href') || '';
+					return !(t.includes('skip to') || h.startsWith('#'));
+				});
+				const chosen = filtered[0] || links[0] || null;
+				return chosen ? { href: chosen.getAttribute('href'), text: (chosen.textContent || '').trim() } : null;
+			});
+
+			// clicca il link trovato: prima tenta by href, altrimenti by text
+			if (candidate?.href) {
+				const loc = this.page.locator(`a[href="${candidate.href}"]`).first();
+				if ((await loc.count()) > 0) {
+					await loc.scrollIntoViewIfNeeded().catch(() => {});
+					await loc.click().catch(() => {});
+					clicked = true;
+				}
+			}
+
+			if (!clicked && candidate?.text) {
+				const byText = this.page.getByRole('link', { name: candidate.text }).first();
+				if ((await byText.count()) > 0) {
+					await byText.scrollIntoViewIfNeeded().catch(() => {});
+					await byText.click().catch(() => {});
+					clicked = true;
+				}
+			}
+		}
+
+		// dato l'assunto che esista sempre un link vicino a "Current phase", se non abbiamo cliccato segnaliamo errore
+		if (!clicked) throw new Error('No clickable link found near "Current phase"');
+
+		// attendi il modal: aspetta visibilità (visibile implica anche attached)
+		try {
+			await this.page.waitForSelector(modalSel, { state: 'visible', timeout });
+		} catch {
+			// se waitForSelector('visible') fallisce, prova il fallback: attendi attached e poi polling su isVisible
+			await this.page.waitForSelector(modalSel, { state: 'attached', timeout }).catch(() => {});
+			const start = Date.now();
+			let visible = false;
+			while (Date.now() - start < timeout) {
+				if (await this.page.isVisible(modalSel).catch(() => false)) {
+					visible = true;
+					break;
+				}
+				await this.page.waitForTimeout(150);
+			}
+			if (!visible) throw new Error('Process steps modal did not become visible within timeout');
+		}
+		return true;
 	}
 }
