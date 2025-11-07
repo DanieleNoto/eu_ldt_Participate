@@ -10,9 +10,9 @@ default: &default
     public_root_path: public
     public_output_path: decidim-packs
     cache_path: tmp/shakapacker
-    webpack_compile_output: true
+    webpack_compile_output: false
     extract_css: true
-    shakapacker_precompile: true
+    shakapacker_precompile: false
 
     additional_paths:
         - node_modules
@@ -35,51 +35,57 @@ default: &default
     # https://webpack.js.org/guides/build-performance/#avoid-production-specific-tooling
     useContentHash: false
 
+    # Workbox configuration to handle large precache files
+    # Increase the maximum file size that can be precached (default: 2.5MB)
+    workbox:
+        maximumFileSizeToCacheInBytes: 5242880  # 5 MB
+
 development:
     <<: *default
     compile: false
     compiler_strategy: mtime
-    # Compile test packs to decidim decidim-packs folder
 
     # Reference: https://webpack.js.org/configuration/dev-server/
     dev_server:
         https: false
-        host: 0.0.0.0
-        # Notice that we use a different port (to prevent blocking the default one) as
-        # there will be at least two webpack servers running
-        port: 3035
-        public: 0.0.0.0:3035
+        host: <%= ENV.fetch('SHAKAPACKER_DEV_SERVER_HOST', 'shakapacker') %>
+        port: <%= ENV.fetch('SHAKAPACKER_DEV_SERVER_PORT', 3035).to_i %>
+        public: <%= ENV.fetch('SHAKAPACKER_DEV_SERVER_PUBLIC', 'shakapacker:3035') %>
         # Disable host header checking for development
         disableHostCheck: true
-        # Hot Module Replacement updates modules while the application is running without a full reload
+        # Hot Module Replacement disabled for stability
         hmr: false
-        # mini-css-extract-plugin is a required dependency in both cases.
+        # CSS is extracted inline for faster feedback
         inline_css: true
+        # Allowed hosts for WebSocket connections
         host_whitelist:
             - .sock$
             - localhost
             - localhost:3035
             - 127.0.0.1
             - 127.0.0.1:3035
-            - 0.0.0.0
             - shakapacker
+            - shakapacker:3035
             - host.docker.internal
             - decidim
         client:
-            # Should we show a full-screen overlay in the browser when there are compiler errors or warnings?
+            # Disable full-screen overlay for cleaner development experience
             overlay: false
-            # Configure WebSocket URL to use 0.0.0.0 for Docker container compatibility
+            # Configure WebSocket URL for Docker container compatibility using hostname
             webSocketURL:
-                hostname: '0.0.0.0'
-                pathname: '/ws'
+                hostname: shakapacker
+                pathname: /ws
                 port: 3035
-        # Should we use gzip compression?
+        # Enable gzip compression for faster transfers
         compress: true
-        # Note that apps that do not check the host are vulnerable to DNS rebinding attacks
-        allowed_hosts: 'all'
+        # Allow all hosts to prevent DNS rebinding issues
+        allowed_hosts: all
         pretty: true
         headers:
             'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        # Watch configuration for file changes
         static:
             watch:
                 ignored: 
@@ -87,8 +93,9 @@ development:
                     - '**/tmp/**'
                     - '**/log/**'
                     - '**/public/assets/**'
+                    - '**/public/decidim-packs/**'
                     - '**/storage/**'
-                # Reduce polling interval and use efficient watching
+                # Polling for change detection
                 poll: 1000
                 aggregateTimeout: 300
 

@@ -23,6 +23,8 @@
 # Declare files that will always have LF line endings on checkout
 *.sh text eol=lf
 bin/* text eol=lf
+docker-entrypoint.sh export-ignore diff=sh
+shakapacker-entrypoint.sh export-ignore diff=sh
 
 # Mark the database schema as having been generated.
 db/schema.rb linguist-generated

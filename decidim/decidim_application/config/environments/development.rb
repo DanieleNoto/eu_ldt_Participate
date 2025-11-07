@@ -68,17 +68,32 @@ Rails.application.configure do
   config.active_record.query_log_tags_enabled = true
   config.active_record.query_log_tags = [ :application, :controller, :action ]
 
-  # Force enable Shakapacker dev server for development
+  # Configure Shakapacker dev server for development with best practices
   config.after_initialize do
     if defined?(Shakapacker) && Shakapacker.config
-      Shakapacker.config.dev_server['enabled'] = true
-      Shakapacker.config.dev_server['host'] = '0.0.0.0'
-      Shakapacker.config.dev_server['port'] = 3035
-      Shakapacker.config.dev_server['https'] = false
-      # Set the public URL for the browser to access the dev server
-      Shakapacker.config.dev_server['public'] = '0.0.0.0:3035'
-      # Override the dev server URL for asset helpers
-      Shakapacker.config.dev_server['hmr'] = false
+      dev_config = Shakapacker.config.dev_server
+      
+      # Enable dev server
+      dev_config['enabled'] = true
+      
+      # Set host to Docker service hostname for container communication
+      dev_config['host'] = ENV.fetch('SHAKAPACKER_DEV_SERVER_HOST', 'shakapacker')
+      dev_config['port'] = ENV.fetch('SHAKAPACKER_DEV_SERVER_PORT', 3035).to_i
+      dev_config['https'] = false
+      
+      # Set public URL for the browser (use environment variable or Docker hostname)
+      dev_config['public'] = ENV.fetch('SHAKAPACKER_DEV_SERVER_PUBLIC', 'shakapacker:3035')
+      
+      # Disable HMR for better stability, use LiveReload instead
+      dev_config['hmr'] = false
+      
+      # Ensure proper CORS headers for development
+      dev_config['headers'] ||= {}
+      dev_config['headers']['Access-Control-Allow-Origin'] = '*'
+      
+      # Performance optimizations
+      dev_config['compress'] = true
+      dev_config['pretty'] = true
     end
   end
 
@@ -97,13 +112,15 @@ Rails.application.configure do
     config.boost_performance = true
     # Enable caching and eager load
     config.eager_load = true
-    config.cache_classes = true
     # Logging
     config.log_level = :info
     config.action_view.logger = nil
     # Compress the HTML responses with gzip
     config.middleware.use Rack::Deflater
   end
+  
+  # Ensure cache_classes is false for Spring reloading. Needed for when boost performance is enabled.
+  config.cache_classes = false
   
   # Enable JSON logs in development if ENABLE_JSON_LOGS is set
   if ENV["RAILS_LOG_TO_STDOUT"].present?

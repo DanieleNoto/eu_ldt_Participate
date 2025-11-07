@@ -29,12 +29,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
   npm install --global yarn && \
   apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Set working directory and create required directories with proper permissions
 WORKDIR /code
-
-RUN mkdir -p /code/storage
-RUN chown -R decidim:decidim /code/storage
-RUN chmod 775 /code/storage
+RUN mkdir -p /code/storage /code/tmp/pids /code/tmp/cache && \
+    chmod -R 777 /code/tmp
 
 # Copy dependency files FIRST for better Docker layer caching
 COPY Gemfile Gemfile.lock ./
@@ -53,8 +51,8 @@ RUN yarn install --network-timeout 100000 --include-dev
 # NOW copy the full application code
 COPY . .
 
-# Make entrypoint executable
-RUN chmod +x docker-entrypoint.sh
+# Make entrypoint scripts executable
+RUN chmod +x docker-entrypoint.sh shakapacker-entrypoint.sh
 
 
 
@@ -86,31 +84,42 @@ ENV RAILS_SERVE_STATIC_FILES=${RAILS_SERVE_STATIC_FILES}
 
 # Install only runtime dependencies (no build tools) and ensure Node.js 22 + yarn
 ENV DEBIAN_FRONTEND=noninteractive
+# Create user BEFORE copying files and install runtime dependencies
+# Include git which is needed for Decidim's webpacker configuration
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ca-certificates \
   curl \
+  git \
   gnupg \
   netcat-openbsd \
   redis-tools \
   && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
   && apt-get install -y --no-install-recommends nodejs \
   && npm install --global yarn \
-  && apt-get clean && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/* \
+  && groupadd -r decidim 2>/dev/null || true \
+  && useradd -r -g decidim -d /code -s /bin/bash decidim 2>/dev/null || true
 
 WORKDIR /code
 
-# Copy application and compiled assets from builder
-COPY --from=builder /code /code
-COPY --from=builder /usr/local/bundle /usr/local/bundle
+# Copy application and compiled assets from builder with correct ownership
+# Use --chmod to ensure entrypoint scripts are executable
+COPY --from=builder --chown=decidim:decidim /code /code
+COPY --from=builder --chown=decidim:decidim /usr/local/bundle /usr/local/bundle
+
+# Initialize permissions BEFORE switching to decidim user
+# Git initialization will be done at runtime in the entrypoint script to avoid permission issues
+RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log && \
+    chown -R decidim:decidim /code/tmp /code/log && \
+    chmod 755 /code/tmp /code/tmp/pids /code/tmp/cache && \
+    touch /code/tmp/webpacker_runtime.yml && \
+    chmod 644 /code/tmp/webpacker_runtime.yml && \
+    chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh
 
 # Set runtime environment
 ENV RAILS_ENV=${RAILS_ENV}
 ENV NODE_ENV=${NODE_ENV}
 
-# Create user and set ownership efficiently (single operation)
-RUN groupadd -r decidim 2>/dev/null || true && \
-  useradd -r -g decidim -d /code -s /bin/bash decidim 2>/dev/null || true && \
-  chown -R decidim:decidim /code
 USER decidim
 
 EXPOSE 3000

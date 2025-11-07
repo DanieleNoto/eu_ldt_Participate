@@ -1,20 +1,21 @@
 #!/bin/bash
 set -e
 
-echo "--- Shakapacker: Checking if gems are available ---"
+echo "=== Shakapacker Dev Server Initialization ==="
 
-# Check if bundle can load gems, if not, force bundle install
+# Ensure tmp directory exists with proper permissions
+echo "--- Setting up tmp directory ---"
+mkdir -p tmp/pids tmp/cache log
+
+# Create webpacker runtime file if it doesn't exist
+[ -f tmp/webpacker_runtime.yml ] || touch tmp/webpacker_runtime.yml
+
+# Check if bundle is ready (should be pre-installed in image)
 if ! bundle check > /dev/null 2>&1; then
-  echo "--- Shakapacker: Gems missing, running bundle install ---"
-  # Try bundle install, if it fails due to dependency conflicts, regenerate Gemfile.lock
-  if ! bundle install; then
-    echo "--- Shakapacker: Bundle install failed, regenerating Gemfile.lock ---"
-    rm -f Gemfile.lock
-    bundle install
-  fi
-else
-  echo "--- Shakapacker: Gems available ---"
+  echo "ERROR: Gems not installed in image. Please rebuild the Docker image:"
+  echo "  docker compose build decidim shakapacker"
+  exit 1
 fi
 
-echo "--- Shakapacker: Starting shakapacker-dev-server ---"
+echo "--- Starting Shakapacker dev server ---"
 exec bundle exec bin/shakapacker-dev-server

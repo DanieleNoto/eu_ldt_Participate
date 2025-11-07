@@ -16,9 +16,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
 
-  create_table "SequelizeData", primary_key: "name", id: { type: :string, limit: 255 }, force: :cascade do |t|
-  end
-
   create_table "active_hashcash_stamps", force: :cascade do |t|
     t.string "version", null: false
     t.integer "bits", null: false
@@ -62,14 +59,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
-  end
-
-  create_table "conversations", id: :uuid, default: nil, force: :cascade do |t|
-    t.uuid "conversationId", null: false
-    t.string "nodeId", limit: 255, null: false
-    t.string "message", limit: 1000, null: false
-    t.timestamptz "createdAt", null: false
-    t.timestamptz "updatedAt", null: false
   end
 
   create_table "decidim_accountability_results", id: :serial, force: :cascade do |t|
@@ -1057,10 +1046,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
     t.string "name", null: false
     t.string "map_id", null: false
     t.text "map_data"
+    t.string "reference"
     t.bigint "decidim_component_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "reference"
     t.index ["decidim_component_id", "map_id"], name: "index_ldt_map_viz_on_component_and_map_id", unique: true
     t.index ["decidim_component_id"], name: "index_ldt_map_viz_on_decidim_component_id"
     t.index ["reference"], name: "index_decidim_ldt_map_visualizations_on_reference", unique: true

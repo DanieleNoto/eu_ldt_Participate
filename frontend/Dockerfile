@@ -9,19 +9,17 @@ RUN apk add --no-cache g++ make python3
 # Copy package files first for better layer caching
 COPY package*.json ./
 
-# Install ALL dependencies (we need devDependencies for building)
-RUN npm ci --ignore-scripts
+# Install ALL dependencies (we need devDependencies for building) and create non-root user early
+RUN npm ci --ignore-scripts && addgroup -S app && adduser -S -G app app
 
-# Copy ALL source files
-COPY . .
+# Copy ALL source files with correct ownership
+COPY --chown=app:app . .
 
-# Build application, create non-root user, and set permissions
+# Build application
 RUN rm -rf dist && \
     npm run build && \
     echo "Build complete. Dist contents:" && \
-    ls -la dist/ && \
-    addgroup -S app && adduser -S -G app app && \
-    chown -R app:app /app
+    ls -la dist/
 
 # Switch to non-root user
 USER app

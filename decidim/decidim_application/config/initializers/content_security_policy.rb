@@ -17,10 +17,10 @@ Rails.application.configure do
 
     # Allow scripts from self and webpack dev server
     if Rails.env.development?
-      script_sources = [:self, :unsafe_eval, :unsafe_inline, "http://localhost:3035", "http://0.0.0.0:3035", "ws://localhost:3035", "ws://0.0.0.0:3035"]
-      connect_sources = [:self, "http://localhost:3035", "http://0.0.0.0:3035", "ws://localhost:3035", "ws://0.0.0.0:3035"]
-      style_sources = [:self, :unsafe_inline, "http://localhost:3035", "http://0.0.0.0:3035"]
-      font_sources = [:self, :https, :data, "ms-browser-extension:", "http://localhost:3035", "http://0.0.0.0:3035"]
+      script_sources = [:self, :unsafe_eval, :unsafe_inline, "http://localhost:3035", "http://0.0.0.0:3035", "ws://localhost:3035", "ws://0.0.0.0:3035", "http://shakapacker:3035", "ws://shakapacker:3035"]
+      connect_sources = [:self, "http://localhost:3035", "http://0.0.0.0:3035", "ws://localhost:3035", "ws://0.0.0.0:3035", "http://shakapacker:3035", "ws://shakapacker:3035"]
+      style_sources = [:self, :unsafe_inline, "http://localhost:3035", "http://0.0.0.0:3035", "http://shakapacker:3035"]
+      font_sources = [:self, :https, :data, "ms-browser-extension:", "http://localhost:3035", "http://0.0.0.0:3035", "http://shakapacker:3035"]
 
       # Add chatbot URLs if configured
       if chatbot_url.present?
