@@ -21,6 +21,7 @@ module Decidim
         attribute :location, String
         attribute :underage, ActiveRecord::Type::Boolean
         attribute :statutory_representative_email, String
+        attribute :is_first_login, ActiveRecord::Type::Boolean, default: false
 
         # Account profile attributes
         attribute :about, String
@@ -30,13 +31,13 @@ module Decidim
 
         # Block ExtraUserFields Validations
 
-        validates :country, presence: true, if: :country?
-        validates :postal_code, presence: true, if: :postal_code?
+        validates :country, presence: true, if: :country_required?
+        validates :postal_code, presence: true, if: :postal_code_required?
         validates :postal_code, length: { maximum: 50 }, if: :postal_code?
-        validates :date_of_birth, presence: true, if: :date_of_birth?
-        validates :gender, presence: true, if: :gender?
+        validates :date_of_birth, presence: true, if: :date_of_birth_required?
+        validates :gender, presence: true, if: :gender_required?
         validates :gender, inclusion: { in: Decidim::ExtraUserFields::Engine::DEFAULT_GENDER_OPTIONS.map(&:to_s) }, if: :gender?
-        validates :phone_number, presence: true, if: :phone_number?
+        validates :phone_number, presence: true, if: :phone_number_required?
         validates :phone_number, length: { maximum: 100 }, if: :phone_number?
         validates(
           :phone_number,
@@ -46,12 +47,12 @@ module Decidim
               pattern.present? ? Regexp.new(pattern) : /.*/ 
             } 
           },
-          if: :phone_number_format?
+          if: :phone_number_format_valid?
         )
 
-        validates :location, presence: true, if: :location?
+        validates :location, presence: true, if: :location_required?
         validates :location, length: { maximum: 100 }, if: :location?
-        validates :underage, presence: true, if: :underage?
+        validates :underage, presence: true, if: :underage_required?
 
         # Account profile validations
         validates :about, length: { maximum: 500 }, allow_blank: true
@@ -61,7 +62,7 @@ module Decidim
                   "valid_email_2/email": { disposable: true },
                   if: :underage_accepted?
         validates :statutory_representative_email, length: { maximum: 100 }, if: :underage_accepted?
-        validate :birth_date_under_limit
+        validate :birth_date_under_limit, if: :should_validate_birth_date?
 
         # EndBlock
       end
@@ -90,24 +91,44 @@ module Decidim
         extra_user_fields_enabled && current_organization.activated_extra_field?(:country)
       end
 
+      def country_required?
+        country? && (is_first_login? || false)
+      end
+
       def date_of_birth?
         extra_user_fields_enabled && current_organization.activated_extra_field?(:date_of_birth)
+      end
+
+      def date_of_birth_required?
+        date_of_birth? && (is_first_login? || false)
       end
 
       def gender?
         extra_user_fields_enabled && current_organization.activated_extra_field?(:gender)
       end
 
+      def gender_required?
+        gender? && (is_first_login? || false)
+      end
+
       def postal_code?
         extra_user_fields_enabled && current_organization.activated_extra_field?(:postal_code)
+      end
+
+      def postal_code_required?
+        postal_code? && (is_first_login? || false)
       end
 
       def phone_number?
         extra_user_fields_enabled && current_organization.activated_extra_field?(:phone_number)
       end
 
-      def phone_number_format?
-        return unless phone_number?
+      def phone_number_required?
+        phone_number? && (is_first_login? || false)
+      end
+
+      def phone_number_format_valid?
+        return unless phone_number? && phone_number.present?
 
         current_organization.extra_user_field_configuration(:phone_number)["pattern"].present?
       end
@@ -116,18 +137,34 @@ module Decidim
         extra_user_fields_enabled && current_organization.activated_extra_field?(:location)
       end
 
+      def location_required?
+        location? && (is_first_login? || false)
+      end
+
       def underage?
         extra_user_fields_enabled && current_organization.activated_extra_field?(:underage)
+      end
+
+      def underage_required?
+        underage? && (is_first_login? || false)
       end
 
       def underage_accepted?
         underage? && underage == "1"
       end
 
+      def should_validate_birth_date?
+        date_of_birth? && underage? && (date_of_birth.present? || (is_first_login? || false))
+      end
+
       # EndBlock
 
       def extra_user_fields_enabled
         @extra_user_fields_enabled ||= current_organization.extra_user_fields_enabled?
+      end
+
+      def is_first_login?
+        self.is_first_login.present? && self.is_first_login == true
       end
 
       # Method to check if birth date is under the limit
