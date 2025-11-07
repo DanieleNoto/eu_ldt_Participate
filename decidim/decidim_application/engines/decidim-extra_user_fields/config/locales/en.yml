@@ -28,10 +28,6 @@ en:
               too_long: is too long (maximum is 100 characters)
   decidim:
     admin:
-      actions:
-        export: Export
-      exports:
-        export_as: Export %{export_format}
       extra_user_fields:
         menu:
           title: Manage extra user fields

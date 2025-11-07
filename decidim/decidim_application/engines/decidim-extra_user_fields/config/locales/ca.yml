@@ -20,10 +20,6 @@ ca:
                 parental.
   decidim:
     admin:
-      actions:
-        export: Exporta
-      exports:
-        export_as: Exporta com a %{export_format}
       extra_user_fields:
         menu:
           title: Gestiona camps d'usuari addicionals

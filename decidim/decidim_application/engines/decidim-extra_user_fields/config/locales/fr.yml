@@ -29,10 +29,6 @@ fr:
               too_long: est trop long (maximum 100 caractères)
   decidim:
     admin:
-      actions:
-        export: Exporter
-      exports:
-        export_as: Exporter au format %{export_format}
       extra_user_fields:
         menu:
           title: Gérer les champs d'inscription personnalisés
