@@ -24,19 +24,9 @@ metadata:
     # Rate Limiting Configuration
     # Increased limits for Sidekiq, background jobs, multiple containers, and high traffic
     nginx.ingress.kubernetes.io/limit-rps: "500"
-    nginx.ingress.kubernetes.io/limit-rpm: "30000"
     nginx.ingress.kubernetes.io/limit-connections: "500"
-    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
-    # Whitelist internal IPs and Keycloak to bypass rate limiting for internal services
-    # Private networks + Keycloak domain
+    # Whitelist internal IPs to bypass rate limiting for internal services
     nginx.ingress.kubernetes.io/limit-whitelist: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
-    # Whitelist Keycloak host for OAuth callbacks
-    nginx.ingress.kubernetes.io/whitelist-source-range: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
-    
-    # Keep alive settings for better connection reuse
-    nginx.ingress.kubernetes.io/upstream-keepalive-connections: "50"
-    nginx.ingress.kubernetes.io/upstream-keepalive-timeout: "60"
-    nginx.ingress.kubernetes.io/upstream-keepalive-requests: "100"
 
   # No global rewrite-target for analytics routes: use Prefix paths to avoid
   # accidental duplicated prefixes when upstream or local proxies also add paths.
