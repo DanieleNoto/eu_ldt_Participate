@@ -22,8 +22,10 @@ RUN a2enmod headers && \
 # Copy custom config file with correct ownership
 COPY --chown=www-data:www-data config.ini.php /var/www/html/config/config.ini.php
 
-# Fix permissions for Apache (only for directories that need it)
-RUN chown -R www-data:www-data /var/www/html/tmp /var/www/html/config
+# Fix permissions for Apache (only for directories that exist)
+RUN mkdir -p /var/www/html/tmp && \
+    chown -R www-data:www-data /var/www/html/config && \
+    chown www-data:www-data /var/www/html/tmp
 
 # Switch to non-root user for security
 USER www-data
