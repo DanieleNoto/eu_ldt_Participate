@@ -685,17 +685,17 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		await this.page.waitForTimeout(200);
 		await userMenuBtn.click().catch(() => {});
 
-		// tenta trovare un link vicino a "Current phase"
+		// try to find a link near "Current phase"
 		const currentPhase = this.page.getByLabel('User menu').getByText('Current phase').first();
 		let clicked = false;
 
 		if ((await currentPhase.count()) > 0) {
-			// nel contesto dell'ancestor prendi il primo link utile (assumiamo che esista sempre)
+			// in the context of the ancestor take the first useful link (we assume it always exists)
 			const candidate = await currentPhase.evaluate(node => {
 				const anc = node.closest('li') || node.closest('div') || node.parentElement;
 				const container = anc || node.parentElement;
 				const links = container ? Array.from(container.querySelectorAll('a')) : [];
-				// filtra link irrilevanti
+				// filter irrelevant links
 				const filtered = links.filter(a => {
 					const t = (a.textContent || '').trim().toLowerCase();
 					const h = a.getAttribute('href') || '';
@@ -705,7 +705,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 				return chosen ? { href: chosen.getAttribute('href'), text: (chosen.textContent || '').trim() } : null;
 			});
 
-			// clicca il link trovato: prima tenta by href, altrimenti by text
+			// Click the link found: first try by href, otherwise by text
 			if (candidate?.href) {
 				const loc = this.page.locator(`a[href="${candidate.href}"]`).first();
 				if ((await loc.count()) > 0) {
@@ -725,14 +725,14 @@ export class ProcessDetailPage extends AuthenticatedPage {
 			}
 		}
 
-		// dato l'assunto che esista sempre un link vicino a "Current phase", se non abbiamo cliccato segnaliamo errore
+		// assuming there is always a link near "Current phase", if we haven't clicked it, we report an error
 		if (!clicked) throw new Error('No clickable link found near "Current phase"');
 
-		// attendi il modal: aspetta visibilità (visibile implica anche attached)
+		// wait for modal: wait for visibility (visible also implies attached)
 		try {
 			await this.page.waitForSelector(modalSel, { state: 'visible', timeout });
 		} catch {
-			// se waitForSelector('visible') fallisce, prova il fallback: attendi attached e poi polling su isVisible
+			// If waitForSelector('visible') fails, try the fallback: wait for attached and then poll on isVisible
 			await this.page.waitForSelector(modalSel, { state: 'attached', timeout }).catch(() => {});
 			const start = Date.now();
 			let visible = false;
