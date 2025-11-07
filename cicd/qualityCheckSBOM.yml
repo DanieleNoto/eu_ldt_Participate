@@ -1,4 +1,4 @@
-name: Tool0-SBOM-$(date:yyyyMMdd)$(rev:.r)
+name: Tool3-SBOM-$(date:yyyyMMdd)$(rev:.r)
 
 trigger: none
 pr: none
