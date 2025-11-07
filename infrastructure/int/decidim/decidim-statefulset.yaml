@@ -68,7 +68,7 @@ spec:
                       - mountPath: /code/storage
                         name: decidim-pvc
                       - mountPath: /code/public
-                        name: decidim-pvc-rwx
+                        name: decidim-pvc
             containers:
                 - name: decidim
                   resources:
@@ -104,8 +104,7 @@ spec:
                       - mountPath: /code/storage
                         name: decidim-pvc
                       - mountPath: /code/public
-                        name: decidim-pvc-rwx
-                        readOnly: true
+                        name: decidim-pvc
                 - name: open-data-exporter
                   image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   envFrom:
@@ -156,7 +155,7 @@ spec:
                         name: decidim-pvc
                         readOnly: true
                       - mountPath: /code/public
-                        name: decidim-pvc-rwx
+                        name: decidim-pvc
                         readOnly: true
                   resources:
                       requests:
@@ -167,6 +166,89 @@ spec:
                           memory: '512Mi'
                           cpu: '200m'
                           ephemeral-storage: '2Gi'
+                - name: sidekiq
+                  image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  command: ["/bin/sh", "-lc"]
+                  args:
+                    - |
+                      set -e
+                      
+                      echo "Starting Sidekiq wrapper: waiting for redis..."
+                      # Prefer redis-cli if present (handles auth and URLs), otherwise fall back to nc TCP check.
+                      if command -v redis-cli >/dev/null 2>&1; then
+                        if [ -n "${REDIS_URL:-}" ]; then
+                          until redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1; do
+                            echo "redis not reachable yet; sleeping 1s"
+                            sleep 1
+                          done
+                        fi
+                      else
+                        until nc -z ${REDIS_HOST:-redis} ${REDIS_PORT:-6379}; do
+                          echo "redis not reachable yet; sleeping 1s"
+                          sleep 1
+                        done
+                      fi
+                      echo "redis reachable; exec sidekiq"
+                      exec bundle exec sidekiq -e ${RAILS_ENV:-production} -c 5 \
+                      -q decidim_production_mailers,4 \
+                      -q decidim_production_default,2 \
+                      -q decidim_production_newsletters,2 \
+                      -q decidim_production_events,2 \
+                      -q decidim_production_translations,2 \
+                      -q decidim_production_vote_reminder,2 \
+                      -q decidim_production_reminders,2 \
+                      -q decidim_production_delete_inactive_participants,2 \
+                      -q decidim_production_newsletters_opt_in,2 \
+                      -q decidim_production_conference_diplomas,2 \
+                      -q decidim_production_user_report,2 \
+                      -q decidim_production_block_user,2 \
+                      -q decidim_production_exports,1 \
+                      -q decidim_production_close_meeting_reminder,1 \
+                      -q decidim_production_spam_analysis,1 \
+                      -q active_storage_analysis,1 \
+                      -q active_storage_purge,1
+                      
+                  envFrom:
+                    - secretRef:
+                        name: decidim-secret
+                    - configMapRef:
+                        name: decidim-configmap
+                  resources:
+                    requests:
+                      memory: "512Mi"
+                      cpu: "250m"
+                      ephemeral-storage: "1Gi"
+                    limits:
+                      memory: "1Gi"
+                      cpu: "500m"
+                      ephemeral-storage: "2Gi"
+                  livenessProbe:
+                    exec:
+                      command:
+                        - /bin/sh
+                        - -c
+                        - "ps aux | grep '[s]idekiq' || exit 1"
+                    initialDelaySeconds: 30
+                    periodSeconds: 30
+                    timeoutSeconds: 5
+                    failureThreshold: 3
+                  readinessProbe:
+                    exec:
+                      command:
+                        - /bin/sh
+                        - -c
+                        - "ps aux | grep '[s]idekiq' || exit 1"
+                    initialDelaySeconds: 10
+                    periodSeconds: 10
+                    timeoutSeconds: 5
+                  volumeMounts:
+                    - mountPath: /code/data
+                      name: decidim-pvc
+                    - mountPath: /code/storage
+                      name: decidim-pvc
+                    - mountPath: /code/public
+                      name: decidim-pvc
+                      readOnly: true
     volumeClaimTemplates:
         - metadata:
               name: decidim-pvc
