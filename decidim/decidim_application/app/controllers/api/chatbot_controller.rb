@@ -13,15 +13,28 @@ module Api
     skip_before_action :verify_authenticity_token
 
     def proxy
-      chatbot_url = ENV['CHATBOT_FRONTEND_URL'] || 'http://chatbot-frontend-svc'
+      chatbot_url = ENV['CHATBOT_URL'] || 'http://chatbot-frontend:5001'
+      
+      # Rails separates format from path, so we need to reconstruct the full filename
       path = params[:path] || ''
+      format = request.format.symbol.to_s
+      
+      # Reconstruct full path with extension if format is not HTML
+      if format.present? && format != 'html' && !path.end_with?(".#{format}")
+        path = "#{path}.#{format}"
+      end
+      
       full_url = "#{chatbot_url}/#{path}"
 
       # Remove any query parameters from the path and add them to the URL
       query_string = request.query_string.presence
       full_url = "#{full_url}?#{query_string}" if query_string
 
-      Rails.logger.info "[Chatbot Proxy] Proxying request to: #{full_url}"
+      Rails.logger.info "[Chatbot Proxy] Original request path: #{request.path}"
+      Rails.logger.info "[Chatbot Proxy] Extracted path param: #{params[:path]}"
+      Rails.logger.info "[Chatbot Proxy] Request format: #{format}"
+      Rails.logger.info "[Chatbot Proxy] Reconstructed path: #{path}"
+      Rails.logger.info "[Chatbot Proxy] Full URL to proxy: #{full_url}"
 
       begin
         uri = URI.parse(full_url)
@@ -32,8 +45,21 @@ module Api
         # Use SSL if HTTPS
         http.use_ssl = (uri.scheme == 'https')
 
-        request = Net::HTTP::Get.new(uri)
-        http_response = http.request(request)
+        request_obj = Net::HTTP::Get.new(uri)
+        # Add headers to indicate we want the actual file, not HTML fallback
+        case format
+        when 'js'
+          request_obj['Accept'] = 'application/javascript, text/javascript, */*'
+        when 'css'
+          request_obj['Accept'] = 'text/css, */*'
+        end
+        
+        http_response = http.request(request_obj)
+        
+        Rails.logger.info "[Chatbot Proxy] Response status: #{http_response.code}"
+        Rails.logger.info "[Chatbot Proxy] Response content-type: #{http_response.content_type}"
+        Rails.logger.info "[Chatbot Proxy] Response body size: #{http_response.body&.bytesize || 0} bytes"
+        Rails.logger.info "[Chatbot Proxy] Response body preview: #{http_response.body&.first(200)}"
 
         # Forward relevant headers
         forwarded_headers = {}

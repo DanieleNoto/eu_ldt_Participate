@@ -8,12 +8,12 @@
 # Architecture:
 # - The chatbot is a Web Component (<eu-chatbot>) built with React and Shadow DOM
 # - It's loaded via Module Federation for efficient code splitting
-# - The loader script (index.js) handles all initialization
+# - The loader script (chatbot-loader) handles all initialization
 # - Complete style isolation prevents conflicts with Decidim
 #
 # Environment Variables:
 # - CHATBOT_ENABLED: 'true' to enable the chatbot
-# - CHATBOT_FRONTEND_URL: Internal URL of the chatbot frontend service (default: http://chatbot-frontend-svc:5001)
+# - CHATBOT__URL: Internal URL of the chatbot frontend service (default: http://chatbot-frontend-svc:5001)
 #   This is used by the API proxy controller, not directly by the frontend
 #
 # How it works:
@@ -32,7 +32,8 @@ class ChatbotInjector
     '/users/sign_up',
     '/users/password',
     '/users/confirmation',
-    '/users/unlock'
+    '/users/unlock',
+    '/chatbot-api'  # Don't inject into chatbot API responses
   ].freeze
 
   BODY_CLOSING_TAG = '</body>'
@@ -105,7 +106,7 @@ class ChatbotInjector
 
   def build_snippet(env)
     # Use Decidim's API proxy instead of direct service URL
-    base_url = "/api/chatbot"
+    base_url = "/chatbot-api"
     cache_token = cache_buster_value
     loader_src = "#{base_url}/index.js"
     loader_src = "#{loader_src}?v=#{cache_token}" if cache_token
@@ -113,13 +114,27 @@ class ChatbotInjector
     # Detect language for the chatbot (priority: query param > path > session > default)
     language = Rack::Utils.escape_html(extract_locale(env))
     src = Rack::Utils.escape_html(loader_src)
-    data_cache = Rack::Utils.escape_html(cache_token.to_s) if cache_token
-
-    data_cache_attribute = data_cache ? " data-cache-bust=\"#{data_cache}\"" : ''
 
     <<~HTML.chomp
       <!-- EU LDT Participate Chatbot -->
-      <script type="module" data-eu-chatbot-loader="true" data-language="#{language}"#{data_cache_attribute} src="#{src}" crossorigin="anonymous"></script>
+      <script>
+        // Set global base URL for chatbot assets
+        window.__CHATBOT_BASE_URL__ = '/chatbot-api';
+      </script>
+      <script type="module">
+        // Load the chatbot web component
+        import('/chatbot-api/index.js?v=#{cache_token}')
+          .then(() => {
+            // Create and append the chatbot element
+            const chatbot = document.createElement('eu-chatbot');
+            chatbot.setAttribute('language', '#{language}');
+            document.body.appendChild(chatbot);
+            console.log('[Decidim] Chatbot web component loaded and mounted');
+          })
+          .catch(error => {
+            console.error('[Decidim] Failed to load chatbot:', error);
+          });
+      </script>
       <!-- End EU LDT Participate Chatbot -->
     HTML
   end

@@ -70,11 +70,34 @@ class EuChatbotElement extends HTMLElement {
 				right: 20px;
 				z-index: 2147483647; /* Maximum z-index */
 				font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-				pointer-events: none; /* Allow clicks through when chatbot is closed */
+				display: flex;
+				flex-direction: column;
+				align-items: flex-end; /* Align button and dialog to the right */
+				gap: 12px; /* Space between dialog and button */
 			}
 
-			:host > div {
+			#chatbot-root {
 				pointer-events: auto; /* Re-enable clicks on the chatbot itself */
+				display: flex;
+				flex-direction: column;
+				align-items: flex-end;
+				gap: 12px;
+			}
+			
+			/* Ensure dialog appears above button */
+			#chatbot-root dialog[open] {
+				position: static !important;
+				margin: 0;
+			}
+			
+			/* Button stays at bottom */
+			#chatbot-root > button {
+				order: 2;
+			}
+			
+			/* Dialog appears above button */
+			#chatbot-root > dialog {
+				order: 1;
 			}
 
 			*, *::before, *::after {
@@ -117,9 +140,28 @@ class EuChatbotElement extends HTMLElement {
 	private async _loadGlobalCSS(baseUrl: string): Promise<boolean> {
 		try {
 			const url = `${baseUrl}/global.css`;
+			
+			// Try using <link> tag first (more reliable for Shadow DOM)
+			if (this._shadowRoot) {
+				const linkElement = document.createElement('link');
+				linkElement.rel = 'stylesheet';
+				linkElement.href = url;
+				linkElement.dataset.source = 'global.css';
+				
+				// Insert before mount point
+				this._shadowRoot.insertBefore(linkElement, this._mountPoint);
+				
+				// eslint-disable-next-line no-console
+				console.log('[Chatbot] Loading styles via <link> from', url);
+				return true;
+			}
+			
+			// Fallback to fetch if link doesn't work
 			const cssResponse = await fetch(url).catch(() => null);
 			
 			if (!cssResponse?.ok) {
+				// eslint-disable-next-line no-console
+				console.warn('[Chatbot] Failed to fetch CSS from', url);
 				return false;
 			}
 

@@ -266,7 +266,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 			open
 			aria-labelledby="chatbot-header-title"
 			aria-modal="true"
-			className={`flex flex-col w-[430px] max-w-[95vw] h-[600px] max-h-[95vh] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className || ''}`}
+			className={`flex flex-col w-[430px] max-w-[calc(100vw-40px)] h-[600px] max-h-[calc(100vh-40px)] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className || ''}`}
 		>
 			{/* Header - conditional based on FAQ detail mode */}
 			<div className="flex items-center gap-3 h-[72px] px-6 py-3 border-b border-[#D2D7DB] bg-white relative">
@@ -321,7 +321,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 				<div
 					style={{
 						height: disclaimerDismissed ? 'calc(600px - 72px - 80px)' : 'calc(600px - 72px - 80px - 50px)',
-						maxHeight: disclaimerDismissed ? 'calc(95vh - 72px - 80px)' : 'calc(95vh - 72px - 80px - 50px)'
+						maxHeight: disclaimerDismissed ? 'calc(100vh - 40px - 72px - 80px)' : 'calc(100vh - 40px - 72px - 80px - 50px)'
 					}}
 					className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6"
 				>
@@ -388,7 +388,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 				<div
 					style={{
 						height: disclaimerDismissed ? 'calc(600px - 72px - 80px)' : 'calc(600px - 72px - 80px - 50px)',
-						maxHeight: disclaimerDismissed ? 'calc(95vh - 72px - 80px)' : 'calc(95vh - 72px - 80px - 50px)'
+						maxHeight: disclaimerDismissed ? 'calc(100vh - 40px - 72px - 80px)' : 'calc(100vh - 40px - 72px - 80px - 50px)'
 					}}
 					className="flex-1 overflow-y-auto scroll-smooth px-6 py-4 space-y-6"
 					role="log"
