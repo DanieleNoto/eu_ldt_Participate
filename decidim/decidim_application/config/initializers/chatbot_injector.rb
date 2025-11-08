@@ -27,7 +27,9 @@
 class ChatbotInjector
   EXCLUDED_PATHS = [
     '/admin',
+    '/admin/',  # Add trailing slash variant
     '/system',
+    '/system/',  # Add trailing slash variant
     '/users/sign_in',
     '/users/sign_up',
     '/users/password',
@@ -56,7 +58,15 @@ class ChatbotInjector
 
     if injected_body
       headers['Content-Length'] = injected_body.bytesize.to_s if headers['Content-Length']
-      Rails.logger.info("Chatbot: Widget injected into HTML response for path: #{env['PATH_INFO']}")
+      request = Rack::Request.new(env)
+      Rails.logger.info("Chatbot: Checking path #{request.path} for injection")
+
+    if excluded_path?(request.path)
+      Rails.logger.info("Chatbot: Skipping injection for excluded path #{request.path}")
+      return @app.call(env)
+    end
+
+    Rails.logger.info("Chatbot: Injecting widget for path #{request.path}")
       [status, headers, [injected_body]]
     else
       [status, headers, [body]]
@@ -86,7 +96,11 @@ class ChatbotInjector
   end
 
   def excluded_path?(path)
-    EXCLUDED_PATHS.any? { |excluded| path.start_with?(excluded) }
+    # Exclude paths that start with admin/system routes or exact auth paths
+    normalized_path = path.downcase
+    EXCLUDED_PATHS.any? do |excluded|
+      normalized_path.start_with?(excluded.downcase)
+    end
   end
 
   def extract_body(response)

@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  labels:
-    io.kompose.service: db-home-adminlnx-temp1-env
-  name: decidim-configmap
+    labels:
+        io.kompose.service: db-home-adminlnx-temp1-env
+    name: decidim-configmap
 data:
     CHATBOT_ENABLED: 'true'
     CHATBOT_URL: http://chatbot-frontend-svc
@@ -53,6 +53,7 @@ data:
     TOOL2_EXPERIMENTS_URL: https://ucs-int.ldttoolbox.app/api/v1/experiments
     TOOL2_IFRAME_URL: https://ucs-int.ldttoolbox.app/embed/experiment-execution
     TOOL1_MAPS_URL: https://pv-int.ldttoolbox.app/api/maps
+    VITE_API_URL: http://chatbot-backend-svc:3002
 #   CONFIG: ./jitsi-meet-cfg
 #  DATABASE_HOST: db
 #  DATABASE_NAME: decidim_application_development
