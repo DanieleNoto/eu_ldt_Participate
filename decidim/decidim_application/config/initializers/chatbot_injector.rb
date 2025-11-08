@@ -134,6 +134,8 @@ class ChatbotInjector
       <script>
         // Set global base URL for chatbot assets
         window.__CHATBOT_BASE_URL__ = '/chatbot-api';
+        // Set API URL for production environment
+        window.__VITE_API_URL__ = 'http://chatbot-backend-svc:3002';
       </script>
       <script type="module">
         // Load the chatbot web component
