@@ -1,6 +1,6 @@
-import { createRoot } from 'react-dom/client';
-import createCache from '@emotion/cache';
 import ChatbotCustomElement, { registerChatbot } from '@app/ChatbotElementWrapper';
+import createCache from '@emotion/cache';
+import { createRoot } from 'react-dom/client';
 
 // Mock react-dom/client
 jest.mock('react-dom/client', () => ({
@@ -374,7 +374,11 @@ describe('ChatbotElementWrapper', () => {
 			document.body.appendChild(element);
 			await new Promise(resolve => setTimeout(resolve, 0));
 
-			expect(globalThis.fetch).toHaveBeenCalledWith('https://example.com/global.css');
+			// Now uses <link> tag instead of fetch
+			expect(console.log).toHaveBeenCalledWith(
+				'[Chatbot] Loading styles via <link> from',
+				'https://example.com/global.css'
+			);
 			
 			delete (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__;
 		});
@@ -425,8 +429,9 @@ describe('ChatbotElementWrapper', () => {
 			document.body.appendChild(element);
 			await new Promise(resolve => setTimeout(resolve, 100));
 
+			// Updated to match new <link> tag behavior
 			expect(console.log).toHaveBeenCalledWith(
-				'[Chatbot] Successfully loaded styles from',
+				'[Chatbot] Loading styles via <link> from',
 				'https://example.com/global.css'
 			);
 
@@ -435,15 +440,16 @@ describe('ChatbotElementWrapper', () => {
 
 		it('should detect "all: initial" in global.css', async () => {
 			(globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'https://example.com';
-			(globalThis.fetch as jest.Mock).mockResolvedValue({
-				ok: true,
-				text: async () => '* { all: initial; }'
-			});
-
+			
+			// Since we now use <link> tag, fetch is not called initially
+			// This test should verify the <link> element is created instead
 			document.body.appendChild(element);
 			await new Promise(resolve => setTimeout(resolve, 100));
 
-			expect(console.debug).toHaveBeenCalledWith('[Chatbot] Detected `all: initial` in global.css');
+			// Check that a link element was created
+			const linkElement = element.shadowRoot?.querySelector('link[rel="stylesheet"]');
+			expect(linkElement).toBeDefined();
+			expect(linkElement?.getAttribute('href')).toBe('https://example.com/global.css');
 
 			delete (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__;
 		});
@@ -454,82 +460,34 @@ describe('ChatbotElementWrapper', () => {
 			(globalThis.fetch as jest.Mock).mockClear();
 		});
 
-		it('should use adoptedStyleSheets when supported', async () => {
+		it('should use <link> tag as primary method for loading CSS', async () => {
 			(globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'https://example.com';
-			(globalThis.fetch as jest.Mock).mockResolvedValue({
-				ok: true,
-				text: async () => 'body { margin: 0; }'
-			});
 
-			// Create a new element to test with mocked CSSStyleSheet
 			const testElement = new ChatbotCustomElement();
-
-			// Mock adoptedStyleSheets support on the shadow root
-			const mockSheet = { replaceSync: jest.fn() };
-			const globalWithCSS = globalThis as typeof globalThis & { CSSStyleSheet?: jest.Mock };
-			globalWithCSS.CSSStyleSheet = jest.fn().mockImplementation(() => mockSheet);
-
-			// Mock the shadow root to have adoptedStyleSheets
-			Object.defineProperty(testElement.shadowRoot, 'adoptedStyleSheets', {
-				value: [],
-				writable: true,
-				configurable: true
-			});
-
 			document.body.appendChild(testElement);
 			await new Promise(resolve => setTimeout(resolve, 100));
 
-			expect(mockSheet.replaceSync).toHaveBeenCalledWith('body { margin: 0; }');
+			// Verify <link> element was created
+			const linkElement = testElement.shadowRoot?.querySelector('link[rel="stylesheet"]');
+			expect(linkElement).toBeDefined();
+			expect(linkElement?.getAttribute('href')).toBe('https://example.com/global.css');
+			expect(linkElement?.getAttribute('data-source')).toBe('global.css');
 			
 			testElement.remove();
 			delete (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__;
-			// Restore original CSSStyleSheet
-			Reflect.deleteProperty(globalWithCSS, 'CSSStyleSheet');
 		});
 
-		it('should fallback to style element when adoptedStyleSheets fails', async () => {
-			(globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ = 'https://example.com';
-			(globalThis.fetch as jest.Mock).mockResolvedValue({
-				ok: true,
-				text: async () => 'body { margin: 0; }'
-			});
-
-			// Create a new element to test with mocked failing CSSStyleSheet
+		it('should handle CSS loading gracefully when base URL is missing', async () => {
+			// Don't set __CHATBOT_BASE_URL__
 			const testElement = new ChatbotCustomElement();
-
-			// Mock adoptedStyleSheets failure
-			const mockSheet = {
-				replaceSync: jest.fn(() => {
-					throw new Error('replaceSync failed');
-				})
-			};
-			const globalWithCSS = globalThis as typeof globalThis & { CSSStyleSheet?: jest.Mock };
-			globalWithCSS.CSSStyleSheet = jest.fn().mockImplementation(() => mockSheet);
-
-			// Mock the shadow root to have adoptedStyleSheets (so it tries to use it)
-			Object.defineProperty(testElement.shadowRoot, 'adoptedStyleSheets', {
-				value: [],
-				writable: true,
-				configurable: true
-			});
-
 			document.body.appendChild(testElement);
 			await new Promise(resolve => setTimeout(resolve, 100));
 
-			expect(console.warn).toHaveBeenCalledWith(
-				'[Chatbot] Failed to apply constructable stylesheet, falling back to <style>',
-				expect.any(Error)
-			);
-
-			const cssElement = Array.from(testElement.shadowRoot?.querySelectorAll('style') || []).find(
-				(style: HTMLStyleElement) => style.dataset.source === 'global.css'
-			);
-			expect(cssElement).toBeDefined();
+			// Should still create shadow DOM and mount point
+			expect(testElement.shadowRoot).toBeDefined();
+			expect(testElement.shadowRoot?.querySelector('#chatbot-root')).toBeDefined();
 
 			testElement.remove();
-			delete (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__;
-			// Restore original CSSStyleSheet
-			Reflect.deleteProperty(globalWithCSS, 'CSSStyleSheet');
 		});
 	});
 

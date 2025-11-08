@@ -22,8 +22,8 @@ jest.mock('@src/i18n', () => ({
 	}
 }));
 
-import { render, screen, waitFor, act } from '@testing-library/react';
 import ChatbotWebComponent from '@app/shared/components/Chatbot/ChatbotWebComponent';
+import { act, render, screen, waitFor } from '@testing-library/react';
 
 // Mock dependencies
 jest.mock('@app/SimplifiedMainProvider', () => {
@@ -58,6 +58,7 @@ describe('ChatbotWebComponent', () => {
 		delete (window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__;
 		delete (window as { __CHATBOT_CONFIG__?: unknown }).__CHATBOT_CONFIG__;
 		(global.fetch as jest.Mock).mockResolvedValue({
+			ok: true,
 			json: () => Promise.resolve({ some: 'config' })
 		});
 	});
