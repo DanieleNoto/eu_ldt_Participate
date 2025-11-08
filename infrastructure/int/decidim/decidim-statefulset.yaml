@@ -17,9 +17,9 @@ spec:
         spec:
             automountServiceAccountToken: false
             securityContext:
-              fsGroup: 1000  # group ID of decidim user
-              runAsUser: 1000
-              runAsGroup: 1000
+                fsGroup: 1000 # group ID of decidim user
+                runAsUser: 1000
+                runAsGroup: 1000
             initContainers:
                 - name: asset-compiler
                   image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
@@ -39,29 +39,37 @@ spec:
                             name: decidim-configmap
                   env:
                       - name: NODE_OPTIONS
-                        value: "--max-old-space-size=3072"
+                        value: '--max-old-space-size=3072'
                       - name: RAILS_ENV
                         value: production
+                      - name: SHAKAPACKER_PRECOMPILE
+                        value: 'true'
                   command:
                       - /bin/bash
                       - -c
                       - |
-                        echo "=== ASSET COMPILATION INIT CONTAINER ==="
-                        cd /code
-                        
-                        # Clean existing assets first
-                        echo "Cleaning existing assets..."
-                        bin/rails assets:clean || true
-                        
-                        # Compile assets
-                        echo "Compiling assets..."
-                        if bin/rails assets:precompile; then
-                          echo "Assets compiled successfully"
-                          exit 0
-                        else
-                          echo "Asset compilation failed"
-                          exit 1
-                        fi
+                          echo "=== ASSET COMPILATION INIT CONTAINER ==="
+                          cd /code
+                          
+                          echo "--- Cleaning old Shakapacker assets ---"
+                          bin/rails shakapacker:clean || bin/rails shakapacker:clobber || true
+                          
+                          echo "--- Compiling assets with Shakapacker ---"
+                          if SHAKAPACKER_PRECOMPILE=true bin/rails assets:precompile; then
+                            echo "Assets compiled successfully"
+                            
+                            # Verify assets exist
+                            if [ -d "public/packs" ] && [ -n "$(ls -A public/packs 2>/dev/null)" ]; then
+                              echo "Assets verification passed"
+                              exit 0
+                            else
+                              echo "ERROR: Assets were not created in public/packs"
+                              exit 1
+                            fi
+                          else
+                            echo "Asset compilation failed"
+                            exit 1
+                          fi
                   volumeMounts:
                       - mountPath: /code/data
                         name: decidim-pvc
@@ -123,34 +131,34 @@ spec:
                       - /bin/bash
                       - -c
                       - |
-                        echo "=== OPEN DATA EXPORTER CONTAINER ==="
-                        cd /code
-                        
-                        # Function to run the export
-                        run_export() {
-                          echo "$(date): Starting Open Data export..."
-                          if bundle exec rake decidim:open_data:export; then
-                            echo "$(date): Open Data export completed successfully"
-                          else
-                            echo "$(date): Open Data export failed"
-                          fi
-                        }
-                        
-                        # Run initial export on startup
-                        run_export
-                        
-                        # Run daily at midnight
-                        while true; do
-                          # Calculate seconds until next midnight
-                          now=$(date +%s)
-                          midnight=$(date -d 'tomorrow 00:00:00' +%s)
-                          sleep_seconds=$((midnight - now))
-                          
-                          echo "$(date): Sleeping for $sleep_seconds seconds until next export..."
-                          sleep $sleep_seconds
-                          
+                          echo "=== OPEN DATA EXPORTER CONTAINER ==="
+                          cd /code
+
+                          # Function to run the export
+                          run_export() {
+                            echo "$(date): Starting Open Data export..."
+                            if bundle exec rake decidim:open_data:export; then
+                              echo "$(date): Open Data export completed successfully"
+                            else
+                              echo "$(date): Open Data export failed"
+                            fi
+                          }
+
+                          # Run initial export on startup
                           run_export
-                        done
+
+                          # Run daily at midnight
+                          while true; do
+                            # Calculate seconds until next midnight
+                            now=$(date +%s)
+                            midnight=$(date -d 'tomorrow 00:00:00' +%s)
+                            sleep_seconds=$((midnight - now))
+                            
+                            echo "$(date): Sleeping for $sleep_seconds seconds until next export..."
+                            sleep $sleep_seconds
+                            
+                            run_export
+                          done
                   volumeMounts:
                       - mountPath: /code/data
                         name: decidim-pvc
@@ -172,89 +180,89 @@ spec:
                           ephemeral-storage: '2Gi'
                 - name: sidekiq
                   image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
-                  command: ["/bin/sh", "-lc"]
+                  command: ['/bin/sh', '-lc']
                   args:
-                    - |
-                      set -e
-                      
-                      echo "Starting Sidekiq wrapper: waiting for redis..."
-                      # Prefer redis-cli if present (handles auth and URLs), otherwise fall back to nc TCP check.
-                      if command -v redis-cli >/dev/null 2>&1; then
-                        if [ -n "${REDIS_URL:-}" ]; then
-                          until redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1; do
-                            echo "redis not reachable yet; sleeping 1s"
-                            sleep 1
-                          done
-                        fi
-                      else
-                        until nc -z ${REDIS_HOST:-redis} ${REDIS_PORT:-6379}; do
-                          echo "redis not reachable yet; sleeping 1s"
-                          sleep 1
-                        done
-                      fi
-                      echo "redis reachable; exec sidekiq"
-                      exec bundle exec sidekiq -e ${RAILS_ENV:-production} -c 5 \
-                      -q decidim_production_mailers,4 \
-                      -q decidim_production_default,2 \
-                      -q decidim_production_newsletters,2 \
-                      -q decidim_production_events,2 \
-                      -q decidim_production_translations,2 \
-                      -q decidim_production_vote_reminder,2 \
-                      -q decidim_production_reminders,2 \
-                      -q decidim_production_delete_inactive_participants,2 \
-                      -q decidim_production_newsletters_opt_in,2 \
-                      -q decidim_production_conference_diplomas,2 \
-                      -q decidim_production_user_report,2 \
-                      -q decidim_production_block_user,2 \
-                      -q decidim_production_exports,1 \
-                      -q decidim_production_close_meeting_reminder,1 \
-                      -q decidim_production_spam_analysis,1 \
-                      -q active_storage_analysis,1 \
-                      -q active_storage_purge,1
-                      
+                      - |
+                          set -e
+
+                          echo "Starting Sidekiq wrapper: waiting for redis..."
+                          # Prefer redis-cli if present (handles auth and URLs), otherwise fall back to nc TCP check.
+                          if command -v redis-cli >/dev/null 2>&1; then
+                            if [ -n "${REDIS_URL:-}" ]; then
+                              until redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1; do
+                                echo "redis not reachable yet; sleeping 1s"
+                                sleep 1
+                              done
+                            fi
+                          else
+                            until nc -z ${REDIS_HOST:-redis} ${REDIS_PORT:-6379}; do
+                              echo "redis not reachable yet; sleeping 1s"
+                              sleep 1
+                            done
+                          fi
+                          echo "redis reachable; exec sidekiq"
+                          exec bundle exec sidekiq -e ${RAILS_ENV:-production} -c 5 \
+                          -q decidim_production_mailers,4 \
+                          -q decidim_production_default,2 \
+                          -q decidim_production_newsletters,2 \
+                          -q decidim_production_events,2 \
+                          -q decidim_production_translations,2 \
+                          -q decidim_production_vote_reminder,2 \
+                          -q decidim_production_reminders,2 \
+                          -q decidim_production_delete_inactive_participants,2 \
+                          -q decidim_production_newsletters_opt_in,2 \
+                          -q decidim_production_conference_diplomas,2 \
+                          -q decidim_production_user_report,2 \
+                          -q decidim_production_block_user,2 \
+                          -q decidim_production_exports,1 \
+                          -q decidim_production_close_meeting_reminder,1 \
+                          -q decidim_production_spam_analysis,1 \
+                          -q active_storage_analysis,1 \
+                          -q active_storage_purge,1
+
                   envFrom:
-                    - secretRef:
-                        name: decidim-secret
-                    - configMapRef:
-                        name: decidim-configmap
+                      - secretRef:
+                            name: decidim-secret
+                      - configMapRef:
+                            name: decidim-configmap
                   resources:
-                    requests:
-                      memory: "512Mi"
-                      cpu: "250m"
-                      ephemeral-storage: "1Gi"
-                    limits:
-                      memory: "1Gi"
-                      cpu: "500m"
-                      ephemeral-storage: "2Gi"
+                      requests:
+                          memory: '512Mi'
+                          cpu: '250m'
+                          ephemeral-storage: '1Gi'
+                      limits:
+                          memory: '1Gi'
+                          cpu: '500m'
+                          ephemeral-storage: '2Gi'
                   livenessProbe:
-                    exec:
-                      command:
-                        - /bin/sh
-                        - -c
-                        - "ps aux | grep '[s]idekiq' || exit 1"
-                    initialDelaySeconds: 30
-                    periodSeconds: 30
-                    timeoutSeconds: 5
-                    failureThreshold: 3
+                      exec:
+                          command:
+                              - /bin/sh
+                              - -c
+                              - "ps aux | grep '[s]idekiq' || exit 1"
+                      initialDelaySeconds: 30
+                      periodSeconds: 30
+                      timeoutSeconds: 5
+                      failureThreshold: 3
                   readinessProbe:
-                    exec:
-                      command:
-                        - /bin/sh
-                        - -c
-                        - "ps aux | grep '[s]idekiq' || exit 1"
-                    initialDelaySeconds: 10
-                    periodSeconds: 10
-                    timeoutSeconds: 5
+                      exec:
+                          command:
+                              - /bin/sh
+                              - -c
+                              - "ps aux | grep '[s]idekiq' || exit 1"
+                      initialDelaySeconds: 10
+                      periodSeconds: 10
+                      timeoutSeconds: 5
                   volumeMounts:
-                    - mountPath: /code/data
-                      name: decidim-pvc
-                    - mountPath: /code/storage
-                      name: decidim-pvc
-                    - mountPath: /code/public
-                      name: decidim-pvc
-                      readOnly: true
-                    - mountPath: /code/tmp
-                      name: tmp-volume
+                      - mountPath: /code/data
+                        name: decidim-pvc
+                      - mountPath: /code/storage
+                        name: decidim-pvc
+                      - mountPath: /code/public
+                        name: decidim-pvc
+                        readOnly: true
+                      - mountPath: /code/tmp
+                        name: tmp-volume
             volumes:
                 - name: tmp-volume
                   emptyDir: {}
