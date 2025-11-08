@@ -1,14 +1,14 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { chatbotConfig } from '@config/chatbot.config';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useEffect, useState } from 'react';
 import { Provider, useDispatch } from 'react-redux';
-import { chatbotConfig } from '@config/chatbot.config';
-import { ConfigProvider } from './config/ConfigContext';
-import { PALETTE } from './theme/styles/palette';
-import { ToastrProvider } from './shared/toastr/context/ToastrContext';
 import '../i18n';
-import { store } from './store/store';
+import { ConfigProvider } from './config/ConfigContext';
+import { ToastrProvider } from './shared/toastr/context/ToastrContext';
 import { ConfigState, setBackendBaseUrl } from './store/config/config-slice';
+import { store } from './store/store';
+import { PALETTE } from './theme/styles/palette';
 
 // query client for tanstackQuery
 const queryClient = new QueryClient({});
