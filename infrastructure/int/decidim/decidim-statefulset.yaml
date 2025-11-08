@@ -50,10 +50,10 @@ spec:
                       - |
                           echo "=== ASSET COMPILATION INIT CONTAINER ==="
                           cd /code
-                          
+
                           echo "--- Cleaning old Shakapacker assets ---"
                           bin/rails shakapacker:clean || bin/rails shakapacker:clobber || true
-                          
+
                           echo "--- Compiling assets with Shakapacker ---"
                           if SHAKAPACKER_PRECOMPILE=true bin/rails assets:precompile; then
                             echo "Assets compiled successfully"
