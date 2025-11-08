@@ -129,15 +129,16 @@ class ChatbotInjector
     language = Rack::Utils.escape_html(extract_locale(env))
     src = Rack::Utils.escape_html(loader_src)
 
+    # Set API URL based on environment
+    api_url = Rails.env.production? ? 'http://chatbot-backend-svc:3002' : 'http://localhost:3002'
+
     <<~HTML.chomp
       <!-- EU LDT Participate Chatbot -->
-      <script>
-        // Set global base URL for chatbot assets
-        window.__CHATBOT_BASE_URL__ = '/chatbot-api';
-        // Set API URL for production environment
-        window.__VITE_API_URL__ = 'http://chatbot-backend-svc:3002';
-      </script>
       <script type="module">
+        // Set global configuration before loading the chatbot
+        window.__CHATBOT_BASE_URL__ = '/chatbot-api';
+        window.__VITE_API_URL__ = '#{api_url}';
+
         // Load the chatbot web component
         import('/chatbot-api/index.js?v=#{cache_token}')
           .then(() => {

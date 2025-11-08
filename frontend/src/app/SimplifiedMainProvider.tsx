@@ -85,13 +85,13 @@ const RuntimeConfigInitializer = ({
 		let active = true;
 		const baseConfig = chatbotConfig;
 		const getViteApiUrl = () => {
-			// Priority: globalThis (runtime) > process.env (Node.js) > import.meta.env (build time)
-			if (typeof globalThis !== 'undefined' && (globalThis as { __VITE_API_URL__?: string }).__VITE_API_URL__) {
-				return (globalThis as { __VITE_API_URL__?: string }).__VITE_API_URL__;
-			}
+			// Priority: process.env (Node.js) > globalThis (runtime override) > import.meta.env (build time)
 			const env = typeof process === 'undefined' ? undefined : (process.env as Record<string, string | undefined>);
 			if (env?.VITE_API_URL) {
 				return env.VITE_API_URL;
+			}
+			if (typeof globalThis !== 'undefined' && (globalThis as { __VITE_API_URL__?: string }).__VITE_API_URL__) {
+				return (globalThis as { __VITE_API_URL__?: string }).__VITE_API_URL__;
 			}
 			// Fallback to build-time value
 			return (import.meta as any).env?.VITE_API_URL;
