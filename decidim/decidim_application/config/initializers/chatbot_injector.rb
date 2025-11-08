@@ -63,7 +63,7 @@ class ChatbotInjector
 
     if excluded_path?(request.path)
       Rails.logger.info("Chatbot: Skipping injection for excluded path #{request.path}")
-      return @app.call(env)
+      return [status, headers, [body]]
     end
 
     Rails.logger.info("Chatbot: Injecting widget for path #{request.path}")
