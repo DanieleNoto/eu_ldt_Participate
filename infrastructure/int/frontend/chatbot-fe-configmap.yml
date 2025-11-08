@@ -5,4 +5,4 @@ metadata:
     namespace: participate
 data:
     NODE_ENV: 'production'
-    VITE_API_URL: http://localhost:5001
+    VITE_API_URL: 'http://chatbot-backend-svc:3002'
