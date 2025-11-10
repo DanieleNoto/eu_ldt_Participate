@@ -9,6 +9,7 @@ ca:
         location: Localització
         phone_number: Telèfon
         postal_code: Codi postal
+        personal_url: URL personal
         statutory_representative_email: Correu electrònic del representant legal
         underage: Menor d'edat
     errors:
@@ -18,6 +19,9 @@ ca:
             date_of_birth:
               underage: no vàlid. Si sou menor d'edat, haureu d'obtenir autorització
                 parental.
+            personal_url:
+              invalid_url: No és una URL vàlida (ha de començar amb http:// o https://)
+              invalid: No és una URL vàlida (ha de començar amb http:// o https://)
             password:
               too_short: És massa curta (mínim 8 caràcters)
               too_common: És massa comuna - si us plau, trieu una contrasenya més segura
@@ -49,6 +53,9 @@ ca:
           hide_password: Amagar contrasenya
           hidden_password: Contrasenya amagada
           shown_password: Contrasenya visible
+    account:
+      show:
+        personal_url_help_text: Ha de començar amb http:// o https://
     admin:
     admin:
       extra_user_fields:

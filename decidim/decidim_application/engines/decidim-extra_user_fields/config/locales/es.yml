@@ -9,6 +9,7 @@ es:
         location: Localización
         phone_number: Teléfono
         postal_code: Código postal
+        personal_url: URL personal
         statutory_representative_email: Correo electrónico del representante legal
         underage: Menor de edad
     errors:
@@ -27,6 +28,9 @@ es:
               too_long: es demasiado largo (máximo 100 caracteres)
             statutory_representative_email:
               too_long: es demasiado largo (máximo 100 caracteres)
+            personal_url:
+              invalid_url: No es una URL válida (debe comenzar con http:// o https://)
+              invalid: No es una URL válida (debe comenzar con http:// o https://)
             password:
               too_short: Es demasiado corta (mínimo 8 caracteres)
               too_common: Es demasiado común - por favor, elige una contraseña más segura
@@ -58,6 +62,9 @@ es:
           hide_password: Ocultar contraseña
           hidden_password: Contraseña oculta
           shown_password: Contraseña visible
+    account:
+      show:
+        personal_url_help_text: Debe comenzar con http:// o https://
     admin:
       extra_user_fields:
         menu:

@@ -9,6 +9,7 @@ de:
         location: Standort
         phone_number: Telefonnummer
         postal_code: Postleitzahl
+        personal_url: Persönliche URL
     errors:
       models:
         user:
@@ -24,6 +25,9 @@ de:
               too_long: ist zu lang (maximal 100 Zeichen)
             statutory_representative_email:
               too_long: ist zu lang (maximal 100 Zeichen)
+            personal_url:
+              invalid_url: Ist keine gültige URL (muss mit http:// oder https:// beginnen)
+              invalid: Ist keine gültige URL (muss mit http:// oder https:// beginnen)
             password:
               too_short: Ist zu kurz (mindestens 8 Zeichen)
               too_common: Ist zu häufig - bitte wählen Sie ein sichereres Passwort
@@ -55,6 +59,9 @@ de:
           hide_password: Passwort verbergen
           hidden_password: Passwort verborgen
           shown_password: Passwort sichtbar
+    account:
+      show:
+        personal_url_help_text: Muss mit http:// oder https:// beginnen
     admin:
     admin:
       extra_user_fields:

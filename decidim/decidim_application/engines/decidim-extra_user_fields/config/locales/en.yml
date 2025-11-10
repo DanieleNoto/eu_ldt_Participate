@@ -9,6 +9,7 @@ en:
         location: Location
         phone_number: Phone Number
         postal_code: Postal code
+        personal_url: Personal URL
         statutory_representative_email: Representative email
         underage: Underage
     errors:
@@ -26,6 +27,9 @@ en:
               too_long: is too long (maximum is 100 characters)
             statutory_representative_email:
               too_long: is too long (maximum is 100 characters)
+            personal_url:
+              invalid_url: Is not a valid URL (must start with http:// or https://)
+              invalid: Is not a valid URL (must start with http:// or https://)
             password:
               too_short: Is too short (minimum is 8 characters)
               too_common: Is too common - please choose a more secure password
@@ -57,6 +61,9 @@ en:
           hide_password: Hide password
           hidden_password: Password hidden
           shown_password: Password shown
+    account:
+      show:
+        personal_url_help_text: Must start with http:// or https://
     admin:
       extra_user_fields:
         menu:
