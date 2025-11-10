@@ -7,7 +7,7 @@
 		"format": "prettier \"**/*.{cjs,js,json,md,ts}\" --ignore-path ./.eslintignore --write",
 		"format:check": "prettier --check .",
 		"format:git:staged": "pretty-quick --pattern \"**/*.{cjs,html,js,json,md,ts}\" --ignore-path ./.eslintignore --staged",
-		"lint": "eslint --flag unstable_config_lookup_from_file .",
+		"lint": "eslint --flag v10_config_lookup_from_file .",
 		"lint:ci": "lint-staged",
 		"prepare:commit-msg-unix": "exec < /dev/tty && git cz --hook || true",
 		"prepare:commit-msg-win": "utils\\commit\\utils\\prepare-commit-msg",

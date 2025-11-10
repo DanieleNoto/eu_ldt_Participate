@@ -94,7 +94,8 @@ const RuntimeConfigInitializer = ({
 				return (globalThis as { __VITE_API_URL__?: string }).__VITE_API_URL__;
 			}
 			// Fallback to build-time value
-			return (import.meta as any).env?.VITE_API_URL;
+			const metaEnv = (import.meta as unknown as { env?: { VITE_API_URL?: string } });
+			return metaEnv.env?.VITE_API_URL;
 		};
 
 		const envBaseVar = normalizeBaseUrl(getViteApiUrl() ?? '');
