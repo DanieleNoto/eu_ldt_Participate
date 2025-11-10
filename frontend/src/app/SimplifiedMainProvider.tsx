@@ -90,12 +90,12 @@ const RuntimeConfigInitializer = ({
 			if (env?.VITE_API_URL) {
 				return env.VITE_API_URL;
 			}
-			if (typeof globalThis !== 'undefined' && (globalThis as { __VITE_API_URL__?: string }).__VITE_API_URL__) {
-				return (globalThis as { __VITE_API_URL__?: string }).__VITE_API_URL__;
+			// Allow runtime override via globalThis (useful for embedding config at runtime)
+			if (typeof globalThis !== 'undefined' && (globalThis as any).__VITE_API_URL__) {
+				return (globalThis as any).__VITE_API_URL__;
 			}
-			// Fallback to build-time value
-			const metaEnv = (import.meta as unknown as { env?: { VITE_API_URL?: string } });
-			return metaEnv.env?.VITE_API_URL;
+			// No build-time import.meta reference here to keep compatibility with test TS config
+			return undefined;
 		};
 
 		const envBaseVar = normalizeBaseUrl(getViteApiUrl() ?? '');
