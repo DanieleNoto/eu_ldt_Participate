@@ -24,7 +24,7 @@ import { UseCaseScenariosPage } from '../../../../../../pages/pages/public/proce
  * - The Use Case information is available in the EU LDT Use Cases & Scenarios Tool.
  */
 
-test.describe('[PAR-PPM007] - Configure use case information in process', () => {
+test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in process', () => {
 	let context: BrowserContext;
 	let page: Page;
 	let adminHomePage: AdminHomePage;
