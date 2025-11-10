@@ -58,9 +58,6 @@ module Api
       backend_url = ENV['CHATBOT_BACKEND_URL'] || 'http://backend:3002'
       path = params[:path] || ''
       
-      # Add trailing slash if not present (backend requires it)
-      path = "#{path}/" unless path.end_with?('/')
-      
       full_url = "#{backend_url}/#{path}"
       query_string = request.query_string.presence
       full_url = "#{full_url}?#{query_string}" if query_string
@@ -131,40 +128,17 @@ module Api
 
     def proxy_api_request(full_url)
       begin
-        uri = URI.parse(full_url)
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.open_timeout = 10
-        http.read_timeout = 30
-
-        # Use SSL if HTTPS
-        http.use_ssl = (uri.scheme == 'https')
-
-        # Map Rails request method to Net::HTTP class
-        request_class = case request.method
-                        when 'GET' then Net::HTTP::Get
-                        when 'POST' then Net::HTTP::Post
-                        when 'PUT' then Net::HTTP::Put
-                        when 'DELETE' then Net::HTTP::Delete
-                        when 'PATCH' then Net::HTTP::Patch
-                        else Net::HTTP::Get
-                        end
-
-        request_obj = request_class.new(uri)
+        # First attempt without modification
+        http_response = perform_http_request(full_url)
         
-        # Forward headers
-        request.headers.each do |key, value|
-          next if ['HTTP_HOST', 'HTTP_X_FORWARDED_HOST'].include?(key)
-          header_name = key.sub(/^HTTP_/, '').split('_').map(&:capitalize).join('-')
-          request_obj[header_name] = value if key.start_with?('HTTP_')
+        # If we get a 404 and the URL doesn't end with /, try adding a trailing slash
+        if http_response.code == '404' && !full_url.end_with?('/')
+          Rails.logger.info "[Chatbot Backend Proxy] Got 404, retrying with trailing slash"
+          full_url_with_slash = full_url.split('?')[0] + '/'
+          query_part = full_url.split('?', 2)[1]
+          full_url_with_slash = "#{full_url_with_slash}?#{query_part}" if query_part
+          http_response = perform_http_request(full_url_with_slash)
         end
-
-        # Forward body for POST/PUT/PATCH
-        if ['POST', 'PUT', 'PATCH'].include?(request.method)
-          request_obj.body = request.raw_post
-          request_obj['Content-Type'] = request.content_type if request.content_type
-        end
-
-        http_response = http.request(request_obj)
         
         Rails.logger.info "[Chatbot Backend Proxy] Response status: #{http_response.code}"
 
@@ -188,6 +162,43 @@ module Api
         Rails.logger.error e.backtrace.join("\n")
         render json: { error: 'Service unavailable' }, status: 503
       end
+    end
+
+    def perform_http_request(full_url)
+      uri = URI.parse(full_url)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.open_timeout = 10
+      http.read_timeout = 30
+
+      # Use SSL if HTTPS
+      http.use_ssl = (uri.scheme == 'https')
+
+      # Map Rails request method to Net::HTTP class
+      request_class = case request.method
+                      when 'GET' then Net::HTTP::Get
+                      when 'POST' then Net::HTTP::Post
+                      when 'PUT' then Net::HTTP::Put
+                      when 'DELETE' then Net::HTTP::Delete
+                      when 'PATCH' then Net::HTTP::Patch
+                      else Net::HTTP::Get
+                      end
+
+      request_obj = request_class.new(uri)
+      
+      # Forward headers
+      request.headers.each do |key, value|
+        next if ['HTTP_HOST', 'HTTP_X_FORWARDED_HOST'].include?(key)
+        header_name = key.sub(/^HTTP_/, '').split('_').map(&:capitalize).join('-')
+        request_obj[header_name] = value if key.start_with?('HTTP_')
+      end
+
+      # Forward body for POST/PUT/PATCH
+      if ['POST', 'PUT', 'PATCH'].include?(request.method)
+        request_obj.body = request.raw_post
+        request_obj['Content-Type'] = request.content_type if request.content_type
+      end
+
+      http.request(request_obj)
     end
   end
 end
