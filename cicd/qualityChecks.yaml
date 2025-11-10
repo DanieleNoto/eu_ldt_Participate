@@ -180,14 +180,14 @@ jobs:
                 SonarQube: 'EU-LDT-Toolbox-Sonarqube-INT'
                 scannerMode: 'cli'
                 configMode: 'manual'
-                cliProjectKey: 'EU_LDT_Participate_EU_LDT_Participate_AZbzElXiAi9yyI3i8xfA'
+                cliProjectKey: 'EU_LDT_Participate_EU_LDT_Participate_ce0ec476-809d-4be8-803a-322f2a3bd44d'
                 cliProjectName: 'EU_LDT_Participate'
                 extraProperties: |
                     # Additional properties that will be passed to the scanner,
                     # Put one key=value per line, example:
                     # sonar.exclusions=**/*.bin
                     sonar.host.url=https://sq-int.ldttoolbox.app
-                    sonar.projectKey=EU_LDT_Participate_EU_LDT_Participate_AZbzElXiAi9yyI3i8xfA
+                    sonar.projectKey=EU_LDT_Participate_EU_LDT_Participate_ce0ec476-809d-4be8-803a-322f2a3bd44d
           - task: JavaToolInstaller@1
             inputs:
                 versionSpec: '21'
