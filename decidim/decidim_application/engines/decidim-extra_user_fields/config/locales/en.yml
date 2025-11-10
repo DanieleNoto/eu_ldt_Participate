@@ -26,7 +26,37 @@ en:
               too_long: is too long (maximum is 100 characters)
             statutory_representative_email:
               too_long: is too long (maximum is 100 characters)
+            password:
+              too_short: Is too short (minimum is 8 characters)
+              too_common: Is too common - please choose a more secure password
+              name_included_in_password: Is too similar to your name
+              email_included_in_password: Is too similar to your email
+              nickname_included_in_password: Is too similar to your nickname
+              not_enough_unique_characters: Does not have enough unique characters
+            old_password:
+              invalid: is not correct - please verify your current password
+  password_validator:
+    denied: Is denied
+    domain_included_in_password: Is too similar to this domain name
+    email_included_in_password: Is too similar to your email
+    fallback: Is not valid
+    name_included_in_password: Is too similar to your name
+    nickname_included_in_password: Is too similar to your nickname
+    not_enough_unique_characters: Does not have enough unique characters
+    password_not_allowed: Is not allowed
+    password_repeated: Cannot reuse old password
+    password_too_common: Is too common - please choose a more secure password
+    password_too_long: Is too long
+    password_too_short: Is too short (minimum is 8 characters)
   decidim:
+    devise:
+      shared:
+        password_fields:
+          password_requirements: "15 characters minimum, must not be too common (e.g. 123456), must be different from your nickname and your email and must be different from your old passwords."
+          show_password: Show password
+          hide_password: Hide password
+          hidden_password: Password hidden
+          shown_password: Password shown
     admin:
       extra_user_fields:
         menu:

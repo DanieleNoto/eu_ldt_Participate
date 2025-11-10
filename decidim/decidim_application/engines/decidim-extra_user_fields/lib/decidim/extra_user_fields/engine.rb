@@ -38,6 +38,9 @@ module Decidim
             include Decidim::ExtraUserFields::FormsDefinitions
           end
 
+          require "decidim/account_form_override"
+          Decidim::AccountForm.prepend(Decidim::AccountFormOverride)
+
           Decidim::CreateRegistration.class_eval do
             prepend Decidim::ExtraUserFields::CreateRegistrationsCommandsOverrides
           end

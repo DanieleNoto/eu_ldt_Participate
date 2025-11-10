@@ -27,7 +27,37 @@ fr:
               too_long: est trop long (maximum 100 caractères)
             statutory_representative_email:
               too_long: est trop long (maximum 100 caractères)
+            password:
+              too_short: Est trop courte (minimum 8 caractères)
+              too_common: Est trop commune - veuillez choisir un mot de passe plus sécurisé
+              name_included_in_password: Est trop similaire à votre nom
+              email_included_in_password: Est trop similaire à votre email
+              nickname_included_in_password: Est trop similaire à votre nom d'utilisateur
+              not_enough_unique_characters: N'a pas assez de caractères uniques
+            old_password:
+              invalid: n'est pas correcte - veuillez vérifier votre mot de passe actuel
+  password_validator:
+    denied: Est rejeté
+    domain_included_in_password: Est trop similaire à ce nom de domaine
+    email_included_in_password: Est trop similaire à votre email
+    fallback: N'est pas valide
+    name_included_in_password: Est trop similaire à votre nom
+    nickname_included_in_password: Est trop similaire à votre nom d'utilisateur
+    not_enough_unique_characters: N'a pas assez de caractères uniques
+    password_not_allowed: N'est pas autorisé
+    password_repeated: Vous ne pouvez pas réutiliser l'ancien mot de passe
+    password_too_common: Est trop commune - veuillez choisir un mot de passe plus sécurisé
+    password_too_long: Est trop long
+    password_too_short: Est trop courte (minimum 8 caractères)
   decidim:
+    devise:
+      shared:
+        password_fields:
+          password_requirements: "15 caractères minimum, ne doit pas être trop commun (par exemple 123456), doit être différent de votre surnom et de votre email et doit être différent de vos anciens mots de passe."
+          show_password: Afficher le mot de passe
+          hide_password: Masquer le mot de passe
+          hidden_password: Mot de passe masqué
+          shown_password: Mot de passe affiché
     admin:
       extra_user_fields:
         menu:

@@ -18,7 +18,38 @@ ca:
             date_of_birth:
               underage: no vàlid. Si sou menor d'edat, haureu d'obtenir autorització
                 parental.
+            password:
+              too_short: És massa curta (mínim 8 caràcters)
+              too_common: És massa comuna - si us plau, trieu una contrasenya més segura
+              name_included_in_password: És massa similar al vostre nom
+              email_included_in_password: És massa similar al vostre correu electrònic
+              nickname_included_in_password: És massa similar al vostre nom d'usuari
+              not_enough_unique_characters: No té prou caràcters únics
+            old_password:
+              invalid: no és correcta - si us plau, verifiqueu la vostra contrasenya actual
+  password_validator:
+    denied: És rebutjada
+    domain_included_in_password: És massa similar a aquest nom de domini
+    email_included_in_password: És massa similar al vostre correu electrònic
+    fallback: No és vàlida
+    name_included_in_password: És massa similar al vostre nom
+    nickname_included_in_password: És massa similar al vostre nom d'usuari
+    not_enough_unique_characters: No té prou caràcters únics
+    password_not_allowed: No és permesa
+    password_repeated: No podeu reutilitzar la contrasenya anterior
+    password_too_common: És massa comuna - si us plau, trieu una contrasenya més segura
+    password_too_long: És massa llarga
+    password_too_short: És massa curta (mínim 8 caràcters)
   decidim:
+    devise:
+      shared:
+        password_fields:
+          password_requirements: "15 caràcters mínim, no ha de ser massa comú (p. ex. 123456), ha de ser diferent del vostre sobrenom i del vostre correu electrònic i ha de ser diferent de les vostres contrasenyes anteriors."
+          show_password: Mostrar contrasenya
+          hide_password: Amagar contrasenya
+          hidden_password: Contrasenya amagada
+          shown_password: Contrasenya visible
+    admin:
     admin:
       extra_user_fields:
         menu:

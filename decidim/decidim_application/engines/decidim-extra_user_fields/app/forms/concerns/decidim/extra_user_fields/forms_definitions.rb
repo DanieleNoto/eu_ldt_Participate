@@ -21,7 +21,6 @@ module Decidim
         attribute :location, String
         attribute :underage, ActiveRecord::Type::Boolean
         attribute :statutory_representative_email, String
-        attribute :is_first_login, ActiveRecord::Type::Boolean, default: false
 
         # Account profile attributes
         attribute :about, String
@@ -92,7 +91,7 @@ module Decidim
       end
 
       def country_required?
-        country? && (is_first_login? || false)
+        country? && registration_form?
       end
 
       def date_of_birth?
@@ -100,7 +99,7 @@ module Decidim
       end
 
       def date_of_birth_required?
-        date_of_birth? && (is_first_login? || false)
+        date_of_birth? && registration_form?
       end
 
       def gender?
@@ -108,7 +107,7 @@ module Decidim
       end
 
       def gender_required?
-        gender? && (is_first_login? || false)
+        gender? && registration_form?
       end
 
       def postal_code?
@@ -116,7 +115,7 @@ module Decidim
       end
 
       def postal_code_required?
-        postal_code? && (is_first_login? || false)
+        postal_code? && registration_form?
       end
 
       def phone_number?
@@ -124,7 +123,7 @@ module Decidim
       end
 
       def phone_number_required?
-        phone_number? && (is_first_login? || false)
+        phone_number? && registration_form?
       end
 
       def phone_number_format_valid?
@@ -138,7 +137,7 @@ module Decidim
       end
 
       def location_required?
-        location? && (is_first_login? || false)
+        location? && registration_form?
       end
 
       def underage?
@@ -146,7 +145,7 @@ module Decidim
       end
 
       def underage_required?
-        underage? && (is_first_login? || false)
+        underage? && registration_form?
       end
 
       def underage_accepted?
@@ -154,17 +153,13 @@ module Decidim
       end
 
       def should_validate_birth_date?
-        date_of_birth? && underage? && (date_of_birth.present? || (is_first_login? || false))
+        date_of_birth? && underage? && date_of_birth.present?
       end
 
       # EndBlock
 
       def extra_user_fields_enabled
         @extra_user_fields_enabled ||= current_organization.extra_user_fields_enabled?
-      end
-
-      def is_first_login?
-        self.is_first_login.present? && self.is_first_login == true
       end
 
       # Method to check if birth date is under the limit
@@ -193,6 +188,15 @@ module Decidim
 
       def underage_limit
         current_organization.extra_user_fields["underage_limit"]
+      end
+
+      def registration_form?
+        self.class.name == "Decidim::RegistrationForm" || 
+          self.class.name == "Decidim::OmniauthRegistrationForm"
+      end
+
+      def account_edit_form?
+        self.class.name == "Decidim::AccountForm"
       end
     end
   end

@@ -24,7 +24,38 @@ de:
               too_long: ist zu lang (maximal 100 Zeichen)
             statutory_representative_email:
               too_long: ist zu lang (maximal 100 Zeichen)
+            password:
+              too_short: Ist zu kurz (mindestens 8 Zeichen)
+              too_common: Ist zu häufig - bitte wählen Sie ein sichereres Passwort
+              name_included_in_password: Ist zu ähnlich zu Ihrem Namen
+              email_included_in_password: Ist zu ähnlich zu Ihrer E-Mail
+              nickname_included_in_password: Ist zu ähnlich zu Ihrem Benutzernamen
+              not_enough_unique_characters: Hat nicht genug eindeutige Zeichen
+            old_password:
+              invalid: ist nicht korrekt - bitte überprüfen Sie Ihr aktuelles Passwort
+  password_validator:
+    denied: Wird abgelehnt
+    domain_included_in_password: Ist dem Domainnamen zu ähnlich
+    email_included_in_password: Ist zu ähnlich zu Ihrer E-Mail
+    fallback: Ist nicht gültig
+    name_included_in_password: Ist zu ähnlich zu Ihrem Namen
+    nickname_included_in_password: Ist zu ähnlich zu Ihrem Benutzernamen
+    not_enough_unique_characters: Hat nicht genug eindeutige Zeichen
+    password_not_allowed: Ist nicht zulässig
+    password_repeated: Sie können Ihr altes Passwort nicht wiederverwenden
+    password_too_common: Ist zu häufig - bitte wählen Sie ein sichereres Passwort
+    password_too_long: Ist zu lang
+    password_too_short: Ist zu kurz (mindestens 8 Zeichen)
   decidim:
+    devise:
+      shared:
+        password_fields:
+          password_requirements: "15 Zeichen Minimum, darf nicht zu häufig sein (z.B. 123456), muss sich von Ihrem Benutzernamen und Ihrer E-Mail unterscheiden und muss sich von Ihren alten Passwörtern unterscheiden."
+          show_password: Passwort anzeigen
+          hide_password: Passwort verbergen
+          hidden_password: Passwort verborgen
+          shown_password: Passwort sichtbar
+    admin:
     admin:
       extra_user_fields:
         menu:

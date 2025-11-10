@@ -27,7 +27,37 @@ es:
               too_long: es demasiado largo (máximo 100 caracteres)
             statutory_representative_email:
               too_long: es demasiado largo (máximo 100 caracteres)
+            password:
+              too_short: Es demasiado corta (mínimo 8 caracteres)
+              too_common: Es demasiado común - por favor, elige una contraseña más segura
+              name_included_in_password: Es demasiado similar a tu nombre
+              email_included_in_password: Es demasiado similar a tu correo electrónico
+              nickname_included_in_password: Es demasiado similar a tu nombre de usuario
+              not_enough_unique_characters: No tiene suficientes caracteres únicos
+            old_password:
+              invalid: no es correcta - por favor, verifica tu contraseña actual
+  password_validator:
+    denied: Está rechazada
+    domain_included_in_password: Es demasiado similar a este nombre de dominio
+    email_included_in_password: Es demasiado similar a tu correo electrónico
+    fallback: No es válida
+    name_included_in_password: Es demasiado similar a tu nombre
+    nickname_included_in_password: Es demasiado similar a tu nombre de usuario
+    not_enough_unique_characters: No tiene suficientes caracteres únicos
+    password_not_allowed: No está permitida
+    password_repeated: No puedes reutilizar la contraseña anterior
+    password_too_common: Es demasiado común - por favor, elige una contraseña más segura
+    password_too_long: Es demasiado larga
+    password_too_short: Es demasiado corta (mínimo 8 caracteres)
   decidim:
+    devise:
+      shared:
+        password_fields:
+          password_requirements: "15 caracteres mínimo, no debe ser demasiado común (ej. 123456), debe ser diferente de tu apodo y tu correo electrónico y debe ser diferente de tus contraseñas anteriores."
+          show_password: Mostrar contraseña
+          hide_password: Ocultar contraseña
+          hidden_password: Contraseña oculta
+          shown_password: Contraseña visible
     admin:
       extra_user_fields:
         menu:
