@@ -67,27 +67,43 @@ module Decidim
         Rails.logger.info "[Keycloak CookieManager] Clearing cookies #{cookie_names.inspect} from domains: #{domains.inspect}"
         Rails.logger.debug "[Keycloak CookieManager] Current cookies before clearing: access_token=#{cookies_obj['access_token']&.length}, refresh_token=#{cookies_obj['refresh_token']&.length}, id_token=#{cookies_obj['id_token']&.length}"
         
+        # CRITICAL: Try all combinations of domain, secure, and same_site attributes
+        # Rails requires exact match of all attributes to delete a cookie
         domains.each do |domain|
-          # Clear named Keycloak cookies with all possible attribute combinations
           cookie_names.each do |name|
             next unless cookies_obj[name].present?
             
             Rails.logger.debug "[Keycloak CookieManager] Clearing #{name} from domain: #{domain.inspect}"
             
-            # Delete with domain attribute
-            cookies_obj.delete(name, domain: domain, secure: true, httponly: true, same_site: :lax)
-            cookies_obj.delete(name, domain: domain, secure: false, httponly: true, same_site: :lax)
+            # Try all combinations of secure and same_site (production vs development)
+            [true, false].each do |secure_flag|
+              [:lax, :strict, :none, nil].each do |same_site_val|
+                # With httponly
+                cookies_obj.delete(name, domain: domain, secure: secure_flag, httponly: true, same_site: same_site_val)
+                # Without httponly
+                cookies_obj.delete(name, domain: domain, secure: secure_flag, httponly: false, same_site: same_site_val)
+                # Minimal attributes
+                cookies_obj.delete(name, domain: domain, secure: secure_flag)
+              end
+              # Just domain and secure
+              cookies_obj.delete(name, domain: domain, secure: secure_flag)
+            end
+            
+            # Try with just domain
             cookies_obj.delete(name, domain: domain)
             
             # Force expiry in the past (belt and suspenders approach)
-            cookies_obj[name] = {
-              value: '',
-              expires: 1.year.ago,
-              domain: domain,
-              secure: Rails.env.production?,
-              httponly: true,
-              same_site: :lax
-            }
+            # This sets the cookie with empty value and past expiry for each domain
+            [true, false].each do |secure_flag|
+              cookies_obj[name] = {
+                value: '',
+                expires: 1.year.ago,
+                domain: domain,
+                secure: secure_flag,
+                httponly: true,
+                same_site: :lax
+              }
+            end
           end
         end
         
