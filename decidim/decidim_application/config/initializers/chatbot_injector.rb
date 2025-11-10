@@ -129,8 +129,9 @@ class ChatbotInjector
     language = Rack::Utils.escape_html(extract_locale(env))
     src = Rack::Utils.escape_html(loader_src)
 
-    # Set API URL based on environment
-    api_url = Rails.env.production? ? 'http://chatbot-backend-svc:3002' : 'http://localhost:3002'
+    # Use relative URL for API - will work in both HTTP and HTTPS
+    # The proxy controller will forward to the actual backend service
+    api_url = '/chatbot-backend-api'
 
     <<~HTML.chomp
       <!-- EU LDT Participate Chatbot -->

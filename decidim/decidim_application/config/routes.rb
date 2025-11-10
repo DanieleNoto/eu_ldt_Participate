@@ -5,6 +5,8 @@ Rails.application.routes.draw do
 
   # Custom chatbot API routes - avoid conflict with Decidim API
   get 'chatbot-api/*path', to: 'api/chatbot#proxy'
+  # Proxy for chatbot backend API calls
+  match 'chatbot-backend-api/*path', to: 'api/chatbot#backend_proxy', via: [:get, :post, :put, :delete, :patch]
 
   mount Decidim::Core::Engine => '/'
   mount Decidim::AdminHeader::Engine, at: '/'
