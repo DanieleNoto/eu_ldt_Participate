@@ -123,7 +123,7 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 						await formMeetingPage.selectMeetingType('online');
 						newTitle = `New Meeting Title - Type: ${type}`;
 						await formMeetingPage.fillTitle(newTitle);
-						newOnlineMeetingUrl = 'https://meet.jit.si/updated-meeting-room';
+						newOnlineMeetingUrl = 'https://jitsi-part-int.ldttoolbox.app/updated-meeting-room';
 						await formMeetingPage.fillOnlineMeetingUrl(newOnlineMeetingUrl);
 					} else if (type === 'in person') {
 						await formMeetingPage.selectMeetingType('in_person');
@@ -355,7 +355,7 @@ async function checkErrors(
 			await formMeetingPage.checkOnlineMeetingUrlErrors();
 
 			// 🔹 Final step: set valid  URL
-			const newOnlineMeetingUrl = 'https://meet.jit.si/updated-meeting-room';
+			const newOnlineMeetingUrl = 'https://jitsi-part-int.ldttoolbox.app/updated-meeting-room';
 			await formMeetingPage.fillOnlineMeetingUrl(newOnlineMeetingUrl);
 		} else if (type === 'in person' || type === 'hybrid') {
 			if (type === 'in person') {
