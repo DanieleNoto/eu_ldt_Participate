@@ -32,7 +32,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 # Set working directory and create required directories with proper permissions
 WORKDIR /code
 RUN mkdir -p /code/storage /code/tmp/pids /code/tmp/cache && \
-    chmod -R 777 /code/tmp
+  chmod -R 755 /code/ && \
+  chmod -R 755 /code/tmp 
 
 # Copy dependency files FIRST for better Docker layer caching
 COPY Gemfile Gemfile.lock ./
@@ -43,12 +44,10 @@ RUN bundle config set --local path '/usr/local/bundle' && \
   bundle config set --local jobs 4 && \
   bundle install --retry 3
 
-COPY package.json ./
+COPY package.json yarn.lock* ./
 
-# Install Node.js dependencies (cached layer) - install from package.json, regenerate yarn.lock
-RUN yarn install --network-timeout 100000 --include-dev && \
-    yarn cache clean 
-
+# Install Node.js dependencies (cached layer) - reduced concurrency
+RUN yarn install --network-timeout 100000 --include-dev 
 # NOW copy the full application code
 COPY . .
 
@@ -111,11 +110,13 @@ COPY --from=builder --chown=decidim:decidim /usr/local/bundle /usr/local/bundle
 # Initialize permissions BEFORE switching to decidim user
 # Git initialization will be done at runtime in the entrypoint script to avoid permission issues
 RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log && \
-    chown -R decidim:decidim /code/tmp /code/log && \
-    chmod 755 /code/tmp /code/tmp/pids /code/tmp/cache && \
-    touch /code/tmp/webpacker_runtime.yml && \
-    chmod 644 /code/tmp/webpacker_runtime.yml && \
-    chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh
+  chown -R decidim:decidim /code/tmp /code/log && \
+  chmod 755 /code/tmp /code/tmp/pids /code/tmp/cache && \
+  touch /code/tmp/webpacker_runtime.yml && \
+  chmod 644 /code/tmp/webpacker_runtime.yml && \
+  chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh && \
+  # Ensure /code directory is writable for config generation during asset compilation
+  chmod 755 /code 2>/dev/null || true
 
 # Set runtime environment
 ENV RAILS_ENV=${RAILS_ENV}
