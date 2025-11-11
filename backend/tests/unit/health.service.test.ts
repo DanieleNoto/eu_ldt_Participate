@@ -411,10 +411,7 @@ describe('HealthService', () => {
 
 			await HealthService.health();
 
-			expect(mockIORedis).toHaveBeenCalledWith(
-				'redis://custom-redis:6379/1',
-				expect.any(Object)
-			);
+			expect(mockIORedis).toHaveBeenCalledWith('redis://custom-redis:6379/1', expect.any(Object));
 		});
 
 		it('should fall back to defaults when env vars are not set', async () => {
@@ -564,10 +561,7 @@ describe('HealthService', () => {
 
 			await HealthService.health();
 
-			expect(mockIORedis).toHaveBeenCalledWith(
-				'rediss://user:password@custom-redis:6380/5',
-				expect.any(Object)
-			);
+			expect(mockIORedis).toHaveBeenCalledWith('rediss://user:password@custom-redis:6380/5', expect.any(Object));
 		});
 
 		it('should handle all services returning 3xx redirects', async () => {
@@ -753,10 +747,7 @@ describe('HealthService', () => {
 
 			await HealthService.health();
 
-			expect(mockAxios.get).toHaveBeenCalledWith(
-				expect.stringContaining('grafana:8080'),
-				expect.any(Object)
-			);
+			expect(mockAxios.get).toHaveBeenCalledWith(expect.stringContaining('grafana:8080'), expect.any(Object));
 		});
 
 		it('should handle Matomo URL variations', async () => {
@@ -764,10 +755,7 @@ describe('HealthService', () => {
 
 			await HealthService.health();
 
-			expect(mockAxios.get).toHaveBeenCalledWith(
-				expect.stringContaining('matomo:8000'),
-				expect.any(Object)
-			);
+			expect(mockAxios.get).toHaveBeenCalledWith(expect.stringContaining('matomo:8000'), expect.any(Object));
 		});
 
 		it('should handle Jitsi URL variations', async () => {
@@ -775,10 +763,7 @@ describe('HealthService', () => {
 
 			await HealthService.health();
 
-			expect(mockAxios.get).toHaveBeenCalledWith(
-				expect.stringContaining('jitsi:8888'),
-				expect.any(Object)
-			);
+			expect(mockAxios.get).toHaveBeenCalledWith(expect.stringContaining('jitsi:8888'), expect.any(Object));
 		});
 
 		it('should handle readiness check catch block when everything fails', async () => {
@@ -802,7 +787,7 @@ describe('HealthService', () => {
 	describe('logError method coverage', () => {
 		it('should log error with message and service name', () => {
 			mockLogger.default.error.mockClear();
-			
+
 			// Call logError directly via reflection since it's protected
 			const logError = (HealthService as any).logError.bind(HealthService);
 			logError({ message: 'Test error message' });
@@ -819,7 +804,7 @@ describe('HealthService', () => {
 			mockLogger.default.error.mockClear();
 			const testError = new Error('Original error');
 			testError.name = 'CustomError';
-			
+
 			const logError = (HealthService as any).logError.bind(HealthService);
 			logError({ message: 'Something failed', cause: testError });
 
@@ -839,7 +824,7 @@ describe('HealthService', () => {
 		it('should handle non-Error objects as cause', () => {
 			mockLogger.default.error.mockClear();
 			const customCause = { code: 'ECONNREFUSED', errno: -111 };
-			
+
 			const logError = (HealthService as any).logError.bind(HealthService);
 			logError({ message: 'Connection failed', cause: customCause });
 
@@ -855,7 +840,7 @@ describe('HealthService', () => {
 		it('should extract error name from Error object', () => {
 			mockLogger.default.error.mockClear();
 			const typeError = new TypeError('Type mismatch');
-			
+
 			const logError = (HealthService as any).logError.bind(HealthService);
 			logError({ message: 'Type validation failed', cause: typeError });
 
@@ -867,7 +852,7 @@ describe('HealthService', () => {
 		it('should include stack trace in logged error', () => {
 			mockLogger.default.error.mockClear();
 			const error = new Error('Stack trace test');
-			
+
 			const logError = (HealthService as any).logError.bind(HealthService);
 			logError({ message: 'Error occurred', cause: error });
 
@@ -878,7 +863,7 @@ describe('HealthService', () => {
 
 		it('should omit error property when cause is not provided', () => {
 			mockLogger.default.error.mockClear();
-			
+
 			const logError = (HealthService as any).logError.bind(HealthService);
 			logError({ message: 'Simple error message' });
 
@@ -891,7 +876,7 @@ describe('HealthService', () => {
 		it('should handle Error with empty message', () => {
 			mockLogger.default.error.mockClear();
 			const emptyError = new Error();
-			
+
 			const logError = (HealthService as any).logError.bind(HealthService);
 			logError({ message: 'Operation failed', cause: emptyError });
 
@@ -902,7 +887,7 @@ describe('HealthService', () => {
 
 		it('should handle null cause gracefully', () => {
 			mockLogger.default.error.mockClear();
-			
+
 			const logError = (HealthService as any).logError.bind(HealthService);
 			logError({ message: 'Error with null cause', cause: null });
 
