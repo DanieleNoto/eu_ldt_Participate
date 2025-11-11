@@ -91,10 +91,6 @@ spec:
                             chmod -R u+x,g+x,o+x /code/node_modules/.bin 2>/dev/null || true
                             chmod -R u+r,g+r,o+r /code/node_modules/.bin 2>/dev/null || true
                           fi
-                          if [ ! -x /code/node_modules/.bin/webpack ]; then
-                            echo "ERROR: webpack is still not executable after chmod"
-                            exit 1
-                          fi
 
                           echo "--- Compiling assets with Shakapacker ---"
                           if SHAKAPACKER_PRECOMPILE=true bundle exec rake shakapacker:compile; then
