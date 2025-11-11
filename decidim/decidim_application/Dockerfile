@@ -119,7 +119,9 @@ RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log /code/public /code/storage
   chown -R decidim:decidim /code && \
   find /code -type d -exec chmod 775 {} + && \
   find /code -type f -exec chmod 664 {} + && \
-  chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh /code/bin/*
+  chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh && \
+  find /code/bin -type f -exec chmod 775 {} + && \
+  find /code/node_modules/.bin -type f -exec chmod 775 {} + 2>/dev/null || true
 
 # Set runtime environment
 ENV RAILS_ENV=${RAILS_ENV}
