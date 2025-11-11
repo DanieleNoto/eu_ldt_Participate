@@ -61,7 +61,7 @@ const checkRedis = async (): Promise<HealthCheck> => {
 	let details = '';
 
 	try {
-		const redisUrl = process.env.REDIS_URL || 'redis://redis:6379/0';
+		const redisUrl = process.env.REDIS_URL ?? 'redis://redis:6379/0';
 		const redis = new Redis(redisUrl, {
 			connectTimeout: 5000,
 			commandTimeout: 5000,
@@ -84,10 +84,43 @@ const checkRedis = async (): Promise<HealthCheck> => {
 	};
 };
 
+const getStatusFromResponse = (status: number, serviceName: string): { state: string; details: string } => {
+	if (status >= 200 && status < 400) {
+		return { state: HealthStatus.HEALTHY, details: `${serviceName} is responsive (HTTP ${status})` };
+	} else if (status >= 400 && status < 500) {
+		return { state: HealthStatus.DEGRADED, details: `${serviceName} client error (HTTP ${status})` };
+	} else {
+		return { state: HealthStatus.UNHEALTHY, details: `${serviceName} server error (HTTP ${status})` };
+	}
+};
+
+const getStatusFromError = (
+	error: Error & { code?: string; response?: { status: number } },
+	serviceName: string
+): { state: string; details: string } => {
+	if (error.response) {
+		if (error.response.status >= 400 && error.response.status < 500) {
+			return {
+				state: HealthStatus.DEGRADED,
+				details: `${serviceName} client error (HTTP ${error.response.status})`
+			};
+		} else {
+			return {
+				state: HealthStatus.UNHEALTHY,
+				details: `${serviceName} server error (HTTP ${error.response.status})`
+			};
+		}
+	} else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+		return { state: HealthStatus.UNHEALTHY, details: `${serviceName} is not reachable` };
+	} else if (error.code === 'ECONNABORTED') {
+		return { state: HealthStatus.DEGRADED, details: `${serviceName} timeout` };
+	} else {
+		return { state: HealthStatus.DEGRADED, details: `${serviceName} error: ${error.message || 'Unknown error'}` };
+	}
+};
+
 const checkHttpService = async (url: string, serviceName: string, timeout: number = 5000): Promise<HealthCheck> => {
 	const startTime = Date.now();
-	let state: string = HealthStatus.HEALTHY;
-	let details = '';
 
 	try {
 		const response = await axios.get(url, {
@@ -95,64 +128,44 @@ const checkHttpService = async (url: string, serviceName: string, timeout: numbe
 			validateStatus: () => true // Don't throw error on non-2xx status
 		});
 
-		if (response.status >= 200 && response.status < 400) {
-			state = HealthStatus.HEALTHY;
-			details = `${serviceName} is responsive (HTTP ${response.status})`;
-		} else if (response.status >= 400 && response.status < 500) {
-			state = HealthStatus.DEGRADED;
-			details = `${serviceName} client error (HTTP ${response.status})`;
-		} else {
-			state = HealthStatus.UNHEALTHY;
-			details = `${serviceName} server error (HTTP ${response.status})`;
-		}
+		const { state, details } = getStatusFromResponse(response.status, serviceName);
+
+		return {
+			status: state,
+			timestamp: new Date().toISOString(),
+			responseTime: Date.now() - startTime,
+			details
+		};
 	} catch (err) {
 		const error = err as Error & { code?: string; response?: { status: number } };
-		if (error.response) {
-			// Server responded with error status
-			if (error.response.status >= 400 && error.response.status < 500) {
-				state = HealthStatus.DEGRADED;
-				details = `${serviceName} client error (HTTP ${error.response.status})`;
-			} else {
-				state = HealthStatus.UNHEALTHY;
-				details = `${serviceName} server error (HTTP ${error.response.status})`;
-			}
-		} else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
-			state = HealthStatus.UNHEALTHY;
-			details = `${serviceName} is not reachable`;
-		} else if (error.code === 'ECONNABORTED') {
-			state = HealthStatus.DEGRADED;
-			details = `${serviceName} timeout`;
-		} else {
-			state = HealthStatus.DEGRADED;
-			details = `${serviceName} error: ${error.message || 'Unknown error'}`;
-		}
-	}
+		const { state, details } = getStatusFromError(error, serviceName);
 
-	return {
-		status: state,
-		timestamp: new Date().toISOString(),
-		responseTime: Date.now() - startTime,
-		details
-	};
+		return {
+			status: state,
+			timestamp: new Date().toISOString(),
+			responseTime: Date.now() - startTime,
+			details
+		};
+	}
 };
 
 const checkDecidim = async (): Promise<HealthCheck> => {
-	const decidimUrl = process.env.DECIDIM_URL || 'http://decidim:3000';
+	const decidimUrl = process.env.DECIDIM_URL ?? 'http://decidim:3000';
 	return checkHttpService(`${decidimUrl}/health_check`, 'Decidim', 10000);
 };
 
 const checkGrafana = async (): Promise<HealthCheck> => {
-	const grafanaUrl = process.env.GRAFANA_URL || 'http://grafana:3000';
+	const grafanaUrl = process.env.GRAFANA_URL ?? 'http://grafana:3000';
 	return checkHttpService(`${grafanaUrl}/api/health`, 'Grafana');
 };
 
 const checkMatomo = async (): Promise<HealthCheck> => {
-	const matomoUrl = process.env.MATOMO_URL || 'http://matomo:80';
+	const matomoUrl = process.env.MATOMO_URL ?? 'http://matomo:80';
 	return checkHttpService(`${matomoUrl}/matomo.php`, 'Matomo');
 };
 
 const checkJitsiWeb = async (): Promise<HealthCheck> => {
-	const jitsiUrl = process.env.JITSI_WEB_URL || 'http://jitsi-web:80';
+	const jitsiUrl = process.env.JITSI_WEB_URL ?? 'http://jitsi-web:80';
 	return checkHttpService(jitsiUrl, 'Jitsi Web');
 };
 
@@ -280,7 +293,7 @@ class HealthService {
 				status: overallStatus,
 				checks,
 				timestamp: new Date().toISOString(),
-				version: process.env.npm_package_version || '1.0.0'
+				version: process.env.npm_package_version ?? '1.0.0'
 			};
 		} catch (error) {
 			this.logError({ message: (error as Error).message || 'Error occur', cause: error });

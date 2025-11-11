@@ -29,18 +29,26 @@ module Decidim
           end
         end
         
-        # CRITICAL FIX: Clean up ALL Keycloak cookies BEFORE Devise logout to prevent redirects with stale cookies
-        # CENTRALIZED: Uses Decidim::Keycloak::CookieManager
-        Rails.logger.info "[Keycloak Logout] Clearing cookies before Devise logout - access_token present: #{cookies['access_token'].present?}, id_token present: #{cookies['id_token'].present?}"
-        Decidim::Keycloak::CookieManager.clear_all_cookies(cookies, request.host, session)
-        Rails.logger.info "[Keycloak Logout] Cookies cleared - access_token still present: #{cookies['access_token'].present?}, id_token still present: #{cookies['id_token'].present?}"
+  # CRITICAL FIX: Attempt an initial cleanup before Devise logout (best-effort)
+  # CENTRALIZED: Uses Decidim::Keycloak::CookieManager
+  Rails.logger.info "[Keycloak Logout] Initial clearing attempt before Devise logout - access_token present: #{cookies['access_token'].present?}, id_token present: #{cookies['id_token'].present?}"
+  Decidim::Keycloak::CookieManager.clear_all_cookies(cookies, request.host, session)
+  Rails.logger.info "[Keycloak Logout] Initial clear attempt done - access_token still present: #{cookies['access_token'].present?}, id_token still present: #{cookies['id_token'].present?}"
         
         # Perform normal Devise logout AFTER cookie cleanup
         signed_out = (::Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
         set_flash_message! :notice, :signed_out if signed_out
-        
+
         yield if block_given?
-        
+
+        # IMPORTANT: Clear cookies again AFTER Devise sign_out and after any flash has been set,
+        # but BEFORE sending the redirect response. Calling clear_all_cookies after redirect
+        # cannot set Set-Cookie headers for the current response, so must be done here so the
+        # browser receives expired cookies (including the Rails session cookie) in the same
+        # response that performs sign out.
+        Rails.logger.info "[Keycloak Logout] Clearing cookies after Devise sign_out (before redirect)"
+        Decidim::Keycloak::CookieManager.clear_all_cookies(cookies, request.host, session)
+
         # Finally redirect
         if should_logout_from_keycloak && keycloak_logout_url.present?
           Rails.logger.info "[Keycloak Logout] Redirecting to Keycloak logout: #{keycloak_logout_url}"
@@ -49,10 +57,6 @@ module Decidim
           Rails.logger.info "[Keycloak Logout] Redirecting to local sign out path"
           redirect_to after_sign_out_path_for(resource_name)
         end
-        
-        # SAFETY NET: Ensure cookies are cleared even after redirect (belt and suspenders)
-        # This handles edge cases where the redirect happens before cookie deletion
-        Decidim::Keycloak::CookieManager.clear_all_cookies(cookies, request.host, session)
       end
 
       private

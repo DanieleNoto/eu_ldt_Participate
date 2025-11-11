@@ -61,37 +61,40 @@ module Decidim
       # @param request_host [String] The request host
       # @param session_obj [ActionDispatch::Request::Session, nil] Optional session object to clean
       def self.clear_all_cookies(cookies_obj, request_host, session_obj = nil)
-        cookie_names = ['access_token', 'refresh_token', 'id_token']
+  # include Rails session cookie to ensure session is removed client-side on logout
+  cookie_names = ['access_token', 'refresh_token', 'id_token', '_session_id']
         domains = calculate_all_cookie_domains(request_host)
         
         Rails.logger.info "[Keycloak CookieManager] Clearing cookies #{cookie_names.inspect} from domains: #{domains.inspect}"
         Rails.logger.debug "[Keycloak CookieManager] Current cookies before clearing: access_token=#{cookies_obj['access_token']&.length}, refresh_token=#{cookies_obj['refresh_token']&.length}, id_token=#{cookies_obj['id_token']&.length}"
         
-        # CRITICAL: Try all combinations of domain, secure, and same_site attributes
-        # Rails requires exact match of all attributes to delete a cookie
+        # CRITICAL: Try all combinations of domain, secure, path and same_site attributes
+        # Rails requires exact match of all attributes to delete a cookie. We will attempt
+        # deletion even if the server did not receive the cookie (browser may not send
+        # cookies for mismatched domains), by setting expired Set-Cookie headers for each
+        # candidate domain/attribute combination.
         domains.each do |domain|
           cookie_names.each do |name|
-            next unless cookies_obj[name].present?
-            
-            Rails.logger.debug "[Keycloak CookieManager] Clearing #{name} from domain: #{domain.inspect}"
-            
+            Rails.logger.debug "[Keycloak CookieManager] Attempting to clear #{name} from domain: #{domain.inspect} (regardless of presence)"
+
             # Try all combinations of secure and same_site (production vs development)
             [true, false].each do |secure_flag|
               [:lax, :strict, :none, nil].each do |same_site_val|
                 # With httponly
-                cookies_obj.delete(name, domain: domain, secure: secure_flag, httponly: true, same_site: same_site_val)
+                cookies_obj.delete(name, domain: domain, secure: secure_flag, httponly: true, same_site: same_site_val, path: '/')
                 # Without httponly
-                cookies_obj.delete(name, domain: domain, secure: secure_flag, httponly: false, same_site: same_site_val)
+                cookies_obj.delete(name, domain: domain, secure: secure_flag, httponly: false, same_site: same_site_val, path: '/')
                 # Minimal attributes
-                cookies_obj.delete(name, domain: domain, secure: secure_flag)
+                cookies_obj.delete(name, domain: domain, secure: secure_flag, path: '/')
               end
-              # Just domain and secure
-              cookies_obj.delete(name, domain: domain, secure: secure_flag)
+
+              # Just domain and secure (no same_site)
+              cookies_obj.delete(name, domain: domain, secure: secure_flag, path: '/')
             end
-            
+
             # Try with just domain
-            cookies_obj.delete(name, domain: domain)
-            
+            cookies_obj.delete(name, domain: domain, path: '/')
+
             # Force expiry in the past (belt and suspenders approach)
             # This sets the cookie with empty value and past expiry for each domain
             [true, false].each do |secure_flag|
@@ -101,25 +104,37 @@ module Decidim
                 domain: domain,
                 secure: secure_flag,
                 httponly: true,
-                same_site: :lax
+                same_site: :lax,
+                path: '/'
               }
             end
           end
         end
         
-        # Additional safety: clear without domain attribute at all
+        # Additional safety: always clear without domain attribute at all (path '/', multiple same_site)
         cookie_names.each do |name|
-          if cookies_obj[name].present?
-            Rails.logger.debug "[Keycloak CookieManager] Additional clearing of #{name} without domain"
-            cookies_obj.delete(name)
-            cookies_obj[name] = {
-              value: '',
-              expires: 1.year.ago,
-              secure: Rails.env.production?,
-              httponly: true,
-              same_site: :lax
-            }
-          end
+          Rails.logger.debug "[Keycloak CookieManager] Additional clearing of #{name} without domain (forcing expired cookie)"
+          cookies_obj.delete(name, path: '/')
+          cookies_obj.delete(name)
+          # Force expired cookie without domain to ensure browser receives a Set-Cookie
+          cookies_obj[name] = {
+            value: '',
+            expires: 1.year.ago,
+            secure: Rails.env.production?,
+            httponly: true,
+            same_site: :lax,
+            path: '/'
+          }
+
+          # Also attempt SameSite=None variant (for cross-site contexts)
+          cookies_obj[name] = {
+            value: '',
+            expires: 1.year.ago,
+            secure: true,
+            httponly: true,
+            same_site: :none,
+            path: '/'
+          }
         end
         
         # Clean session data if provided

@@ -2,7 +2,7 @@
 
 class JitsiUrlController < Decidim::Admin::ApplicationController
   # Default constants for Jitsi
-  JITSI_DEFAULT_SERVER_URL = "https://meet.jit.si"
+  JITSI_DEFAULT_SERVER_URL = "https://jitsi-part-int.ldttoolbox.app/"
   JITSI_DEFAULT_ROOM_PREFIX = "decidim-meeting-"
 
   before_action :load_meeting

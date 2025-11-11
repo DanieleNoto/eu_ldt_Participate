@@ -51,6 +51,15 @@ spec:
                           echo "=== ASSET COMPILATION INIT CONTAINER ==="
                           cd /code
 
+                          echo "--- Preparing static assets (Keycloak logo) ---"
+                          mkdir -p public/media/images
+                          if [ -f "engines/decidim-keycloak/app/packs/images/keycloak_logo.svg" ]; then
+                            cp engines/decidim-keycloak/app/packs/images/keycloak_logo.svg public/media/images/
+                            echo "Keycloak logo copied to public/media/images/"
+                          else
+                            echo "WARNING: Keycloak logo source not found at engines/decidim-keycloak/app/packs/images/keycloak_logo.svg"
+                          fi
+
                           echo "--- Cleaning old Shakapacker assets ---"
                           bin/rails shakapacker:clean || bin/rails shakapacker:clobber || true
 
@@ -124,9 +133,6 @@ spec:
                             name: decidim-secret
                       - configMapRef:
                             name: decidim-configmap
-                  env:
-                      - name: RAILS_ENV
-                        value: production
                   command:
                       - /bin/bash
                       - -c

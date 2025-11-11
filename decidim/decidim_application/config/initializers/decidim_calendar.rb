@@ -5,22 +5,22 @@ Decidim::Calendar.configure do |config|
   # Just remove any event type that you don't want in your calendar
   config.events = {
     "Decidim::ParticipatoryProcessStep" => {
-      color: "#3A4A9F",
+      color: "var(--primary)",
       fontColor: "#fff", # used when "color" is used as background
       id: :participatory_step
     },
     "Decidim::Meetings::Meeting" => {
-      color: "#ed1c24",
-      fontColor: "#fff",
+      color: "var(--tertiary)",
+      fontColor: "#000",
       id: :meeting
     },
     "Decidim::Calendar::ExternalEvent" => {
-      color: "#ed650b",
+      color: "#C21D76",
       fontColor: "#fff",
       id: :external_event
     },
     "Decidim::Debates::Debate" => {
-      color: "#099329",
+      color: "#388E3C",
       fontColor: "#fff",
       id: :debate
     },

@@ -15,7 +15,7 @@ en:
                 settings:
                     global:
                         jitsi_server_url: 'Jitsi Server URL'
-                        jitsi_server_url_help: 'URL of the Jitsi server to use (e.g: https://meet.jit.si)'
+                        jitsi_server_url_help: 'URL of the Jitsi server to use (e.g: https://jitsi-part-int.ldttoolbox.app/)'
                         jitsi_room_prefix: 'Jitsi Room Prefix'
                         jitsi_room_prefix_help: 'Prefix to add to Jitsi room names'
                         enable_jitsi_generator: 'Enable Jitsi URL Generator'

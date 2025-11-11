@@ -1,4 +1,4 @@
-import { BinaryLike, createCipheriv, createDecipheriv, randomBytes, scrypt, Cipheriv, Decipheriv } from 'node:crypto';
+import { BinaryLike, createCipheriv, createDecipheriv, randomBytes, scrypt } from 'node:crypto';
 import { promisify } from 'util';
 import appConfig from '../config/config';
 

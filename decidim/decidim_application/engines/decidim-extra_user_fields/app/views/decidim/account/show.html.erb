@@ -57,8 +57,13 @@
           ) %>
 
       <% unless current_user.identities.where(provider: 'keycloakopenid').exists? %>
+        <h2 class="h4 font-bold pt-4">
+          <%= t("change_password", scope:"decidim.account.show") %>
+        </h2>
         <% if @account.password.present? || current_organization.sign_in_enabled? %>
           <%= render partial: "password_fields", locals: { form: f, user: current_user } %>
+          <%# Render old password field (verify current password) before new password fields %>
+          <%= render partial: "old_password_field", locals: { form: f } %>
         <% end %>
       <% end %>
 

@@ -24,7 +24,7 @@ export abstract class BaseController {
 				request_id: req.id,
 				method: req.method,
 				url: req.url,
-				status: reply.statusCode || 200
+				status: reply.statusCode ?? 200
 			});
 
 			reply.send(result);

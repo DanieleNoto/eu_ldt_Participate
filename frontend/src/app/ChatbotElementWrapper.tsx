@@ -52,7 +52,7 @@ class EuChatbotElement extends HTMLElement {
 	}
 
 	public getLanguage(): string {
-		return this.getAttribute('language') || 'en';
+		return this.getAttribute('language') ?? 'en';
 	}
 
 	private _setupShadowDOM() {
@@ -132,7 +132,7 @@ class EuChatbotElement extends HTMLElement {
 	}
 
 	private async _injectGlobalStyles() {
-		const baseUrl = (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '';
+		const baseUrl = (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ ?? '';
 		const loadedGlobal = baseUrl ? await this._loadGlobalCSS(baseUrl) : false;
 		this._applyProtectiveOverrides(loadedGlobal);
 	}
@@ -249,7 +249,7 @@ class EuChatbotElement extends HTMLElement {
 	private _render() {
 		if (!this._root) return;
 
-		const language = this.getAttribute('language') || 'en';
+		const language = this.getAttribute('language') ?? 'en';
 
 		try {
 			const content = (

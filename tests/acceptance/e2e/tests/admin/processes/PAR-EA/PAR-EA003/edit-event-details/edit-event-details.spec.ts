@@ -126,7 +126,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 				await formMeetingPage.setEndDateTime(updatedStartDate, updatedEndTime);
 
 				// Update online meeting URL
-				updatedOnlineMeetingUrl = 'https://meet.jit.si/updated-meeting-room';
+				updatedOnlineMeetingUrl = 'https://jitsi-part-int.ldttoolbox.app/updated-meeting-room';
 				await formMeetingPage.fillOnlineMeetingUrl(updatedOnlineMeetingUrl);
 
 				// Update location hints
