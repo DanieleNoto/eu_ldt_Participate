@@ -16,10 +16,10 @@ const needSync = async () => {
 };
 export const createDBConnection = async () => {
 	// Construct database URL for logging
-	const dbHost = process.env.DB_HOST || 'localhost';
-	const dbPort = process.env.DB_PORT || '5432';
-	const dbUsername = process.env.DB_USERNAME || 'postgres';
-	const dbName = process.env.DB_NAME || 'postgres';
+	const dbHost = process.env.DB_HOST ?? 'localhost';
+	const dbPort = process.env.DB_PORT ?? '5432';
+	const dbUsername = process.env.DB_USERNAME ?? 'postgres';
+	const dbName = process.env.DB_NAME ?? 'postgres';
 	const constructedDatabaseURL = `postgres://${dbUsername}:***@${dbHost}:${dbPort}/${dbName}`;
 
 	logger.info({ msg: 'Trying to connect to the database...', config: constructedDatabaseURL });
