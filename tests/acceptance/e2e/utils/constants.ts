@@ -1,8 +1,9 @@
 /** SPDX-License-Identifier: EUPL-1.2
  * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
  * Authors:
- * Gianfranco Cedro
  * Simone Bianchelli
+ * Denis Vasilev Dimchev
+ * Gianfranco Cedro
  */
 
 import path = require('path');
@@ -59,7 +60,22 @@ export const TEST_SELECTORS = {
 		MARKETING_TOGGLE: 'label[for="dc-marketing"]',
 		SAVE_BUTTON: '#dc-modal-save'
 	},
+	PROCESS: {
+		SCENARIO_LIST: 'section#use-case-scenarios a.card__list',
+		FIRST_SCENARIO: 'section#use-case-scenarios a.card__list:first-of-type',
+		USE_CASE_CONTENT: '#content .card__content',
+		SCENARIO_HEADING: '#content .section-heading.decorator',
+		AI_LABEL: '#content .callout.warning strong',
+		EXPERIMENT_ID_TITLE: '#content .definition-data__title',
+		EXPERIMENT_ID_TEXT: '#content .definition-data__text',
+		METRICS_IFRAME_CONTAINER: '.experiment-iframe-container iframe#experiment-iframe',
+		EXPERIMENT_DETAILS_HEADING: 'h3.card__title',
 
+		REALTIME_MONITORING_CONTAINER: '[data-testid="experiment-realtime-monitoring"]',
+		REALTIME_ACTIONS_CHART: '[data-testid="experiment-realtime-actions-chart"] div[role="combobox"]',
+		REALTIME_CHART_PLACEHOLDER: '[data-testid="experiment-chart-placeholder"]',
+		REALTIME_CHART: '[data-testid="experiment-chart"]'
+	},
 	SUCCESS_MESSAGE: '[data-testid="success-message"]',
 	ERROR_MESSAGE: '[data-testid="error-message"]',
 	ADMIN_BAR: '#admin-bar'

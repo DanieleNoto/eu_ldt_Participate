@@ -1,3 +1,11 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Simone Bianchelli
+ * Gianfranco Cedro
+ */
+
 import { Download, expect, Locator, Page } from '@playwright/test';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
 import { join } from 'path';
@@ -8,6 +16,9 @@ import { existsSync, unlinkSync } from 'fs';
  * Page Object Model for the participatory process detail page.
  * Manages the display of process details and navigation to its components.
  */
+
+export type FoundItem = { text: string; href: string | null; index: number };
+
 export class ProcessDetailPage extends AuthenticatedPage {
 	// Main content elements
 	private readonly contentContainer: Locator;
@@ -54,7 +65,6 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		this.navItems = page.locator('.participatory-space__nav-item');
 
 		// Help elements
-		//this.helpButton = page.locator('#floating-helper-tip button');
 		this.debatesLink = page.locator('a[href$="/debates"]:visible').first();
 		this.meetingsLink = page.locator('a[href$="/meetings"]:visible').first();
 		this.meetingCards = this.page.locator('.card__list-list .card__list');
@@ -71,6 +81,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Navigates to a specific process detail page using its slug
 	 * @param processSlug - The slug of the process to navigate to
 	 */
+
 	async navigateToProcess(processSlug: string): Promise<void> {
 		await this.navigateTo(`/processes/${processSlug}`);
 		await this.waitForPageLoad();
@@ -79,6 +90,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Waits for the page to load completely
 	 */
+
 	async waitForPageLoad(): Promise<void> {
 		await this.waitForElement('.participatory-space__container');
 		await this.waitForElement('section[data-process-hero]');
@@ -88,6 +100,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Navigates to the convocation page from the navigation dropdown
 	 */
+
 	async navigateToConvocationPage(): Promise<void> {
 		// Ensure the dropdown is open
 		await this.openNavigationDropdown();
@@ -101,6 +114,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Navigates to the debates page from the link
 	 */
+
 	async navigateToDebatesPage(): Promise<void> {
 		// Find and click the debates page link
 		await this.debatesLink.click();
@@ -110,6 +124,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Navigates to the meetings page from the link
 	 */
+
 	async navigateToMeetingsPage(): Promise<void> {
 		// Find and click the meetings page link
 		await this.meetingsLink.click();
@@ -120,6 +135,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Navigates to a specific component by its name from the navigation dropdown
 	 * @param componentName - The name of the component to navigate to
 	 */
+
 	async navigateToComponent(componentName: string): Promise<void> {
 		// Ensure the dropdown is open
 		await this.openNavigationDropdown();
@@ -135,6 +151,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Opens the navigation dropdown if not already open
 	 */
+
 	async openNavigationDropdown(): Promise<void> {
 		const isExpanded = await this.navDropdownTrigger.getAttribute('aria-expanded');
 		if (isExpanded !== 'true') {
@@ -146,6 +163,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Closes the navigation dropdown if open
 	 */
+
 	async closeNavigationDropdown(): Promise<void> {
 		const isExpanded = await this.navDropdownTrigger.getAttribute('aria-expanded');
 		if (isExpanded === 'true') {
@@ -157,6 +175,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Checks if the navigation dropdown is open
 	 */
+
 	async isNavigationDropdownOpen(): Promise<boolean> {
 		const isExpanded = await this.navDropdownTrigger.getAttribute('aria-expanded');
 		return isExpanded === 'true';
@@ -167,6 +186,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Gets the process title from the hero section
 	 */
+
 	async getProcessTitle(): Promise<string> {
 		return (await this.processTitle.textContent()) || '';
 	}
@@ -174,6 +194,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Gets the process slogan from the hero section
 	 */
+
 	async getProcessSlogan(): Promise<string> {
 		return (await this.processSlogan.textContent()) || '';
 	}
@@ -181,6 +202,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Gets all available navigation component names
 	 */
+
 	async getAvailableComponents(): Promise<string[]> {
 		await this.openNavigationDropdown();
 
@@ -203,6 +225,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Checks if a specific component is available in the navigation
 	 * @param componentName - The name of the component to check
 	 */
+
 	async hasComponent(componentName: string): Promise<boolean> {
 		const components = await this.getAvailableComponents();
 		return components.includes(componentName);
@@ -211,6 +234,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Checks if the convocation page is available
 	 */
+
 	async hasConvocationPage(): Promise<boolean> {
 		return await this.hasComponent('Convocation Page');
 	}
@@ -218,6 +242,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Gets the URL of the convocation page
 	 */
+
 	async getConvocationPageUrl(): Promise<string> {
 		await this.openNavigationDropdown();
 		const convocationLink = this.navItems.filter({ hasText: 'Convocation Page' });
@@ -229,6 +254,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Gets the URL of a specific component
 	 * @param componentName - The name of the component
 	 */
+
 	async getComponentUrl(componentName: string): Promise<string> {
 		await this.openNavigationDropdown();
 		const componentLink = this.navItems.filter({ hasText: componentName });
@@ -241,6 +267,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Verifies that the process detail page is properly loaded
 	 */
+
 	async expectToBeOnProcessDetailPage(): Promise<void> {
 		await expect(this.getPage()).toHaveURL(/\/processes\/[^\/]+$/);
 		await expect(this.heroSection).toBeVisible();
@@ -252,6 +279,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Expects the process to have a specific title
 	 * @param expectedTitle - The expected process title
 	 */
+
 	async expectProcessTitle(expectedTitle: string): Promise<void> {
 		await expect(this.processTitle).toHaveText(expectedTitle);
 	}
@@ -259,6 +287,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Expects the convocation page to be available
 	 */
+
 	async expectConvocationPageToBeAvailable(): Promise<void> {
 		const hasConvocation = await this.hasConvocationPage();
 		expect(hasConvocation).toBe(true);
@@ -268,6 +297,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Expects a specific component to be available
 	 * @param componentName - The name of the component
 	 */
+
 	async expectComponentToBeAvailable(componentName: string): Promise<void> {
 		const hasComponent = await this.hasComponent(componentName);
 		expect(hasComponent).toBe(true);
@@ -275,6 +305,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Expects the participatory container to be visible
 	 */
+
 	async expectParticipatoryContainerToBeVisible(): Promise<void> {
 		this.expectToBeOnProcessDetailPage();
 		expect(this.participatorySpaceContainer).toBeVisible();
@@ -283,6 +314,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Expects the current process to be a private process
 	 */
+
 	async expectToBePrivateProcess(): Promise<void> {
 		const privateProcessText = this.getPage().getByText('This is a private process');
 		await expect(privateProcessText).toBeVisible();
@@ -291,6 +323,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Expects to be on a process detail page with valid URL pattern
 	 */
+
 	async expectToBeOnValidProcessDetailPage(): Promise<void> {
 		await expect(this.getPage()).toHaveURL(/\/processes\/[^\/]+$/);
 	}
@@ -300,6 +333,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Checks if the page layout is properly loaded
 	 */
+
 	async isPageLayoutLoaded(): Promise<boolean> {
 		const contentLoaded = await this.contentContainer.isVisible();
 		const mainLoaded = await this.mainElement.isVisible();
@@ -312,6 +346,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	/**
 	 * Checks if the navigation dropdown is available and functional
 	 */
+
 	async isNavigationAvailable(): Promise<boolean> {
 		const navLoaded = await this.navContainer.isVisible();
 		const triggerLoaded = await this.navDropdownTrigger.isVisible();
@@ -347,6 +382,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Verifies that the "Related documents" section is visible on the page
 																				 
 	 */
+
 	async expectRelatedDocumentsSectionToBeVisible(): Promise<void> {
 		await expect(this.relatedDocumentsHeading).toBeVisible();
 	}
@@ -355,6 +391,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Verifies that an attachment with the given title is visible and downloads the file
 	 * @param attachmentTitle - The title of the attachment to verify and download
 	 */
+
 	async verifyAndDownloadAttachment(attachmentTitle: string): Promise<void> {
 		// First verify the Related documents section is visible
 		await this.expectRelatedDocumentsSectionToBeVisible();
@@ -429,6 +466,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * @param attachmentTitle - The title of the attachment link to verify
 	 * @param expectedUrl - Expected URL to verify
 	 */
+
 	async verifyAndOpenAttachmentLink(attachmentTitle: string, expectedUrl?: string | RegExp): Promise<void> {
 		// First verify the Related documents section is visible
 		await this.expectRelatedDocumentsSectionToBeVisible();
@@ -508,6 +546,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 * Make sure the meeting list is visible
 	 * and that each card contains the title, date/time, and location.
 	 */
+
 	async enhancedVerifyMeetingsCardListVisible(): Promise<void> {
 		const count = await this.meetingCards.count();
 		expect(count).toBeGreaterThan(0);
@@ -577,5 +616,80 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Collects and verifies that the participatory space dropdown exists and contains at least one item.
+	 * Returns the list of found items { text, href, index }.
+	 */
+
+	public async collectAndVerifyParticipatoryMenuItems(openIfHidden = true): Promise<FoundItem[]> {
+		// Ensures that the container is present in the DOM
+		await expect(this.navDropdownMenu).toHaveCount(1);
+
+		// If the menu is initially hidden, try opening it by clicking the trigger
+		const ariaHidden = await this.navDropdownMenu.getAttribute('aria-hidden');
+		if (ariaHidden === 'true' && openIfHidden) {
+			if ((await this.navDropdownTrigger.count()) > 0) {
+				await this.navDropdownTrigger.click();
+				await this.navDropdownMenu.waitFor({ state: 'visible' }).catch(() => null);
+				await expect(this.navDropdownMenu).toBeVisible();
+			}
+		}
+
+		// Collect the items inside the menu (li > a)
+		const items = this.navDropdownMenu.locator('li[role="menuitem"] a.participatory-space__nav-item');
+		const count = await items.count();
+
+		if (count === 0) {
+			throw new Error('No items found within #dropdown-menu-participatory-space');
+		}
+
+		const found: FoundItem[] = [];
+		for (let i = 0; i < count; i++) {
+			const item = items.nth(i);
+			await expect(item).toBeVisible();
+			const text = (await item.innerText()).trim();
+			const href = await item.getAttribute('href');
+			found.push({ text, href, index: i });
+		}
+
+		return found;
+	}
+
+	public async verifyProcessDescriptionSection(): Promise<void> {
+		// 1. Verify title
+		const heading = this.page.getByRole('heading', { level: 2, name: 'About this process' });
+		await expect(heading).toBeVisible();
+
+		// 2. Make sure there are at least two description blocks
+		const blocks = this.page.locator('.content-block__description.editor-content');
+		await expect(blocks).toHaveCount(2);
+
+		// 3. Make sure both are visible and have content
+		for (let i = 0; i < 2; i++) {
+			const block = blocks.nth(i);
+			await expect(block).toBeVisible();
+			const text = await block.innerText();
+			expect(text.trim().length).toBeGreaterThan(0);
+		}
+	}
+
+	public async clickOnMenuItem(target: string): Promise<void> {
+		const items = this.navDropdownMenu.locator('li[role="menuitem"] a.participatory-space__nav-item');
+		const count = await items.count();
+
+		for (let i = 0; i < count; i++) {
+			const item = items.nth(i);
+			const text = (await item.innerText()).trim();
+			const href = await item.getAttribute('href');
+
+			if (text === target || href === target) {
+				await item.click();
+				return;
+			}
+		}
+
+		throw new Error(`Menu item "${target}" not found`);
 	}
 }
