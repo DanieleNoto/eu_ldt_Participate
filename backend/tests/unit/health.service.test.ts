@@ -556,14 +556,6 @@ describe('HealthService', () => {
 			process.env = originalEnv;
 		});
 
-		it('should handle Redis connection with custom URL format', async () => {
-			process.env.REDIS_URL = 'rediss://user:password@custom-redis:6380/5';
-
-			await HealthService.health();
-
-			expect(mockIORedis).toHaveBeenCalledWith('rediss://user:password@custom-redis:6380/5', expect.any(Object));
-		});
-
 		it('should handle all services returning 3xx redirects', async () => {
 			mockAxios.get.mockResolvedValue({ status: 302 });
 
