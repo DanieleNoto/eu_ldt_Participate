@@ -117,8 +117,8 @@ COPY --from=builder --chown=decidim:decidim /usr/local/bundle /usr/local/bundle
 # Set all directories to 775 and all files to 664 for maximum compatibility with Kubernetes fsGroup
 RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log /code/public /code/storage && \
   chown -R decidim:decidim /code && \
-  find /code -type d -exec chmod 775 {} + && \
-  find /code -type f -exec chmod 664 {} + && \
+  find /code -path /code/node_modules -prune -o -type d -exec chmod 775 {} + && \
+  find /code -path /code/node_modules -prune -o -type f -exec chmod 664 {} + && \
   chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh && \
   find /code/bin -type f -exec chmod 775 {} + && \
   # Make ALL node_modules executables available (files AND symlinks)
@@ -131,6 +131,7 @@ ENV NODE_ENV=${NODE_ENV}
 
 # IMPORTANT: Keep as root for this final chmod
 RUN chmod -R u+x,g+x,o+x /code/node_modules/.bin 2>/dev/null || true && \
+  find /code/node_modules -type f -path '*/bin/*' -exec chmod 775 {} + 2>/dev/null || true && \
   chmod -R u+r,g+r,o+r /code/node_modules/.bin 2>/dev/null || true
 
 USER decidim

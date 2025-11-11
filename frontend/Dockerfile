@@ -12,8 +12,8 @@ COPY package*.json ./
 # Install ALL dependencies (we need devDependencies for building) and create non-root user early
 RUN npm ci --ignore-scripts && addgroup -S app && adduser -S -G app app
 
-# Copy ALL source files with correct ownership
-COPY --chown=app:app . .
+# Copy ALL source files (root retains ownership to prevent runtime modifications)
+COPY . .
 
 # Build application
 RUN rm -rf dist && \

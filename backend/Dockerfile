@@ -12,17 +12,19 @@ COPY package*.json ./
 RUN npm ci --ignore-scripts && \
 	addgroup -S app && adduser -S -G app app
 
-# Copy source code with correct ownership
-COPY --chown=app:app . .
+# Copy source code (root owns application code to keep it immutable at runtime)
+COPY . .
 
 # Build the application and remove dev dependencies after build to keep image size smaller
 RUN npm run build && \
 	npm ci --only=production --ignore-scripts && \
 	npm cache clean --force
 
-# Copy initialization script with correct ownership
-COPY --chown=app:app scripts/init-db.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/init-db.sh
+# Copy initialization script with restrictive permissions (read/execute only)
+COPY scripts/init-db.sh /usr/local/bin/
+RUN chown root:root /usr/local/bin/init-db.sh && \
+	chmod 0555 /usr/local/bin/init-db.sh && \
+	mkdir -p /app/tmp && chown app:app /app/tmp
 
 # Run the container as the non-root user from here on
 USER app
@@ -32,8 +34,8 @@ EXPOSE 3002
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:3002/api/v1/health || exit 1
-  
+	CMD curl -f http://localhost:3002/api/v1/health || exit 1
+
 # Use initialization script as entrypoint
 ENTRYPOINT ["/usr/local/bin/init-db.sh"]
 
