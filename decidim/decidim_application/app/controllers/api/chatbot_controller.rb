@@ -255,22 +255,37 @@ module Api
       # Reject any attempt to inject a scheme or authority
       return nil if raw =~ %r{^[a-zA-Z][a-zA-Z0-9+.-]*:} || raw.start_with?('//')
 
-      # Normalize path and remove any .. segments
-      begin
-        # Prepend a slash so Pathname#cleanpath works predictably
-        normalized = Pathname.new("/#{raw}").cleanpath.to_s
-      rescue => _e
-        return nil
+      # Only allow typical safe filename characters (alnum, underscore, hyphen, dot and slash)
+      return nil unless raw =~ %r{\A[0-9A-Za-z._\-/]*/?\z}
+
+      # Split path into segments and normalize
+      segments = raw.split('/').reject(&:empty?)
+
+      # Resolve . and .. segments manually to avoid Pathname.new with user input
+      normalized_segments = []
+      segments.each do |segment|
+        case segment
+        when '.'
+          # Current directory - skip
+          next
+        when '..'
+          # Parent directory - remove last segment if it exists
+          if normalized_segments.empty?
+            # Trying to go above root - invalid
+            return nil
+          end
+          normalized_segments.pop
+        else
+          # Regular segment - add it
+          normalized_segments << segment
+        end
       end
 
-      # Remove leading slash added earlier
-      normalized = normalized.sub(%r{^/}, '')
+      # Reconstruct normalized path
+      normalized = normalized_segments.join('/')
 
-      # Disallow upward traversal that escapes root (cleanpath would collapse '..')
-      return nil if normalized.include?('..')
-
-      # Only allow typical safe filename characters (alnum, underscore, hyphen, dot and slash)
-      return nil unless normalized =~ %r{\A[0-9A-Za-z._\-/]*\z}
+      # Add leading slash if original had one (for root-relative paths)
+      normalized = "/#{normalized}" if raw.start_with?('/')
 
       normalized
     end
