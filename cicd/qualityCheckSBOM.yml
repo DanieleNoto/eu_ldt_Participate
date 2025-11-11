@@ -1,0 +1,27 @@
+name: Tool3-SBOM-$(date:yyyyMMdd)$(rev:.r)
+
+trigger: none
+pr: none
+
+pool:
+    name: 'EU-LDT-DEVOPS-AGENT-01'
+
+jobs:
+    - job: sBomGeneration
+      displayName: 'SBOM File(s) generation'
+      steps:
+          - task: UseNode@1
+            inputs:
+                version: '22.14'
+            displayName: 'Install Node.js'
+
+          - script: |
+                npm install -g @cyclonedx/cdxgen
+                FETCH_LICENSE=true cdxgen -r -o SBOM_Tool_3_EU_LDT_Participate.json
+            displayName: 'Generate SBOM'
+
+          - task: PublishPipelineArtifact@1
+            displayName: Publish SBOM
+            inputs:
+                targetPath: $(System.DefaultWorkingDirectory)/SBOM_Tool_3_EU_LDT_Participate.json
+                artifactName: sbom
