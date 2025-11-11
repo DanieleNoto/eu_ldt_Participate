@@ -2,7 +2,7 @@ import test, { expect } from '@playwright/test';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { LoginPage } from '@pages/pages/auth/LoginPage';
 import { ROUTES } from '@utils/routes';
-import { analyzeAccessibility } from '@utils/accessibility-helper';
+import { analyzeAccessibility, saveAccessibilityResults } from '@utils/accessibility-helper';
 
 /**
  * [PAR-USA02] - QA tests execution for W3C WCAG 2.0, 2.1, and 2.2 Level AA compliance
@@ -25,6 +25,11 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 		loginPage = new LoginPage(page);
 	});
 
+	// Save accessibility results after each test
+	test.afterEach(async () => {
+		await saveAccessibilityResults();
+	});
+
 	test('should have a minimum of a WCAG 2.1 AA level on public homepage', async ({ page }) => {
 		await test.step('Navigate to public homepage (guest)', async () => {
 			await homePage.navigateToHomePage();
@@ -32,10 +37,8 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 			await page.waitForLoadState('networkidle');
 
 			await homePage.expectToBeOnHomePage();
-		});
 
-		await test.step('Run accessibility analysis on public homepage', async () => {
-			await analyzeAccessibility(page);
+			await analyzeAccessibility(page, 'Navigate to public homepage (guest)');
 		});
 	});
 
@@ -46,10 +49,8 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 			await page.waitForLoadState('networkidle');
 
 			await expect(page).toHaveURL(/\/users\/sign_in/);
-		});
 
-		await test.step('Run accessibility analysis on login page', async () => {
-			await analyzeAccessibility(page);
+			await analyzeAccessibility(page, 'Navigate to login page');
 		});
 	});
 
@@ -60,10 +61,8 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 			await page.waitForLoadState('networkidle');
 
 			await expect(page).toHaveURL(/\/users\/sign_up/);
-		});
 
-		await test.step('Run accessibility analysis on registration page', async () => {
-			await analyzeAccessibility(page);
+			await analyzeAccessibility(page, 'Navigate to registration page');
 		});
 	});
 
@@ -74,10 +73,8 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 			await page.waitForLoadState('networkidle');
 
 			await expect(page).toHaveURL(/\/users\/password\/new/);
-		});
 
-		await test.step('Run accessibility analysis on password reset page', async () => {
-			await analyzeAccessibility(page);
+			await analyzeAccessibility(page, 'Navigate to password reset page');
 		});
 	});
 });

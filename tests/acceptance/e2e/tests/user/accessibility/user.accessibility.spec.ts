@@ -1,14 +1,10 @@
 import test, { expect } from '@playwright/test';
-import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
-import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
-import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
-import { analyzeAccessibility } from '@utils/accessibility-helper';
+import { analyzeAccessibility, saveAccessibilityResults } from '@utils/accessibility-helper';
 import { ROUTES } from '@utils/routes';
 
 /**
@@ -33,10 +29,18 @@ test.describe('[PAR-USA02] Accessibility - User Section', () => {
 	let processesOverviewPage: ProcessesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
 
+	// Use existing process
+	const processSlug = 'test';
+
 	test.beforeEach(async ({ page }) => {
 		homePage = new HomePage(page);
 		processesOverviewPage = new ProcessesOverviewPage(page);
 		processDetailPage = new ProcessDetailPage(page);
+	});
+
+	// Save accessibility results after each test
+	test.afterEach(async () => {
+		await saveAccessibilityResults();
 	});
 
 	test('should have a minimum of a WCAG 2.1 AA level on user homepage', async ({ page }) => {
@@ -47,54 +51,18 @@ test.describe('[PAR-USA02] Accessibility - User Section', () => {
 
 			// Verify we're on the homepage
 			await homePage.expectToBeOnHomePage();
-		});
 
-		await test.step('Run accessibility analysis on user homepage', async () => {
-			await analyzeAccessibility(page);
+			await analyzeAccessibility(page, 'Navigate to user homepage');
 		});
 	});
 
 	test('should have a minimum of a WCAG 2.1 AA level on processes pages', async ({ page, browser }) => {
-		let processSlug: string;
-		let validProcessData: any;
-
-		await test.step('Setup: Create new published test process as prerequisite', async () => {
-			const adminContext = await browser.newContext({
-				storageState: STORAGE_STATE.ADMIN
-			});
-			const adminPage = await adminContext.newPage();
-
-			// Verify is logged in as admin
-			await ensureLoggedIn(adminPage, 'ADMIN');
-
-			const adminHomePage = new AdminHomePage(adminPage);
-			const processAdminPage = new ProcessAdminPage(adminPage);
-			const surveysManagePage = new SurveysManagePage(adminPage);
-
-			validProcessData = ProcessTestDataGenerator.generateValidProcessData();
-
-			const { processSlug: slug } = await surveysManagePage.setupTestProcess(
-				validProcessData,
-				adminHomePage,
-				processAdminPage,
-				true // publish the process
-			);
-			processSlug = slug;
-			console.log(`Test process setup completed - Published process created with slug: ${processSlug}`);
-
-			// Close ADMIN context
-			await adminPage.close();
-			await adminContext.close();
-		});
-
 		await test.step('Navigate to processes list page', async () => {
 			await processesOverviewPage.navigateToProcessesOverview();
 
 			await expect(page).toHaveURL(/\/processes$/);
-		});
 
-		await test.step('Run accessibility analysis on processes list page', async () => {
-			await analyzeAccessibility(page);
+			await analyzeAccessibility(page, 'Navigate to processes list page');
 		});
 
 		await test.step('Navigate to process detail page', async () => {
@@ -102,10 +70,8 @@ test.describe('[PAR-USA02] Accessibility - User Section', () => {
 			await processDetailPage.waitForPageLoad();
 
 			await expect(page).toHaveURL(new RegExp(`/processes/${processSlug}`));
-		});
 
-		await test.step('Run accessibility analysis on process detail page', async () => {
-			await analyzeAccessibility(page);
+			await analyzeAccessibility(page, 'Navigate to process detail page');
 		});
 	});
 
@@ -115,10 +81,8 @@ test.describe('[PAR-USA02] Accessibility - User Section', () => {
 			await page.waitForLoadState('networkidle');
 
 			await expect(page).toHaveURL(/\/account/);
-		});
 
-		await test.step('Run accessibility analysis on user account page', async () => {
-			await analyzeAccessibility(page);
+			await analyzeAccessibility(page, 'Navigate to user account page');
 		});
 	});
 
@@ -128,10 +92,8 @@ test.describe('[PAR-USA02] Accessibility - User Section', () => {
 			await page.waitForLoadState('networkidle');
 
 			await expect(page).toHaveURL(/\/notifications_settings/);
-		});
 
-		await test.step('Run accessibility analysis on notifications settings page', async () => {
-			await analyzeAccessibility(page);
+			await analyzeAccessibility(page, 'Navigate to notifications settings page');
 		});
 	});
 });

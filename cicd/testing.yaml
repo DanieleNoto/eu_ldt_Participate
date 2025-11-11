@@ -45,17 +45,40 @@ jobs:
             displayName: 'Install Playwright / Axe (Frontend)'
           - script: |
                 cd tests/acceptance/e2e
-                npm run test:dev
+                rm -rf a11y-reports
+                echo "Old accessibility reports removed"
+            displayName: 'Clean previous accessibility reports'
+          - script: |
+                cd tests/acceptance/e2e
+                npm run test:ci
             env:
                 CI: 'true'
             continueOnError: true
-            displayName: 'Run Playwright / Axe (Frontend)'
+            displayName: 'Run Playwright / Axe (Frontend) - All tests except Keycloak'
+          - script: |
+                cd tests/acceptance/e2e
+                npm run test:keycloak
+            env:
+                CI: 'true'
+            continueOnError: true
+            displayName: 'Run Playwright / Axe (Frontend) - Keycloak tests only'
+
+          # Publish JUnit results (pass/fail)
           - task: PublishTestResults@2
             displayName: 'Publish Playwright / Axe Test Results (Frontend)'
             inputs:
                 testResultsFormat: 'JUnit'
                 testResultsFiles: '**/*junit.xml'
                 testRunTitle: 'Playwright + Axe'
+
+          # Publish WCAG reports (JSON + SARIF)
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Accessibility Reports (WCAG Compliance)'
+            inputs:
+                PathtoPublish: 'tests/acceptance/e2e/a11y-reports'
+                ArtifactName: 'WCAG-AccessibilityReports'
+                publishLocation: 'Container'
+            condition: succeededOrFailed()
 
           - script: |
                 echo "Publishing Playwright / Axe Test Results (Frontend)"
