@@ -46,8 +46,13 @@ RUN bundle config set --local path '/usr/local/bundle' && \
 
 COPY package.json yarn.lock* ./
 
-# Install Node.js dependencies (cached layer) - reduced concurrency
-RUN yarn install --network-timeout 100000 --include-dev 
+# Install Node.js dependencies (cached layer) with retry logic and longer timeout
+RUN yarn config set network-timeout 300000 && \
+  yarn config set registry https://registry.npmjs.org/ && \
+  for i in 1 2 3; do \
+  yarn install --include-dev --frozen-lockfile && break || \
+  (echo "Yarn install attempt $i failed, retrying..." && sleep 5); \
+  done
 # NOW copy the full application code
 COPY . .
 
@@ -109,15 +114,12 @@ COPY --from=builder --chown=decidim:decidim /usr/local/bundle /usr/local/bundle
 
 # Initialize permissions BEFORE switching to decidim user
 # Git initialization will be done at runtime in the entrypoint script to avoid permission issues
-RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log && \
-  chown -R decidim:decidim /code/tmp /code/log && \
-  chmod 755 /code/tmp /code/tmp/pids /code/tmp/cache && \
-  touch /code/tmp/webpacker_runtime.yml && \
-  chmod 644 /code/tmp/webpacker_runtime.yml && \
-  chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh && \
-  # Ensure /code directory and config files are writable for runtime asset compilation
-  chmod 755 /code && \
-  chmod 644 /code/*.js /code/*.json /code/*.yml /code/*.yaml 2>/dev/null || true
+# Set all directories to 775 and all files to 664 for maximum compatibility with Kubernetes fsGroup
+RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log /code/public /code/storage && \
+  chown -R decidim:decidim /code && \
+  find /code -type d -exec chmod 775 {} + && \
+  find /code -type f -exec chmod 664 {} + && \
+  chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh /code/bin/*
 
 # Set runtime environment
 ENV RAILS_ENV=${RAILS_ENV}

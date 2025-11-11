@@ -51,6 +51,24 @@ spec:
                           echo "=== ASSET COMPILATION INIT CONTAINER ==="
                           cd /code
 
+                          echo "--- Verifying permissions ---"
+                          echo "Current user: $(id)"
+                          echo "/code directory permissions: $(ls -ld /code)"
+                          if [ ! -w /code ]; then
+                            echo "ERROR: /code directory is not writable by current user"
+                            echo "Attempting to fix permissions..."
+                            chmod 775 /code 2>/dev/null || echo "Cannot chmod /code"
+                          fi
+
+                          # Test if we can create files in /code
+                          if touch /code/.permission_test 2>/dev/null; then
+                            echo "✓ Permission check passed: can write to /code"
+                            rm /code/.permission_test
+                          else
+                            echo "✗ Permission check failed: cannot write to /code"
+                            exit 1
+                          fi
+
                           echo "--- Preparing static assets (Keycloak logo) ---"
                           mkdir -p public/media/images
                           if [ -f "engines/decidim-keycloak/app/packs/images/keycloak_logo.svg" ]; then
