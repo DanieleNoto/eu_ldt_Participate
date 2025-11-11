@@ -293,7 +293,7 @@ class HealthService {
 				status: overallStatus,
 				checks,
 				timestamp: new Date().toISOString(),
-				version: process.env.npm_package_version || '1.0.0'
+				version: process.env.npm_package_version ?? '1.0.0'
 			};
 		} catch (error) {
 			this.logError({ message: (error as Error).message || 'Error occur', cause: error });
