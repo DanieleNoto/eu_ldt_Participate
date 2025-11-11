@@ -26,6 +26,15 @@ export class NotificationSettingsPage extends AuthenticatedPage {
 	private readonly publicContactToggle = this.page.locator(
 		'label[for="allow_public_contact"] span.toggle__switch-toggle-content'
 	);
+	private readonly evaluetorsEmailToggle = this.page.locator(
+		'label[for="email_on_assigned_proposals"] span.toggle__switch-toggle-content'
+	);
+	private readonly administratorsEmailToggle = this.page.locator(
+		'label[for="email_on_moderations"] span.toggle__switch-toggle-content'
+	);
+	private readonly administratorsReminderToggle = this.page.locator(
+		'label[for="user_notification_settings[close_meeting_reminder]"] span.toggle__switch-toggle-content'
+	);		
 
 	// Frequency radios
 	private readonly frequencyNone = this.page.locator('label[for="user_notifications_sending_frequency_none"]');
@@ -101,6 +110,15 @@ export class NotificationSettingsPage extends AuthenticatedPage {
 	async expectPublicContactToBe(enabled: boolean): Promise<void> {
 		await expect(this.publicContactToggle).toBeChecked({ checked: enabled });
 	}
+	async expectEvaluetorsEmailToBe(enabled: boolean): Promise<void> {
+		await expect(this.evaluetorsEmailToggle).toBeChecked({ checked: enabled });
+	}
+	async expectAdministratorsEmailToBe(enabled: boolean): Promise<void> {
+		await expect(this.administratorsEmailToggle).toBeChecked({ checked: enabled });
+	}
+	async expectAdministratorsReminderToBe(enabled: boolean): Promise<void> {
+		await expect(this.administratorsReminderToggle).toBeChecked({ checked: enabled });
+	}		
 	async expectFrequencyToBe(frequency: NotificationFrequency): Promise<void> {
 		switch (frequency) {
 			case NotificationFrequency.None:
