@@ -51,14 +51,6 @@ spec:
                           echo "=== ASSET COMPILATION INIT CONTAINER ==="
                           cd /code
 
-                          echo "--- Fixing directory and file permissions for decidim user ---"
-                          # Ensure code directory is writable for config generation during asset compilation
-                          chmod 755 /code 2>/dev/null || true
-                          # Fix existing config files
-                          [ -f postcss.config.js ] && chmod 644 postcss.config.js
-                          [ -f tailwind.config.js ] && chmod 644 tailwind.config.js
-                          find . -maxdepth 1 \( -name "*.json" -o -name "*.yml" -o -name "*.yaml" \) -exec chmod 644 {} \; 2>/dev/null || true
-
                           echo "--- Preparing static assets (Keycloak logo) ---"
                           mkdir -p public/media/images
                           if [ -f "engines/decidim-keycloak/app/packs/images/keycloak_logo.svg" ]; then

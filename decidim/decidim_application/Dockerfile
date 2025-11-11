@@ -115,8 +115,9 @@ RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log && \
   touch /code/tmp/webpacker_runtime.yml && \
   chmod 644 /code/tmp/webpacker_runtime.yml && \
   chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh && \
-  # Ensure /code directory is writable for config generation during asset compilation
-  chmod 755 /code 2>/dev/null || true
+  # Ensure /code directory and config files are writable for runtime asset compilation
+  chmod 755 /code && \
+  chmod 644 /code/*.js /code/*.json /code/*.yml /code/*.yaml 2>/dev/null || true
 
 # Set runtime environment
 ENV RAILS_ENV=${RAILS_ENV}
