@@ -2,15 +2,14 @@
 	"name": "decidim-development-app",
 	"private": true,
 	"dependencies": {
-		"@decidim/browserslist-config": "^0.30.2",
-		"@decidim/core": "^0.30.2",
-		"@decidim/webpacker": "^0.30.2",
-		"@hotwired/stimulus": "^3.2.2",
+		"@decidim/browserslist-config": "^0.30.3",
+		"@decidim/core": "^0.30.3",
 		"@fullcalendar/core": "^6.1.19",
 		"@fullcalendar/daygrid": "^6.1.19",
 		"@fullcalendar/interaction": "^6.1.19",
 		"@fullcalendar/list": "^6.1.19",
 		"@fullcalendar/timegrid": "^6.1.19",
+		"@hotwired/stimulus": "^3.2.2",
 		"codemirror": "^5.65.20",
 		"form-storage": "^1.3.5",
 		"formBuilder": "^3.21.1",
@@ -25,12 +24,11 @@
 	},
 	"version": "0.1.0",
 	"devDependencies": {
-		"@decidim/dev": "^0.30.2",
-		"@decidim/eslint-config": "^0.30.2",
-		"@decidim/prettier-config": "^0.30.2",
-		"@decidim/stylelint-config": "^0.30.2",
-		"webpack": "^5.99.9",
-		"webpack-cli": "^6.0.1"
+		"@decidim/dev": "^0.30.0",
+		"@decidim/eslint-config": "^0.30.0",
+		"@decidim/prettier-config": "^0.30.0",
+		"@decidim/stylelint-config": "^0.30.0",
+		"@decidim/webpacker": "^0.30.0"
 	},
 	"browserslist": [
 		"extends @decidim/browserslist-config"

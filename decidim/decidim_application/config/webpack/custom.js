@@ -97,17 +97,7 @@ module.exports = {
 			 * in order to make the SW run properly
 			 * they must be put at the project's root folder '/'
 			 */
-			swDest: '../sw.js',
-
-			// Increase the maximum file size for precaching to 5 MB (default is 2.5 MB)
-			// This prevents warnings for large bundle files
-			maximumFileSizeToCacheInBytes: 5242880,
-
-			// Exclude files from precaching to prevent issues
-			exclude: [/\.map$/, /manifest\.json$/, /\.LICENSE\.txt$/],
-
-			// Don't cache bust URLs that already have a hash
-			dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./
+			swDest: '../sw.js'
 		})
 	]
 };
