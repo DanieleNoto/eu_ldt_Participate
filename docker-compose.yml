@@ -59,7 +59,6 @@ services:
             - ./decidim/decidim_application:/code
             - bundle_cache:/usr/local/bundle
             - vendor_bundle:/app/vendor/bundle
-            - node_modules:/code/node_modules
         command: bash /code/docker-entrypoint.sh
         networks:
             - private
@@ -109,7 +108,6 @@ services:
         entrypoint: ["bash", "/code/shakapacker-entrypoint.sh"]
         volumes:
             - ./decidim/decidim_application:/code
-            - node_modules:/code/node_modules
             - bundle_cache:/usr/local/bundle
             - vendor_bundle:/app/vendor/bundle
         depends_on:
@@ -437,7 +435,6 @@ volumes:
     postgres_data:
     bundle_cache:
     vendor_bundle:
-    node_modules:
     grafana_data:
     matomo_data:
     matomo_db_data:

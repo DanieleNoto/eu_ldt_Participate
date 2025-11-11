@@ -43,10 +43,11 @@ RUN bundle config set --local path '/usr/local/bundle' && \
   bundle config set --local jobs 4 && \
   bundle install --retry 3
 
-COPY package.json yarn.lock* ./
+COPY package.json ./
 
-# Install Node.js dependencies (cached layer) - reduced concurrency
-RUN yarn install --network-timeout 100000 --include-dev 
+# Install Node.js dependencies (cached layer) - install from package.json, regenerate yarn.lock
+RUN yarn install --network-timeout 100000 --include-dev && \
+    yarn cache clean 
 
 # NOW copy the full application code
 COPY . .
