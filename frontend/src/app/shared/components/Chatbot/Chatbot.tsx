@@ -266,7 +266,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 			open
 			aria-labelledby="chatbot-header-title"
 			aria-modal="true"
-			className={`flex flex-col w-[430px] max-w-[calc(100vw-40px)] h-[600px] max-h-[calc(100vh-40px)] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className || ''}`}
+			className={`flex flex-col w-[430px] max-w-[calc(100vw-40px)] h-[600px] max-h-[calc(100vh-40px)] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className ?? ''}`}
 		>
 			{/* Header - conditional based on FAQ detail mode */}
 			<div className="flex items-center gap-3 h-[72px] px-6 py-3 border-b border-[#D2D7DB] bg-white relative">
@@ -356,7 +356,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 							</div>
 							<button
 								onClick={startSupport}
-								disabled={supportMode || loading}
+								disabled={supportMode ?? loading}
 								className="self-start px-6 py-2.5 h-10 text-[14px] font-bold tracking-[0.1px] rounded-lg border border-[#6F797A] bg-white text-[#004494] hover:bg-[#F6F8FA] focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition disabled:opacity-50"
 								style={{ fontFamily: "'Open Sans', sans-serif" }}
 							>
