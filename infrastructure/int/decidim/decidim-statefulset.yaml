@@ -83,26 +83,21 @@ spec:
                           rm -f public/sw.js public/sw.js.map public/decidim-packs/manifest.json
                           echo "Removed old manifest files to force regeneration"
 
-                          echo "--- Reinstalling yarn dependencies to ensure binaries are executable ---"
-                          yarn config set network-timeout 300000 2>/dev/null || true
-                          yarn config set registry https://registry.npmjs.org/ 2>/dev/null || true
-                          for i in 1 2 3; do
-                            yarn install --include-dev --frozen-lockfile && break || \
-                            (echo "Yarn install attempt $i failed, retrying..." && sleep 5)
-                          done
-                          echo "✓ Yarn dependencies reinstalled with correct permissions"
-
                           echo "--- Verifying webpack executable ---"
-                          if [ -x /code/node_modules/.bin/webpack ]; then
-                            echo "✓ webpack is executable"
-                          else
+                          if [ ! -x /code/node_modules/.bin/webpack ]; then
                             echo "ERROR: webpack is not executable"
                             ls -la /code/node_modules/.bin/webpack || true
+                            echo "Attempting to fix permissions for node_modules/.bin"
+                            chmod -R u+x,g+x,o+x /code/node_modules/.bin 2>/dev/null || true
+                            chmod -R u+r,g+r,o+r /code/node_modules/.bin 2>/dev/null || true
+                          fi
+                          if [ ! -x /code/node_modules/.bin/webpack ]; then
+                            echo "ERROR: webpack is still not executable after chmod"
                             exit 1
                           fi
 
                           echo "--- Compiling assets with Shakapacker ---"
-                          if SHAKAPACKER_PRECOMPILE=true bin/rails assets:precompile; then
+                          if SHAKAPACKER_PRECOMPILE=true bundle exec rake shakapacker:compile; then
                             echo "Assets compiled successfully"
                             
                             # Verify assets exist

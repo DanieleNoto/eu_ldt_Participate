@@ -38,7 +38,7 @@ default: &default
     # Workbox configuration to handle large precache files
     # Increase the maximum file size that can be precached (default: 2.5MB)
     workbox:
-        maximumFileSizeToCacheInBytes: 5242880  # 5 MB
+        maximumFileSizeToCacheInBytes: 5242880 # 5 MB
 
 development:
     <<: *default
@@ -89,7 +89,7 @@ development:
         # Watch configuration for file changes
         static:
             watch:
-                ignored: 
+                ignored:
                     - '**/node_modules/**'
                     - '**/tmp/**'
                     - '**/log/**'
@@ -109,7 +109,7 @@ production:
     <<: *default
 
     # Production depends on precompilation of packs prior to booting for performance.
-    compile: true
+    compile: false
 
     # Use content hash for naming assets. Cannot be overridden by for production.
     useContentHash: true
