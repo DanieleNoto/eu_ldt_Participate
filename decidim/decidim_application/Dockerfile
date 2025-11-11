@@ -121,11 +121,17 @@ RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log /code/public /code/storage
   find /code -type f -exec chmod 664 {} + && \
   chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh && \
   find /code/bin -type f -exec chmod 775 {} + && \
-  find /code/node_modules/.bin -type f -exec chmod 775 {} + 2>/dev/null || true
+  # Make ALL node_modules executables available (files AND symlinks)
+  chmod -R u+x,g+x,o+x /code/node_modules/.bin 2>/dev/null || true && \
+  chmod -R u+r,g+r,o+r /code/node_modules/.bin 2>/dev/null || true
 
 # Set runtime environment
 ENV RAILS_ENV=${RAILS_ENV}
 ENV NODE_ENV=${NODE_ENV}
+
+# IMPORTANT: Keep as root for this final chmod
+RUN chmod -R u+x,g+x,o+x /code/node_modules/.bin 2>/dev/null || true && \
+  chmod -R u+r,g+r,o+r /code/node_modules/.bin 2>/dev/null || true
 
 USER decidim
 
