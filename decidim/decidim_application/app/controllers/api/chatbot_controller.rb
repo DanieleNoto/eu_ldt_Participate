@@ -3,6 +3,7 @@
 require 'net/http'
 require 'uri'
 require 'pathname'
+require 'openssl'
 
 module Api
   # Chatbot Proxy Controller
@@ -32,8 +33,9 @@ module Api
     def proxy
       # Prefer HTTPS by default to avoid cleartext transmission. In development
       # this can be overridden via ENV. In production use internal K8s service names.
+      # Internal K8s services use HTTP for performance, external connections should use HTTPS
       chatbot_url = ENV['CHATBOT_URL'].presence || 
-                    (Rails.env.production? ? 'http://chatbot-frontend-svc:5001' : 'https://chatbot-frontend:5001')
+                    (Rails.env.production? ? 'http://chatbot-frontend-svc:5001' : 'http://localhost:5001')
 
       # Rails separates format from path, so we need to reconstruct the full filename
       raw_path = params[:path].to_s
@@ -76,7 +78,7 @@ module Api
     # Proxy for chatbot backend API calls
     def backend_proxy
       backend_url = ENV['CHATBOT_BACKEND_URL'].presence || 
-                    (Rails.env.production? ? 'http://chatbot-backend-svc:3002' : 'https://backend:3002')
+                    (Rails.env.production? ? 'http://chatbot-backend-svc:3002' : 'http://localhost:3002')
       raw_path = params[:path].to_s || ''
 
       begin
@@ -116,20 +118,39 @@ module Api
     def proxy_request(full_url, format)
       begin
         uri = URI.parse(full_url)
+        
+        # Security: Ensure we're using a safe protocol
+        unless ['http', 'https'].include?(uri.scheme)
+          Rails.logger.error "[Chatbot Proxy] Unsupported scheme: #{uri.scheme}"
+          return render plain: 'Bad request', status: 400
+        end
+        
+        # Prefer HTTPS for external connections, allow HTTP only for internal K8s services
+        if uri.scheme == 'http' && !is_internal_k8s_service?(uri.host)
+          Rails.logger.warn "[Chatbot Proxy] HTTP connection to external service: #{uri.host}"
+        end
+        
         http = Net::HTTP.new(uri.host, uri.port)
         http.open_timeout = 10
         http.read_timeout = 30
 
         # Use SSL if HTTPS
         http.use_ssl = (uri.scheme == 'https')
+        # Disable SSL verification for internal services in development
+        if uri.scheme == 'https' && Rails.env.development?
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        end
 
         request_obj = Net::HTTP::Get.new(uri)
         # Add headers to indicate we want the actual file, not HTML fallback
         case format
         when 'js'
           request_obj['Accept'] = 'application/javascript, text/javascript, */*'
+          request_obj['X-Requested-With'] = 'XMLHttpRequest'  # Prevent HTML fallback
         when 'css'
           request_obj['Accept'] = 'text/css, */*'
+        else
+          request_obj['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
         end
         
         http_response = http.request(request_obj)
@@ -138,6 +159,15 @@ module Api
         Rails.logger.info "[Chatbot Proxy] Response content-type: #{http_response.content_type}"
         Rails.logger.info "[Chatbot Proxy] Response body size: #{http_response.body&.bytesize || 0} bytes"
         Rails.logger.info "[Chatbot Proxy] Response body preview: #{http_response.body&.first(200)}"
+
+        # Validate content type matches expected format
+        if format == 'js' && http_response.content_type && !http_response.content_type.match?(/javascript|json/)
+          Rails.logger.warn "[Chatbot Proxy] Expected JS but got #{http_response.content_type}"
+          # If we expected JS but got HTML, return 404 instead
+          if http_response.content_type.match?(/html/)
+            return render plain: 'JavaScript file not found', status: 404
+          end
+        end
 
         # Forward relevant headers
         forwarded_headers = {}
@@ -209,10 +239,20 @@ module Api
     def perform_http_request(full_url)
       uri = URI.parse(full_url)
 
+      # Security: Validate scheme
+      unless ['http', 'https'].include?(uri.scheme)
+        raise ArgumentError, "Unsupported scheme: #{uri.scheme}"
+      end
+
       # Ensure we are not accidentally connecting to an IP that came from untrusted input
       # (uri.host should come from a trusted base URL plus a sanitized relative path)
       unless uri.host.present?
         raise ArgumentError, 'Invalid host in URL'
+      end
+
+      # Prefer HTTPS for external connections, allow HTTP only for internal K8s services
+      if uri.scheme == 'http' && !is_internal_k8s_service?(uri.host)
+        Rails.logger.warn "[Chatbot Backend Proxy] HTTP connection to external service: #{uri.host}"
       end
 
       http = Net::HTTP.new(uri.host, uri.port)
@@ -221,6 +261,10 @@ module Api
 
       # Use SSL if HTTPS
       http.use_ssl = (uri.scheme == 'https')
+      # Disable SSL verification for internal services in development
+      if uri.scheme == 'https' && Rails.env.development?
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      end
 
       # Map Rails request method to Net::HTTP class
       request_class = case request.method
