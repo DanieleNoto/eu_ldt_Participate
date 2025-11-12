@@ -44,7 +44,7 @@ data:
     LOGGER_TARGET:
         ''
         # SMTP/Email Configuration
-    SMTP_ADDRESS: ssl0.ovh.net
+    SMTP_ADDRESS: smtp.gmail.com
     SMTP_PORT: '587'
     SMTP_DOMAIN: part-int.ldttoolbox.app
     SMTP_AUTHENTICATION: plain
