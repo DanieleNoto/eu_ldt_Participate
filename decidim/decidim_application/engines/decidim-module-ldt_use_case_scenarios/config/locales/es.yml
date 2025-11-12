@@ -1,84 +1,85 @@
 ---
 es:
-  decidim:
-    components:
-      ldt_use_case_scenarios:
-        name: Escenarios de Casos de Uso LDT
-        settings:
-          global:
-            title: Título
-    ldt_use_case_scenarios:
-      use_case_scenarios:
-        index:
-          title: Escenarios de Casos de Uso
-          empty: No hay escenarios disponibles aún
-          count:
-            one: "%{count} escenario"
-            other: "%{count} escenarios"
-        use_case_scenario:
-          experiment_id: ID de Experimento
-          view_details: Ver Detalles
-        show:
-          title: Detalles del Experimento
-          experiment_id: ID de Experimento
-          description: Descripción
-          back_to_list: Volver a la Lista
-          not_found: Escenario no encontrado
-          transparency_disclaimer: "Esta ejecución de experimento utiliza algoritmos de IA y modelos de aprendizaje automático. La siguiente información proporciona transparencia sobre los conjuntos de datos, algoritmos y modelos utilizados. Esto incluye su propósito, tipo, conjuntos de datos de entrenamiento, resultados esperados, limitaciones y sesgos potenciales. (cambiar en el código fuente: decidim-module-ldt_use_case_scenarios/config/locales/es.yml)"
-      admin:
+    decidim:
+        components:
+            ldt_use_case_scenarios:
+                name: Escenarios de Casos de Uso LDT
+                settings:
+                    global:
+                        title: Título
         ldt_use_case_scenarios:
-          index:
-            title: Gestionar Escenarios de Caso de Uso
-            scenario_name: Nombre del Escenario
-            association_name: Nombre de la Asociación
-            experiment_id: ID de Experimento
-            associated_experiment_results: Resultados del Experimento Asociado
-            created: Creado
-            version: Versión
-            experiment_name: Nombre del Experimento
-            actions: Acciones
-            associate_experiments: Asociar resultados de experimentos
-            new: Agregar Nuevo Escenario
-            no_scenarios: No hay escenarios disponibles aún
-            edit: Editar
-            delete: Eliminar
-          new:
-            title: Crear Escenario de Caso de Uso
-            submit: Crear
-            save: Guardar
-            loading_experiments: Cargando experimentos...
-            experiment_id: ID
-            experiment_name: Nombre del Experimento
-            description: Descripción
-            actions: Acciones
-            confirm_title: ¿Asociar resultados de experimentos?
-            confirm_message: Al hacer clic en "confirmar" creará una nueva asociación.
-            association_name: Nombre de la Asociación
-            enter_association_name: Ingrese el nombre de la asociación
-            created: Creado
-            version: Versión
-            cancel: Cancelar
-            confirm: Confirmar
-            name_required: El nombre de la asociación es obligatorio
-            save_error: Error al guardar la asociación. Por favor, inténtelo de nuevo.
-            previous_page: Página Anterior
-            next_page: Página Siguiente
-            experiment_details:
-              title: Experimento Seleccionado
-              name: "Nombre:"
-              id: "ID:"
-              status: "Estado:"
-              loading: Cargando detalles del experimento...
-              error: "Error al cargar los detalles:"
-              not_available: N/D
-            select: Seleccionar
-            selected_experiment: Experimento Seleccionado
-          create:
-            success: Asociación de experimentos creada exitosamente.
-            error: Error al crear la asociación de experimentos.
-    admin:
-      actions:
-        confirm_delete: "¿Está seguro de que desea eliminar este elemento?"
-        deleted: "Elemento eliminado con éxito."
-        not_allowed: "No tiene permiso para realizar esta acción."
-        not_found: "Elemento no encontrado."
+            use_case_scenarios:
+                index:
+                    title: Escenarios de Casos de Uso
+                    empty: No hay escenarios disponibles aún
+                    count:
+                        one: '%{count} escenario'
+                        other: '%{count} escenarios'
+                use_case_scenario:
+                    experiment_id: ID de Experimento
+                    view_details: Ver Detalles
+                show:
+                    title: Detalles del Experimento
+                    experiment_id: ID de Experimento
+                    description: Descripción
+                    back_to_list: Volver a la Lista
+                    not_found: Escenario no encontrado
+                    transparency_disclaimer: 'Esta ejecución de experimento utiliza algoritmos de IA y modelos de aprendizaje automático. La siguiente información proporciona transparencia sobre los conjuntos de datos, algoritmos y modelos utilizados. Esto incluye su propósito, tipo, conjuntos de datos de entrenamiento, resultados esperados, limitaciones y sesgos potenciales. (cambiar en el código fuente: decidim-module-ldt_use_case_scenarios/config/locales/es.yml)'
+            admin:
+                ldt_use_case_scenarios:
+                    index:
+                        title: Gestionar Escenarios de Caso de Uso
+                        scenario_name: Nombre del Escenario
+                        association_name: Nombre de la Asociación
+                        experiment_id: ID de Experimento
+                        associated_experiment_results: Resultados del Experimento Asociado
+                        created: Creado
+                        version: Versión
+                        experiment_name: Nombre del Experimento
+                        actions: Acciones
+                        associate_experiments: Asociar resultados de experimentos
+                        new: Agregar Nuevo Escenario
+                        no_scenarios: No hay escenarios disponibles aún
+                        edit: Editar
+                        delete: Eliminar
+                    new:
+                        title: Crear Escenario de Caso de Uso
+                        submit: Crear
+                        save: Guardar
+                        loading_experiments: Cargando experimentos...
+                        experiment_id: ID
+                        experiment_name: Nombre del Experimento
+                        description: Descripción
+                        actions: Acciones
+                        confirm_title: ¿Asociar resultados de experimentos?
+                        confirm_message: Al hacer clic en "confirmar" creará una nueva asociación.
+                        association_name: Nombre de la Asociación
+                        enter_association_name: Ingrese el nombre de la asociación
+                        created: Creado
+                        version: Versión
+                        cancel: Cancelar
+                        confirm: Confirmar
+                        name_required: El nombre de la asociación es obligatorio
+                        save_error: Error al guardar la asociación. Por favor, inténtelo de nuevo.
+                        previous_page: Página Anterior
+                        next_page: Página Siguiente
+                        experiment_details:
+                            title: Experimento Seleccionado
+                            experimentId: 'ID de Experimento:'
+                            scenarioId: 'ID de Escenario:'
+                            status: 'Estado:'
+                            loading: Cargando detalles del experimento...
+                            error: 'Error al cargar los detalles:'
+                            not_available: N/D
+                        select: Seleccionar
+                        experiment_and_scenario_ids: IDs de Experimento y Escenario
+                        status: Estado
+                    create:
+                        success: Asociación de experimentos creada exitosamente.
+                        error: Error al crear la asociación de experimentos.
+        admin:
+            actions:
+                confirm_delete: '¿Está seguro de que desea eliminar este elemento?'
+                deleted: 'Elemento eliminado con éxito.'
+                not_allowed: 'No tiene permiso para realizar esta acción.'
+                not_found: 'Elemento no encontrado.'
