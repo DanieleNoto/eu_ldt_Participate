@@ -48,44 +48,21 @@ development:
     # Reference: https://webpack.js.org/configuration/dev-server/
     dev_server:
         https: false
-        host: localhost
+        host: 0.0.0.0
         port: 3035
-        public: localhost:3035
-        # Disable host header checking for development
-        disableHostCheck: true
-        # Hot Module Replacement disabled for stability
-        hmr: false
+        # Tell webpack where the assets will be accessed from (through Rails proxy)
+        public: http://localhost:3000/decidim-packs/
+        
+        # Enable HMR - will work through the default proxy
+        hmr: true
+        live_reload: false
+
         # CSS is extracted inline for faster feedback
         inline_css: true
-        # Allowed hosts for WebSocket connections
-        host_whitelist:
-            - .sock$
-            - localhost
-            - localhost:3035
-            - 127.0.0.1
-            - 127.0.0.1:3035
-            - shakapacker
-            - shakapacker:3035
-            - host.docker.internal
-            - decidim
-        client:
-            # Disable full-screen overlay for cleaner development experience
-            overlay: false
-            # Configure WebSocket URL for browser to connect to localhost
-            # The browser cannot resolve 'shakapacker' hostname, so use localhost
-            webSocketURL:
-                hostname: localhost
-                pathname: /ws
-                port: 3035
-        # Enable gzip compression for faster transfers
-        compress: true
+        
         # Allow all hosts to prevent DNS rebinding issues
         allowed_hosts: all
-        pretty: true
-        headers:
-            'Access-Control-Allow-Origin': '*'
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        
         # Watch configuration for file changes
         static:
             watch:

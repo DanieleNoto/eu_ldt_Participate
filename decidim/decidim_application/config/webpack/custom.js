@@ -3,7 +3,38 @@ const { config } = require('shakapacker');
 const { InjectManifest } = require('workbox-webpack-plugin');
 const { EsbuildPlugin } = require('esbuild-loader');
 
-module.exports = {
+const isProduction = process.env.NODE_ENV === 'production';
+
+const customConfig = {
+	devServer: {
+		hot: true,
+		liveReload: false,
+		devMiddleware: {
+			publicPath: '/decidim-packs/',
+			writeToDisk: filePath => {
+				return /\.hot-update\.(json|js)$/.test(filePath);
+			},
+			headers: {
+				'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+				Pragma: 'no-cache',
+				Expires: '0'
+			}
+		},
+		client: {
+			webSocketURL: {
+				hostname: 'localhost',
+				port: 3000,
+				pathname: '/decidim-packs/ws'
+			},
+			overlay: {
+				errors: true,
+				warnings: false
+			}
+		}
+	},
+	output: {
+		publicPath: '/decidim-packs/'
+	},
 	module: {
 		rules: [
 			{
@@ -79,6 +110,8 @@ module.exports = {
 		}
 	},
 	optimization: {
+		moduleIds: 'deterministic',
+		chunkIds: 'deterministic',
 		minimizer: [
 			new EsbuildPlugin({
 				target: 'es2015',
@@ -87,7 +120,11 @@ module.exports = {
 		]
 	},
 	entry: config.entrypoints,
-	plugins: [
+	plugins: []
+};
+
+if (isProduction) {
+	customConfig.plugins.push(
 		new InjectManifest({
 			swSrc: 'src/decidim/sw/sw.js',
 
@@ -99,5 +136,7 @@ module.exports = {
 			 */
 			swDest: '../sw.js'
 		})
-	]
-};
+	);
+}
+
+module.exports = customConfig;

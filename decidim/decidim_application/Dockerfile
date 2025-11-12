@@ -36,10 +36,16 @@ RUN mkdir -p /code/storage /code/tmp/pids /code/tmp/cache && \
   chmod -R 755 /code/tmp 
 
 # Copy dependency files FIRST for better Docker layer caching
-COPY Gemfile Gemfile.lock ./
+# Copy Gemfile first, then Gemfile.lock separately to detect changes
+COPY Gemfile ./
+COPY Gemfile.lock ./
 COPY engines/ ./engines/
 
+# Fix Gemfile.lock permissions so bundle can update it
+RUN chmod 666 Gemfile.lock
+
 # Install Ruby gems (cached layer) - optimized bundle config
+# Bundle will update Gemfile.lock if needed based on Gemfile changes
 RUN bundle config set --local path '/usr/local/bundle' && \
   bundle config set --local jobs 4 && \
   bundle install --retry 3
