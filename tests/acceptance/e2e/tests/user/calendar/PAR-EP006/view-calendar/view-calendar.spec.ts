@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { CalendarPage } from '@pages/pages/user/CalendarPage';
 import test, { expect } from '@playwright/test';
@@ -45,15 +52,15 @@ test.describe('[PAR-EP006] – View calendar', () => {
 				expect(isInterfaceVisible).toBeTruthy();
 			});
 			await test.step('3. User: Views events displayed on the calendar, including the title, date, time, and location.', async () => {
-				const events = await calendarPage.getCalendarEvents();				
+				const events = await calendarPage.getCalendarEvents();
 				if (events.length === 0) {
-				  console.warn('No events found in the calendar view.');
-				  // confirm the step as passed anyway
-				  expect(true).toBeTruthy();
+					console.warn('No events found in the calendar view.');
+					// confirm the step as passed anyway
+					expect(true).toBeTruthy();
 				} else {
 					//The time and location can be part of the text or additional attributes (in this case they are not made explicit, but the structure is ready to contain them)
-				  	console.log('Events found on calendar with details:', events);
-				  	expect(events.length).toBeGreaterThan(0);
+					console.log('Events found on calendar with details:', events);
+					expect(events.length).toBeGreaterThan(0);
 				}
 				await calendarPage.filterByDebate();
 				await calendarPage.filterByMeeting();
@@ -61,7 +68,7 @@ test.describe('[PAR-EP006] – View calendar', () => {
 			await test.step('4. System: Highlights events on their respective dates within the calendar view', async () => {
 				await calendarPage.expectCalendarVisible();
 				const hasEvents = await calendarPage.verifyAnyEventHighlighted();
-  				expect(hasEvents).toBeTruthy(); // step result confirmation
+				expect(hasEvents).toBeTruthy(); // step result confirmation
 			});
 
 			await test.step('Result.', async () => {
