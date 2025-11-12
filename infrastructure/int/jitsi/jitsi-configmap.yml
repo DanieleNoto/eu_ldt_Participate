@@ -7,11 +7,6 @@ metadata:
 data:
     AUTH_TYPE: jwt
     CONFIG: ./jitsi-meet-cfg
-    DATABASE_HOST: db
-    DATABASE_NAME: decidim_application_development
-    DATABASE_USERNAME: postgres
-    POSTGRES_USER: admin
-    POSTGRES_PASSWORD: supersecret
     ENABLE_AUTH: '1'
     ENABLE_GUESTS: '1'
     JICOFO_AUTH_USER: focus
@@ -24,8 +19,8 @@ data:
     JVB_PORT: '10000'
     JVB_STUN_SERVERS: stun.l.google.com:19302,stun1.l.google.com:19302
     JWT_APP_ID: tool3
-    JWT_ACCEPTED_ISSUERS: part-int.ldttoolbox.app/
-    JWT_ACCEPTED_AUDIENCES: jitsi-part-int.ldttoolbox.app/ part-int.ldttoolbox.app/
+    JWT_ACCEPTED_ISSUERS: https://im-int.ldttoolbox.app/realms/LDT
+    JWT_ACCEPTED_AUDIENCES: tool3
     PUBLIC_URL: https://jitsi-part-int.ldttoolbox.app/
     RESTART_POLICY: unless-stopped
     TZ: Europe/Rome
@@ -41,6 +36,6 @@ data:
     ENABLE_XMPP_WEBSOCKET: '1'
     SUBDIR: ''
     ENABLE_SUBDOMAINS: 'true'
-    
+
     # No embedded config.js here — rely on the image default config.js or mount a separate file
     # If you need custom JS, mount a file at /config/web/config.js via a ConfigMap or a volume.

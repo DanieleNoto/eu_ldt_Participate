@@ -125,9 +125,20 @@ module Api
           return render plain: 'Bad request', status: 400
         end
         
-        # Prefer HTTPS for external connections, allow HTTP only for internal K8s services
+        # Security: Block HTTP connections to external services in production
         if uri.scheme == 'http' && !is_internal_k8s_service?(uri.host)
-          Rails.logger.warn "[Chatbot Proxy] HTTP connection to external service: #{uri.host}"
+          if Rails.env.production?
+            Rails.logger.error "[Chatbot Proxy] HTTP blocked for external service in production: #{uri.host}"
+            return render plain: 'Secure connection required', status: 400
+          else
+            Rails.logger.warn "[Chatbot Proxy] HTTP connection to external service: #{uri.host}"
+          end
+        end
+        
+        # Validate URI components
+        unless uri.host.present? && uri.port.present?
+          Rails.logger.error "[Chatbot Proxy] Invalid URI - host: #{uri.host}, port: #{uri.port}"
+          return render plain: 'Bad request', status: 400
         end
         
         http = Net::HTTP.new(uri.host, uri.port)
@@ -135,10 +146,11 @@ module Api
         http.read_timeout = 30
 
         # Use SSL if HTTPS
-        http.use_ssl = (uri.scheme == 'https')
-        # Disable SSL verification for internal services in development
-        if uri.scheme == 'https' && Rails.env.development?
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        if uri.scheme == 'https'
+          http.use_ssl = true
+          configure_ssl_verification(http, uri)
+        else
+          http.use_ssl = false
         end
 
         request_obj = Net::HTTP::Get.new(uri)
@@ -250,9 +262,19 @@ module Api
         raise ArgumentError, 'Invalid host in URL'
       end
 
-      # Prefer HTTPS for external connections, allow HTTP only for internal K8s services
+      # Security: Block HTTP connections to external services in production
       if uri.scheme == 'http' && !is_internal_k8s_service?(uri.host)
-        Rails.logger.warn "[Chatbot Backend Proxy] HTTP connection to external service: #{uri.host}"
+        if Rails.env.production?
+          Rails.logger.error "[Chatbot Backend Proxy] HTTP blocked for external service in production: #{uri.host}"
+          raise SecurityError, 'Secure connection required for external services'
+        else
+          Rails.logger.warn "[Chatbot Backend Proxy] HTTP connection to external service: #{uri.host}"
+        end
+      end
+      
+      # Validate URI components
+      unless uri.port.present?
+        raise ArgumentError, "Invalid port in URL: #{uri}"
       end
 
       http = Net::HTTP.new(uri.host, uri.port)
@@ -260,10 +282,11 @@ module Api
       http.read_timeout = 30
 
       # Use SSL if HTTPS
-      http.use_ssl = (uri.scheme == 'https')
-      # Disable SSL verification for internal services in development
-      if uri.scheme == 'https' && Rails.env.development?
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      if uri.scheme == 'https'
+        http.use_ssl = true
+        configure_ssl_verification(http, uri)
+      else
+        http.use_ssl = false
       end
 
       # Map Rails request method to Net::HTTP class
@@ -375,6 +398,28 @@ module Api
       ]
       
       k8s_patterns.any? { |pattern| hostname.match?(pattern) }
+    end
+
+    # Configure SSL verification based on environment and service type
+    def configure_ssl_verification(http, uri)
+      # For internal K8s services, use peer verification but allow self-signed certs
+      if is_internal_k8s_service?(uri.hostname)
+        if Rails.env.development? || Rails.env.test?
+          # In development/test, disable verification for internal services only
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          Rails.logger.debug "SSL verification disabled for internal service: #{uri.hostname}"
+        else
+          # In production, use peer verification but allow self-signed
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          http.verify_hostname = false  # Allow hostname mismatch for internal services
+          Rails.logger.info "SSL peer verification enabled for internal service: #{uri.hostname}"
+        end
+      else
+        # For external services, always use full verification
+        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+        http.verify_hostname = true
+        Rails.logger.debug "Full SSL verification enabled for external service: #{uri.hostname}"
+      end
     end
   end
 end
