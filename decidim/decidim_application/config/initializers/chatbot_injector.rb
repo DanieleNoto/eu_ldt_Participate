@@ -49,24 +49,24 @@ class ChatbotInjector
 
     return [status, headers, response] unless injectable_response?(status, headers, env)
 
-    body = nil
     body = extract_body(response)
 
     return [status, headers, [body]] unless body.include?(BODY_CLOSING_TAG)
 
-    injected_body = inject_chatbot_snippet(body, env)
-
-    if injected_body
-      headers['Content-Length'] = injected_body.bytesize.to_s if headers['Content-Length']
-      request = Rack::Request.new(env)
-      Rails.logger.info("Chatbot: Checking path #{request.path} for injection")
+    request = Rack::Request.new(env)
+    Rails.logger.info("Chatbot: Checking path #{request.path} for injection")
 
     if excluded_path?(request.path)
       Rails.logger.info("Chatbot: Skipping injection for excluded path #{request.path}")
       return [status, headers, [body]]
     end
 
-    Rails.logger.info("Chatbot: Injecting widget for path #{request.path}")
+    injected_body = inject_chatbot_snippet(body, env)
+
+    if injected_body
+      headers = headers.dup
+      headers['Content-Length'] = injected_body.bytesize.to_s if headers['Content-Length']
+      Rails.logger.info("Chatbot: Injecting widget for path #{request.path}")
       [status, headers, [injected_body]]
     else
       [status, headers, [body]]
@@ -91,6 +91,8 @@ class ChatbotInjector
   end
 
   def html_response?(headers)
+    return false unless headers && headers.respond_to?(:[])
+    
     content_type = headers['Content-Type']
     content_type&.include?('text/html')
   end
@@ -104,8 +106,14 @@ class ChatbotInjector
   end
 
   def extract_body(response)
+    return '' unless response
+    
     body = +''
-    response.each { |part| body << part.to_s }
+    if response.respond_to?(:each)
+      response.each { |part| body << part.to_s if part }
+    elsif response.respond_to?(:to_s)
+      body = response.to_s
+    end
     body
   ensure
     response.close if response.respond_to?(:close)

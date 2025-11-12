@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   end
 
   # Custom chatbot API routes - avoid conflict with Decidim API
+  get 'chatbot-api', to: 'api/chatbot#proxy'
   get 'chatbot-api/*path', to: 'api/chatbot#proxy'
   # Proxy for chatbot backend API calls
   match 'chatbot-backend-api/*path', to: 'api/chatbot#backend_proxy', via: [:get, :post, :put, :delete, :patch]
@@ -20,7 +21,8 @@ Rails.application.routes.draw do
   # Catch malformed URLs with "undefined" parameters to prevent routing errors
   # This handles cases where frontend makes requests with undefined IDs
   get '*path', to: 'errors#not_found', constraints: lambda { |request|
-    request.path.match?(/undefined/) && !request.path.start_with?('/api/')
+    (request.path.match?(/\/undefined\/?/) || request.path.match?(/users\/undefined/)) && 
+    !request.path.start_with?('/api/')
   }
   
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
