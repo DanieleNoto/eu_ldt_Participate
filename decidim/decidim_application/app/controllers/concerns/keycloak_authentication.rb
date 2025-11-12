@@ -26,6 +26,76 @@ module KeycloakAuthentication
     user.identities.where(provider: 'keycloakopenid').exists?
   end
 
+  # Check if Keycloak authentication tokens are present (not just configuration cookies like i18next)
+  def keycloak_auth_tokens_present?
+    access_token = cookies['access_token']
+    refresh_token = cookies['refresh_token'] 
+    id_token = cookies['id_token']
+    
+    # Return true only if actual authentication tokens are present
+    access_token.present? || refresh_token.present? || id_token.present?
+  end
+
+  # Check if any Keycloak-related cookies are present (including i18next for cross-tool SSO)
+  def keycloak_cookies_present?
+    keycloak_auth_tokens_present? || cookies['i18next'].present?
+  end
+  
+  # Check if we're coming from another tool in the same domain (cross-tool navigation)
+  def coming_from_same_domain_tool?
+    referer = request.referer
+    return false unless referer.present?
+    
+    begin
+      referer_uri = URI.parse(referer)
+      current_host = request.host
+      
+      # Get the Decidim host from environment variable
+      decidim_host = ENV['DECIDIM_HOST'] || current_host
+      
+      # Avoid loops: skip if referer is from the same Decidim instance
+      if referer_uri.host == decidim_host || referer_uri.host == current_host
+        Rails.logger.debug "[Keycloak AutoLogin] Referer is same Decidim host, avoiding loop"
+        return false
+      end
+      
+      # Extract domain from Decidim host for same-domain check
+      # E.g., part-int.ldttoolbox.app → .ldttoolbox.app
+      decidim_host_parts = decidim_host.split('.')
+      if decidim_host_parts.length >= 2
+        base_domain = ".#{decidim_host_parts[-2]}.#{decidim_host_parts[-1]}"
+        
+        # Check if referer is from same base domain but different subdomain
+        if referer_uri.host != current_host && referer_uri.host&.end_with?(base_domain)
+          Rails.logger.info "[Keycloak AutoLogin] Cross-tool navigation detected: #{referer_uri.host} → #{current_host} (domain: #{base_domain})"
+          return true
+        end
+      end
+    rescue URI::InvalidURIError => e
+      Rails.logger.debug "[Keycloak AutoLogin] Invalid referer URI: #{e.message}"
+    end
+    
+    false
+  end
+
+  # Validate Keycloak session using the centralized SessionValidator
+  def keycloak_session_valid?
+    access_token = cookies['access_token']
+    id_token = cookies['id_token']
+    refresh_token = cookies['refresh_token']
+    
+    # Use the SessionValidator from the Keycloak engine
+    Decidim::Keycloak::SessionValidator.validate_tokens_and_session(
+      access_token, 
+      id_token, 
+      refresh_token, 
+      cookies
+    )
+  rescue => e
+    Rails.logger.warn "[Keycloak AutoLogin] Error validating session: #{e.message}"
+    false
+  end
+
   def check_keycloak_auto_login
     # Skip for API requests, assets, admin paths, auth callbacks, and AJAX requests
     return if request.path.start_with?('/api/')
@@ -45,14 +115,14 @@ module KeycloakAuthentication
     # Skip if user manually logged out (don't auto-login after manual logout)
     if session[:manual_logout]
       Rails.logger.info "[Keycloak AutoLogin] Skipping auto-login - user manually logged out"
-      session.delete(:manual_logout) # Clear flag for next session
+      session.delete(:manual_logout)
       return
     end
     
-    # Skip if automatic logout occurred due to expired/invalid token (don't auto-login after session expired)
+    # Skip if automatic logout occurred due to expired/invalid token
     if session[:automatic_logout_no_autologin]
       Rails.logger.info "[Keycloak AutoLogin] Skipping auto-login - automatic logout due to expired/invalid token"
-      session.delete(:automatic_logout_no_autologin) # Clear flag for next session
+      session.delete(:automatic_logout_no_autologin)
       return
     end
 
@@ -60,28 +130,38 @@ module KeycloakAuthentication
     organization = current_organization
     return unless organization&.enabled_omniauth_providers&.dig(:keycloakopenid).present?
 
-    # Check for valid Keycloak cookies
-    cookies_valid = keycloak_cookies_present_and_valid?
-    Rails.logger.info "[Keycloak AutoLogin] Cookies valid: #{cookies_valid}, Controller: #{controller_name}, Action: #{action_name}"
-    
-    # If we're already on the login page with valid cookies, set the flag directly
-    # Check controller and action instead of comparing paths to avoid parameter inheritance issues
-    if cookies_valid && controller_name == "sessions" && action_name == "new"
-      session[:keycloak_auto_login_pending] = true
-      Rails.logger.info "[Keycloak AutoLogin] Setting auto-login flag on login page"
-      return
-    end
-    
-    return unless cookies_valid
+    # First check: do we have any Keycloak-related cookies (including i18next for cross-tool SSO)?
+    return unless keycloak_cookies_present?
 
-    # Set session flag for frontend auto-login and redirect to login page
-    session[:keycloak_auto_login_pending] = true
-    # Force session save before redirect
-    session.save if session.respond_to?(:save)
-    Rails.logger.info "[Keycloak AutoLogin] Session saved, redirecting to login page for auto-login"
+    has_auth_tokens = keycloak_auth_tokens_present?
+    has_i18next = cookies['i18next'].present?
+    from_same_domain = coming_from_same_domain_tool?
     
-    # Use 302 redirect with a parameter to indicate auto-login (using string path to avoid route helper issues)
-    redirect_to "/users/sign_in?keycloak_auto_login=1", status: :found
+    if has_auth_tokens
+      Rails.logger.info "[Keycloak AutoLogin] Found Keycloak auth tokens, validating session..."
+    elsif has_i18next
+      if from_same_domain
+        Rails.logger.info "[Keycloak AutoLogin] Cross-tool SSO detected (i18next + same domain referer), checking Keycloak session..."
+      else
+        Rails.logger.info "[Keycloak AutoLogin] Found i18next cookie, checking for active Keycloak session..."
+      end
+    end
+
+    # Second check: validate if Keycloak session is actually active
+    if keycloak_session_valid?
+      Rails.logger.info "[Keycloak AutoLogin] Session valid, redirecting for auto-login"
+      
+      # Skip if we're already on the login page to avoid redirect loops
+      if controller_name == "sessions" && action_name == "new"
+        Rails.logger.info "[Keycloak AutoLogin] Already on login page, auto-login will be handled by frontend"
+        return
+      end
+      
+      # Direct redirect to login with auto-login parameter
+      redirect_to "/users/sign_in?keycloak_auto_login=1", status: :found
+    else
+      Rails.logger.info "[Keycloak AutoLogin] Session invalid, cookies already cleared by SessionValidator"
+    end
   end
 
   def check_keycloak_auto_logout

@@ -61,8 +61,8 @@ module Decidim
       # @param request_host [String] The request host
       # @param session_obj [ActionDispatch::Request::Session, nil] Optional session object to clean
       def self.clear_all_cookies(cookies_obj, request_host, session_obj = nil)
-  # include Rails session cookie to ensure session is removed client-side on logout
-  cookie_names = ['access_token', 'refresh_token', 'id_token', '_session_id']
+        # include Rails session cookie to ensure session is removed client-side on logout
+        cookie_names = ['access_token', 'refresh_token', 'id_token', '_session_id']
         domains = calculate_all_cookie_domains(request_host)
         
         Rails.logger.info "[Keycloak CookieManager] Clearing cookies #{cookie_names.inspect} from domains: #{domains.inspect}"
@@ -141,7 +141,6 @@ module Decidim
         if session_obj
           session_obj.delete(:keycloak_authenticated)
           session_obj.delete(:keycloak_id_token)
-          session_obj.delete(:keycloak_auto_login_pending)
         end
         
         Rails.logger.info "[Keycloak CookieManager] Cleared all Keycloak cookies from #{domains.length} domain(s). Final state: access_token=#{cookies_obj['access_token']&.length}, refresh_token=#{cookies_obj['refresh_token']&.length}, id_token=#{cookies_obj['id_token']&.length}"
