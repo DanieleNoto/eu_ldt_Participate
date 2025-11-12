@@ -13,8 +13,8 @@
          data-i18n-name-required="<%= t(".name_required") %>" 
          data-i18n-save-error="<%= t(".save_error") %>"
          data-i18n-details-title="<%= t(".experiment_details.title") %>"
-         data-i18n-details-name="<%= t(".experiment_details.name") %>"
-         data-i18n-details-id="<%= t(".experiment_details.id") %>"
+         data-i18n-details-experimentId="<%= t(".experiment_details.experimentId") %>"
+         data-i18n-details-scenarioId="<%= t(".experiment_details.scenarioId") %>"
          data-i18n-details-status="<%= t(".experiment_details.status") %>"
          data-i18n-details-loading="<%= t(".experiment_details.loading") %>"
          data-i18n-details-error="<%= t(".experiment_details.error") %>"
@@ -36,9 +36,9 @@
             <table class="table-list w-full" style="width: 100%;">
               <thead id="experiments-thead">
                 <tr>
-                  <th></th>
-                  <th class="!text-left"><%= t(".experiment_name") %></th>
-                  <th><%= t(".description") %></th>
+                  <th><%= t(".select") %></th>
+                  <th class="!text-left"><%= t(".experiment_and_scenario_ids") %></th>
+                  <th><%= t(".status") %></th>
                   <th><%= t(".created") %></th>
                   <th><%= t(".version") %></th>
                 </tr>
@@ -49,12 +49,12 @@
                     <td data-label="Select">
                       <input type="radio" name="selected_experiment" value="<%= exp['id'] %>" class="select-experiment-radio" />
                     </td>
-                    <td class="!text-left" data-label="ID/Name">
-                      <div><strong><%= exp['name'] || exp['id'] %></strong></div>
-                      <div class="text-sm text-gray-600"><%= exp['id'] %></div>
+                    <td class="!text-left" data-label="Experiment ID / Scenario ID">
+                      <div><strong><%= exp['experimentId'] %></strong></div>
+                      <div class="text-sm text-gray-600"><%= exp['scenarioId'] %></div>
                     </td>
-                    <td data-label="Description">
-                      <%= (exp['description'] || '-')[0..100] %>
+                    <td data-label="Status">
+                      <%= exp['status'] %>
                     </td>
                     <td data-label="Created">
                       <% if exp['createdAt'] || exp['created_at'] %>
@@ -62,7 +62,7 @@
                       <% end %>
                     </td>
                     <td data-label="Version">
-                      <%= exp['version'] %>
+                      <%= exp['experimentVersion'] %>
                     </td>
                   </tr>
                 <% end %>

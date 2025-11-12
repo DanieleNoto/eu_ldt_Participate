@@ -21,8 +21,8 @@ function loadTranslations() {
 		i18n = {
 			details: {
 				title: container.dataset.i18nDetailsTitle || 'Selected Experiment',
-				name: container.dataset.i18nDetailsName || 'Name:',
-				id: container.dataset.i18nDetailsId || 'ID:',
+				name: container.dataset.i18nDetailsExperimentId || 'Experiment ID:',
+				id: container.dataset.i18nDetailsScenarioId || 'Scenario ID:',
 				status: container.dataset.i18nDetailsStatus || 'Status:',
 				loading: container.dataset.i18nDetailsLoading || 'Loading experiment details...',
 				error: container.dataset.i18nDetailsError || 'Error loading details:',
@@ -148,14 +148,14 @@ function showFormWithDetails(experiment) {
 		const nameStrong = document.createElement('strong');
 		nameStrong.textContent = i18n.details.name + ' ';
 		namePara.appendChild(nameStrong);
-		namePara.appendChild(document.createTextNode(experiment?.name || i18n.details.na));
+		namePara.appendChild(document.createTextNode(experiment?.experimentId || i18n.details.na));
 		container.appendChild(namePara);
 
 		const idPara = document.createElement('p');
 		const idStrong = document.createElement('strong');
 		idStrong.textContent = i18n.details.id + ' ';
 		idPara.appendChild(idStrong);
-		idPara.appendChild(document.createTextNode(experiment?.id || i18n.details.na));
+		idPara.appendChild(document.createTextNode(experiment?.scenarioId || i18n.details.na));
 		container.appendChild(idPara);
 
 		const statusPara = document.createElement('p');
