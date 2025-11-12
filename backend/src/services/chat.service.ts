@@ -4,12 +4,6 @@ import Conversation from '../models/entities/conversation.model';
 import { loadTree, QATree } from '../utils/qaTree';
 
 export class ChatService {
-	private readonly _tree: QATree;
-
-	constructor() {
-		this._tree = loadTree();
-	}
-
 	/**
 	 * Handle chat request: logs a new conversation entry and returns bot response
 	 */
@@ -19,8 +13,9 @@ export class ChatService {
 		request: FastifyRequest,
 		language: string = 'en'
 	) {
-		const root = this._tree['root'];
-		const node = nodeId && this._tree[nodeId] ? this._tree[nodeId] : root;
+		const tree = loadTree();
+		const root = tree['root'];
+		const node = nodeId && tree[nodeId] ? tree[nodeId] : root;
 
 		// Set the language for this request
 		if (request.i18n && typeof request.i18n.changeLanguage === 'function') {

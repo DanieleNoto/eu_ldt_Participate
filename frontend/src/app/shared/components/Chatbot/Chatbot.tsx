@@ -251,7 +251,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 		return (
 			<button
 				ref={fabRef}
-				className="w-14 h-14 rounded-full bg-[#3F51B5] text-white shadow-lg shadow-black/25 flex items-center justify-center hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
+				className="absolute bottom-0 right-0 w-14 h-14 rounded-full bg-[#3F51B5] text-white shadow-lg shadow-black/25 flex items-center justify-center hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
 				aria-label={t('chatbot.openHelpAssistant')}
 				onClick={() => setOpen(true)}
 			>
@@ -262,11 +262,12 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 
 	const lastBotMessage = [...messages].reverse().find(m => m.from === 'bot');
 	return (
-		<dialog
-			open
+		<div
+			role="dialog"
 			aria-labelledby="chatbot-header-title"
 			aria-modal="true"
-			className={`flex flex-col w-[430px] max-w-[calc(100vw-40px)] h-[600px] max-h-[calc(100vh-40px)] rounded-2xl bg-[#F6F8FA] shadow-[0px_4px_8px_3px_rgba(0,0,0,0.15),0px_1px_3px_0px_rgba(0,0,0,0.3)] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className ?? ''}`}
+			className={`flex flex-col w-[430px] max-w-[calc(100vw-40px)] h-[600px] max-h-[calc(100vh-40px)] rounded-2xl bg-[#F6F8FA] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className ?? ''}`}
+			style={{ boxShadow: '0 10px 25px rgba(0,0,0,0.2), 0 6px 10px rgba(0,0,0,0.1)' }}
 		>
 			{/* Header - conditional based on FAQ detail mode */}
 			<div className="flex items-center gap-3 h-[72px] px-6 py-3 border-b border-[#D2D7DB] bg-white relative">
@@ -282,7 +283,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 				<h2
 					id="chatbot-header-title"
 					className="flex-1 text-[22px] leading-[28px] font-semibold tracking-[0.05px] text-[#696F72]"
-					style={{ fontFamily: "'Open Sans', sans-serif" }}
+					style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 				>
 					{faqDetailMode && currentTopicName ? currentTopicName : t('chatbot.title')}
 				</h2>
@@ -301,7 +302,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 				<div className="bg-[#FFF4E6] border-b border-[#FFB74D] px-6 py-3 relative">
 					<p
 						className="text-[13px] leading-5 text-[#663C00] flex items-start gap-2 pr-6"
-						style={{ fontFamily: "'Open Sans', sans-serif" }}
+						style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 					>
 						<span className="text-[#F57C00] font-bold mt-0.5">⚠</span>
 						<span>{t('chatbot.disclaimer')}</span>
@@ -331,13 +332,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 						<div className="flex flex-col gap-4 flex-1">
 							<div
 								className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-left text-[#3C4245] text-[16px] leading-[24px] tracking-[0.5px]"
-								style={{ fontFamily: "'Open Sans', sans-serif" }}
+								style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 							>
 								{t('chatbot.hereArePossibleAnswers')}
 							</div>
 							<div
 								className="text-[#21272A] text-[18px] leading-[26px] tracking-[0.5px]"
-								style={{ fontFamily: "'Open Sans', sans-serif" }}
+								style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 							>
 								{selectedFaq.answer}
 							</div>
@@ -350,7 +351,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 						<div className="flex flex-col gap-4 flex-1">
 							<div
 								className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-left text-[#3C4245] text-[16px] leading-[24px] tracking-[0.5px]"
-								style={{ fontFamily: "'Open Sans', sans-serif" }}
+								style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 							>
 								{t('chatbot.ifYouNeedMoreHelp')}
 							</div>
@@ -374,7 +375,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 							<Avatar size={36} />
 							<div
 								className={`rounded-lg px-3 py-2 max-w-[80%] text-[16px] leading-[24px] tracking-[0.5px] ${m.from === 'bot' ? 'bg-[#E9EBEF] text-[#000000]' : 'bg-[#004494] text-white'}`}
-								style={{ fontFamily: "'Open Sans', sans-serif" }}
+								style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 							>
 								{m.text}
 							</div>
@@ -401,7 +402,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 							<div className="flex flex-col items-center gap-4">
 								<p
 									className="text-[14px] leading-5 tracking-[0.25px] text-[#3C4245]"
-									style={{ fontFamily: "'Open Sans', sans-serif" }}
+									style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 								>
 									{t('chatbot.chatWithVirtualAssistant')}
 								</p>
@@ -413,7 +414,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 								<div className="flex flex-col gap-4 flex-1">
 									<div
 										className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-left text-[#000] text-[16px] leading-[24px] tracking-[0.5px]"
-										style={{ fontFamily: "'Open Sans', sans-serif" }}
+										style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 									>
 										{t('root')}
 									</div>
@@ -426,7 +427,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 													disabled={loading}
 													onClick={() => handleSuggestionClick(s)}
 													className="px-4 py-1.5 h-8 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition"
-													style={{ fontFamily: "'Open Sans', sans-serif" }}
+													style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 												>
 													{s.text}
 												</button>
@@ -453,7 +454,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 									<Avatar size={36} />
 									<div
 										className={`rounded-lg px-3 py-2 max-w-[80%] text-[16px] leading-[24px] tracking-[0.5px] ${m.from === 'bot' ? 'bg-[#E9EBEF] text-[#000000]' : 'bg-[#004494] text-white'}`}
-										style={{ fontFamily: "'Open Sans', sans-serif" }}
+										style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 									>
 										{m.text}
 									</div>
@@ -470,7 +471,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 														disabled={loading}
 														onClick={() => handleFaqClick(faq)}
 														className="text-left text-[16px] font-bold leading-[24px] tracking-[0.5px] text-[#004494] underline hover:text-[#003366] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200"
-														style={{ fontFamily: "'Open Sans', sans-serif" }}
+														style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 													>
 														{faq.question}
 													</button>
@@ -489,7 +490,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 											{showFaqs && (
 												<p
 													className="text-[14px] font-medium text-[#696F72] tracking-[0.25px]"
-													style={{ fontFamily: "'Open Sans', sans-serif" }}
+													style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 												>
 													{t('chatbot.orSelectAnotherTopic')}
 												</p>
@@ -500,8 +501,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 														key={s.id}
 														disabled={loading}
 														onClick={() => handleSuggestionClick(s)}
-														className="px-4 py-1.5 h-8 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
-														style={{ fontFamily: "'Open Sans', sans-serif" }}
+													className="px-4 py-1.5 h-8 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
+													style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 													>
 														{s.text}
 													</button>
@@ -518,7 +519,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 							<Avatar size={36} />
 							<div
 								className="bg-[#E9EBEF] rounded-lg px-3 py-2 text-[#000] text-[16px] leading-[24px] tracking-[0.5px]"
-								style={{ fontFamily: "'Open Sans', sans-serif" }}
+								style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 							>
 								...
 							</div>
@@ -545,7 +546,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 											disabled={loading}
 											onClick={() => handleOption(o.action)}
 											className="px-3 py-1.5 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
-											style={{ fontFamily: "'Open Sans', sans-serif" }}
+											style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 										>
 											{o.label}
 										</button>
@@ -564,7 +565,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 						>
 							<label
 								className="flex flex-col gap-2 text-[14px] tracking-[0.25px] text-[#3C4245]"
-								style={{ fontFamily: "'Open Sans', sans-serif" }}
+								style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 							>
 								<span className="font-medium">{t('chatbot.describeYourIssue')}</span>
 								<textarea
@@ -575,7 +576,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 									onKeyDown={handleSupportTextareaKey}
 									placeholder={t('chatbot.typeHere')}
 									className="w-full resize-y min-h-[100px] rounded-lg border border-[#CBD5E1] bg-white px-3 py-2 text-[14px] leading-5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40"
-									style={{ fontFamily: "'Open Sans', sans-serif" }}
+									style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 								/>
 							</label>
 							<div className="flex justify-end gap-3">
@@ -584,7 +585,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 									onClick={() => setSupportMode(false)}
 									disabled={loading}
 									className="px-5 py-2 rounded-lg border border-[#BFC8CA] bg-white text-[14px] tracking-[0.1px] text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
-									style={{ fontFamily: "'Open Sans', sans-serif" }}
+									style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 								>
 									{t('chatbot.cancel')}
 								</button>
@@ -592,7 +593,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 									type="submit"
 									disabled={loading || !supportText.trim()}
 									className="px-5 py-2 rounded-lg bg-[#004494] text-white text-[14px] tracking-[0.1px] font-medium hover:brightness-110 disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#004494]/40 transition-all duration-200 hover:scale-105 hover:shadow-lg"
-									style={{ fontFamily: "'Open Sans', sans-serif" }}
+									style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 								>
 									{t('chatbot.send')}
 								</button>
@@ -601,7 +602,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 					)}
 				</div>
 			)}
-		</dialog>
+		</div>
 	);
 };
 

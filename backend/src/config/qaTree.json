@@ -3,148 +3,86 @@
 		"id": "root",
 		"questionKey": "root",
 		"children": [
-			{ "id": "billing", "labelKey": "billing" },
-			{ "id": "technical", "labelKey": "technical" },
-			{ "id": "general", "labelKey": "general" }
+			{ "id": "participate_tool", "labelKey": "participate_tool" },
+			{ "id": "participatory_process", "labelKey": "participatory_process" },
+			{ "id": "assemblies", "labelKey": "assemblies" },
+			{ "id": "conferences", "labelKey": "conferences" },
+			{ "id": "initiatives", "labelKey": "initiatives" }
 		]
 	},
-	"billing": {
-		"id": "billing",
-		"questionKey": "billing",
-		"answerKey": "billing_faq_intro",
+	"participate_tool": {
+		"id": "participate_tool",
+		"questionKey": "participate_tool_question",
+		"answerKey": "participate_tool_answer",
 		"children": [],
 		"handlerId": "logNode",
 		"handlerParams": { "level": "info" },
-		"faqs": [
-			{ "id": "billing_faq_1", "questionKey": "billing_faq_1_question", "answerKey": "billing_faq_1_answer" },
-			{ "id": "billing_faq_2", "questionKey": "billing_faq_2_question", "answerKey": "billing_faq_2_answer" },
-			{ "id": "billing_faq_3", "questionKey": "billing_faq_3_question", "answerKey": "billing_faq_3_answer" },
-			{ "id": "billing_faq_4", "questionKey": "billing_faq_4_question", "answerKey": "billing_faq_4_answer" }
-		],
+		"faqs": [],
 		"additionalSuggestions": [
-			{ "id": "technical", "labelKey": "technical" },
-			{ "id": "general", "labelKey": "general" }
+			{ "id": "participatory_process", "labelKey": "participatory_process" },
+			{ "id": "assemblies", "labelKey": "assemblies" },
+			{ "id": "conferences", "labelKey": "conferences" },
+			{ "id": "initiatives", "labelKey": "initiatives" }
 		]
 	},
-	"technical": {
-		"id": "technical",
-		"questionKey": "technical",
-		"answerKey": "technical_faq_intro",
+	"participatory_process": {
+		"id": "participatory_process",
+		"questionKey": "participatory_process_question",
+		"answerKey": "participatory_process_answer",
 		"children": [],
 		"handlerId": "logNode",
-		"faqs": [
-			{
-				"id": "technical_faq_1",
-				"questionKey": "technical_faq_1_question",
-				"answerKey": "technical_faq_1_answer"
-			},
-			{
-				"id": "technical_faq_2",
-				"questionKey": "technical_faq_2_question",
-				"answerKey": "technical_faq_2_answer"
-			},
-			{
-				"id": "technical_faq_3",
-				"questionKey": "technical_faq_3_question",
-				"answerKey": "technical_faq_3_answer"
-			},
-			{
-				"id": "technical_faq_4",
-				"questionKey": "technical_faq_4_question",
-				"answerKey": "technical_faq_4_answer"
-			}
-		],
+		"handlerParams": { "level": "info" },
+		"faqs": [],
 		"additionalSuggestions": [
-			{ "id": "billing", "labelKey": "billing" },
-			{ "id": "general", "labelKey": "general" }
+			{ "id": "participate_tool", "labelKey": "participate_tool" },
+			{ "id": "assemblies", "labelKey": "assemblies" },
+			{ "id": "conferences", "labelKey": "conferences" },
+			{ "id": "initiatives", "labelKey": "initiatives" }
 		]
 	},
-	"general": {
-		"id": "general",
-		"questionKey": "general",
-		"answerKey": "general_faq_intro",
+	"assemblies": {
+		"id": "assemblies",
+		"questionKey": "assemblies_question",
+		"answerKey": "assemblies_answer",
 		"children": [],
-		"faqs": [
-			{ "id": "general_faq_1", "questionKey": "general_faq_1_question", "answerKey": "general_faq_1_answer" },
-			{ "id": "general_faq_2", "questionKey": "general_faq_2_question", "answerKey": "general_faq_2_answer" },
-			{ "id": "general_faq_3", "questionKey": "general_faq_3_question", "answerKey": "general_faq_3_answer" },
-			{ "id": "general_faq_4", "questionKey": "general_faq_4_question", "answerKey": "general_faq_4_answer" }
-		],
+		"handlerId": "logNode",
+		"handlerParams": { "level": "info" },
+		"faqs": [],
 		"additionalSuggestions": [
-			{ "id": "billing", "labelKey": "billing" },
-			{ "id": "technical", "labelKey": "technical" }
+			{ "id": "participate_tool", "labelKey": "participate_tool" },
+			{ "id": "participatory_process", "labelKey": "participatory_process" },
+			{ "id": "conferences", "labelKey": "conferences" },
+			{ "id": "initiatives", "labelKey": "initiatives" }
 		]
 	},
-	"billing_faq_1": {
-		"id": "billing_faq_1",
-		"questionKey": "billing_faq_1_question",
-		"answerKey": "billing_faq_1_answer",
-		"children": []
+	"conferences": {
+		"id": "conferences",
+		"questionKey": "conferences_question",
+		"answerKey": "conferences_answer",
+		"children": [],
+		"handlerId": "logNode",
+		"handlerParams": { "level": "info" },
+		"faqs": [],
+		"additionalSuggestions": [
+			{ "id": "participate_tool", "labelKey": "participate_tool" },
+			{ "id": "participatory_process", "labelKey": "participatory_process" },
+			{ "id": "assemblies", "labelKey": "assemblies" },
+			{ "id": "initiatives", "labelKey": "initiatives" }
+		]
 	},
-	"billing_faq_2": {
-		"id": "billing_faq_2",
-		"questionKey": "billing_faq_2_question",
-		"answerKey": "billing_faq_2_answer",
-		"children": []
-	},
-	"billing_faq_3": {
-		"id": "billing_faq_3",
-		"questionKey": "billing_faq_3_question",
-		"answerKey": "billing_faq_3_answer",
-		"children": []
-	},
-	"billing_faq_4": {
-		"id": "billing_faq_4",
-		"questionKey": "billing_faq_4_question",
-		"answerKey": "billing_faq_4_answer",
-		"children": []
-	},
-	"technical_faq_1": {
-		"id": "technical_faq_1",
-		"questionKey": "technical_faq_1_question",
-		"answerKey": "technical_faq_1_answer",
-		"children": []
-	},
-	"technical_faq_2": {
-		"id": "technical_faq_2",
-		"questionKey": "technical_faq_2_question",
-		"answerKey": "technical_faq_2_answer",
-		"children": []
-	},
-	"technical_faq_3": {
-		"id": "technical_faq_3",
-		"questionKey": "technical_faq_3_question",
-		"answerKey": "technical_faq_3_answer",
-		"children": []
-	},
-	"technical_faq_4": {
-		"id": "technical_faq_4",
-		"questionKey": "technical_faq_4_question",
-		"answerKey": "technical_faq_4_answer",
-		"children": []
-	},
-	"general_faq_1": {
-		"id": "general_faq_1",
-		"questionKey": "general_faq_1_question",
-		"answerKey": "general_faq_1_answer",
-		"children": []
-	},
-	"general_faq_2": {
-		"id": "general_faq_2",
-		"questionKey": "general_faq_2_question",
-		"answerKey": "general_faq_2_answer",
-		"children": []
-	},
-	"general_faq_3": {
-		"id": "general_faq_3",
-		"questionKey": "general_faq_3_question",
-		"answerKey": "general_faq_3_answer",
-		"children": []
-	},
-	"general_faq_4": {
-		"id": "general_faq_4",
-		"questionKey": "general_faq_4_question",
-		"answerKey": "general_faq_4_answer",
-		"children": []
+	"initiatives": {
+		"id": "initiatives",
+		"questionKey": "initiatives_question",
+		"answerKey": "initiatives_answer",
+		"children": [],
+		"handlerId": "logNode",
+		"handlerParams": { "level": "info" },
+		"faqs": [],
+		"additionalSuggestions": [
+			{ "id": "participate_tool", "labelKey": "participate_tool" },
+			{ "id": "participatory_process", "labelKey": "participatory_process" },
+			{ "id": "assemblies", "labelKey": "assemblies" },
+			{ "id": "conferences", "labelKey": "conferences" }
+		]
 	}
 }

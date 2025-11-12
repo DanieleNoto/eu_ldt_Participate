@@ -15,6 +15,11 @@ class ChatbotCustomElement extends HTMLElement {
 	connectedCallback() {
 		// Create mount point
 		this._mountPoint = document.createElement('div');
+		this._mountPoint.className = 'chatbot-root';
+		this._mountPoint.style.position = 'fixed';
+		this._mountPoint.style.bottom = '1rem';
+		this._mountPoint.style.right = '1rem';
+		this._mountPoint.style.zIndex = '50';
 		this.appendChild(this._mountPoint);
 		
 		// Initialize React root
