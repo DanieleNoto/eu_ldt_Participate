@@ -1,53 +1,50 @@
-<div class="md:flex grow w-full ldt-admin-header p-2 text-center items-center">
-            <div  id="ldt-logo">
-            
-            </div>
-            <div class='flex grow gap-4 justify-end items-center'>
-                <!-- Tools Button -->
-                <div class="relative flex">
-                    <button id="tools-dropdown-button" class="tools-button flex items-center bg-white text-[#004494] hover:bg-[#004494] hover:text-white group" type="button">
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="2" y="2" width="5" height="5" fill="currentColor"/>
-                            <rect x="8" y="2" width="5" height="5" fill="currentColor"/>
-                            <rect x="14" y="2" width="4" height="5" fill="currentColor"/>
-                            <rect x="2" y="8" width="5" height="5" fill="currentColor"/>
-                            <rect x="8" y="8" width="5" height="5" fill="currentColor"/>
-                            <rect x="14" y="8" width="4" height="5" fill="currentColor"/>
-                            <rect x="2" y="14" width="5" height="4" fill="currentColor"/>
-                            <rect x="8" y="14" width="5" height="4" fill="currentColor"/>
-                            <rect x="14" y="14" width="4" height="4" fill="currentColor"/>
-                        </svg>
-                        <span class="tools-text">Tools</span>
-                    </button>
-                    <div id="tools-dropdown" class="tools-dropdown hidden">
-                        <div class="loading-message">Loading...</div>
-                    </div>
-                </div>
-
-                <!-- Help Button -->
-                <% if ENV['HELP_URL'].present? %>
-                  <a href="<%= ENV['HELP_URL'] %>" id="help-link" target="_blank" rel="noopener noreferrer nofollow" class="help-button" title="Help">
-                      <img src="" alt="Help" id="help-icon" />
-                  </a>
-                <% end %>
-
-                <!-- User Button with Dropdown -->
-                <div class="relative flex">
-                    <button id="user-dropdown-button" class="user-button" type="button" title="User Menu">
-                        <img src="" alt="User" id="user-icon" />
-                    </button>
-                    <div id="user-dropdown" class="user-dropdown hidden">
-                        <% if respond_to?(:decidim) && decidim.respond_to?(:destroy_user_session_path) %>
-                            <%= link_to decidim.destroy_user_session_path, method: :delete, data: { turbo: true, turbo_method: :delete }, class: "logout-link" do %>
-                                <svg class="logout-icon" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
-                                    <path d="m17 8-1.41 1.41L17.17 11H9v2h8.17l-1.58 1.58L17 16l4-4zM5 5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7v-2H5z"></path>
-                                </svg>
-                                <span>Logout</span>
-                            <% end %>
-                        <% else %>
-                            <!-- Logout link not available in this context -->
-                        <% end %>
-                    </div>
-                </div>
-            </div>
+<div class="md:flex grow w-full ldt-admin-header p-2 text-center items-center custom-admin-header">
+  <div class='flex grow gap-4 justify-between items-center'>
+    <div  id="ldt-logo"></div>
+    <!-- Tools Button -->
+    <div class="flex gap-4 items-center">
+      <div class="relative flex">
+        <button id="tools-dropdown-button" class="tools-button flex items-center bg-white text-[#004494] hover:bg-[#004494] hover:text-white group" type="button">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_6850_12294)">
+              <path d="M3 6H6V3H3V6ZM7.5 15H10.5V12H7.5V15ZM3 15H6V12H3V15ZM3 10.5H6V7.5H3V10.5ZM7.5 10.5H10.5V7.5H7.5V10.5ZM12 3V6H15V3H12ZM7.5 6H10.5V3H7.5V6ZM12 10.5H15V7.5H12V10.5ZM12 15H15V12H12V15Z" fill="#004494"/>
+            </g>
+            <defs>
+              <clipPath id="clip0_6850_12294">
+                <rect width="18" height="18" fill="white"/>
+              </clipPath>
+            </defs>
+          </svg>
+          <span class="tools-text">Tools</span>
+        </button>
+        <div id="tools-dropdown" class="tools-dropdown hidden">
+          <div class="loading-message">Loading...</div>
+        </div>
+      </div>
+      <!-- Help Button -->
+      <% if ENV['HELP_URL'].present? %>
+        <a href="<%= ENV['HELP_URL'] %>" id="help-link" target="_blank" rel="noopener noreferrer nofollow" class="help-button" title="Help">
+          <img src="" alt="Help" id="help-icon" />
+        </a>
+      <% end %>
+      <!-- User Button with Dropdown -->
+      <div class="relative flex">
+        <button id="user-dropdown-button" class="user-button" type="button" title="User Menu">
+          <img src="" alt="User" id="user-icon" />
+        </button>
+        <div id="user-dropdown" class="user-dropdown hidden">
+          <% if respond_to?(:decidim) && decidim.respond_to?(:destroy_user_session_path) %>
+            <%= link_to decidim.destroy_user_session_path, method: :delete, data: { turbo: true, turbo_method: :delete }, class: "logout-link" do %>
+              <svg class="logout-icon" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
+                <path d="m17 8-1.41 1.41L17.17 11H9v2h8.17l-1.58 1.58L17 16l4-4zM5 5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7v-2H5z"></path>
+              </svg>
+              <span>Logout</span>
+            <% end %>
+          <% else %>
+            <!-- Logout link not available in this context -->
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

@@ -8,16 +8,21 @@ function initializeToolsDropdown() {
 	const userDropdown = document.getElementById('user-dropdown');
 
 	if (toolsButton && toolsDropdown) {
-		// Toggle dropdown visibility
+		// Ensure dropdown starts hidden
+		toolsDropdown.classList.add('hidden');
 		toolsButton.addEventListener('click', function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 
-			const isVisible = toolsDropdown.style.display === 'block';
-			toolsDropdown.style.display = isVisible ? 'none' : 'block';
+			const isVisible = !toolsDropdown.classList.contains('hidden');
+			if (isVisible) {
+				toolsDropdown.classList.add('hidden');
+			} else {
+				toolsDropdown.classList.remove('hidden');
+			}
 
 			// Close user dropdown when opening tools dropdown
-			if (userDropdown && toolsDropdown.style.display === 'block') {
+			if (userDropdown && !toolsDropdown.classList.contains('hidden')) {
 				userDropdown.classList.add('hidden');
 			}
 
@@ -29,7 +34,7 @@ function initializeToolsDropdown() {
 		// Close dropdown when clicking outside
 		document.addEventListener('click', function (e) {
 			if (!toolsButton.contains(e.target) && !toolsDropdown.contains(e.target)) {
-				toolsDropdown.style.display = 'none';
+				toolsDropdown.classList.add('hidden');
 			}
 		});
 	} else {
@@ -85,7 +90,6 @@ function initializeToolsDropdown() {
 
 		// Helper to render a single application item (returns DOM element)
 		function renderAppItem(app) {
-			const svgMarkup = decodeIcon(app.icon);
 			const item = document.createElement('div');
 			item.className = 'application-item';
 
@@ -99,6 +103,7 @@ function initializeToolsDropdown() {
 				link.classList.add('selected');
 			}
 
+			const svgMarkup = decodeIcon(app.icon, app.name);
 			if (svgMarkup) {
 				const iconSpan = document.createElement('span');
 				iconSpan.innerHTML = svgMarkup; // Safe because it's from base64-decoded SVG
@@ -138,12 +143,10 @@ function initializeToolsDropdown() {
 			nameSpan.textContent = group.name;
 			btn.appendChild(nameSpan);
 
-			const arrow = document.createElement('svg');
+			const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 			arrow.setAttribute('data-arrow', groupId);
-			arrow.setAttribute('fill', 'currentColor');
-			arrow.setAttribute('viewBox', '0 0 20 20');
-			arrow.innerHTML =
-				'<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />';
+			arrow.setAttribute('viewBox', '0 0 24 24');
+			arrow.innerHTML = '<path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"></path>';
 			btn.appendChild(arrow);
 
 			groupDiv.appendChild(btn);
@@ -167,6 +170,10 @@ function initializeToolsDropdown() {
 			const groupElement = renderGroup(grp, idx);
 			if (groupElement) {
 				toolsDropdown.appendChild(groupElement);
+				if (idx < sortedGroups.length - 1) {
+					const hr = document.createElement('hr');
+					toolsDropdown.appendChild(hr);
+				}
 			}
 		});
 
@@ -177,7 +184,6 @@ function initializeToolsDropdown() {
 				e.stopPropagation();
 				const groupId = btn.getAttribute('data-group');
 				const groupDiv = document.getElementById(groupId);
-				const arrow = btn.querySelector('svg');
 				const isExpanded = btn.getAttribute('aria-expanded') === 'true';
 
 				if (isExpanded) {
