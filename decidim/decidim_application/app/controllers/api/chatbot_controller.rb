@@ -31,13 +31,16 @@ module Api
     # Proxy for chatbot frontend assets
     def proxy
       # Prefer HTTPS by default to avoid cleartext transmission. In development
-      # this can be overridden via ENV. In production we enforce that the URL
-      # uses HTTPS.
-      chatbot_url = ENV['CHATBOT_URL'].presence || 'https://chatbot-frontend:5001'
+      # this can be overridden via ENV. In production use internal K8s service names.
+      chatbot_url = ENV['CHATBOT_URL'].presence || 
+                    (Rails.env.production? ? 'http://chatbot-frontend-svc:5001' : 'https://chatbot-frontend:5001')
 
       # Rails separates format from path, so we need to reconstruct the full filename
-      raw_path = params[:path].to_s || ''
+      raw_path = params[:path].to_s
       format = request.format.symbol.to_s
+
+      # If path is empty (like /chatbot-api), default to index.js
+      raw_path = 'index' if raw_path.blank?
 
       # Reconstruct full path with extension if format is not HTML
       path = raw_path.dup
@@ -72,7 +75,8 @@ module Api
 
     # Proxy for chatbot backend API calls
     def backend_proxy
-      backend_url = ENV['CHATBOT_BACKEND_URL'].presence || 'https://backend:3002'
+      backend_url = ENV['CHATBOT_BACKEND_URL'].presence || 
+                    (Rails.env.production? ? 'http://chatbot-backend-svc:3002' : 'https://backend:3002')
       raw_path = params[:path].to_s || ''
 
       begin
@@ -299,8 +303,8 @@ module Api
         raise
       end
 
-      # Enforce TLS in production environments
-      if Rails.env.production? && base_uri.scheme != 'https'
+      # Enforce TLS in production environments, but allow HTTP for internal K8s services
+      if Rails.env.production? && base_uri.scheme != 'https' && !is_internal_k8s_service?(base_uri.host)
         Rails.logger.error "[Chatbot Proxy] Insecure backend URL used in production: #{base}"
         raise "Insecure backend URL configured"
       end
@@ -310,6 +314,23 @@ module Api
       base_uri.path = combined_path.start_with?('/') ? combined_path : "/#{combined_path}"
       base_uri.query = query_string if query_string.present?
       base_uri.to_s
+    end
+
+    # Check if a hostname is an internal Kubernetes service
+    def is_internal_k8s_service?(hostname)
+      return false if hostname.blank?
+      
+      # Common K8s internal service patterns
+      k8s_patterns = [
+        /.*-svc$/,                    # Kubernetes service suffix
+        /.*\..*\.svc\.cluster\.local$/, # Full K8s DNS name
+        /^chatbot-frontend$/,         # Our specific service names
+        /^chatbot-backend$/,
+        /^backend$/,
+        /^frontend$/
+      ]
+      
+      k8s_patterns.any? { |pattern| hostname.match?(pattern) }
     end
   end
 end
