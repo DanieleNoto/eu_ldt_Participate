@@ -483,35 +483,36 @@ Decidim.configure do |config|
     if chatbot_backend_url.present?
       config.content_security_policies_extra["connect-src"] += [chatbot_backend_url]
     end
-    # Allow Matomo analytics in development
-    if ENV['MATOMO_SERVER_ADDRESS'].present?
-      matomo_uri = URI.parse(ENV['MATOMO_SERVER_ADDRESS'])
-      matomo_full = ENV['MATOMO_SERVER_ADDRESS']
-      
-      config.content_security_policies_extra["script-src"] += [matomo_full]
-      config.content_security_policies_extra["connect-src"] += [matomo_full]
-      config.content_security_policies_extra["img-src"] ||= %w('self' data:)
-      config.content_security_policies_extra["img-src"] += [matomo_full]
-    end
-    
-    # Allow Grafana analytics in development
-    grafana_hosts.each do |grafana_url|
-      next if grafana_url.blank?
-      
-      config.content_security_policies_extra["script-src"] += [grafana_url]
-      config.content_security_policies_extra["connect-src"] += [grafana_url]
-      config.content_security_policies_extra["img-src"] ||= %w('self' data:)
-      config.content_security_policies_extra["img-src"] += [grafana_url]
-    end
-    
-    # Allow Keycloak authentication in development
-    keycloak_hosts.each do |keycloak_url|
-      next if keycloak_url.blank?
-      
-      config.content_security_policies_extra["connect-src"] += [keycloak_url]
-    end
   end
 
+  # Allow Matomo analytics in development
+  if ENV['MATOMO_SERVER_ADDRESS'].present?
+    matomo_uri = URI.parse(ENV['MATOMO_SERVER_ADDRESS'])
+    matomo_full = ENV['MATOMO_SERVER_ADDRESS']
+      
+    config.content_security_policies_extra["script-src"] += [matomo_full]
+    config.content_security_policies_extra["connect-src"] += [matomo_full]
+    config.content_security_policies_extra["img-src"] ||= %w('self' data:)
+    config.content_security_policies_extra["img-src"] += [matomo_full]
+  end
+    
+    # Allow Grafana analytics in development
+  grafana_hosts.each do |grafana_url|
+    next if grafana_url.blank?
+    
+    config.content_security_policies_extra["script-src"] += [grafana_url]
+    config.content_security_policies_extra["connect-src"] += [grafana_url]
+    config.content_security_policies_extra["img-src"] ||= %w('self' data:)
+    config.content_security_policies_extra["img-src"] += [grafana_url]
+  end
+  
+  # Allow Keycloak authentication in development
+  keycloak_hosts.each do |keycloak_url|
+    next if keycloak_url.blank?
+    
+    config.content_security_policies_extra["connect-src"] += [keycloak_url]
+  end
+  
   # Allow Matomo analytics in development
   if Rails.env.development? && ENV['MATOMO_URL'].present?
     matomo_host = URI.parse(ENV['MATOMO_URL']).host

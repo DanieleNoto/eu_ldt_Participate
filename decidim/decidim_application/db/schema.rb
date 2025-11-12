@@ -1046,10 +1046,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
     t.string "name", null: false
     t.string "map_id", null: false
     t.text "map_data"
-    t.string "reference"
     t.bigint "decidim_component_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "reference"
     t.index ["decidim_component_id", "map_id"], name: "index_ldt_map_viz_on_component_and_map_id", unique: true
     t.index ["decidim_component_id"], name: "index_ldt_map_viz_on_decidim_component_id"
     t.index ["reference"], name: "index_decidim_ldt_map_visualizations_on_reference", unique: true
