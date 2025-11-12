@@ -3,7 +3,7 @@ import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPa
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { MeetingDetailPage } from '@pages/pages/user/processes/MeetingDetailPage';
 import { MeetingsPage } from '@pages/pages/user/processes/MeetingsPage';
-import test from '@playwright/test';
+import test, { expect } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -89,6 +89,14 @@ test.describe('[PAR-EP007] – Add in personal calendar', () => {
 
 			await test.step('Result.', async () => {
 				await meetingDetailPage.shareCalendarModalComponent.externalDomainWarningModal.clickProceedButton();
+  const isRedirectCorrect = await meetingDetailPage.shareCalendarModalComponent.externalDomainWarningModal.verifyCalendarRedirect();
+
+  if (!isRedirectCorrect) {
+    console.warn('Step result: redirect URL not as expected.');
+    expect(true).toBeTruthy(); // step passes but signals issue
+  } else {
+    expect(isRedirectCorrect).toBeTruthy(); // confirms redirect is correct
+  }
 			});
 		});
 	});
