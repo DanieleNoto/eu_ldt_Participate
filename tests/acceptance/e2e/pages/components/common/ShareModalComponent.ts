@@ -347,10 +347,6 @@ export class ShareModalComponent {
 		});
 	}
 
-	async closeModal() {
-		await this.page.click('[data-dialog-close="socialShare"]');
-	}
-
 	async shareToX() {
 		await this.page.click('[data-site="x"]');
 	}

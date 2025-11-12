@@ -62,4 +62,31 @@ export default class NotificationPage extends AuthenticatedPage {
 	    return false;
 	}
 
+/**
+ * Verify that all notification fields are visible
+ * @returns true if all fields are visible, false otherwise
+ */
+async verifyNotificationVisible(): Promise<boolean> {
+  try {
+    // Check wrapper visibility
+    const wrapperVisible = await this.page.locator('.notification__wrapper').isVisible();
+
+    // Check time field visibility
+    const timeVisible = await this.page.locator('.notification__time').isVisible();
+
+    // Check snippet visibility
+    const snippetVisible = await this.page.locator('.notification__snippet').isVisible();
+
+    // Check snippet title visibility
+    const titleVisible = await this.page.locator('.notification__snippet-title').isVisible();
+
+    // Return true only if all fields are visible
+    return wrapperVisible && timeVisible && snippetVisible && titleVisible;
+  } catch (error) {
+    console.warn('Notification visibility check failed:', error);
+    return false;
+  }
+}
+
+
 }
