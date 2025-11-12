@@ -80,7 +80,8 @@ test.describe('@useKeycloak Tool0 Integrated Environment', () => {
 				// Verify tools match between API and UI
 				console.log('Verifying tools match between API and UI');
 				const matchVerification = await integratedEnvironmentPage.verifyToolsMatchAPIandUI();
-				expect(matchVerification.match).toBe(true);
+
+				await expect([...matchVerification.uiTools].sort()).toEqual([...matchVerification.apiTools].sort());
 
 				// Verify all tools are visible in UI
 				console.log('Verifying all tools are visible in UI');

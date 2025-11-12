@@ -124,7 +124,6 @@ export class IntegratedEnvironmentPage extends AuthenticatedPage {
 	 * Verify tools match between API and UI
 	 */
 	async verifyToolsMatchAPIandUI(): Promise<{
-		match: boolean;
 		apiTools: string[];
 		uiTools: string[];
 		missing: string[];
@@ -152,9 +151,7 @@ export class IntegratedEnvironmentPage extends AuthenticatedPage {
 		const missing = apiTools.filter(tool => !uiToolNames.includes(tool));
 		const extra = uiToolNames.filter(tool => !apiTools.includes(tool));
 
-		const match = missing.length === 0 && extra.length === 0;
-
-		if (match) {
+		if (missing.length === 0 && extra.length === 0) {
 			console.log('All tools match between API and UI');
 		} else {
 			if (missing.length > 0) {
@@ -166,7 +163,6 @@ export class IntegratedEnvironmentPage extends AuthenticatedPage {
 		}
 
 		return {
-			match,
 			apiTools,
 			uiTools: uiToolNames,
 			missing,
