@@ -156,7 +156,7 @@ spec:
                       - mountPath: /code/tmp
                         name: tmp-volume
                       - mountPath: /code/log 
-                        name: fluentbit-buffer
+                        name: tmp-volume
                                          
                 - name: open-data-exporter
                   image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
@@ -317,8 +317,8 @@ spec:
                       cpu: "200m"
                       memory: "200Mi"
                   volumeMounts:
-                   - name: fluentbit-buffer
-                     mountPath: /var/fluent/log
+                   - name: tmp-volume
+                     mountPath: /code/log
                    - name: config
                      mountPath: /fluent-bit/etc/ 
  
