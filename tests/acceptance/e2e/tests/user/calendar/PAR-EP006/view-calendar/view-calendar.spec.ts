@@ -23,6 +23,7 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The citizen has an active account on the platform and is logged in.
  *
  */
+
 test.beforeAll(async ({ browser }) => {
 	const context = await browser.newContext();
 	const page = await context.newPage();
@@ -53,15 +54,8 @@ test.describe('[PAR-EP006] – View calendar', () => {
 			});
 			await test.step('3. User: Views events displayed on the calendar, including the title, date, time, and location.', async () => {
 				const events = await calendarPage.getCalendarEvents();
-				if (events.length === 0) {
-					console.warn('No events found in the calendar view.');
-					// confirm the step as passed anyway
-					expect(true).toBeTruthy();
-				} else {
-					//The time and location can be part of the text or additional attributes (in this case they are not made explicit, but the structure is ready to contain them)
-					console.log('Events found on calendar with details:', events);
-					expect(events.length).toBeGreaterThan(0);
-				}
+				expect(events.length).toBeGreaterThan(0); // fail if no events
+				console.log('Events found on calendar with details:', events);
 				await calendarPage.filterByDebate();
 				await calendarPage.filterByMeeting();
 			});
