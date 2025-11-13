@@ -564,25 +564,6 @@ export class DebateDetailPage {
 		}
 	}
 
-	/**
-	 * Wait for mention suggestions to appear with timeout
-	 * @param timeout - Maximum time to wait in milliseconds
-	 * @returns True if suggestions appeared within timeout
-	 */
-	async waitForMentionSuggestions(timeout: number = 5000): Promise<boolean> {
-		const startTime = Date.now();
-
-		while (Date.now() - startTime < timeout) {
-			if (await this.areMentionSuggestionsVisible()) {
-				console.log('Mention suggestions appeared');
-				return true;
-			}
-			await this.page.waitForTimeout(100);
-		}
-
-		console.log('Mention suggestions did not appear within timeout');
-		return false;
-	}
 
 	/**
 	 * Check if Tribute.js is properly initialized on the textarea
