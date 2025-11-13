@@ -181,7 +181,7 @@ jobs:
             displayName: 'Apply Namespaces (Tool3)'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -192,7 +192,7 @@ jobs:
             displayName: 'Delete ACR Pull Secret if exists (Tool3)'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -203,7 +203,7 @@ jobs:
             displayName: 'Set ACR Pull Secret (Tool3)'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -220,7 +220,7 @@ jobs:
             displayName: 'Delete existing storage-secret if it exists'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -231,7 +231,7 @@ jobs:
             displayName: 'Create Shared Storage Secret (Tool3)'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -243,7 +243,7 @@ jobs:
             displayName: "Apply Ingress"
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'Alvaro-Test'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -254,7 +254,7 @@ jobs:
             displayName: "Apply Matomo Ingress"
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'Alvaro-Test'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -265,7 +265,7 @@ jobs:
    #         displayName: "Apply Jitsi Ingress"
    #         inputs:
    #           connectionType: 'Azure Resource Manager'
-   #           azureSubscriptionEndpoint: 'Alvaro-Test'
+   #           azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
    #           azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
    #           kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
    #           namespace: 'participate'
@@ -283,7 +283,7 @@ jobs:
             displayName: 'DB - Apply Services'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -296,7 +296,7 @@ jobs:
             displayName: 'DB - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -309,7 +309,7 @@ jobs:
             displayName: 'DB - Apply Secrets'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -322,7 +322,7 @@ jobs:
             displayName: 'DB - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -335,7 +335,7 @@ jobs:
             displayName: 'REDIS - Apply Service'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -347,7 +347,7 @@ jobs:
             displayName: 'REDIS - - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -364,7 +364,7 @@ jobs:
             displayName: 'DB - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -377,7 +377,7 @@ jobs:
             displayName: 'DB - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -390,7 +390,7 @@ jobs:
             displayName: 'JITSI-WEB - - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -402,7 +402,7 @@ jobs:
             displayName: 'JITSI-WEB - Apply Services'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -414,7 +414,7 @@ jobs:
             displayName: 'JITSI-JVB - Apply Services'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -426,7 +426,7 @@ jobs:
             displayName: 'JITSI-JICOFO - Apply Services'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -438,7 +438,7 @@ jobs:
             displayName: 'JITSI-PROSODY - Apply Services'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -455,7 +455,7 @@ jobs:
             displayName: 'JITSI-JICOFO - - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -467,7 +467,7 @@ jobs:
             displayName: 'JITSI-JVB - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -479,7 +479,7 @@ jobs:
             displayName: 'JITSI-PROSODY - - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -494,7 +494,7 @@ jobs:
             displayName: 'DB - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -507,7 +507,7 @@ jobs:
             displayName: 'DB - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -519,7 +519,7 @@ jobs:
             displayName: 'MATOMO DB - - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -531,7 +531,7 @@ jobs:
             displayName: 'MATOMO - - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -544,7 +544,7 @@ jobs:
             displayName: 'MATOMO - Apply Services'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -556,7 +556,7 @@ jobs:
             displayName: 'MATOMO DB - Apply Services'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -571,7 +571,7 @@ jobs:
             displayName: 'Decidim - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -584,7 +584,7 @@ jobs:
             displayName: 'Decidim - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -597,7 +597,7 @@ jobs:
             displayName: 'Apply SecretsMap (Tool3)'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -611,7 +611,7 @@ jobs:
             displayName: 'Decidim - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -622,7 +622,7 @@ jobs:
             displayName: 'Decidim - Apply Services'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -639,7 +639,7 @@ jobs:
             displayName: 'Grafana - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -652,7 +652,7 @@ jobs:
             displayName: 'Grafana - Apply Secrets'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -665,7 +665,7 @@ jobs:
             displayName: 'GRAFANA - - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -677,7 +677,7 @@ jobs:
             displayName: 'GRAFANA - Apply Services'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -689,7 +689,7 @@ jobs:
             displayName: 'GRAFANA - Apply Storage'
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Alvaro-Test'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
@@ -701,7 +701,7 @@ jobs:
             displayName: 'Apply ConfigMap - BE (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'Alvaro-Test'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -712,7 +712,7 @@ jobs:
             displayName: 'Apply ConfigMap - DB (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'Alvaro-Test'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -723,7 +723,7 @@ jobs:
             displayName: 'Apply Secrets - BE (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'Alvaro-Test'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -734,7 +734,7 @@ jobs:
             displayName: 'Apply Secrets - DB (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'Alvaro-Test'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -745,7 +745,7 @@ jobs:
             displayName: 'Apply ConfigMap - FE (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'Alvaro-Test'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -756,7 +756,7 @@ jobs:
             displayName: 'Apply Statefulset - WebApp (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'Alvaro-Test'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -767,7 +767,7 @@ jobs:
             displayName: 'Apply Service - BE (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'Alvaro-Test'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
@@ -778,7 +778,7 @@ jobs:
             displayName: 'Apply Service - FE (Chatbot)'
             inputs:
               connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'Alvaro-Test'
+              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
               azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
               kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
               namespace: 'participate'
