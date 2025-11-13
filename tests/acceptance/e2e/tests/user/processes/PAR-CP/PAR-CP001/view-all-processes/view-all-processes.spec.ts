@@ -84,8 +84,8 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 			});
 			await test.step('3.1 User: Applies filters to narrow down the list of processes.', async () => {
 				// Record the number of processes before filtering
-				const countBefore = await processesOverviewPage.getProcessesCount();
-				console.log('Number of processes before filtering:', countBefore);
+				const countBeforeFilter = await processesOverviewPage.getProcessesCount();
+				console.log('Number of processes before filtering:', countBeforeFilter);
 
 				// Apply a date filter (e.g., active processes)
 				await processesOverviewPage.filterByDate('active');
