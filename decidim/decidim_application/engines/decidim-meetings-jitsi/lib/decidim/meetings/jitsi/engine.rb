@@ -8,9 +8,16 @@ module Decidim
       class Engine < ::Rails::Engine
         isolate_namespace Decidim::Meetings::Jitsi
 
-  # Load decorators when the app is prepared
+        # Configure Zeitwerk to ignore decorators directory completely
+        # Decorators use class_eval and don't define new constants
+        config.before_initialize do
+          Rails.autoloaders.main.ignore("#{root}/app/decorators")
+        end
+
+        # Load decorators when the app is prepared
         config.to_prepare do
           Dir.glob("#{Decidim::Meetings::Jitsi::Engine.root}/app/decorators/**/*_decorator.rb").each do |decorator|
+            Rails.logger.info("Loading decorator: #{decorator}")
             load decorator
           end
         end
