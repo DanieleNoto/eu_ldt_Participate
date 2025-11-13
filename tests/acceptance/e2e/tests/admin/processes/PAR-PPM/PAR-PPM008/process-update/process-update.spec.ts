@@ -128,7 +128,7 @@ test.describe('[PAR-PPM008] – Update process', () => {
 				// Verify the updated data is reflected
 				if (updateData.general?.title) {
 					// Check if the updated title is visible somewhere on the page
-					await expect(page.getByText(updateData.general.title)).toBeVisible({ timeout: 10000 });
+					await expect(page.getByText(updateData.general.title)).toBeVisible();
 				}
 			});
 
