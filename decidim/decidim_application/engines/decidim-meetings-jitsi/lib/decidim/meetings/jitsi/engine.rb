@@ -8,11 +8,11 @@ module Decidim
       class Engine < ::Rails::Engine
         isolate_namespace Decidim::Meetings::Jitsi
 
-        # Exclude decorators from Zeitwerk autoloading since they use class_eval
-        # and don't define new constants
-        config.autoload_paths -= %W[
-          #{root}/app/decorators
-        ]
+        # Configure Zeitwerk to ignore decorators directory completely
+        # Decorators use class_eval and don't define new constants
+        config.before_initialize do
+          Rails.autoloaders.main.ignore("#{root}/app/decorators")
+        end
 
         # Load decorators when the app is prepared
         config.to_prepare do
