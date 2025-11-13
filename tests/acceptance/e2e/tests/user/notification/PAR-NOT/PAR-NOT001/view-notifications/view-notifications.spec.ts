@@ -1,6 +1,13 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import NotificationPage from '@pages/pages/user/NotificationPage';
-import test from '@playwright/test';
+import test, { expect } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -35,6 +42,7 @@ test.describe('[PAR-NOT001] – View notifications', () => {
 	});
 	test.describe('Main Flow', () => {
 		test('should allow user to view notifications', async () => {
+			let isVisible: boolean;
 			await test.step('1. User: Navigates to the "Profile -> Notifications" section.', async () => {
 				// Navigate to notifications section
 				await homePage.header.goToNotifications();
@@ -44,9 +52,10 @@ test.describe('[PAR-NOT001] – View notifications', () => {
 			});
 			await test.step('3. User: Scrolls through the list to view individual notifications.', async () => {
 				await notificationPage.scrollToLastComment();
+				isVisible = await notificationPage.verifyNotificationVisible();
 			});
 			await test.step('Result.', async () => {
-				await notificationPage.expectToBeOnNotificationsPage();
+				expect(isVisible).toBeTruthy();
 			});
 		});
 	});
