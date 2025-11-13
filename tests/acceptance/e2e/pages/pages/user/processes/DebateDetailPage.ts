@@ -759,15 +759,15 @@ export class DebateDetailPage {
 	 * Verify that mention suggestions are visible
 	 */
 	async expectMentionSuggestionsToBeVisible(): Promise<void> {
-		// Prova ad attendere che il container diventi visibile con un timeout più lungo
+		// Try waiting for the container to become visible with a longer timeout
 		try {
 			await expect(this.tributeContainer).toBeVisible();
 		} catch (error) {
-			// Se fallisce, prova a vedere se il container ha contenuto anche se non "visibile"
+			// If it fails, try to see if the container has content even if not "visible"
 			const hasContent = (await this.tributeResults.locator('li').count()) > 0;
 			if (hasContent) {
 				console.log('Tribute container has content but is not marked as visible');
-				// In questo caso, consideriamo che funzioni
+				// In this case, let's consider that it works
 				return;
 			}
 			throw error;
