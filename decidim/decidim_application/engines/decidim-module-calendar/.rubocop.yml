@@ -1,0 +1,7 @@
+inherit_from:
+  - https://raw.githubusercontent.com/decidim/decidim/release/0.30-stable/.rubocop.yml
+
+AllCops:
+  Exclude:
+    - "development_app*/**/*"
+    - "spec/decidim_dummy_app*/**/*"

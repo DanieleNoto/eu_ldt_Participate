@@ -1,0 +1,56 @@
+---
+en:
+  decidim:
+    calendar:
+      admin:
+        actions:
+          new_external_event: New external event
+        external_events:
+          create:
+            invalid: Invalid external event
+            success: External event created successfully
+          destroy:
+            success: External event deleted successfully
+          edit:
+            save: Save external event
+          form:
+            title: External event
+            title_label: Title
+            start_at: Start at
+            end_at: End at
+            url: URL
+            url_help_text: Must start with http:// or https://
+          index:
+            no_records_html: <p>No external events created.</p> <p>Start by adding
+              a external event from the "<a href="%{new_set_link}">%{button_name}</a>"
+              button.</p>
+            title: External events
+          new:
+            create: Create external event
+            title: New external event
+          update:
+            invalid: Error updating external event
+            success: External event updated successfully
+      calendar:
+        calendar_modal:
+          calendar_url: Calendar URL
+          copy_calendar_url: Copy
+          copy_calendar_url_clarification: Copy calendar URL to clipboard
+          copy_calendar_url_copied: Copied!
+          copy_calendar_url_description: You can see all this information in your
+            calendar application or provider. Copy and paste this URL in your calendar
+            using the "Add new calendar from an URL" option.
+          copy_calendar_url_message: The URL was successfully copied to clipboard.
+          export_calendar: Export calendar
+      index:
+        filters:
+          consultation: Consultations
+          debate: Debates
+          external_event: External events
+          meeting: Meetings
+          participatory_step: Participatory Process
+        title: Global Calendar
+      menu:
+        calendar: Calendar
+        gantt: Gantt Graph
+        ical: Download ICAL
