@@ -11,7 +11,7 @@ module Decidim
   # Load decorators when the app is prepared
         config.to_prepare do
           Dir.glob("#{Decidim::Meetings::Jitsi::Engine.root}/app/decorators/**/*_decorator.rb").each do |decorator|
-            require_dependency decorator
+            load decorator
           end
         end
 
