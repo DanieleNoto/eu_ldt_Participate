@@ -76,7 +76,6 @@
   z-index: 1000;
   margin-top: 4px;
   overflow: hidden;
-  max-height: 600px;
   transition: max-height 0.3s ease;
 }
 
@@ -182,6 +181,10 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+    }
+
+    span:hover {
+      font-weight: 700;
     }
     
     svg {
