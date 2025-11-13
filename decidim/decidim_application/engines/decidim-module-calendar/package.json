@@ -1,0 +1,34 @@
+{
+	"name": "decidim-calendar",
+	"version": "0.30.0",
+	"license": "AGPL-3.0",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"lint": "eslint -c .eslintrc.json --no-error-on-unmatched-pattern --ignore-pattern app/packs/vendor --ext .js app/packs",
+		"lint-fix": "eslint -c .eslintrc.json --ext .js app/packs/ --fix",
+		"stylelint": "stylelint app/packs/**/*.scss",
+		"stylelint-fix": "stylelint **/*.scss --fix"
+	},
+	"engines": {
+		"node": ">=18.17.1",
+		"npm": ">=9.6.7"
+	},
+	"stylelint": {
+		"extends": "@decidim/stylelint-config"
+	},
+	"dependencies": {
+		"@fullcalendar/core": "^6.1.17",
+		"@fullcalendar/daygrid": "^6.1.17",
+		"@fullcalendar/interaction": "^6.1.17",
+		"@fullcalendar/list": "^6.1.17",
+		"@fullcalendar/timegrid": "^6.1.17",
+		"frappe-gantt": "^0.6.1"
+	},
+	"devDependencies": {
+		"@decidim/dev": "^0.30.0",
+		"@decidim/eslint-config": "^0.30.0",
+		"@decidim/stylelint-config": "^0.30.0",
+		"@decidim/prettier-config": "^0.30.0",
+		"@decidim/webpacker": "^0.30.0"
+	}
+}

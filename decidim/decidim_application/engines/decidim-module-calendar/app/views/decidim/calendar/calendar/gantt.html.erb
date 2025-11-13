@@ -1,0 +1,9 @@
+<% add_decidim_page_title(t("calendar.menu.gantt", scope: "decidim")) %>
+
+<%= append_stylesheet_pack_tag "decidim_calendar_gantt" %>
+
+<div class="row columns">
+  <%= content_tag :div, "", id: "gantt", data: { tasks: tasks } %>
+</div>
+
+<%= append_javascript_pack_tag "decidim_calendar_gantt" %>

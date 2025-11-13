@@ -1,0 +1,61 @@
+#calendar {
+  .fc-title {
+    margin-left: 10px;
+  }
+
+  .fc-scroller {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+  }
+
+  .fc-day-number {
+    display: block;
+    float: none;
+    text-align: center;
+  }
+
+  .fc-day-top {
+    background-color: #ededed;
+  }
+
+  .fc-today {
+    background-color: #fcf8e3 !important;
+  }
+
+  td {
+    border-color: #ccc !important;
+  }
+
+  .fc-today {
+    background-color: #f0f3b6;
+  }
+
+  .fc-content-skeleton td {
+    background-color: #fff;
+  }
+
+  $small: 576px;
+
+  @media screen and (max-width: $small) {
+    .fc-button {
+      padding-top: .25rem;
+      padding-bottom: .25rem;
+      font-size: .6rem;
+      margin: 0 1px 1px 0;
+    }
+
+    .fc-toolbar-title {
+      font-size: 1rem;
+      inline-size: 20vw;
+      overflow-wrap: break-word;
+    }
+  }
+}
+
+.calendar-filters {
+  margin: 1rem 0;
+}
+
+.hide {
+  display: none;
+}

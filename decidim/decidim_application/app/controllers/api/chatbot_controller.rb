@@ -125,14 +125,10 @@ module Api
           return render plain: 'Bad request', status: 400
         end
         
-        # Security: Block HTTP connections to external services in production
+        # Security: Block HTTP connections to external services in all environments
         if uri.scheme == 'http' && !is_internal_k8s_service?(uri.host)
-          if Rails.env.production?
-            Rails.logger.error "[Chatbot Proxy] HTTP blocked for external service in production: #{uri.host}"
-            return render plain: 'Secure connection required', status: 400
-          else
-            Rails.logger.warn "[Chatbot Proxy] HTTP connection to external service: #{uri.host}"
-          end
+          Rails.logger.error "[Chatbot Proxy] HTTP blocked for external service: #{uri.host}"
+          return render plain: 'Secure connection required', status: 400
         end
         
         # Validate URI components
@@ -262,14 +258,10 @@ module Api
         raise ArgumentError, 'Invalid host in URL'
       end
 
-      # Security: Block HTTP connections to external services in production
+      # Security: Block HTTP connections to external services in all environments
       if uri.scheme == 'http' && !is_internal_k8s_service?(uri.host)
-        if Rails.env.production?
-          Rails.logger.error "[Chatbot Backend Proxy] HTTP blocked for external service in production: #{uri.host}"
-          raise SecurityError, 'Secure connection required for external services'
-        else
-          Rails.logger.warn "[Chatbot Backend Proxy] HTTP connection to external service: #{uri.host}"
-        end
+        Rails.logger.error "[Chatbot Backend Proxy] HTTP blocked for external service: #{uri.host}"
+        raise SecurityError, 'Secure connection required for external services'
       end
       
       # Validate URI components
@@ -400,26 +392,24 @@ module Api
       k8s_patterns.any? { |pattern| hostname.match?(pattern) }
     end
 
-    # Configure SSL verification based on environment and service type
+    # Configure SSL verification - always enforce proper certificate validation
     def configure_ssl_verification(http, uri)
-      # For internal K8s services, use peer verification but allow self-signed certs
-      if is_internal_k8s_service?(uri.hostname)
-        if Rails.env.development? || Rails.env.test?
-          # In development/test, disable verification for internal services only
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-          Rails.logger.debug "SSL verification disabled for internal service: #{uri.hostname}"
+      # Always use full SSL verification for all services
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      http.verify_hostname = true
+      
+      # For internal K8s services, allow custom CA certificates if configured
+      if is_internal_k8s_service?(uri.hostname) && ENV['INTERNAL_CA_CERT_PATH'].present?
+        ca_cert_path = ENV['INTERNAL_CA_CERT_PATH']
+        if File.exist?(ca_cert_path)
+          http.ca_file = ca_cert_path
+          Rails.logger.debug "Using custom CA certificate for internal service: #{uri.hostname}"
         else
-          # In production, use peer verification but allow self-signed
-          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-          http.verify_hostname = false  # Allow hostname mismatch for internal services
-          Rails.logger.info "SSL peer verification enabled for internal service: #{uri.hostname}"
+          Rails.logger.warn "Custom CA certificate path configured but file not found: #{ca_cert_path}"
         end
-      else
-        # For external services, always use full verification
-        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        http.verify_hostname = true
-        Rails.logger.debug "Full SSL verification enabled for external service: #{uri.hostname}"
       end
+      
+      Rails.logger.debug "SSL verification enabled for #{uri.hostname}"
     end
   end
 end

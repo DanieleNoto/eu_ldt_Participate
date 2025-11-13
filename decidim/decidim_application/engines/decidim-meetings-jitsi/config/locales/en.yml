@@ -10,6 +10,16 @@ en:
                     jitsi_url_generated: 'Jitsi URL generated successfully'
                     jitsi_url_error: 'Error generating Jitsi URL'
                     jitsi_generator_disabled: 'Jitsi generator is disabled for this component'
+            live_events:
+                show:
+                    jwt_enabled: 'Secure Access Enabled'
+                    jwt_description: 'This meeting uses JWT authentication for secure access.'
+                    meeting_details: 'Meeting Details'
+                    start_time: 'Start time'
+                    end_time: 'End time'
+                    no_online_meeting_url: 'No online meeting URL configured for this meeting.'
+                    moderator_info: 'You are a moderator'
+                    moderator_description: 'As the meeting organizer, you have moderator privileges in this meeting.'
         components:
             meetings:
                 settings:

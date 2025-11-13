@@ -575,6 +575,9 @@ if Decidim.module_installed? :meetings
     unless Rails.application.secrets.dig(:decidim, :meetings, :enable_proposal_linking) == "auto"
       config.enable_proposal_linking = Rails.application.secrets.dig(:decidim, :meetings, :enable_proposal_linking).present?
     end
+    # Jitsi configuration
+    config.jitsi_url = ENV.fetch("DECIDIM_JITSI_URL", "meet.jit.si")
+    config.jitsi_jwt_secret = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_SECRET", "default-secret-change-in-production")
   end
 end
 

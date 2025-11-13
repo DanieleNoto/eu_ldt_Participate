@@ -1,0 +1,42 @@
+de:
+  decidim:
+    calendar:
+      admin:
+        actions:
+          new_external_event: Neues externes Event
+        external_events:
+          index:
+            title: Externes Event
+            no_records_html: <p>Keine externen Events erstellt</p><p> Fangen Sie zuerst, ein externes Event mit "<a href="%{new_set_link}">%{button_name}</a>zu erstellen</p>
+          create:
+            invalid: Ungültiges externes Event
+            success: Externes Event wurde erfolgreich erstellt
+          destroy:
+            success: Externes Event erfolgreich gelöscht
+          edit:
+            save: Externes Event gespeichert
+          form:
+            title: Externes Event
+            title_label: Titel
+            start_at: Beginnt am
+            end_at: Endet am
+            url: URL
+            url_help_text: Muss mit http:// oder https:// beginnen
+          new:
+            title: Neues externes Event
+            create: Erstelle externes Event
+          update:
+            invalid: Fehler beim Aktualisieren des externen Events
+            success: Externes Event erfolgreich aktualisiert
+      index:
+        title: Globaler Kalender
+        filters:
+          consultation: Beratungen
+          debate: Debatten
+          external_event: External Events
+          meeting: Meetings
+          participatory_step: Beteiligungsprozess
+      menu:
+        calendar: Kalender
+        gantt: Gantt-Diagramm
+        ical: Kalenderdatei herunterladen

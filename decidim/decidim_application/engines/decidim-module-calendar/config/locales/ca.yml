@@ -1,0 +1,49 @@
+---
+ca:
+  activerecord:
+    models:
+      decidim/calendar/dummy_calendar:
+        one: Calendari
+        other: Calendaris
+  decidim:
+    calendar:
+      admin:
+        actions:
+          new_external_event: Nou esdeveniment extern
+        external_events:
+          create:
+            invalid: Esdeveniment extern no és vàlid
+            success: Esdeveniment extern creat amb èxit
+          destroy:
+            success: Esdeveniment extern esborrat correctament
+          edit:
+            save: Estalviar esdeveniment extern
+          form:
+            title: Esdeveniment extern
+            title_label: Títol
+            start_at: Començar a
+            end_at: Posar fi a
+            url: URL
+            url_help_text: Ha de començar amb http:// o https://
+          index:
+            no_records_html: <p>no té esdeveniments externs creada.</p> <p>Comenceu
+              afegint un esdeveniment extern des del botó de "<a href="%{new_set_link}">%{button_name}</a>".</p>
+            title: Esdeveniments externs
+          new:
+            create: Crear esdeveniment extern
+            title: Nou esdeveniment extern
+          update:
+            invalid: Esdeveniment extern actualització error
+            success: Esdeveniment extern actualitzat correctament
+      index:
+        filters:
+          consultation: Consultes
+          debate: Debats
+          external_event: Esdeveniments externs
+          meeting: Trobades
+          participatory_step: Processos participatius
+        title: Calendari global
+      menu:
+        calendar: Calendari
+        gantt: Gràfic de Gantt
+        ical: Descarregui ICAL
