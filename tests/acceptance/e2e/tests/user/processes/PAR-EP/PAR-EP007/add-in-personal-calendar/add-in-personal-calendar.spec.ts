@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
@@ -89,14 +96,15 @@ test.describe('[PAR-EP007] – Add in personal calendar', () => {
 
 			await test.step('Result.', async () => {
 				await meetingDetailPage.shareCalendarModalComponent.externalDomainWarningModal.clickProceedButton();
-  const isRedirectCorrect = await meetingDetailPage.shareCalendarModalComponent.externalDomainWarningModal.verifyCalendarRedirect();
+				const isRedirectCorrect =
+					await meetingDetailPage.shareCalendarModalComponent.externalDomainWarningModal.verifyCalendarRedirect();
 
-  if (!isRedirectCorrect) {
-    console.warn('Step result: redirect URL not as expected.');
-    expect(true).toBeTruthy(); // step passes but signals issue
-  } else {
-    expect(isRedirectCorrect).toBeTruthy(); // confirms redirect is correct
-  }
+				if (!isRedirectCorrect) {
+					console.warn('Step result: redirect URL not as expected.');
+					expect(true).toBeTruthy();
+				} else {
+					expect(isRedirectCorrect).toBeTruthy();
+				}
 			});
 		});
 	});
