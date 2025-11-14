@@ -108,6 +108,7 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 					const filteredTitles = await processesOverviewPage.getAllProcessTitles();
 					console.log('Active processes:', filteredTitles);
 				}
+				expect(countAfter).toBeLessThanOrEqual(countBeforeFilter);
 			});
 			await test.step('Result. The citizen can easily find relevant processes based on their preferences.', async () => {
 				// Reset filters
@@ -120,7 +121,6 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 				// Verify that all processes are shown again
 				const countAfterReset = await processesOverviewPage.getProcessesCount();
     			expect(countAfterReset).toBe(countBeforeFilter);
-				//const countAfterReset = await processesOverviewPage.getProcessesCount();
 				console.log('Number of processes after resetting filters:', countAfterReset);
 			});
 		});
