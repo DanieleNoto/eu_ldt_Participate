@@ -9,6 +9,7 @@ data:
     CONFIG: ./jitsi-meet-cfg
     ENABLE_AUTH: '1'
     ENABLE_GUESTS: '1'
+    ENABLE_WELCOME_PAGE: '0'
     JICOFO_AUTH_USER: focus
     JITSI_HTTP_PORT: '8000'
     JITSI_HTTPS_PORT: '8443'
