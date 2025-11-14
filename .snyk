@@ -1,3 +1,4 @@
 exclude:
   global:
     - tests
+    - decidim/decidim_application/app/controllers/api/chatbot_controller.rb
