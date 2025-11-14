@@ -1,0 +1,32 @@
+fr:
+    decidim:
+        meetings:
+            admin:
+                meetings:
+                    form:
+                        generate_jitsi_url: 'Générer une URL Jitsi'
+                        jitsi_help_text: 'Cliquez pour générer automatiquement une URL de réunion Jitsi'
+                        jitsi_server_settings: 'Configuration du Serveur Jitsi'
+                    jitsi_url_generated: 'URL Jitsi générée avec succès'
+                    jitsi_url_error: "Erreur lors de la génération de l'URL Jitsi"
+                    jitsi_generator_disabled: 'Le générateur Jitsi est désactivé pour ce composant'
+            live_events:
+                show:
+                    jwt_enabled: 'Accès Sécurisé Activé'
+                    jwt_description: "Cette réunion utilise l'authentification JWT pour un accès sécurisé."
+                    meeting_details: 'Détails de la Réunion'
+                    start_time: 'Heure de début'
+                    end_time: 'Heure de fin'
+                    no_online_meeting_url: 'Aucune URL de réunion en ligne configurée pour cette réunion.'
+                    moderator_info: 'Vous êtes un modérateur'
+                    moderator_description: "En tant qu'organisateur de la réunion, vous avez des privilèges de modérateur dans cette réunion."
+        components:
+            meetings:
+                settings:
+                    global:
+                        jitsi_server_url: 'URL du Serveur Jitsi'
+                        jitsi_server_url_help: 'URL du serveur Jitsi à utiliser (ex: https://jitsi-part-int.ldttoolbox.app/)'
+                        jitsi_room_prefix: 'Préfixe de Salle Jitsi'
+                        jitsi_room_prefix_help: 'Préfixe à ajouter aux noms des salles Jitsi'
+                        enable_jitsi_generator: "Activer le Générateur d'URL Jitsi"
+                        enable_jitsi_generator_help: 'Permet aux administrateurs de générer automatiquement des URLs Jitsi'
