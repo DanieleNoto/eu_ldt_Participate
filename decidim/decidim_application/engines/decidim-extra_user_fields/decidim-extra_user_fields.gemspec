@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.homepage    = "https://dev.azure.com/EULDT-Toolbox/_git/EU%20LDT%20Participate?path=/decidim/decidim_application/engines/decidim-extra_user_fields"
   spec.summary     = "Decidim Extra user fields engine"
   spec.description = "Engine forked from gem https://github.com/PopulateTools/decidim-module-extra_user_fields"
-
+  spec.license = "AGPL-3.0-or-later"
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://dev.azure.com/EULDT-Toolbox/_git/EU%20LDT%20Participate?path=/decidim/decidim_application/engines/decidim-extra_user_fields"
 

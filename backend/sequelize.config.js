@@ -2,30 +2,30 @@ require('dotenv').config();
 
 module.exports = {
 	development: {
-		username: process.env.DB_USERNAME || 'postgres',
-		password: process.env.DB_PASSWORD || 'postgres',
-		database: process.env.DB_NAME || 'your_database_name',
-		host: process.env.DB_HOST || '127.0.0.1',
+		username: process.env.DATABASE_USERNAME || 'postgres',
+		password: process.env.DATABASE_PASSWORD || 'postgres',
+		database: process.env.DATABASE_NAME || 'decidim_application_development',
+		host: process.env.DATABASE_HOST || '127.0.0.1',
 		port: process.env.DB_PORT || 5432,
 		dialect: 'postgres',
 		seederStorage: process.env.SEQUELIZE_SEEDER_STORAGE || 'sequelize',
 		seederStorageTableName: process.env.SEQUELIZE_SEEDER_STORAGE_TABLE_NAME || 'SequelizeData'
 	},
 	test: {
-		username: process.env.DB_USERNAME || 'postgres',
-		password: process.env.DB_PASSWORD || 'postgres',
-		database: process.env.DB_NAME || 'your_test_database',
-		host: process.env.DB_HOST || '127.0.0.1',
+		username: process.env.DATABASE_USERNAME || 'postgres',
+		password: process.env.DATABASE_PASSWORD || 'postgres',
+		database: process.env.DATABASE_NAME || 'decidim_application_test',
+		host: process.env.DATABASE_HOST || '127.0.0.1',
 		port: process.env.DB_PORT || 5432,
 		dialect: 'postgres',
 		seederStorage: process.env.SEQUELIZE_SEEDER_STORAGE || 'sequelize',
 		seederStorageTableName: process.env.SEQUELIZE_SEEDER_STORAGE_TABLE_NAME || 'SequelizeData'
 	},
 	production: {
-		username: process.env.DB_USERNAME,
-		password: process.env.DB_PASSWORD,
-		database: process.env.DB_NAME,
-		host: process.env.DB_HOST,
+		username: process.env.DATABASE_USERNAME,
+		password: process.env.DATABASE_PASSWORD,
+		database: process.env.DATABASE_NAME,
+		host: process.env.DATABASE_HOST,
 		port: process.env.DB_PORT,
 		dialect: 'postgres',
 		seederStorage: process.env.SEQUELIZE_SEEDER_STORAGE || 'sequelize',

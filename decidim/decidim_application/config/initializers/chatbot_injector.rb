@@ -1,0 +1,161 @@
+# frozen_string_literal: true
+
+# Chatbot Widget Injector Middleware
+#
+# This middleware injects the EU LDT Participate chatbot widget into HTML responses.
+# The chatbot appears as an overlay on all public-facing pages.
+#
+# Architecture:
+# - The chatbot is a Web Component (<eu-chatbot>) built with React and Shadow DOM
+# - It's loaded via Module Federation for efficient code splitting
+# - The loader script (chatbot-loader.js) handles all initialization
+# - Complete style isolation prevents conflicts with Decidim
+#
+# Environment Variables:
+# - CHATBOT_ENABLED: 'true' to enable the chatbot
+# - CHATBOT_URL: Base URL where the chatbot is hosted (e.g., https://cdn.example.com/chatbot)
+# - CHATBOT_ASSET_VERSION or APP_REVISION: Optional cache busting version
+#
+# How it works:
+# 1. Intercepts HTML responses (200 status only)
+# 2. Injects <script> tag before </body>
+# 3. Loader script creates <eu-chatbot> element in the DOM
+# 4. Web component handles all UI, styling, and functionality
+#
+# See: frontend/CHATBOT_WEB_COMPONENT.md for technical details
+class ChatbotInjector
+  EXCLUDED_PATHS = [
+    '/admin',
+    '/system',
+    '/users/sign_in',
+    '/users/sign_up',
+    '/users/password',
+    '/users/confirmation',
+    '/users/unlock'
+  ].freeze
+
+  BODY_CLOSING_TAG = '</body>'
+
+  def initialize(app)
+    @app = app
+  end
+
+  def call(env)
+    status, headers, response = @app.call(env)
+
+    return [status, headers, response] unless injectable_response?(status, headers, env)
+
+    body = nil
+    body = extract_body(response)
+
+    return [status, headers, [body]] unless body.include?(BODY_CLOSING_TAG)
+
+    injected_body = inject_chatbot_snippet(body, env)
+
+    if injected_body
+      headers['Content-Length'] = injected_body.bytesize.to_s if headers['Content-Length']
+      Rails.logger.info("Chatbot: Widget injected into HTML response for path: #{env['PATH_INFO']}")
+      [status, headers, [injected_body]]
+    else
+      [status, headers, [body]]
+    end
+  rescue => e
+    Rails.logger.error("Chatbot: Error injecting widget - #{e.class}: #{e.message}")
+    Rails.logger.debug { e.backtrace.join("\n") } if Rails.logger.debug?
+    body ? [status, headers, [body]] : [status, headers, response]
+  end
+
+  private
+
+  def injectable_response?(status, headers, env)
+    status == 200 &&
+      html_response?(headers) &&
+      chatbot_enabled? &&
+      !excluded_path?(env['PATH_INFO'].to_s)
+  end
+
+  def chatbot_enabled?
+    ENV['CHATBOT_ENABLED'] == 'true' && ENV['CHATBOT_URL'].present?
+  end
+
+  def html_response?(headers)
+    content_type = headers['Content-Type']
+    content_type&.include?('text/html')
+  end
+
+  def excluded_path?(path)
+    EXCLUDED_PATHS.any? { |excluded| path.start_with?(excluded) }
+  end
+
+  def extract_body(response)
+    body = +''
+    response.each { |part| body << part.to_s }
+    body
+  ensure
+    response.close if response.respond_to?(:close)
+  end
+
+  def inject_chatbot_snippet(html, env)
+    snippet = build_snippet(env)
+    return unless snippet
+
+    html.sub(BODY_CLOSING_TAG, "#{snippet}\n#{BODY_CLOSING_TAG}")
+  end
+
+  def build_snippet(env)
+    base_url = ENV['CHATBOT_URL'].to_s.strip.chomp('/')
+    return if base_url.empty?
+
+    cache_token = cache_buster_value
+    loader_src = "#{base_url}/chatbot-loader.js"
+    loader_src = "#{loader_src}?v=#{cache_token}" if cache_token
+
+    # Detect language for the chatbot (priority: query param > path > session > default)
+    language = Rack::Utils.escape_html(extract_locale(env))
+    src = Rack::Utils.escape_html(loader_src)
+    data_cache = Rack::Utils.escape_html(cache_token.to_s) if cache_token
+
+    data_cache_attribute = data_cache ? " data-cache-bust=\"#{data_cache}\"" : ''
+
+    <<~HTML.chomp
+      <!-- EU LDT Participate Chatbot -->
+      <script type="module" data-eu-chatbot-loader="true" data-language="#{language}"#{data_cache_attribute} src="#{src}" crossorigin="anonymous"></script>
+      <!-- End EU LDT Participate Chatbot -->
+    HTML
+  end
+
+  def cache_buster_value
+    if Rails.env.development?
+      (Time.now.to_f * 1000).to_i.to_s
+    else
+      ENV['CHATBOT_ASSET_VERSION'].presence || ENV['APP_REVISION'].presence
+    end
+  end
+
+  def extract_locale(env)
+    query_locale(env) || path_locale(env) || env['decidim.current_locale'] || default_locale
+  end
+
+  def query_locale(env)
+    query_string = env['QUERY_STRING']
+    return if query_string.blank?
+
+    Rack::Utils.parse_query(query_string)['locale'].presence
+  rescue
+    nil
+  end
+
+  def path_locale(env)
+    env['PATH_INFO'].to_s[%r{^/([a-z]{2})(?:/|$)}, 1]
+  end
+
+  def default_locale
+    I18n.default_locale.to_s
+  rescue
+    'en'
+  end
+end
+
+Rails.application.configure do
+  config.middleware.use ChatbotInjector
+end

@@ -1,4 +1,4 @@
 // Images
-require.context("../images", true)
+require.context('../images', true);
 
-import "../src/maps_association"
+import '../src/maps_association';

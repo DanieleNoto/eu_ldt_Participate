@@ -180,14 +180,14 @@ jobs:
                 SonarQube: 'EU-LDT-Toolbox-Sonarqube-INT'
                 scannerMode: 'cli'
                 configMode: 'manual'
-                cliProjectKey: 'EU_LDT_Participate_EU_LDT_Participate_AZbzElXiAi9yyI3i8xfA'
+                cliProjectKey: 'EU_LDT_Participate_EU_LDT_Participate_ce0ec476-809d-4be8-803a-322f2a3bd44d'
                 cliProjectName: 'EU_LDT_Participate'
                 extraProperties: |
                     # Additional properties that will be passed to the scanner,
                     # Put one key=value per line, example:
                     # sonar.exclusions=**/*.bin
                     sonar.host.url=https://sq-int.ldttoolbox.app
-                    sonar.projectKey=EU_LDT_Participate_EU_LDT_Participate_AZbzElXiAi9yyI3i8xfA
+                    sonar.projectKey=EU_LDT_Participate_EU_LDT_Participate_ce0ec476-809d-4be8-803a-322f2a3bd44d
           - task: JavaToolInstaller@1
             inputs:
                 versionSpec: '21'
@@ -244,70 +244,22 @@ jobs:
                 projectName: 'EU-LDT-Toobox-Participate'
                 organization: 'eutoolbox'
 
-    - job: sBomGeneration
-      dependsOn: snykScans
-      displayName: 'SBOM File(s) generation'
-      steps:
-          - task: UseRubyVersion@0
-            inputs:
-                #versionSpec: '= 3.2'
-                #•versionSpec: '= 3.3.9'
-                versionSpec: '= 3.3'
-
-          - script: |
-                ruby --version
-                gem --version
-            displayName: 'Check Ruby/Gem availability'
-
-          #Install Java 21
-          - task: JavaToolInstaller@0
-            inputs:
-              versionSpec: '21'
-              jdkArchitectureOption: 'x64'
-              jdkSourceOption: 'PreInstalled'
-
-          - script: |
-                set -e 
-                echo "Installing frontend..."
-                cd frontend && npm ci && cd ..
-                npm install @cyclonedx/cdxgen
-
-                npx @cyclonedx/cdxgen -o "$(System.DefaultWorkingDirectory)/sbom-js.json" frontend --deep --profile license-compliance
-                if [ -f "$(System.DefaultWorkingDirectory)/sbom-js.json" ]; then
-                  echo "✅ SBOM CREATE:"
-                  ls -lh $(System.DefaultWorkingDirectory)/sbom-js.json
-                else
-                  echo "❌ ERROR: sbom-js.json DONT CREATE"
-                  exit 1
-                fi
-            displayName: 'Generate SBOM (JavaScript)'
-
-          - script: |
-                gem install bundler --no-document
-                gem install cyclonedx-ruby --no-document
-
-                which cyclonedx-ruby
-                cyclonedx-ruby --version
-
-                cd decidim/decidim_application
-                bundle install --jobs 4 --retry 3
-
-                cyclonedx-ruby -p . 
-
-                echo Verify sbom file exists and move
-                ls -la
-                mv bom.xml $(System.DefaultWorkingDirectory)/sbom-ruby.xml
-                ls -la $(System.DefaultWorkingDirectory)
-            displayName: 'Generate SBOM (Decidim/Ruby)'
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish SBOM JavaScript'
-            inputs:
-                targetPath: '$(System.DefaultWorkingDirectory)/sbom-js.json'
-                artifactName: 'sbom-js'
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish SBOM Ruby (Decidim)'
-            inputs:
-                targetPath: '$(System.DefaultWorkingDirectory)/sbom-ruby.xml'
-                artifactName: 'sbom-ruby'
+#    - job: sBomGeneration
+#      dependsOn: snykScans
+#      displayName: 'SBOM File(s) generation'
+#      steps:
+#          - task: UseNode@1
+#            inputs:
+#                version: '22.14'
+#            displayName: 'Install Node.js'
+#
+#          - script: |
+#                npm install -g @cyclonedx/cdxgen
+#                FETCH_LICENSE=true cdxgen -r -o SBOM_Tool_3_EU_LDT_Participate.json
+#            displayName: 'Generate SBOM'
+#
+#          - task: PublishPipelineArtifact@1
+#            displayName: Publish SBOM
+#            inputs:
+#                targetPath: $(System.DefaultWorkingDirectory)/SBOM_Tool_3_EU_LDT_Participate.json
+#                artifactName: sbom

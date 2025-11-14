@@ -1,8 +1,10 @@
-import { SectionActionModel } from '@app/theme/components/section/sectionAction.model';
+import { ReactNode } from 'react';
+import { IconKey } from '@app/shared/Icon/CustomIcon';
 
 export interface SectionModel {
-	sectionTitle: string | null;
-	parentTitle?: string | null;
-	parentLink?: string | null;
-	actions?: SectionActionModel[];
+	id: string;
+	title: string;
+	description?: string;
+	iconKey?: IconKey;
+	content?: ReactNode;
 }
