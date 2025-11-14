@@ -393,7 +393,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	 * Filters processes by date: all, upcoming, past, or active
 	 * @param option - The date filter option: 'all', 'upcoming', 'past', or 'active'
 	 */
-	async filterByDate(option: 'all' | 'upcoming' | 'past' | 'active'): Promise<void> {
+	async filterByStatus(option: 'all' | 'upcoming' | 'past' | 'active'): Promise<void> {
 		await this.openDateFilter();
 
 		switch (option) {
@@ -519,7 +519,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 
 		if (currentFilter !== dateOption) {
 			// Apply the date filter
-			await this.filterByDate(dateOption);
+			await this.filterByStatus(dateOption);
 			console.log(`Applied "${dateOption}" date filter`);
 		} else {
 			console.log(`"${dateOption}" date filter is already applied`);

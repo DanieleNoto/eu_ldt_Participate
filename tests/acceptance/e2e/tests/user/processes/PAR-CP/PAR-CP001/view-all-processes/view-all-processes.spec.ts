@@ -89,7 +89,7 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 				console.log('Number of processes before filtering:', countBeforeFilter);
 
 				// Apply a date filter (e.g., active processes)
-				await processesOverviewPage.filterByDate('active');
+				await processesOverviewPage.filterByStatus('active');
 
 				// Wait for the results to update
 				await processesOverviewPage.getPage().waitForLoadState('networkidle');
