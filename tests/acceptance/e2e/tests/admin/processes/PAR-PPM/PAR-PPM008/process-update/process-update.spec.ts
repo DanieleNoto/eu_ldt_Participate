@@ -144,7 +144,7 @@ test.describe('[PAR-PPM008] – Update process', () => {
 
 					// Verify the updated process appears in search results
 					const searchResults = await processAdminPage.getProcessCount();
-					expect(searchResults).toBeGreaterThanOrEqual(1);
+					expect(searchResults).toBe(1);
 				}
 			});
 		});
