@@ -32,10 +32,11 @@ fr:
                         scenario_name: Nom du Scénario
                         association_name: Nom de l'Association
                         experiment_id: ID Expérience
+                        experiment_name: Nom de l'Expérience
+                        no_experiment_name: (Sans nom)
                         associated_experiment_results: Résultats de l'expérience associés
                         created: Créé
                         version: Version
-                        experiment_name: Nom de l'Expérience
                         actions: Actions
                         associate_experiments: Associer les résultats des expériences
                         new: Ajouter un nouveau scénario
@@ -49,6 +50,7 @@ fr:
                         loading_experiments: Chargement des expériences...
                         experiment_id: ID
                         experiment_name: Nom de l'Expérience
+                        no_name: (Sans nom)
                         description: Description
                         actions: Actions
                         confirm_title: Associer les résultats des expériences?
@@ -65,6 +67,7 @@ fr:
                         next_page: Page Suivante
                         experiment_details:
                             title: Expérience Sélectionnée
+                            experiment_name: "Nom de l'Expérience:"
                             scenarioId: 'ID de Scénario:'
                             experimentId: "ID d'Expérience:"
                             status: 'Statut:'

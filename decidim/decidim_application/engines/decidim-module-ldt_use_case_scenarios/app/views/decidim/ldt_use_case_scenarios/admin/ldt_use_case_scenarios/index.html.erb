@@ -21,6 +21,7 @@
         <thead>
           <tr>
             <th><%= t(".association_name") %></th>
+            <th><%= t(".experiment_name") %></th>
             <th><%= t(".associated_experiment_results") %></th>
             <th><%= t(".actions") %></th>
           </tr>
@@ -30,6 +31,10 @@
             <tr data-scenario-id="<%= scenario.id %>">
               <td class="!text-left" data-label="<%= t(".scenario_name") %>">
                 <strong><%= scenario.name %></strong>
+              </td>
+              <td class="!text-left" data-label="<%= t(".experiment_name") %>">
+                <% experiment_name = scenario.experiment_data.is_a?(Hash) ? scenario.experiment_data.dig('experiment', 'name') : nil %>
+                <%= experiment_name || t(".no_experiment_name") %>
               </td>
               <td data-label="<%= t(".experiment_id") %>">
                 <%= scenario.experiment_id %>

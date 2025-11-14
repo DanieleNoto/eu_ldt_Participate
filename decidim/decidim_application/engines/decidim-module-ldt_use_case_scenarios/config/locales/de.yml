@@ -32,10 +32,11 @@ de:
                         scenario_name: Szenarioname
                         association_name: Zuordnungsname
                         experiment_id: Experiment-ID
+                        experiment_name: Name des Experiments
+                        no_experiment_name: (Kein Name)
                         associated_experiment_results: Zugeordnete Experimentergebnisse
                         created: Erstellt
                         version: Version
-                        experiment_name: Name des Experiments
                         actions:
                             confirm_delete: 'Sind Sie sicher, dass Sie dieses Element löschen möchten?'
                             deleted: 'Eintrag erfolgreich gelöscht.'
@@ -53,6 +54,7 @@ de:
                         loading_experiments: Experimente werden geladen...
                         experiment_id: ID
                         experiment_name: Name des Experiments
+                        no_name: (Kein Name)
                         description: Beschreibung
                         actions: Aktionen
                         confirm_title: Experimentiergebnisse zuordnen?
@@ -65,6 +67,7 @@ de:
                         confirm: Bestätigen
                         experiment_details:
                             title: Ausgewähltes Experiment
+                            experiment_name: 'Name des Experiments:'
                             experimentId: 'ID des Experiments:'
                             scenarioId: 'ID des Szenarios:'
                             status: 'Status:'

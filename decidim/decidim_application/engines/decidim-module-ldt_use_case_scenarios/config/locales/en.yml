@@ -32,10 +32,11 @@ en:
                         scenario_name: Scenario Name
                         association_name: Association Name
                         experiment_id: Experiment ID
+                        experiment_name: Experiment Name
+                        no_experiment_name: (No name)
                         associated_experiment_results: Associated Experiment results
                         created: Created
                         version: Version
-                        experiment_name: Experiment Name
                         actions: Actions
                         associate_experiments: Associate experiments results
                         new: Add New Scenario
@@ -49,6 +50,7 @@ en:
                         loading_experiments: Loading experiments...
                         experiment_id: ID
                         experiment_name: Experiment Name
+                        no_name: (No name)
                         description: Description
                         actions: Actions
                         confirm_title: Associate experiments results?
@@ -60,6 +62,7 @@ en:
                         cancel: Cancel
                         experiment_details:
                             title: Selected Experiment
+                            experiment_name: 'Experiment Name:'
                             scenarioId: 'Scenario ID:'
                             experimentId: 'Experiment ID:'
                             status: 'Status:'

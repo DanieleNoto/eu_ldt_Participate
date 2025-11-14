@@ -21,8 +21,9 @@ function loadTranslations() {
 		i18n = {
 			details: {
 				title: container.dataset.i18nDetailsTitle || 'Selected Experiment',
-				name: container.dataset.i18nDetailsExperimentId || 'Experiment ID:',
-				id: container.dataset.i18nDetailsScenarioId || 'Scenario ID:',
+				name: container.dataset.i18nDetailsExperimentName || 'Experiment Name:',
+				experimentId: container.dataset.i18nDetailsExperimentId || 'Experiment ID:',
+				scenarioId: container.dataset.i18nDetailsScenarioId || 'Scenario ID:',
 				status: container.dataset.i18nDetailsStatus || 'Status:',
 				loading: container.dataset.i18nDetailsLoading || 'Loading experiment details...',
 				error: container.dataset.i18nDetailsError || 'Error loading details:',
@@ -144,19 +145,30 @@ function showFormWithDetails(experiment) {
 		heading.textContent = i18n.details.title;
 		container.appendChild(heading);
 
+		// Experiment Name (from nested experiment object)
+		const experimentName = experiment?.experiment?.name || i18n.details.na;
 		const namePara = document.createElement('p');
 		const nameStrong = document.createElement('strong');
 		nameStrong.textContent = i18n.details.name + ' ';
 		namePara.appendChild(nameStrong);
-		namePara.appendChild(document.createTextNode(experiment?.experimentId || i18n.details.na));
+		namePara.appendChild(document.createTextNode(experimentName));
 		container.appendChild(namePara);
 
-		const idPara = document.createElement('p');
-		const idStrong = document.createElement('strong');
-		idStrong.textContent = i18n.details.id + ' ';
-		idPara.appendChild(idStrong);
-		idPara.appendChild(document.createTextNode(experiment?.scenarioId || i18n.details.na));
-		container.appendChild(idPara);
+		// Experiment ID
+		const experimentIdPara = document.createElement('p');
+		const experimentIdStrong = document.createElement('strong');
+		experimentIdStrong.textContent = i18n.details.experimentId + ' ';
+		experimentIdPara.appendChild(experimentIdStrong);
+		experimentIdPara.appendChild(document.createTextNode(experiment?.experimentId || i18n.details.na));
+		container.appendChild(experimentIdPara);
+
+		// Scenario ID
+		const scenarioIdPara = document.createElement('p');
+		const scenarioIdStrong = document.createElement('strong');
+		scenarioIdStrong.textContent = i18n.details.scenarioId + ' ';
+		scenarioIdPara.appendChild(scenarioIdStrong);
+		scenarioIdPara.appendChild(document.createTextNode(experiment?.scenarioId || i18n.details.na));
+		container.appendChild(scenarioIdPara);
 
 		const statusPara = document.createElement('p');
 		const statusStrong = document.createElement('strong');

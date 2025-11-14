@@ -13,6 +13,7 @@
          data-i18n-name-required="<%= t(".name_required") %>" 
          data-i18n-save-error="<%= t(".save_error") %>"
          data-i18n-details-title="<%= t(".experiment_details.title") %>"
+         data-i18n-details-experiment-name="<%= t(".experiment_details.experiment_name") %>"
          data-i18n-details-experimentId="<%= t(".experiment_details.experimentId") %>"
          data-i18n-details-scenarioId="<%= t(".experiment_details.scenarioId") %>"
          data-i18n-details-status="<%= t(".experiment_details.status") %>"
@@ -37,6 +38,7 @@
               <thead id="experiments-thead">
                 <tr>
                   <th><%= t(".select") %></th>
+                  <th class="!text-left"><%= t(".experiment_name") %></th>
                   <th class="!text-left"><%= t(".experiment_and_scenario_ids") %></th>
                   <th><%= t(".status") %></th>
                   <th><%= t(".created") %></th>
@@ -48,6 +50,9 @@
                   <tr data-experiment-id="<%= exp['id'] %>">
                     <td data-label="Select">
                       <input type="radio" name="selected_experiment" value="<%= exp['id'] %>" class="select-experiment-radio" />
+                    </td>
+                    <td class="!text-left" data-label="Experiment Name">
+                      <strong><%= exp.dig('experiment', 'name') || t(".no_name") %></strong>
                     </td>
                     <td class="!text-left" data-label="Experiment ID / Scenario ID">
                       <div><strong><%= exp['experimentId'] %></strong></div>
