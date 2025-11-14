@@ -17,6 +17,7 @@ ca:
         user:
           attributes:
             date_of_birth:
+              future_date: no pot estar en el futur
               underage: no vàlid. Si sou menor d'edat, haureu d'obtenir autorització
                 parental.
             personal_url:

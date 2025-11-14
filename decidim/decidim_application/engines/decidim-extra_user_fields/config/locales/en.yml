@@ -17,6 +17,7 @@ en:
         user:
           attributes:
             date_of_birth:
+              future_date: cannot be in the future
               underage: invalid. If you are underage, you must obtain parental authorization
             phone_number:
               invalid: is not a valid phone number format

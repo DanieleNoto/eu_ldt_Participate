@@ -17,6 +17,7 @@ fr:
         user:
           attributes:
             date_of_birth:
+              future_date: ne peut pas être dans le futur
               underage: invalide. Si vous êtes mineur, vous devez obtenir une autorisation
                 parentale
             phone_number:

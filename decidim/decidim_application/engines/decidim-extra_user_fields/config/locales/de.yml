@@ -15,6 +15,7 @@ de:
         user:
           attributes:
             date_of_birth:
+              future_date: darf nicht in der Zukunft liegen
               underage: ungültig. Wenn Sie minderjährig sind, müssen Sie die Erlaubnis der Eltern einholen
             phone_number:
               invalid: ist kein gültiges Telefonformat

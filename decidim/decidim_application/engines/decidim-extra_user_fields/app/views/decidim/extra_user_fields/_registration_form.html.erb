@@ -3,7 +3,9 @@
     <h2 class="h4"><%= t(".signup.legend") %></h2>
 
     <% if current_organization.activated_extra_field?(:date_of_birth) %>
-      <%= f.date_field :date_of_birth, id: "user_date_of_birth" %>
+      <%= f.label :date_of_birth do %>
+        <%= f.date_field :date_of_birth, id: "user_date_of_birth", max: Time.zone.today.to_s %>
+      <% end %>
     <% end %>
 
     <% if current_organization.activated_extra_field?(:gender) %>

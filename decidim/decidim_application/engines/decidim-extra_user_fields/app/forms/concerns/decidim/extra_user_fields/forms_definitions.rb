@@ -62,6 +62,7 @@ module Decidim
                   if: :underage_accepted?
         validates :statutory_representative_email, length: { maximum: 100 }, if: :underage_accepted?
         validate :birth_date_under_limit, if: :should_validate_birth_date?
+        validate :birth_date_not_in_future, if: :date_of_birth?
 
         # EndBlock
       end
@@ -163,6 +164,14 @@ module Decidim
       end
 
       # Method to check if birth date is under the limit
+      def birth_date_not_in_future
+        return if date_of_birth.blank?
+
+        if date_of_birth > Time.zone.today
+          errors.add(:date_of_birth, :future_date)
+        end
+      end
+
       def birth_date_under_limit
         return unless date_of_birth? && underage?
 

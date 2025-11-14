@@ -17,6 +17,7 @@ es:
         user:
           attributes:
             date_of_birth:
+              future_date: no puede estar en el futuro
               underage: no válido. Si eres menor de edad, deberás obtener autorización
                 parental.
             phone_number:
