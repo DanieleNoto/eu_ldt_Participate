@@ -40,6 +40,7 @@ export class ComponentsPage extends BaseAdminPage {
 	private readonly sortitionsLink: Locator;
 	private readonly surveysLink: Locator;
 	private readonly ldtUseCaseScenariosLink: Locator;
+	private readonly ldtMapVisualizationLink: Locator;
 
 	// Components table
 	private readonly tableHeaders: Locator;
@@ -71,6 +72,9 @@ export class ComponentsPage extends BaseAdminPage {
 		this.surveysLink = page.locator('a.surveys[href*="components/new?type=surveys"]');
 		this.ldtUseCaseScenariosLink = page.locator(
 			'a.ldt_use_case_scenarios[href*="components/new?type=ldt_use_case_scenarios"]'
+		);
+		this.ldtMapVisualizationLink = page.locator(
+			'a.ldt_map_visualization[href*="components/new?type=ldt_map_visualization"]'
 		);
 
 		// Components table
@@ -189,6 +193,12 @@ export class ComponentsPage extends BaseAdminPage {
 	async addLDTUseCaseScenariosComponent() {
 		await this.openAddComponentDropdown();
 		await this.ldtUseCaseScenariosLink.click();
+		await this.page.waitForLoadState('networkidle');
+	}
+
+	async addLDTMapVisualizationComponent() {
+		await this.openAddComponentDropdown();
+		await this.ldtMapVisualizationLink.click();
 		await this.page.waitForLoadState('networkidle');
 	}
 
