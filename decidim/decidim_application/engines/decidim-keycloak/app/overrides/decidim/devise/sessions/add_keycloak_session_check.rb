@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+  # Gianfranco Cedro
+
+
 Deface::Override.new(
   virtual_path: "decidim/devise/sessions/new",
   name: "add_keycloak_auto_login_meta_tag",

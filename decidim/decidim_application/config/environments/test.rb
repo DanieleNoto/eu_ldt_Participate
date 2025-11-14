@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+  # Marco Pinnella
+  # Pierluigi Spedicato
+
+
 require "active_support/core_ext/integer/time"
 
 # The test environment is used exclusively to run your application's

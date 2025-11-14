@@ -1,3 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+  # Denis Vasilev Dimchev
+  # Gianfranco Cedro
+  # Marco Pinnella
+  # Pierluigi Spedicato
+
+
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do

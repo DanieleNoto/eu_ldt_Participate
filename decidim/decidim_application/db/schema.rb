@@ -1,3 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+  # Denis Vasilev Dimchev
+  # Gianfranco Cedro
+  # Marco Pinnella
+  # Pierluigi Spedicato
+
+
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -1046,10 +1055,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
     t.string "name", null: false
     t.string "map_id", null: false
     t.text "map_data"
-    t.string "reference"
     t.bigint "decidim_component_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "reference"
     t.index ["decidim_component_id", "map_id"], name: "index_ldt_map_viz_on_component_and_map_id", unique: true
     t.index ["decidim_component_id"], name: "index_ldt_map_viz_on_decidim_component_id"
     t.index ["reference"], name: "index_decidim_ldt_map_visualizations_on_reference", unique: true
@@ -2071,6 +2080,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
     t.jsonb "officialized_as"
     t.datetime "admin_terms_accepted_at", precision: nil
     t.boolean "email_on_assigned_proposals", default: true
+    t.text "keycloak_token", comment: "Keycloak JWT access token for Tool0 API access"
+    t.datetime "keycloak_token_expires_at", precision: nil, comment: "Timestamp when the Keycloak JWT token expires"
     t.index ["confirmation_token"], name: "index_decidim_users_on_confirmation_token", unique: true
     t.index ["decidim_organization_id"], name: "index_decidim_users_on_decidim_organization_id"
     t.index ["email", "decidim_organization_id"], name: "index_decidim_users_on_email_and_decidim_organization_id", unique: true, where: "((deleted_at IS NULL) AND (managed = false) AND ((type)::text = 'Decidim::User'::text))"
@@ -2079,6 +2090,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
     t.index ["invitations_count"], name: "index_decidim_users_on_invitations_count"
     t.index ["invited_by_id", "invited_by_type"], name: "index_decidim_users_on_invited_by_id_and_invited_by_type"
     t.index ["invited_by_id"], name: "index_decidim_users_on_invited_by_id"
+    t.index ["keycloak_token_expires_at"], name: "idx_decidim_users_keycloak_token_expires_at"
     t.index ["nickname", "decidim_organization_id"], name: "index_decidim_users_on_nickame_and_decidim_organization_id", unique: true, where: "((deleted_at IS NULL) AND (managed = false))"
     t.index ["notifications_sending_frequency"], name: "index_decidim_users_on_notifications_sending_frequency"
     t.index ["officialized_at"], name: "index_decidim_users_on_officialized_at"

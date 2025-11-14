@@ -1,3 +1,11 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+  # Gianfranco Cedro
+  # Marco Pinnella
+  # Pierluigi Spedicato
+
+
 Rails.application.routes.draw do
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"

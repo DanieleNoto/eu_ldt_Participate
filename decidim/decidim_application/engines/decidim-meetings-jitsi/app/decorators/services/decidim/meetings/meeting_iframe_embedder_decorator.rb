@@ -1,4 +1,10 @@
 # frozen_string_literal: true
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+  # Gianfranco Cedro
+
+
 
 # This decorator extends the Decidim::Meetings::MeetingIframeEmbedder service
 # to add JWT token authentication for Jitsi meetings when the user is an admin.

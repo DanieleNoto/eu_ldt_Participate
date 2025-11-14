@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+  # Gianfranco Cedro
+
+
 # config/initializers/sidekiq.rb
 # Only configure Sidekiq if the gem is available. This prevents boot-time
 # failures (NameError) when the bundle doesn't include Sidekiq (for example
