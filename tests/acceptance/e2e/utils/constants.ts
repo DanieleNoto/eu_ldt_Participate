@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
  * Simone Bianchelli
@@ -79,7 +79,8 @@ export const BASE_URLS = {
 } as const;
 
 export const EMAIL_URLS = {
-	LETTER_OPENER: `${process.env.FE_BASE_URL || 'http://localhost:3000'}/letter_opener/`
+	LETTER_OPENER: `${process.env.FE_BASE_URL || 'http://localhost:3000'}/letter_opener/`,
+	OVH_MAIL: process.env.OVH_URL || 'https://www.ovhcloud.com/es-es/mail/'
 } as const;
 
 export const GRAFANA_URLS = {
