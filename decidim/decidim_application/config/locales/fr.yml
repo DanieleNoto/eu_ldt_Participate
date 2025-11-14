@@ -7,6 +7,14 @@ fr:
             user:
                 tos_agreement: Accord sur la politique de confidentialité
     decidim:
+        initiatives:
+            admin:
+                actions:
+                    new_initiative_type: Nouveau type d'initiative
+                index:
+                    initiatives_types:
+                        alert_html: "<p>Vous devez créer au moins un type d'initiative afin que les participants puissent commencer à créer des initiatives.</p><p> %{link}</p>"
+                        button: Nouveau type d'initiative
         admin:
             admin_terms_of_service:
                 accept:
