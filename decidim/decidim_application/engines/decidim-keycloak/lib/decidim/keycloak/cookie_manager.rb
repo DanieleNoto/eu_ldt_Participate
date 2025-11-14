@@ -62,13 +62,35 @@ module Decidim
       # @param session_obj [ActionDispatch::Request::Session, nil] Optional session object to clean
       def self.clear_all_cookies(cookies_obj, request_host, session_obj = nil)
         # include Rails session cookie to ensure session is removed client-side on logout
-        cookie_names = ['access_token', 'refresh_token', 'id_token', '_session_id']
+        # include manual_logout to clean up after logout tracking
+        cookie_names = ['access_token', 'refresh_token', 'id_token', '_session_id', 'manual_logout']
         domains = calculate_all_cookie_domains(request_host)
         
-        Rails.logger.info "[Keycloak CookieManager] Clearing cookies #{cookie_names.inspect} from domains: #{domains.inspect}"
+        # CRITICAL: Get the EXACT domain that was used when cookies were set
+        primary_domain = calculate_cookie_domain(request_host)
+        is_production = Rails.env.production?
+        
+        Rails.logger.info "[Keycloak CookieManager] Clearing cookies #{cookie_names.inspect}, primary domain: #{primary_domain.inspect}"
         Rails.logger.debug "[Keycloak CookieManager] Current cookies before clearing: access_token=#{cookies_obj['access_token']&.length}, refresh_token=#{cookies_obj['refresh_token']&.length}, id_token=#{cookies_obj['id_token']&.length}"
         
-        # CRITICAL: Try all combinations of domain, secure, path and same_site attributes
+        # STEP 1: Force expired cookies with PRIMARY domain and EXACT attributes used during save_tokens
+        # This is the most important step - must match exactly how cookies were created
+        cookie_names.each do |name|
+          Rails.logger.debug "[Keycloak CookieManager] PRIMARY expiry: #{name} with domain: #{primary_domain.inspect}, secure: #{is_production}"
+          
+          # Set expired cookie with EXACT attributes from save_tokens
+          cookies_obj[name] = {
+            value: '',
+            expires: 1.year.ago,
+            domain: primary_domain,
+            secure: is_production,
+            httponly: true,
+            same_site: :lax,
+            path: '/'
+          }
+        end
+        
+        # STEP 2: Try all combinations of domain, secure, path and same_site attributes
         # Rails requires exact match of all attributes to delete a cookie. We will attempt
         # deletion even if the server did not receive the cookie (browser may not send
         # cookies for mismatched domains), by setting expired Set-Cookie headers for each

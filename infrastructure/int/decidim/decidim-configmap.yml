@@ -34,7 +34,7 @@ data:
     OMNIAUTH_KEYCLOAK_REALM: LDT
     OMNIAUTH_KEYCLOAK_SITE: https://im-int.ldttoolbox.app/
     QUEUE_ADAPTER: sidekiq
-    RAILS_LOG_LEVEL: debug
+    RAILS_LOG_LEVEL: info
     RAILS_LOG_TO_STDOUT: 'true'
     RAILS_ENV: production
     RAILS_ASSET_HOST: https://part-int.ldttoolbox.app

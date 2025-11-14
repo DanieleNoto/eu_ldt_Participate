@@ -112,10 +112,12 @@ module KeycloakAuthentication
     # Skip if user is already authenticated
     return if current_user.present?
     
-    # Skip if user manually logged out (don't auto-login after manual logout)
-    if session[:manual_logout]
+    # Skip if user manually logged out (check cookie instead of session)
+    if cookies['manual_logout'] == 'true'
       Rails.logger.info "[Keycloak AutoLogin] Skipping auto-login - user manually logged out"
-      session.delete(:manual_logout)
+      # Clear the cookie for next time
+      cookies.delete('manual_logout', domain: Decidim::Keycloak::CookieManager.calculate_cookie_domain(request.host))
+      cookies.delete('manual_logout') # Also without domain
       return
     end
     

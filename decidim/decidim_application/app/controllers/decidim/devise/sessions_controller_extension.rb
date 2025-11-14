@@ -12,8 +12,16 @@ module Decidim
         should_logout_from_keycloak = session[:keycloak_authenticated].present?
         keycloak_logout_url = build_keycloak_logout_url if should_logout_from_keycloak
         
-        # Mark this as a manual logout to prevent auto-login on next visit
-        session[:manual_logout] = true
+        # Mark this as a manual logout using a cookie (survives sign_out which clears session)
+        # This prevents auto-login after Keycloak redirect
+        cookies['manual_logout'] = {
+          value: 'true',
+          expires: 5.minutes.from_now,
+          httponly: true,
+          secure: Rails.env.production?,
+          same_site: :lax,
+          domain: Decidim::Keycloak::CookieManager.calculate_cookie_domain(request.host)
+        }
         
         # Extract tokens from cookies BEFORE clearing them for revocation
         access_token = cookies['access_token']
@@ -32,8 +40,25 @@ module Decidim
   # CRITICAL FIX: Attempt an initial cleanup before Devise logout (best-effort)
   # CENTRALIZED: Uses Decidim::Keycloak::CookieManager
   Rails.logger.info "[Keycloak Logout] Initial clearing attempt before Devise logout - access_token present: #{cookies['access_token'].present?}, id_token present: #{cookies['id_token'].present?}"
-  Decidim::Keycloak::CookieManager.clear_all_cookies(cookies, request.host, session)
-  Rails.logger.info "[Keycloak Logout] Initial clear attempt done - access_token still present: #{cookies['access_token'].present?}, id_token still present: #{cookies['id_token'].present?}"
+  
+  # CRITICAL: Overwrite cookies with empty values using EXACT attributes
+  # This ensures browser receives Set-Cookie headers that match the original cookies
+  cookie_domain = Decidim::Keycloak::CookieManager.calculate_cookie_domain(request.host)
+  is_production = Rails.env.production?
+  
+  ['access_token', 'refresh_token', 'id_token'].each do |cookie_name|
+    cookies[cookie_name] = {
+      value: '',
+      expires: 1.year.ago,
+      domain: cookie_domain,
+      secure: is_production,
+      httponly: true,
+      same_site: :lax,
+      path: '/'
+    }
+  end
+  
+  Rails.logger.info "[Keycloak Logout] Overwrote auth cookies with empty values - domain: #{cookie_domain.inspect}, secure: #{is_production}"
         
         # Perform normal Devise logout AFTER cookie cleanup
         signed_out = (::Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
@@ -46,8 +71,25 @@ module Decidim
         # cannot set Set-Cookie headers for the current response, so must be done here so the
         # browser receives expired cookies (including the Rails session cookie) in the same
         # response that performs sign out.
-        Rails.logger.info "[Keycloak Logout] Clearing cookies after Devise sign_out (before redirect)"
-        Decidim::Keycloak::CookieManager.clear_all_cookies(cookies, request.host, session)
+        Rails.logger.info "[Keycloak Logout] Overwriting cookies after Devise sign_out (before redirect)"
+        
+        # Overwrite with empty values again using exact attributes
+        cookie_domain = Decidim::Keycloak::CookieManager.calculate_cookie_domain(request.host)
+        is_production = Rails.env.production?
+        
+        ['access_token', 'refresh_token', 'id_token', '_session_id'].each do |cookie_name|
+          cookies[cookie_name] = {
+            value: '',
+            expires: 1.year.ago,
+            domain: cookie_domain,
+            secure: is_production,
+            httponly: true,
+            same_site: :lax,
+            path: '/'
+          }
+        end
+        
+        Rails.logger.info "[Keycloak Logout] Cookies overwritten with domain: #{cookie_domain.inspect}"
 
         # Finally redirect
         if should_logout_from_keycloak && keycloak_logout_url.present?
