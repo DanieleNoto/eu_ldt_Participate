@@ -3,6 +3,7 @@
  * Authors:
  * Gianfranco Cedro
  * Simone Bianchelli
+ * Denise Scarcelli
  */
 
 import path = require('path');
@@ -83,7 +84,9 @@ export const EMAIL_URLS = {
 } as const;
 
 export const GRAFANA_URLS = {
-	BASE: process.env.GRAFANA_BASE_URL || 'https://part-int.ldttoolbox.app/analytics/grafana',
-	LOGIN: `${process.env.GRAFANA_BASE_URL || 'https://part-int.ldttoolbox.app/analytics/grafana'}/login`,
-	API_ORG: `${process.env.GRAFANA_BASE_URL || 'https://part-int.ldttoolbox.app/analytics/grafana'}/api/org`
+	ORIGIN: process.env.GRAFANA_ORIGIN || 'https://part-int.ldttoolbox.app',
+	BASE_PATH: process.env.GRAFANA_BASE_PATH || '/analytics/grafana',
+	get BASE() { return `${this.ORIGIN}${this.BASE_PATH}`; },
+	get LOGIN() { return `${this.BASE_PATH}/login`; },
+	get API_ORG() { return `${this.BASE_PATH}/api/org`; }
 } as const;
