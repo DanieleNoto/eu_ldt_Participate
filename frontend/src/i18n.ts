@@ -2,6 +2,8 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import commonEn from './config/locales/en.json';
 import commonEs from './config/locales/es.json';
+import commonDe from './config/locales/de.json';
+import commonFr from './config/locales/fr.json';
 
 export const defaultNS = 'common';
 export const resources = {
@@ -10,6 +12,12 @@ export const resources = {
 	},
 	es: {
 		common: commonEs
+	},
+	de: {
+		common: commonDe
+	},
+	fr: {
+		common: commonFr
 	}
 } as const;
 

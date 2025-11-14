@@ -61,7 +61,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 	const fabRef = useRef<HTMLButtonElement | null>(null);
 	const closeBtnRef = useRef<HTMLButtonElement | null>(null);
 	const loadingRef = useRef(false);
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
+
+	useEffect(() => {
+		if (!i18n) return;
+		if (language && i18n.language !== language) {
+			void i18n.changeLanguage(language).catch(() => {});
+		}
+	}, [language, i18n]);
 
 	// Create API request hooks
 	const chatApi = useApiRequest<ChatResponseModel>({
@@ -262,8 +269,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 
 	const lastBotMessage = [...messages].reverse().find(m => m.from === 'bot');
 	return (
-		<div
-			role="dialog"
+		<dialog
+			open
 			aria-labelledby="chatbot-header-title"
 			aria-modal="true"
 			className={`flex flex-col w-[430px] max-w-[calc(100vw-40px)] h-[600px] max-h-[calc(100vh-40px)] rounded-2xl bg-[#F6F8FA] overflow-hidden border border-[#E0E4E7] animate-in slide-in-from-bottom-4 slide-in-from-right-4 duration-300 ${className ?? ''}`}
@@ -289,7 +296,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 				</h2>
 				<button
 					ref={closeBtnRef}
-					className="w-8 h-8 flex items-center justify-center text-[#696F72] hover:bg-black/5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-110"
+					className="w-8 flex items-center justify-center text-[#696F72] hover:bg-black/5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-110"
 					aria-label={t('chatbot.closeHelpAssistant')}
 					onClick={closeChat}
 				>
@@ -426,7 +433,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 													key={s.id}
 													disabled={loading}
 													onClick={() => handleSuggestionClick(s)}
-													className="px-4 py-1.5 h-8 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition"
+													className="px-4 py-1.5 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition"
 													style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 												>
 													{s.text}
@@ -501,7 +508,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 														key={s.id}
 														disabled={loading}
 														onClick={() => handleSuggestionClick(s)}
-													className="px-4 py-1.5 h-8 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
+													className="px-4 py-1.5 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
 													style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 													>
 														{s.text}
@@ -602,7 +609,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 					)}
 				</div>
 			)}
-		</div>
+		</dialog>
 	);
 };
 
