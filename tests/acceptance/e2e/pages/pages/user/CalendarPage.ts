@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denise Scarcelli
  * Gianfranco Cedro
@@ -95,6 +95,7 @@ export class CalendarPage extends AuthenticatedPage {
 	 * Does not fail if no events are found, but logs a warning.
 	 * @returns true if at least one event is visible, false otherwise
 	 */
+
 	async verifyAnyEventHighlighted(): Promise<boolean> {
 		try {
 			const events = this.page.locator('.fc-daygrid-day .fc-event');
@@ -113,39 +114,11 @@ export class CalendarPage extends AuthenticatedPage {
 	}
 
 	/**
-	 * Extract events displayed on the calendar, including title and date.
-	 * (Time and location can be parsed if present in the event text/attributes.)
-	 * @returns array of objects with event details
-	 */
-	async getCalendarEvents(): Promise<{ date: string; title: string }[]> {
-		const eventsData: { date: string; title: string }[] = [];
-
-		// Locate all day cells
-		const dayCells = this.page.locator('td.fc-daygrid-day');
-		const dayCount = await dayCells.count();
-
-		for (let i = 0; i < dayCount; i++) {
-			const dayCell = dayCells.nth(i);
-			const date = await dayCell.getAttribute('data-date');
-
-			// Find events inside this day
-			const events = dayCell.locator('.fc-event .fc-title');
-			const eventCount = await events.count();
-
-			for (let j = 0; j < eventCount; j++) {
-				const title = await events.nth(j).innerText();
-				eventsData.push({ date: date ?? '', title });
-			}
-		}
-
-		return eventsData;
-	}
-
-	/**
 	 * Verify that the interactive calendar filters are visible
 	 * and therefore the system displays an interactive calendar interface.
 	 * @returns true if filters and export button are visible, false otherwise
 	 */
+
 	async verifyCalendarInterface(): Promise<boolean> {
 		try {
 			// Check filters
@@ -169,5 +142,72 @@ export class CalendarPage extends AuthenticatedPage {
 			console.warn('Calendar interface verification failed:', error);
 			return false;
 		}
+	}
+
+	/**
+	 * Collects all calendar events, including those hidden behind "+1 more" links.
+	 * Expands popovers sequentially, closes them, and returns the list of events.
+	 */
+
+	async getCalendarEvents(): Promise<{ date: string | null; title: string; href?: string }[]> {
+		const eventsData: { date: string | null; title: string; href?: string }[] = [];
+
+		const moreLinks = this.page.locator('.fc-more-link');
+		const moreCount = await moreLinks.count();
+
+		for (let i = 0; i < moreCount; i++) {
+			const link = moreLinks.nth(i);
+			await link.click({ force: true });
+			await this.page.waitForSelector('.fc-popover', { state: 'visible' });
+
+			const popoverEvents = this.page.locator('.fc-popover .fc-event');
+			const popCount = await popoverEvents.count();
+
+			for (let j = 0; j < popCount; j++) {
+				const event = popoverEvents.nth(j);
+				const title = (
+					await event
+						.locator('.fc-title')
+						.innerText()
+						.catch(() => '')
+				).trim();
+				const href = await event.getAttribute('href');
+
+				const popover = event.locator('xpath=ancestor::div[contains(@class,"fc-more-popover")]').first();
+				const date = await popover.getAttribute('data-date');
+
+				eventsData.push({ date, title, href: href ?? undefined });
+			}
+
+			if (await this.page.locator('.fc-popover').isVisible()) {
+				await this.page.keyboard.press('Escape');
+				await this.page.waitForSelector('.fc-popover', { state: 'hidden' });
+			}
+		}
+
+		const dayCells = this.page.locator('td.fc-daygrid-day');
+		const dayCount = await dayCells.count();
+
+		for (let i = 0; i < dayCount; i++) {
+			const dayCell = dayCells.nth(i);
+			const date = await dayCell.getAttribute('data-date');
+
+			const events = dayCell.locator('.fc-event');
+			const eventCount = await events.count();
+
+			for (let j = 0; j < eventCount; j++) {
+				const event = events.nth(j);
+				const title = (
+					await event
+						.locator('.fc-title')
+						.innerText()
+						.catch(() => '')
+				).trim();
+				const href = await event.getAttribute('href');
+				eventsData.push({ date, title, href: href ?? undefined });
+			}
+		}
+
+		return eventsData;
 	}
 }
