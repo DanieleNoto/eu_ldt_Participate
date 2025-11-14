@@ -1,3 +1,11 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ * Denis Vasilev Dimchev
+ */
+
 import { expect, type Locator, type Page } from '@playwright/test';
 
 /**
@@ -345,10 +353,6 @@ export class ShareModalComponent {
 			whatsapp: whatsappUrl,
 			telegram: telegramUrl
 		});
-	}
-
-	async closeModal() {
-		await this.page.click('[data-dialog-close="socialShare"]');
 	}
 
 	async shareToX() {
