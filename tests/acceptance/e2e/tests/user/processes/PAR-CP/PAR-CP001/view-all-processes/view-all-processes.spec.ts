@@ -71,6 +71,7 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 
 	test.describe('Alternative Flow', () => {
 		test('should allows citizens to filter processes in the "Processes" section', async () => {
+			let countBeforeFilter: number;
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
@@ -84,7 +85,7 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 			});
 			await test.step('3.1 User: Applies filters to narrow down the list of processes.', async () => {
 				// Record the number of processes before filtering
-				const countBeforeFilter = await processesOverviewPage.getProcessesCount();
+				countBeforeFilter = await processesOverviewPage.getProcessesCount();
 				console.log('Number of processes before filtering:', countBeforeFilter);
 
 				// Apply a date filter (e.g., active processes)
@@ -118,6 +119,8 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 
 				// Verify that all processes are shown again
 				const countAfterReset = await processesOverviewPage.getProcessesCount();
+    			expect(countAfterReset).toBe(countBeforeFilter);
+				//const countAfterReset = await processesOverviewPage.getProcessesCount();
 				console.log('Number of processes after resetting filters:', countAfterReset);
 			});
 		});
