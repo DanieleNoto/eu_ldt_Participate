@@ -128,6 +128,17 @@ class AuthenticatedUser(HttpUser):
     def get_new_state(self):
         """Generate a random state parameter for OAuth2"""
         return secrets.token_urlsafe(16)
+    
+    def extract_csrf_token_from_html(self, html_content):
+        """
+        Extract CSRF token from Rails/Decidim HTML meta tag.
+        Searches for: <meta name="csrf-token" content="TOKEN_VALUE" />
+        """
+        csrf_pattern = r'<meta\s+name=["\']csrf-token["\']\s+content=["\'](.*?)["\']'
+        match = re.search(csrf_pattern, html_content)
+        if match:
+            return match.group(1)
+        return None
 
     def set_token_via_authorization_code(self):
         """
@@ -233,6 +244,15 @@ class AuthenticatedUser(HttpUser):
         cookies = self.client.cookies.get_dict()
         if not ("_session_id" in cookies or "_decidim_session" in cookies):
             raise Exception(f"No session cookie obtained after callback. Available: {list(cookies.keys())}")
+        
+        # Extract CSRF token from the callback response HTML
+        csrf_token = self.extract_csrf_token_from_html(callback_response.text)
+        if csrf_token:
+            self.csrf_token = csrf_token
+            self.client.headers.update({"X-CSRF-Token": csrf_token})
+            print(f"[locust][INFO] CSRF token extracted from HTML: {csrf_token[:20]}...")
+        else:
+            print("[locust][WARN] Could not extract CSRF token from HTML - will try to fetch from endpoint")
         
         # Store token expiration time for session management
         self.access_token_expires_at = datetime.now() + timedelta(hours=1)
