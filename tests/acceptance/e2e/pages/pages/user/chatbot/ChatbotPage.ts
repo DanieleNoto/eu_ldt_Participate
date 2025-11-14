@@ -43,40 +43,32 @@ export class ChatbotPage extends BasePage {
 		return this.page.getByText("Hello, I'm the virtual").first();
 	}
 
-	private get billingQuestionsButton() {
-		return this.page.getByRole('button', { name: 'Billing questions' });
+	private get suggestedQuestionParticipateTool() {
+		return this.page.getByRole('button', { name: 'What can I do in EU LDT' });
 	}
 
-	private get technicalSupportButton() {
-		return this.page.getByRole('button', { name: 'Technical support' });
+	private get suggestedQuestionParticipatoryProcess() {
+		return this.page.getByRole('button', { name: 'What is a participatory' });
 	}
 
-	private get generalInformationButton() {
-		return this.page.getByRole('button', { name: 'General information' });
+	private get suggestedQuestionAssemblies() {
+		return this.page.getByRole('button', { name: 'What are assemblies?' });
 	}
 
-	private get suggestedQuestionGetStarted() {
-		return this.page.getByRole('button', { name: 'How do I get started with the' });
+	private get suggestedQuestionConferences() {
+		return this.page.getByRole('button', { name: 'What are conferences?' });
 	}
 
-	private get suggestedQuestionInviteTeamMembers() {
-		return this.page.getByRole('button', { name: 'Can I invite team members to' });
+	private get suggestedQuestionInitiatives() {
+		return this.page.getByRole('button', { name: 'What are initiatives?' });
 	}
 
-	private get suggestedQuestionContactCustomer() {
-		return this.page.getByRole('button', { name: 'How do I contact customer' });
+	private get topicAnswer() {
+		return this.page.locator('div.rounded-lg.bg-\\[\\#E9EBEF\\]').first();
 	}
 
-	private get suggestedQuestionDataSecurity() {
-		return this.page.getByRole('button', { name: 'Is my data secure and private?' });
-	}
-
-	private get dataSecurityAnswer() {
-		return this.page.getByText('Yes, we take data security');
-	}
-
-	private get askSupportButton() {
-		return this.page.getByRole('button', { name: 'Ask support' });
+	private get SupportButton() {
+		return this.page.getByRole('button', { name: 'Further support' });
 	}
 
 	private get describeIssueTextbox() {
@@ -88,7 +80,7 @@ export class ChatbotPage extends BasePage {
 	}
 
 	private get confirmationMessage() {
-		return this.page.getByText('Support request sent. Our');
+		return this.page.locator('div.rounded-lg.bg-\\[\\#E9EBEF\\]').filter({ hasText: 'Support request sent. Our' });
 	}
 
 	private get chatbotDialog() {
@@ -104,26 +96,18 @@ export class ChatbotPage extends BasePage {
 	}
 
 	/**
-	 * Clicks the "General information" button
+	 * Clicks a topic button by name
 	 */
-	async clickGeneralInformationButton(): Promise<void> {
-		await this.generalInformationButton.click();
+	async clickTopicByName(topicName: string): Promise<void> {
+		await this.page.getByRole('button', { name: topicName }).click();
 		await this.waitForLoadState('networkidle');
 	}
 
 	/**
-	 * Clicks the "Is my data secure and private?" suggested question
+	 * Clicks the "Further support" button
 	 */
-	async clickDataSecurityQuestion(): Promise<void> {
-		await this.suggestedQuestionDataSecurity.click();
-		await this.waitForLoadState('networkidle');
-	}
-
-	/**
-	 * Clicks the "Ask support" button
-	 */
-	async clickAskSupportButton(): Promise<void> {
-		await this.askSupportButton.click();
+	async clickSupportButton(): Promise<void> {
+		await this.SupportButton.click();
 		await this.waitForLoadState('networkidle');
 	}
 
@@ -185,63 +169,51 @@ export class ChatbotPage extends BasePage {
 	}
 
 	/**
-	 * Checks if the "Billing questions" button is visible
+	 * Checks if the suggested question is visible
 	 */
-	async isBillingQuestionsButtonVisible(): Promise<boolean> {
-		return await this.billingQuestionsButton.isVisible();
+	async isParticipateToolQuestionVisible(): Promise<boolean> {
+		await this.suggestedQuestionParticipateTool.waitFor({ state: 'visible' });
+		return await this.suggestedQuestionParticipateTool.isVisible();
 	}
 
 	/**
-	 * Checks if the "Technical support" button is visible
+	 * Checks if the "What is a participatory process?" suggested question is visible
 	 */
-	async isTechnicalSupportButtonVisible(): Promise<boolean> {
-		return await this.technicalSupportButton.isVisible();
+	async isParticipatoryProcessQuestionVisible(): Promise<boolean> {
+		await this.suggestedQuestionParticipatoryProcess.waitFor({ state: 'visible' });
+		return await this.suggestedQuestionParticipatoryProcess.isVisible();
 	}
 
 	/**
-	 * Checks if the "General information" button is visible
+	 * Checks if the "What are assemblies?" suggested question is visible
 	 */
-	async isGeneralInformationButtonVisible(): Promise<boolean> {
-		return await this.generalInformationButton.isVisible();
+	async isAssembliesQuestionVisible(): Promise<boolean> {
+		await this.suggestedQuestionAssemblies.waitFor({ state: 'visible' });
+		return await this.suggestedQuestionAssemblies.isVisible();
 	}
 
 	/**
-	 * Checks if the "How do I get started with the platform?" suggested question is visible
+	 * Checks if the "What are conferences?" suggested question is visible
 	 */
-	async isGetStartedQuestionVisible(): Promise<boolean> {
-		await this.suggestedQuestionGetStarted.waitFor({ state: 'visible' });
-		return await this.suggestedQuestionGetStarted.isVisible();
+	async isConferencesQuestionVisible(): Promise<boolean> {
+		await this.suggestedQuestionConferences.waitFor({ state: 'visible' });
+		return await this.suggestedQuestionConferences.isVisible();
 	}
 
 	/**
-	 * Checks if the "Can I invite team members to my account?" suggested question is visible
+	 * Checks if the "What are initiatives?" suggested question is visible
 	 */
-	async isInviteTeamMembersQuestionVisible(): Promise<boolean> {
-		await this.suggestedQuestionInviteTeamMembers.waitFor({ state: 'visible' });
-		return await this.suggestedQuestionInviteTeamMembers.isVisible();
+	async isInitiativesQuestionVisible(): Promise<boolean> {
+		await this.suggestedQuestionInitiatives.waitFor({ state: 'visible' });
+		return await this.suggestedQuestionInitiatives.isVisible();
 	}
 
 	/**
-	 * Checks if the "How do I contact customer support?" suggested question is visible
+	 * Checks if the chatbot has provided a topic answer
 	 */
-	async isContactCustomerQuestionVisible(): Promise<boolean> {
-		await this.suggestedQuestionContactCustomer.waitFor({ state: 'visible' });
-		return await this.suggestedQuestionContactCustomer.isVisible();
-	}
-
-	/**
-	 * Checks if the "Is my data secure and private?" suggested question is visible
-	 */
-	async isDataSecurityQuestionVisible(): Promise<boolean> {
-		await this.suggestedQuestionDataSecurity.waitFor({ state: 'visible' });
-		return await this.suggestedQuestionDataSecurity.isVisible();
-	}
-
-	/**
-	 * Checks if the data security answer is visible
-	 */
-	async isDataSecurityAnswerVisible(): Promise<boolean> {
-		return await this.dataSecurityAnswer.isVisible();
+	async isTopicAnswerVisible(): Promise<boolean> {
+		await this.topicAnswer.waitFor({ state: 'visible' });
+		return await this.topicAnswer.isVisible();
 	}
 
 	/**

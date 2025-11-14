@@ -36,7 +36,7 @@ test.describe('[PAR-CA001] – Interact with chatbots for assistance', () => {
 	});
 
 	test.describe('Main Flow', () => {
-		test('should allow citizen to interact with standard chatbots for immediate help', async ({ page }) => {
+		test('should allow citizen to interact with standard chatbots for immediate help', async () => {
 			await test.step('1. USER: Clicks the floating action button (FAB) visible on all platform pages.', async () => {
 				await chatbotPage.openHelpAssistant();
 			});
@@ -46,51 +46,45 @@ test.describe('[PAR-CA001] – Interact with chatbots for assistance', () => {
 				expect(await chatbotPage.isWarningMessageVisible()).toBe(true);
 				expect(await chatbotPage.isAvatarLogoVisible()).toBe(true);
 				expect(await chatbotPage.isGreetingMessageVisible()).toBe(true);
-				expect(await chatbotPage.isBillingQuestionsButtonVisible()).toBe(true);
-				expect(await chatbotPage.isTechnicalSupportButtonVisible()).toBe(true);
-				expect(await chatbotPage.isGeneralInformationButtonVisible()).toBe(true);
-			});
-			await test.step('3. USER: Selects a category from the chatbot.', async () => {
-				await chatbotPage.clickGeneralInformationButton();
-			});
-			await test.step('4. SYSTEM: The chatbot displays a list of suggested questions related to the selected category.', async () => {
-				expect(await chatbotPage.isGetStartedQuestionVisible()).toBe(true);
-				expect(await chatbotPage.isInviteTeamMembersQuestionVisible()).toBe(true);
-				expect(await chatbotPage.isContactCustomerQuestionVisible()).toBe(true);
-				expect(await chatbotPage.isDataSecurityQuestionVisible()).toBe(true);
+				// Verify all suggested questions are visible
+				expect(await chatbotPage.isParticipateToolQuestionVisible()).toBe(true);
+				expect(await chatbotPage.isParticipatoryProcessQuestionVisible()).toBe(true);
+				expect(await chatbotPage.isAssembliesQuestionVisible()).toBe(true);
+				expect(await chatbotPage.isConferencesQuestionVisible()).toBe(true);
+				expect(await chatbotPage.isInitiativesQuestionVisible()).toBe(true);
 			});
 
-			await test.step('5. USER: Clicks on a question from the list.', async () => {
-				await chatbotPage.clickDataSecurityQuestion();
+			await test.step('3. USER: Selects a question from the chatbot.', async () => {
+				await chatbotPage.clickTopicByName('What can I do in EU LDT');
 			});
 
-			await test.step('6. SYSTEM: The chatbot provides the preconfigured answer for the selected question.', async () => {
-				expect(await chatbotPage.isDataSecurityAnswerVisible()).toBe(true);
+			await test.step('4. SYSTEM: The chatbot provides the preconfigured answer for the selected question.', async () => {
+				expect(await chatbotPage.isTopicAnswerVisible()).toBe(true);
 			});
 
-			await test.step('7. USER: If the desired answer is not found, clicks "Ask Support".', async () => {
-				await chatbotPage.clickAskSupportButton();
+			await test.step('5. USER: If the desired answer is not found, clicks "Further Support".', async () => {
+				await chatbotPage.clickSupportButton();
 			});
 
-			await test.step('8. SYSTEM: The chatbot displays a text input field for manual question entry.', async () => {
+			await test.step('6. SYSTEM: The chatbot displays a text input field for manual question entry.', async () => {
 				expect(await chatbotPage.isDescribeIssueTextboxVisible()).toBe(true);
 			});
 
-			await test.step('9. USER: Types a question into the text box and clicks "Send".', async () => {
+			await test.step('7. USER: Types a question into the text box and clicks "Send".', async () => {
 				await chatbotPage.clickDescribeIssueTextbox();
 				await chatbotPage.fillDescribeIssueTextbox('Will my personal data be deleted if i delete my account?');
 				await chatbotPage.clickSendButton();
 			});
 
-			await test.step("10. SYSTEM: The system sends an email to the support team containing the user's question and displays a confirmation message.", async () => {
+			await test.step("8. SYSTEM: The system sends an email to the support team containing the user's question and displays a confirmation message.", async () => {
 				expect(await chatbotPage.isConfirmationMessageVisible()).toBe(true);
 			});
 
-			await test.step('11. USER: Closes the chatbot by clicking the close button on the overlay window.', async () => {
+			await test.step('9. USER: Closes the chatbot by clicking the close button on the overlay window.', async () => {
 				await chatbotPage.closeHelpAssistant();
 			});
 
-			await test.step('12. SYSTEM: The chatbot interface disappears, and the FAB remains visible.', async () => {
+			await test.step('10. SYSTEM: The chatbot interface disappears, and the FAB remains visible.', async () => {
 				expect(await chatbotPage.isChatbotDialogClosed()).toBe(true);
 				expect(await chatbotPage.isOpenHelpAssistantButtonVisible()).toBe(true);
 			});
