@@ -17,6 +17,7 @@ es:
                         other: '%{count} escenarios'
                 use_case_scenario:
                     experiment_id: ID de Experimento
+                    execution_id: ID de Ejecución
                     view_details: Ver Detalles
                 show:
                     title: Detalles del Experimento

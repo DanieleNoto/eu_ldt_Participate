@@ -17,6 +17,7 @@ de:
                         other: '%{count} Szenarien'
                 use_case_scenario:
                     experiment_id: Experiment-ID
+                    execution_id: Ausführungs-ID
                     view_details: Details anzeigen
                 show:
                     title: Experimentdetails

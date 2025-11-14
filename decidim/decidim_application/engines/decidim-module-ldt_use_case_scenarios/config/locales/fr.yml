@@ -17,6 +17,7 @@ fr:
                         other: '%{count} scénarios'
                 use_case_scenario:
                     experiment_id: ID Expérience
+                    execution_id: ID d'Exécution
                     view_details: Voir les Détails
                 show:
                     title: Détails de l'Expérience
