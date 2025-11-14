@@ -35,7 +35,8 @@ class ChatbotInjector
     '/users/password',
     '/users/confirmation',
     '/users/unlock',
-    '/chatbot-api'  # Don't inject into chatbot API responses
+    '/chatbot-api',  # Don't inject into chatbot API responses
+    '/live_event'  # Exclude live event pages for meetings
   ].freeze
 
   BODY_CLOSING_TAG = '</body>'
@@ -100,9 +101,14 @@ class ChatbotInjector
   def excluded_path?(path)
     # Exclude paths that start with admin/system routes or exact auth paths
     normalized_path = path.downcase
-    EXCLUDED_PATHS.any? do |excluded|
-      normalized_path.start_with?(excluded.downcase)
-    end
+    
+    # Check exact path prefixes
+    return true if EXCLUDED_PATHS.any? { |excluded| normalized_path.start_with?(excluded.downcase) }
+    
+    # Check for any meetings subpath: /meetings/{id}/* (including live_event and any other meeting pages)
+    return true if normalized_path.match?(%r{/meetings/\d+(/|$)})
+    
+    false
   end
 
   def extract_body(response)
@@ -154,6 +160,7 @@ class ChatbotInjector
             // Create and append the chatbot element
             const chatbot = document.createElement('eu-chatbot');
             chatbot.setAttribute('language', '#{language}');
+            chatbot.style.zIndex = '1';
             document.body.appendChild(chatbot);
             console.log('[Decidim] Chatbot web component loaded and mounted');
           })
