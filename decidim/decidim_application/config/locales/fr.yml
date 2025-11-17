@@ -83,9 +83,13 @@ fr:
                 required_review:
                     alert: Nous avons mis à jour notre politique de confidentialité, veuillez la consulter.
                     body: Veuillez prendre un moment pour consulter les mises à jour de notre politique de confidentialité. Sinon, vous ne pourrez pas utiliser la plateforme.
-                    title: "Requis : Consultez les mises à jour de notre politique de confidentialité"
+                    title: 'Requis : Consultez les mises à jour de notre politique de confidentialité'
         profile:
             inaccessible_message: Ce profil est inaccessible en raison d'une violation de la politique de confidentialité !
+        notifications_settings:
+            show:
+                allow_public_contact: "Autoriser tout le monde à m'envoyer un message direct même si je ne les suis pas."
+
     components:
         meetings:
             settings:
