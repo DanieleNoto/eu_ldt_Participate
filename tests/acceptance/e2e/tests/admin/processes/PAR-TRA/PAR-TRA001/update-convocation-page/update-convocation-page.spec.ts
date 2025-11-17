@@ -54,6 +54,7 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 
 	test.describe('Main Flow', () => {
 		test('should successfully update convocation page content', async () => {
+			const bodyContent = 'Summary of the process outcomes. Decisions taken. Next steps or upcoming actions.';
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				await processAdminPage.navigateToProcesses();
 			});
@@ -74,23 +75,27 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 				// Navigate to convocation page component management
 				await updateProcessAdminPage.sidebarProcessDetail.navigateToComponents();
 				await componentsPage.checkPageComponent('Page');
-
-				// Verify being on the management page
+				await componentsPage.expectComponentExists('Page');
+				await componentsPage.manageComponent('Page');
 				await managePageComponentPage.verifyPageLoaded();
+				await managePageComponentPage.fillBody(bodyContent);
 			});
 
 			await test.step('6. User: Update content', async () => {
-				// Update content using only English
-				await managePageComponentPage.fillBody(testContent.body);
+				await managePageComponentPage.savePage();
 			});
 
-			await test.step('7: User: Save changes ', async () => {
-				// Save changes
-				await managePageComponentPage.savePage();
+			await test.step('7 and step 8: User: Save changes ', async () => {
+				console.log(
+					'Step 7 And Step 8 SYSTEM: Validates the updated information for completeness and correctness. Saves changes.'
+				);
 			});
 			await test.step('Result. ', async () => {
 				// Verify that the success notification appears
 				await managePageComponentPage.waitForSuccessFlashNotification('Page successfully saved.');
+				await componentsPage.manageComponent('Page');
+				await managePageComponentPage.expectBodyContent(bodyContent);
+				await managePageComponentPage.savePage();
 			});
 		});
 	});
