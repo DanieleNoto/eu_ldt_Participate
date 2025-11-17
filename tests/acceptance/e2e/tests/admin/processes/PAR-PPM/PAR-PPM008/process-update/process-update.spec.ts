@@ -84,7 +84,6 @@ test.describe('[PAR-PPM008] – Update process', () => {
 			await test.step('5. User: edits the desired fields of the process', async () => {
 				// Step 5: Edits the desired fields of the process
 				console.log('Updating process fields with new information...');
-
 				// Update General Info fields
 				await processAdminPage.updateGeneralInfo(updateData.general);
 
@@ -132,21 +131,16 @@ test.describe('[PAR-PPM008] – Update process', () => {
 					await expect(titleInput).toHaveValue(updateData.general.title);
 				}
 			});
-
 			await test.step('Verify the process is updated and available', async () => {
 				// Result: The process is updated with new information and available for viewing
-
-				// Navigate back to processes list to verify the update
 				await processAdminPage.navigateToProcesses();
-
-				// Search for the updated process if we have a searchable title
-				if (updateData.general?.title) {
-					await processAdminPage.searchProcesses(updateData.general.title);
-
-					// Verify the updated process appears in search results
-					const searchResults = await processAdminPage.getProcessCount();
-					expect(searchResults).toBe(1);
-				}
+				
+				// Always search for the updated process (title is mandatory)
+				await processAdminPage.searchProcesses(updateData.general.title);
+				
+				// Verify the updated process appears in search results
+				const searchResults = await processAdminPage.getProcessCount();
+				expect(searchResults).toBe(1);
 			});
 		});
 	});
