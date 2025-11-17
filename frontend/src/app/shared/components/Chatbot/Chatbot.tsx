@@ -66,7 +66,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 	useEffect(() => {
 		if (!i18n) return;
 		if (language && i18n.language !== language) {
-			void i18n.changeLanguage(language).catch(() => {});
+			i18n.changeLanguage(language).catch(() => {});
 		}
 	}, [language, i18n]);
 
