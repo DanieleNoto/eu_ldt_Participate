@@ -212,6 +212,7 @@ test.describe('[PAR-PPM008] – Update process', () => {
 				await processAdminPage.saveProcessChanges();
 
 				await processAdminPage.expectUpdateSuccessMessage();
+				await processAdminPage.expectMetadataInfoUpdated(metadataUpdates);
 			});
 		});
 	});

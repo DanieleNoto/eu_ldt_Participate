@@ -839,6 +839,38 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await titleField.click();
 		await titleField.fill(title);
 	}
+
+	public async expectMetadataInfoUpdated(metadataUpdates: ProcessMetadataInfo): Promise<void> {
+		if (metadataUpdates.developerGroup) {
+			await expect(this.page.getByRole('textbox', { name: 'developer_group' })).toHaveValue(
+				metadataUpdates.developerGroup
+			);
+		}
+
+		if (metadataUpdates.localArea) {
+			await expect(this.page.getByRole('textbox', { name: 'local_area' })).toHaveValue(metadataUpdates.localArea);
+		}
+
+		if (metadataUpdates.metaScope) {
+			await expect(this.page.getByRole('textbox', { name: 'meta_scope' })).toHaveValue(metadataUpdates.metaScope);
+		}
+
+		if (metadataUpdates.target) {
+			await expect(this.page.getByRole('textbox', { name: 'target' })).toHaveValue(metadataUpdates.target);
+		}
+
+		if (metadataUpdates.participatoryScope) {
+			await expect(this.page.getByRole('textbox', { name: 'participatory_scope' })).toHaveValue(
+				metadataUpdates.participatoryScope
+			);
+		}
+
+		if (metadataUpdates.participatoryStructure) {
+			await expect(this.page.getByRole('textbox', { name: 'participatory_structure' })).toHaveValue(
+				metadataUpdates.participatoryStructure
+			);
+		}
+	}
 }
 
 // Type definitions for better type safety
