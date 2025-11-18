@@ -1,3 +1,8 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Pierluigi Spedicato
 import appConfig from '../../../src/config/config';
 import jwtPlugin from '../../../src/plugins/jwt.plugin';
 import logger from '../../../src/utils/logger';

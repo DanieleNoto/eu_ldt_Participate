@@ -1,3 +1,9 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Gianfranco Cedro
+//   # Pierluigi Spedicato
 import { FastifyInstance, FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
 import { HttpMethod } from '../../enums/http-methods.enum';
 

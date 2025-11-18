@@ -1,3 +1,7 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
 // Test coverage for standard logger plugin
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import loggingPlugin from '../../../src/plugins/standard-logger.plugin';

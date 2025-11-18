@@ -1,4 +1,7 @@
 {
+	"_license": "SPDX-License-Identifier: AGPL-3.0",
+	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
+	"_authors": ["Denis Vasilev Dimchev"],
 	"root": "Hallo, ich bin der virtuelle Assistent des EU LDT Participate Tools. Ich helfe Ihnen, Ihre Anliegen bestmöglich zu verwalten. Wählen Sie eines der folgenden Themen, um eine Unterhaltung zu beginnen:",
 	"participate_tool": "Was kann ich in EU LDT Participate Tool tun?",
 	"participatory_process": "Was ist ein Beteiligungsprozess?",

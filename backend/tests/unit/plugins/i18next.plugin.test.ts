@@ -1,3 +1,7 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
 // Test coverage for i18next plugin
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import i18nextPlugin from '../../../src/plugins/i18next.plugin';
