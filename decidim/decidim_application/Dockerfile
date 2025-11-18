@@ -127,6 +127,8 @@ RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log /code/public /code/storage
   find /code -path /code/node_modules -prune -o -type f -exec chmod 664 {} + && \
   chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh && \
   find /code/bin -type f -exec chmod 775 {} + && \
+  # Reinstall node_modules to ensure proper binary symlinks
+  yarn install --production --frozen-lockfile --prefer-offline && \
   # Make ALL node_modules executables available (files AND symlinks)
   chmod -R u+x,g+x,o+x /code/node_modules/.bin 2>/dev/null || true && \
   chmod -R u+r,g+r,o+r /code/node_modules/.bin 2>/dev/null || true

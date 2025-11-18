@@ -1,14 +1,14 @@
 # Eng Git CI
 
-All'interno di questa directory sono presenti i file necessari per eseguire i flussi di lint commit e di release
+Inside this directory are the files necessary to execute the commit lint and release flows.
 
-## Dipendenze NPM
+## NPM Dependencies
 
 ```
 npm i @commitlint/cli @commitlint/config-conventional @release-it/conventional-changelog commitizen cz-conventional-changelog dotenv-cli husky release-it --save-dev
 ```
 
-## File e cartelle
+## Files and Folders
 
 ### .husky/commit-msg
 
@@ -44,11 +44,11 @@ else
 fi
 ```
 
-## Modifiche a file
+## File Modifications
 
 ### package.json
 
-Aggiungere le seguenti parti
+Add the following parts
 
 ```json
 {
