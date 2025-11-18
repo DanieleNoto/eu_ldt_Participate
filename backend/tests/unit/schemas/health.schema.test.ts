@@ -1,6 +1,4 @@
 import {
-	HealthIdSchema,
-	HealthRequestSchema,
 	HealthCheckSchema,
 	HealthResponseSchema,
 	ServiceStatusesResponseSchema,
@@ -9,20 +7,6 @@ import {
 import { HealthStatus } from '../../../src/enums/health-status.enum';
 
 describe('Health Schemas', () => {
-	describe('HealthIdSchema', () => {
-		it('should validate empty object', () => {
-			const result = HealthIdSchema.safeParse({});
-			expect(result.success).toBe(true);
-		});
-	});
-
-	describe('HealthRequestSchema', () => {
-		it('should validate empty object', () => {
-			const result = HealthRequestSchema.safeParse({});
-			expect(result.success).toBe(true);
-		});
-	});
-
 	describe('HealthCheckSchema', () => {
 		it('should validate a valid health check', () => {
 			const validCheck = {
