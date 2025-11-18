@@ -23,11 +23,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   zlib1g-dev \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 22.x and yarn
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-  apt-get install -y --no-install-recommends nodejs && \
+# Remove old Node.js and install Node.js 22.x and yarn using n version manager
+RUN apt-get remove -y nodejs npm || true && \
+  apt-get autoremove -y && \
+  curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n -o /usr/local/bin/n && \
+  chmod +x /usr/local/bin/n && \
+  n 22 && \
   npm install --global yarn && \
-  apt-get clean && rm -rf /var/lib/apt/lists/*
+  apt-get clean && rm -rf /var/lib/apt/lists/* && \
+  node --version && echo "Builder Node.js version: $(node --version)"
 
 # Set working directory and create required directories with proper permissions
 WORKDIR /code
@@ -106,12 +110,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   gnupg \
   netcat-openbsd \
   redis-tools \
-  && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-  && apt-get install -y --no-install-recommends nodejs \
+  && apt-get remove -y nodejs npm || true \
+  && apt-get autoremove -y \
+  && curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n -o /usr/local/bin/n \
+  && chmod +x /usr/local/bin/n \
+  && n 22 \
   && npm install --global yarn \
   && apt-get clean && rm -rf /var/lib/apt/lists/* \
   && groupadd -r decidim 2>/dev/null || true \
-  && useradd -r -g decidim -d /code -s /bin/bash decidim 2>/dev/null || true
+  && useradd -r -g decidim -d /code -s /bin/bash decidim 2>/dev/null || true \
+  && node --version && echo "Runtime Node.js version: $(node --version)"
 
 WORKDIR /code
 
