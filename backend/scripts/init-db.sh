@@ -1,9 +1,10 @@
+#!/bin/sh
+
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
 #   Denis Vasilev Dimchev
 #   Gianfranco Cedro
-#!/bin/sh
 
 # Script to initialize the database before starting the backend
 # This script creates the database if it doesn't exist
