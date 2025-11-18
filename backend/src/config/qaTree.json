@@ -1,7 +1,9 @@
 {
-	"_license": "SPDX-License-Identifier: AGPL-3.0",
-	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-	"_authors": ["Denis Vasilev Dimchev", "Pierluigi Spedicato"],
+	"meta": {
+		"_license": "SPDX-License-Identifier: AGPL-3.0",
+		"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
+		"_authors": ["Denis Vasilev Dimchev", "Pierluigi Spedicato"]
+	},
 	"root": {
 		"id": "root",
 		"questionKey": "root",
