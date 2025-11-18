@@ -1,8 +1,8 @@
-# frozen_string_literal: true
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Gianfranco Cedro
+# Gianfranco Cedro
+# frozen_string_literal: true
 
 
 
@@ -35,9 +35,12 @@ module Api
 
     def collect_participatory_processes
       Decidim::ParticipatoryProcess.where(organization: @organization).map do |process|
+        # Skip processes with missing title
+        next if process.title.nil?
+        
         {
           id: process.id,
-          name: process.title[I18n.locale.to_s] || process.title['en'],
+          name: process.title[I18n.locale.to_s] || process.title['en'] || process.title.values.first,
           type: 'ParticipatoryProcess',
           owner: process.decidim_organization_id,
           created_at: process.created_at,
@@ -45,14 +48,17 @@ module Api
           deleted: process.deleted_at.present?,
           entity: process
         }
-      end
+      end.compact
     end
 
     def collect_assemblies
       Decidim::Assembly.where(organization: @organization).map do |assembly|
+        # Skip assemblies with missing title
+        next if assembly.title.nil?
+        
         {
           id: assembly.id,
-          name: assembly.title[I18n.locale.to_s] || assembly.title['en'],
+          name: assembly.title[I18n.locale.to_s] || assembly.title['en'] || assembly.title.values.first,
           type: 'Assembly',
           owner: assembly.decidim_organization_id,
           created_at: assembly.created_at,
@@ -60,7 +66,7 @@ module Api
           deleted: assembly.deleted_at.present?,
           entity: assembly
         }
-      end
+      end.compact
     end
 
     def collect_meetings
@@ -74,17 +80,20 @@ module Api
       end
 
       meetings.map do |meeting|
+        # Skip meetings with missing component or title
+        next if meeting.component.nil? || meeting.title.nil?
+        
         {
           id: meeting.id,
-          name: meeting.title[I18n.locale.to_s] || meeting.title['en'],
+          name: meeting.title[I18n.locale.to_s] || meeting.title['en'] || meeting.title.values.first,
           type: 'Meeting',
-          owner: meeting.component.participatory_space.decidim_organization_id,
+          owner: meeting.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: meeting.created_at,
           last_modified: meeting.updated_at,
           deleted: meeting.deleted_at.present?,
           entity: meeting
         }
-      end
+      end.compact
     end
 
     def collect_proposals
@@ -98,17 +107,20 @@ module Api
       end
 
       proposals.map do |proposal|
+        # Skip proposals with missing component
+        next if proposal.component.nil?
+        
         {
           id: proposal.id,
           name: proposal.title,
           type: 'Proposal',
-          owner: proposal.component.participatory_space.decidim_organization_id,
+          owner: proposal.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: proposal.created_at,
           last_modified: proposal.updated_at,
           deleted: proposal.deleted_at.present?,
           entity: proposal
         }
-      end
+      end.compact
     end
 
     def collect_surveys
@@ -121,24 +133,30 @@ module Api
       end
 
       surveys.map do |survey|
+        # Skip surveys with missing component or title data
+        next if survey.component.nil? || survey.title.nil?
+        
         {
           id: survey.id,
-          name: survey.title[I18n.locale.to_s] || survey.title['en'],
+          name: survey.title[I18n.locale.to_s] || survey.title['en'] || survey.title.values.first,
           type: 'Survey',
-          owner: survey.component.participatory_space.decidim_organization_id,
+          owner: survey.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: survey.created_at,
           last_modified: survey.updated_at,
           deleted: survey.deleted_at.present?,
           entity: survey
         }
-      end
+      end.compact
     end
 
     def collect_conferences
       Decidim::Conference.where(organization: @organization).map do |conference|
+        # Skip conferences with missing title
+        next if conference.title.nil?
+        
         {
           id: conference.id,
-          name: conference.title[I18n.locale.to_s] || conference.title['en'],
+          name: conference.title[I18n.locale.to_s] || conference.title['en'] || conference.title.values.first,
           type: 'Conference',
           owner: conference.decidim_organization_id,
           created_at: conference.created_at,
@@ -146,7 +164,7 @@ module Api
           deleted: conference.deleted_at.present?,
           entity: conference
         }
-      end
+      end.compact
     end
 
     def collect_debates
@@ -159,24 +177,30 @@ module Api
       end
 
       debates.map do |debate|
+        # Skip debates with missing component or title
+        next if debate.component.nil? || debate.title.nil?
+        
         {
           id: debate.id,
-          name: debate.title[I18n.locale.to_s] || debate.title['en'],
+          name: debate.title[I18n.locale.to_s] || debate.title['en'] || debate.title.values.first,
           type: 'Debate',
-          owner: debate.component.participatory_space.decidim_organization_id,
+          owner: debate.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: debate.created_at,
           last_modified: debate.updated_at,
           deleted: debate.deleted_at.present?,
           entity: debate
         }
-      end
+      end.compact
     end
 
     def collect_initiatives
       Decidim::Initiative.where(organization: @organization).map do |initiative|
+        # Skip initiatives with missing title
+        next if initiative.title.nil?
+        
         {
           id: initiative.id,
-          name: initiative.title[I18n.locale.to_s] || initiative.title['en'],
+          name: initiative.title[I18n.locale.to_s] || initiative.title['en'] || initiative.title.values.first,
           type: 'Initiative',
           owner: initiative.decidim_organization_id,
           created_at: initiative.created_at,
@@ -184,7 +208,7 @@ module Api
           deleted: initiative.respond_to?(:deleted_at) ? initiative.deleted_at.present? : false,
           entity: initiative
         }
-      end
+      end.compact
     end
 
     def collect_map_visualizations
@@ -196,17 +220,20 @@ module Api
       end
 
       Decidim::LdtMapVisualization::MapVisualization.where(decidim_component_id: component_ids).map do |map_visualization|
+        # Skip map visualizations with missing component
+        next if map_visualization.component.nil?
+        
         {
           id: map_visualization.id,
           name: map_visualization.name,
           type: 'MapVisualization',
-          owner: map_visualization.component.participatory_space.decidim_organization_id,
+          owner: map_visualization.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: map_visualization.created_at,
           last_modified: map_visualization.updated_at,
           deleted: map_visualization.respond_to?(:deleted_at) ? map_visualization.deleted_at.present? : false,
           entity: map_visualization
         }
-      end
+      end.compact
     end
 
     def collect_use_case_scenarios
@@ -218,17 +245,20 @@ module Api
       end
 
       Decidim::LdtUseCaseScenarios::UseCaseScenario.where(decidim_component_id: component_ids).map do |use_case_scenario|
+        # Skip use case scenarios with missing component
+        next if use_case_scenario.component.nil?
+        
         {
           id: use_case_scenario.id,
           name: use_case_scenario.name,
           type: 'UseCaseScenario',
-          owner: use_case_scenario.component.participatory_space.decidim_organization_id,
+          owner: use_case_scenario.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: use_case_scenario.created_at,
           last_modified: use_case_scenario.updated_at,
           deleted: use_case_scenario.respond_to?(:deleted_at) ? use_case_scenario.deleted_at.present? : false,
           entity: use_case_scenario
         }
-      end
+      end.compact
     end
   end
 end

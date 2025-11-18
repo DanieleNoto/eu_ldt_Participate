@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+#   Gianfranco Cedro
+#   Marco Cerdelli
 de:
     activemodel:
         attributes:
@@ -31,7 +36,7 @@ de:
             admin:
                 questionnaire_templates:
                     preview:
-                        tos_agreement: "Mit Ihrer Teilnahme stimmen Sie folgender Datenschutzrichtlinie zu:"
+                        tos_agreement: 'Mit Ihrer Teilnahme stimmen Sie folgender Datenschutzrichtlinie zu:'
         forms:
             admin:
                 models:
@@ -39,7 +44,7 @@ de:
                         tos: Datenschutzrichtlinie
                 questionnaires:
                     responses:
-                        tos_agreement: "Mit Ihrer Teilnahme stimmen Sie folgender Datenschutzrichtlinie zu:"
+                        tos_agreement: 'Mit Ihrer Teilnahme stimmen Sie folgender Datenschutzrichtlinie zu:'
 
         demographics:
             demographics:
@@ -56,25 +61,25 @@ de:
                     tos_agreement: Mit der Anmeldung stimmen Sie %{link} zu.
                     tos_title: Datenschutzrichtlinie
         download_your_data:
-          help:
-              follows:
+            help:
+                follows:
                     created_at: Datum und Uhrzeit, zu der das Follow erstellt wurde
                     followable: Die Ressource oder der Bereich, dem gefolgt wird
                     id: Die eindeutige Kennung dieses Follows
                     updated_at: Datum und Uhrzeit der letzten Aktualisierung des Follows
-              identities:
+                identities:
                     created_at: Datum und Uhrzeit, zu der diese Identität erstellt wurde
                     id: Die eindeutige Kennung dieser Identität
                     provider: Der Anbieter dieser Identität
                     uid: Die eindeutige Kennung dieser Identität
                     updated_at: Datum und Uhrzeit der letzten Aktualisierung dieser Identität
                     user: Der Benutzer, zu dem diese Identität gehört
-              messaging_conversations:
+                messaging_conversations:
                     created_at: Das Datum, an dem dieses Gespräch erstellt wurde
                     id: Die eindeutige Kennung dieses Gesprächs
                     messages: Die Nachrichten dieses Gesprächs
                     updated_at: Das Datum der letzten Aktualisierung dieses Gesprächs
-              notifications:
+                notifications:
                     created_at: Datum und Uhrzeit, zu der die Benachrichtigung erstellt wurde
                     event_class: Die Klasse des Ereignisses, das die Benachrichtigung ausgelöst hat
                     event_name: Der Name des Ereignisses, das die Benachrichtigung ausgelöst hat
@@ -82,14 +87,14 @@ de:
                     id: Die eindeutige Kennung dieser Benachrichtigung
                     resource_type: Der Ressourcentyp, auf den sich die Benachrichtigung bezieht
                     updated_at: Datum und Uhrzeit der letzten Aktualisierung dieser Benachrichtigung
-              participatory_space_private_users:
+                participatory_space_private_users:
                     created_at: Datum und Uhrzeit der Erstellung dieses privaten Nutzers
                     id: Die eindeutige Kennung dieses privaten Nutzers
                     privatable_to: Der Bereich, zu dem dieser private Nutzer gehört
                     published: Ob dieser private Nutzer veröffentlicht ist oder nicht
                     role: Die Rolle dieses privaten Nutzers
                     updated_at: Datum und Uhrzeit der letzten Aktualisierung dieses privaten Nutzers
-              reports:
+                reports:
                     created_at: Datum und Uhrzeit der Erstellung dieses Berichts
                     details: Die Details dieses Berichts
                     id: Die eindeutige Kennung dieses Berichts
@@ -97,13 +102,13 @@ de:
                     reason: Der Grund für diesen Bericht
                     updated_at: Datum und Uhrzeit der letzten Aktualisierung dieses Berichts
                     moderation: Die Moderation, die diesem Bericht zugeordnet ist
-              user_groups:
+                user_groups:
                     document_number: Die Dokumentennummer dieser Benutzergruppe
                     id: Die eindeutige Kennung dieser Benutzergruppe
                     name: Der Name dieser Benutzergruppe
                     phone: Die Telefonnummer dieser Benutzergruppe
                     verified_at: Datum und Uhrzeit, zu denen diese Benutzergruppe verifiziert wurde
-              users:
+                users:
                     accepted_tos_version: Das Datum, an dem der Nutzer die Datenschutzrichtlinie dieser Plattform akzeptiert hat
                     deleted_at: Datum und Uhrzeit, zu denen dieser Nutzer gelöscht wurde
                     email: Die E-Mail-Adresse dieses Nutzers
@@ -144,13 +149,13 @@ de:
                     sign_in_count: Die Anzahl der Anmeldungen dieses Nutzers
                     unconfirmed_email: Die E-Mail-Adresse, die dieser Nutzer noch nicht bestätigt hat
                     updated_at: Datum und Uhrzeit der letzten Aktualisierung dieses Nutzers
-              comment_votes:
+                comment_votes:
                     comment: Die ID des kommentierten Beitrags
                     created_at: Das Datum, an dem diese Stimme erstellt wurde
                     id: Die ID der Stimme
                     updated_at: Das Datum der letzten Aktualisierung dieser Stimme
                     weight: Das Gewicht der Stimme (1 für positiv, -1 für negativ)
-              comments:
+                comments:
                     alignment: Ob dieser Kommentar dafür, dagegen oder neutral war
                     author: Der Name des Teilnehmers, der diesen Kommentar erstellt hat
                     body: Der Kommentar selbst
@@ -162,22 +167,22 @@ de:
                     locale: Die Sprache des Teilnehmers beim Schreiben dieses Kommentars
                     root_commentable_url: Die URL der Ressource, mit der dieser Kommentar verknüpft ist
                     user_group: Der Name der Benutzergruppe, die diesen Kommentar erstellt hat (falls vorhanden)
-          show:
-              action: Aktion
-              download: Datei herunterladen
-              download_data: Daten herunterladen
-              download_data_description_1: Hier findest du alle für dein Konto verfügbaren Downloads. Diese .zip-Dateien bleiben zwei Wochen lang verfügbar, bevor sie gelöscht werden.
-              download_data_description_2: Du kannst eine .zip-Datei mit deinen Beiträgen und persönlichen Daten anfordern.
-              download_your_data: Persönliche Daten
-              expiration: Ablauf
-              expired: Bereits abgelaufen
-              explanation:
+            show:
+                action: Aktion
+                download: Datei herunterladen
+                download_data: Daten herunterladen
+                download_data_description_1: Hier findest du alle für dein Konto verfügbaren Downloads. Diese .zip-Dateien bleiben zwei Wochen lang verfügbar, bevor sie gelöscht werden.
+                download_data_description_2: Du kannst eine .zip-Datei mit deinen Beiträgen und persönlichen Daten anfordern.
+                download_your_data: Persönliche Daten
+                expiration: Ablauf
+                expired: Bereits abgelaufen
+                explanation:
                     body_1: Diese Dateien sind Datensätze, die aus deiner Aktivität auf dieser Plattform exportiert wurden, wie Vorschläge oder Kommentare. Sie enthalten rohe, strukturierte Daten, die für Analyse, Forschung oder die Integration in andere Tools verwendet werden können.
                     body_2: Diese Dateien liegen im CSV-Format (Comma-Separated Values) vor, einem weit verbreiteten Format, das von vielen Anwendungen unterstützt wird, darunter Tabellenkalkulationen, Texteditoren und Datenanalysetools.
                     title: Was sind diese Dateien?
-              files_to_download: Herunterzuladende Dateien
-              request_data: Anfordern
-              type: Download-Type
+                files_to_download: Herunterzuladende Dateien
+                request_data: Anfordern
+                type: Download-Type
         pages:
             privacy_policy:
                 accept:
@@ -195,7 +200,7 @@ de:
                 required_review:
                     alert: Wir haben unsere Datenschutzrichtlinie aktualisiert, bitte überprüfen Sie sie.
                     body: Bitte nehmen Sie sich einen Moment Zeit, um die Aktualisierungen unserer Datenschutzrichtlinie zu überprüfen. Andernfalls können Sie die Plattform nicht nutzen.
-                    title: "Erforderlich: Überprüfen Sie die Aktualisierungen unserer Datenschutzrichtlinie"
+                    title: 'Erforderlich: Überprüfen Sie die Aktualisierungen unserer Datenschutzrichtlinie'
         profile:
             inaccessible_message: Dieses Profil ist aufgrund eines Verstoßes gegen die Datenschutzrichtlinie nicht zugänglich!
     components:
