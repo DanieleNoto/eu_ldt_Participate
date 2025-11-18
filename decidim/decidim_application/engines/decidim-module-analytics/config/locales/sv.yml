@@ -1,0 +1,25 @@
+---
+sv:
+  decidim:
+    analytics:
+      menu:
+        analytics: Analytik
+        statistics: Statistik
+      admin:
+        missing_configuration: "Matomo-konfiguration saknas. Vänligen konfigurera server_address, site_id och token_auth i dina credentials eller secrets."
+        statistics:
+          description: "Kom åt Grafana-instrumentpanelen för att visa omfattande plattformsstatistik och mätvärden."
+          open_full_dashboard: "Öppna i Ny Flik"
+          refresh: "Uppdatera"
+          unable_to_load: "Kan inte ladda Grafana-instrumentpanel."
+          check_configuration: "Vänligen kontrollera:"
+          grafana_running: "Grafana-servern körs på %{server}"
+          dashboards_configured: "Instrumentpaneler är korrekt konfigurerade"
+          network_connectivity: "Nätverksanslutning mellan tjänster"
+          try_accessing: "Försök att komma åt"
+          grafana_directly: "Grafana direkt"
+          verify_configuration: "för att verifiera konfigurationen."
+    admin:
+      titles:
+        analytics: Analytik
+        statistics: Statistik

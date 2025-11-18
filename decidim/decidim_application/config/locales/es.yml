@@ -1,56 +1,11 @@
-    activemodel:
-        attributes:
-            user:
-                tos_agreement: Acuerdo de política de privacidad
-
-    decidim:
-        account:
-            blocked: Esta cuenta ha sido bloqueada por violación de la política de privacidad
-        admin_terms_of_service:
-            default_body: '<h2>POLÍTICA DE PRIVACIDAD DE ADMINISTRACIÓN</h2><p>Confiamos en que haya recibido la charla habitual del administrador del sistema local. Normalmente se resume en tres cosas:</p><ol><li>Respete la privacidad de los demás.</li><li>Piense antes de hacer clic.</li><li>Un gran poder conlleva una gran responsabilidad.</li></ol>'
-        devise:
-            registrations:
-                new:
-                    terms: la política de privacidad
-                    tos_agreement: Al registrarte aceptas %{link}.
-                    tos_title: Política de privacidad
-        download_your_data:
-            help:
-                users:
-                    accepted_tos_version: La fecha en que el usuario aceptó la política de privacidad de esta plataforma
-        pages:
-            privacy_policy:
-                accept:
-                    error: Se ha producido un problema al aceptar la política de privacidad.
-                    success: ¡Genial! Has aceptado la política de privacidad.
-                form:
-                    agreement: Estoy de acuerdo con esta política de privacidad
-                    legend: Aceptar la política de privacidad
-                refuse:
-                    modal_body: Si rechazas, no podrás usar la plataforma. Puedes <a href="%{download_your_data_path}">descargar tus datos</a> y/o <a href="%{delete_path}">eliminar tu cuenta</a>.
-                    modal_btn_continue: Aceptar la política de privacidad y continuar
-                    modal_btn_exit: La revisaré más tarde
-                    modal_button: Rechazar la política de privacidad
-                    modal_title: ¿Realmente rechazas la política de privacidad actualizada?
-                required_review:
-                    alert: Hemos actualizado nuestra política de privacidad, por favor revísala.
-                    body: Por favor, tómate un momento para revisar las actualizaciones de nuestra política de privacidad. De lo contrario, no podrás usar la plataforma.
-                    title: "Requerido: Revisa las actualizaciones de nuestra política de privacidad"
-        profile:
-            inaccessible_message: Este perfil es inaccesible debido a una violación de la política de privacidad
-    devise:
-        omniauth_callbacks:
-            add_tos_errors: Debes aceptar la política de privacidad para crear una cuenta.
-    layouts:
-        decidim:
-            footer:
-                terms_of_service: Política de privacidad
 es:
     activemodel:
         attributes:
             organization:
                 admin_terms_of_service_body: Cuerpo de texto para la política de privacidad de administración
                 tos_version: Versión de la Política de Privacidad
+            user:
+                tos_agreement: Acuerdo de política de privacidad
     decidim:
         admin:
             admin_terms_of_service:
@@ -90,8 +45,51 @@ es:
             demographics:
                 questionnaire:
                     terms_of_service: Política de privacidad
+        account:
+            blocked: Esta cuenta ha sido bloqueada por violación de la política de privacidad
+        admin_terms_of_service:
+            default_body: '<h2>POLÍTICA DE PRIVACIDAD DE ADMINISTRACIÓN</h2><p>Confiamos en que haya recibido la charla habitual del administrador del sistema local. Normalmente se resume en tres cosas:</p><ol><li>Respete la privacidad de los demás.</li><li>Piense antes de hacer clic.</li><li>Un gran poder conlleva una gran responsabilidad.</li></ol>'
+        devise:
+            registrations:
+                new:
+                    terms: la política de privacidad
+                    tos_agreement: Al registrarte aceptas %{link}.
+                    tos_title: Política de privacidad
+        download_your_data:
+            help:
+                users:
+                    accepted_tos_version: La fecha en que el usuario aceptó la política de privacidad de esta plataforma
+        pages:
+            privacy_policy:
+                accept:
+                    error: Se ha producido un problema al aceptar la política de privacidad.
+                    success: ¡Genial! Has aceptado la política de privacidad.
+                form:
+                    agreement: Estoy de acuerdo con esta política de privacidad
+                    legend: Aceptar la política de privacidad
+                refuse:
+                    modal_body: Si rechazas, no podrás usar la plataforma. Puedes <a href="%{download_your_data_path}">descargar tus datos</a> y/o <a href="%{delete_path}">eliminar tu cuenta</a>.
+                    modal_btn_continue: Aceptar la política de privacidad y continuar
+                    modal_btn_exit: La revisaré más tarde
+                    modal_button: Rechazar la política de privacidad
+                    modal_title: ¿Realmente rechazas la política de privacidad actualizada?
+                required_review:
+                    alert: Hemos actualizado nuestra política de privacidad, por favor revísala.
+                    body: Por favor, tómate un momento para revisar las actualizaciones de nuestra política de privacidad. De lo contrario, no podrás usar la plataforma.
+                    title: "Requerido: Revisa las actualizaciones de nuestra política de privacidad"
+        profile:
+            inaccessible_message: Este perfil es inaccesible debido a una violación de la política de privacidad
     components:
         meetings:
             settings:
                 global:
                     terms_and_conditions_url_for_meeting_creators: URL de la política de privacidad para creadores de reuniones
+    devise:
+        omniauth_callbacks:
+            add_tos_errors: Debes aceptar la política de privacidad para crear una cuenta.
+    layouts:
+        decidim:
+            edit_link:
+                edit: Editar
+            footer:
+                terms_of_service: Política de privacidad

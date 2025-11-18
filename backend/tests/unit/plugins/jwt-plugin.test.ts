@@ -3,10 +3,16 @@ import jwtPlugin from '../../../src/plugins/jwt.plugin';
 import logger from '../../../src/utils/logger';
 
 jest.mock('../../../src/config/config');
-jest.mock('../../../src/utils/logger');
+jest.mock('../../../src/utils/logger', () => ({
+	debug: jest.fn(),
+	info: jest.fn(),
+	warn: jest.fn(),
+	error: jest.fn()
+}));
 
 describe('JWT plugin', () => {
 	const ORIGINAL_ENV = process.env as typeof process.env;
+	const mockLogger = logger as jest.Mocked<typeof logger>;
 
 	let fastifyMock: { register: jest.Mock; addHook: jest.Mock };
 	let replyMock: { send: jest.Mock };
@@ -18,8 +24,8 @@ describe('JWT plugin', () => {
 		// Default config
 		appConfig.jwtConfig = { enable: true, secret: { public: 's' } };
 
-		// Spy logger.debug
-		logger.debug = jest.fn();
+		// Clear mock calls
+		jest.clearAllMocks();
 
 		fastifyMock = {
 			register: jest.fn(),
@@ -97,7 +103,7 @@ describe('JWT plugin', () => {
 			await hookFn(request, replyMock as any);
 
 			expect(request.jwtVerify).toHaveBeenCalled();
-			expect(logger.debug).toHaveBeenCalledWith({ msg: 'jwtVerify: ', jwtVerify: decoded });
+			expect(mockLogger.debug).toHaveBeenCalledWith({ msg: 'jwtVerify: ', jwtVerify: decoded });
 			expect(replyMock.send).not.toHaveBeenCalled();
 		});
 

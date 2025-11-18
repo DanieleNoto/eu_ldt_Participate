@@ -22,27 +22,45 @@ module Decidim
         attribute :underage, ActiveRecord::Type::Boolean
         attribute :statutory_representative_email, String
 
+        # Account profile attributes
+        attribute :about, String
+        attribute :personal_url, String
+
         # EndBlock
 
         # Block ExtraUserFields Validations
 
         validates :country, presence: true, if: :country?
         validates :postal_code, presence: true, if: :postal_code?
+        validates :postal_code, length: { maximum: 50 }, if: :postal_code?
         validates :date_of_birth, presence: true, if: :date_of_birth?
-        validates :gender, presence: true, inclusion: { in: Decidim::ExtraUserFields::Engine::DEFAULT_GENDER_OPTIONS.map(&:to_s) }, if: :gender?
+        validates :gender, presence: true, if: :gender?
+        validates :gender, inclusion: { in: Decidim::ExtraUserFields::Engine::DEFAULT_GENDER_OPTIONS.map(&:to_s) }, if: :gender?
         validates :phone_number, presence: true, if: :phone_number?
+        validates :phone_number, length: { maximum: 100 }, if: :phone_number?
         validates(
           :phone_number,
-          format: { with: ->(form) { Regexp.new(form.current_organization.extra_user_field_configuration(:phone_number)["pattern"]) } },
+          format: { 
+            with: ->(form) { 
+              pattern = form.current_organization.extra_user_field_configuration(:phone_number)["pattern"]
+              pattern.present? ? Regexp.new(pattern) : /.*/ 
+            } 
+          },
           if: :phone_number_format?
         )
 
         validates :location, presence: true, if: :location?
+        validates :location, length: { maximum: 100 }, if: :location?
         validates :underage, presence: true, if: :underage?
+
+        # Account profile validations
+        validates :about, length: { maximum: 500 }, allow_blank: true
+        validates :personal_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: :invalid_url }, allow_blank: true
         validates :statutory_representative_email,
                   presence: true,
                   "valid_email_2/email": { disposable: true },
                   if: :underage_accepted?
+        validates :statutory_representative_email, length: { maximum: 100 }, if: :underage_accepted?
         validate :birth_date_under_limit
 
         # EndBlock

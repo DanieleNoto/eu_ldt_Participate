@@ -1,5 +1,5 @@
+allure-behave==2.15.0
 behave==1.2.6
-behave-html-formatter==0.9.10
 black==25.1.0
 commitizen==4.2.2
 coverage==7.6.11

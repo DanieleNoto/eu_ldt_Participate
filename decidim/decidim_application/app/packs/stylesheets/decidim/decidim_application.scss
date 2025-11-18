@@ -10,3 +10,24 @@
     color: #004494 !important;
     text-decoration: underline !important;
 }
+
+// Add hyphens to tab menu items for better text wrapping
+.tabs-title[role="menuitem"],
+.tabs-title[role="menuitem"] a {
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    word-wrap: break-word;
+}
+// Hide external link icon for help button in admin header
+.help-button,
+.ldt-admin-header a[target="_blank"] {
+    &::after,
+    &::before {
+        display: none !important;
+        content: none !important;
+    }
+}
+[data-dialog]>* {
+    --tw-translate-x: -50% !important;
+}

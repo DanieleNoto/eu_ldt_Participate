@@ -16,33 +16,26 @@ echo "Applying Analytics configurations..."
 
 # Apply Matomo configurations
 echo "Deploying Matomo..."
-echo "Creating Matomo ConfigMap and Secret..."
-kubectl apply -f "$SCRIPT_DIR/matomo/matomo-configmap.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/matomo/matomo-secret.yml" -n $NAMESPACE
+echo "Applying Matomo ConfigMap and Secret if present..."
+kubectl apply -f "$SCRIPT_DIR/matomo/matomo-configmap.yml" -n $NAMESPACE || true
+kubectl apply -f "$SCRIPT_DIR/matomo/matomo-secret.yml" -n $NAMESPACE || true
 
-echo "Creating Matomo PersistentVolumeClaims..."
-kubectl apply -f "$SCRIPT_DIR/matomo/matomo-pvc.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/matomo/matomo-db-pvc.yml" -n $NAMESPACE
-
-echo "Deploying Matomo Database..."
-kubectl apply -f "$SCRIPT_DIR/matomo/matomo-db-deployment.yml" -n $NAMESPACE
-
-echo "Deploying Matomo Application..."
-kubectl apply -f "$SCRIPT_DIR/matomo/matomo-service.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/matomo/matomo-deployment.yml" -n $NAMESPACE
+echo "Applying Matomo StatefulSets / Services..."
+# matomo uses statefulsets in this repo
+kubectl apply -f "$SCRIPT_DIR/matomo/matomo-db-statefulset.yaml" -n $NAMESPACE || true
+kubectl apply -f "$SCRIPT_DIR/matomo/matomo-statefulset.yaml" -n $NAMESPACE || true
+kubectl apply -f "$SCRIPT_DIR/matomo/matomo-service.yaml" -n $NAMESPACE || true
 
 # Apply Grafana configurations
 echo "Deploying Grafana..."
-echo "Creating Grafana ConfigMap and Secret..."
-kubectl apply -f "$SCRIPT_DIR/grafana/grafana-configmap.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/grafana/grafana-secret.yml" -n $NAMESPACE
+echo "Applying Grafana ConfigMap and Secret if present..."
+kubectl apply -f "$SCRIPT_DIR/grafana/grafana-configmap.yml" -n $NAMESPACE || true
+kubectl apply -f "$SCRIPT_DIR/grafana/grafana-secret.yml" -n $NAMESPACE || true
 
-echo "Creating Grafana PersistentVolumeClaim..."
-kubectl apply -f "$SCRIPT_DIR/grafana/grafana-pvc.yml" -n $NAMESPACE
-
-echo "Deploying Grafana Application..."
-kubectl apply -f "$SCRIPT_DIR/grafana/grafana-service.yml" -n $NAMESPACE
-kubectl apply -f "$SCRIPT_DIR/grafana/grafana-deployment.yml" -n $NAMESPACE
+echo "Applying Grafana StatefulSet / Service / Storage..."
+kubectl apply -f "$SCRIPT_DIR/grafana/grafana-storage.yaml" -n $NAMESPACE || true
+kubectl apply -f "$SCRIPT_DIR/grafana/grafana-statefulset.yaml" -n $NAMESPACE || true
+kubectl apply -f "$SCRIPT_DIR/grafana/grafana-service.yaml" -n $NAMESPACE || true
 
 echo "Analytics configuration completed!"
 echo "You can check the status with: kubectl -n $NAMESPACE get pods | grep -E 'matomo|grafana'"

@@ -3,7 +3,8 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"scripts": {
-		"test:ci": "cross-env ENV=ci npx playwright test",
+		"test:ci": "cross-env ENV=ci npx playwright test --grep-invert @useKeycloak  --project=admin-tests --project=user-tests --project=guest-tests",
+		"test:keycloak": "cross-env ENV=ci USE_KEYCLOAK=true npx playwright test -g @useKeycloak --project=admin-tests --project=user-tests",
 		"test:dev": "cross-env ENV=development npx playwright test",
 		"test:prod": "cross-env ENV=production npx playwright test",
 		"test-ui": "playwright test --ui",

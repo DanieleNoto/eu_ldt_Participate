@@ -1,4 +1,3 @@
-import { loadScopes } from '../../../src/models/entities/scopes';
 import { sequelize } from '../../../src/config/database';
 
 /**
@@ -8,11 +7,7 @@ export const setupDatabase = async () => {
 	sequelize.options.logging = false;
 	// Use force:true to drop tables and recreate them
 	await sequelize.sync({ force: true });
-
-	// Make sure scopes are loaded after tables are created
-	await loadScopes();
 };
-
 
 /**
  * Cleans up the test database without closing the connection

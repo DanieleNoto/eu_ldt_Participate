@@ -1,0 +1,35 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+README.md
+.nyc_output
+coverage
+test-results
+build
+*.log
+.DS_Store
+
+# Prevent env and secret files from being sent to Docker build context
+.env
+.env.*
+.env.local
+.env.*.local
+
+# Private keys, certs and other sensitive files
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+
+# Common IDE/editor and OS files
+.vscode
+.idea
+
+# Other sensitive/config files
+.pgpass
+credentials
+.secrets
+secrets

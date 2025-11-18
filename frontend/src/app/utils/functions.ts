@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { BlobWithHeaders } from '@app/core/api-client/useApiRequest';
-import { FileExportType } from '@app/shared/models/fileExportTypeEnum';
-
 /**
  * Return a unique id for HTML element
  * @returns string
@@ -38,27 +35,4 @@ export const transformObjectToArray = (input: Record<string, any>): any[] => {
 		}
 	});
 	return result;
-};
-
-/**
- * Handles the download of a file by creating an anchor element, setting its href to a blob URL,
- * and triggering a click event on it. After the download, it revokes the blob URL.
- *
- * @param {BlobWithHeaders} blobWithHeaders - The blob object containing the file data and headers.
- * @param {string} newFileId - The ID of the file to be downloaded.
- * @param {FileExportType} exportType - The type of file being downloaded (e.g., CSV, PDF).
- */
-export const handleDownloadAnchor = (
-	blobWithHeaders: BlobWithHeaders,
-	newFileId: string,
-	exportType: FileExportType,
-	prefixName: string = 'file'
-) => {
-	const url = window.URL.createObjectURL(blobWithHeaders.blob);
-	const a = document.createElement('a');
-	a.href = url;
-	a.download = `${prefixName}-${newFileId}.${exportType?.toLowerCase()}`;
-	a.click();
-	window.URL.revokeObjectURL(url);
-	// closeModal('sectionExportModal');
 };

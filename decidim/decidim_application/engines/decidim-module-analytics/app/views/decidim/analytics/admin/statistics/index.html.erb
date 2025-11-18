@@ -1,0 +1,126 @@
+<% add_decidim_page_title(t("decidim.admin.titles.statistics")) %>
+
+<style>
+  .statistics-iframe {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    display: block;
+  }
+
+  #grafana-container {
+    width: 100%;
+    margin: 20px 0;
+  }
+
+  #grafana-error {
+    margin: 20px 0;
+    padding: 15px;
+    border-left: 4px solid #f04124;
+    background: #fdeaea;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .statistics-toolbar {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+  }
+
+  .statistics-toolbar .button {
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+</style>
+
+<div class="card" id="statistics">
+  <div class="card-divider">
+    <h2 class="card-title">
+      <%= t "decidim.admin.titles.statistics" %>
+    </h2>
+  </div>
+
+  <div class="card-section">
+    <div class="statistics-toolbar">
+      <p><%= t("decidim.analytics.admin.statistics.description") %></p>
+      <div class="button-group">
+        <a href="<%= @grafana_url %>" target="_blank" class="button small secondary">
+          <%= t("decidim.analytics.admin.statistics.open_full_dashboard") %>
+        </a>
+        <button onclick="refreshDashboard()" class="button small">
+          <%= t("decidim.analytics.admin.statistics.refresh") %>
+        </button>
+      </div>
+    </div>
+
+    <div id="grafana-container">
+      <iframe id="grafana-iframe"
+              src="<%= @grafana_url %><%= @dashboard_path %>"
+              frameborder="0"
+              width="100%"
+              height="1000px"
+              class="statistics-iframe"
+              loading="lazy">
+      </iframe>
+      
+      <div id="grafana-error" style="display: none;" class="callout alert">
+        <p><strong><%= t("decidim.analytics.admin.statistics.unable_to_load") %></strong></p>
+        <p><%= t("decidim.analytics.admin.statistics.check_configuration") %></p>
+        <ul>
+          <li><%= t("decidim.analytics.admin.statistics.grafana_running", server: @grafana_url) %></li>
+          <li><%= t("decidim.analytics.admin.statistics.dashboards_configured") %></li>
+          <li><%= t("decidim.analytics.admin.statistics.network_connectivity") %></li>
+        </ul>
+        <p>
+          <%= t("decidim.analytics.admin.statistics.try_accessing") %>
+          <a href="<%= @grafana_url %>" target="_blank"><%= t("decidim.analytics.admin.statistics.grafana_directly") %></a>
+          <%= t("decidim.analytics.admin.statistics.verify_configuration") %>
+        </p>
+      </div>
+    </div>
+    
+    <script>
+      function refreshDashboard() {
+        var iframe = document.getElementById('grafana-iframe');
+        var currentSrc = iframe.src;
+        iframe.src = '';
+        setTimeout(function() {
+          iframe.src = currentSrc;
+        }, 100);
+      }
+      
+      document.getElementById('grafana-iframe').addEventListener('load', function() {
+        console.log('Grafana dashboard loaded successfully');
+        
+        // Hide error message if shown
+        var errorDiv = document.getElementById('grafana-error');
+        if (errorDiv) {
+          errorDiv.style.display = 'none';
+        }
+      });
+      
+      document.getElementById('grafana-iframe').addEventListener('error', function() {
+        console.error('Failed to load Grafana dashboard');
+        
+        var errorDiv = document.getElementById('grafana-error');
+        if (errorDiv) {
+          errorDiv.style.display = 'block';
+        }
+      });
+      
+      // Handle iframe loading timeout
+      setTimeout(function() {
+        var iframe = document.getElementById('grafana-iframe');
+        if (iframe.contentDocument && iframe.contentDocument.readyState !== 'complete') {
+          console.warn('Grafana dashboard loading timeout');
+          var errorDiv = document.getElementById('grafana-error');
+          if (errorDiv) {
+            errorDiv.style.display = 'block';
+          }
+        }
+      }, 10000); // 10 second timeout
+    </script>
+  </div>
+</div>

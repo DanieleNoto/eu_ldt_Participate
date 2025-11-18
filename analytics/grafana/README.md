@@ -2,6 +2,22 @@
 
 This directory contains the updated Grafana configuration for monitoring Decidim 0.30 analytics.
 
+## Custom Docker Image
+
+This directory now contains a Dockerfile that builds a custom Grafana image with pre-configured dashboards and data sources. The dashboard and provisioning files are directly baked into the image, eliminating the need for external volume mounts.
+
+Key benefits:
+
+- Self-contained image with all configurations
+- Easier deployment in Kubernetes
+- No dependency on persistent volume claims for configuration
+- Consistent dashboard setup across environments
+
+### Usage
+
+- For local development: Built via docker-compose
+- For integration/production: Built and pushed to ACR via Azure DevOps pipeline
+
 ## Recent Updates for Decidim 0.30
 
 - Fixed dashboard provisioning paths to work with the new Docker Compose setup
@@ -15,6 +31,7 @@ This directory contains the updated Grafana configuration for monitoring Decidim
 
 ```
 analytics/grafana/
+├── Dockerfile                   # Custom Grafana image definition
 ├── provisioning/
 │   ├── datasources/
 │   │   └── decidim.yml          # PostgreSQL datasource configuration (updated)
@@ -86,8 +103,6 @@ analytics/grafana/
 - **Host**: db:5432 (from Docker environment)
 - **Database**: decidim_application_development (from environment variables)
 - **User**: postgres (from environment variables)
-- **Password**: postgres (from environment variables)
-- **PostgreSQL Version**: 14+ (updated for Decidim 0.30 compatibility)
 
 ### Dashboard Improvements
 

@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
@@ -19,6 +26,7 @@ import { STORAGE_STATE } from '@utils/constants';
  * - Meetings are created and published by the City Administrator.
  *
  */
+
 test.beforeAll(async ({ browser }) => {
 	const context = await browser.newContext();
 	const page = await context.newPage();
@@ -39,28 +47,32 @@ test.describe('[PAR-EP001] – View all meetings related to specific process', (
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {
-		test('should allow user to endorse a debate', async () => {
+		test('Should allow user to view all events related to a specific process', async () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
 				await processesOverviewPage.getPage().waitForLoadState('networkidle');
-
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
-				await processesOverviewPage.navigateToProcessByIndex(0);
+				await processesOverviewPage.applyDateFilterAndEnsureGridLoaded('all');
+				await processesOverviewPage.checkProcessVisibility('Update Test0');
+				await processesOverviewPage.navigateToProcess('Update Test0', 'test');
+				await processesOverviewPage.getPage().waitForLoadState('networkidle');
 			});
-			await test.step('2. System: Displays the details of the selected process, including the title, description, phases, key objectives.', async () => {
+			await test.step('2. System: Displays the details of the selected process, including the title, description, phases.', async () => {
 				await processDetailPage.expectToBeOnProcessDetailPage();
+				await processDetailPage.verifyProcessDescriptionSection();
+				await processDetailPage.collectAndVerifyParticipatoryMenuItems();
+				await processDetailPage.openProcessSteps();
+				await processDetailPage.getProcessPhaseInfo();
 			});
 			await test.step('3. User: Navigate to the “Meetings” section of the process', async () => {
 				await processDetailPage.navigateToMeetingsPage();
 			});
 			await test.step('4. System: Displays a list of available meetings, including relevant details such as title, date, time, location, and availability.', async () => {
-				await meetingsPage.expectOnMeetingsPage();
+				await processDetailPage.enhancedVerifyMeetingsCardListVisible();
 			});
-
 			await test.step('Result.', async () => {
 				await meetingsPage.expectOnMeetingsPage();
-				await meetingsPage.clickMeetingCardByIndex(0);
 			});
 		});
 	});

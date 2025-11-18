@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Pierluigi Spedicato
+# Simone Bianchelli
+
 name: Tool3-Testing-DEV-$(date:yyyyMMdd)$(rev:.r)
 pool:
     vmImage: 'ubuntu-latest'
@@ -8,6 +14,7 @@ trigger:
 variables:
     - group: 'TOOL3 - PT'
     - group: 'TOOL3 - PT - KV'
+    - group: 'TOOL3 - PT - PERFORMANCE TESTS'
     - name: isMain
       value: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
@@ -87,57 +94,14 @@ jobs:
                 AUTO_TEST_DEVOPS_PAT: $(AUTO_TEST_DEVOPS_PAT)
             displayName: 'Publish Acceptance Results to Azure Test Plans'
 
-    - job: Pact_Test
-      dependsOn: PlaywrightAxeFrontend
-      displayName: 'Run Pact'
-      variables:
-          tag: '$(Build.BuildId)'
-          GIT_BRANCH: '$(Build.SourceBranchName)'
-      pool:
-          vmImage: ubuntu-latest
-      steps:
-          - task: UsePythonVersion@0
-            inputs:
-                versionSpec: '3.12'
-                addToPath: true
-                architecture: 'x64'
-            displayName: 'Install Python'
-
-          - script: |
-                pip install -r ./tests/requirements-dev.txt
-            displayName: 'Install tool dependencies'
-
-          - task: UseNode@1
-            inputs:
-                version: '22.14'
-            displayName: 'Install Node.js'
-
-          - script: |
-                npm install
-            displayName: 'Install tool dependencies'
-
-          - script: |
-                curl -fsSL https://raw.githubusercontent.com/pact-foundation/pact-ruby-standalone/master/install.sh | PACT_CLI_VERSION=v2.4.24 bash
-                PATH=~/pact/bin/:${PATH}
-            displayName: 'Install pact cli'
-
-          - script: |
-                cd tests/contract
-                npm i
-                npm run test:contract
-                npm run test:provider
-                npx pact-broker publish pacts --broker-base-url $(PACT_SERVER) --consumer-app-version=$(tag) --branch $(GIT_BRANCH)
-            displayName: 'Run and publish Pact test'
-
     - job: PerformanceTests
-      dependsOn: Pact_Test
       displayName: Service Load Test
       steps:
           - task: replacetokens@5
-            displayName: 'Replace tokens Locust'
+            displayName: 'Replace tokens Locust config'
             inputs:
                 rootDirectory: tests/performance/
-                targetFiles: locust.conf
+                targetFiles: locust_config.json
                 tokenPattern: custom
                 tokenPrefix: _%
                 tokenSuffix: '%_'
@@ -157,12 +121,17 @@ jobs:
             displayName: 'Install locust dependencies'
 
           - script: |
-                locust --headless -u 100 --run-time 10m --config tests/performance/locust.conf
+                mkdir -p tests/performance/results
+            displayName: 'Create results directory'
+
+          - script: |
+                cd tests/performance
+                locust --config locust.conf
             displayName: 'Run load test'
 
           - task: PublishPipelineArtifact@1
             inputs:
-                targetPath: 'locust_results_file.html'
+                targetPath: 'tests/performance/results/locust_results_file.html'
                 artifactName: 'LocustResults'
             condition: succeededOrFailed()
             displayName: 'Save results'

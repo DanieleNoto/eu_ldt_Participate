@@ -24,5 +24,29 @@ module DecidimApplication
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    
+    # JSON Logging for ELK Stack
+    if ENV['ENABLE_JSON_LOGS'].present? && ENV['ENABLE_JSON_LOGS'] != 'false'
+      # Load custom JSON formatter
+      require_relative '../lib/json_log_formatter'
+      
+      # Configure logger to use JSON formatter for ALL logs
+      config.log_formatter = JsonLogFormatter.new
+      
+      # Also configure lograge for HTTP request logs
+      config.lograge.enabled = true
+      config.lograge.formatter = Lograge::Formatters::Json.new
+      config.lograge.custom_options = lambda do |event|
+        {
+          time: event.time,
+          remote_ip: event.payload[:remote_ip],
+          user_id: event.payload[:user_id],
+          params: event.payload[:params].except('controller', 'action', 'format', 'utf8', 'authenticity_token')
+        }
+      end
+    else
+      # Standard text logging (development default)
+      config.lograge.enabled = false
+    end
   end
 end

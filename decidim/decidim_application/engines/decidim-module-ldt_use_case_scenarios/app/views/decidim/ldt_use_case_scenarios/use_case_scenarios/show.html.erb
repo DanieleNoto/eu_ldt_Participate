@@ -1,0 +1,115 @@
+<% add_decidim_meta_tags(
+  description: @use_case_scenario.experiment_data&.dig('description'),
+  title: decidim_escape_translated(@use_case_scenario.name),
+  url: use_case_scenario_url(@use_case_scenario)
+) %>
+
+<div style="padding: 2rem;">
+  <div class="row">
+    <div class="columns large-12">
+      <%= link_to use_case_scenarios_path, class: "button button--sc small hollow" do %>
+        ← <%= t(".back_to_list") %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row" style="margin: 1rem 1rem 2rem 0;">
+    <div class="columns large-12">
+      <span class="section-heading decorator" style="font-size: 32px;"><%= @use_case_scenario.name %></span>
+    </div>
+  </div>
+
+  <!-- AI Transparency Disclaimer -->
+  <div class="row">
+    <div class="columns large-12">
+      <div class="callout warning" style="margin-bottom: 2rem;">
+        <p>
+          <strong><%= t("decidim.ldt_use_case_scenarios.use_case_scenarios.show.transparency_disclaimer") %></strong>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <% if @use_case_scenario.experiment_data.present? %>
+    <div class="row">
+      <div class="columns large-12">
+        <div class="card">
+          <div class="card__content">
+            <% if @use_case_scenario.experiment_data['id'].present? %>
+              <div class="definition-data">
+                <span class="definition-data__title"><%= t(".experiment_id") %></span>
+                <span class="definition-data__text"><%= @use_case_scenario.experiment_data['id'] %></span>
+              </div>
+            <% end %>
+            
+            <% if @use_case_scenario.experiment_data['description'].present? %>
+              <div class="section" style="margin-top: 1.5rem;">
+                <%= simple_format(@use_case_scenario.experiment_data['description']) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<div class="row">
+  <div class="columns large-12" style="margin: 1rem;">
+    <div class="card" style="margin-top: 2rem;">
+      <div class="card__content">
+        <h3 class="card__title"><%= t(".title") %></h3>
+        <div class="experiment-iframe-container" 
+             data-experiment-data="<%= @use_case_scenario.experiment_data.to_json %>"
+             data-iframe-url="<%= @tool2_iframe_url %>"
+             style="margin-top: 1rem;">
+          <iframe 
+            id="experiment-iframe"
+            src="<%= @tool2_iframe_url %>"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            style="width: 100%; height: 800px; border: 1px solid #e8e8e8; border-radius: 4px;">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Inline script for postMessage handling
+(function() {
+  const container = document.querySelector('[data-experiment-data]');
+  
+  if (!container) {
+    return;
+  }
+
+  const iframe = document.getElementById('experiment-iframe');
+  const experimentData = JSON.parse(container.dataset.experimentData || '{}');
+
+  function sendExperimentData() {
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({
+        type: 'FROM_PARENT',
+        payload: experimentData
+      }, '<%= @tool2_iframe_url %>');
+    }
+  }
+
+  iframe.addEventListener('load', function() {
+    setTimeout(sendExperimentData, 500);
+  });
+
+  window.addEventListener('message', function(event) {
+    if (event.origin !== '<%= URI.parse(@tool2_iframe_url).origin %>') {
+      return;
+    }
+
+    if (event.data.type === 'REQUEST_EXPERIMENT_DATA') {
+      sendExperimentData();
+    }
+  });
+})();
+</script>

@@ -23,6 +23,25 @@ npm run test     # Run unit tests
 
 The API documentation is available at: **[http://localhost:3000/documentation](http://localhost:3000/documentation)**
 
+## 🔧 Environment Configuration
+
+The application uses environment variables for configuration. Copy `.env.example` to `.env` and customize the values as needed.
+
+### Key Environment Variables:
+
+- `PORT`: Server port (default: 3000)
+- `NODE_ENV`: Environment mode (development, production, test)
+- `CORS_ORIGINS`: Comma-separated list of allowed CORS origins (default: http://localhost:5001,http://localhost:3000)
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT_ENABLE_CHECK`: Enable/disable JWT validation
+- `LOGGER_LEVEL`: Logging level (error, warn, info, debug, trace)
+
+Example:
+
+```bash
+CORS_ORIGINS=http://localhost:5001,http://localhost:3000,https://yourdomain.com
+```
+
 ## 🚀 Commit Conventions
 
 This project follows Conventional Commits:

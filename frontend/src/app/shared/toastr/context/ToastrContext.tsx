@@ -35,7 +35,7 @@ const initialState: ToastrState = {
 	toastr: new Map<string, ToastrProps>()
 };
 
-const ToastrContext = createContext<ToastrContext>({} as ToastrContext);
+const ToastrContext = createContext<ToastrContext | undefined>(undefined);
 
 const ToastrReducer: (state: ToastrState, action: Action<ToastrActionType>) => ToastrState = (
 	state: ToastrState,
@@ -43,17 +43,19 @@ const ToastrReducer: (state: ToastrState, action: Action<ToastrActionType>) => T
 ) => {
 	switch (action.type) {
 		case 'showToastr': {
-			const updatedToasts = state.toastr.set(action.payload.uuid, action.payload.toastr);
+			const newToasts = new Map(state.toastr);
+			newToasts.set(action.payload.uuid, action.payload.toastr);
 			return {
 				...state,
-				toastr: updatedToasts
+				toastr: newToasts
 			};
 		}
 		case 'hideToastr': {
-			state.toastr.delete(action.payload.uuid);
+			const newToasts = new Map(state.toastr);
+			newToasts.delete(action.payload.uuid);
 			return {
 				...state,
-				toastr: state.toastr
+				toastr: newToasts
 			};
 		}
 		default: {
@@ -80,7 +82,7 @@ const ToastrProvider: ({ children }: { children: ReactNode }) => JSX.Element = (
 const useToastrState = () => {
 	const context = useContext(ToastrContext);
 	if (context === undefined) {
-		throw new Error('useCount must be used within a CountProvider');
+		throw new Error('useToastrState must be used within a ToastrProvider');
 	}
 	return context;
 };
