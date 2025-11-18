@@ -27,8 +27,8 @@ data:
     [OUTPUT]
         Name        loki
         Match       *
-        Host        50.85.88.150
-        Port        3100
+        Host        57.153.120.144
+        Port        9999
         URI         /loki/api/v1/push
         Labels      job="app"
         Line_Format  json
