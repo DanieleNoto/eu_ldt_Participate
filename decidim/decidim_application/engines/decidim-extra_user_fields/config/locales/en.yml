@@ -1,147 +1,153 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
+# Simone Bianchelli
 ---
 en:
-  activemodel:
-    attributes:
-      user:
-        country: Country
-        date_of_birth: Date of birth
-        gender: Gender
-        location: Location
-        phone_number: Phone Number
-        postal_code: Postal code
-        personal_url: Personal URL
-        statutory_representative_email: Representative email
-        underage: Underage
-    errors:
-      models:
-        user:
-          attributes:
-            date_of_birth:
-              future_date: cannot be in the future
-              underage: invalid. If you are underage, you must obtain parental authorization
-            phone_number:
-              invalid: is not a valid phone number format
-              too_long: is too long (maximum is 100 characters)
-            postal_code:
-              too_long: is too long (maximum is 50 characters)
-            location:
-              too_long: is too long (maximum is 100 characters)
-            statutory_representative_email:
-              too_long: is too long (maximum is 100 characters)
-            personal_url:
-              invalid_url: Is not a valid URL (must start with http:// or https://)
-              invalid: Is not a valid URL (must start with http:// or https://)
-            password:
-              too_short: Is too short (minimum is 8 characters)
-              too_common: Is too common - please choose a more secure password
-              name_included_in_password: Is too similar to your name
-              email_included_in_password: Is too similar to your email
-              nickname_included_in_password: Is too similar to your nickname
-              not_enough_unique_characters: Does not have enough unique characters
-            old_password:
-              invalid: is not correct - please verify your current password
-  password_validator:
-    denied: Is denied
-    domain_included_in_password: Is too similar to this domain name
-    email_included_in_password: Is too similar to your email
-    fallback: Is not valid
-    name_included_in_password: Is too similar to your name
-    nickname_included_in_password: Is too similar to your nickname
-    not_enough_unique_characters: Does not have enough unique characters
-    password_not_allowed: Is not allowed
-    password_repeated: Cannot reuse old password
-    password_too_common: Is too common - please choose a more secure password
-    password_too_long: Is too long
-    password_too_short: Is too short (minimum is 8 characters)
-  decidim:
-    devise:
-      shared:
-        password_fields:
-          password_requirements: "15 characters minimum, must not be too common (e.g. 123456), must be different from your nickname and your email and must be different from your old passwords."
-          show_password: Show password
-          hide_password: Hide password
-          hidden_password: Password hidden
-          shown_password: Password shown
-    account:
-      show:
-        personal_url_help_text: Must start with http:// or https://
-    admin:
-      extra_user_fields:
-        menu:
-          title: Manage extra user fields
-    components:
-      extra_user_fields:
-        name: ExtraUserFields
-    extra_user_fields:
-      admin:
-        exports:
-          users: Participants
-        extra_user_fields:
-          fields:
-            country:
-              description: This field is a list of countries. If checked, user will
-                have to choose a country
-              label: Enable country field
-            date_of_birth:
-              description: This field is a Date field. If checked, user will have
-                to register a birth date by using a Date picker
-              label: Enable date of birth field
-            gender:
-              description: This field is a list of genders. If checked, user will
-                have to choose a gender
-              label: Enable gender field
-            location:
-              description: This field is a String field. If checked, user will have
-                to fill in a location
-              label: Enable location field
-            phone_number:
-              description: This field is a telephone field. If checked, user will
-                have to fill in a phone number
-              label: Enable phone number field
-              pattern: Phone numbers validation pattern (regexp)
-              pattern_help_html: Copy this regular expression <code class="label">^(\+34|0034|34)?[
-                -]*[6-9][ -]*([0-9][ -]*){8}$</code> to validate this phone format
-                +34999111222. You can review and check the regular expression <a href="https://rubular.com/r/dJZGjlLIadxElo"
-                target="_blank">here</a>.
-              placeholder: Phone number placeholder
-            postal_code:
-              description: This field is a String field. If checked, user will have
-                to fill in a postal code
-              label: Enable postal code field
-            underage:
-              description: This field is a Boolean field. User will be able to check
-                if is underage
-              label: Enable parental authorization field
-              limit: This sets the age limit (ex. 18 years old)
-          form:
-            callout:
-              help: Enable custom extra user fields functionality to be able to manage
-                extra fields in your signup form. Even if option is checked, signup
-                form will be updated only if there is at least one extra field enabled
+    activemodel:
+        attributes:
+            user:
+                country: Country
+                date_of_birth: Date of birth
+                gender: Gender
+                location: Location
+                phone_number: Phone Number
+                postal_code: Postal code
+                personal_url: Personal URL
+                statutory_representative_email: Representative email
+                underage: Underage
+        errors:
+            models:
+                user:
+                    attributes:
+                        date_of_birth:
+                            future_date: cannot be in the future
+                            underage: invalid. If you are underage, you must obtain parental authorization
+                        phone_number:
+                            invalid: is not a valid phone number format
+                            too_long: is too long (maximum is 100 characters)
+                        postal_code:
+                            too_long: is too long (maximum is 50 characters)
+                        location:
+                            too_long: is too long (maximum is 100 characters)
+                        statutory_representative_email:
+                            too_long: is too long (maximum is 100 characters)
+                        personal_url:
+                            invalid_url: Is not a valid URL (must start with http:// or https://)
+                            invalid: Is not a valid URL (must start with http:// or https://)
+                        password:
+                            too_short: Is too short (minimum is 8 characters)
+                            too_common: Is too common - please choose a more secure password
+                            name_included_in_password: Is too similar to your name
+                            email_included_in_password: Is too similar to your email
+                            nickname_included_in_password: Is too similar to your nickname
+                            not_enough_unique_characters: Does not have enough unique characters
+                        old_password:
+                            invalid: is not correct - please verify your current password
+    password_validator:
+        denied: Is denied
+        domain_included_in_password: Is too similar to this domain name
+        email_included_in_password: Is too similar to your email
+        fallback: Is not valid
+        name_included_in_password: Is too similar to your name
+        nickname_included_in_password: Is too similar to your nickname
+        not_enough_unique_characters: Does not have enough unique characters
+        password_not_allowed: Is not allowed
+        password_repeated: Cannot reuse old password
+        password_too_common: Is too common - please choose a more secure password
+        password_too_long: Is too long
+        password_too_short: Is too short (minimum is 8 characters)
+    decidim:
+        devise:
+            shared:
+                password_fields:
+                    password_requirements: '15 characters minimum, must not be too common (e.g. 123456), must be different from your nickname and your email and must be different from your old passwords.'
+                    show_password: Show password
+                    hide_password: Hide password
+                    hidden_password: Password hidden
+                    shown_password: Password shown
+        account:
+            show:
+                personal_url_help_text: Must start with http:// or https://
+        admin:
             extra_user_fields:
-              extra_user_fields_enabled: Enable extra user fields
-              section: Available extra fields for signup form
-            global:
-              title: Activate / deactivate functionality
-          index:
-            save: Save configuration
-            title: Manage extra user fields
-          update:
-            failure: An error occurred on update
-            success: Extra user fields correctly updated in organization
-      genders:
-        female: Female
-        male: Male
-        other: Other
-      registration_form:
-        signup:
-          legend: More information
-          underage: I am under %{limit} years old and I agree to get a parental authorization
-    statutory_representative:
-      inform:
-        body: |
-          Hello,
-          You have been designated as the legal representative of %{name} for their registration with %{organization}.
-          Best regards,
-          The %{organization} Team
-        subject: You have been designated as the legal representative
+                menu:
+                    title: Manage extra user fields
+        components:
+            extra_user_fields:
+                name: ExtraUserFields
+        extra_user_fields:
+            admin:
+                exports:
+                    users: Participants
+                extra_user_fields:
+                    fields:
+                        country:
+                            description: This field is a list of countries. If checked, user will
+                                have to choose a country
+                            label: Enable country field
+                        date_of_birth:
+                            description: This field is a Date field. If checked, user will have
+                                to register a birth date by using a Date picker
+                            label: Enable date of birth field
+                        gender:
+                            description: This field is a list of genders. If checked, user will
+                                have to choose a gender
+                            label: Enable gender field
+                        location:
+                            description: This field is a String field. If checked, user will have
+                                to fill in a location
+                            label: Enable location field
+                        phone_number:
+                            description: This field is a telephone field. If checked, user will
+                                have to fill in a phone number
+                            label: Enable phone number field
+                            pattern: Phone numbers validation pattern (regexp)
+                            pattern_help_html: Copy this regular expression <code class="label">^(\+34|0034|34)?[
+                                -]*[6-9][ -]*([0-9][ -]*){8}$</code> to validate this phone format
+                                +34999111222. You can review and check the regular expression <a href="https://rubular.com/r/dJZGjlLIadxElo"
+                                target="_blank">here</a>.
+                            placeholder: Phone number placeholder
+                        postal_code:
+                            description: This field is a String field. If checked, user will have
+                                to fill in a postal code
+                            label: Enable postal code field
+                        underage:
+                            description: This field is a Boolean field. User will be able to check
+                                if is underage
+                            label: Enable parental authorization field
+                            limit: This sets the age limit (ex. 18 years old)
+                    form:
+                        callout:
+                            help: Enable custom extra user fields functionality to be able to manage
+                                extra fields in your signup form. Even if option is checked, signup
+                                form will be updated only if there is at least one extra field enabled
+                        extra_user_fields:
+                            extra_user_fields_enabled: Enable extra user fields
+                            section: Available extra fields for signup form
+                        global:
+                            title: Activate / deactivate functionality
+                    index:
+                        save: Save configuration
+                        title: Manage extra user fields
+                    update:
+                        failure: An error occurred on update
+                        success: Extra user fields correctly updated in organization
+            genders:
+                female: Female
+                male: Male
+                other: Other
+            registration_form:
+                signup:
+                    legend: More information
+                    underage: I am under %{limit} years old and I agree to get a parental authorization
+        statutory_representative:
+            inform:
+                body: |
+                    Hello,
+                    You have been designated as the legal representative of %{name} for their registration with %{organization}.
+                    Best regards,
+                    The %{organization} Team
+                subject: You have been designated as the legal representative
