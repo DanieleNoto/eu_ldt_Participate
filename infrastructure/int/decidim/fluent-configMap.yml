@@ -13,7 +13,8 @@ data:
 
     [INPUT]
         Name        tail
-        Path        /code/log/app.log
+        Path        /code/log/*.log
+        Path_Key    filename
         Tag         app.log
         DB          /code/log/flb_kube.db
         Refresh_Interval 5
