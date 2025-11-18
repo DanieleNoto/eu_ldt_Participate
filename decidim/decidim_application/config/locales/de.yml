@@ -56,9 +56,128 @@ de:
                     tos_agreement: Mit der Anmeldung stimmen Sie %{link} zu.
                     tos_title: Datenschutzrichtlinie
         download_your_data:
-            help:
-                users:
+          help:
+              follows:
+                    created_at: Datum und Uhrzeit, zu der das Follow erstellt wurde
+                    followable: Die Ressource oder der Bereich, dem gefolgt wird
+                    id: Die eindeutige Kennung dieses Follows
+                    updated_at: Datum und Uhrzeit der letzten Aktualisierung des Follows
+              identities:
+                    created_at: Datum und Uhrzeit, zu der diese Identität erstellt wurde
+                    id: Die eindeutige Kennung dieser Identität
+                    provider: Der Anbieter dieser Identität
+                    uid: Die eindeutige Kennung dieser Identität
+                    updated_at: Datum und Uhrzeit der letzten Aktualisierung dieser Identität
+                    user: Der Benutzer, zu dem diese Identität gehört
+              messaging_conversations:
+                    created_at: Das Datum, an dem dieses Gespräch erstellt wurde
+                    id: Die eindeutige Kennung dieses Gesprächs
+                    messages: Die Nachrichten dieses Gesprächs
+                    updated_at: Das Datum der letzten Aktualisierung dieses Gesprächs
+              notifications:
+                    created_at: Datum und Uhrzeit, zu der die Benachrichtigung erstellt wurde
+                    event_class: Die Klasse des Ereignisses, das die Benachrichtigung ausgelöst hat
+                    event_name: Der Name des Ereignisses, das die Benachrichtigung ausgelöst hat
+                    extra: Zusätzliche Informationen zu dieser Benachrichtigung
+                    id: Die eindeutige Kennung dieser Benachrichtigung
+                    resource_type: Der Ressourcentyp, auf den sich die Benachrichtigung bezieht
+                    updated_at: Datum und Uhrzeit der letzten Aktualisierung dieser Benachrichtigung
+              participatory_space_private_users:
+                    created_at: Datum und Uhrzeit der Erstellung dieses privaten Nutzers
+                    id: Die eindeutige Kennung dieses privaten Nutzers
+                    privatable_to: Der Bereich, zu dem dieser private Nutzer gehört
+                    published: Ob dieser private Nutzer veröffentlicht ist oder nicht
+                    role: Die Rolle dieses privaten Nutzers
+                    updated_at: Datum und Uhrzeit der letzten Aktualisierung dieses privaten Nutzers
+              reports:
+                    created_at: Datum und Uhrzeit der Erstellung dieses Berichts
+                    details: Die Details dieses Berichts
+                    id: Die eindeutige Kennung dieses Berichts
+                    locale: Die Sprache dieses Berichts
+                    reason: Der Grund für diesen Bericht
+                    updated_at: Datum und Uhrzeit der letzten Aktualisierung dieses Berichts
+                    moderation: Die Moderation, die diesem Bericht zugeordnet ist
+              user_groups:
+                    document_number: Die Dokumentennummer dieser Benutzergruppe
+                    id: Die eindeutige Kennung dieser Benutzergruppe
+                    name: Der Name dieser Benutzergruppe
+                    phone: Die Telefonnummer dieser Benutzergruppe
+                    verified_at: Datum und Uhrzeit, zu denen diese Benutzergruppe verifiziert wurde
+              users:
                     accepted_tos_version: Das Datum, an dem der Nutzer die Datenschutzrichtlinie dieser Plattform akzeptiert hat
+                    deleted_at: Datum und Uhrzeit, zu denen dieser Nutzer gelöscht wurde
+                    email: Die E-Mail-Adresse dieses Nutzers
+                    followers_count: Die Anzahl der Teilnehmer, die diesem Nutzer folgen
+                    following_count: Die Anzahl der Teilnehmer, denen dieser Nutzer folgt
+                    id: Die eindeutige Kennung dieses Nutzers
+                    invitations_count: Die Anzahl der Einladungen, die dieser Nutzer gesendet hat
+                    invited_by: Der Nutzer, der diesen Nutzer eingeladen hat
+                    last_sign_in_at: Datum und Uhrzeit der letzten Anmeldung
+                    last_sign_in_ip: Die IP-Adresse der letzten Anmeldung
+                    locale: Die vom Nutzer ausgewählte Sprache
+                    nickname: Der Spitzname des Nutzers
+                    password_updated_at: Das Datum der letzten Passwortänderung
+                    roles: Die Rolle dieses Nutzers, falls vorhanden
+                    type: Der Typ dieses Nutzers
+                    about: Die Biografie dieses Nutzers
+                    admin: Ob dieser Nutzer Administrator ist
+                    confirmation_sent_at: Datum und Uhrzeit, zu denen die Bestätigung gesendet wurde
+                    confirmed_at: Datum und Uhrzeit, zu denen dieser Nutzer bestätigt wurde
+                    created_at: Datum und Uhrzeit, zu denen dieser Nutzer erstellt wurde
+                    current_sign_in_at: Datum und Uhrzeit der aktuellen Anmeldung
+                    current_sign_in_ip: Die IP-Adresse der aktuellen Anmeldung
+                    delete_reason: Der angegebene Grund für die Löschung dieses Nutzers
+                    invitation_accepted_at: Datum und Uhrzeit, zu denen die Einladung akzeptiert wurde
+                    invitation_created_at: Datum und Uhrzeit, zu denen die Einladung erstellt wurde
+                    invitation_sent_at: Datum und Uhrzeit, zu denen die Einladung gesendet wurde
+                    managed: Ob dieser Nutzer von einem anderen Nutzer verwaltet wird
+                    name: Der Name dieses Nutzers
+                    newsletter_notifications_at: Datum und Uhrzeit, zu denen der Nutzer zuletzt den Newsletter erhalten hat
+                    notification_settings: Die vom Nutzer ausgewählten Benachrichtigungseinstellungen
+                    notifications_sending_frequency: Die Häufigkeit, mit der dieser Nutzer Benachrichtigungen erhält
+                    officialized_as: Die Bezeichnung der offiziellen Rolle (Berater, Bürgermeister usw.)
+                    officialized_at: Datum und Uhrzeit, zu denen dieser Nutzer offiziell bestätigt wurde
+                    organization: Die Organisation, zu der dieser Nutzer gehört
+                    personal_url: Die persönliche URL dieses Nutzers
+                    remember_created_at: Datum und Uhrzeit, zu denen die „angemeldet bleiben“-Option aktiviert wurde
+                    reset_password_sent_at: Datum und Uhrzeit, zu denen die Passwortzurücksetzung gesendet wurde
+                    sign_in_count: Die Anzahl der Anmeldungen dieses Nutzers
+                    unconfirmed_email: Die E-Mail-Adresse, die dieser Nutzer noch nicht bestätigt hat
+                    updated_at: Datum und Uhrzeit der letzten Aktualisierung dieses Nutzers
+              comment_votes:
+                    comment: Die ID des kommentierten Beitrags
+                    created_at: Das Datum, an dem diese Stimme erstellt wurde
+                    id: Die ID der Stimme
+                    updated_at: Das Datum der letzten Aktualisierung dieser Stimme
+                    weight: Das Gewicht der Stimme (1 für positiv, -1 für negativ)
+              comments:
+                    alignment: Ob dieser Kommentar dafür, dagegen oder neutral war
+                    author: Der Name des Teilnehmers, der diesen Kommentar erstellt hat
+                    body: Der Kommentar selbst
+                    commentable_id: Die eindeutige ID des kommentierten Elements
+                    commentable_type: Der Typ des kommentierten Elements (Ergebnis, Vorschlag usw.)
+                    created_at: Das Datum, an dem dieser Kommentar erstellt wurde
+                    depth: Die Position dieses Kommentars im Kommentarbaum
+                    id: Die ID dieses Kommentars
+                    locale: Die Sprache des Teilnehmers beim Schreiben dieses Kommentars
+                    root_commentable_url: Die URL der Ressource, mit der dieser Kommentar verknüpft ist
+                    user_group: Der Name der Benutzergruppe, die diesen Kommentar erstellt hat (falls vorhanden)
+          show:
+              action: Aktion
+              download: Datei herunterladen
+              download_data: Daten herunterladen
+              download_data_description_1: Hier findest du alle für dein Konto verfügbaren Downloads. Diese .zip-Dateien bleiben zwei Wochen lang verfügbar, bevor sie gelöscht werden.
+              download_data_description_2: Du kannst eine .zip-Datei mit deinen Beiträgen und persönlichen Daten anfordern.
+              download_your_data: Persönliche Daten
+              expiration: Ablauf
+              expired: Bereits abgelaufen
+              explanation:
+                    body_1: Diese Dateien sind Datensätze, die aus deiner Aktivität auf dieser Plattform exportiert wurden, wie Vorschläge oder Kommentare. Sie enthalten rohe, strukturierte Daten, die für Analyse, Forschung oder die Integration in andere Tools verwendet werden können.
+                    body_2: Diese Dateien liegen im CSV-Format (Comma-Separated Values) vor, einem weit verbreiteten Format, das von vielen Anwendungen unterstützt wird, darunter Tabellenkalkulationen, Texteditoren und Datenanalysetools.
+                    title: Was sind diese Dateien?
+              files_to_download: Herunterzuladende Dateien
+              request_data: Anfordern
+              type: Download-Type
         pages:
             privacy_policy:
                 accept:

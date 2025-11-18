@@ -57,8 +57,127 @@ es:
                     tos_title: Política de privacidad
         download_your_data:
             help:
-                users:
+                follows:
+                    created_at: La fecha y hora en que se creó el seguimiento
+                    followable: El recurso o espacio que se está siguiendo
+                    id: El identificador único de este seguimiento
+                    updated_at: La fecha y hora de la última actualización del seguimiento
+                identities:
+                    created_at: La fecha y hora en que se creó esta identidad
+                    id: El identificador único de esta identidad
+                    provider: El proveedor de esta identidad
+                    uid: El identificador único de esta identidad
+                    updated_at: La fecha y hora de la última actualización de esta identidad
+                    user: El usuario al que pertenece esta identidad
+            messaging_conversations:
+                    created_at: La fecha en que se creó esta conversación
+                    id: El identificador único de esta conversación
+                    messages: Los mensajes de esta conversación
+                    updated_at: La fecha en que se actualizó por última vez esta conversación
+            notifications:
+                    created_at: La fecha y hora en que se creó la notificación
+                    event_class: La clase del evento que generó la notificación
+                    event_name: El nombre del evento que generó la notificación
+                    extra: Información adicional sobre esta notificación
+                    id: El identificador único de esta notificación
+                    resource_type: El tipo de recurso relacionado con esta notificación
+                    updated_at: La fecha y hora de la última actualización de esta notificación
+            participatory_space_private_users:
+                    created_at: La fecha y hora de creación de este usuario privado
+                    id: El identificador único de este usuario privado
+                    privatable_to: El espacio al que pertenece este usuario privado
+                    published: Si este usuario privado está publicado o no
+                    role: El rol de este usuario privado
+                    updated_at: La fecha y hora de la última actualización de este usuario privado
+            reports:
+                    created_at: La fecha y hora en que se creó este reporte
+                    details: Los detalles de este reporte
+                    id: El identificador único de este reporte
+                    locale: El idioma de este reporte
+                    reason: La razón de este reporte
+                    updated_at: La fecha y hora de la última actualización de este reporte
+                    moderation: La moderación asociada a este reporte
+            user_groups:
+                    document_number: El número de documento de este grupo de usuarios
+                    id: El identificador único de este grupo de usuarios
+                    name: El nombre de este grupo de usuarios
+                    phone: El número de teléfono de este grupo de usuarios
+                    verified_at: La fecha y hora en que se verificó este grupo de usuarios
+            users:
                     accepted_tos_version: La fecha en que el usuario aceptó la política de privacidad de esta plataforma
+                    deleted_at: La fecha y hora en que este usuario fue eliminado
+                    email: La dirección de correo electrónico de este usuario
+                    followers_count: La cantidad de participantes que siguen a este usuario
+                    following_count: La cantidad de participantes que este usuario sigue
+                    id: El identificador único de este usuario
+                    invitations_count: La cantidad de invitaciones enviadas por este usuario
+                    invited_by: El usuario que invitó a este usuario
+                    last_sign_in_at: La fecha y hora del último inicio de sesión
+                    last_sign_in_ip: La dirección IP del último inicio de sesión
+                    locale: El idioma seleccionado por este usuario
+                    nickname: El apodo del usuario
+                    password_updated_at: La fecha de la última actualización de la contraseña
+                    roles: El rol de este usuario si tiene uno
+                    type: El tipo de este usuario
+                    about: La biografía de este usuario
+                    admin: Si este usuario es administrador
+                    confirmation_sent_at: La fecha y hora en que se envió la confirmación
+                    confirmed_at: La fecha y hora en que este usuario fue confirmado
+                    created_at: La fecha y hora en que se creó este usuario
+                    current_sign_in_at: La fecha y hora del inicio de sesión actual
+                    current_sign_in_ip: La dirección IP del inicio de sesión actual
+                    delete_reason: La razón dada para eliminar este usuario
+                    invitation_accepted_at: La fecha y hora en que se aceptó la invitación
+                    invitation_created_at: La fecha y hora en que se creó la invitación
+                    invitation_sent_at: La fecha y hora en que se envió la invitación
+                    managed: Si este usuario es gestionado por otro usuario
+                    name: El nombre de este usuario
+                    newsletter_notifications_at: La fecha y hora de la última recepción del boletín informativo
+                    notification_settings: La configuración de notificaciones seleccionada por este usuario
+                    notifications_sending_frequency: La frecuencia con la que este usuario recibe notificaciones
+                    officialized_as: El nombre de la oficialización (Consejal, Alcalde, etc.)
+                    officialized_at: La fecha y hora en que este usuario fue oficializado
+                    organization: La organización a la que pertenece este usuario
+                    personal_url: La URL personal de este usuario
+                    remember_created_at: La fecha y hora en que se activó la opción de recordar al usuario
+                    reset_password_sent_at: La fecha y hora en que se envió la recuperación de contraseña
+                    sign_in_count: La cantidad de veces que este usuario ha iniciado sesión
+                    unconfirmed_email: La dirección de correo electrónico que aún no ha sido confirmada
+                    updated_at: La fecha y hora de la última actualización de este usuario
+            comment_votes:
+                    comment: El ID del comentario votado
+                    created_at: La fecha en que se creó este voto
+                    id: El ID del voto
+                    updated_at: La fecha en que se actualizó por última vez este voto
+                    weight: El peso del voto (1 para positivo, -1 para negativo)
+            comments:
+                    alignment: Si este comentario fue a favor, en contra o neutral
+                    author: El nombre del participante que hizo este comentario
+                    body: El comentario
+                    commentable_id: El ID único del recurso comentado
+                    commentable_type: El tipo del recurso comentado (resultado, propuesta, etc.)
+                    created_at: La fecha en que se creó este comentario
+                    depth: La posición del comentario en el árbol de comentarios (respuesta o subrespuesta)
+                    id: El ID de este comentario
+                    locale: El idioma que tenía el participante al escribir este comentario
+                    root_commentable_url: La URL del recurso relacionado con este comentario
+                    user_group: El nombre del grupo de usuarios que hizo este comentario (si lo hay)
+            show:
+                    action: Acción
+                    download: Descargar archivo
+                    download_data: Descargar datos
+                    download_data_description_1: Aquí puedes encontrar todas las descargas disponibles para tu cuenta. Estos archivos .zip estarán disponibles durante dos semanas antes de ser eliminados.
+                    download_data_description_2: Puedes solicitar un archivo .zip con tus aportaciones y tus datos personales.
+                    download_your_data: Datos personales
+                    expiration: Expiración
+                    expired: Ya expirado
+                    explanation:
+                              body_1: Estos archivos son conjuntos de datos exportados de tu actividad en esta plataforma, como propuestas o comentarios. Proporcionan datos brutos y estructurados que pueden usarse para análisis, investigación o integración con otras herramientas.
+                              body_2: Estos archivos están en formato CSV (Comma-Separated Values), un formato ampliamente utilizado y compatible con muchos programas, incluidos hojas de cálculo, editores de texto y herramientas de análisis de datos.
+                              title: ¿Qué son estos archivos?
+                    files_to_download: Archivos para descargar
+                    request_data: Solicitar
+                    type: Tipo de descarga
         pages:
             privacy_policy:
                 accept:
