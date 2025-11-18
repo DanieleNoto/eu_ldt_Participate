@@ -26,7 +26,12 @@ spec:
             initContainers:
                 - name: init-postgres-data
                   image: busybox
-                  command: ['sh', '-c', 'mkdir -p /var/lib/postgresql/data/pgdata && chown -R 999:999 /var/lib/postgresql/data/pgdata']
+                  command:
+                      [
+                          'sh',
+                          '-c',
+                          'mkdir -p /var/lib/postgresql/data/pgdata && chown -R 999:999 /var/lib/postgresql/data/pgdata'
+                      ]
                   volumeMounts:
                       - name: chatbot-pg-storage
                         mountPath: /var/lib/postgresql/data
@@ -50,6 +55,30 @@ spec:
                       - name: chatbot-backend-storage
                         mountPath: /mnt/shared
                         readOnly: false
+                  startupProbe:
+                      httpGet:
+                          path: /api/v1/health
+                          port: 3002
+                      initialDelaySeconds: 10
+                      periodSeconds: 5
+                      timeoutSeconds: 5
+                      failureThreshold: 30
+                  livenessProbe:
+                      httpGet:
+                          path: /api/v1/health
+                          port: 3002
+                      initialDelaySeconds: 30
+                      periodSeconds: 30
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  readinessProbe:
+                      httpGet:
+                          path: /api/v1/health
+                          port: 3002
+                      initialDelaySeconds: 5
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 3
                   envFrom:
                       - secretRef:
                             name: chatbot-backend-secret
@@ -75,10 +104,10 @@ spec:
                       - containerPort: 5432
                         name: postgres
                   envFrom:
-                    - secretRef:
-                        name: chatbot-backend-db-secret
-                    - configMapRef:
-                        name: chatbot-backend-db-config
+                      - secretRef:
+                            name: chatbot-backend-db-secret
+                      - configMapRef:
+                            name: chatbot-backend-db-config
                   volumeMounts:
                       - name: chatbot-pg-storage
                         mountPath: /var/lib/postgresql/data
@@ -159,24 +188,24 @@ spec:
                       - configMapRef:
                             name: chatbot-frontend-config
     volumeClaimTemplates:
-      - metadata:
-          name: chatbot-pg-storage
-        spec:
-          accessModes: [ 'ReadWriteOnce' ]
-          resources:
-            requests:
-              storage: 100Mi
-      - metadata:
-          name: chatbot-frontend-storage
-        spec:
-          accessModes: [ 'ReadWriteOnce' ]
-          resources:
-            requests:
-              storage: 100Mi
-      - metadata:
-          name: chatbot-backend-storage
-        spec:
-          accessModes: [ 'ReadWriteOnce' ]
-          resources:
-            requests:
-              storage: 100Mi
+        - metadata:
+              name: chatbot-pg-storage
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 100Mi
+        - metadata:
+              name: chatbot-frontend-storage
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 100Mi
+        - metadata:
+              name: chatbot-backend-storage
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 100Mi

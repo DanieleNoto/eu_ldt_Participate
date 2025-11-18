@@ -106,12 +106,18 @@ Rails.application.configure do
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new "app-name")
 
   if ENV["RAILS_LOG_TO_STDOUT"].present?
-    logger = ActiveSupport::Logger.new(STDOUT)
+    # Log to both STDOUT and file
+    stdout_logger = ActiveSupport::Logger.new(STDOUT)
+    file_logger = ActiveSupport::Logger.new(Rails.root.join("log", "production.log"))
     
     # Use JSON formatter if enabled (set in application.rb)
-    logger.formatter = config.log_formatter
+    stdout_logger.formatter = config.log_formatter
+    file_logger.formatter = config.log_formatter
     
-    config.logger = ActiveSupport::TaggedLogging.new(logger)
+    # Broadcast to both destinations
+    stdout_logger.extend(ActiveSupport::Logger.broadcast(file_logger))
+    
+    config.logger = ActiveSupport::TaggedLogging.new(stdout_logger)
   end
 
   # Do not dump schema after migrations.
