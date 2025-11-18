@@ -56,7 +56,7 @@ COPY package.json yarn.lock* ./
 RUN yarn config set network-timeout 300000 && \
   yarn config set registry https://registry.npmjs.org/ && \
   for i in 1 2 3; do \
-  yarn install --include-dev --frozen-lockfile && break || \
+  yarn install --include-dev && break || \
   (echo "Yarn install attempt $i failed, retrying..." && sleep 5); \
   done
 # NOW copy the full application code
@@ -127,8 +127,8 @@ RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log /code/public /code/storage
   find /code -path /code/node_modules -prune -o -type f -exec chmod 664 {} + && \
   chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh && \
   find /code/bin -type f -exec chmod 775 {} + && \
-  # Reinstall node_modules to ensure proper binary symlinks
-  yarn install --production --frozen-lockfile --prefer-offline && \
+  # Reinstall node_modules to ensure proper binary symlinks and resolve all dependencies
+  yarn install --production && \
   # Make ALL node_modules executables available (files AND symlinks)
   chmod -R u+x,g+x,o+x /code/node_modules/.bin 2>/dev/null || true && \
   chmod -R u+r,g+r,o+r /code/node_modules/.bin 2>/dev/null || true
