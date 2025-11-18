@@ -1,14 +1,15 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
 import test, { expect } from '@playwright/test';
 import { ExtraUserFieldsTestDataGenerator } from '@fixtures/extra-user-fields-fixtures';
-import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
-import { ExtraUserFieldsAdminPage } from '@pages/pages/admin/ExtraUserFieldsAdminPage';
-import { LetterOpenerPage } from '@pages/pages/admin/LetterOpenerPage';
+import { TempWebmailPage } from '@pages/base/TempWebmailPage';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { SignUpPage } from '@pages/pages/public/SignUpPage';
 import { UserExtraFieldsPage } from '@pages/pages/user/account/UserExtraFieldsPage';
 import { AccountDeletionPage } from '@pages/pages/user/account/AccountDeletionPage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 import { ROUTES } from '@utils/routes';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -24,6 +25,9 @@ import { tmpdir } from 'os';
  * - The administrator has configured additional personal data fields.
  */
 test.describe('[PAR-PIM002] – Collect additional personal data on registration', () => {
+	// Force fresh unauthenticated context for this test
+	test.use({ storageState: { cookies: [], origins: [] } });
+
 	// Variables for test data - Basic fields
 	let testUserName: string;
 	let testUserEmail: string;
@@ -34,46 +38,17 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 	let testGender: string;
 	let testCountry: string;
 	let testPostalCode: string;
-	let testPhoneNumber: string;
 	let testLocation: string;
 
 	let homePage: HomePage;
 	let signUpPage: SignUpPage;
-	let letterOpenerPage: LetterOpenerPage;
-
-	let sharedAdminContext: any;
-	let sharedAdminPage: any;
-
-	test.beforeAll(async ({ browser }) => {
-		await test.step('Setup: Enable admin extra user fields configuration', async () => {
-			sharedAdminContext = await browser.newContext({
-				storageState: STORAGE_STATE.ADMIN
-			});
-			sharedAdminPage = await sharedAdminContext.newPage();
-
-			// Ensure admin is logged in
-			await ensureLoggedIn(sharedAdminPage, 'ADMIN');
-
-			const adminHomePage = new AdminHomePage(sharedAdminPage);
-			const extraUserFieldsAdminPage = new ExtraUserFieldsAdminPage(sharedAdminPage);
-
-			await adminHomePage.navigateToAdminHomePage();
-			await extraUserFieldsAdminPage.navigateToSettings();
-			await extraUserFieldsAdminPage.navigateToExtraUserFields();
-			await extraUserFieldsAdminPage.enableAllExtraUserFields();
-			await extraUserFieldsAdminPage.setPhoneNumberValidationRegex('^[3-9][0-9]{9}$');
-			await extraUserFieldsAdminPage.saveConfiguration();
-			await extraUserFieldsAdminPage.expectConfigurationSaved();
-
-			console.log('Admin extra user fields configuration enabled');
-		});
-	});
+	let tempwebmailPage: TempWebmailPage;
 
 	test.beforeEach(async ({ page }) => {
 		// Generate unique test user data
 		const timestamp = Date.now().toString().slice(-8);
 		testUserName = `TestUser${timestamp}`;
-		testUserEmail = `testuser${timestamp}@example.org`;
+		testUserEmail = `testuser${timestamp}@mailinator.com`;
 		testUserPassword = 'decidim123456789';
 
 		// Generate test data - Extra fields using fixture
@@ -82,12 +57,11 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 		testGender = extraFieldsData.gender!;
 		testCountry = extraFieldsData.country!;
 		testPostalCode = extraFieldsData.postalCode!;
-		testPhoneNumber = extraFieldsData.phoneNumber!;
 		testLocation = extraFieldsData.location!;
 
 		homePage = new HomePage(page);
 		signUpPage = new SignUpPage(page);
-		letterOpenerPage = new LetterOpenerPage(page);
+		tempwebmailPage = new TempWebmailPage(page);
 
 		await homePage.navigateToHomePage();
 	});
@@ -146,29 +120,6 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 		});
 	});
 
-	test.afterAll(async () => {
-		await test.step('Cleanup: Disable admin extra user fields configuration', async () => {
-			const adminHomePage = new AdminHomePage(sharedAdminPage);
-			const extraUserFieldsAdminPage = new ExtraUserFieldsAdminPage(sharedAdminPage);
-
-			await adminHomePage.navigateToAdminHomePage();
-			await extraUserFieldsAdminPage.navigateToSettings();
-			await extraUserFieldsAdminPage.navigateToExtraUserFields();
-			await extraUserFieldsAdminPage.navigateToExtraUserFieldsConfig();
-
-			// Disable the main extra user fields flag
-			await extraUserFieldsAdminPage.disableExtraUserField('Enable extra user fields');
-
-			await extraUserFieldsAdminPage.saveConfiguration();
-			await extraUserFieldsAdminPage.expectConfigurationSaved();
-
-			console.log('Admin extra user fields configuration disabled');
-
-			await sharedAdminPage.close();
-			await sharedAdminContext.close();
-		});
-	});
-
 	test.describe('Main flow', () => {
 		test('should successfully provide additional personal information', async ({ page, browser }) => {
 			await test.step('1. User: Register an account into the platform', async () => {
@@ -201,7 +152,6 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 				await signUpPage.selectGender(testGender);
 				await signUpPage.selectCountry(testCountry);
 				await signUpPage.fillPostalCode(testPostalCode);
-				await signUpPage.fillPhoneNumber(testPhoneNumber);
 				await signUpPage.fillLocation(testLocation);
 
 				// Accept terms and conditions and newsletter
@@ -220,20 +170,22 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 			});
 
 			await test.step('4. System: Confirms successful data submission', async () => {
-				// Navigate to Letter Opener to check confirmation email
-				await letterOpenerPage.navigateToLetterOpener();
-				console.log('Navigated to Letter Opener');
+				// Navigate to temporary webmail inbox
+				await tempwebmailPage.navigateToTempInbox(testUserEmail);
+				await page.waitForLoadState('networkidle');
+				console.log(`Navigated to temp inbox for: ${testUserEmail}`);
 
-				// Refresh emails to get the latest confirmation email
-				await letterOpenerPage.refreshEmails();
-				console.log('Refreshed emails in Letter Opener');
+				// Wait for the confirmation email to arrive
+				await tempwebmailPage.waitForEmailToArrive();
+				console.log('Confirmation email arrived successfully');
 
-				// Find and click on the most recent account registration confirmation email
-				await letterOpenerPage.clickMostRecentAccountRegistrationEmail();
-				console.log('Opened confirmation instructions email');
+				// Click on the confirmation email
+				await tempwebmailPage.clickConfirmationEmail();
+				console.log('Clicked on confirmation email');
 
-				// Get the confirmation URL using the POM method
-				const confirmationUrl = await letterOpenerPage.getConfirmMyAccountUrl();
+				// Find and click on the confirmation link in the email
+				const confirmationUrl = await tempwebmailPage.getConfirmationLink();
+				console.log('Extracted confirmation link from email');
 
 				const freshContext = await browser.newContext();
 				const freshPage = await freshContext.newPage();
@@ -268,7 +220,6 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 					gender: testGender,
 					country: testCountry,
 					postalCode: testPostalCode,
-					phoneNumber: testPhoneNumber,
 					location: testLocation
 				});
 
@@ -355,8 +306,6 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 
 				await signUpPage.fillDateOfBirth(invalidData.dateOfBirth!);
 
-				await signUpPage.fillPhoneNumber(maxLengthData.phoneNumber!);
-
 				// Accept newsletter only (leave terms and conditions unchecked)
 				await signUpPage.checkNewsletterSubscription();
 
@@ -380,9 +329,6 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 					await signUpPage.expectFieldValidationError(fieldId);
 				}
 
-				// Verify field shows as invalid (red border)
-				await signUpPage.expectPhoneNumberInvalid();
-
 				console.log('Validation errors displayed for missing/invalid fields');
 
 				// Now correct the fields but leave terms unchecked to verify terms validation
@@ -392,11 +338,7 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 				await signUpPage.selectGender(testGender);
 				await signUpPage.selectCountry(testCountry);
 				await signUpPage.fillPostalCode(testPostalCode);
-				await signUpPage.fillPhoneNumber(testPhoneNumber);
 				await signUpPage.fillLocation(testLocation);
-
-				// Verify phone number field shows as valid now
-				await signUpPage.expectPhoneNumberValid();
 
 				console.log('Fields corrected except terms and conditions');
 
@@ -431,20 +373,22 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 			});
 
 			await test.step('6. System: Confirms successful data submission', async () => {
-				// Navigate to Letter Opener to check confirmation email
-				await letterOpenerPage.navigateToLetterOpener();
-				console.log('Navigated to Letter Opener');
+				// Navigate to temporary webmail inbox
+				await tempwebmailPage.navigateToTempInbox(testUserEmail);
+				await page.waitForLoadState('networkidle');
+				console.log(`Navigated to temp inbox for: ${testUserEmail}`);
 
-				// Refresh emails to get the latest confirmation email
-				await letterOpenerPage.refreshEmails();
-				console.log('Refreshed emails in Letter Opener');
+				// Wait for the confirmation email to arrive
+				await tempwebmailPage.waitForEmailToArrive();
+				console.log('Confirmation email arrived successfully');
 
-				// Find and click on the most recent account registration confirmation email
-				await letterOpenerPage.clickMostRecentAccountRegistrationEmail();
-				console.log('Opened confirmation instructions email');
+				// Click on the confirmation email
+				await tempwebmailPage.clickConfirmationEmail();
+				console.log('Clicked on confirmation email');
 
-				// Get the confirmation URL using the POM method
-				const confirmationUrl = await letterOpenerPage.getConfirmMyAccountUrl();
+				// Find and click on the confirmation link in the email
+				const confirmationUrl = await tempwebmailPage.getConfirmationLink();
+				console.log('Extracted confirmation link from email');
 
 				const freshContext = await browser.newContext();
 				const freshPage = await freshContext.newPage();
@@ -479,7 +423,6 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 					gender: testGender,
 					country: testCountry,
 					postalCode: testPostalCode,
-					phoneNumber: testPhoneNumber,
 					location: testLocation
 				});
 

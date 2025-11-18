@@ -1,23 +1,19 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
 import test, { expect } from '@playwright/test';
-import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
-
-// ADMIN Page Objects (only for the setup in beforeEach)
-import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
-import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
 import { NewPrivateParticipantFormPage } from '@pages/pages/admin/processes/detail/private-participants/NewParticipantsPage';
 import { SidebarProcessDetailComponent } from '@pages/components/admin/process/detail/SidebarProcessDetailComponent';
 import { PrivateParticipantsPage } from '@pages/pages/admin/processes/detail/private-participants/PrivateParticipantsPage';
-import { LetterOpenerPage } from '@pages/pages/admin/LetterOpenerPage';
-
-// PUBLIC Page Objects (only for USER test)
+import { TempWebmailPage } from '@pages/base/TempWebmailPage';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { AcceptInvitationPage } from '@pages/pages/auth/AcceptInvitationPage';
-
 import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { STORAGE_STATE, BASE_URLS } from '@utils/constants';
 
 /**
  * Allows citizens to receive an invitation to participate in a private process via email, requiring them to accept the invitation to access the process.
@@ -31,21 +27,20 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 	// Don't use storageState here because we need to simulate a new unregistered user
 	// The user will be authenticated only after completing the registration in step 4
 
-	// Variables for the setup
-	let validProcessData: any;
-	let processEditUrl: string;
-	let processSlug: string;
-	let processTitle: string;
+	// Use existing process
+	const processSlug = 'test-private';
+	const processTitle = 'Update Test0 private';
+	const processEditUrl = `${BASE_URLS.USED}/admin/participatory_processes/${processSlug}/edit`;
 
 	// Variables for the invited user data
-	let testUserName: string;
-	let testUserEmail: string;
+	let testUserName: string = '';
+	let testUserEmail: string = '';
 
 	// Page Objects (only for User test)
 	let homePage: HomePage;
 	let processesOverviewPage: ProcessesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
-	let letterOpenerPage: LetterOpenerPage;
+	let tempwebmailPage: TempWebmailPage;
 	let acceptInvitationPage: AcceptInvitationPage;
 
 	test.beforeEach(async ({ page, browser }) => {
@@ -58,31 +53,9 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 		// Ensure admin is logged in
 		await ensureLoggedIn(adminPage, 'ADMIN');
 
-		const adminHomePage = new AdminHomePage(adminPage);
-		const processAdminPage = new ProcessAdminPage(adminPage);
-		const surveysManagePage = new SurveysManagePage(adminPage); // Using SurveysManagePage.setupTestProcess() as helper for process creation
 		const newPrivateParticipantFormPage = new NewPrivateParticipantFormPage(adminPage);
 		const sidebarProcessDetailComponent = new SidebarProcessDetailComponent(adminPage);
 		const privateParticipantsPage = new PrivateParticipantsPage(adminPage);
-
-		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
-		processTitle = validProcessData.general.title;
-
-		async function setupTestProcess() {
-			await test.step('Setup: Create new test process as prerequisite', async () => {
-				const { processSlug: slug, processEditUrl: url } = await surveysManagePage.setupTestProcess(
-					validProcessData,
-					adminHomePage,
-					processAdminPage,
-					true, // publish the process
-					true // private process
-				);
-				processEditUrl = url;
-				processSlug = slug;
-			});
-		}
-
-		await setupTestProcess();
 
 		// Setup: Add private participant invitation as prerequisite
 		await test.step('Setup: Send invitation to a citizen as prerequisite', async () => {
@@ -102,7 +75,7 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 			// Fill the invitation form for a non-registered user with unique data
 			const timestamp = Date.now().toString().slice(-8); // Use last 8 digits to keep name short
 			testUserName = `User${timestamp}`;
-			testUserEmail = `user${timestamp}@example.org`;
+			testUserEmail = `user${timestamp}@mailinator.com`;
 
 			await newPrivateParticipantFormPage.fillName(testUserName);
 			await newPrivateParticipantFormPage.fillEmail(testUserEmail);
@@ -127,7 +100,7 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 		homePage = new HomePage(page);
 		processesOverviewPage = new ProcessesOverviewPage(page);
 		processDetailPage = new ProcessDetailPage(page);
-		letterOpenerPage = new LetterOpenerPage(page);
+		tempwebmailPage = new TempWebmailPage(page);
 		acceptInvitationPage = new AcceptInvitationPage(page);
 
 		await homePage.navigateToHomePage();
@@ -136,26 +109,26 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 	test.describe('Main Flow', () => {
 		test('Citizen invitation to participate in a private process', async ({ page }) => {
 			await test.step('1. User: Receives an email invitation to participate in a private process', async () => {
-				// Use Letter Opener Page Object to handle email operations
-				console.log(`Simulating new user receiving invitation: ${testUserName} (${testUserEmail})`);
+				// Navigate to temporary webmail inbox
+				await tempwebmailPage.navigateToTempInbox(testUserEmail);
+				await page.waitForLoadState('networkidle');
+				console.log(`Navigated to temp inbox for: ${testUserEmail}`);
 
-				// Navigate to Letter Opener and refresh to get latest emails
-				await letterOpenerPage.navigateToLetterOpener();
-				await letterOpenerPage.refreshEmails();
-
-				console.log('Letter Opener opened and refreshed. Ready to search for invitation email.');
+				// Wait for the invitation email to arrive
+				await tempwebmailPage.waitForEmailToArrive();
+				console.log('Invitation email arrived successfully!');
 			});
 
 			await test.step('2. User: Opens the email and clicks on the "Accept Invitation" button/link', async () => {
-				// Find and click on the most recent invitation email (should be first after refresh)
-				await letterOpenerPage.clickMostRecentInvitationEmail();
-				console.log('Invitation email opened');
+				// Click on the invitation email with specific subject
+				await tempwebmailPage.clickInvitationEmail();
+				await page.waitForLoadState('networkidle');
+				console.log('Clicked on invitation email');
 
-				// Verify the email content and click on "Accept invitation" link
-				await letterOpenerPage.verifyInvitationEmailAndAccept(testUserName);
-				console.log('Email content verified and invitation accepted');
-
-				console.log('Navigated to invitation acceptance page');
+				// Verify the email content (greeting) and click on "Accept invitation" link
+				await tempwebmailPage.verifyInvitationEmailAndAccept(testUserName);
+				await page.waitForLoadState('networkidle');
+				console.log('Email content verified and "Accept invitation" link clicked');
 			});
 
 			await test.step("3. User: Redirects the citizen to the platform's registration page", async () => {

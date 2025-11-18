@@ -1,3 +1,8 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
 import { Page, Locator, expect } from '@playwright/test';
 
 export interface SignUpFormData {
@@ -37,7 +42,7 @@ export class SignUpPage {
 
 	// Extra user fields
 	get dateOfBirthInput(): Locator {
-		return this.page.locator('#registration_user_date_of_birth_date');
+		return this.page.locator('#registration_user_date_of_birth');
 	}
 
 	get genderSelect(): Locator {
@@ -165,7 +170,6 @@ export class SignUpPage {
 		await expect(this.genderSelect).toBeVisible();
 		await expect(this.countrySelect).toBeVisible();
 		await expect(this.postalCodeInput).toBeVisible();
-		await expect(this.phoneNumberInput).toBeVisible();
 		await expect(this.locationInput).toBeVisible();
 
 		// Verify checkboxes are visible

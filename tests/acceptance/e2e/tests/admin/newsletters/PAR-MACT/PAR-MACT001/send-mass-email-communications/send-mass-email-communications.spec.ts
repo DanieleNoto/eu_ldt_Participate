@@ -1,11 +1,12 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
 import { test } from '@playwright/test';
-import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { NewsletterAdminPage } from '@pages/pages/admin/newsletters/NewsletterAdminPage';
-import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
-import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
-import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -30,85 +31,30 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let newsletterAdminPage: NewsletterAdminPage;
-	let processAdminPage: ProcessAdminPage;
-	let updateProcessAdminPage: UpdateProcessAdminPage;
-	let componentsPage: ComponentsPage;
-	let surveysManagePage: SurveysManagePage;
-	let validProcessData: any;
 
-	// Variables for the setup
-	let processSlug: string;
-	let processEditUrl: string;
-	let componentName: string;
-	let surveyName: string;
+	// Process constants for newsletter testing
+	const processTitle = 'Update Test0';
 
 	// Common setup for both flows (only Page Objects)
 	test.beforeEach(async ({ page }) => {
 		adminHomePage = new AdminHomePage(page);
 		newsletterAdminPage = new NewsletterAdminPage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		surveysManagePage = new SurveysManagePage(page);
-		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 
 		await adminHomePage.navigateToAdminHomePage();
 	});
 
-	/**
-	 * Setup test environment with participatory process and survey for newsletter testing
-	 */
-	async function setupTestProcessForNewsletter(browser: any) {
-		await test.step('Setup: Create new test process as prerequisite', async () => {
-			const { processSlug: slug, processEditUrl: url } = await surveysManagePage.setupTestProcess(
-				validProcessData,
-				adminHomePage,
-				processAdminPage,
-				true // publish the process
-			);
-			processSlug = slug;
-			processEditUrl = url;
-			console.log('Test process setup completed');
-		});
-
-		await test.step('Setup: Create a published survey as prerequisite', async () => {
-			const surveySetup = await surveysManagePage.setupTestSurvey(
-				processSlug,
-				processEditUrl,
-				updateProcessAdminPage,
-				componentsPage
-			);
-
-			componentName = surveySetup.componentName;
-			surveyName = surveySetup.surveyName;
-		});
-
-		await test.step('Setup: Create survey responses as prerequisite', async () => {
-			const userContext = await browser.newContext({
-				storageState: STORAGE_STATE.USER
-			});
-			const userPage = await userContext.newPage();
-
-			// Handle USER context and login in the test
-			await ensureLoggedIn(userPage, 'USER');
-
-			// Create Page Object for USER actions
-			const userSurveysPage = new SurveysManagePage(userPage);
-
-			// Execute only the survey actions
-			await userSurveysPage.replytoSurvey(processSlug, componentName, surveyName, validProcessData);
-
-			await userPage.close();
-			await userContext.close();
-
-			console.log('Survey responses created successfully');
-		});
-	}
-
 	test.describe('Main Flow', () => {
+		let subject: string;
+
+		test.afterEach(async () => {
+			// Cleanup: delete the newsletter created during the test
+			if (subject) {
+				await newsletterAdminPage.deleteNewsletterBySubject(subject);
+			}
+		});
+
 		test('should send mass email campaigns', async ({ page }) => {
 			let timestamp: string;
-			let subject: string;
 			let body: string;
 
 			await test.step('1. User: Navigates to the "Newsletter" section in the admin panel.', async () => {
@@ -251,13 +197,17 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 	});
 
 	test.describe('Alternative Flow', () => {
-		test.beforeEach(async ({ browser }) => {
-			await setupTestProcessForNewsletter(browser);
+		let subject: string;
+
+		test.afterEach(async () => {
+			// Cleanup: delete the newsletter created during the test
+			if (subject) {
+				await newsletterAdminPage.deleteNewsletterBySubject(subject);
+			}
 		});
 
 		test('should send mass email campaigns with another recipients selection option', async ({ page }) => {
 			let timestamp: string;
-			let subject: string;
 			let body: string;
 
 			await test.step('1. User: Navigates to the "Newsletter" section in the admin panel.', async () => {
@@ -368,9 +318,9 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 			});
 
 			await test.step('11. User: Selects recipients for the newsletter delivery', async () => {
-				// Select "Send to participants" and choose the specific process created in setup
-				await newsletterAdminPage.selectSendToParticipants(validProcessData.general.title);
-				console.log(`Selected participants from process: "${validProcessData.general.title}"`);
+				// Select "Send to participants" and choose the specific process
+				await newsletterAdminPage.selectSendToParticipants(processTitle);
+				console.log(`Selected participants from process: "${processTitle}"`);
 
 				// Confirm the selected recipients
 				await newsletterAdminPage.confirmRecipients();
@@ -401,10 +351,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				await newsletterAdminPage.expectNewsletterDeliveredMessageToBeVisible();
 
 				// Verify that the specific newsletter (identified by subject) shows "Has been sent to: participants"
-				await newsletterAdminPage.expectNewsletterSentToProcessParticipants(
-					subject,
-					validProcessData.general.title
-				);
+				await newsletterAdminPage.expectNewsletterSentToProcessParticipants(subject, processTitle);
 
 				// Wait for delivery count starting
 				await newsletterAdminPage.expectNewsletterDeliveryStarted(subject);

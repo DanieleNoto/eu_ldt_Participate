@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
  * Simone Bianchelli
@@ -161,6 +161,7 @@ export default defineConfig({
 			use: {
 				...devices['Desktop Chrome']
 			},
+			dependencies: ['admin-setup'], // note: some guest tests might need admin setup (e.g. PAR-CP004)
 			testMatch: ['tests/guest/**/*.spec.ts', '**/tests/guest/**/*.spec.ts']
 		},
 

@@ -1,3 +1,11 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { Locator, Page } from '@playwright/test';
 
 /**
@@ -22,6 +30,22 @@ export class AdminProcessTableComponent {
 
 	// Process row methods
 	async getProcessByName(processName: string) {
+		// Get all rows and find the one with exact title match
+		const rows = this.processRows;
+		const count = await rows.count();
+
+		for (let i = 0; i < count; i++) {
+			const row = rows.nth(i);
+			const titleCell = row.locator('td:first-child, .title').first();
+			const titleText = await titleCell.textContent();
+
+			// Exact match of the process title
+			if (titleText?.trim() === processName) {
+				return row;
+			}
+		}
+
+		// Fallback to partial match if exact match not found
 		return this.processRows.filter({ hasText: processName }).first();
 	}
 	async getProcessActionMenu(processName: string) {

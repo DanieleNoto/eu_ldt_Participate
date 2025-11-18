@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
  * Simone Bianchelli
@@ -80,13 +80,22 @@ export const BASE_URLS = {
 } as const;
 
 export const EMAIL_URLS = {
-	LETTER_OPENER: `${process.env.FE_BASE_URL || 'http://localhost:3000'}/letter_opener/`
+	LETTER_OPENER: `${process.env.FE_BASE_URL || 'http://localhost:3000'}/letter_opener/`,
+	OVH_MAIL: process.env.OVH_URL || 'https://www.ovhcloud.com/es-es/mail/',
+	MAILINATOR: 'https://www.mailinator.com',
+	MAILINATOR_INBOX: (emailPrefix: string) => `${EMAIL_URLS.MAILINATOR}/v4/public/inboxes.jsp?to=${emailPrefix}`
 } as const;
 
 export const GRAFANA_URLS = {
 	ORIGIN: process.env.GRAFANA_ORIGIN || 'https://part-int.ldttoolbox.app',
 	BASE_PATH: process.env.GRAFANA_BASE_PATH || '/analytics/grafana',
-	get BASE() { return `${this.ORIGIN}${this.BASE_PATH}`; },
-	get LOGIN() { return `${this.BASE_PATH}/login`; },
-	get API_ORG() { return `${this.BASE_PATH}/api/org`; }
+	get BASE() {
+		return `${this.ORIGIN}${this.BASE_PATH}`;
+	},
+	get LOGIN() {
+		return `${this.BASE_PATH}/login`;
+	},
+	get API_ORG() {
+		return `${this.BASE_PATH}/api/org`;
+	}
 } as const;

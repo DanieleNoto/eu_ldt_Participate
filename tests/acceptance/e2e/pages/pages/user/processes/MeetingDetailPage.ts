@@ -1,8 +1,9 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Simone Bianchelli
  */
 
 import { AuthenticatedPage } from '@pages/base/AuthenticatedPage';
@@ -126,21 +127,19 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	}
 
 	// Assert the registration confirmation dialog is visible.
-	// dialogId is the base id used in markup (example: 'meeting-registration-confirm-1').
-	async expectRegistrationPromptVisible(dialogId = 'meeting-registration-confirm-1') {
-		const dialogSelector = `#${dialogId}-content`;
-		await this.page.waitForSelector(dialogSelector, { state: 'visible' });
-		const dialog = this.page.locator(dialogSelector);
-		await expect(dialog).toBeVisible();
+	// Finds the dialog dynamically by class and visible state
+	async expectRegistrationPromptVisible() {
+		const dialog = this.page.locator('.meeting__registration-modal:visible').first();
+		await expect(dialog).toBeVisible({ timeout: 10000 });
 		await expect(dialog.locator('h2')).toHaveText(/Register/i);
 	}
 
 	// Confirm registration by clicking the Confirm button inside the dialog.
 	// Waits for the submit to complete by awaiting networkidle.
-	async confirmRegistration(dialogId = 'meeting-registration-confirm-1'): Promise<void> {
-		const dialogSelector = `#${dialogId}-content`;
-		const confirmButton = this.page.locator(`${dialogSelector} form button[type="submit"]:has-text("Confirm")`);
-		await this.page.waitForSelector(dialogSelector, { state: 'visible' });
+	async confirmRegistration(): Promise<void> {
+		const dialog = this.page.locator('.meeting__registration-modal:visible').first();
+		const confirmButton = dialog.locator('form button[type="submit"]:has-text("Confirm")');
+		await expect(dialog).toBeVisible();
 		await expect(confirmButton).toBeVisible();
 		await expect(confirmButton).toBeEnabled();
 		await Promise.all([this.page.waitForLoadState('networkidle').catch(() => null), confirmButton.click()]);
@@ -148,16 +147,13 @@ export class MeetingDetailPage extends AuthenticatedPage {
 
 	// Cancel registration by clicking the Cancel button inside the dialog.
 	// Waits for the dialog to become hidden after the click.
-	async abortRegistration(dialogId = 'meeting-registration-confirm-1'): Promise<void> {
-		const dialogSelector = `#${dialogId}-content`;
-		const cancelButton = this.page.locator(`${dialogSelector} button[data-dialog-close]:has-text("Cancel")`);
-		await this.page.waitForSelector(dialogSelector, { state: 'visible' });
+	async abortRegistration(): Promise<void> {
+		const dialog = this.page.locator('.meeting__registration-modal:visible').first();
+		const cancelButton = dialog.locator('button:has-text("Cancel")');
+		await expect(dialog).toBeVisible();
 		await expect(cancelButton).toBeVisible();
 		await expect(cancelButton).toBeEnabled();
-		await Promise.all([
-			this.page.waitForSelector(dialogSelector, { state: 'hidden' }).catch(() => null),
-			cancelButton.click()
-		]);
+		await Promise.all([dialog.waitFor({ state: 'hidden' }).catch(() => null), cancelButton.click()]);
 	}
 
 	// // Assert that the registration code block is visible and contains a non-empty code.
@@ -198,16 +194,21 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		await expect(btn).toBeVisible();
 		await expect(btn).toBeEnabled();
 		await btn.click();
-		const cancelDialog = this.page.locator('#meeting-cancelation-confirm-1-content');
+
+		// Find the cancellation confirmation dialog dynamically by class
+		const cancelDialog = this.page.locator('.meeting__cancelation-modal:visible').first();
 		const confirmBtn = cancelDialog.locator('form button[type="submit"]');
-		await expect(cancelDialog).toBeVisible({ timeout: 10000 });
+
+		await expect(cancelDialog).toBeVisible();
 		await expect(confirmBtn).toBeVisible();
 		await expect(confirmBtn).toBeEnabled();
+
 		await Promise.all([
 			confirmBtn.click(),
 			cancelDialog.waitFor({ state: 'hidden' }).catch(() => null),
 			this.page.waitForLoadState('networkidle').catch(() => null)
 		]);
+
 		await expect(cancelDialog).not.toBeVisible();
 	}
 
