@@ -58,7 +58,9 @@ RUN yarn config set network-timeout 300000 && \
   for i in 1 2 3; do \
   yarn install --include-dev && break || \
   (echo "Yarn install attempt $i failed, retrying..." && sleep 5); \
-  done
+  done && \
+  # Verify webpack is installed
+  test -f /code/node_modules/.bin/webpack || (echo "ERROR: webpack not found after yarn install" && exit 1)
 # NOW copy the full application code
 COPY . .
 
@@ -127,11 +129,12 @@ RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log /code/public /code/storage
   find /code -path /code/node_modules -prune -o -type f -exec chmod 664 {} + && \
   chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh && \
   find /code/bin -type f -exec chmod 775 {} + && \
-  # Reinstall node_modules to ensure proper binary symlinks and resolve all dependencies
-  yarn install --production && \
-  # Make ALL node_modules executables available (files AND symlinks)
+  # Fix permissions for node_modules (don't reinstall, just fix what's already there)
+  chown -R decidim:decidim /code/node_modules && \
   chmod -R u+x,g+x,o+x /code/node_modules/.bin 2>/dev/null || true && \
-  chmod -R u+r,g+r,o+r /code/node_modules/.bin 2>/dev/null || true
+  chmod -R u+r,g+r,o+r /code/node_modules/.bin 2>/dev/null || true && \
+  # Verify webpack is present
+  test -f /code/node_modules/.bin/webpack || (echo "ERROR: webpack not found in runtime stage" && exit 1)
 
 # Set runtime environment
 ENV RAILS_ENV=${RAILS_ENV}
