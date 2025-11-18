@@ -21,7 +21,6 @@ group :development, :test do
 
   gem "decidim-dev", Decidim::Calendar::DECIDIM_VERSION
 
-  gem "brakeman", "~> 6.1"
 end
 
 group :development do
