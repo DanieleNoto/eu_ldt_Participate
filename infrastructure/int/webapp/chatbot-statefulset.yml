@@ -57,7 +57,7 @@ spec:
                         readOnly: false
                   startupProbe:
                       httpGet:
-                          path: /health
+                          path: api/v1/health
                           port: 3002
                       initialDelaySeconds: 50
                       periodSeconds: 15
@@ -65,7 +65,7 @@ spec:
                       failureThreshold: 20
                   livenessProbe:
                       httpGet:
-                          path: /health/live
+                          path: api/v1/health/live
                           port: 3002
                       initialDelaySeconds: 70
                       periodSeconds: 30
@@ -73,7 +73,7 @@ spec:
                       failureThreshold: 3
                   readinessProbe:
                       httpGet:
-                          path: /health/ready
+                          path: api/v1/health/ready
                           port: 3002
                       initialDelaySeconds: 40
                       periodSeconds: 10
