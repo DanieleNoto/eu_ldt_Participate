@@ -1,46 +1,51 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+#   Alfredo Santamaria Ruiz
+#   Gianfranco Cedro
 name: Lot5RepoSync-Tool3
 
 trigger:
-  branches:
-    include:
-      - main
-  tags:
-    include:
-      - '*'  # This activates the pipeline with any tag
+    branches:
+        include:
+            - main
+    tags:
+        include:
+            - '*' # This activates the pipeline with any tag
 
 variables:
-- group: 'TOOL3 - PT - KV'
+    - group: 'TOOL3 - PT - KV'
 
 jobs:
-- job: MirrorRepoToLot5
-  displayName: MirrorRepoToLot5
-  steps:
-    - checkout: none  # Its not necesary
+    - job: MirrorRepoToLot5
+      displayName: MirrorRepoToLot5
+      steps:
+          - checkout: none # Its not necesary
 
-    - task: Bash@3
-      displayName: 'Full mirror from source repository to destination (with special ref cleanup)'
-      inputs:
-        targetType: inline
-        script: |
-          set -e
-          git config --global http.sslVerify false
+          - task: Bash@3
+            displayName: 'Full mirror from source repository to destination (with special ref cleanup)'
+            inputs:
+                targetType: inline
+                script: |
+                    set -e
+                    git config --global http.sslVerify false
 
-          echo "Cloning the entire source repository with --mirror..."
-          git clone --mirror https://$(PAT-LOT5-REPO-SYNC)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate source-repo
+                    echo "Cloning the entire source repository with --mirror..."
+                    git clone --mirror https://$(PAT-LOT5-REPO-SYNC)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Participate/_git/EU%20LDT%20Participate source-repo
 
-          cd source-repo
+                    cd source-repo
 
-          echo "Removing pull request refs (refs/pull/*)..."
-          for ref in $(git for-each-ref --format='%(refname)' refs/pull/ 2>/dev/null); do
-            echo "  Eliminando $ref"
-            git update-ref -d "$ref"
-          done
+                    echo "Removing pull request refs (refs/pull/*)..."
+                    for ref in $(git for-each-ref --format='%(refname)' refs/pull/ 2>/dev/null); do
+                      echo "  Eliminando $ref"
+                      git update-ref -d "$ref"
+                    done
 
-          echo "Configuring remote destination..."
-          #git remote set-url origin https://$(PAT-LOT5-REPO-SYNC-CLONACION)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Toolbox/_git/EU%20LDT%20Participate
-          git remote set-url origin https://$(PAT-LOT5-REPO-SYNC)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Toolbox/_git/EU%20LDT%20Participate
+                    echo "Configuring remote destination..."
+                    #git remote set-url origin https://$(PAT-LOT5-REPO-SYNC-CLONACION)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Toolbox/_git/EU%20LDT%20Participate
+                    git remote set-url origin https://$(PAT-LOT5-REPO-SYNC)@dev.azure.com/EULDT-Toolbox/EU%20LDT%20Toolbox/_git/EU%20LDT%20Participate
 
-          echo "Pushing all refs to the destination with --mirror..."
-          git push --mirror
+                    echo "Pushing all refs to the destination with --mirror..."
+                    git push --mirror
 
-          echo "Repositories synchronized successfully."
+                    echo "Repositories synchronized successfully."

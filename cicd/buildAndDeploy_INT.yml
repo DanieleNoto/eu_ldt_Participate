@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+#   Alfredo Santamaria Ruiz
+#   Alvaro Iglesias Sanchez
+#   Gianfranco Cedro
+#   Marco Cerdelli
 name: Tool3-BuildAndDeploy-INT-$(date:yyyyMMdd)$(rev:.r)
 
 #resources:
@@ -35,7 +42,7 @@ jobs:
                 buildContext: decidim/decidim_application
                 addPipelineData: false
                 addBaseImageData: false
-                arguments: --build-arg RAILS_ENV=production --build-arg NODE_ENV=production 
+                arguments: --build-arg RAILS_ENV=production --build-arg NODE_ENV=production
                 tags: |
                     $(tag)
 
@@ -103,22 +110,22 @@ jobs:
           - task: Docker@2
             displayName: Build Chatbot backend custom image
             inputs:
-              command: buildAndPush
-              repository: eu-ldt-chatbot-be-int
-              dockerfile: backend/Dockerfile
-              containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
-              tags: |
-                $(tag)
+                command: buildAndPush
+                repository: eu-ldt-chatbot-be-int
+                dockerfile: backend/Dockerfile
+                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                tags: |
+                    $(tag)
 
           - task: Docker@2
             displayName: Build Chatbot frontend custom image
             inputs:
-              command: buildAndPush
-              repository: eu-ldt-chatbot-fe-int
-              dockerfile: frontend/Dockerfile
-              containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
-              tags: |
-                $(tag)
+                command: buildAndPush
+                repository: eu-ldt-chatbot-fe-int
+                dockerfile: frontend/Dockerfile
+                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                tags: |
+                    $(tag)
 
     - job: deployment
       dependsOn: buildAndPushDockerfile
@@ -240,37 +247,37 @@ jobs:
                 secretType: 'generic'
           #
           - task: Kubernetes@1
-            displayName: "Apply Ingress"
+            displayName: 'Apply Ingress'
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-              azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-              kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-              namespace: 'participate'
-              command: 'apply'
-              arguments: '-f infrastructure/int/proxy/ingress.yml'
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/proxy/ingress.yml'
 
           - task: Kubernetes@1
-            displayName: "Apply Matomo Ingress"
+            displayName: 'Apply Matomo Ingress'
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-              azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-              kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-              namespace: 'participate'
-              command: 'apply'
-              arguments: '-f infrastructure/int/proxy/matomo-ingress.yml'
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/proxy/matomo-ingress.yml'
 
-   #       - task: Kubernetes@1
-   #         displayName: "Apply Jitsi Ingress"
-   #         inputs:
-   #           connectionType: 'Azure Resource Manager'
-   #           azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-   #           azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-   #           kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-   #           namespace: 'participate'
-   #           command: 'apply'
-   #           arguments: '-f infrastructure/int/proxy/jitsi-ingress.yml'
+          #       - task: Kubernetes@1
+          #         displayName: "Apply Jitsi Ingress"
+          #         inputs:
+          #           connectionType: 'Azure Resource Manager'
+          #           azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+          #           azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+          #           kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+          #           namespace: 'participate'
+          #           command: 'apply'
+          #           arguments: '-f infrastructure/int/proxy/jitsi-ingress.yml'
 
           #-------------------------------------------------------------------------------------------
           #CONFIGURACION DECIDIM
@@ -538,7 +545,6 @@ jobs:
                 command: 'apply'
                 arguments: '-f infrastructure/int/analytics/matomo/matomo-statefulset.yaml'
 
-
           # Config Services Matomo
           - task: Kubernetes@1
             displayName: 'MATOMO - Apply Services'
@@ -603,7 +609,6 @@ jobs:
                 namespace: 'participate'
                 command: 'apply'
                 arguments: '-f infrastructure/int/decidim/decidim-secret.yml'
-
 
           # DECIDIM - Statefulset
 
@@ -696,91 +701,91 @@ jobs:
                 command: 'apply'
                 arguments: '-f infrastructure/int/analytics/grafana/grafana-storage.yaml'
 
-        # Config & Secrets Tool3 Chatbot
+          # Config & Secrets Tool3 Chatbot
           - task: Kubernetes@1
             displayName: 'Apply ConfigMap - BE (Chatbot)'
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-              azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-              kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-              namespace: 'participate'
-              command: 'apply'
-              arguments: '-f infrastructure/int/backend/chatbot-be-configmap.yml'
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/backend/chatbot-be-configmap.yml'
 
           - task: Kubernetes@1
             displayName: 'Apply ConfigMap - DB (Chatbot)'
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-              azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-              kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-              namespace: 'participate'
-              command: 'apply'
-              arguments: '-f infrastructure/int/backend/chatbot-db-configmap.yml'
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/backend/chatbot-db-configmap.yml'
 
           - task: Kubernetes@1
             displayName: 'Apply Secrets - BE (Chatbot)'
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-              azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-              kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-              namespace: 'participate'
-              command: 'apply'
-              arguments: '-f infrastructure/int/backend/chatbot-be-secrets.yaml'
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/backend/chatbot-be-secrets.yaml'
 
           - task: Kubernetes@1
             displayName: 'Apply Secrets - DB (Chatbot)'
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-              azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-              kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-              namespace: 'participate'
-              command: 'apply'
-              arguments: '-f infrastructure/int/backend/chatbot-db-secrets.yaml'
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/backend/chatbot-db-secrets.yaml'
 
           - task: Kubernetes@1
             displayName: 'Apply ConfigMap - FE (Chatbot)'
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-              azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-              kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-              namespace: 'participate'
-              command: 'apply'
-              arguments: '-f infrastructure/int/frontend/chatbot-fe-configmap.yml'
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/frontend/chatbot-fe-configmap.yml'
 
           - task: Kubernetes@1
             displayName: 'Apply Statefulset - WebApp (Chatbot)'
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-              azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-              kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-              namespace: 'participate'
-              command: 'apply'
-              arguments: '-f infrastructure/int/webapp/chatbot-statefulset.yml'
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/webapp/chatbot-statefulset.yml'
 
           - task: Kubernetes@1
             displayName: 'Apply Service - BE (Chatbot)'
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-              azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-              kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-              namespace: 'participate'
-              command: 'apply'
-              arguments: '-f infrastructure/int/backend/chatbot-be-service.yaml'
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/backend/chatbot-be-service.yaml'
 
           - task: Kubernetes@1
             displayName: 'Apply Service - FE (Chatbot)'
             inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
-              azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
-              kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
-              namespace: 'participate'
-              command: 'apply'
-              arguments: '-f infrastructure/int/frontend/chatbot-fe-service.yaml'
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
+                namespace: 'participate'
+                command: 'apply'
+                arguments: '-f infrastructure/int/frontend/chatbot-fe-service.yaml'

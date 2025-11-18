@@ -3,7 +3,6 @@
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
 #   Denis Vasilev Dimchev
-
  -->
 
 # Health Monitoring System Implementation Summary
