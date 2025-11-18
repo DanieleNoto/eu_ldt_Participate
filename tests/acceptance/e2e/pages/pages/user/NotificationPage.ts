@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { AuthenticatedPage } from '@pages/base/AuthenticatedPage';
 import { expect, Page } from '@playwright/test';
 
@@ -114,6 +121,32 @@ export default class NotificationPage extends AuthenticatedPage {
 			if (error instanceof Error) {
 				console.error('Error verifying notification:', error.message);
 			}
+			return false;
+		}
+	}
+
+	/**
+	 * Verify that all notification fields are visible
+	 * @returns true if all fields are visible, false otherwise
+	 */
+	async verifyNotificationVisible(): Promise<boolean> {
+		try {
+			// Check wrapper visibility
+			const wrapperVisible = await this.page.locator('.notification__wrapper').isVisible();
+
+			// Check time field visibility
+			const timeVisible = await this.page.locator('.notification__time').isVisible();
+
+			// Check snippet visibility
+			const snippetVisible = await this.page.locator('.notification__snippet').isVisible();
+
+			// Check snippet title visibility
+			const titleVisible = await this.page.locator('.notification__snippet-title').isVisible();
+
+			// Return true only if all fields are visible
+			return wrapperVisible && timeVisible && snippetVisible && titleVisible;
+		} catch (error) {
+			console.warn('Notification visibility check failed:', error);
 			return false;
 		}
 	}

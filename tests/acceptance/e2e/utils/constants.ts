@@ -1,8 +1,9 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
  * Simone Bianchelli
+ * Denise Scarcelli
  */
 
 import path = require('path');
@@ -79,11 +80,20 @@ export const BASE_URLS = {
 } as const;
 
 export const EMAIL_URLS = {
-	LETTER_OPENER: `${process.env.FE_BASE_URL || 'http://localhost:3000'}/letter_opener/`
+	LETTER_OPENER: `${process.env.FE_BASE_URL || 'http://localhost:3000'}/letter_opener/`,
+	OVH_MAIL: process.env.OVH_URL || 'https://www.ovhcloud.com/es-es/mail/'
 } as const;
 
 export const GRAFANA_URLS = {
-	BASE: process.env.GRAFANA_BASE_URL || 'https://part-int.ldttoolbox.app/analytics/grafana',
-	LOGIN: `${process.env.GRAFANA_BASE_URL || 'https://part-int.ldttoolbox.app/analytics/grafana'}/login`,
-	API_ORG: `${process.env.GRAFANA_BASE_URL || 'https://part-int.ldttoolbox.app/analytics/grafana'}/api/org`
+	ORIGIN: process.env.GRAFANA_ORIGIN || 'https://part-int.ldttoolbox.app',
+	BASE_PATH: process.env.GRAFANA_BASE_PATH || '/analytics/grafana',
+	get BASE() {
+		return `${this.ORIGIN}${this.BASE_PATH}`;
+	},
+	get LOGIN() {
+		return `${this.BASE_PATH}/login`;
+	},
+	get API_ORG() {
+		return `${this.BASE_PATH}/api/org`;
+	}
 } as const;
