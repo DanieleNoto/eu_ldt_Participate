@@ -1,11 +1,14 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
 ---
-
 base_locale: en
 locales: [en]
 
 data:
-  external:
-    - "<%= %x[bundle info decidim-core --path].chomp %>/config/locales/%{locale}.yml"
+    external:
+        - '<%= %x[bundle info decidim-core --path].chomp %>/config/locales/%{locale}.yml'
 
 ignore_unused:
 
