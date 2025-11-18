@@ -1,3 +1,11 @@
+<!--
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+  # Gianfranco Cedro
+  # Simone Bianchelli
+ -->
+
 # Grafana Configuration for Decidim 0.30 Analytics
 
 This directory contains the updated Grafana configuration for monitoring Decidim 0.30 analytics.
@@ -53,7 +61,6 @@ analytics/grafana/
 ### Executive & Administrative Dashboards
 
 1. **Administrative Reports (PAR-RG001)** - Comprehensive admin view meeting requirements for use case RG001
-
     - Executive summary with key metrics
     - Participation trends and activity tracking
     - Content performance analysis
@@ -69,7 +76,6 @@ analytics/grafana/
 ### Community Engagement Analysis
 
 3. **Community Engagement Analytics** - Deep dive into user participation
-
     - Active contributor tracking
     - Engagement scoring (High/Medium/Low)
     - Activity distribution and trends
@@ -83,7 +89,6 @@ analytics/grafana/
 ### Communication Effectiveness
 
 5. **Communication Effectiveness** - Overall communication metrics
-
     - Message reach and response rates
     - Communication channel effectiveness
     - Content engagement analysis

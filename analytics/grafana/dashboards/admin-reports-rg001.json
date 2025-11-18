@@ -1,4 +1,7 @@
 {
+	"_license": "SPDX-License-Identifier: AGPL-3.0",
+	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
+	"_authors": ["Gianfranco Cedro"],
 	"annotations": {
 		"list": [
 			{
@@ -19,7 +22,7 @@
 	"editable": true,
 	"fiscalYearStartMonth": 0,
 	"graphTooltip": 0,
-	"id": 20,
+	"id": 2,
 	"links": [
 		{
 			"asDropdown": true,
@@ -63,7 +66,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": 0
 							},
 							{
 								"color": "red",
@@ -87,6 +91,7 @@
 				"graphMode": "area",
 				"justifyMode": "auto",
 				"orientation": "auto",
+				"percentChangeColorMode": "standard",
 				"reduceOptions": {
 					"calcs": ["lastNotNull"],
 					"fields": "",
@@ -97,7 +102,7 @@
 				"textMode": "auto",
 				"wideLayout": true
 			},
-			"pluginVersion": "12.1.0",
+			"pluginVersion": "12.2.0",
 			"targets": [
 				{
 					"datasource": {
@@ -129,7 +134,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": 0
 							},
 							{
 								"color": "yellow",
@@ -157,6 +163,7 @@
 				"graphMode": "area",
 				"justifyMode": "auto",
 				"orientation": "auto",
+				"percentChangeColorMode": "standard",
 				"reduceOptions": {
 					"calcs": ["lastNotNull"],
 					"fields": "",
@@ -167,7 +174,7 @@
 				"textMode": "auto",
 				"wideLayout": true
 			},
-			"pluginVersion": "12.1.0",
+			"pluginVersion": "12.2.0",
 			"targets": [
 				{
 					"datasource": {
@@ -199,7 +206,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": 0
 							},
 							{
 								"color": "red",
@@ -223,6 +231,7 @@
 				"graphMode": "area",
 				"justifyMode": "auto",
 				"orientation": "auto",
+				"percentChangeColorMode": "standard",
 				"reduceOptions": {
 					"calcs": ["lastNotNull"],
 					"fields": "",
@@ -233,7 +242,7 @@
 				"textMode": "auto",
 				"wideLayout": true
 			},
-			"pluginVersion": "12.1.0",
+			"pluginVersion": "12.2.0",
 			"targets": [
 				{
 					"datasource": {
@@ -265,7 +274,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": 0
 							},
 							{
 								"color": "red",
@@ -289,6 +299,7 @@
 				"graphMode": "area",
 				"justifyMode": "auto",
 				"orientation": "auto",
+				"percentChangeColorMode": "standard",
 				"reduceOptions": {
 					"calcs": ["lastNotNull"],
 					"fields": "",
@@ -299,7 +310,7 @@
 				"textMode": "auto",
 				"wideLayout": true
 			},
-			"pluginVersion": "12.1.0",
+			"pluginVersion": "12.2.0",
 			"targets": [
 				{
 					"datasource": {
@@ -331,7 +342,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": 0
 							},
 							{
 								"color": "red",
@@ -355,6 +367,7 @@
 				"graphMode": "area",
 				"justifyMode": "auto",
 				"orientation": "auto",
+				"percentChangeColorMode": "standard",
 				"reduceOptions": {
 					"calcs": ["lastNotNull"],
 					"fields": "",
@@ -365,7 +378,7 @@
 				"textMode": "auto",
 				"wideLayout": true
 			},
-			"pluginVersion": "12.1.0",
+			"pluginVersion": "12.2.0",
 			"targets": [
 				{
 					"datasource": {
@@ -397,7 +410,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": 0
 							},
 							{
 								"color": "red",
@@ -421,6 +435,7 @@
 				"graphMode": "area",
 				"justifyMode": "auto",
 				"orientation": "auto",
+				"percentChangeColorMode": "standard",
 				"reduceOptions": {
 					"calcs": ["lastNotNull"],
 					"fields": "",
@@ -431,7 +446,7 @@
 				"textMode": "auto",
 				"wideLayout": true
 			},
-			"pluginVersion": "12.1.0",
+			"pluginVersion": "12.2.0",
 			"targets": [
 				{
 					"datasource": {
@@ -495,6 +510,7 @@
 							"type": "linear"
 						},
 						"showPoints": "never",
+						"showValues": false,
 						"spanNulls": false,
 						"stacking": {
 							"group": "A",
@@ -509,7 +525,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": 0
 							},
 							{
 								"color": "red",
@@ -536,10 +553,12 @@
 					"showLegend": true
 				},
 				"tooltip": {
+					"hideZeros": false,
 					"mode": "multi",
 					"sort": "none"
 				}
 			},
+			"pluginVersion": "12.2.0",
 			"targets": [
 				{
 					"datasource": {
@@ -596,11 +615,14 @@
 					"fields": "",
 					"values": false
 				},
+				"sort": "desc",
 				"tooltip": {
+					"hideZeros": false,
 					"mode": "single",
 					"sort": "none"
 				}
 			},
+			"pluginVersion": "12.2.0",
 			"targets": [
 				{
 					"datasource": {
@@ -645,6 +667,9 @@
 						"cellOptions": {
 							"type": "auto"
 						},
+						"footer": {
+							"reducers": []
+						},
 						"inspect": false
 					},
 					"mappings": [],
@@ -652,7 +677,8 @@
 						"mode": "absolute",
 						"steps": [
 							{
-								"color": "green"
+								"color": "green",
+								"value": 0
 							},
 							{
 								"color": "red",
@@ -713,15 +739,9 @@
 			"id": 9,
 			"options": {
 				"cellHeight": "sm",
-				"footer": {
-					"countRows": false,
-					"fields": "",
-					"reducer": ["sum"],
-					"show": false
-				},
 				"showHeader": true
 			},
-			"pluginVersion": "12.1.0",
+			"pluginVersion": "12.2.0",
 			"targets": [
 				{
 					"datasource": {
@@ -740,20 +760,17 @@
 		}
 	],
 	"preload": false,
-	"schemaVersion": 41,
+	"schemaVersion": 42,
 	"tags": ["decidim", "admin", "reports", "RG001"],
 	"templating": {
 		"list": [
 			{
 				"current": {
-					"selected": false,
 					"text": "30",
 					"value": "30"
 				},
-				"hide": 0,
 				"includeAll": false,
 				"label": "Time Range (days)",
-				"multi": false,
 				"name": "time_range",
 				"options": [
 					{
@@ -793,8 +810,6 @@
 					}
 				],
 				"query": "7,14,30,60,90,180,365",
-				"queryValue": "",
-				"skipUrlSync": false,
 				"type": "custom"
 			}
 		]
