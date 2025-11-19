@@ -5,18 +5,17 @@
     Gianfranco Cedro
 -->
 
-
 <%= link_to map_visualization_path(map_visualization), class: "card__list", id: "map_visualization_#{map_visualization.id}" do %>
   <div class="card__list-content">
   <div style="display: flex; gap: 1.5rem; align-items: flex-start; flex-direction: column;">
     <% if map_visualization.map_image.present? %>
       <div class="card__list-thumbnail" style="width: 100%;">
-        <%= image_tag map_visualization.map_image, 
-                      alt: map_visualization.name, 
+        <%= image_tag map_visualization.map_image,
+                      alt: map_visualization.name,
                       style: "width: 100%; height: 200px; object-fit: cover; border-radius: 4px;" %>
       </div>
     <% end %>
-    
+
     <div class="card__list-text-content" style="width: 100%; display:flex; flex-direction: column">
       <div class="h4 card__list-title">
         <%= map_visualization.name %>

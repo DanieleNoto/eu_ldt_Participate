@@ -5,7 +5,6 @@
     Gianfranco Cedro
 -->
 
-
 <% add_decidim_page_title(t(".title")) %>
 
 <div class="item_show__header">
@@ -16,9 +15,9 @@
 
 <div class="item__edit item__edit-1col">
   <div class="item__edit-form">
-    <div class="card experiments-association" 
+    <div class="card experiments-association"
          data-admin-path="<%= "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/ldt_use_case_scenarios" %>"
-         data-i18n-name-required="<%= t(".name_required") %>" 
+         data-i18n-name-required="<%= t(".name_required") %>"
          data-i18n-save-error="<%= t(".save_error") %>"
          data-i18n-details-title="<%= t(".experiment_details.title") %>"
          data-i18n-details-experiment-name="<%= t(".experiment_details.experiment_name") %>"
@@ -57,7 +56,7 @@
                 <% @experiments.each do |exp| %>
                   <tr data-experiment-id="<%= exp['id'] %>">
                     <td data-label="Select">
-                      <input type="radio" name="selected_experiment" value="<%= exp['id'] %>" class="select-experiment-radio" />
+                      <input type="radio" name="selected_experiment" value="<%= exp['id'] %>" class="select-experiment-radio">
                     </td>
                     <td class="!text-left" data-label="Experiment Name">
                       <strong><%= exp.dig('experiment', 'name') || t(".no_name") %></strong>
@@ -96,17 +95,17 @@
             <!-- Hidden field for experiment_id -->
             <%= f.hidden_field :experiment_id, id: "experiment-id-field" %>
             <%= f.hidden_field :component_id, value: current_component.id %>
-            
+
             <!-- Selected experiment info will be inserted here by JavaScript -->
             <div data-selected-experiment-info></div>
-            
+
             <!-- Association Name Field -->
             <div class="field">
-              <%= f.text_field :name, 
+              <%= f.text_field :name,
                   id: "association-name",
                   placeholder: t('.enter_association_name'),
                   required: true %>
-              
+
             </div>
           </div>
         </div>

@@ -5,13 +5,12 @@
     Gianfranco Cedro
 -->
 
-
 <% if Rails.application.secrets.dig(:matomo, :enabled) %>
   <%
     server_address = Rails.application.secrets.dig(:matomo, :server_address)
     site_id = Rails.application.secrets.dig(:matomo, :site_id)
   %>
-  
+
   <% if server_address.present? && site_id.present? %>
     <!-- Matomo -->
     <script type="text/javascript">
@@ -27,7 +26,7 @@
         g.type='text/javascript'; g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
       })();
     </script>
-    <noscript><p><img src="<%= server_address %>matomo.php?idsite=<%= site_id %>&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+    <noscript><p><img src="<%= server_address %>matomo.php?idsite=<%= site_id %>&amp;rec=1" style="border:0;" alt=""></p></noscript>
     <!-- End Matomo Code -->
   <% end %>
 <% end %>

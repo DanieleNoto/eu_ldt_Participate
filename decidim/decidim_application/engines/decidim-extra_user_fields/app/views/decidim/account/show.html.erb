@@ -6,7 +6,6 @@
    Gianfranco Cedro
 -->
 
-
 <% add_decidim_page_title(t("profile", scope: "layouts.decidim.user_menu")) %>
 <% content_for(:subtitle) { t("profile", scope: "layouts.decidim.user_menu") } %>
 
@@ -40,9 +39,9 @@
       <%= f.text_field :name, autocomplete: "name" %>
       <%= f.text_field :nickname, autocomplete: "nickname", data: { controller: "character-counter" } %>
       <%= f.email_field :email, disabled: current_user.unconfirmed_email.present?, autocomplete: "email", data: { original: current_user.email } %>
-      
+
       <%= render partial: "decidim/extra_user_fields/profile_form", locals: { f: f } %>
-      
+
       <% personal_url_field = f.url_field(:personal_url, autocomplete: "url", help_text: t("personal_url_help_text", scope:"decidim.account.show", default: "Must start with http:// or https://")) %>
       <% personal_url_errors = @account.errors.to_hash(true).fetch(:personal_url, []) %>
       <% personal_url_message = personal_url_errors.first.presence || t("activemodel.errors.models.user.attributes.personal_url.invalid_url", default: t("errors.messages.invalid", default: "Is not a valid URL")) %>

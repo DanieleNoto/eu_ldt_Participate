@@ -6,7 +6,6 @@
    Gianfranco Cedro
 -->
 
-
 <% add_decidim_meta_tags(
   description: @use_case_scenario.experiment_data&.dig('description'),
   title: decidim_escape_translated(@use_case_scenario.name),
@@ -50,7 +49,7 @@
                 <span class="definition-data__text"><%= @use_case_scenario.experiment_data['id'] %></span>
               </div>
             <% end %>
-            
+
             <% if @use_case_scenario.experiment_data['description'].present? %>
               <div class="section" style="margin-top: 1.5rem;">
                 <%= simple_format(@use_case_scenario.experiment_data['description']) %>
@@ -68,11 +67,11 @@
     <div class="card" style="margin-top: 2rem;">
       <div class="card__content">
         <h3 class="card__title"><%= t(".title") %></h3>
-        <div class="experiment-iframe-container" 
+        <div class="experiment-iframe-container"
              data-experiment-data="<%= @use_case_scenario.experiment_data.to_json %>"
              data-iframe-url="<%= @tool2_iframe_url %>"
              style="margin-top: 1rem;">
-          <iframe 
+          <iframe
             id="experiment-iframe"
             src="<%= @tool2_iframe_url %>"
             frameborder="0"
@@ -90,7 +89,7 @@
 // Inline script for postMessage handling
 (function() {
   const container = document.querySelector('[data-experiment-data]');
-  
+
   if (!container) {
     return;
   }

@@ -184,7 +184,7 @@ module Decidim
       initializer "decidim_keycloak.mount_routes", after: :add_routing_paths do |app|
         app.routes.prepend do
           scope module: "decidim/keycloak" do
-            get "/users/auth/keycloakopenid/external", 
+            get "/users/auth/keycloakopenid/external",
                 to: "external_login#initiate",
                 as: :keycloak_external_login
           end

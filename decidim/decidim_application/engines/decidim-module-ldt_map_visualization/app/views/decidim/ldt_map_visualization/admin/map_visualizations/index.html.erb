@@ -5,7 +5,6 @@
    Gianfranco Cedro
 -->
 
-
 <% add_decidim_page_title(t(".title")) %>
 
 <div class="card">
@@ -14,8 +13,8 @@
       <%= t(".title") %>
       <div class="flex align-middle gap-x-4 ml-auto">
         <% if allowed_to? :create, :ldt_map_visualization or current_user&.admin? %>
-          <%= link_to t(".new"), 
-          "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/map_visualizations/new", 
+          <%= link_to t(".new"),
+          "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/map_visualizations/new",
           class: "button button__sm button__secondary" %>
         <% end %>
         <%= render partial: "decidim/admin/components/resource_action" %>

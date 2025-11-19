@@ -5,7 +5,6 @@
     Gianfranco Cedro
 -->
 
-
 <% add_decidim_page_title(t("decidim.admin.titles.analytics")) %>
 
 <style>
@@ -47,7 +46,7 @@
                 height="1000px"
                 class="analytics-iframe">
         </iframe>
-        
+
         <div id="matomo-error" style="display: none;" class="callout alert">
           <p><strong>Unable to load Matomo dashboard.</strong></p>
           <p>Please check:</p>
@@ -59,21 +58,21 @@
           <p>Try accessing <a href="<%= @server_address %>" target="_blank">Matomo directly</a> to verify configuration.</p>
         </div>
       </div>
-      
+
       <script>
         document.getElementById('matomo-iframe').addEventListener('load', function() {
           console.log('Matomo widget loaded successfully');
-          
+
           // Hide error message if shown
           var errorDiv = document.getElementById('matomo-error');
           if (errorDiv) {
             errorDiv.style.display = 'none';
           }
         });
-        
+
         document.getElementById('matomo-iframe').addEventListener('error', function() {
           console.error('Failed to load Matomo widget');
-          
+
           var errorDiv = document.getElementById('matomo-error');
           if (errorDiv) {
             errorDiv.style.display = 'block';

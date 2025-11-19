@@ -3,37 +3,7 @@
 # Authors:
 #   Gianfranco Cedro
 #   Marco Cerdelli
-# Files in the config/locales directory are used for internationalization
-# and are automatically loaded by Rails. If you want to use locales other
-# than English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# The following keys must be escaped otherwise they will not be retrieved by
-# the default I18n backend:
-#
-# true, false, on, off, yes, no
-#
-# Instead, surround them with single quotes.
-#
-# en:
-#   "true": "foo"
-#
-# To learn more, please read the Rails Internationalization guide
-# available at https://guides.rubyonrails.org/i18n.html.
-
+---
 en:
     activemodel:
         attributes:
@@ -42,8 +12,15 @@ en:
                 tos_version: Privacy policy version
             user:
                 tos_agreement: Privacy policy agreement
-
+    components:
+        meetings:
+            settings:
+                global:
+                    terms_and_conditions_url_for_meeting_creators: Privacy policy URL for meeting
+                        creators
     decidim:
+        account:
+            blocked: This account has been blocked due to privacy policy violation
         admin:
             admin_terms_of_service:
                 accept:
@@ -56,39 +33,21 @@ en:
                     title: Agree to the privacy policy
                 required_review:
                     alert: 'Required: Review our admin privacy policy'
-                    callout: Please take a moment to review the admin privacy policy. Otherwise you will not be able to manage the platform.
+                    callout: Please take a moment to review the admin privacy policy. Otherwise
+                        you will not be able to manage the platform.
                 title: Admin privacy policy
             organization:
                 form:
                     admin_terms_of_service: Admin privacy policy
-
             static_pages:
                 edit:
-                    changed_notably_help: If checked, participants will be notified to accept the privacy policy.
-
-        account:
-            blocked: This account has been blocked due to privacy policy violation
+                    changed_notably_help: If checked, participants will be notified to accept
+                        the privacy policy.
         admin_terms_of_service:
-            default_body: '<h2>ADMIN PRIVACY POLICY</h2><p>We trust you have received the usual lecture from the local System Administrator. It usually boils down to these three things:</p><ol><li>Respect the privacy of others.</li><li>Think before you click.</li><li>With great power comes great responsibility.</li></ol>'
-
-        templates:
-            admin:
-                questionnaire_templates:
-                    preview:
-                        tos_agreement: By participating you accept its Privacy Policy
-
-        forms:
-            admin:
-                models:
-                    components:
-                        tos: Privacy Policy
-
-            questionnaires:
-                show:
-                    tos_agreement: I have read and accept the specific Privacy Policy for this survey described above, which explains the additional data collected, the puposes of processing, and the legal basis, in addition to the general Privacy Policy.
-                responses:
-                    tos_agreement: By participating you accept its Privacy Policy
-
+            default_body: '<h2>ADMIN PRIVACY POLICY</h2><p>We trust you have received the
+                usual lecture from the local System Administrator. It usually boils down to
+                these three things:</p><ol><li>Respect the privacy of others.</li><li>Think
+                before you click.</li><li>With great power comes great responsibility.</li></ol>'
         demographics:
             demographics:
                 questionnaire:
@@ -102,7 +61,21 @@ en:
         download_your_data:
             help:
                 users:
-                    accepted_tos_version: The date when the Privacy Policy of this platform was accepted by the user
+                    accepted_tos_version: The date when the Privacy Policy of this platform
+                        was accepted by the user
+        forms:
+            admin:
+                models:
+                    components:
+                        tos: Privacy Policy
+            questionnaires:
+                responses:
+                    tos_agreement: By participating you accept its Privacy Policy
+                show:
+                    tos_agreement: I have read and accept the specific Privacy Policy for this
+                        survey described above, which explains the additional data collected,
+                        the puposes of processing, and the legal basis, in addition to the general
+                        Privacy Policy.
         pages:
             privacy_policy:
                 accept:
@@ -112,25 +85,37 @@ en:
                     agreement: I agree with this privacy policy
                     legend: Agree to the privacy policy
                 refuse:
-                    modal_body: If you refuse, you will not be able to use the platform, you can <a href="%{download_your_data_path}">download your data</a> and/or <a href="%{delete_path}">delete your account</a>.
+                    modal_body: If you refuse, you will not be able to use the platform, you
+                        can <a href="%{download_your_data_path}">download your data</a> and/or
+                        <a href="%{delete_path}">delete your account</a>.
                     modal_btn_continue: Accept privacy policy and continue
                     modal_btn_exit: I will review it later
                     modal_button: Refuse the privacy policy
                     modal_title: Do you really refuse the updated privacy policy?
                 required_review:
                     alert: We have updated our Privacy Policy, please review it.
-                    body: Please take a moment to review updates to our Privacy Policy. Otherwise you will not be able to use the platform.
+                    body: Please take a moment to review updates to our Privacy Policy. Otherwise
+                        you will not be able to use the platform.
                     title: 'Required: Review updates to our privacy policy'
         profile:
             inaccessible_message: This profile is inaccessible due to privacy policy violation!
+        templates:
+            admin:
+                questionnaire_templates:
+                    preview:
+                        tos_agreement: By participating you accept its Privacy Policy
         welcome_notification:
-            default_body: <br><p>Hi {{name}},</p><p>Thanks for joining {{organization}} and welcome!</p><ul><li>If you want to get a quick idea of what you can do here, have a look at the <a href="{{help_url}}">Help</a> section.</li><br><li>Once you have read it you will get your first badge. Here is a <a href="{{badges_url}}">list of all the badges</a> you can get as you participate in {{organization}}</li><br><li>Last but not least, join other people, share with them the experience of being engaged and participating in {{organization}}. Make proposals, comments, debate, think about how to contribute to the common good, provide arguments to convince, listen and read to be convinced, express your ideas in a concrete and direct way, respond with patience and decision, defend your ideas and keep an open mind to collaborate and join other people's ideas.</li></ul>
-
-    components:
-        meetings:
-            settings:
-                global:
-                    terms_and_conditions_url_for_meeting_creators: Privacy policy URL for meeting creators
+            default_body: <br><p>Hi {{name}},</p><p>Thanks for joining {{organization}}
+                and welcome!</p><ul><li>If you want to get a quick idea of what you can do
+                here, have a look at the <a href="{{help_url}}">Help</a> section.</li><br><li>Once
+                you have read it you will get your first badge. Here is a <a href="{{badges_url}}">list
+                of all the badges</a> you can get as you participate in {{organization}}</li><br><li>Last
+                but not least, join other people, share with them the experience of being
+                engaged and participating in {{organization}}. Make proposals, comments, debate,
+                think about how to contribute to the common good, provide arguments to convince,
+                listen and read to be convinced, express your ideas in a concrete and direct
+                way, respond with patience and decision, defend your ideas and keep an open
+                mind to collaborate and join other people's ideas.</li></ul>
     devise:
         omniauth_callbacks:
             add_tos_errors: Privacy policy must be accepted in order to create an account.

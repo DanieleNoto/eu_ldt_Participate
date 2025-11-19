@@ -6,7 +6,7 @@
 
 require "i18n/tasks"
 
-describe "I18n sanity" do
+describe "Decidim::Keycloak I18n" do
   let(:locales) do
     ENV["ENFORCED_LOCALES"].presence || "en"
   end
