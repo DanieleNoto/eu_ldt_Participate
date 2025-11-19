@@ -1,5 +1,13 @@
-import { Page } from '@playwright/test';
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Simone Bianchelli
+ * Gianfranco Cedro
+ */
 
+import { Page } from '@playwright/test';
+import { analyzeAccessibility, saveAccessibilityResults as saveA11y } from './accessibility-helper';
 /**
  * Helper functions useful for Playwright tests.
  * Provides common utilities for interactions and verifications.
@@ -8,6 +16,7 @@ import { Page } from '@playwright/test';
 /**
  * Waits for element to be stable (not changing position) before interacting
  */
+export type ScanLogEntry = { step: string; ok: boolean; error?: string };
 export async function waitForElementStable(page: Page, selector: string): Promise<void> {
 	const element = page.locator(selector);
 	await element.waitFor({ state: 'visible' });
@@ -219,3 +228,24 @@ export async function waitForPageLoad(page: Page, timeout = 30000): Promise<void
 		await page.waitForTimeout(500);
 	}
 }
+
+/**
+ * Wrapper che esegue analyzeAccessibility senza far fallire immediatamente il test.
+ * - page: Playwright Page reale
+ * - stepName: nome descrittivo (es. 'processes-overview_initial-load')
+ * - scanLog: array passato per raccogliere i risultati
+ */
+export async function tryAnalyze(page: Page, stepName: string, scanLog: ScanLogEntry[] = []): Promise<void> {
+	try {
+		// analizza e salva artefatti; analyzeAccessibility può lanciare se trova violazioni critiche
+		await analyzeAccessibility(page, stepName);
+		scanLog.push({ step: stepName, ok: true });
+	} catch (err: any) {
+		// registra errore e continua
+		scanLog.push({ step: stepName, ok: false, error: String(err.message ?? err) });
+		// log visibile nella console della run
+		// eslint-disable-next-line no-console
+		console.warn(`A11y scan failed for step=${stepName}:`, err);
+	}
+}
+export const saveAccessibilityResults = saveA11y;
