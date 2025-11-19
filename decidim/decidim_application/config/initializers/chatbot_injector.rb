@@ -165,7 +165,7 @@ class ChatbotInjector
             // Create and append the chatbot element
             const chatbot = document.createElement('eu-chatbot');
             chatbot.setAttribute('language', '#{language}');
-            chatbot.style.zIndex = '1';
+            chatbot.style.zIndex = '10';
             document.body.appendChild(chatbot);
             console.log('[Decidim] Chatbot web component loaded and mounted');
           })
