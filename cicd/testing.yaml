@@ -21,6 +21,7 @@ variables:
 jobs:
     - job: PlaywrightAxeFrontend
       displayName: 'Install and Run Playwright / Axe (Frontend) & Publish Results'
+      timeoutInMinutes: 240  # run for 4 hours
       steps:
           - task: replacetokens@5
             displayName: 'Replace tokens Playwright'
@@ -69,6 +70,8 @@ jobs:
                 CI: 'true'
             continueOnError: true
             displayName: 'Run Playwright / Axe (Frontend) - Keycloak tests only'
+
+          # Publish JUnit results (pass/fail)
           - task: PublishTestResults@2
             displayName: 'Publish Playwright / Axe Test Results (Frontend)'
             inputs:
@@ -76,12 +79,14 @@ jobs:
                 testResultsFiles: '**/*junit.xml'
                 testRunTitle: 'Playwright + Axe'
 
+          # Publish WCAG reports (JSON + SARIF)
           - task: PublishBuildArtifacts@1
-            displayName: 'Publish Accessibility Reports (SARIF/JSON)'
+            displayName: 'Publish Accessibility Reports (WCAG Compliance)'
             inputs:
-                pathToPublish: 'tests/acceptance/e2e/a11y-reports'
-                artifactName: 'AccessibilityReports'
-                condition: always()
+                PathtoPublish: 'tests/acceptance/e2e/a11y-reports'
+                ArtifactName: 'WCAG-AccessibilityReports'
+                publishLocation: 'Container'
+            condition: succeededOrFailed()
 
           - script: |
                 echo "Publishing Playwright / Axe Test Results (Frontend)"
