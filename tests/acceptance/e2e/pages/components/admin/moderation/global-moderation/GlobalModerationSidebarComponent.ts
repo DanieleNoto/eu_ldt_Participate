@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { Locator, Page } from '@playwright/test';
 
 /**
@@ -234,36 +241,5 @@ export class GlobalModerationSidebarComponent {
 				console.warn(`Menu item "${text}" should have aria-label attribute`);
 			}
 		}
-	}
-
-	/**
-	 * Debug helper - get all sidebar elements and their properties
-	 */
-	async debugSidebar(): Promise<any> {
-		return {
-			container: {
-				visible: await this.getSidebarContainer().isVisible(),
-				class: await this.getSidebarContainer().getAttribute('class')
-			},
-			menu: {
-				visible: await this.getSidebarMenu().isVisible(),
-				class: await this.getSidebarMenu().getAttribute('class')
-			},
-			reportedContent: {
-				visible: await this.getReportedContentLink().isVisible(),
-				href: await this.getReportedContentLink().getAttribute('href'),
-				text: await this.getReportedContentLink().textContent(),
-				enabled: await this.getReportedContentLink().isEnabled()
-			},
-			reportedParticipants: {
-				visible: await this.getReportedParticipantsLink().isVisible(),
-				href: await this.getReportedParticipantsLink().getAttribute('href'),
-				text: await this.getReportedParticipantsLink().textContent(),
-				enabled: await this.getReportedParticipantsLink().isEnabled()
-			},
-			menuItems: await this.getMenuItemTexts(),
-			activeMenuItem: await this.getActiveMenuItemText(),
-			menuItemCount: await this.getMenuItemCount()
-		};
 	}
 }

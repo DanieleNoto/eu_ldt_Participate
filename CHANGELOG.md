@@ -1,6 +1,14 @@
+<!-- SPDX-License-Identifier: AGPL-3.0
+Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+Authors:
+Denis Vasilev Dimchev
+Pierluigi Spedicato
+-->
+
 # Changelog from D03.04.Oct to D03.04.Nov
- 
+
 ## feat
+
 - update sbom generation
 - replaced behave-html-formatter with allure-behave
 - Add license specification to gemspec files for compliance
@@ -174,9 +182,11 @@
 - startup chatbot BE structure
 
 ## PR Merge
+
 - [PAR-CA001] - Chatbot webcomponent- chore: update sbom generation- Some bug fixes- test: updated [PAR-PPM007] - Configure use case information in process- test: [PAR-PPM007] - Configure use case information in process- Bug fixes- Test - [PAR-DE003] - Export meeting data- Test [PAR-EP005] - Register for a meeting- Last Integrations and bug fixing- Test: [PAR-PIM002] - Collect additional personal data on registration- Test - [PAR-EP004] - Join online meeting- test: [PAR-RG001] - View reports and analytics- AKS configuration and other features and fixes- [PAR-EA002] - Create an official event- Test: [PAR-DI001] - Upload file on specific process- Test: PAR-AF001] - Admin panel colour and style configuration
 
 ## refactor
+
 - remove obsolete process moderation e2e test
 - Improve pagination logic in assets index action
 - fixed sonarqube security issue
@@ -191,6 +201,7 @@
 - fixed reported issues
 
 ## fix
+
 - Remove unnecessary help text from map name input field
 - Correct upload modal styling by adjusting translation properties
 - Update MATOMO_TOKEN_AUTH in decidim-secret.yml
@@ -281,8 +292,8 @@
 - fixed linting errors
 
 ## file_changes
-- Deleted jitsi-web-statefulset.yaml- Deleted jitsi-prosody-statefulset.yaml- Deleted jitsi-jvb-statefulset.yaml- Deleted jitsi-jicofo-statefulset.yaml- Deleted grafana-statefulset.yaml
 
+- Deleted jitsi-web-statefulset.yaml- Deleted jitsi-prosody-statefulset.yaml- Deleted jitsi-jvb-statefulset.yaml- Deleted jitsi-jicofo-statefulset.yaml- Deleted grafana-statefulset.yaml
 
 # Changelog from D03.04.Sep to D03.04.Oct
 
@@ -697,4 +708,3 @@
 ## PR Merge
 
 - [PAR-PPM001] - Create new process- [PAR-PIM003] - Update personal information- [PAR-PIM001] - Configure form for additional personal data on first login- Startup Participate project
-

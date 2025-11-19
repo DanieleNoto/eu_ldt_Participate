@@ -1,18 +1,18 @@
 let selectedExperiment = null;
 let i18n = {}; // Store translations
 
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOMContentLoaded fired - initializing experiments_association');
-  
-  // Load translations from data attributes
-  loadTranslations();
-  
-  // Setup event handlers
-  setupRadioHandlers();
-  setupCancelHandler();
-  setupSubmitHandler();
-  setupInputValidation();
-  console.log('Handlers setup complete');
+document.addEventListener('DOMContentLoaded', function () {
+	console.log('DOMContentLoaded fired - initializing experiments_association');
+
+	// Load translations from data attributes
+	loadTranslations();
+
+	// Setup event handlers
+	setupRadioHandlers();
+	setupCancelHandler();
+	setupSubmitHandler();
+	setupInputValidation();
+	console.log('Handlers setup complete');
 });
 
 function loadTranslations() {
@@ -184,121 +184,121 @@ function escapeHtml(text) {
 
 // Form validation functions
 function setupSubmitHandler() {
-  // Find the form that contains our association-name field
-  const nameInput = document.getElementById('association-name');
-  const form = nameInput ? nameInput.closest('form') : null;
+	// Find the form that contains our association-name field
+	const nameInput = document.getElementById('association-name');
+	const form = nameInput ? nameInput.closest('form') : null;
 
-  if (form) {
-    form.addEventListener('submit', function(e) {
-      // Clear any previous errors
-      clearFieldErrors();
-      
-      // Get form values
-      const nameInput = document.getElementById('association-name');
-      const experimentIdField = document.getElementById('experiment-id-field');
-      
-      let hasErrors = false;
-      
-      // Validate name field
-      if (!nameInput || !nameInput.value.trim()) {
-        showFieldError('association-name', 'name_required');
-        hasErrors = true;
-      }
-      
-      // Validate experiment selection
-      if (!experimentIdField || !experimentIdField.value.trim()) {
-        showError('Please select an experiment first.');
-        hasErrors = true;
-      }
-      
-      if (hasErrors) {
-        e.preventDefault();
-        return false;
-      }
-      
-      // Disable submit button to prevent double submission
-      const submitBtn = document.getElementById('save-button');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating...';
-      }
-      
-      return true;
-    });
-  }
+	if (form) {
+		form.addEventListener('submit', function (e) {
+			// Clear any previous errors
+			clearFieldErrors();
+
+			// Get form values
+			const nameInput = document.getElementById('association-name');
+			const experimentIdField = document.getElementById('experiment-id-field');
+
+			let hasErrors = false;
+
+			// Validate name field
+			if (!nameInput || !nameInput.value.trim()) {
+				showFieldError('association-name', 'name_required');
+				hasErrors = true;
+			}
+
+			// Validate experiment selection
+			if (!experimentIdField || !experimentIdField.value.trim()) {
+				showError('Please select an experiment first.');
+				hasErrors = true;
+			}
+
+			if (hasErrors) {
+				e.preventDefault();
+				return false;
+			}
+
+			// Disable submit button to prevent double submission
+			const submitBtn = document.getElementById('save-button');
+			if (submitBtn) {
+				submitBtn.disabled = true;
+				submitBtn.textContent = 'Creating...';
+			}
+
+			return true;
+		});
+	}
 }
 
 function setupInputValidation() {
-  const nameInput = document.getElementById('association-name');
-  if (nameInput) {
-    nameInput.addEventListener('input', function() {
-      if (this.value.trim()) {
-        clearFieldError('association-name');
-      }
-    });
-    
-    nameInput.addEventListener('blur', function() {
-      if (!this.value.trim()) {
-        showFieldError('association-name', 'name_required');
-      }
-    });
-  }
+	const nameInput = document.getElementById('association-name');
+	if (nameInput) {
+		nameInput.addEventListener('input', function () {
+			if (this.value.trim()) {
+				clearFieldError('association-name');
+			}
+		});
+
+		nameInput.addEventListener('blur', function () {
+			if (!this.value.trim()) {
+				showFieldError('association-name', 'name_required');
+			}
+		});
+	}
 }
 
 function clearFieldErrors() {
-  // Remove error styling from all inputs
-  document.querySelectorAll('.is-invalid-input').forEach(el => {
-    el.classList.remove('is-invalid-input');
-  });
-  
-  // Remove error messages
-  document.querySelectorAll('.form-error').forEach(el => {
-    el.classList.remove('is-visible');
-  });
+	// Remove error styling from all inputs
+	document.querySelectorAll('.is-invalid-input').forEach(el => {
+		el.classList.remove('is-invalid-input');
+	});
+
+	// Remove error messages
+	document.querySelectorAll('.form-error').forEach(el => {
+		el.classList.remove('is-visible');
+	});
 }
 
 function clearFieldError(fieldId) {
-  const field = document.getElementById(fieldId);
-  if (field) {
-    field.classList.remove('is-invalid-input');
-    const errorMsg = field.parentNode.querySelector('.form-error');
-    if (errorMsg) {
-      errorMsg.classList.remove('is-visible');
-    }
-  }
+	const field = document.getElementById(fieldId);
+	if (field) {
+		field.classList.remove('is-invalid-input');
+		const errorMsg = field.parentNode.querySelector('.form-error');
+		if (errorMsg) {
+			errorMsg.classList.remove('is-visible');
+		}
+	}
 }
 
 function showFieldError(fieldId, messageKey) {
-  const field = document.getElementById(fieldId);
-  if (!field) return;
-  
-  // Add error styling
-  field.classList.add('is-invalid-input');
-  
-  // Remove any existing error message
-  const existingError = field.parentNode.querySelector('.form-error');
-  if (existingError) {
-    existingError.remove();
-  }
-  
-  // Get message text
-  let messageText = messageKey;
-  if (messageKey === 'name_required') {
-    const container = document.querySelector('.experiments-association');
-    messageText = container?.dataset.i18nNameRequired || 'Name is required';
-  }
-  
-  // Create and insert error message
-  const errorDiv = document.createElement('small');
-  errorDiv.className = 'form-error';
-  errorDiv.textContent = messageText;
-  
-  field.parentNode.insertBefore(errorDiv, field.nextSibling);
-  errorDiv.classList.add('is-visible');
+	const field = document.getElementById(fieldId);
+	if (!field) return;
+
+	// Add error styling
+	field.classList.add('is-invalid-input');
+
+	// Remove any existing error message
+	const existingError = field.parentNode.querySelector('.form-error');
+	if (existingError) {
+		existingError.remove();
+	}
+
+	// Get message text
+	let messageText = messageKey;
+	if (messageKey === 'name_required') {
+		const container = document.querySelector('.experiments-association');
+		messageText = container?.dataset.i18nNameRequired || 'Name is required';
+	}
+
+	// Create and insert error message
+	const errorDiv = document.createElement('small');
+	errorDiv.className = 'form-error';
+	errorDiv.textContent = messageText;
+
+	field.parentNode.insertBefore(errorDiv, field.nextSibling);
+	errorDiv.classList.add('is-visible');
 }
 
 function showError(message) {
-  // For general errors, show in a general location or as an alert
-  // You could also create a general error container
-  alert(message); // Fallback for general errors
+	// For general errors, show in a general location or as an alert
+	// You could also create a general error container
+	alert(message); // Fallback for general errors
 }

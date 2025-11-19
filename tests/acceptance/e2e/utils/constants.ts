@@ -87,7 +87,13 @@ export const EMAIL_URLS = {
 export const GRAFANA_URLS = {
 	ORIGIN: process.env.GRAFANA_ORIGIN || 'https://part-int.ldttoolbox.app',
 	BASE_PATH: process.env.GRAFANA_BASE_PATH || '/analytics/grafana',
-	get BASE() { return `${this.ORIGIN}${this.BASE_PATH}`; },
-	get LOGIN() { return `${this.BASE_PATH}/login`; },
-	get API_ORG() { return `${this.BASE_PATH}/api/org`; }
+	get BASE() {
+		return `${this.ORIGIN}${this.BASE_PATH}`;
+	},
+	get LOGIN() {
+		return `${this.BASE_PATH}/login`;
+	},
+	get API_ORG() {
+		return `${this.BASE_PATH}/api/org`;
+	}
 } as const;
