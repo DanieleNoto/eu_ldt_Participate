@@ -2,41 +2,44 @@
 // # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 // # Authors:
 //   # Denis Vasilev Dimchev
+//   # Gianfranco Cedro
 /* eslint-disable no-console */
 /* global self, caches, importScripts, workbox */
 
 // Service Worker for Decidim application
 // This file is processed by Workbox InjectManifest plugin
 
-// Import Workbox from the CDN or local source
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
+// Import Workbox from local node_modules instead of CDN
+// This avoids GDPR issues and improves reliability
+importScripts('/decidim-packs/js/workbox-sw.js');
 
 if (workbox) {
-	console.log('Workbox is loaded');
-
 	// Enable skipWaiting and clientsClaim for immediate activation
 	workbox.core.skipWaiting();
 	workbox.core.clientsClaim();
 
-	// Set cache name prefix
+	// Set cache name prefix with dynamic versioning for better cache invalidation
+	// Using timestamp as version to ensure cache refresh on new deployments
+	const cacheVersion = self.__CACHE_VERSION__ || 'v1';
 	workbox.core.setCacheNameDetails({
 		prefix: 'decidim',
-		suffix: 'v1'
+		suffix: cacheVersion
 	});
 
 	// Precache manifest will be injected here by InjectManifest plugin
 	// This is where Workbox will inject the precache manifest
 	workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || []);
 
-	// Cache images with a cache-first strategy
+	// Cache images with StaleWhileRevalidate strategy
+	// This ensures users see cached images immediately but get updates on next load
 	workbox.routing.registerRoute(
 		({ request }) => request.destination === 'image',
-		new workbox.strategies.CacheFirst({
+		new workbox.strategies.StaleWhileRevalidate({
 			cacheName: 'decidim-images',
 			plugins: [
 				new workbox.expiration.ExpirationPlugin({
-					maxEntries: 60,
-					maxAgeSeconds: 30 * 24 * 60 * 60 // 30 Days
+					maxEntries: 100,
+					maxAgeSeconds: 7 * 24 * 60 * 60 // 7 Days (reduced from 30)
 				})
 			]
 		})
@@ -64,7 +67,12 @@ if (workbox) {
 		})
 	);
 
-	console.log('Service Worker registered successfully');
+	// Service Worker registered successfully
+	// Log only in development for debugging
+	if (typeof __DEV__ !== 'undefined' && __DEV__) {
+		console.log('[SW] Service Worker registered successfully with version:', cacheVersion);
+	}
 } else {
-	console.log('Workbox could not be loaded. No offline support');
+	// Workbox failed to load - log error for monitoring
+	console.error('[SW] Workbox could not be loaded. Offline functionality disabled.');
 }

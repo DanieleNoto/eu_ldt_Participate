@@ -1,35 +1,22 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Gianfranco Cedro
+//   # Marco Pinnella
 /* eslint-disable */
 const { config } = require('shakapacker');
 const { InjectManifest } = require('workbox-webpack-plugin');
 const { EsbuildPlugin } = require('esbuild-loader');
+const CopyPlugin = require('copy-webpack-plugin');
+const path = require('path');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
 const customConfig = {
 	devServer: {
-		hot: true,
-		liveReload: false,
 		devMiddleware: {
-			publicPath: '/decidim-packs/',
-			writeToDisk: filePath => {
-				return /\.hot-update\.(json|js)$/.test(filePath);
-			},
-			headers: {
-				'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-				Pragma: 'no-cache',
-				Expires: '0'
-			}
-		},
-		client: {
-			webSocketURL: {
-				hostname: 'localhost',
-				port: 3000,
-				pathname: '/decidim-packs/ws'
-			},
-			overlay: {
-				errors: true,
-				warnings: false
-			}
+			writeToDisk: true
 		}
 	},
 	output: {
@@ -37,6 +24,7 @@ const customConfig = {
 	},
 	module: {
 		rules: [
+			// Essential expose-loaders from Decidim core
 			{
 				test: require.resolve('jquery'),
 				loader: 'expose-loader',
@@ -120,10 +108,24 @@ const customConfig = {
 		]
 	},
 	entry: config.entrypoints,
-	plugins: []
+	plugins: [
+		// Copy Workbox library from node_modules to output directory
+		// This avoids CDN dependency and GDPR concerns
+		new CopyPlugin({
+			patterns: [
+				{
+					from: path.resolve(__dirname, '../../node_modules/workbox-sw/build/workbox-sw.js'),
+					to: 'js/workbox-sw.js'
+				}
+			]
+		})
+	]
 };
 
 if (isProduction) {
+	// Generate cache version based on build timestamp for cache invalidation
+	const cacheVersion = `v${Date.now()}`;
+
 	customConfig.plugins.push(
 		new InjectManifest({
 			swSrc: 'src/decidim/sw/sw.js',
@@ -134,7 +136,27 @@ if (isProduction) {
 			 * in order to make the SW run properly
 			 * they must be put at the project's root folder '/'
 			 */
-			swDest: '../sw.js'
+			swDest: '../sw.js',
+
+			// Inject cache version for dynamic cache invalidation
+			injectionPoint: 'self.__WB_MANIFEST',
+
+			// Maximum file size to precache (5MB)
+			maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+
+			// Exclude files from precaching to prevent issues
+			exclude: [/\.map$/, /manifest\.json$/, /\.LICENSE\.txt$/],
+
+			// Don't cache bust URLs that already have a hash
+			dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./
+		})
+	);
+
+	// Define cache version as a global variable in the service worker
+	customConfig.plugins.push(
+		new (require('webpack').DefinePlugin)({
+			'self.__CACHE_VERSION__': JSON.stringify(cacheVersion),
+			__DEV__: false
 		})
 	);
 }
