@@ -4,7 +4,6 @@
 //   # Denis Vasilev Dimchev
 //   # Gianfranco Cedro
 //   # Pierluigi Spedicato
-// Code Coverage
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { formatLog } from '../../../src/utils/logger';
 
