@@ -179,6 +179,17 @@ module Decidim
       initializer "decidim_keycloak.webpacker.assets_path" do
         Decidim.register_assets_path File.expand_path("app/packs", root)
       end
+
+      # Add custom routes for external login handling
+      initializer "decidim_keycloak.mount_routes", after: :add_routing_paths do |app|
+        app.routes.prepend do
+          scope module: "decidim/keycloak" do
+            get "/users/auth/keycloakopenid/external", 
+                to: "external_login#initiate",
+                as: :keycloak_external_login
+          end
+        end
+      end
     end
   end
 end

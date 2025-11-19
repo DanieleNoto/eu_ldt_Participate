@@ -34,9 +34,7 @@ module Decidim
 
         # Store locale if provided
         locale = params[:locale].presence || current_organization.default_locale || "en"
-        if current_organization.available_locales.include?(locale)
-          session["decidim-locale"] = locale
-        end
+        session["decidim-locale"] = locale if current_organization.available_locales.include?(locale)
 
         # Store return_to URL if provided (for post-login redirect)
         session[:user_return_to] = params[:return_to] if params[:return_to].present?
@@ -49,21 +47,21 @@ module Decidim
         base_url = keycloak_config[:site].chomp("/")
         realm = keycloak_config[:realm]
         client_id = keycloak_config[:client_id]
-        
+
         # Determine protocol and build callback URL
         protocol = request.ssl? ? "https" : "http"
         callback_url = "#{protocol}://#{request.host_with_port}/users/auth/keycloakopenid/callback"
-        
+
         # Build authorization URL with all required parameters
         auth_params = {
           client_id: client_id,
           redirect_uri: callback_url,
           response_type: "code",
           scope: "openid profile email",
-          state: state,
+          state: state
         }
-        
-        auth_url = "#{base_url}/realms/#{realm}/protocol/openid-connect/auth?" + 
+
+        auth_url = "#{base_url}/realms/#{realm}/protocol/openid-connect/auth?" +
                    auth_params.map { |k, v| "#{k}=#{CGI.escape(v.to_s)}" }.join("&")
 
         Rails.logger.info "External login: Redirecting to Keycloak with state=#{state[0..8]}..."
