@@ -2,7 +2,6 @@
 // # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 // # Authors:
 //   # Denis Vasilev Dimchev
-// Test coverage for request context utilities
 import { getRequestContext } from '../../../src/utils/request-context.utils';
 import { requestContext, RequestContextData } from '@fastify/request-context';
 

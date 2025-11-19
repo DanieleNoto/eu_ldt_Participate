@@ -2,7 +2,6 @@
 // # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 // # Authors:
 //   # Denis Vasilev Dimchev
-// Test coverage for qaTree utility
 import * as fs from 'fs';
 
 // Mock fs to avoid file system dependencies - must be before import

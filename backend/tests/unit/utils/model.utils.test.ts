@@ -4,7 +4,6 @@
 //   # Denis Vasilev Dimchev
 //   # Gianfranco Cedro
 //   # Pierluigi Spedicato
-// Test coverage for model utilities
 import { getModelScope, findForScope } from '../../../src/utils/model.utils';
 import logger from '../../../src/utils/logger';
 

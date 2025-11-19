@@ -4,7 +4,6 @@
 //   # Denis Vasilev Dimchev
 //   # Gianfranco Cedro
 //   # Pierluigi Spedicato
-// Test coverage for logger utility
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { formatLog } from '../../../src/utils/logger';
 

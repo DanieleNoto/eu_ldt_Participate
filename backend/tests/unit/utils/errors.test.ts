@@ -3,7 +3,6 @@
 // # Authors:
 //   # Denis Vasilev Dimchev
 //   # Pierluigi Spedicato
-// Test coverage for error classes
 import { NotFoundError, ValidationError } from '../../../src/utils/errors';
 
 describe('Error Classes', () => {

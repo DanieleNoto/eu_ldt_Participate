@@ -2,7 +2,6 @@
 // # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 // # Authors:
 //   # Pierluigi Spedicato
-// Code Coverage
 import { encrypt, encrdecryptypt } from '../../../src/utils/cypher';
 import appConfig from '../../../src/config/config';
 
