@@ -16,6 +16,8 @@ de:
         phone_number: Telefonnummer
         postal_code: Postleitzahl
         personal_url: Persönliche URL
+        statutory_representative_email: Vertreter-E-Mail
+        underage: Minderjährig
     errors:
       models:
         user:
@@ -70,7 +72,6 @@ de:
       show:
         personal_url_help_text: Muss mit http:// oder https:// beginnen
     admin:
-    admin:
       extra_user_fields:
         menu:
           title: Benutzerdefinierte Anmeldefelder verwalten
@@ -98,9 +99,22 @@ de:
             phone_number:
               description: Dieses Feld ist ein Telefonnummernfeld. Der Benutzer kann eine Nummer auswählen.
               label: Das Feld Telefonnummer aktivieren
+              pattern: Validierungsmuster für Telefonnummern (regexp)
+              pattern_help_html: Kopieren Sie diesen regulären Ausdruck <code class="label">^(\+34|0034|34)?[ -]*[6-9][ -]*([0-9][ -]*){8}$</code> um dieses Telefonformat +34999111222 zu validieren. Sie können den regulären Ausdruck <a href="https://rubular.com/r/dJZGjlLIadxElo" target="_blank">hier</a> überprüfen.
+              placeholder: Telefonnummer-Platzhalter
             postal_code:
               description: Dieses Feld ist für die Postleitzahl. Der Benutzer kann eine Postleitzahl auswählen.
               label: Das Postleitzahlenfeld aktivieren.
+            personal_url:
+              description: Dieses Feld ist ein String-Feld. Wenn aktiviert, muss der Benutzer eine persönliche URL ausfüllen.
+              label: Persönliche URL-Feld aktivieren
+            statutory_representative_email:
+              description: Dieses Feld ist ein String-Feld. Wenn aktiviert, muss der Benutzer eine gesetzliche Vertreter-E-Mail ausfüllen.
+              label: Gesetzliche Vertreter-E-Mail-Feld aktivieren
+            underage:
+              description: Dieses Feld ist ein Boolean-Feld. Der Benutzer kann ankreuzen, ob er minderjährig ist.
+              label: Elternberechtigungsfeld aktivieren
+              limit: Dies legt das Alterslimit fest (z.B. 18 Jahre alt)
           form:
             callout:
               help: Aktivieren Sie die Funktion für benutzerdefinierte Anmeldefelder, um zusätzliche Felder in Ihrem Anmeldeformular zu verwalten. Auch bei aktivierter Option wird das Anmeldeformular nur aktualisiert, wenn mindestens ein zusätzliches Feld aktiviert ist.
@@ -122,6 +136,7 @@ de:
       registration_form:
         signup:
           legend: Weitere Informationen
+          underage: Ich bin unter %{limit} Jahren alt und stimme zu, eine elterliche Genehmigung zu erhalten
     statutory_representative:
       inform:
         body: |
