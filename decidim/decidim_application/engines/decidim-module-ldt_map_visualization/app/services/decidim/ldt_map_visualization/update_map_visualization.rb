@@ -22,7 +22,7 @@ module Decidim
           yield :ok if block_given?
         elsif block_given?
           yield :invalid
-end
+        end
       end
 
       private

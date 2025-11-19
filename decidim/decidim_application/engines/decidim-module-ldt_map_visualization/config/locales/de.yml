@@ -1,69 +1,73 @@
 ---
 de:
-  decidim:
-    components:
-      ldt_map_visualization:
-        name: LDT-Kartendarstellung-Visualisierung
-        settings:
-          global:
-            title: Titel
-    ldt_map_visualization:
-      map_visualizations:
-        index:
-          title: Kartendarstellungen
-          no_maps: Keine Kartendarstellungen verfügbar
-          view_map: Karte ansehen
-        map_visualizations:
-          empty: Keine Kartendarstellungen verfügbar
-          count:
-            one: "%{count} Kartendarstellung"
-            other: "%{count} Kartendarstellungen"
-          no_maps: Keine Kartendarstellungen verfügbar
-          owner: Eigentümer
-          scope: Bereich
-          view_map: Karte ansehen
-          map_id: Karten-ID
-        show:
-          description: Beschreibung
-          map_details: Kartendetails
-          map_id: Karten-ID
-          owner: Eigentümer
-          scope: Bereich
-          actions: Aktionen
-          back_to_list: Zurück zur Liste
-          edit: Bearbeiten
-          created_at: Erstellt am
-      admin:
-        map_visualizations:
-          index:
-            title: Kartendarstellungen verwalten
-            preview: Vorschau
-            name: Name
-            map_id: Karten-ID
-            owner: Eigentümer
-            scope: Bereich
-            description: Beschreibung
-            actions: Aktionen
-            new: Neue Karte hinzufügen
-            no_maps: Noch keine Kartendarstellungen verfügbar
-            no_image: Kein Bild
-            edit: Bearbeiten
-            delete: Löschen
-          new:
-            title: Kartendarstellung erstellen
-            no_maps: Keine Karten verfügbar
-            submit: Erstellen
-            name: Name
-            map_name: Kartendarstellung-Name
-            enter_map_name: Geben Sie einen Namen für diese Kartendarstellung ein
-            name_required: Kartendarstellung-Name ist erforderlich
-            save_error: Fehler beim Speichern der Kartendarstellung. Bitte versuchen Sie es erneut.
-            loading_maps: Verfügbare Karten werden geladen...
-            cancel: Abbrechen
-            map_image: Vorschau
-            owner: Eigentümer
-            scope: Bereich
-            description: Beschreibung
-            map_id: Karten-ID
-            preview: Vorschau
-            no_image: Kein Bild
+    decidim:
+        components:
+            ldt_map_visualization:
+                name: LDT-Kartendarstellung-Visualisierung
+                settings:
+                    global:
+                        title: Titel
+        ldt_map_visualization:
+            map_visualizations:
+                index:
+                    title: Kartendarstellungen
+                    no_maps: Keine Kartendarstellungen verfügbar
+                    view_map: Karte ansehen
+                map_visualizations:
+                    empty: Keine Kartendarstellungen verfügbar
+                    count:
+                        one: '%{count} Kartendarstellung'
+                        other: '%{count} Kartendarstellungen'
+                    no_maps: Keine Kartendarstellungen verfügbar
+                    owner: Eigentümer
+                    scope: Bereich
+                    view_map: Karte ansehen
+                    map_id: Karten-ID
+                show:
+                    description: Beschreibung
+                    map_details: Kartendetails
+                    map_id: Karten-ID
+                    owner: Eigentümer
+                    scope: Bereich
+                    actions: Aktionen
+                    back_to_list: Zurück zur Liste
+                    edit: Bearbeiten
+                    created_at: Erstellt am
+            admin:
+                map_visualizations:
+                    index:
+                        title: Kartendarstellungen verwalten
+                        preview: Vorschau
+                        name: Name
+                        map_id: Karten-ID
+                        owner: Eigentümer
+                        scope: Bereich
+                        description: Beschreibung
+                        actions: Aktionen
+                        new: Neue Karte hinzufügen
+                        no_maps: Noch keine Kartendarstellungen verfügbar
+                        no_image: Kein Bild
+                        edit: Bearbeiten
+                        delete: Löschen
+                    new:
+                        title: Kartendarstellung erstellen
+                        no_maps: Keine Karten verfügbar
+                        submit: Erstellen
+                        name: Name
+                        map_name: Kartendarstellung-Name
+                        enter_map_name: Geben Sie einen Namen für diese Kartendarstellung ein
+                        name_required: Kartendarstellung-Name ist erforderlich
+                        save_error: Fehler beim Speichern der Kartendarstellung. Bitte versuchen Sie es erneut.
+                        loading_maps: Verfügbare Karten werden geladen...
+                        cancel: Abbrechen
+                        map_image: Vorschau
+                        owner: Eigentümer
+                        scope: Bereich
+                        description: Beschreibung
+                        map_id: Karten-ID
+                        preview: Vorschau
+                        no_image: Kein Bild
+                    create:
+                        success: Kartendarstellung erfolgreich erstellt
+                        error: Fehler beim Erstellen der Kartendarstellung
+                        duplicate_map: Diese Karte wurde bereits zu dieser Komponente hinzugefügt.

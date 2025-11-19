@@ -81,6 +81,9 @@ en:
                     create:
                         success: Experiment association created successfully.
                         error: Error creating experiment association.
+                        experiment_saved: Experiment saved successfully!
+                        duplicate_experiment: This experiment has already been saved for this component.
+                        no_valid_token: No valid Keycloak JWT token. Please log in again.
         admin:
             actions:
                 confirm_delete: 'Are you sure you want to delete this item?'

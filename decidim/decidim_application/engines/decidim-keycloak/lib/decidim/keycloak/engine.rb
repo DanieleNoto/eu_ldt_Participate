@@ -121,42 +121,46 @@ module Decidim
             }
           end
 
-          # Override extra to include additional user information from Keycloak
           def extra
+            hash = build_basic_extra_hash
+            add_keycloak_roles(hash)
+            add_admin_role_info(hash)
+            hash
+          end
+
+          private
+
+          def build_basic_extra_hash
             hash = {}
             hash[:raw_info] = raw_info if raw_info
             hash[:id_info] = id_info if respond_to?(:id_info) && id_info
             hash[:id_token] = access_token.params["id_token"] if access_token.params["id_token"]
-
-            # Store the access_token and refresh_token for session saving
-            # These will be saved to session/extended_data by DeviseExtension
             hash[:access_token] = access_token.token if access_token.token
             hash[:refresh_token] = access_token.params["refresh_token"] if access_token.params["refresh_token"]
             hash[:token_expires_in] = access_token.params["expires_in"] if access_token.params["expires_in"]
+            hash
+          end
 
-            # Add Keycloak roles to the extra hash for Decidim to use
-            if raw_info && raw_info["resource_access"]
-              hash[:keycloak_roles] = raw_info["resource_access"]
-              hash[:keycloak_realm_roles] = raw_info["realm_access"]&.dig("roles") || []
-            end
+          def add_keycloak_roles(hash)
+            return unless raw_info && raw_info["resource_access"]
 
-            # Store admin role information for later use in Decidim callbacks
-            if raw_info && raw_info["resource_access"]
-              # Prefer explicit environment variable OMNIAUTH_KEYCLOAK_CLIENT_ID if present
-              client_key = ENV["OMNIAUTH_KEYCLOAK_CLIENT_ID"] || Rails.application.secrets.dig(:omniauth, :keycloakopenid, :client_id) || "tool3"
-              client_key = client_key.to_s
+            hash[:keycloak_roles] = raw_info["resource_access"]
+            hash[:keycloak_realm_roles] = raw_info["realm_access"]&.dig("roles") || []
+          end
 
-              if raw_info["resource_access"][client_key]
-                client_roles = raw_info["resource_access"][client_key]["roles"] || []
-                hash[:is_decidim_admin] = client_roles.include?("Admin")
-              else
-                hash[:is_decidim_admin] = false
-              end
+          def add_admin_role_info(hash)
+            return unless raw_info && raw_info["resource_access"]
+
+            client_key = ENV["OMNIAUTH_KEYCLOAK_CLIENT_ID"] ||
+                         Rails.application.secrets.dig(:omniauth, :keycloakopenid, :client_id) || "tool3"
+            client_key = client_key.to_s
+
+            if raw_info["resource_access"][client_key]
+              client_roles = raw_info["resource_access"][client_key]["roles"] || []
+              hash[:is_decidim_admin] = client_roles.include?("Admin")
             else
               hash[:is_decidim_admin] = false
             end
-
-            hash
           end
         end
       end

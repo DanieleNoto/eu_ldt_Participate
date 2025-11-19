@@ -85,3 +85,6 @@ de:
                     create:
                         success: Experimentzuordnung erfolgreich erstellt.
                         error: Fehler beim Erstellen der Experimentzuordnung.
+                        experiment_saved: Experiment erfolgreich gespeichert.
+                        duplicate_experiment: Experiment bereits vorhanden.
+                        no_valid_token: Kein gültiges Token gefunden.

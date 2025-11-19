@@ -15,6 +15,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Jitsi integration for Decidim Meetings"
   spec.description = "Extends Decidim Meetings component to support Jitsi for online meetings"
   spec.license = "AGPL-3.0-or-later"
+  spec.required_ruby_version = ">= 3.1"
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://dev.azure.com/EULDT-Toolbox/_git/EU%20LDT%20Participate?path=/decidim/decidim_application/decidim-meetings-jitsi"
   spec.metadata["changelog_uri"] = "https://dev.azure.com/EULDT-Toolbox/_git/EU%20LDT%20Participate?path=/decidim/decidim_application/decidim-meetings-jitsi/CHANGELOG.MD"
@@ -30,7 +31,4 @@ Gem::Specification.new do |spec|
 
   # JWT authentication for Jitsi (must match Decidim's jwt version)
   spec.add_dependency "jwt", "~> 3.0"
-
-  # Development dependencies
-  spec.add_development_dependency "decidim-dev", "~> 0.30.1"
 end

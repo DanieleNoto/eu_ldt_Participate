@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.email = ["pierre@mesu.re"]
   s.license = "AGPL-3.0"
   s.homepage = "https://github.com/decidim/decidim-module-analytics"
-  s.required_ruby_version = ">= 3.1"
+  s.required_ruby_version = ">= 3.3"
 
   s.name = "decidim-analytics"
   s.summary = "A decidim analytics module"

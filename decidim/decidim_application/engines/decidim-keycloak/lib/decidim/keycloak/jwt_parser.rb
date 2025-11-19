@@ -64,37 +64,36 @@ module Decidim
         expiry_time < (Time.zone.now + buffer_time)
       end
 
-      # Extract user locale from JWT token
-      # @param jwt_token [String] The JWT token string
-      # @param available_locales [Array<String>] List of available locales
-      # @return [String, nil] The locale code or nil if not found/invalid
       def self.extract_locale(jwt_token, available_locales = nil)
         claims = parse_claims(jwt_token)
         return nil unless claims
 
-        # Try different locale claims in order of preference
-        user_locale = claims["locale"] ||
-                      claims["preferred_locale"] ||
-                      claims["ui_locales"]&.first
-
+        user_locale = extract_locale_from_claims(claims)
         return nil if user_locale.blank?
 
-        # If available_locales provided, validate against them
-        if available_locales
-          locales_list = available_locales.map(&:to_s)
+        validate_locale_against_available(user_locale, available_locales)
+      end
 
-          # Try exact match
-          return user_locale.to_s if locales_list.include?(user_locale.to_s)
+      def self.extract_locale_from_claims(claims)
+        claims["locale"] ||
+          claims["preferred_locale"] ||
+          claims["ui_locales"]&.first
+      end
 
-          # Try language code only (e.g., 'en' from 'en-US')
-          language_code = user_locale.to_s.split("-").first
-          return language_code if locales_list.include?(language_code)
+      def self.validate_locale_against_available(user_locale, available_locales)
+        return user_locale.to_s unless available_locales
 
-          Rails.logger.debug { "[Keycloak JwtParser] Locale #{user_locale} not in available locales: #{locales_list.join(", ")}" }
-          return nil
-        end
+        locales_list = available_locales.map(&:to_s)
 
-        user_locale.to_s
+        # Try exact match
+        return user_locale.to_s if locales_list.include?(user_locale.to_s)
+
+        # Try language code only (e.g., 'en' from 'en-US')
+        language_code = user_locale.to_s.split("-").first
+        return language_code if locales_list.include?(language_code)
+
+        Rails.logger.debug { "[Keycloak JwtParser] Locale #{user_locale} not in available locales: #{locales_list.join(", ")}" }
+        nil
       end
 
       # Validate basic JWT structure and required claims

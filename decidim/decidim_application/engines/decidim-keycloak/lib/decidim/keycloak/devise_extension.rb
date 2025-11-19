@@ -49,7 +49,7 @@ module Decidim
       rescue StandardError => e
         Rails.logger.error "[Keycloak] ERROR in DeviseExtension#create: #{e.class} - #{e.message}"
         raise
-        end
+      end
 
       private
 
@@ -75,50 +75,52 @@ module Decidim
       end
 
       def save_keycloak_token_to_cache(user, auth_data)
-        # Try multiple ways to get the token
-        access_token = auth_data&.extra&.dig("access_token") ||
-                       auth_data&.credentials&.dig("token")
-        refresh_token = auth_data&.extra&.dig("refresh_token") ||
-                        auth_data&.credentials&.dig("refresh_token")
-        id_token = auth_data&.extra&.dig("id_token") ||
-                   auth_data&.credentials&.dig("id_token")
+        tokens = extract_tokens_from_auth_data(auth_data)
+        save_tokens_if_available(user, tokens)
+        sync_admin_role(user, auth_data)
+      end
+
+      def extract_tokens_from_auth_data(auth_data)
+        access_token = auth_data&.extra&.dig("access_token") || auth_data&.credentials&.dig("token")
+        refresh_token = auth_data&.extra&.dig("refresh_token") || auth_data&.credentials&.dig("refresh_token")
+        id_token = auth_data&.extra&.dig("id_token") || auth_data&.credentials&.dig("id_token")
+
         token_expires_in = auth_data&.extra&.dig("token_expires_in") ||
                            auth_data&.extra&.dig("expires_in") ||
                            auth_data&.credentials&.dig("expires_in")
         token_expires_in = token_expires_in.to_i if token_expires_in
 
-        # Try to get refresh_token_expires_in from auth data
         refresh_token_expires_in = auth_data&.extra&.dig("refresh_token_expires_in") ||
                                    auth_data&.credentials&.dig("refresh_token_expires_in")
-
-        # Note: refresh_token_expires_in is typically not provided in initial OAuth response
-        # It will be obtained during the first refresh operation
-
         refresh_token_expires_in = refresh_token_expires_in.to_i if refresh_token_expires_in
 
-        if access_token
-          # Use TokenService to save tokens to cookies
-          tokens = {
-            access_token: access_token,
-            refresh_token: refresh_token,
-            id_token: id_token,
-            expires_in: token_expires_in,
-            refresh_token_expires_in: refresh_token_expires_in
-          }
-
-          Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, tokens, request.host)
-          Rails.logger.info "[Keycloak] Tokens saved to cookies for user #{user.id}"
-
-          # Sync admin role
-          if auth_data.extra && auth_data.extra["is_decidim_admin"]
-            user.update!(admin: true) unless user.admin?
-          elsif user.admin?
-            user.update!(admin: false)
-          end
-        else
-          Rails.logger.error "[Keycloak] Could not save token - access_token nil for user #{user.id}"
+        {
+          access_token: access_token,
+          refresh_token: refresh_token,
+          id_token: id_token,
+          expires_in: token_expires_in,
+          refresh_token_expires_in: refresh_token_expires_in
+        }
       end
-    end
+
+      def save_tokens_if_available(user, tokens)
+        return unless tokens[:access_token]
+
+        Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, tokens, request.host)
+        Rails.logger.info "[Keycloak] Tokens saved to cookies for user #{user.id}"
+      end
+
+      def sync_admin_role(user, auth_data)
+        return unless auth_data&.extra
+
+        if auth_data.extra["is_decidim_admin"]
+          user.update!(admin: true) unless user.admin?
+        elsif user.admin?
+          user.update!(admin: false)
+        end
+      rescue StandardError
+        Rails.logger.error "[Keycloak] Could not save token - access_token nil for user #{user.id}"
+      end
     end
   end
 end

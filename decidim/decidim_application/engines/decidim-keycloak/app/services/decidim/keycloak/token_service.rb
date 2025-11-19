@@ -24,59 +24,18 @@ module Decidim
         new.introspect_token(access_token)
       end
 
-      def ensure_valid_token(_user, cookies_hash = nil, cookies_obj = nil, request_host = nil, controller = nil)
+      def ensure_valid_token(_user, cookies_hash = nil, cookies_obj = nil, request_host = nil, controller = nil) # rubocop:disable Metrics/ParameterLists
         access_token = reconstruct_token_from_cookies(cookies_hash, "access_token")
         refresh_token = reconstruct_token_from_cookies(cookies_hash, "refresh_token")
 
-        # If we have access_token, validate it normally
+        # If we have access_token, validate it
         if access_token
-          # Extract expiration from JWT token itself instead of cookie
-          expires_at = extract_token_expiration(access_token)
-          return access_token unless expires_at
-
-          # If token not expired, check introspection to detect cross-app logouts
-          if expires_at > Time.current
-            Rails.logger.debug "[Keycloak Token Validation] Performing introspection check"
-            return access_token if introspect_token(access_token)
-
-            Rails.logger.info "[Keycloak Token Validation] Token revoked or invalid, attempting refresh"
-            # Token was revoked, try to refresh before giving up
-            if refresh_token && cookies_obj
-              new_tokens = refresh_access_token(refresh_token)
-              if new_tokens
-                # Clear existing cookies from all domains before saving new ones
-                controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
-                save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
-                Rails.logger.info "[Keycloak Token Validation] Token refreshed successfully after introspection failure"
-                return new_tokens[:access_token]
-              end
-            end
-            # Refresh failed or no refresh token, clear cookies
-            Rails.logger.info "[Keycloak Token Validation] Refresh failed, clearing cookies"
-            controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
-            return nil
-
-          end
+          result = validate_existing_token(access_token, refresh_token, cookies_obj, request_host, controller)
+          return result if result
         end
 
         # Token is expired or missing, try to refresh if we have refresh_token
-        if refresh_token && cookies_obj
-          Rails.logger.debug "[Keycloak Token Validation] No valid access_token, attempting refresh with refresh_token"
-          new_tokens = refresh_access_token(refresh_token)
-          if new_tokens
-            # Clear existing cookies from all domains before saving new ones to prevent duplicates
-            controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
-            save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
-            return new_tokens[:access_token]
-          else
-            Rails.logger.info "[Keycloak Token Validation] Refresh token invalid, clearing cookies"
-            controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
-            return nil
-          end
-        end
-
-        Rails.logger.debug "[Keycloak Token Validation] No access_token or refresh_token available"
-        nil
+        handle_token_refresh(refresh_token, cookies_obj, request_host, controller)
       end
 
       def save_tokens_to_cookies(cookies_obj, tokens, request_host = nil)
@@ -209,7 +168,8 @@ module Decidim
               result = JSON.parse(response.body)
               return result["access_token"] if result["access_token"]
             end
-          rescue StandardError
+          rescue StandardError => e
+            Rails.logger.warn "[Keycloak TokenService] Error during token refresh attempt: #{e.class} - #{e.message}"
           end
         end
 
@@ -324,6 +284,53 @@ module Decidim
           Rails.logger.warn "[Keycloak TokenService] Error extracting token expiration: #{e.message}"
           nil
         end
+      end
+
+      def validate_existing_token(access_token, refresh_token, cookies_obj, request_host, controller)
+        expires_at = extract_token_expiration(access_token)
+        return access_token unless expires_at
+
+        if expires_at > Time.current
+          Rails.logger.debug "[Keycloak Token Validation] Performing introspection check"
+          return access_token if introspect_token(access_token)
+
+          Rails.logger.info "[Keycloak Token Validation] Token revoked or invalid, attempting refresh"
+          return handle_token_refresh_attempt(refresh_token, cookies_obj, request_host, controller, "after introspection failure")
+        end
+
+        nil
+      end
+
+      def handle_token_refresh_attempt(refresh_token, cookies_obj, request_host, controller, context)
+        return nil unless refresh_token && cookies_obj
+
+        new_tokens = refresh_access_token(refresh_token)
+        return nil unless new_tokens
+
+        clear_cookies_if_controller(controller)
+        save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
+        Rails.logger.info "[Keycloak Token Validation] Token refreshed successfully #{context}"
+        new_tokens[:access_token]
+      end
+
+      def handle_token_refresh(refresh_token, cookies_obj, request_host, controller)
+        return nil unless refresh_token && cookies_obj
+
+        Rails.logger.debug "[Keycloak Token Validation] No valid access_token, attempting refresh with refresh_token"
+        new_tokens = refresh_access_token(refresh_token)
+        if new_tokens
+          clear_cookies_if_controller(controller)
+          save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
+          return new_tokens[:access_token]
+        else
+          Rails.logger.info "[Keycloak Token Validation] Refresh token invalid, clearing cookies"
+          clear_cookies_if_controller(controller)
+          return nil
+        end
+      end
+
+      def clear_cookies_if_controller(controller)
+        controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
       end
     end
   end

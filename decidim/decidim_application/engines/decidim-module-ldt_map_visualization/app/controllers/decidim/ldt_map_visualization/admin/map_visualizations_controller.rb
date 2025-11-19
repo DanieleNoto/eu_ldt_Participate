@@ -70,7 +70,7 @@ module Decidim
                               map_data.to_json
                             else
                               {}.to_json
-            end
+                            end
 
             # Create new map visualization
             @map_visualization = Decidim::LdtMapVisualization::MapVisualization.new(
@@ -88,7 +88,7 @@ module Decidim
               redirect_to new_map_visualization_path
             end
           rescue ActiveRecord::RecordNotUnique
-            flash[:alert] = "This map has already been added to this component."
+            flash[:alert] = I18n.t("create.duplicate_map", scope: "decidim.ldt_map_visualization.admin")
             redirect_to map_visualizations_path
           rescue JSON::ParserError => e
             flash[:alert] = "Error parsing map data: #{e.message}"
@@ -136,7 +136,7 @@ module Decidim
 
         private
 
-        def get_jwt_token
+        def jwt_token
           # Use Keycloak TokenService to get a fresh token, with automatic refresh if needed
           jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies, cookies)
           return jwt if jwt.present?
@@ -194,48 +194,15 @@ module Decidim
 
           Rails.logger.info("TOOL1 response status: #{response.code}")
 
-          # Truncate response body for logging
-          raw_body = response.body.to_s
-          truncated = raw_body.length > 2000 ? "#{raw_body[0..1999]}...<truncated>" : raw_body
+          return response if response.code == "200"
 
-          unless response.code == "200"
-            # If unauthorized (401), try refreshing token and retry once
-            if response.code == "401"
-              Rails.logger.warn("TOOL1 API returned 401 - attempting token refresh and retry")
-
-              # Force token refresh
-              refresh_token = cookies["refresh_token"]
-              if refresh_token.present?
-                new_tokens = Decidim::Keycloak::TokenService.new.send(:refresh_access_token, refresh_token)
-
-                if new_tokens
-                  # Save new tokens and retry request
-                  Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, new_tokens)
-                  jwt = new_tokens[:access_token]
-
-                  # Retry the request with new token
-                  request["Authorization"] = "Bearer #{jwt}"
-                  request["Cookie"] = "access_token=#{jwt}"
-                  response = http.request(request)
-
-                  unless response.code == "200"
-                    error_body = response.body.to_s[0..500]
-                    Rails.logger.error("TOOL1 API error after token refresh - Status: #{response.code}")
-                    raise "TOOL1 returned status #{response.code}: #{error_body}"
-                  end
-                else
-                  Rails.logger.error("Token refresh failed")
-                  raise "Authentication failed - please log in again"
-                end
-              else
-                Rails.logger.error("No refresh token available")
-                raise "Authentication expired - please log in again"
-              end
-            else
-              error_body = truncated[0..500]
-              Rails.logger.error("TOOL1 API error - Status: #{response.code}")
-              raise "TOOL1 returned status #{response.code}: #{error_body}"
-            end
+          # If unauthorized (401), try refreshing token and retry once
+          if response.code == "401"
+            handle_token_refresh_and_retry(http, request, response)
+          else
+            error_body = response.body.to_s[0..500]
+            Rails.logger.error("TOOL1 API error - Status: #{response.code}")
+            raise "TOOL1 returned status #{response.code}: #{error_body}"
           end
 
           # Parse and return data

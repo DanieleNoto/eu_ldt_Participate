@@ -1,69 +1,73 @@
 ---
 es:
-  decidim:
-    components:
-      ldt_map_visualization:
-        name: Visualización de Mapa LDT
-        settings:
-          global:
-            title: Título
-    ldt_map_visualization:
-      map_visualizations:
-        index:
-          title: Visualizaciones de Mapa
-          no_maps: No hay visualizaciones de mapa disponibles
-          view_map: Ver mapa
-        map_visualizations:
-          empty: No hay visualizaciones de mapa disponibles aún.
-          count:
-            one: "%{count} visualización de mapa"
-            other: "%{count} visualizaciones de mapa"
-          no_maps: No hay visualizaciones de mapa disponibles
-          owner: Propietario
-          scope: Alcance
-          view_map: Ver mapa
-          map_id: ID de mapa
-        show:
-          description: Descripción
-          map_details: Detalles del mapa
-          map_id: ID de mapa
-          owner: Propietario
-          scope: Alcance
-          actions: Acciones
-          back_to_list: Volver a la lista
-          edit: Editar
-          created_at: Creado el
-      admin:
-        map_visualizations:
-          index:
-            title: Gestionar Visualizaciones de Mapa
-            preview: Vista Previa
-            name: Nombre
-            map_id: ID de mapa
-            owner: Propietario
-            scope: Alcance
-            description: Descripción
-            actions: Acciones
-            new: Agregar Nuevo Mapa
-            no_maps: No hay visualizaciones de mapa disponibles aún
-            no_image: Sin imagen
-            edit: Editar
-            delete: Eliminar
-          new:
-            title: Crear Visualización de Mapa
-            no_maps: No hay mapas disponibles
-            submit: Crear
-            name: Nombre
-            map_name: Nombre de la Visualización
-            enter_map_name: Ingrese un nombre para la visualización de este mapa
-            name_required: El nombre de la visualización es obligatorio
-            save_error: Error al guardar la visualización de este mapa. Por favor, intente de nuevo.
-            loading_maps: Cargando mapas disponibles...
-            cancel: Cancelar
-            map_image: Vista Previa
-            owner: Propietario
-            scope: Alcance
-            description: Descripción
-            map_id: ID de mapa
-            preview: Vista Previa
-            no_image: Sin imagen
+    decidim:
+        components:
+            ldt_map_visualization:
+                name: Visualización de Mapa LDT
+                settings:
+                    global:
+                        title: Título
+        ldt_map_visualization:
+            map_visualizations:
+                index:
+                    title: Visualizaciones de Mapa
+                    no_maps: No hay visualizaciones de mapa disponibles
+                    view_map: Ver mapa
+                map_visualizations:
+                    empty: No hay visualizaciones de mapa disponibles aún.
+                    count:
+                        one: '%{count} visualización de mapa'
+                        other: '%{count} visualizaciones de mapa'
+                    no_maps: No hay visualizaciones de mapa disponibles
+                    owner: Propietario
+                    scope: Alcance
+                    view_map: Ver mapa
+                    map_id: ID de mapa
+                show:
+                    description: Descripción
+                    map_details: Detalles del mapa
+                    map_id: ID de mapa
+                    owner: Propietario
+                    scope: Alcance
+                    actions: Acciones
+                    back_to_list: Volver a la lista
+                    edit: Editar
+                    created_at: Creado el
+            admin:
+                map_visualizations:
+                    index:
+                        title: Gestionar Visualizaciones de Mapa
+                        preview: Vista Previa
+                        name: Nombre
+                        map_id: ID de mapa
+                        owner: Propietario
+                        scope: Alcance
+                        description: Descripción
+                        actions: Acciones
+                        new: Agregar Nuevo Mapa
+                        no_maps: No hay visualizaciones de mapa disponibles aún
+                        no_image: Sin imagen
+                        edit: Editar
+                        delete: Eliminar
+                    new:
+                        title: Crear Visualización de Mapa
+                        no_maps: No hay mapas disponibles
+                        submit: Crear
+                        name: Nombre
+                        map_name: Nombre de la Visualización
+                        enter_map_name: Ingrese un nombre para la visualización de este mapa
+                        name_required: El nombre de la visualización es obligatorio
+                        save_error: Error al guardar la visualización de este mapa. Por favor, intente de nuevo.
+                        loading_maps: Cargando mapas disponibles...
+                        cancel: Cancelar
+                        map_image: Vista Previa
+                        owner: Propietario
+                        scope: Alcance
+                        description: Descripción
+                        map_id: ID de mapa
+                        preview: Vista Previa
+                        no_image: Sin imagen
+                    create:
+                        success: Visualización de mapa creada exitosamente
+                        error: Error al crear la visualización de mapa
+                        duplicate_map: Este mapa ya ha sido agregado a este componente.

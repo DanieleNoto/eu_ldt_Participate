@@ -81,6 +81,9 @@ es:
                     create:
                         success: Asociación de experimentos creada exitosamente.
                         error: Error al crear la asociación de experimentos.
+                        experiment_saved: Experimento guardado exitosamente.
+                        duplicate_experiment: Experimento ya existe.
+                        no_valid_token: No se encontró un token válido.
         admin:
             actions:
                 confirm_delete: '¿Está seguro de que desea eliminar este elemento?'

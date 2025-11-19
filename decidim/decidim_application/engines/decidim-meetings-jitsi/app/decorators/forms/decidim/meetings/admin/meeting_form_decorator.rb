@@ -11,6 +11,8 @@ module Forms
     module Meetings
       module Admin
         class MeetingFormDecorator
+          # Empty class required by Zeitwerk autoloader structure
+          # Actual decorator logic is in the file below
         end
       end
     end

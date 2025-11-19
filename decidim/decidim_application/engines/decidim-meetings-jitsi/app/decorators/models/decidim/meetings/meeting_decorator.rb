@@ -10,6 +10,8 @@ module Models
   module Decidim
     module Meetings
       class MeetingDecorator
+        # Empty class required by Zeitwerk autoloader structure
+        # Actual decorator logic is in the class_eval below
       end
     end
   end

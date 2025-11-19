@@ -66,45 +66,13 @@ module Decidim
       # @param cookies_obj [ActionDispatch::Cookies::CookieJar] The cookies object for cleanup
       # @return [Boolean] true if tokens and session are valid
       def self.validate_tokens_and_session(access_token, id_token, refresh_token, cookies_obj = nil)
-        # Accept any valid Keycloak token combination for autologin
         has_any_token = access_token.present? || refresh_token.present?
 
-        # If we have id_token, validate its structure
-        if id_token.present?
-          return false unless JwtParser.valid_structure?(id_token)
+        return validate_with_id_token(id_token, access_token, refresh_token, cookies_obj) if id_token.present?
+        return validate_with_any_token(access_token, refresh_token, cookies_obj) if has_any_token
+        return check_keycloak_session_without_tokens(cookies_obj) if !has_any_token && id_token.blank?
 
-          # Check if JWT is expired locally
-          if JwtParser.locally_expired?(id_token)
-            Rails.logger.info "[Keycloak SessionValidator] JWT expired locally, checking Keycloak session validity"
-
-            # Use access_token to check session validity
-            check_token = access_token.presence || refresh_token
-            unless session_active?(check_token, cookies_obj)
-              Rails.logger.info "[Keycloak SessionValidator] Keycloak session expired"
-              return false
-            end
-
-            Rails.logger.info "[Keycloak SessionValidator] Keycloak session still active, proceeding with auto-login"
-          end
-        end
-
-        # If we only have access_token or refresh_token, verify session validity
-        if has_any_token && id_token.blank?
-          check_token = access_token.presence || refresh_token
-          unless session_active?(check_token, cookies_obj)
-            Rails.logger.info "[Keycloak SessionValidator] No valid session found"
-            return false
-          end
-        end
-
-        # If we have no tokens at all, this might be cross-tool SSO scenario
-        # Check if there's an active Keycloak session without tokens (i18next scenario)
-        if !has_any_token && id_token.blank?
-          Rails.logger.info "[Keycloak SessionValidator] No local tokens found, checking for active Keycloak session (cross-tool SSO)"
-          return check_keycloak_session_without_tokens(cookies_obj)
-        end
-
-        # Return true if we have any token (access_token, refresh_token, or valid id_token)
+        # Return true if we have any token
         has_any_token || id_token.present?
       rescue StandardError => e
         Rails.logger.warn "[Keycloak SessionValidator] Error validating tokens: #{e.message}"
@@ -148,6 +116,47 @@ module Decidim
           Rails.logger.warn "[Keycloak SessionValidator] Error checking cross-tool session: #{e.message}, assuming active"
           true # Assume active on error to enable SSO
         end
+      end
+
+      # Validate tokens when id_token is present
+      # @param id_token [String] The ID token from cookies
+      # @param access_token [String] The access token from cookies
+      # @param refresh_token [String] The refresh token from cookies
+      # @param cookies_obj [ActionDispatch::Cookies::CookieJar] The cookies object for cleanup
+      # @return [Boolean] true if id_token and session are valid
+      def self.validate_with_id_token(id_token, access_token, refresh_token, cookies_obj)
+        return false unless JwtParser.valid_structure?(id_token)
+
+        # Check if JWT is expired locally
+        if JwtParser.locally_expired?(id_token)
+          Rails.logger.info "[Keycloak SessionValidator] JWT expired locally, checking Keycloak session validity"
+
+          # Use access_token to check session validity
+          check_token = access_token.presence || refresh_token
+          unless session_active?(check_token, cookies_obj)
+            Rails.logger.info "[Keycloak SessionValidator] Keycloak session expired"
+            return false
+          end
+
+          Rails.logger.info "[Keycloak SessionValidator] Keycloak session still active, proceeding with auto-login"
+        end
+
+        true
+      end
+
+      # Validate tokens when only access_token or refresh_token are present
+      # @param access_token [String] The access token from cookies
+      # @param refresh_token [String] The refresh token from cookies
+      # @param cookies_obj [ActionDispatch::Cookies::CookieJar] The cookies object for cleanup
+      # @return [Boolean] true if session is active
+      def self.validate_with_any_token(access_token, refresh_token, cookies_obj)
+        check_token = access_token.presence || refresh_token
+        unless session_active?(check_token, cookies_obj)
+          Rails.logger.info "[Keycloak SessionValidator] No valid session found"
+          return false
+        end
+
+        true
       end
     end
   end

@@ -81,6 +81,9 @@ fr:
                     create:
                         success: Association d'expériences créée avec succès.
                         error: Erreur lors de la création de l'association d'expériences.
+                        experiment_saved: Expérience enregistrée avec succès.
+                        duplicate_experiment: Expérience déjà existante.
+                        no_valid_token: Aucun token valide trouvé.
         admin:
             actions:
                 confirm_delete: 'Êtes-vous sûr de vouloir supprimer cet élément ?'

@@ -1,80 +1,81 @@
 ---
 en:
-  layouts:
+    layouts:
+        decidim:
+            shared:
+                layout_center:
+                    owner: ''
+                    created_at: ''
+                    back_to_list: ''
     decidim:
-      shared:
-        layout_center:
-          owner: ""
-          created_at: ""
-          back_to_list: ""
-  decidim:
-    components:
-      ldt_map_visualization:
-        name: LDT - Map Visualization
-        settings:
-          global:
-            title: Title
-    ldt_map_visualization:
-      map_visualizations:
-        index:
-          title: Map Visualizations
-        map_visualizations:
-          empty: No map visualizations available yet.
-          count:
-            one: "%{count} map visualization"
-            other: "%{count} map visualizations"
-          no_maps: No map visualizations available
-          owner: Owner
-          scope: Scope
-          view_map: View map
-        show:
-          description: Description
-          map_details: Map Details
-          map_id: Map ID
-          owner: Owner
-          scope: Scope
-          actions: Actions
-          back_to_list: Back to list
-          edit: Edit
-          created_at: Created at
-      admin:
-        map_visualizations:
-          index:
-            title: Manage Map Visualizations
-            preview: Preview
-            name: Name
-            map_id: Map ID
-            owner: Owner
-            scope: Scope
-            description: Description
-            actions: Actions
-            new: Add New Map
-            no_maps: No map visualizations available yet
-            no_image: No image
-            edit: Edit
-            delete: Delete
-          new:
-            title: Create Map Visualization
-            no_maps: No maps available
-            submit: Create
-            name: Name
-            map_name: Map Name
-            enter_map_name: Enter a name for this map visualization
-            name_required: Map name is required
-            save_error: Error saving map visualization. Please try again.
-            loading_maps: Loading available maps...
-            cancel: Cancel
-            map_image: Preview
-            owner: Owner
-            scope: Scope
-            description: Description
-          create:
-            success: Map visualization created successfully
-            error: Error creating map visualization
-          update:
-            success: Map visualization updated successfully
-            error: Error updating map visualization
-          destroy:
-            success: Map visualization deleted successfully
-            error: Error deleting map visualization
-            not_found: Map visualization not found
+        components:
+            ldt_map_visualization:
+                name: LDT - Map Visualization
+                settings:
+                    global:
+                        title: Title
+        ldt_map_visualization:
+            map_visualizations:
+                index:
+                    title: Map Visualizations
+                map_visualizations:
+                    empty: No map visualizations available yet.
+                    count:
+                        one: '%{count} map visualization'
+                        other: '%{count} map visualizations'
+                    no_maps: No map visualizations available
+                    owner: Owner
+                    scope: Scope
+                    view_map: View map
+                show:
+                    description: Description
+                    map_details: Map Details
+                    map_id: Map ID
+                    owner: Owner
+                    scope: Scope
+                    actions: Actions
+                    back_to_list: Back to list
+                    edit: Edit
+                    created_at: Created at
+            admin:
+                map_visualizations:
+                    index:
+                        title: Manage Map Visualizations
+                        preview: Preview
+                        name: Name
+                        map_id: Map ID
+                        owner: Owner
+                        scope: Scope
+                        description: Description
+                        actions: Actions
+                        new: Add New Map
+                        no_maps: No map visualizations available yet
+                        no_image: No image
+                        edit: Edit
+                        delete: Delete
+                    new:
+                        title: Create Map Visualization
+                        no_maps: No maps available
+                        submit: Create
+                        name: Name
+                        map_name: Map Name
+                        enter_map_name: Enter a name for this map visualization
+                        name_required: Map name is required
+                        save_error: Error saving map visualization. Please try again.
+                        loading_maps: Loading available maps...
+                        cancel: Cancel
+                        map_image: Preview
+                        owner: Owner
+                        scope: Scope
+                        description: Description
+                    create:
+                        success: Map visualization created successfully
+                        error: Error creating map visualization
+                        duplicate_map: This map has already been added to this component.
+                    update:
+                        success: Map visualization updated successfully
+                        error: Error updating map visualization
+                    destroy:
+                        success: Map visualization deleted successfully
+                        error: Error deleting map visualization
+                        not_found: Map visualization not found
