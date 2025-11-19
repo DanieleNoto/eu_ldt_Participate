@@ -41,7 +41,7 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 	let debateId = '24';
 	let reportedContentCount: number;
 	const targetProcessName = 'Update Test0';
-	const testCommentId = '18'; // fixed id of the published comment to be reported
+	const testCommentId = '26'; // fixed id of the published comment to be reported
 	let testCommentText = '';
 
 	test.beforeEach(async ({ page }) => {
