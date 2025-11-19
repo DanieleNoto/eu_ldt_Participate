@@ -4,7 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
 base_path = File.expand_path("..", __dir__)
 
 # Registra il path dei pack per Shakapacker

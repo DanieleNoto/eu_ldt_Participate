@@ -1,7 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_budgets (originally 20170130095615)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:32 UTC
 class CreateOrders < ActiveRecord::Migration[5.0]
   def change
     create_table :decidim_budgets_orders do |t|

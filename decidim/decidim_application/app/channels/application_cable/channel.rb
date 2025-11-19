@@ -3,7 +3,7 @@
 # Marco Pinnella
 # Pierluigi Spedicato
 # SPDX-License-Identifier: AGPL-3.0
-
+# frozen_string_literal: true
 
 module ApplicationCable
   class Channel < ActionCable::Channel::Base

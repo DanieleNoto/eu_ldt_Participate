@@ -4,8 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module Decidim
   # This class serializes a User so can be exported to CSV
   module ExtraUserFields

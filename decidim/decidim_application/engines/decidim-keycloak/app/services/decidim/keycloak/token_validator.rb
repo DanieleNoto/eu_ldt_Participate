@@ -4,8 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module Decidim
   module Keycloak
     class TokenValidator
@@ -19,7 +17,7 @@ module Decidim
       end
 
       def valid?
-        return false unless @id_token.present?
+        return false if @id_token.blank?
         return false unless keycloak_config_valid?
 
         # Check cache first (1-minute TTL for production to reduce Keycloak API calls)
@@ -39,51 +37,51 @@ module Decidim
           # Get access token for introspection using Net::HTTP with timeout and SSL
           uri = URI("#{keycloak_config[:site]}/realms/#{keycloak_config[:realm]}/protocol/openid-connect/token")
           http = Net::HTTP.new(uri.host, uri.port)
-          http.use_ssl = uri.scheme == 'https'
+          http.use_ssl = uri.scheme == "https"
           http.verify_mode = OpenSSL::SSL::VERIFY_PEER
           http.cert_store = OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
           http.open_timeout = 10
           http.read_timeout = 20
 
           request = Net::HTTP::Post.new(uri)
-          request['Content-Type'] = 'application/x-www-form-urlencoded'
+          request["Content-Type"] = "application/x-www-form-urlencoded"
           request.body = URI.encode_www_form({
-            grant_type: 'client_credentials',
-            client_id: keycloak_config[:client_id],
-            client_secret: keycloak_config[:client_secret]
-          })
+                                               grant_type: "client_credentials",
+                                               client_id: keycloak_config[:client_id],
+                                               client_secret: keycloak_config[:client_secret]
+                                             })
 
           token_response = http.request(request)
           return false unless token_response.is_a?(Net::HTTPSuccess)
 
-          access_token = JSON.parse(token_response.body)['access_token']
+          access_token = JSON.parse(token_response.body)["access_token"]
           return false unless access_token
 
           # Introspect the user's token
           introspect_uri = URI("#{keycloak_config[:site]}/realms/#{keycloak_config[:realm]}/protocol/openid-connect/token/introspect")
           introspect_request = Net::HTTP::Post.new(introspect_uri)
-          introspect_request['Content-Type'] = 'application/x-www-form-urlencoded'
+          introspect_request["Content-Type"] = "application/x-www-form-urlencoded"
           introspect_request.body = URI.encode_www_form({
-            token: @id_token,
-            client_id: keycloak_config[:client_id],
-            client_secret: keycloak_config[:client_secret]
-          })
+                                                          token: @id_token,
+                                                          client_id: keycloak_config[:client_id],
+                                                          client_secret: keycloak_config[:client_secret]
+                                                        })
 
           introspect_response = http.request(introspect_request)
           return false unless introspect_response.is_a?(Net::HTTPSuccess)
 
           introspection_result = JSON.parse(introspect_response.body)
-          is_active = introspection_result['active'] == true
+          is_active = introspection_result["active"] == true
 
           # Log token validation result for debugging
           if is_active
-            Rails.logger.debug "[Keycloak Token Validation] Token is valid for user #{@user&.id}"
+            Rails.logger.debug { "[Keycloak Token Validation] Token is valid for user #{@user&.id}" }
           else
             Rails.logger.info "[Keycloak Token Validation] Token is invalid/revoked for user #{@user&.id} - forcing logout"
           end
 
           # Cache the result for 1 minute to reduce Keycloak API calls and avoid rate limits
-          Rails.cache.write(cache_key, is_active, expires_in: 1.minutes)
+          Rails.cache.write(cache_key, is_active, expires_in: 1.minute)
 
           is_active
         rescue Net::OpenTimeout, Net::ReadTimeout => e
@@ -92,7 +90,7 @@ module Decidim
         rescue JSON::ParserError => e
           Rails.logger.error "[Keycloak Token Validation] Invalid JSON response during validation: #{e.message}"
           false
-        rescue => e
+        rescue StandardError => e
           Rails.logger.error "[Keycloak Token Validation] Unexpected error during validation: #{e.class} - #{e.message}"
           false
         end

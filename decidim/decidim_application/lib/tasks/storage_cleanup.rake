@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+# frozen_string_literal: true
+
 namespace :storage do
   desc "Clean up orphaned ActiveStorage blobs that have no attachments"
   task cleanup_orphaned_blobs: :environment do
@@ -8,14 +14,14 @@ namespace :storage do
 
     Rails.logger.info "Found #{count} orphaned blobs"
 
-    if count == 0
+    if count.zero?
       Rails.logger.info "No orphaned blobs to clean up."
       next
     end
 
     # Create a backup of blob IDs before deletion
     backup_file = Rails.root.join("tmp", "orphaned_blobs_backup_#{Time.current.to_i}.txt")
-    File.open(backup_file, 'w') do |f|
+    File.open(backup_file, "w") do |f|
       orphaned_blobs.each do |blob|
         f.puts "#{blob.id},#{blob.filename},#{blob.key}"
       end
@@ -31,7 +37,7 @@ namespace :storage do
         blob.purge
         deleted_count += 1
         Rails.logger.info "  ✓ Successfully deleted blob #{blob.id}"
-      rescue => e
+      rescue StandardError => e
         error_msg = "  ✗ Error deleting blob #{blob.id}: #{e.message}"
         Rails.logger.error error_msg
         errors << error_msg

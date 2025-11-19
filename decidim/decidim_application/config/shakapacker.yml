@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
+# Marco Pinnella
 # File written by Decidim generator
 # Note: You must restart bin/webpack-dev-server for changes to take effect
 
@@ -48,21 +54,20 @@ development:
     # Reference: https://webpack.js.org/configuration/dev-server/
     dev_server:
         https: false
+        hmr: false
+        live_reload: false
+        client: false
         host: 0.0.0.0
         port: 3035
         # Tell webpack where the assets will be accessed from (through Rails proxy)
         public: http://localhost:3000/decidim-packs/
-        
-        # Enable HMR - will work through the default proxy
-        hmr: true
-        live_reload: false
 
         # CSS is extracted inline for faster feedback
         inline_css: true
-        
+
         # Allow all hosts to prevent DNS rebinding issues
         allowed_hosts: all
-        
+
         # Watch configuration for file changes
         static:
             watch:

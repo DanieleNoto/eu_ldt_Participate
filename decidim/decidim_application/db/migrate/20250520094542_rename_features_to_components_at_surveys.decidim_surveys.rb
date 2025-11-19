@@ -1,7 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_surveys (originally 20180305133837)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:03:15 UTC
 class RenameFeaturesToComponentsAtSurveys < ActiveRecord::Migration[5.1]
   def change
     rename_column :decidim_surveys_surveys, :decidim_feature_id, :decidim_component_id

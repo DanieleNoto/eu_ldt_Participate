@@ -31,20 +31,20 @@
 # See: frontend/CHATBOT_WEB_COMPONENT.md for technical details
 class ChatbotInjector
   EXCLUDED_PATHS = [
-    '/admin',
-    '/admin/',  # Add trailing slash variant
-    '/system',
-    '/system/',  # Add trailing slash variant
-    '/users/sign_in',
-    '/users/sign_up',
-    '/users/password',
-    '/users/confirmation',
-    '/users/unlock',
-    '/chatbot-api',  # Don't inject into chatbot API responses
-    '/live_event'  # Exclude live event pages for meetings
+    "/admin",
+    "/admin/", # Add trailing slash variant
+    "/system",
+    "/system/", # Add trailing slash variant
+    "/users/sign_in",
+    "/users/sign_up",
+    "/users/password",
+    "/users/confirmation",
+    "/users/unlock",
+    "/chatbot-api", # Don't inject into chatbot API responses
+    "/live_event" # Exclude live event pages for meetings
   ].freeze
 
-  BODY_CLOSING_TAG = '</body>'
+  BODY_CLOSING_TAG = "</body>"
 
   def initialize(app)
     @app = app
@@ -71,13 +71,13 @@ class ChatbotInjector
 
     if injected_body
       headers = headers.dup
-      headers['Content-Length'] = injected_body.bytesize.to_s if headers['Content-Length']
+      headers["Content-Length"] = injected_body.bytesize.to_s if headers["Content-Length"]
       Rails.logger.info("Chatbot: Injecting widget for path #{request.path}")
       [status, headers, [injected_body]]
     else
       [status, headers, [body]]
     end
-  rescue => e
+  rescue StandardError => e
     Rails.logger.error("Chatbot: Error injecting widget - #{e.class}: #{e.message}")
     Rails.logger.debug { e.backtrace.join("\n") } if Rails.logger.debug?
     body ? [status, headers, [body]] : [status, headers, response]
@@ -89,37 +89,37 @@ class ChatbotInjector
     status == 200 &&
       html_response?(headers) &&
       chatbot_enabled? &&
-      !excluded_path?(env['PATH_INFO'].to_s)
+      !excluded_path?(env["PATH_INFO"].to_s)
   end
 
   def chatbot_enabled?
-    ENV['CHATBOT_ENABLED'] == 'true'
+    ENV["CHATBOT_ENABLED"] == "true"
   end
 
   def html_response?(headers)
     return false unless headers && headers.respond_to?(:[])
-    
-    content_type = headers['Content-Type']
-    content_type&.include?('text/html')
+
+    content_type = headers["Content-Type"]
+    content_type&.include?("text/html")
   end
 
   def excluded_path?(path)
     # Exclude paths that start with admin/system routes or exact auth paths
     normalized_path = path.downcase
-    
+
     # Check exact path prefixes
     return true if EXCLUDED_PATHS.any? { |excluded| normalized_path.start_with?(excluded.downcase) }
-    
+
     # Check for any meetings subpath: /meetings/{id}/* (including live_event and any other meeting pages)
     return true if normalized_path.match?(%r{/meetings/\d+(/|$)})
-    
+
     false
   end
 
   def extract_body(response)
-    return '' unless response
-    
-    body = +''
+    return "" unless response
+
+    body = +""
     if response.respond_to?(:each)
       response.each { |part| body << part.to_s if part }
     elsif response.respond_to?(:to_s)
@@ -146,11 +146,11 @@ class ChatbotInjector
 
     # Detect language for the chatbot (priority: query param > path > session > default)
     language = Rack::Utils.escape_html(extract_locale(env))
-    src = Rack::Utils.escape_html(loader_src)
+    Rack::Utils.escape_html(loader_src)
 
     # Use relative URL for API - will work in both HTTP and HTTPS
     # The proxy controller will forward to the actual backend service
-    api_url = '/chatbot-backend-api'
+    api_url = "/chatbot-backend-api"
 
     <<~HTML.chomp
       <!-- EU LDT Participate Chatbot -->
@@ -182,26 +182,26 @@ class ChatbotInjector
   end
 
   def extract_locale(env)
-    query_locale(env) || path_locale(env) || env['decidim.current_locale'] || default_locale
+    query_locale(env) || path_locale(env) || env["decidim.current_locale"] || default_locale
   end
 
   def query_locale(env)
-    query_string = env['QUERY_STRING']
+    query_string = env["QUERY_STRING"]
     return if query_string.blank?
 
-    Rack::Utils.parse_query(query_string)['locale'].presence
-  rescue
+    Rack::Utils.parse_query(query_string)["locale"].presence
+  rescue StandardError
     nil
   end
 
   def path_locale(env)
-    env['PATH_INFO'].to_s[%r{^/([a-z]{2})(?:/|$)}, 1]
+    env["PATH_INFO"].to_s[%r{^/([a-z]{2})(?:/|$)}, 1]
   end
 
   def default_locale
     I18n.default_locale.to_s
-  rescue
-    'en'
+  rescue StandardError
+    "en"
   end
 end
 

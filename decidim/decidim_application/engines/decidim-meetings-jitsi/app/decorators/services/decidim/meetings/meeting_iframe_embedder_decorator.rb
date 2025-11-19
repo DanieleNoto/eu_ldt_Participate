@@ -1,13 +1,12 @@
-# frozen_string_literal: true
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Gianfranco Cedro
-
-
+# Gianfranco Cedro
 
 # This decorator extends the Decidim::Meetings::MeetingIframeEmbedder service
 # to add JWT token authentication for Jitsi meetings when the user is an admin.
+# frozen_string_literal: true
+
 Decidim::Meetings::MeetingIframeEmbedder.class_eval do
   attr_accessor :user, :meeting
 
@@ -18,7 +17,7 @@ Decidim::Meetings::MeetingIframeEmbedder.class_eval do
   def initialize(online_meeting_service_url, user: nil, meeting: nil)
     # Call the original initialize method
     original_initialize(online_meeting_service_url)
-    
+
     # Store additional parameters
     @user = user
     @meeting = meeting
@@ -54,7 +53,6 @@ Decidim::Meetings::MeetingIframeEmbedder.class_eval do
     # Normalize URLs for comparison
     jitsi_host = URI.parse(jitsi_server).host
     meeting_host = parsed_online_meeting_uri.host
-    
 
     jitsi_host == meeting_host
   rescue URI::InvalidURIError => e
@@ -69,8 +67,7 @@ Decidim::Meetings::MeetingIframeEmbedder.class_eval do
     is_space_admin = @meeting.component.participatory_space.admins.include?(@user)
     is_org_admin = @user.admin?
     is_author = @meeting.author == @user
-    
-    
+
     # Check if user is an admin of the participatory space
     is_space_admin || is_org_admin || is_author
   end
@@ -90,16 +87,13 @@ Decidim::Meetings::MeetingIframeEmbedder.class_eval do
         room_name: room_name
       ).generate
 
-
       # Add token to URL
       uri = URI.parse(url_to_transform)
       existing_query = uri.query ? CGI.parse(uri.query) : {}
       existing_query["jwt"] = [token]
       uri.query = URI.encode_www_form(existing_query)
 
-      final_url = uri.to_s
-      
-      final_url
+      uri.to_s
     rescue StandardError => e
       Rails.logger.error("Failed to generate JWT for Jitsi meeting: #{e.message}")
       Rails.logger.error(e.backtrace.join("\n"))
@@ -111,7 +105,7 @@ Decidim::Meetings::MeetingIframeEmbedder.class_eval do
   # Extract the Jitsi room name from the URL
   def extract_jitsi_room_name
     # Jitsi room name is typically the last segment of the path
-    path_segments = parsed_online_meeting_uri.path.split("/").reject(&:blank?)
+    path_segments = parsed_online_meeting_uri.path.split("/").compact_blank
     path_segments.last || "unknown-room"
   end
 end

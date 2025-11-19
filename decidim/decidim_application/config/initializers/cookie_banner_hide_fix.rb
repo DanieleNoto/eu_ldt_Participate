@@ -4,13 +4,11 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 # Cookie Banner Fix for Login Page
-# 
+#
 # This middleware injects a script that hides the cookie banner on the login page
 # if the user has already accepted cookies (decidim-consent cookie is set).
-# 
+#
 # This fixes a bug in Decidim where the banner shows on login even after acceptance.
 class CookieBannerHideFix
   def initialize(app)
@@ -23,19 +21,19 @@ class CookieBannerHideFix
     return [status, headers, response] unless should_inject?(status, headers, env)
 
     body = extract_body(response)
-    return [status, headers, [body]] unless body.include?('</body>')
+    return [status, headers, [body]] unless body.include?("</body>")
 
     # Inject script to hide banner if cookies already accepted
     injected_body = inject_banner_fix(body)
 
     if injected_body
       headers = headers.dup
-      headers['Content-Length'] = injected_body.bytesize.to_s if headers['Content-Length']
+      headers["Content-Length"] = injected_body.bytesize.to_s if headers["Content-Length"]
       [status, headers, [injected_body]]
     else
       [status, headers, [body]]
     end
-  rescue => e
+  rescue StandardError => e
     Rails.logger.error("CookieBannerHideFix: Error - #{e.class}: #{e.message}")
     body ? [status, headers, [body]] : [status, headers, response]
   end
@@ -45,24 +43,24 @@ class CookieBannerHideFix
   def should_inject?(status, headers, env)
     status == 200 &&
       html_response?(headers) &&
-      is_login_page?(env['PATH_INFO'].to_s)
+      is_login_page?(env["PATH_INFO"].to_s)
   end
 
   def html_response?(headers)
     return false unless headers && headers.respond_to?(:[])
-    
-    content_type = headers['Content-Type']
-    content_type&.include?('text/html')
+
+    content_type = headers["Content-Type"]
+    content_type&.include?("text/html")
   end
 
   def is_login_page?(path)
-    path.downcase.include?('/users/sign_in')
+    path.downcase.include?("/users/sign_in")
   end
 
   def extract_body(response)
-    return '' unless response
-    
-    body = +''
+    return "" unless response
+
+    body = +""
     if response.respond_to?(:each)
       response.each { |part| body << part.to_s if part }
     elsif response.respond_to?(:to_s)
@@ -81,7 +79,7 @@ class CookieBannerHideFix
           function hideBannerIfAccepted() {
             var cookieName = 'decidim-consent';
             var cookie = document.cookie.split('; ').find(row => row.startsWith(cookieName + '='));
-            
+      #{"      "}
             if (cookie) {
               try {
                 var cookieValue = JSON.parse(decodeURIComponent(cookie.split('=')[1]));
@@ -98,19 +96,19 @@ class CookieBannerHideFix
               }
             }
           }
-          
+      #{"    "}
           // Run immediately and also wait for DOM to be ready
           if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', hideBannerIfAccepted);
           } else {
             hideBannerIfAccepted();
           }
-          
+      #{"    "}
           // Also run as mutation observer in case banner is added dynamically
           var observer = new MutationObserver(function(mutations) {
             hideBannerIfAccepted();
           });
-          
+      #{"    "}
           observer.observe(document.body || document.documentElement, {
             childList: true,
             subtree: true
@@ -119,7 +117,7 @@ class CookieBannerHideFix
       </script>
     JAVASCRIPT
 
-    html.sub('</body>', "#{script}\n</body>")
+    html.sub("</body>", "#{script}\n</body>")
   end
 end
 

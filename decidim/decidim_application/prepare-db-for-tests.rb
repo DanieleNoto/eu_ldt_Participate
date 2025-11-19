@@ -1,15 +1,15 @@
 #!/usr/bin/env ruby
-# frozen_string_literal: true
+
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Denis Vasilev Dimchev
-  # Gianfranco Cedro
-
-
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
 
 # Configuration from environment variables with defaults
 # Set organization details
+# frozen_string_literal: true
+
 def organization_config
   {
     name: ENV["SYSTEM_ORG_NAME"] || "EU LDT Participate Tool",
@@ -28,13 +28,13 @@ end
 def create_organization
   puts "--- Creating organization ---"
   config = organization_config
-  
+
   org = Decidim::Organization.find_or_create_by!(host: config[:host]) do |o|
     # Minimal attributes: keep only those from ENV and essentials
     o.name = { "en" => config[:name] }
     o.reference_prefix = config[:reference_prefix]
     # Available locales required by user: English, French, Spanish, German
-    o.available_locales = %w[en fr es de]
+    o.available_locales = %w(en fr es de)
     o.description = { "en" => config[:desc] }
     o.default_locale = "en"
     o.tos_version = Time.current
@@ -52,38 +52,36 @@ def create_organization
       },
       file_upload_settings: {
         "allowed_file_extensions" => {
-          "default" => %w[jpg jpeg png webp pdf rtf txt],
-          "image" => %w[jpg jpeg png webp],
-          "admin" => %w[jpg jpeg png webp pdf doc docx xls xlsx ppt pptx ppx rtf txt odt ott odf otg ods ots csv json md]
+          "default" => %w(jpg jpeg png webp pdf rtf txt),
+          "image" => %w(jpg jpeg png webp),
+          "admin" => %w(jpg jpeg png webp pdf doc docx xls xlsx ppt pptx ppx rtf txt odt ott odf otg ods ots csv json md)
         },
         "allowed_content_types" => {
-          "default" => %w[image/* application/pdf application/rtf text/plain],
-          "admin" => %w[image/* application/pdf application/rtf application/json text/markdown text/plain text/csv]
+          "default" => %w(image/* application/pdf application/rtf text/plain),
+          "admin" => %w(image/* application/pdf application/rtf application/json text/markdown text/plain text/csv)
         },
         "maximum_file_size" => {
           "default" => 10.0,
           "avatar" => 5.0
         }
-      },
+      }
     )
   end
-  
+
   puts "--- Organization #{config[:name]} created successfully with ID: #{org.id} ---"
   org
-rescue => e
+rescue StandardError => e
   puts "--- Error creating organization: #{e.message} ---"
-  if e.respond_to?(:record) && e.record.respond_to?(:errors)
-    puts "--- Validation errors: #{e.record.errors.full_messages} ---"
-  end
+  puts "--- Validation errors: #{e.record.errors.full_messages} ---" if e.respond_to?(:record) && e.record.respond_to?(:errors)
   raise e
 end
 
 # Create basic users for the organization
 def create_basic_users(org)
   puts "--- Creating basic users ---"
-  
+
   users = {}
-  
+
   # Only create users in development environment
   # In production, system user should be created manually via rake task with secure credentials
   if (defined?(Rails) && Rails.env.development?) || ENV["RAILS_ENV"] == "development"
@@ -111,7 +109,7 @@ def create_basic_users(org)
       # Direct fallback if constant isn't loaded
       system_admins = ActiveRecord::Base.connection.execute("SELECT * FROM decidim_system_admins WHERE user_id = #{users[:system].id}")
       if system_admins.none?
-        ActiveRecord::Base.connection.execute("INSERT INTO decidim_system_admins (user_id, created_at, updated_at) VALUES (#{users[:system].id}, '#{Time.now.utc.to_s(:db)}', '#{Time.now.utc.to_s(:db)}')")
+        ActiveRecord::Base.connection.execute("INSERT INTO decidim_system_admins (user_id, created_at, updated_at) VALUES (#{users[:system].id}, '#{Time.now.utc.to_fs(:db)}', '#{Time.now.utc.to_fs(:db)}')")
       end
     end
     # Create organization admin user
@@ -148,13 +146,11 @@ def create_basic_users(org)
   else
     puts "--- Production mode: Only system user created for /system access ---"
   end
-  
+
   users
-rescue => e
+rescue StandardError => e
   puts "--- Error creating basic users: #{e.message} ---"
-  if e.respond_to?(:record) && e.record.respond_to?(:errors)
-    puts "--- Validation errors: #{e.record.errors.full_messages} ---"
-  end
+  puts "--- Validation errors: #{e.record.errors.full_messages} ---" if e.respond_to?(:record) && e.record.respond_to?(:errors)
   {}
 end
 
@@ -167,30 +163,30 @@ def check_existing_data(org)
     users: Decidim::User.where(organization: org).count,
     processes: Decidim::ParticipatoryProcess.where(organization: org).count,
     proposals: begin
-                Decidim::Proposals::Proposal.joins(:component)
-                  .where(component: { participatory_space: { decidim_organization_id: org.id } }).count
-              rescue
-                0
-              end
+      Decidim::Proposals::Proposal.joins(:component)
+                                  .where(component: { participatory_space: { decidim_organization_id: org.id } }).count
+    rescue StandardError
+      0
+    end
   }
 end
 
 # Generate fake data if needed
 def generate_fake_data(org)
   return unless ENV["RAILS_ENV"] == "development"
-  
+
   existing = check_existing_data(org)
   puts "--- Current data: #{existing[:users]} users, #{existing[:processes]} processes, #{existing[:proposals]} proposals ---"
-  
+
   if existing[:users] > 5 && existing[:processes] > 3 && existing[:proposals] > 10
     puts "--- Sufficient data exists, skipping seeds generation ---"
     return
   end
-  
+
   puts "--- Generating fake data with Decidim seeds ---"
   begin
     Decidim.seed!
-  rescue => e
+  rescue StandardError => e
     puts "--- Error running Decidim seeds: #{e.message} ---"
     puts e.backtrace.first(10).join("\n")
   ensure
@@ -206,7 +202,7 @@ def create_user_moderation(user_to_moderate, reporter_user)
   ) do |um|
     um.report_count = 0
   end
-  
+
   Decidim::UserReport.find_or_create_by(
     user_moderation_id: user_moderation.id,
     user_id: reporter_user.id
@@ -225,17 +221,17 @@ def create_proposal_moderations(proposals, process, users)
       decidim_reportable_id: proposal.id,
       decidim_participatory_space_type: "Decidim::ParticipatoryProcess"
     ) do |m|
-      m.report_count = index == 0 ? 0 : 1
-      m.hidden_at = index == 0 ? Time.current : nil
-      m.reported_content = "#{proposal.title['en'] || proposal.title.values.first}\n#{proposal.body['en'] || proposal.body.values.first}"
+      m.report_count = index.zero? ? 0 : 1
+      m.hidden_at = index.zero? ? Time.current : nil
+      m.reported_content = "#{proposal.title["en"] || proposal.title.values.first}\n#{proposal.body["en"] || proposal.body.values.first}"
     end
-    
+
     # Create report for this moderation
     Decidim::Report.find_or_create_by(
       decidim_moderation_id: moderation.id,
       decidim_user_id: users.sample.id
     ) do |r|
-      r.reason = ["spam", "offensive", "irrelevant"].sample
+      r.reason = %w(spam offensive irrelevant).sample
       r.details = "Test report #{index + 1} generated by seeds"
       r.locale = "en"
     end
@@ -252,15 +248,15 @@ def create_comment_moderations(comments, process, users)
       decidim_participatory_space_type: "Decidim::ParticipatoryProcess"
     ) do |m|
       m.report_count = 1
-      m.reported_content = "#{comment.author.name}\n#{comment.body['en'] || comment.body.values.first}"
+      m.reported_content = "#{comment.author.name}\n#{comment.body["en"] || comment.body.values.first}"
     end
-    
+
     # Create report
     Decidim::Report.find_or_create_by(
       decidim_moderation_id: moderation.id,
       decidim_user_id: users.sample.id
     ) do |r|
-      r.reason = ["spam", "offensive"].sample
+      r.reason = %w(spam offensive).sample
       r.details = "Test comment report #{index + 1} generated by seeds"
       r.locale = "en"
     end
@@ -270,36 +266,34 @@ end
 # Generate moderation test data
 def generate_moderation_test_data(org)
   return unless ENV["RAILS_ENV"] == "development"
-  
+
   puts "--- Generating moderation test data ---"
-  
+
   # Get necessary records
   users = Decidim::User.where(organization: org).limit(10)
   processes = Decidim::ParticipatoryProcess.where(organization: org).limit(5)
   components = Decidim::Component.where(participatory_space: processes, manifest_name: "proposals")
   proposals = Decidim::Proposals::Proposal.where(component: components).limit(10)
-  
+
   return puts "--- Warning: Not enough data to create moderation samples ---" unless users.any? && processes.any? && proposals.any?
-  
+
   # Generate user moderation
   create_user_moderation(users.first, users.second || users.first)
-  
+
   # Generate proposal moderations
   create_proposal_moderations(proposals.limit(3), processes.first, users)
-  
+
   # Generate comment moderations
   proposal_ids = proposals.pluck(:id)
   comments = Decidim::Comments::Comment.where(
-    decidim_commentable_type: "Decidim::Proposals::Proposal", 
+    decidim_commentable_type: "Decidim::Proposals::Proposal",
     decidim_commentable_id: proposal_ids
   ).limit(10)
-  
-  if comments.any?
-    create_comment_moderations(comments.limit(2), processes.first, users)
-  end
-  
+
+  create_comment_moderations(comments.limit(2), processes.first, users) if comments.any?
+
   puts "--- Moderation test data generated successfully ---"
-rescue => e
+rescue StandardError => e
   puts "--- Error generating moderation test data: #{e.message} ---"
 end
 
@@ -308,20 +302,20 @@ puts "--- Starting data preparation ---"
 
 begin
   # Create or update organization
-  org = create_organization()
+  org = create_organization
 
   # Create basic users
-  users = create_basic_users(org)
+  create_basic_users(org)
   puts "--- Basic data preparation completed successfully ---"
 
   # Generate fake data
   generate_fake_data(org)
-  
+
   # Generate moderation test data
   generate_moderation_test_data(org)
-  
+
   puts "--- Data preparation completed successfully ---"
-rescue => e
+rescue StandardError => e
   puts "--- Error during data preparation: #{e.message} ---"
   puts e.backtrace.first(10).join("\n")
   raise e

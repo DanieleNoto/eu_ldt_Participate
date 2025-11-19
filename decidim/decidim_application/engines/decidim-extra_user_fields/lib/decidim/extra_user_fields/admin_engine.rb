@@ -4,8 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module Decidim
   module ExtraUserFields
     # This is the engine that runs on the public interface of `ExtraUserFields`.
@@ -23,7 +21,7 @@ module Decidim
         end
 
         resources :extra_user_fields, only: [:index]
-        match "/extra_user_fields" => "extra_user_fields#update", :via => :patch, as: "update"
+        match "/extra_user_fields" => "extra_user_fields#update", :via => :patch, :as => "update"
 
         root to: "extra_user_fields#index"
       end

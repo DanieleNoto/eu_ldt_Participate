@@ -1,13 +1,12 @@
-# frozen_string_literal: true
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Gianfranco Cedro
-
-
+# Gianfranco Cedro
 
 # This decorator extends the Decidim::Meetings::OnlineMeetingCell
 # to pass user and meeting information to MeetingIframeEmbedder for JWT token generation
+
+# frozen_string_literal: true
 
 Rails.logger.info("=== Loading OnlineMeetingCell Decorator ===")
 
@@ -17,7 +16,7 @@ Decidim::Meetings::OnlineMeetingCell.class_eval do
     @embedder ||= begin
       # In Decidim cells, current_user is accessed via controller
       user = controller.try(:current_user)
-      
+
       Decidim::Meetings::MeetingIframeEmbedder.new(
         model.online_meeting_url,
         user: user,
@@ -33,7 +32,7 @@ Decidim::Meetings::OnlineMeetingCell.class_eval do
     else
       # For non-embeddable URLs (direct Jitsi links), check if we need to add JWT token
       user = controller.try(:current_user)
-      
+
       # Check if it's a Jitsi URL and user is admin
       if user && model && jitsi_url? && user_is_admin?(user)
         Rails.logger.info("Adding JWT token to live event URL for admin user")
@@ -57,7 +56,7 @@ Decidim::Meetings::OnlineMeetingCell.class_eval do
     # Normalize URLs for comparison
     jitsi_host = URI.parse(jitsi_server).host
     meeting_host = URI.parse(model.online_meeting_url).host
-    
+
     jitsi_host == meeting_host
   rescue URI::InvalidURIError => e
     Rails.logger.error("Invalid URI in live_event_url: #{e.message}")
@@ -71,7 +70,7 @@ Decidim::Meetings::OnlineMeetingCell.class_eval do
     is_space_admin = model.component.participatory_space.admins.include?(user)
     is_org_admin = user.admin?
     is_author = model.author == user
-    
+
     is_space_admin || is_org_admin || is_author
   end
 
@@ -93,7 +92,7 @@ Decidim::Meetings::OnlineMeetingCell.class_eval do
       final_url = uri.to_s
       Rails.logger.info("Final live event URL with JWT: #{final_url}")
       final_url
-    rescue => e
+    rescue StandardError => e
       Rails.logger.error("Error adding JWT to live event URL: #{e.message}")
       Rails.logger.error(e.backtrace.join("\n"))
       url_to_transform

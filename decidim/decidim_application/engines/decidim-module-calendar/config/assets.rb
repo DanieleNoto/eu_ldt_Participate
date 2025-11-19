@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Denis Vasilev Dimchev
-  # Gianfranco Cedro
-
-
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
 
 # This file is located at `config/assets.rb` of your module.
 
 # Define the base path of your module. Please note that `Rails.root` may not be
 # used because we are not inside the Rails environment when this file is loaded.
+# frozen_string_literal: true
+
 base_path = File.expand_path("..", __dir__)
 
 # Register an additional load path for webpack. All the assets within these

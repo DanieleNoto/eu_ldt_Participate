@@ -5,8 +5,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 require "rails"
 require "decidim/core"
 require "country_select"

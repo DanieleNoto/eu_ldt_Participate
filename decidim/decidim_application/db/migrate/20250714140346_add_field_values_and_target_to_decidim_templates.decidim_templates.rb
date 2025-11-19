@@ -1,6 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_templates (originally 20221006055954)
 class AddFieldValuesAndTargetToDecidimTemplates < ActiveRecord::Migration[6.0]
   class Template < ApplicationRecord
     self.table_name = :decidim_templates_templates

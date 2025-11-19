@@ -1,14 +1,20 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim (originally 20180226140756)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:44 UTC
 class AddVersionToActionLogs < ActiveRecord::Migration[5.1]
   class ActionLog < ApplicationRecord
     self.table_name = :decidim_action_logs
   end
 
   def up
-    add_column :decidim_action_logs, :version_id, :integer, index: true
+    add_column :decidim_action_logs, :version_id, :integer
+    add_index :decidim_action_logs, :version_id
 
     ActionLog.find_each do |action_log|
       version_id = action_log.extra.dig("version", "id")

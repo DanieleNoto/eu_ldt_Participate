@@ -15,7 +15,7 @@ module ActiveStorage
     # Use null session strategy to avoid CSRF token issues
     # Direct uploads use a pre-signed URL that's already secure
     skip_forgery_protection
-    
+
     def create
       blob = ActiveStorage::Blob.create_before_direct_upload!(**blob_args)
       render json: direct_upload_json(blob)
@@ -29,9 +29,9 @@ module ActiveStorage
 
     def direct_upload_json(blob)
       blob.as_json(root: false, methods: :signed_id).merge(direct_upload: {
-        url: blob.service_url_for_direct_upload,
-        headers: blob.service_headers_for_direct_upload
-      })
+                                                             url: blob.service_url_for_direct_upload,
+                                                             headers: blob.service_headers_for_direct_upload
+                                                           })
     end
   end
 end

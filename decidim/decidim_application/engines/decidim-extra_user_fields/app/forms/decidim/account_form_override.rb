@@ -4,8 +4,6 @@
 # Denis Vasilev Dimchev
 # frozen_string_literal: true
 
-
-
 module Decidim
   # Override the AccountForm to skip old_password validation while keeping password validation
   module AccountFormOverride
@@ -22,4 +20,4 @@ module Decidim
 end
 
 # Prepend the override to the AccountForm so it takes precedence
-Decidim::AccountForm.send(:prepend, Decidim::AccountFormOverride) if defined?(Decidim::AccountForm)
+Decidim::AccountForm.prepend Decidim::AccountFormOverride if defined?(Decidim::AccountForm)

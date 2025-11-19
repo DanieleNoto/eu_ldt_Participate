@@ -4,8 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module Decidim
   # This holds the decidim-extra_user_fields version.
   module ExtraUserFields

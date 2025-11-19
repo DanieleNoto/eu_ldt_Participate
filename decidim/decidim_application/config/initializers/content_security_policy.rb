@@ -5,7 +5,7 @@
 # Marco Pinnella
 # Pierluigi Spedicato
 # SPDX-License-Identifier: AGPL-3.0
-
+# frozen_string_literal: true
 
 # For tuning the Content Security Policy, check the Decidim documentation site
 # https://docs.decidim.org/develop/en/customize/content_security_policy
@@ -17,12 +17,12 @@
 Rails.application.configure do
   config.content_security_policy do |policy|
     policy.default_src :self, :https
-    policy.font_src    :self, :https, :data, "ms-browser-extension:"
-    policy.img_src     :self, :https, :data
-    policy.object_src  :none
+    policy.font_src :self, :https, :data, "ms-browser-extension:"
+    policy.img_src :self, :https, :data
+    policy.object_src :none
 
     # Get chatbot URL from environment
-    chatbot_url = ENV['CHATBOT_URL']&.strip
+    chatbot_url = ENV["CHATBOT_URL"]&.strip
 
     # Allow scripts from self and webpack dev server
     if Rails.env.development?
@@ -39,10 +39,10 @@ Rails.application.configure do
         font_sources << chatbot_url
       end
 
-      policy.script_src *script_sources.compact
-      policy.style_src  *style_sources.compact
-      policy.connect_src *connect_sources.compact
-      policy.font_src   *font_sources.compact
+      policy.script_src(*script_sources.compact)
+      policy.style_src(*style_sources.compact)
+      policy.connect_src(*connect_sources.compact)
+      policy.font_src(*font_sources.compact)
     else
       script_sources = [:self]
       connect_sources = [:self]
@@ -53,17 +53,17 @@ Rails.application.configure do
         connect_sources << chatbot_url
       end
 
-      policy.script_src *script_sources.compact
-      policy.style_src  :self, :unsafe_inline
-      policy.connect_src *connect_sources.compact
+      policy.script_src(*script_sources.compact)
+      policy.style_src :self, :unsafe_inline
+      policy.connect_src(*connect_sources.compact)
     end
   end
 
   # Configure CSP nonces based on the current request
   # Disable nonces in development to allow inline scripts
-  config.content_security_policy_nonce_generator = ->(request) {
+  config.content_security_policy_nonce_generator = lambda { |request|
     if Rails.env.development?
-      nil  # No nonce in development - allow unsafe-inline
+      nil # No nonce in development - allow unsafe-inline
     else
       request.session.id.to_s
     end

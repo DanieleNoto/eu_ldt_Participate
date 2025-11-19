@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Marco Pinnella
-  # Pierluigi Spedicato
-
+# Marco Pinnella
+# Pierluigi Spedicato
+# frozen_string_literal: true
 
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).

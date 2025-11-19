@@ -1,9 +1,15 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_budgets (originally 20200728075039)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:33 UTC
 class AddSelectedAtToProject < ActiveRecord::Migration[5.2]
   def change
-    add_column :decidim_budgets_projects, :selected_at, :date, index: true
+    add_column :decidim_budgets_projects, :selected_at, :date
+    add_index :decidim_budgets_projects, :selected_at
   end
 end

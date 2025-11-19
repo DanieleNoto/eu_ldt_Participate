@@ -4,8 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module Api
   class AssetCollector
     def initialize(organization)
@@ -37,11 +35,11 @@ module Api
       Decidim::ParticipatoryProcess.where(organization: @organization).map do |process|
         # Skip processes with missing title
         next if process.title.nil?
-        
+
         {
           id: process.id,
-          name: process.title[I18n.locale.to_s] || process.title['en'] || process.title.values.first,
-          type: 'ParticipatoryProcess',
+          name: process.title[I18n.locale.to_s] || process.title["en"] || process.title.values.first,
+          type: "ParticipatoryProcess",
           owner: process.decidim_organization_id,
           created_at: process.created_at,
           last_modified: process.updated_at,
@@ -55,11 +53,11 @@ module Api
       Decidim::Assembly.where(organization: @organization).map do |assembly|
         # Skip assemblies with missing title
         next if assembly.title.nil?
-        
+
         {
           id: assembly.id,
-          name: assembly.title[I18n.locale.to_s] || assembly.title['en'] || assembly.title.values.first,
-          type: 'Assembly',
+          name: assembly.title[I18n.locale.to_s] || assembly.title["en"] || assembly.title.values.first,
+          type: "Assembly",
           owner: assembly.decidim_organization_id,
           created_at: assembly.created_at,
           last_modified: assembly.updated_at,
@@ -75,18 +73,18 @@ module Api
       [Decidim::ParticipatoryProcess, Decidim::Assembly, Decidim::Conference, Decidim::Initiative].each do |space_class|
         space_ids = space_class.where(decidim_organization_id: @organization.id).pluck(:id)
         meetings += Decidim::Meetings::Meeting.joins(:component)
-          .where(component: { participatory_space_type: space_class.name, participatory_space_id: space_ids })
-          .to_a
+                                              .where(component: { participatory_space_type: space_class.name, participatory_space_id: space_ids })
+                                              .to_a
       end
 
       meetings.map do |meeting|
         # Skip meetings with missing component or title
         next if meeting.component.nil? || meeting.title.nil?
-        
+
         {
           id: meeting.id,
-          name: meeting.title[I18n.locale.to_s] || meeting.title['en'] || meeting.title.values.first,
-          type: 'Meeting',
+          name: meeting.title[I18n.locale.to_s] || meeting.title["en"] || meeting.title.values.first,
+          type: "Meeting",
           owner: meeting.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: meeting.created_at,
           last_modified: meeting.updated_at,
@@ -102,18 +100,18 @@ module Api
       [Decidim::ParticipatoryProcess, Decidim::Assembly, Decidim::Conference, Decidim::Initiative].each do |space_class|
         space_ids = space_class.where(decidim_organization_id: @organization.id).pluck(:id)
         proposals += Decidim::Proposals::Proposal.joins(:component)
-          .where(component: { participatory_space_type: space_class.name, participatory_space_id: space_ids })
-          .to_a
+                                                 .where(component: { participatory_space_type: space_class.name, participatory_space_id: space_ids })
+                                                 .to_a
       end
 
       proposals.map do |proposal|
         # Skip proposals with missing component
         next if proposal.component.nil?
-        
+
         {
           id: proposal.id,
           name: proposal.title,
-          type: 'Proposal',
+          type: "Proposal",
           owner: proposal.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: proposal.created_at,
           last_modified: proposal.updated_at,
@@ -128,18 +126,18 @@ module Api
       [Decidim::ParticipatoryProcess, Decidim::Assembly, Decidim::Conference, Decidim::Initiative].each do |space_class|
         space_ids = space_class.where(decidim_organization_id: @organization.id).pluck(:id)
         surveys += Decidim::Surveys::Survey.joins(:component)
-          .where(component: { participatory_space_type: space_class.name, participatory_space_id: space_ids })
-          .to_a
+                                           .where(component: { participatory_space_type: space_class.name, participatory_space_id: space_ids })
+                                           .to_a
       end
 
       surveys.map do |survey|
         # Skip surveys with missing component or title data
         next if survey.component.nil? || survey.title.nil?
-        
+
         {
           id: survey.id,
-          name: survey.title[I18n.locale.to_s] || survey.title['en'] || survey.title.values.first,
-          type: 'Survey',
+          name: survey.title[I18n.locale.to_s] || survey.title["en"] || survey.title.values.first,
+          type: "Survey",
           owner: survey.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: survey.created_at,
           last_modified: survey.updated_at,
@@ -153,11 +151,11 @@ module Api
       Decidim::Conference.where(organization: @organization).map do |conference|
         # Skip conferences with missing title
         next if conference.title.nil?
-        
+
         {
           id: conference.id,
-          name: conference.title[I18n.locale.to_s] || conference.title['en'] || conference.title.values.first,
-          type: 'Conference',
+          name: conference.title[I18n.locale.to_s] || conference.title["en"] || conference.title.values.first,
+          type: "Conference",
           owner: conference.decidim_organization_id,
           created_at: conference.created_at,
           last_modified: conference.updated_at,
@@ -172,18 +170,18 @@ module Api
       [Decidim::ParticipatoryProcess, Decidim::Assembly, Decidim::Conference, Decidim::Initiative].each do |space_class|
         space_ids = space_class.where(decidim_organization_id: @organization.id).pluck(:id)
         debates += Decidim::Debates::Debate.joins(:component)
-          .where(component: { participatory_space_type: space_class.name, participatory_space_id: space_ids })
-          .to_a
+                                           .where(component: { participatory_space_type: space_class.name, participatory_space_id: space_ids })
+                                           .to_a
       end
 
       debates.map do |debate|
         # Skip debates with missing component or title
         next if debate.component.nil? || debate.title.nil?
-        
+
         {
           id: debate.id,
-          name: debate.title[I18n.locale.to_s] || debate.title['en'] || debate.title.values.first,
-          type: 'Debate',
+          name: debate.title[I18n.locale.to_s] || debate.title["en"] || debate.title.values.first,
+          type: "Debate",
           owner: debate.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: debate.created_at,
           last_modified: debate.updated_at,
@@ -197,11 +195,11 @@ module Api
       Decidim::Initiative.where(organization: @organization).map do |initiative|
         # Skip initiatives with missing title
         next if initiative.title.nil?
-        
+
         {
           id: initiative.id,
-          name: initiative.title[I18n.locale.to_s] || initiative.title['en'] || initiative.title.values.first,
-          type: 'Initiative',
+          name: initiative.title[I18n.locale.to_s] || initiative.title["en"] || initiative.title.values.first,
+          type: "Initiative",
           owner: initiative.decidim_organization_id,
           created_at: initiative.created_at,
           last_modified: initiative.updated_at,
@@ -222,11 +220,11 @@ module Api
       Decidim::LdtMapVisualization::MapVisualization.where(decidim_component_id: component_ids).map do |map_visualization|
         # Skip map visualizations with missing component
         next if map_visualization.component.nil?
-        
+
         {
           id: map_visualization.id,
           name: map_visualization.name,
-          type: 'MapVisualization',
+          type: "MapVisualization",
           owner: map_visualization.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: map_visualization.created_at,
           last_modified: map_visualization.updated_at,
@@ -247,11 +245,11 @@ module Api
       Decidim::LdtUseCaseScenarios::UseCaseScenario.where(decidim_component_id: component_ids).map do |use_case_scenario|
         # Skip use case scenarios with missing component
         next if use_case_scenario.component.nil?
-        
+
         {
           id: use_case_scenario.id,
           name: use_case_scenario.name,
-          type: 'UseCaseScenario',
+          type: "UseCaseScenario",
           owner: use_case_scenario.component.participatory_space&.decidim_organization_id || @organization.id,
           created_at: use_case_scenario.created_at,
           last_modified: use_case_scenario.updated_at,

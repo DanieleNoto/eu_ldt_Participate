@@ -5,8 +5,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 require "decidim/keycloak/engine"
 require "decidim/keycloak/configuration"
 require "decidim/keycloak/cookie_manager"

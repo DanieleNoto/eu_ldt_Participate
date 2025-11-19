@@ -4,8 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module KeycloakTokenManagement
   extend ActiveSupport::Concern
 
@@ -13,7 +11,7 @@ module KeycloakTokenManagement
 
   # Attempt to refresh the Keycloak token using refresh_token
   def refresh_keycloak_token
-    refresh_token = cookies['refresh_token']
+    refresh_token = cookies["refresh_token"]
     return false unless refresh_token.present? && keycloak_config_valid?
 
     config = keycloak_config
@@ -23,20 +21,20 @@ module KeycloakTokenManagement
 
       uri = URI("#{config[:site]}/realms/#{config[:realm]}/protocol/openid-connect/token")
       http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.scheme == 'https'
+      http.use_ssl = uri.scheme == "https"
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       http.cert_store = OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
       http.open_timeout = 10
       http.read_timeout = 20
 
       request = Net::HTTP::Post.new(uri)
-      request['Content-Type'] = 'application/x-www-form-urlencoded'
+      request["Content-Type"] = "application/x-www-form-urlencoded"
       request.body = URI.encode_www_form({
-        grant_type: 'refresh_token',
-        client_id: config[:client_id],
-        client_secret: config[:client_secret],
-        refresh_token: refresh_token
-      })
+                                           grant_type: "refresh_token",
+                                           client_id: config[:client_id],
+                                           client_secret: config[:client_secret],
+                                           refresh_token: refresh_token
+                                         })
 
       response = http.request(request)
 
@@ -48,7 +46,7 @@ module KeycloakTokenManagement
       token_data = JSON.parse(response.body)
 
       # Validate that we got the required tokens
-      unless token_data['access_token'] && token_data['refresh_token']
+      unless token_data["access_token"] && token_data["refresh_token"]
         Rails.logger.warn "[Keycloak Token Refresh] Refresh response missing required tokens"
         return false
       end
@@ -64,7 +62,7 @@ module KeycloakTokenManagement
     rescue JSON::ParserError => e
       Rails.logger.error "[Keycloak Token Refresh] Invalid JSON response during refresh: #{e.message}"
       false
-    rescue => e
+    rescue StandardError => e
       Rails.logger.error "[Keycloak Token Refresh] Unexpected error during refresh: #{e.class} - #{e.message}"
       false
     end
@@ -75,18 +73,18 @@ module KeycloakTokenManagement
   def save_keycloak_tokens_to_cookies(token_data)
     # Prepare tokens hash
     tokens = {
-      access_token: token_data['access_token'],
-      refresh_token: token_data['refresh_token'],
-      id_token: token_data['id_token'],
-      expires_in: token_data['expires_in']&.to_i
+      access_token: token_data["access_token"],
+      refresh_token: token_data["refresh_token"],
+      id_token: token_data["id_token"],
+      expires_in: token_data["expires_in"]&.to_i
     }
-    
+
     # Use centralized cookie manager
     Decidim::Keycloak::CookieManager.save_tokens(cookies, tokens, request.host)
-    
+
     # Clear any cached validation results since we have new tokens
     invalidate_keycloak_token_cache
-    
+
     Rails.logger.info "[Keycloak Token Save] Saved tokens to cookies"
   end
 
@@ -98,8 +96,8 @@ module KeycloakTokenManagement
 
   # Method to invalidate Keycloak token cache (useful for debugging)
   def invalidate_keycloak_token_cache
-    id_token = cookies['id_token']
-    return unless id_token.present?
+    id_token = cookies["id_token"]
+    return if id_token.blank?
 
     cache_key = "keycloak_token_#{Digest::SHA256.hexdigest(id_token)}"
     Rails.cache.delete(cache_key)
@@ -114,18 +112,17 @@ module KeycloakTokenManagement
 
   # NEW: Proper token validation using Keycloak introspection endpoint
   def keycloak_token_still_valid?
-    id_token = cookies['id_token']
-    return false unless id_token.present?
+    id_token = cookies["id_token"]
+    return false if id_token.blank?
 
     return false unless keycloak_config_valid?
+
     config = keycloak_config
 
     # Check cache first (30-second TTL for production)
     cache_key = "keycloak_token_#{Digest::SHA256.hexdigest(id_token)}"
     cached_result = Rails.cache.read(cache_key)
-    if cached_result != nil
-      return cached_result
-    end
+    return cached_result unless cached_result.nil?
 
     Rails.logger.debug "[Keycloak Token Validation] Validating token with Keycloak"
 
@@ -147,49 +144,49 @@ module KeycloakTokenManagement
       # Get access token for introspection using Net::HTTP with timeout and SSL
       uri = URI("#{config[:site]}/realms/#{config[:realm]}/protocol/openid-connect/token")
       http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.scheme == 'https'
+      http.use_ssl = uri.scheme == "https"
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       # Use system CA certificates instead of hardcoded path
       http.cert_store = OpenSSL::SSL::SSLContext::DEFAULT_CERT_STORE
-      http.open_timeout = 10  # 10 seconds (increased from 5s)
+      http.open_timeout = 10 # 10 seconds (increased from 5s)
       http.read_timeout = 20 # 20 seconds (increased from 10s)
 
       request = Net::HTTP::Post.new(uri)
-      request['Content-Type'] = 'application/x-www-form-urlencoded'
+      request["Content-Type"] = "application/x-www-form-urlencoded"
       request.body = URI.encode_www_form({
-        grant_type: 'client_credentials',
-        client_id: config[:client_id],
-        client_secret: config[:client_secret]
-      })
+                                           grant_type: "client_credentials",
+                                           client_id: config[:client_id],
+                                           client_secret: config[:client_secret]
+                                         })
 
       token_response = http.request(request)
       return false unless token_response.is_a?(Net::HTTPSuccess)
 
-      access_token = JSON.parse(token_response.body)['access_token']
+      access_token = JSON.parse(token_response.body)["access_token"]
       return false unless access_token
 
       # Introspect the user's token
       introspect_uri = URI("#{config[:site]}/realms/#{config[:realm]}/protocol/openid-connect/token/introspect")
       introspect_request = Net::HTTP::Post.new(introspect_uri)
-      introspect_request['Content-Type'] = 'application/x-www-form-urlencoded'
+      introspect_request["Content-Type"] = "application/x-www-form-urlencoded"
       introspect_request.body = URI.encode_www_form({
-        token: id_token,
-        client_id: config[:client_id],
-        client_secret: config[:client_secret]
-      })
+                                                      token: id_token,
+                                                      client_id: config[:client_id],
+                                                      client_secret: config[:client_secret]
+                                                    })
 
       introspect_response = http.request(introspect_request)
       return false unless introspect_response.is_a?(Net::HTTPSuccess)
 
       introspection_result = JSON.parse(introspect_response.body)
-      is_active = introspection_result['active'] == true
+      is_active = introspection_result["active"] == true
 
       # Log token validation result for debugging
       if is_active
-        Rails.logger.debug "[Keycloak Token Validation] Token is valid for user #{current_user&.id}"
+        Rails.logger.debug { "[Keycloak Token Validation] Token is valid for user #{current_user&.id}" }
       else
         Rails.logger.info "[Keycloak Token Validation] Token is invalid/revoked for user #{current_user&.id} - forcing logout"
-        return false  # Don't attempt refresh for revoked tokens
+        return false # Don't attempt refresh for revoked tokens
       end
 
       # Cache the result for 10 seconds (reduced from 30s for better security)
@@ -198,13 +195,13 @@ module KeycloakTokenManagement
       is_active
     rescue Net::OpenTimeout, Net::ReadTimeout => e
       Rails.logger.error "[Keycloak Token Validation] Network timeout during validation: #{e.message}"
-      false  # Force logout on network issues for security
+      false # Force logout on network issues for security
     rescue JSON::ParserError => e
       Rails.logger.error "[Keycloak Token Validation] Invalid JSON response during validation: #{e.message}"
-      false  # Force logout on invalid responses
-    rescue => e
+      false # Force logout on invalid responses
+    rescue StandardError => e
       Rails.logger.error "[Keycloak Token Validation] Unexpected error during validation: #{e.class} - #{e.message}"
-      false  # Force logout on unexpected errors
+      false # Force logout on unexpected errors
     end
   end
 end

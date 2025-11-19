@@ -4,15 +4,11 @@
 # Denis Vasilev Dimchev
 # frozen_string_literal: true
 
-
-
 # Configure Decidim AI module to use the correct Redis connection
 if Decidim.module_installed?(:ai)
   Decidim::Ai.configure do |config|
     # Configure Redis connection for AI spam detection
-    if ENV["REDIS_URL"].present?
-      config.spam_detection_redis_url = ENV["REDIS_URL"]
-    end
+    config.spam_detection_redis_url = ENV["REDIS_URL"] if ENV["REDIS_URL"].present?
   end
 end
 

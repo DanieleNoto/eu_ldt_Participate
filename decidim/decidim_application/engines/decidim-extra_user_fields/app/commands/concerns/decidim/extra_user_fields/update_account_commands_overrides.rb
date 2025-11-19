@@ -5,8 +5,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 require "active_support/concern"
 
 module Decidim
@@ -29,7 +27,7 @@ module Decidim
       end
 
       def merge_extended_data
-        current_extended_data = (current_user&.extended_data || {})
+        current_extended_data = current_user&.extended_data || {}
 
         updated_data = {}
         updated_data[:country] = form.country if form.country.present?

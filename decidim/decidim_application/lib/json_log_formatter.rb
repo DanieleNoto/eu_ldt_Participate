@@ -1,10 +1,7 @@
-# frozen_string_literal: true
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Gianfranco Cedro
-
-
+# Gianfranco Cedro
 
 # JSON Logger Formatter for ELK Stack integration
 # EU LDT Integrated Environment structured logging format
@@ -38,8 +35,10 @@
 #     "response_time_ms": 120
 #   }
 # }
-class JsonLogFormatter < ::Logger::Formatter
-  def call(severity, timestamp, progname, msg)
+# frozen_string_literal: true
+
+class JsonLogFormatter < Logger::Formatter
+  def call(severity, timestamp, _progname, msg)
     log_entry = {
       "timestamp" => timestamp.utc.iso8601(3),
       "level" => severity,
@@ -50,14 +49,10 @@ class JsonLogFormatter < ::Logger::Formatter
     }
 
     # Add request context if available
-    if defined?(::RequestStore) && ::RequestStore.store[:request_id]
-      log_entry["request_id"] = ::RequestStore.store[:request_id]
-    end
+    log_entry["request_id"] = ::RequestStore.store[:request_id] if defined?(::RequestStore) && ::RequestStore.store[:request_id]
 
     # Add user context if available
-    if defined?(::RequestStore) && ::RequestStore.store[:current_user_id]
-      log_entry["user_id"] = ::RequestStore.store[:current_user_id]
-    end
+    log_entry["user_id"] = ::RequestStore.store[:current_user_id] if defined?(::RequestStore) && ::RequestStore.store[:current_user_id]
 
     # Format the message based on type
     log_entry.merge!(format_message(msg))
@@ -118,14 +113,12 @@ class JsonLogFormatter < ::Logger::Formatter
 
         if parsed_json["controller"] && parsed_json["action"]
           result["source"] = {
-            "file" => parsed_json["controller"].gsub('::', '/').downcase,
+            "file" => parsed_json["controller"].gsub("::", "/").downcase,
             "function" => parsed_json["action"]
           }
         end
 
-        if parsed_json["status"]
-          result["response_status"] = parsed_json["status"]
-        end
+        result["response_status"] = parsed_json["status"] if parsed_json["status"]
 
         if parsed_json["duration"] || parsed_json["view"] || parsed_json["db"]
           result["metrics"] = {
@@ -137,7 +130,8 @@ class JsonLogFormatter < ::Logger::Formatter
 
         # Add any remaining fields as additional details
         parsed_json.each do |key, value|
-          next if ["method", "path", "controller", "action", "status", "duration", "view", "db", "remote_ip", "user_id", "params"].include?(key)
+          next if %w(method path controller action status duration view db remote_ip user_id params).include?(key)
+
           result["details"] ||= {}
           result["details"][key] = value
         end
@@ -149,94 +143,95 @@ class JsonLogFormatter < ::Logger::Formatter
     end
 
     # Extract HTTP request information
-    if msg =~ /Started (\w+) "([^"]+)" for ([\d\.]+)/
+    case msg
+    when /Started (\w+) "([^"]+)" for ([\d\.]+)/
       result["event"] = {
-        "http_verb" => $1,
-        "path" => $2,
+        "http_verb" => ::Regexp.last_match(1),
+        "path" => ::Regexp.last_match(2),
         "details" => {
-          "remote_ip" => $3
+          "remote_ip" => ::Regexp.last_match(3)
         }
       }
 
       # Add additional request details if available
       add_request_details(result["event"]["details"])
-    elsif msg =~ /Processing by (.+)#(\w+) as (\w+)/
+    when /Processing by (.+)#(\w+) as (\w+)/
       result["source"] = {
-        "file" => $1.gsub('::', '/').downcase,
-        "function" => $2
+        "file" => ::Regexp.last_match(1).gsub("::", "/").downcase,
+        "function" => ::Regexp.last_match(2)
       }
-    elsif msg =~ /Completed (\d+) .+ in (\d+)ms/
-      result["response_status"] = $1.to_i
+    when /Completed (\d+) .+ in (\d+)ms/
+      result["response_status"] = ::Regexp.last_match(1).to_i
       result["metrics"] = {
-        "response_time_ms" => $2.to_i
+        "response_time_ms" => ::Regexp.last_match(2).to_i
       }
-    elsif msg =~ /Rendered (.+) \(Duration: ([\d\.]+)ms/
+    when /Rendered (.+) \(Duration: ([\d\.]+)ms/
       result["source"] ||= {}
-      result["source"]["file"] = $1.split('/').last
+      result["source"]["file"] = ::Regexp.last_match(1).split("/").last
       result["metrics"] ||= {}
-      result["metrics"]["render_time_ms"] = $2.to_f
-    elsif msg =~ /Rendered (.+) \(([\d\.]+)ms\)/
+      result["metrics"]["render_time_ms"] = ::Regexp.last_match(2).to_f
+    when /Rendered (.+) \(([\d\.]+)ms\)/
       # Alternative pattern for rendered messages
       result["source"] ||= {}
-      result["source"]["file"] = $1.split('/').last
+      result["source"]["file"] = ::Regexp.last_match(1).split("/").last
       result["metrics"] ||= {}
-      result["metrics"]["render_time_ms"] = $2.to_f
-    elsif msg =~ /Cannot render console from ([\d\.]+)/
+      result["metrics"]["render_time_ms"] = ::Regexp.last_match(2).to_f
+    when /Cannot render console from ([\d\.]+)/
       # Console access messages
       result["event"] = {
         "details" => {
-          "remote_ip" => $1,
+          "remote_ip" => ::Regexp.last_match(1),
           "event_type" => "console_access_denied"
         }
       }
-    elsif msg =~ /(\w+) Load \(Duration: ([\d\.]+)ms\)/
+    when /(\w+) Load \(Duration: ([\d\.]+)ms\)/
       # Database load operations
       result["metrics"] ||= {}
-      result["metrics"]["db_load_time_ms"] = $2.to_f
+      result["metrics"]["db_load_time_ms"] = ::Regexp.last_match(2).to_f
       result["event"] = {
         "details" => {
           "operation" => "db_load",
-          "table" => $1
+          "table" => ::Regexp.last_match(1)
         }
       }
-    elsif msg =~ /SELECT .* FROM "([^"]+)"/
+    when /SELECT .* FROM "([^"]+)"/
       # SQL SELECT queries
       result["event"] ||= {}
       result["event"]["details"] ||= {}
-      result["event"]["details"]["sql_table"] = $1
+      result["event"]["details"]["sql_table"] = ::Regexp.last_match(1)
       result["event"]["details"]["sql_operation"] = "SELECT"
-    elsif msg =~ /(.*) failed: (.*)/
+    when /(.*) failed: (.*)/
       # Configuration or initialization failures
       result["event"] = {
         "details" => {
           "event_type" => "configuration_failure",
-          "component" => $1.strip,
-          "error" => $2.strip
+          "component" => ::Regexp.last_match(1).strip,
+          "error" => ::Regexp.last_match(2).strip
         }
       }
-    elsif msg =~ /(.+) not present; skipping (.+)/
+    when /(.+) not present; skipping (.+)/
       # Missing gem/component messages
       result["event"] = {
         "details" => {
           "event_type" => "component_skipped",
-          "component" => $1.strip,
-          "reason" => $2.strip
+          "component" => ::Regexp.last_match(1).strip,
+          "reason" => ::Regexp.last_match(2).strip
         }
       }
-    elsif msg =~ /DEPRECATION WARNING: (.+)/
+    when /DEPRECATION WARNING: (.+)/
       # Deprecation warnings
       result["event"] = {
         "details" => {
           "event_type" => "deprecation_warning",
-          "message" => $1.strip
+          "message" => ::Regexp.last_match(1).strip
         }
       }
-    elsif msg =~ /WARN.*-- (.*)/ || msg =~ /WARNING.*-- (.*)/
+    when /WARN.*-- (.*)/, /WARNING.*-- (.*)/
       # General warning messages
       result["event"] = {
         "details" => {
           "event_type" => "warning",
-          "message" => $1.strip
+          "message" => ::Regexp.last_match(1).strip
         }
       }
     end
@@ -248,39 +243,31 @@ class JsonLogFormatter < ::Logger::Formatter
 
   def add_request_details(details)
     # Add user agent if available
-    if defined?(::RequestStore) && ::RequestStore.store[:user_agent]
-      details["user_agent"] = ::RequestStore.store[:user_agent]
-    end
+    details["user_agent"] = ::RequestStore.store[:user_agent] if defined?(::RequestStore) && ::RequestStore.store[:user_agent]
 
     # Add OAuth information if available
-    if defined?(::RequestStore) && ::RequestStore.store[:oauth_server]
-      details["oauth_server"] = ::RequestStore.store[:oauth_server]
-    end
+    details["oauth_server"] = ::RequestStore.store[:oauth_server] if defined?(::RequestStore) && ::RequestStore.store[:oauth_server]
 
-    if defined?(::RequestStore) && ::RequestStore.store[:oauth_scope]
-      details["oauth_scope"] = ::RequestStore.store[:oauth_scope]
-    end
+    details["oauth_scope"] = ::RequestStore.store[:oauth_scope] if defined?(::RequestStore) && ::RequestStore.store[:oauth_scope]
   end
 
   def format_hash_message(msg)
     result = { "message" => msg.inspect }
 
     # If it's a structured log message, preserve it
-    if msg.key?("event") || msg.key?("source") || msg.key?("metrics")
-      result = msg
-    end
+    result = msg if msg.has_key?("event") || msg.has_key?("source") || msg.has_key?("metrics")
 
     result
   end
 
   def format_exception(exception)
-    error_class_name = exception.class.name.split('::').last
+    error_class_name = exception.class.name.split("::").last
     {
       "error_id" => "ERR#{error_class_name.upcase}",
       "error_message" => exception.message,
       "source" => {
-        "file" => exception.backtrace&.first&.split(':')&.first || "unknown",
-        "function" => exception.backtrace&.first&.split(':in `')&.last&.chomp("'") || "unknown"
+        "file" => exception.backtrace&.first&.split(":")&.first || "unknown",
+        "function" => exception.backtrace&.first&.split(":in `")&.last&.chomp("'") || "unknown"
       },
       "event" => {
         "details" => {
@@ -289,8 +276,6 @@ class JsonLogFormatter < ::Logger::Formatter
       }
     }
   end
-
-  private
 
   def decidim_version
     defined?(::Decidim.version) ? ::Decidim.version : "unknown"

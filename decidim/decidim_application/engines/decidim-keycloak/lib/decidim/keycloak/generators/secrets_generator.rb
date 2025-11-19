@@ -4,8 +4,6 @@
 # Denis Vasilev Dimchev
 # frozen_string_literal: true
 
-
-
 require "rails/generators/base"
 
 module Decidim

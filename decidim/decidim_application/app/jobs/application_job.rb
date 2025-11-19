@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Marco Pinnella
-  # Pierluigi Spedicato
-
+# Marco Pinnella
+# Pierluigi Spedicato
+# frozen_string_literal: true
 
 class ApplicationJob < ActiveJob::Base
   # Automatically retry jobs that encountered a deadlock

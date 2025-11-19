@@ -6,8 +6,6 @@
 # Simone Bianchelli
 # frozen_string_literal: true
 
-
-
 require "active_support/concern"
 
 module Decidim
@@ -48,11 +46,11 @@ module Decidim
         validates :phone_number, length: { maximum: 100 }, if: :phone_number?
         validates(
           :phone_number,
-          format: { 
-            with: ->(form) { 
+          format: {
+            with: lambda { |form|
               pattern = form.current_organization.extra_user_field_configuration(:phone_number)["pattern"]
-              pattern.present? ? Regexp.new(pattern) : /.*/ 
-            } 
+              pattern.present? ? Regexp.new(pattern) : /.*/
+            }
           },
           if: :phone_number_format_valid?
         )
@@ -63,7 +61,7 @@ module Decidim
 
         # Account profile validations
         validates :about, length: { maximum: 500 }, allow_blank: true
-        validates :personal_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: :invalid_url }, allow_blank: true
+        validates :personal_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w(http https)), message: :invalid_url }, allow_blank: true
         validates :statutory_representative_email,
                   presence: true,
                   "valid_email_2/email": { disposable: true },
@@ -136,7 +134,7 @@ module Decidim
       end
 
       def phone_number_format_valid?
-        return unless phone_number? && phone_number.present?
+        return false unless phone_number? && phone_number.present?
 
         current_organization.extra_user_field_configuration(:phone_number)["pattern"].present?
       end
@@ -175,9 +173,7 @@ module Decidim
       def birth_date_not_in_future
         return if date_of_birth.blank?
 
-        if date_of_birth > Time.zone.today
-          errors.add(:date_of_birth, :future_date)
-        end
+        errors.add(:date_of_birth, :future_date) if date_of_birth > Time.zone.today
       end
 
       def birth_date_under_limit
@@ -208,12 +204,12 @@ module Decidim
       end
 
       def registration_form?
-        self.class.name == "Decidim::RegistrationForm" || 
-          self.class.name == "Decidim::OmniauthRegistrationForm"
+        instance_of?(::Decidim::RegistrationForm) ||
+          instance_of?(::Decidim::OmniauthRegistrationForm)
       end
 
       def account_edit_form?
-        self.class.name == "Decidim::AccountForm"
+        instance_of?(::Decidim::AccountForm)
       end
     end
   end

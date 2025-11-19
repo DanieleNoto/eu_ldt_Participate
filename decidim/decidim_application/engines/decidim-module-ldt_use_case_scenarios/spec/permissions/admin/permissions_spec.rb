@@ -1,10 +1,8 @@
-# frozen_string_literal: true
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Gianfranco Cedro
-
-
+# Gianfranco Cedro
+# frozen_string_literal: true
 
 require "spec_helper"
 
@@ -12,7 +10,7 @@ module Decidim::LdtUseCaseScenarios::Admin
   describe Permissions do
     subject { described_class.new(user, permission_action, context).permissions.allowed? }
 
-    let(:organization) { create :organization }
+    let(:organization) { create(:organization) }
     let(:context) do
       {
         current_organization: organization
@@ -24,7 +22,7 @@ module Decidim::LdtUseCaseScenarios::Admin
     let(:permission_action) { Decidim::PermissionAction.new(**action) }
 
     context "when user is admin" do
-      let(:user) { create :user, :admin, organization: organization }
+      let(:user) { create(:user, :admin, organization: organization) }
 
       it { is_expected.to be_truthy }
 
@@ -38,7 +36,7 @@ module Decidim::LdtUseCaseScenarios::Admin
     end
 
     context "when user is not admin" do
-      let(:user) { create :user, organization: organization }
+      let(:user) { create(:user, organization: organization) }
 
       it_behaves_like "permission is not set"
     end

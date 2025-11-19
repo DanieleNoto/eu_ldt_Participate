@@ -5,8 +5,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 require "active_support/concern"
 
 module Decidim
@@ -79,7 +77,7 @@ module Decidim
       end
 
       def merge_extended_data
-        current_extended_data = (@user&.extended_data || {})
+        current_extended_data = @user&.extended_data || {}
 
         # For new users on first login, set all provided fields
         updated_data = {}

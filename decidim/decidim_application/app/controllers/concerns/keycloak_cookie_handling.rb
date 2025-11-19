@@ -4,8 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module KeycloakCookieHandling
   extend ActiveSupport::Concern
 
@@ -27,26 +25,26 @@ module KeycloakCookieHandling
   # Check if Keycloak cookies are present and valid, and verify active session
   # CENTRALIZED: Uses Decidim::Keycloak::SessionValidator for validation
   def keycloak_cookies_present_and_valid?
-    access_token = cookies['access_token']
-    id_token = cookies['id_token']
-    refresh_token = cookies['refresh_token']
-    
+    access_token = cookies["access_token"]
+    id_token = cookies["id_token"]
+    refresh_token = cookies["refresh_token"]
+
     # Use the centralized session validator from the Keycloak engine
     valid = Decidim::Keycloak::SessionValidator.validate_tokens_and_session(
-      access_token, 
-      id_token, 
-      refresh_token, 
+      access_token,
+      id_token,
+      refresh_token,
       cookies
     )
-    
+
     # Clear cookies if validation failed
-    if !valid
+    unless valid
       Rails.logger.info "[Keycloak AutoLogin] Token validation failed, clearing cookies"
       clear_keycloak_cookies
     end
-    
+
     valid
-  rescue => e
+  rescue StandardError => e
     Rails.logger.warn "[Keycloak AutoLogin] Error validating cookies: #{e.message}"
     false
   end

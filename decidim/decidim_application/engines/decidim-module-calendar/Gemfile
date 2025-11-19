@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
 # frozen_string_literal: true
 
 source "https://rubygems.org"
@@ -20,7 +24,6 @@ group :development, :test do
   gem "byebug", "~> 11.0", platform: :mri
 
   gem "decidim-dev", Decidim::Calendar::DECIDIM_VERSION
-
 end
 
 group :development do

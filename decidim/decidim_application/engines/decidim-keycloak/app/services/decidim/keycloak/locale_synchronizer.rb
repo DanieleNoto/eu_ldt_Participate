@@ -4,8 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module Decidim
   module Keycloak
     class LocaleSynchronizer
@@ -19,34 +17,32 @@ module Decidim
       end
 
       def sync
-        return nil unless @id_token.present?
+        return nil if @id_token.blank?
 
         token_locale = extract_locale_from_token
-        return nil unless token_locale.present?
+        return nil if token_locale.blank?
 
-        if token_locale != @current_locale
+        if token_locale == @current_locale
+          nil # No change needed
+        else
           Rails.logger.info "[Keycloak Locale Sync] Locale changed from #{@current_locale} to #{token_locale}"
           token_locale
-        else
-          nil # No change needed
         end
       end
 
       private
 
       def extract_locale_from_token
-        return nil unless @id_token.present?
+        return nil if @id_token.blank?
 
         # CENTRALIZED: Uses Decidim::Keycloak::JwtParser
         available_locales = Decidim.available_locales
         user_locale = Decidim::Keycloak::JwtParser.extract_locale(@id_token, available_locales)
-        
-        if user_locale.blank?
-          Rails.logger.debug "[Keycloak Locale Sync] No valid locale found in token"
-        end
-        
+
+        Rails.logger.debug "[Keycloak Locale Sync] No valid locale found in token" if user_locale.blank?
+
         user_locale
-      rescue => e
+      rescue StandardError => e
         Rails.logger.warn "[Keycloak Locale Sync] Error extracting locale from JWT: #{e.message}"
         nil
       end

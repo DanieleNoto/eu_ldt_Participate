@@ -4,15 +4,13 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module Api
   class AssetFormatter
     def self.format_assets(assets)
-      Rails.logger.debug "Formatting #{assets.size} assets"
+      Rails.logger.debug { "Formatting #{assets.size} assets" }
       assets.map do |asset|
         composite_id = generate_composite_id(asset[:type], asset[:id])
-        Rails.logger.debug "Converting #{asset[:type]} #{asset[:id]} to #{composite_id}"
+        Rails.logger.debug { "Converting #{asset[:type]} #{asset[:id]} to #{composite_id}" }
 
         {
           id: composite_id,
@@ -35,7 +33,7 @@ module Api
 
     def self.parse_composite_id(composite_id)
       # Find the last dash to separate type from id
-      last_dash_index = composite_id.rindex('-')
+      last_dash_index = composite_id.rindex("-")
       return nil unless last_dash_index
 
       type_slug = composite_id[0...last_dash_index]
@@ -47,18 +45,17 @@ module Api
       # Convert slug back to type - handle both formats: with and without internal dashes
       # First try the exact match, then try removing dashes
       type = case type_slug
-             when 'meeting' then 'Meeting'
-             when 'proposal' then 'Proposal'
-             when 'participatoryprocess' then 'ParticipatoryProcess'
-             when 'assembly' then 'Assembly'
-             when 'conference' then 'Conference'
-             when 'debate' then 'Debate'
-             when 'initiative' then 'Initiative'
-             when 'survey' then 'Survey'
-             when 'mapvisualization' then 'MapVisualization'
-             when 'use-case-scenario' then 'UseCaseScenario'
-             when 'participatory-process' then 'ParticipatoryProcess' # Handle dash format
-             else nil
+             when "meeting" then "Meeting"
+             when "proposal" then "Proposal"
+             when "participatoryprocess" then "ParticipatoryProcess"
+             when "assembly" then "Assembly"
+             when "conference" then "Conference"
+             when "debate" then "Debate"
+             when "initiative" then "Initiative"
+             when "survey" then "Survey"
+             when "mapvisualization" then "MapVisualization"
+             when "use-case-scenario" then "UseCaseScenario"
+             when "participatory-process" then "ParticipatoryProcess" # Handle dash format
              end
 
       [type, id] if type
@@ -72,24 +69,23 @@ module Api
 
       # Map type to model class
       model_class = case type
-                    when 'ParticipatoryProcess' then Decidim::ParticipatoryProcess
-                    when 'Assembly' then Decidim::Assembly
-                    when 'Meeting' then Decidim::Meetings::Meeting
-                    when 'Proposal' then Decidim::Proposals::Proposal
-                    when 'Survey' then Decidim::Surveys::Survey
-                    when 'Conference' then Decidim::Conference
-                    when 'Debate' then Decidim::Debates::Debate
-                    when 'Initiative' then Decidim::Initiative
-                    when 'MapVisualization' then Decidim::LdtMapVisualization::MapVisualization
-                    when 'UseCaseScenario' then Decidim::LdtUseCaseScenarios::UseCaseScenario
-                    else nil
+                    when "ParticipatoryProcess" then Decidim::ParticipatoryProcess
+                    when "Assembly" then Decidim::Assembly
+                    when "Meeting" then Decidim::Meetings::Meeting
+                    when "Proposal" then Decidim::Proposals::Proposal
+                    when "Survey" then Decidim::Surveys::Survey
+                    when "Conference" then Decidim::Conference
+                    when "Debate" then Decidim::Debates::Debate
+                    when "Initiative" then Decidim::Initiative
+                    when "MapVisualization" then Decidim::LdtMapVisualization::MapVisualization
+                    when "UseCaseScenario" then Decidim::LdtUseCaseScenarios::UseCaseScenario
                     end
 
       Rails.logger.info "Model class: #{model_class}"
       return nil unless model_class
 
       # Find record filtered by organization if the model belongs to an organization
-      if model_class.column_names.include?('decidim_organization_id')
+      if model_class.column_names.include?("decidim_organization_id")
         record = model_class.find_by(id: id, decidim_organization_id: organization.id)
         Rails.logger.info "Found record for organization #{organization.id}: #{record.inspect}"
       else
@@ -102,17 +98,17 @@ module Api
 
     def self.format_asset_from_record(record)
       type = case record.class.name
-             when 'Decidim::ParticipatoryProcess' then 'ParticipatoryProcess'
-             when 'Decidim::Assembly' then 'Assembly'
-             when 'Decidim::Meetings::Meeting' then 'Meeting'
-             when 'Decidim::Proposals::Proposal' then 'Proposal'
-             when 'Decidim::Surveys::Survey' then 'Survey'
-             when 'Decidim::Conference' then 'Conference'
-             when 'Decidim::Debates::Debate' then 'Debate'
-             when 'Decidim::Initiative' then 'Initiative'
-             when 'Decidim::LdtMapVisualization::MapVisualization' then 'MapVisualization'
-             when 'Decidim::LdtUseCaseScenario::UseCaseScenario' then 'UseCaseScenario'
-             else record.class.name.split('::').last
+             when "Decidim::ParticipatoryProcess" then "ParticipatoryProcess"
+             when "Decidim::Assembly" then "Assembly"
+             when "Decidim::Meetings::Meeting" then "Meeting"
+             when "Decidim::Proposals::Proposal" then "Proposal"
+             when "Decidim::Surveys::Survey" then "Survey"
+             when "Decidim::Conference" then "Conference"
+             when "Decidim::Debates::Debate" then "Debate"
+             when "Decidim::Initiative" then "Initiative"
+             when "Decidim::LdtMapVisualization::MapVisualization" then "MapVisualization"
+             when "Decidim::LdtUseCaseScenario::UseCaseScenario" then "UseCaseScenario"
+             else record.class.name.split("::").last
              end
 
       {
@@ -125,22 +121,20 @@ module Api
         updatedAt: record.updated_at.iso8601,
         deleted: record.respond_to?(:deleted_at) ? record.deleted_at.present? : false,
         lineage: build_lineage(record),
-        changes: []  # TODO: Implement change history
+        changes: [] # TODO: Implement change history
       }
     end
-
-    private
 
     def self.extract_name(record)
       case record
       when Decidim::ParticipatoryProcess, Decidim::Assembly, Decidim::Conference, Decidim::Initiative
-        record.title[I18n.locale.to_s] || record.title['en']
+        record.title[I18n.locale.to_s] || record.title["en"]
       when Decidim::Meetings::Meeting, Decidim::Debates::Debate
-        record.title[I18n.locale.to_s] || record.title['en']
+        record.title[I18n.locale.to_s] || record.title["en"]
       when Decidim::Proposals::Proposal
         record.title
       when Decidim::Surveys::Survey
-        record.title[I18n.locale.to_s] || record.title['en']
+        record.title[I18n.locale.to_s] || record.title["en"]
       when Decidim::LdtMapVisualization::MapVisualization, Decidim::LdtUseCaseScenarios::UseCaseScenario
         record.name
       else
@@ -154,30 +148,26 @@ module Api
       case record
       when Decidim::ParticipatoryProcess, Decidim::Assembly, Decidim::Conference
         # Questi sono spazi partecipativi di primo livello, non hanno genitori
-        lineage
       when Decidim::Initiative
         # Le iniziative sono direttamente sotto l'organizzazione
-        lineage
       when Decidim::Meetings::Meeting, Decidim::Proposals::Proposal, Decidim::Surveys::Survey, Decidim::Debates::Debate,
            Decidim::LdtMapVisualization::MapVisualization, Decidim::LdtUseCaseScenarios::UseCaseScenario
         # Questi hanno un component che punta a uno participatory_space
         if record.component&.participatory_space
           space = record.component.participatory_space
-          lineage << build_lineage_item(space, 'parent')
+          lineage << build_lineage_item(space, "parent")
         end
-        lineage
-      else
-        lineage
       end
+      lineage
     end
 
     def self.build_lineage_item(record, relationship)
       type = case record.class.name
-             when 'Decidim::ParticipatoryProcess' then 'ParticipatoryProcess'
-             when 'Decidim::Assembly' then 'Assembly'
-             when 'Decidim::Conference' then 'Conference'
-             when 'Decidim::Initiative' then 'Initiative'
-             else record.class.name.split('::').last
+             when "Decidim::ParticipatoryProcess" then "ParticipatoryProcess"
+             when "Decidim::Assembly" then "Assembly"
+             when "Decidim::Conference" then "Conference"
+             when "Decidim::Initiative" then "Initiative"
+             else record.class.name.split("::").last
              end
 
       {
@@ -196,8 +186,6 @@ module Api
         record.component&.participatory_space&.decidim_organization_id
       when Decidim::LdtMapVisualization::MapVisualization, Decidim::LdtUseCaseScenarios::UseCaseScenario
         record.component&.participatory_space&.decidim_organization_id
-      else
-        nil
       end
     end
   end

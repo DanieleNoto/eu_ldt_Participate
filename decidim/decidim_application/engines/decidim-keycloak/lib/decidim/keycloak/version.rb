@@ -4,8 +4,6 @@
 # Denis Vasilev Dimchev
 # frozen_string_literal: true
 
-
-
 module Decidim
   # This holds the decidim-keycloak version.
   module Keycloak

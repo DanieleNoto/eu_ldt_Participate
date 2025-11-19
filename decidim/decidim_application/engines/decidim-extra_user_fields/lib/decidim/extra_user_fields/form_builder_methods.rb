@@ -4,8 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module Decidim
   module ExtraUserFields
     # This module adds the FormBuilder methods for extra user fields

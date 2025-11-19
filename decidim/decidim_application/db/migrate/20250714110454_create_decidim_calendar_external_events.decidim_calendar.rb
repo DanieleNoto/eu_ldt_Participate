@@ -1,6 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_calendar (originally 20190312132654)
 class CreateDecidimCalendarExternalEvents < ActiveRecord::Migration[5.2]
   def change
     create_table :decidim_calendar_external_events do |t|

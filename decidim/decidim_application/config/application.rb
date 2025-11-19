@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Gianfranco Cedro
-  # Marco Pinnella
-  # Pierluigi Spedicato
-
+# Gianfranco Cedro
+# Marco Pinnella
+# Pierluigi Spedicato
+# frozen_string_literal: true
 
 require_relative "boot"
 
@@ -32,15 +32,15 @@ module DecidimApplication
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-    
+
     # JSON Logging for ELK Stack
-    if ENV['ENABLE_JSON_LOGS'].present? && ENV['ENABLE_JSON_LOGS'] != 'false'
+    if ENV["ENABLE_JSON_LOGS"].present? && ENV["ENABLE_JSON_LOGS"] != "false"
       # Load custom JSON formatter
-      require_relative '../lib/json_log_formatter'
-      
+      require_relative "../lib/json_log_formatter"
+
       # Configure logger to use JSON formatter for ALL logs
       config.log_formatter = JsonLogFormatter.new
-      
+
       # Also configure lograge for HTTP request logs
       config.lograge.enabled = true
       config.lograge.formatter = Lograge::Formatters::Json.new
@@ -49,7 +49,7 @@ module DecidimApplication
           time: event.time,
           remote_ip: event.payload[:remote_ip],
           user_id: event.payload[:user_id],
-          params: event.payload[:params].except('controller', 'action', 'format', 'utf8', 'authenticity_token')
+          params: event.payload[:params].except("controller", "action", "format", "utf8", "authenticity_token")
         }
       end
     else

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Gianfranco Cedro
-  # Marco Pinnella
-  # Pierluigi Spedicato
-
+# Gianfranco Cedro
+# Marco Pinnella
+# Pierluigi Spedicato
+# frozen_string_literal: true
 
 require "active_support/core_ext/integer/time"
 
@@ -21,7 +21,7 @@ Rails.application.configure do
   config.eager_load = true
 
   # Full error reports are disabled and caching is turned on.
-  config.consider_all_requests_local       = false
+  config.consider_all_requests_local = false
   config.action_controller.perform_caching = true
 
   # Ensures that a master key has been made available in either ENV["RAILS_MASTER_KEY"]
@@ -34,14 +34,12 @@ Rails.application.configure do
   config.public_file_server.enabled = ENV["RAILS_SERVE_STATIC_FILES"].present? || ENV["RAILS_ENV"] == "production"
 
   # Compress CSS using a preprocessor.
-  # 
+  #
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
-  
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
-  config.asset_host = ENV['RAILS_ASSET_HOST'] if ENV['RAILS_ASSET_HOST'].present?
-  
+  config.asset_host = ENV["RAILS_ASSET_HOST"] if ENV["RAILS_ASSET_HOST"].present?
 
   # Specifies the header that your server uses for sending files.
   # config.action_dispatch.x_sendfile_header = "X-Sendfile" # for Apache
@@ -54,17 +52,17 @@ Rails.application.configure do
   # config.action_cable.mount_path = nil
   # config.action_cable.url = "wss://example.com/cable"
   # config.action_cable.allowed_request_origins = [ "http://example.com", /http:\/\/example.*/ ]
-  config.hosts << ENV['DECIDIM_HOST'] if ENV['DECIDIM_HOST'].present?
+  config.hosts << ENV["DECIDIM_HOST"] if ENV["DECIDIM_HOST"].present?
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = true
 
   # Include generic and useful information about system operation, but avoid logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII).
-  config.log_level = %w(debug info warn error fatal).include?(ENV['RAILS_LOG_LEVEL']) ? ENV['RAILS_LOG_LEVEL'] : :info
+  config.log_level = %w(debug info warn error fatal).include?(ENV["RAILS_LOG_LEVEL"]) ? ENV["RAILS_LOG_LEVEL"] : :info
 
   # Prepend all log lines with the following tags.
-  config.log_tags = [ :request_id ]
+  config.log_tags = [:request_id]
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
@@ -88,17 +86,17 @@ Rails.application.configure do
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.action_mailer.smtp_settings = {
-    :address        => Rails.application.secrets.smtp_address,
-    :port           => Rails.application.secrets.smtp_port,
+    :address => Rails.application.secrets.smtp_address,
+    :port => Rails.application.secrets.smtp_port,
     :authentication => Rails.application.secrets.smtp_authentication,
-    :user_name      => Rails.application.secrets.smtp_username,
-    :password       => Rails.application.secrets.smtp_password,
-    :domain         => Rails.application.secrets.smtp_domain,
-    :enable_starttls_auto => Rails.application.secrets.smtp_starttls_auto == 'true',
-    :tls            => Rails.application.secrets.smtp_tls == 'true',
+    :user_name => Rails.application.secrets.smtp_username,
+    :password => Rails.application.secrets.smtp_password,
+    :domain => Rails.application.secrets.smtp_domain,
+    :enable_starttls_auto => Rails.application.secrets.smtp_starttls_auto == "true",
+    :tls => Rails.application.secrets.smtp_tls == "true",
     :openssl_verify_mode => Rails.application.secrets.smtp_openssl_verify_mode,
-    :open_timeout   => (Rails.application.secrets.smtp_open_timeout || 300).to_i,
-    :read_timeout   => (Rails.application.secrets.smtp_read_timeout || 300).to_i
+    :open_timeout => (Rails.application.secrets.smtp_open_timeout || 300).to_i,
+    :read_timeout => (Rails.application.secrets.smtp_read_timeout || 300).to_i
   }
 
   # Use a different logger for distributed setups.
@@ -107,16 +105,16 @@ Rails.application.configure do
 
   if ENV["RAILS_LOG_TO_STDOUT"].present?
     # Log to both STDOUT and file
-    stdout_logger = ActiveSupport::Logger.new(STDOUT)
-    file_logger = ActiveSupport::Logger.new(Rails.root.join("log", "production.log"))
-    
+    stdout_logger = ActiveSupport::Logger.new($stdout)
+    file_logger = ActiveSupport::Logger.new(Rails.root.join("log/production.log"))
+
     # Use JSON formatter if enabled (set in application.rb)
     stdout_logger.formatter = config.log_formatter
     file_logger.formatter = config.log_formatter
-    
+
     # Broadcast to both destinations
     stdout_logger.extend(ActiveSupport::Logger.broadcast(file_logger))
-    
+
     config.logger = ActiveSupport::TaggedLogging.new(stdout_logger)
   end
 

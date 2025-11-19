@@ -5,8 +5,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 # Add manifest.webmanifest to head tags
 Rails.application.configure do
   config.after_initialize do

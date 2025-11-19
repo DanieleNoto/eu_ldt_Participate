@@ -4,8 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module Decidim
   module Keycloak
     # Centralized configuration for Keycloak authentication
@@ -14,10 +12,10 @@ module Decidim
       class << self
         def config
           @config ||= {
-            site: ENV['OMNIAUTH_KEYCLOAK_SITE'],
-            realm: ENV['OMNIAUTH_KEYCLOAK_REALM'] || 'master',
-            client_id: ENV['OMNIAUTH_KEYCLOAK_CLIENT_ID'],
-            client_secret: ENV['OMNIAUTH_KEYCLOAK_CLIENT_SECRET']
+            site: ENV.fetch("OMNIAUTH_KEYCLOAK_SITE", nil),
+            realm: ENV["OMNIAUTH_KEYCLOAK_REALM"] || "master",
+            client_id: ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_ID", nil),
+            client_secret: ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_SECRET", nil)
           }
         end
 

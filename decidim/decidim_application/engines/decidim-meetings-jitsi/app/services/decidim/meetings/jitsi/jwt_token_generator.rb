@@ -1,10 +1,9 @@
-# frozen_string_literal: true
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Gianfranco Cedro
+# Gianfranco Cedro
 
-
+# frozen_string_literal: true
 
 require "jwt"
 
@@ -37,7 +36,7 @@ module Decidim
             exp: expiration_time,
             nbf: Time.now.to_i,
             iat: Time.now.to_i,
-            
+
             # Jitsi-specific claims
             context: {
               user: {
@@ -49,7 +48,7 @@ module Decidim
               },
               group: @meeting.component.participatory_space.title[@meeting.organization.default_locale] || @meeting.component.participatory_space.title.values.first
             },
-            
+
             # Moderator flag (critical for admin privileges)
             moderator: true
           }
@@ -71,7 +70,7 @@ module Decidim
             room_from_url = uri.path.split("/").last
             return room_from_url if room_from_url.present?
           end
-          
+
           # Fallback: generate room name from meeting ID
           "#{room_prefix}#{@meeting.id}"
         end
@@ -98,7 +97,7 @@ module Decidim
 
         def expiration_time
           # Token valid for 24 hours
-          (Time.now + 24.hours).to_i
+          24.hours.from_now.to_i
         end
 
         def avatar_url

@@ -1,7 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_initiatives (originally 20170922152432)
-# Migration that creates the decidim_initiatives_committee_members table
 class CreateDecidimInitiativesCommitteeMembers < ActiveRecord::Migration[5.1]
   def change
     create_table :decidim_initiatives_committee_members do |t|

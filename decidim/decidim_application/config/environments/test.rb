@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
-  # Marco Pinnella
-  # Pierluigi Spedicato
-
+# Marco Pinnella
+# Pierluigi Spedicato
+# frozen_string_literal: true
 
 require "active_support/core_ext/integer/time"
 
@@ -30,7 +30,7 @@ Rails.application.configure do
   }
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local = true
   config.action_controller.perform_caching = false
   config.cache_store = :null_store
 

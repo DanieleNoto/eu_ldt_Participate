@@ -4,8 +4,6 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-
-
 module Decidim
   module ExtraUserFields
     # This controller is the abstract class from which all other controllers of
