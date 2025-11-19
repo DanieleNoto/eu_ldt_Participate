@@ -5,7 +5,7 @@
  * Simone Bianchelli
  */
 
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { AdminHeaderComponent } from '../../AdminHeaderComponent';
 import { AdminProcessBreadcrumbComponent } from '../../process/AdminProcessBreadcrumbComponent';
 import { AdminNavigationComponent } from '../../AdminNavigationComponent';

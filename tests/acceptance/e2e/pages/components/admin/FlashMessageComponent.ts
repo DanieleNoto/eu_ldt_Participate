@@ -212,26 +212,20 @@ export class FlashMessageComponent {
 
 	// Wait for specific template operation success messages
 	async waitForTemplateCreatedSuccess(): Promise<void> {
-		await this.page.waitForFunction(
-			() => {
-				const flashElement = document.querySelector('.flash.success .flash__message');
-				return flashElement && flashElement.textContent?.includes('Template created successfully');
-			},
-			{ timeout: 10000 }
-		);
+		await this.page.waitForFunction(() => {
+			const flashElement = document.querySelector('.flash.success .flash__message');
+			return flashElement && flashElement.textContent?.includes('Template created successfully');
+		});
 	}
 
 	async waitForTemplateUpdatedSuccess(): Promise<void> {
-		await this.page.waitForFunction(
-			() => {
-				const flashElement = document.querySelector('.flash.success .flash__message');
-				return (
-					flashElement &&
-					(flashElement.textContent?.includes('Template updated successfully') ||
-						flashElement.textContent?.includes('Template saved successfully'))
-				);
-			},
-			{ timeout: 10000 }
-		);
+		await this.page.waitForFunction(() => {
+			const flashElement = document.querySelector('.flash.success .flash__message');
+			return (
+				flashElement &&
+				(flashElement.textContent?.includes('Template updated successfully') ||
+					flashElement.textContent?.includes('Template saved successfully'))
+			);
+		});
 	}
 }
