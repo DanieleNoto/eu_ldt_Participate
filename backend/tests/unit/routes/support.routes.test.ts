@@ -2,7 +2,6 @@
 // # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 // # Authors:
 //   # Denis Vasilev Dimchev
-// Test coverage for support routes
 
 // Mock the controller before any imports
 const mockSupportController = {
