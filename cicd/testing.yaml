@@ -21,6 +21,7 @@ variables:
 jobs:
     - job: PlaywrightAxeFrontend
       displayName: 'Install and Run Playwright / Axe (Frontend) & Publish Results'
+      timeoutInMinutes: 240  # max timeout: 4 hours
       steps:
           - task: replacetokens@5
             displayName: 'Replace tokens Playwright'
@@ -78,7 +79,7 @@ jobs:
                 testResultsFiles: '**/*junit.xml'
                 testRunTitle: 'Playwright + Axe'
 
-          # Publish WCAG reports (JSON + SARIF)
+          # Publish WCAG reports (JSON artifacts)
           - task: PublishBuildArtifacts@1
             displayName: 'Publish Accessibility Reports (WCAG Compliance)'
             inputs:
@@ -86,6 +87,27 @@ jobs:
                 ArtifactName: 'WCAG-AccessibilityReports'
                 publishLocation: 'Container'
             condition: succeededOrFailed()
+
+          # Convert JSON to SARIF format
+          - script: |
+                cd tests/acceptance/e2e/a11y-reports
+                for file in *__latest.json; do
+                  if [ -f "$file" ]; then
+                    npx axe-sarif-converter "$file" "${file%.json}.sarif"
+                  fi
+                done
+                echo "JSON files converted to SARIF format"
+            displayName: 'Convert Accessibility Reports to SARIF format'
+            condition: succeededOrFailed()
+            continueOnError: true
+
+          # Publish SARIF for integrated visualization in Azure DevOps Scans tab
+          - task: PublishSARIF@1
+            displayName: 'Publish SARIF Accessibility Reports to Scans'
+            inputs:
+                sarrifFiles: 'tests/acceptance/e2e/a11y-reports/*.sarif'
+            condition: succeededOrFailed()
+            continueOnError: true
 
           - script: |
                 echo "Publishing Playwright / Axe Test Results (Frontend)"

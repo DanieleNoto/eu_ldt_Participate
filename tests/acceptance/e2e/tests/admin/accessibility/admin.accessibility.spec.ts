@@ -1,10 +1,15 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
 import test, { expect } from '@playwright/test';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
-import { analyzeAccessibility, saveAccessibilityResults } from '@utils/accessibility-helper';
+import { tryAnalyze, saveAccessibilityResults } from '@utils/helpers';
 
 /**
  * [PAR-USA02] - QA tests execution for W3C WCAG 2.0, 2.1, and 2.2 Level AA compliance
@@ -26,73 +31,106 @@ test.describe('[PAR-USA02] Accessibility - Admin Section', () => {
 	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
-	let surveysManagePage: SurveysManagePage;
 
 	// Use existing process
 	const processSlug = 'test';
-	const processTitle = 'Update Test0';
+	const meetingsComponentId = '6';
+	const meetingId = '3';
+	const surveysComponentId = '8';
+	const surveyId = '15';
 
 	test.beforeEach(async ({ page }) => {
 		adminHomePage = new AdminHomePage(page);
 		processAdminPage = new ProcessAdminPage(page);
-		surveysManagePage = new SurveysManagePage(page);
+	});
 
+	test('should comply with WCAG 2.1 AA accessibility standards across admin pages', async ({ page }) => {
 		// Navigate to admin homepage
-		await adminHomePage.navigateToAdminHomePage();
-		await page.waitForLoadState('networkidle');
-	});
-
-	// Save accessibility results after each test
-	test.afterEach(async () => {
-		await saveAccessibilityResults();
-	});
-
-	test('should have a minimum of a WCAG 2.1 AA level on admin homepage', async ({ page }) => {
-		await test.step('Verify to be on admin homepage', async () => {
+		await test.step('Admin homepage accessibility check', async () => {
+			await adminHomePage.navigateToAdminHomePage();
+			await page.waitForLoadState('networkidle');
 			await expect(page).toHaveURL(/\/admin/);
 
-			await analyzeAccessibility(page, 'Verify to be on admin homepage');
+			await tryAnalyze(adminHomePage.getPage(), 'AdminHomePage');
 		});
-	});
 
-	test('should have a minimum of a WCAG 2.1 AA level on processes list page', async ({ page }) => {
-		await test.step('Navigate to processes page', async () => {
+		// Navigate to processes list page
+		await test.step('Processes list page accessibility check', async () => {
 			await adminHomePage.navigateViaAdminNav('processes');
 			await processAdminPage.waitForLoadState('networkidle');
 
 			const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 			expect(isOnProcessesPage).toBe(true);
-			console.log('Navigated to Processes section');
 
-			await analyzeAccessibility(page, 'Navigate to processes page');
+			await tryAnalyze(processAdminPage.getPage(), 'processAdminPage');
 		});
 
-		await test.step('Verify processes list is displayed', async () => {
-			await processAdminPage.expectToBeOnProcessesAdminPage();
-			const hasProcesses = await processAdminPage.processTable.hasProcesses();
-			expect(hasProcesses).toBe(true);
-			console.log('Processes list displayed with available processes');
-
-			await analyzeAccessibility(page, 'Verify processes list is displayed');
-		});
-
-		await test.step('Select process for editing', async () => {
-			await surveysManagePage.searchAndSelectProcess(processTitle);
-			console.log(`Selected process "${processTitle}" for configuration`);
-
-			await analyzeAccessibility(page, 'Select process for editing');
-		});
-
-		await test.step('Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
-			await page.waitForURL(new RegExp(`/admin/participatory_processes/${processSlug}/edit`));
+		// Navigate to edit process page
+		await test.step('Edit Process page accessibility check', async () => {
+			await page.goto(`/admin/participatory_processes/${processSlug}/edit`);
 			await page.waitForLoadState('networkidle');
 
-			console.log('Process loaded with editable form containing existing information');
+			const isOnEditPage = await processAdminPage.isOnProcessEditPage();
+			expect(isOnEditPage).toBe(true);
 
-			await analyzeAccessibility(
-				page,
-				'Loads the selected process and displays the content in an editable form, including all existing information'
-			);
+			await tryAnalyze(processAdminPage.getPage(), 'processEditPage');
 		});
+
+		// Navigate to Decidim Awesome editors config page
+		await test.step('Decidim Awesome editors config page accessibility check', async () => {
+			await page.goto('/admin/decidim_awesome/config/editors');
+			await page.waitForLoadState('networkidle');
+
+			await tryAnalyze(page, 'decidimAwesomeEditorsConfig');
+		});
+
+		// Navigate to Decidim Awesome custom styles for admin panel
+		await test.step('Decidim Awesome custom styles page accessibility check', async () => {
+			await page.goto('/admin/decidim_awesome/config/scoped_admin_styles');
+			await page.waitForLoadState('networkidle');
+
+			await tryAnalyze(page, 'decidimAwesomeAdminStyles');
+		});
+
+		// Navigate to meetings management page
+		await test.step('Meetings management page accessibility check', async () => {
+			await page.goto(`/admin/participatory_processes/${processSlug}/components/${meetingsComponentId}/manage/`);
+			await page.waitForLoadState('networkidle');
+
+			await tryAnalyze(page, 'meetingsManagementPage');
+		});
+
+		// Navigate to meeting edit page
+		await test.step('Meeting edit page accessibility check', async () => {
+			await page.goto(
+				`/admin/participatory_processes/${processSlug}/components/${meetingsComponentId}/manage/meetings/${meetingId}/edit`
+			);
+			await page.waitForLoadState('networkidle');
+
+			await tryAnalyze(page, 'meetingEditPage');
+		});
+
+		// Navigate to surveys management page
+		await test.step('Surveys management page accessibility check', async () => {
+			await page.goto(`/admin/participatory_processes/${processSlug}/components/${surveysComponentId}/manage/`);
+			await page.waitForLoadState('networkidle');
+
+			await tryAnalyze(page, 'surveysManagementPage');
+		});
+
+		// Navigate to survey edit page
+		await test.step('Survey edit page accessibility check', async () => {
+			await page.goto(
+				`/admin/participatory_processes/${processSlug}/components/${surveysComponentId}/manage/surveys/${surveyId}/edit`
+			);
+			await page.waitForLoadState('networkidle');
+
+			await tryAnalyze(page, 'surveyEditPage');
+		});
+	});
+
+	test.afterAll(async () => {
+		// Writes summary.json and removes older scans, keeping only the latest per stepName
+		await saveAccessibilityResults();
 	});
 });
