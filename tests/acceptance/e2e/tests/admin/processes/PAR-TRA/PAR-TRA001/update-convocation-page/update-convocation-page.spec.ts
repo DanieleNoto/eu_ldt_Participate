@@ -1,5 +1,11 @@
-import { expect, test } from '@playwright/test';
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
 
+import { expect, test } from '@playwright/test';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { ManagePageComponentPage } from '@pages/pages/admin/processes/detail/components/ManagePageComponentPage';
@@ -93,9 +99,24 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 			await test.step('Result. ', async () => {
 				// Verify that the success notification appears
 				await managePageComponentPage.waitForSuccessFlashNotification('Page successfully saved.');
-				await componentsPage.manageComponent('Page');
-				await managePageComponentPage.expectBodyContent(bodyContent);
-				await managePageComponentPage.savePage();
+				// Open the preview of the page and assert it shows the updated content
+				await expect(
+					managePageComponentPage.getPage().getByRole('link', { name: 'Preview' }).first()
+				).toBeVisible();
+
+				const [previewPage] = await Promise.all([
+					managePageComponentPage.getPage().context().waitForEvent('page'),
+					managePageComponentPage
+						.getPage()
+						.getByRole('link', { name: 'Preview' })
+						.first()
+						.click({ force: true })
+				]);
+				await previewPage.waitForLoadState('domcontentloaded');
+				const paragraph = previewPage.locator('div.rich-text-display p');
+				const text = await paragraph.textContent();
+				console.log('Testo catturato dalla preview:', text);
+				await expect(paragraph).toHaveText(bodyContent);
 			});
 		});
 	});
