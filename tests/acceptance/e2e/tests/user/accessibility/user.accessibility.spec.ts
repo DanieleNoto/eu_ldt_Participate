@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Simone Bianchelli
+ */
+
 import test, { expect } from '@playwright/test';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
