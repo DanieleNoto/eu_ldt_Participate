@@ -1,7 +1,6 @@
 /** SPDX-License-Identifier: AGPL-3.0
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
- * Denise Scarcelli
  * Simone Bianchelli
  * Gianfranco Cedro
  */
@@ -230,20 +229,20 @@ export async function waitForPageLoad(page: Page, timeout = 30000): Promise<void
 }
 
 /**
- * Wrapper che esegue analyzeAccessibility senza far fallire immediatamente il test.
- * - page: Playwright Page reale
- * - stepName: nome descrittivo (es. 'processes-overview_initial-load')
- * - scanLog: array passato per raccogliere i risultati
+ * Wrapper that runs analyzeAccessibility without immediately failing the test.
+ * - page: Real Playwright Page
+ * - stepName: Descriptive name (e.g., 'processes-overview_initial-load')
+ * - scanLog: Array passed to collect results
  */
 export async function tryAnalyze(page: Page, stepName: string, scanLog: ScanLogEntry[] = []): Promise<void> {
 	try {
-		// analizza e salva artefatti; analyzeAccessibility può lanciare se trova violazioni critiche
+		// Analyze and save artifacts; analyzeAccessibility can throw if it finds critical violations
 		await analyzeAccessibility(page, stepName);
 		scanLog.push({ step: stepName, ok: true });
 	} catch (err: any) {
-		// registra errore e continua
+		// record error and continue
 		scanLog.push({ step: stepName, ok: false, error: String(err.message ?? err) });
-		// log visibile nella console della run
+		// log visible in the run console
 		// eslint-disable-next-line no-console
 		console.warn(`A11y scan failed for step=${stepName}:`, err);
 	}
