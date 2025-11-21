@@ -4,7 +4,7 @@
  * Simone Bianchelli
  */
 
-import test, { expect, BrowserContext, Page } from '@playwright/test';
+import test, { expect } from '@playwright/test';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { tryAnalyze, saveAccessibilityResults } from '@utils/helpers';

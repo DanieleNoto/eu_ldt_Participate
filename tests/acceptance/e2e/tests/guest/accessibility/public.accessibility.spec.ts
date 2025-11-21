@@ -4,7 +4,7 @@
  * Simone Bianchelli
  */
 
-import test, { expect } from '@playwright/test';
+import test from '@playwright/test';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { LoginPage } from '@pages/pages/auth/LoginPage';
 import { SignUpPage } from '@pages/pages/public/SignUpPage';
