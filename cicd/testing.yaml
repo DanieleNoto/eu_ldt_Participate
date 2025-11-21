@@ -102,19 +102,19 @@ jobs:
             continueOnError: true
 
           # Publish SARIF for integrated visualization in Azure DevOps Scans tab
-          - task: PublishSARIF@1
-            displayName: 'Publish SARIF Accessibility Reports to Scans'
-            inputs:
-                sarrifFiles: 'tests/acceptance/e2e/a11y-reports/*.sarif'
-            condition: succeededOrFailed()
-            continueOnError: true
+          # - task: PublishSARIF@1
+          #   displayName: 'Publish SARIF Accessibility Reports to Scans'
+          #   inputs:
+          #       sarrifFiles: 'tests/acceptance/e2e/a11y-reports/*.sarif'
+          #   condition: succeededOrFailed()
+          #   continueOnError: true
 
-          - script: |
-                echo "Publishing Playwright / Axe Test Results (Frontend)"
-                python3 azure_test_plan/automated_test_publisher.py
-            env:
-                AUTO_TEST_DEVOPS_PAT: $(AUTO_TEST_DEVOPS_PAT)
-            displayName: 'Publish Acceptance Results to Azure Test Plans'
+          # - script: |
+          #       echo "Publishing Playwright / Axe Test Results (Frontend)"
+          #       python3 azure_test_plan/automated_test_publisher.py
+          #   env:
+          #       AUTO_TEST_DEVOPS_PAT: $(AUTO_TEST_DEVOPS_PAT)
+          #   displayName: 'Publish Acceptance Results to Azure Test Plans'
 
     - job: PerformanceTests
       displayName: Service Load Test
