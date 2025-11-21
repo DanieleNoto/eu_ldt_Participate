@@ -89,6 +89,25 @@ test.describe('[PAR-USA03] Accessibility - Footer Navigation', () => {
 					console.log(`✅ Visiting: ${page.url()} (name: process_detail)`);
 					await tryAnalyze(processDetailPage.getPage(), 'process_detail');
 				});
+
+				const subPages = [
+					{ href: `/processes/${processSlug}/f/24/debates`, name: 'community_debates' },
+					{ href: `/processes/${processSlug}/f/3/debates`, name: 'test_debates' },
+					{ href: `/processes/${processSlug}/f/13/`, name: 'ldt_map_visualization' },
+					{ href: `/processes/${processSlug}/f/9/use_case_scenarios`, name: 'ldt_use_case_scenarios' },
+					{ href: `/processes/${processSlug}/f/2/`, name: 'convocation_page' },
+					{ href: `/processes/${processSlug}/f/51/proposals`, name: 'proposals' },
+					{ href: `/processes/${processSlug}/f/8/`, name: 'single_survey' }
+				];
+
+				for (const sub of subPages) {
+					await test.step(`Open ${sub.name} and accessibility check`, async () => {
+						await page.goto(sub.href);
+						await page.waitForLoadState('networkidle');
+						console.log(`✅ Visiting: ${page.url()} (name: ${sub.name})`);
+						await tryAnalyze(page, sub.name);
+					});
+				}
 			}
 
 			if (route.name === 'account') {
