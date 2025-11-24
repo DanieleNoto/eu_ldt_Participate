@@ -603,7 +603,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 								</button>
 								<button
 									type="submit"
-									disabled={loading || !supportText.trim()}
+									disabled={loading ?? !supportText.trim()}
 									className="px-5 py-2 rounded-lg bg-[#004494] text-white text-[14px] tracking-[0.1px] font-medium hover:brightness-110 disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#004494]/40 transition-all duration-200 hover:scale-105 hover:shadow-lg"
 									style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
 								>

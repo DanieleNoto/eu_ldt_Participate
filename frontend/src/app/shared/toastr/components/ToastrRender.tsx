@@ -26,7 +26,7 @@ const ToastrRender = (): JSX.Element => {
 	const toastrConfig = config.toastr;
 	const { state } = useToastrState();
 	const { toastr } = state;
-	const tArray = toastr?.entries() || [];
+	const tArray = toastr?.entries() ?? [];
 
 	return (
 		<>
@@ -36,8 +36,8 @@ const ToastrRender = (): JSX.Element => {
 					open={true}
 					onClose={toast[1].onClose}
 					anchorOrigin={{
-						vertical: toastrConfig.vertical || 'top',
-						horizontal: toastrConfig.horizontal || 'center'
+						vertical: toastrConfig.vertical ?? 'top',
+						horizontal: toastrConfig.horizontal ?? 'center'
 					}}
 					sx={{ marginTop: '80px' }}
 				>

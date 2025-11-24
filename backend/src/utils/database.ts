@@ -35,7 +35,7 @@ export const createDBConnection = async () => {
 		logger.info('Database connection established successfully');
 
 		// Create schema if it doesn't exist (for non-public schemas)
-		const dbSchema = process.env.DB_SCHEMA || 'public';
+		const dbSchema = process.env.DB_SCHEMA ?? 'public';
 		if (dbSchema !== 'public') {
 			logger.info(`Ensuring schema '${dbSchema}' exists...`);
 			await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${dbSchema}"`);

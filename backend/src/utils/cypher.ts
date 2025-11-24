@@ -11,8 +11,8 @@ import appConfig from '../config/config';
 const config = appConfig.cypher;
 
 const iv = randomBytes(16);
-const secret = process.env.CYPHER_SECRET || '';
-const salt = process.env.CYPHER_SALT || '';
+const secret = process.env.CYPHER_SECRET ?? '';
+const salt = process.env.CYPHER_SALT ?? '';
 
 const getKey = async (): Promise<Buffer> => {
 	const keys = (await promisify(scrypt)(secret, salt, 32)) as Buffer;

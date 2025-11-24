@@ -15,6 +15,6 @@ export default fp(async function (fastify, opts) {
 
 	fastify.register(autoload, {
 		dir: routesDir,
-		options: Object.assign({ prefix: process.env.CONTEXT_URL }, opts)
+		options: { prefix: process.env.CONTEXT_URL, ...opts }
 	});
 });

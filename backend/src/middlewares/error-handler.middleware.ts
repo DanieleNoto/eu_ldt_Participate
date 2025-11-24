@@ -22,8 +22,8 @@ const errorHandler = (error: FastifyError, request: FastifyRequest, reply: Fasti
 	}
 
 	const responseData = {
-		statusCode: error.statusCode || 500,
-		error: error.name || error.message || 'Internal Server Error',
+		statusCode: error.statusCode ?? 500,
+		error: error.name ?? error.message ?? 'Internal Server Error',
 		message: error.message
 	};
 

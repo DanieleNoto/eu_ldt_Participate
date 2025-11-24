@@ -25,7 +25,7 @@ const logger = pino({
 
 const getLogDetails = (req: FastifyRequest) => {
 	return {
-		user_agent: req.headers['user-agent'] || 'unknown'
+		user_agent: req.headers['user-agent'] ?? 'unknown'
 	};
 };
 
@@ -46,13 +46,13 @@ export const formatLog = (
 		error_message: error?.message ?? undefined,
 		event: {
 			http_verb: req.method,
-			path: req.routeOptions.url || req.url,
+			path: req.routeOptions.url ?? req.url,
 			details: getLogDetails(req)
 		},
 		source: {
-			environment: process.env.NODE_ENV || 'development',
-			file: req.routeOptions.url || 'unknown',
-			function: req.method || 'unknown'
+			environment: process.env.NODE_ENV ?? 'development',
+			file: req.routeOptions.url ?? 'unknown',
+			function: req.method ?? 'unknown'
 		},
 		metrics: {
 			response_time_ms: reply.elapsedTime ?? 0

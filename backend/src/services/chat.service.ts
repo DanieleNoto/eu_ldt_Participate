@@ -48,7 +48,7 @@ export class ChatService {
 		const convId = entry.conversationId;
 
 		// Generate response
-		const answer = request.i18n.t(node.answerKey || node.questionKey);
+		const answer = request.i18n.t(node.answerKey ?? node.questionKey);
 
 		// Build suggestions from children or additionalSuggestions
 		let suggestions = node.children.map(({ id, labelKey }: { id: string; labelKey: string }) => ({

@@ -128,7 +128,7 @@ const RuntimeConfigInitializer = ({
 			};
 		}
 
-		const baseUrl = normalizeBaseUrl((globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '');
+		const baseUrl = normalizeBaseUrl((globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ ?? '');
 		
 		if (!baseUrl) {
 			applyWithEnvOverride();

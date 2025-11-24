@@ -24,16 +24,16 @@ class SupportController {
 			logger.info({
 				msg: 'SMTP Configuration',
 				config: {
-					host: process.env.SMTP_ADDRESS || 'NOT_SET',
-					port: process.env.SMTP_PORT || 'NOT_SET',
+					host: process.env.SMTP_ADDRESS ?? 'NOT_SET',
+					port: process.env.SMTP_PORT ?? 'NOT_SET',
 					secure: Number(process.env.SMTP_PORT) === 465,
-					user: process.env.SMTP_USER_NAME || 'NOT_SET',
+					user: process.env.SMTP_USER_NAME ?? 'NOT_SET',
 					hasPassword: !!process.env.SMTP_PASSWORD
 				}
 			});
 
 			const transporter = nodemailer.createTransport({
-				host: process.env.SMTP_ADDRESS || 'localhost',
+				host: process.env.SMTP_ADDRESS ?? 'localhost',
 				port: Number(process.env.SMTP_PORT) || 25,
 				secure: Number(process.env.SMTP_PORT) === 465,
 				auth,
@@ -54,8 +54,8 @@ class SupportController {
 				throw smtpError;
 			}
 
-			const to = process.env.CHATBOT_SUPPORT_EMAIL || 'support@example.com';
-			const from = process.env.CHATBOT_FROM_EMAIL || 'no-reply@example.com';
+			const to = process.env.CHATBOT_SUPPORT_EMAIL ?? 'support@example.com';
+			const from = process.env.CHATBOT_FROM_EMAIL ?? 'no-reply@example.com';
 
 			logger.info({
 				msg: 'Sending email',
