@@ -1,5 +1,16 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
 ---
 es:
+    layouts:
+        decidim:
+            shared:
+                layout_center:
+                    owner: ''
+                    created_at: ''
+                    back_to_list: ''
     decidim:
         components:
             ldt_map_visualization:
@@ -11,8 +22,6 @@ es:
             map_visualizations:
                 index:
                     title: Visualizaciones de Mapa
-                    no_maps: No hay visualizaciones de mapa disponibles
-                    view_map: Ver mapa
                 map_visualizations:
                     empty: No hay visualizaciones de mapa disponibles aún.
                     count:
@@ -64,10 +73,14 @@ es:
                         owner: Propietario
                         scope: Alcance
                         description: Descripción
-                        map_id: ID de mapa
-                        preview: Vista Previa
-                        no_image: Sin imagen
                     create:
                         success: Visualización de mapa creada exitosamente
                         error: Error al crear la visualización de mapa
                         duplicate_map: Este mapa ya ha sido agregado a este componente.
+                    update:
+                        success: Visualización de mapa actualizada exitosamente
+                        error: Error al actualizar la visualización de mapa
+                    destroy:
+                        success: Visualización de mapa eliminada exitosamente
+                        error: Error al eliminar la visualización de mapa
+                        not_found: Visualización de mapa no encontrada

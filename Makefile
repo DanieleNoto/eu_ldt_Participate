@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
+# Simone Bianchelli
+# denise.scarcelli
 # EU LDT Participate - Development Makefile
 # This Makefile automates the setup and testing of the EU LDT Participate platform
 

@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
 ---
 en:
     layouts:
@@ -27,6 +31,7 @@ en:
                     owner: Owner
                     scope: Scope
                     view_map: View map
+                    map_id: Map ID
                 show:
                     description: Description
                     map_details: Map Details

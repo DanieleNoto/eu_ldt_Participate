@@ -1,3 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alvaro Iglesias Sanchez
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
+# Pierluigi Spedicato
+# Simone Bianchelli
+# denise.scarcelli
 FROM decidim/decidim-dev:0.30.4 AS builder
 
 # Disable manual interaction

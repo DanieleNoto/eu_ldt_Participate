@@ -1,5 +1,16 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
 ---
 de:
+    layouts:
+        decidim:
+            shared:
+                layout_center:
+                    owner: ''
+                    created_at: ''
+                    back_to_list: ''
     decidim:
         components:
             ldt_map_visualization:
@@ -11,8 +22,6 @@ de:
             map_visualizations:
                 index:
                     title: Kartendarstellungen
-                    no_maps: Keine Kartendarstellungen verfügbar
-                    view_map: Karte ansehen
                 map_visualizations:
                     empty: Keine Kartendarstellungen verfügbar
                     count:
@@ -64,10 +73,14 @@ de:
                         owner: Eigentümer
                         scope: Bereich
                         description: Beschreibung
-                        map_id: Karten-ID
-                        preview: Vorschau
-                        no_image: Kein Bild
                     create:
                         success: Kartendarstellung erfolgreich erstellt
                         error: Fehler beim Erstellen der Kartendarstellung
                         duplicate_map: Diese Karte wurde bereits zu dieser Komponente hinzugefügt.
+                    update:
+                        success: Kartendarstellung erfolgreich aktualisiert
+                        error: Fehler beim Aktualisieren der Kartendarstellung
+                    destroy:
+                        success: Kartendarstellung erfolgreich gelöscht
+                        error: Fehler beim Löschen der Kartendarstellung
+                        not_found: Kartendarstellung nicht gefunden
