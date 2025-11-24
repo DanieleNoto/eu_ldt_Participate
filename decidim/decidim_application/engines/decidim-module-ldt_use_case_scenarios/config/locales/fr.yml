@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
 ---
 fr:
     decidim:
@@ -20,8 +24,9 @@ fr:
                     execution_id: ID d'Exécution
                     view_details: Voir les Détails
                 show:
-                    title: Détails de l'Expérience
+                    title: Détails de l'exécution de l'expérience
                     experiment_id: ID Expérience
+                    execution_id: ID d'Exécution
                     description: Description
                     back_to_list: Retour à la Liste
                     not_found: Scénario introuvable
