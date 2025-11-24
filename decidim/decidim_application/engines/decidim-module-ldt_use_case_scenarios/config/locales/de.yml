@@ -43,11 +43,7 @@ de:
                         associated_experiment_results: Zugeordnete Experimentergebnisse
                         created: Erstellt
                         version: Version
-                        actions:
-                            confirm_delete: 'Sind Sie sicher, dass Sie dieses Element löschen möchten?'
-                            deleted: 'Eintrag erfolgreich gelöscht.'
-                            not_allowed: 'Sie sind nicht berechtigt, diese Aktion auszuführen.'
-                            not_found: 'Element nicht gefunden.'
+                        actions: Aktionen
                         associate_experiments: Experimentiergebnisse zuordnen
                         new: Neues Szenario hinzufügen
                         no_scenarios: Noch keine Szenarien verfügbar
