@@ -104,13 +104,7 @@ de:
                             placeholder: Telefonnummer-Platzhalter
                         postal_code:
                             description: Dieses Feld ist für die Postleitzahl. Der Benutzer kann eine Postleitzahl auswählen.
-                            label: Das Postleitzahlenfeld aktivieren.
-                        personal_url:
-                            description: Dieses Feld ist ein String-Feld. Wenn aktiviert, muss der Benutzer eine persönliche URL ausfüllen.
-                            label: Persönliche URL-Feld aktivieren
-                        statutory_representative_email:
-                            description: Dieses Feld ist ein String-Feld. Wenn aktiviert, muss der Benutzer eine gesetzliche Vertreter-E-Mail ausfüllen.
-                            label: Gesetzliche Vertreter-E-Mail-Feld aktivieren
+                            label: Das Postleitzahlenfeld aktivieren
                         underage:
                             description: Dieses Feld ist ein Boolean-Feld. Der Benutzer kann ankreuzen, ob er minderjährig ist.
                             label: Elternberechtigungsfeld aktivieren

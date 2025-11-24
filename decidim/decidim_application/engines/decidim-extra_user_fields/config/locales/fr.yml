@@ -24,8 +24,7 @@ fr:
                     attributes:
                         date_of_birth:
                             future_date: ne peut pas être dans le futur
-                            underage: invalide. Si vous êtes mineur, vous devez obtenir une autorisation
-                                parentale
+                            underage: invalide. Si vous êtes mineur, vous devez obtenir une autorisation parentale
                         phone_number:
                             invalid: n'est pas un format de téléphone valide
                             too_long: est trop long (maximum 100 caractères)
@@ -86,46 +85,33 @@ fr:
                 extra_user_fields:
                     fields:
                         country:
-                            description: Ce champ contient une liste de pays. L'utilisateur pourra
-                                choisir un pays.
+                            description: Ce champ contient une liste de pays. L'utilisateur pourra choisir un pays.
                             label: Activer le champ pays
                         date_of_birth:
-                            description: Ce champ est un champ date de naissance. L'utilisateur
-                                pourra choisir une date.
+                            description: Ce champ est un champ date de naissance. L'utilisateur pourra choisir une date.
                             label: Activer le champ date de naissance
                         gender:
-                            description: Ce champ contient une liste de genres. L'utilisateur pourra
-                                choisir un genre.
+                            description: Ce champ contient une liste de genres. L'utilisateur pourra choisir un genre.
                             label: Activer le champ genre
                         location:
-                            description: Ce champ permet l'ajout de texte. L'utilisateur pourra
-                                choisir une localisation.
+                            description: Ce champ permet l'ajout de texte. L'utilisateur pourra choisir une localisation.
                             label: Activer le champ localisation
                         phone_number:
-                            description: Ce champ est un champ de numéro de téléphone. L'utilisateur
-                                pourra choisir un numéro.
+                            description: Ce champ est un champ de numéro de téléphone. L'utilisateur pourra choisir un numéro.
                             label: Activer le champ numéro de téléphone
                             pattern: Motif de validation des numéros de téléphone (regex)
-                            pattern_help_html: Copiez cette expression régulière <code class="label">^(\+34|0034|34)?[
-                                -]*[6-9][ -]*([0-9][ -]*){8}$</code> pour valider ce format de téléphone
-                                +34999111222. Vous pouvez consulter et vérifier l'expression régulière
-                                <a href="https://rubular.com/r/dJZGjlLIadxElo" target="_blank">ici</a>.
+                            pattern_help_html: Copiez cette expression régulière <code class="label">^(\+34|0034|34)?[-]*[6-9][ -]*([0-9][ -]*){8}$</code> pour valider ce format de téléphone +34999111222. Vous pouvez consulter et vérifier l'expression régulière <a href="https://rubular.com/r/dJZGjlLIadxElo" target="_blank">ici</a>.
                             placeholder: Placeholder pour le numéro de téléphone
                         postal_code:
-                            description: Ce champ est un champ code postal. L'utilisateur pourra
-                                choisir un code postal.
+                            description: Ce champ est un champ code postal. L'utilisateur pourra choisir un code postal.
                             label: Activer le champ code postal
                         underage:
-                            description: Ce champ est un champ booléen. L'utilisateur pourra cocher
-                                s'il est mineur.
+                            description: Ce champ est un champ booléen. L'utilisateur pourra cocher s'il est mineur.
                             label: Activer le champ d'autorisation parentale
                             limit: Cela définit la limite d'âge (ex. 18 ans)
                     form:
                         callout:
-                            help: Activez la fonctionnalité des champs d'inscription personnalisés
-                                pour pouvoir gérer des champs supplémentaires dans votre formulaire
-                                d'inscription. Même si l'option est cochée, le formulaire d'inscription
-                                ne sera mis à jour que si au moins un champ supplémentaire est activé.
+                            help: Activez la fonctionnalité des champs d'inscription personnalisés pour pouvoir gérer des champs supplémentaires dans votre formulaire d'inscription. Même si l'option est cochée, le formulaire d'inscription ne sera mis à jour que si au moins un champ supplémentaire est activé.
                         extra_user_fields:
                             extra_user_fields_enabled: Activer les champs d'inscription personnalisés
                             section: Champs d'inscription disponibles pour le formulaire d'inscription
@@ -144,8 +130,7 @@ fr:
             registration_form:
                 signup:
                     legend: Plus d'information
-                    underage: Je suis âgé de moins de %{limit} ans et j'accepte d'obtenir une
-                        autorisation parentale
+                    underage: Je suis âgé de moins de %{limit} ans et j'accepte d'obtenir une autorisation parentale
         statutory_representative:
             inform:
                 body: |
