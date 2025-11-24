@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { Locator, Page } from '@playwright/test';
 
 /**
@@ -6,10 +13,6 @@ import { Locator, Page } from '@playwright/test';
  */
 export class FlashMessageComponent {
 	private readonly page: Page;
-
-	// Main flash message container
-	private readonly flashMessageWrapper: Locator;
-	private readonly flashMessageContainer: Locator;
 
 	// Different types of flash messages
 	private readonly successMessage: Locator;
@@ -27,10 +30,6 @@ export class FlashMessageComponent {
 
 	constructor(page: Page) {
 		this.page = page;
-
-		// Main containers
-		this.flashMessageWrapper = page.locator('[data-callout-wrapper]');
-		this.flashMessageContainer = page.locator('[data-alert-box]');
 
 		// Different message types
 		this.successMessage = page.locator('.flash.success[data-alert-box]');
@@ -323,21 +322,6 @@ export class FlashMessageComponent {
 				}
 			}
 		}
-	}
-
-	// Debug methods
-	async debugFlashMessageState(): Promise<void> {
-		console.log('=== Flash Message Debug State ===');
-		console.log('Any flash message visible:', await this.isFlashMessageVisible());
-		console.log('Success message visible:', await this.isSuccessMessageVisible());
-		console.log('Error message visible:', await this.isErrorMessageVisible());
-		console.log('Warning message visible:', await this.isWarningMessageVisible());
-		console.log('Info message visible:', await this.isInfoMessageVisible());
-		console.log('Message type:', await this.getFlashMessageType());
-		console.log('Message text:', await this.getFlashMessageText());
-		console.log('Message icon:', await this.getFlashMessageIcon());
-		console.log('All messages:', await this.getAllFlashMessages());
-		console.log('==================================');
 	}
 }
 

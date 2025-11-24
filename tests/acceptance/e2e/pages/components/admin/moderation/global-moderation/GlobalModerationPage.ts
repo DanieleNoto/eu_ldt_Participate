@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { Page, Locator } from '@playwright/test';
 import { AdminHeaderComponent } from '../../AdminHeaderComponent';
 import { AdminNavigationComponent } from '../../AdminNavigationComponent';
@@ -330,27 +337,5 @@ export class GlobalModerationPage {
 		await this.pageHeader.checkAccessibility();
 		await this.filters.checkAccessibility();
 		await this.table.checkAccessibility();
-	}
-
-	/**
-	 * Debug helper - get state of all page components
-	 */
-	async debugPageState(): Promise<any> {
-		return {
-			page: {
-				loaded: await this.isPageLoaded(),
-				title: await this.getPageTitle(),
-				url: this.page.url()
-			},
-			breadcrumb: await this.breadcrumb.debugBreadcrumb(),
-			sidebar: await this.sidebar.debugSidebar(),
-			pageHeader: await this.pageHeader.debugHeader(),
-			filters: await this.filters.debugFilters(),
-			table: await this.table.debugTable(),
-			flashMessage: {
-				visible: await this.flashMessage.isFlashMessageVisible(),
-				message: await this.flashMessage.getFlashMessageText()
-			}
-		};
 	}
 }
