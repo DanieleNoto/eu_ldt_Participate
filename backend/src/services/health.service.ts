@@ -91,8 +91,12 @@ const checkRedis = async (): Promise<HealthCheck> => {
 };
 
 const getStatusFromResponse = (status: number, serviceName: string): { state: string; details: string } => {
-	if (status >= 200 && status < 400) {
+	if (status === 200) {
 		return { state: HealthStatus.HEALTHY, details: `${serviceName} is responsive (HTTP ${status})` };
+	} else if (status >= 200 && status < 300) {
+		return { state: HealthStatus.DEGRADED, details: `${serviceName} unusual success status (HTTP ${status})` };
+	} else if (status >= 300 && status < 400) {
+		return { state: HealthStatus.UNHEALTHY, details: `${serviceName} redirect (HTTP ${status})` };
 	} else if (status >= 400 && status < 500) {
 		return { state: HealthStatus.DEGRADED, details: `${serviceName} client error (HTTP ${status})` };
 	} else {
@@ -157,7 +161,8 @@ const checkHttpService = async (url: string, serviceName: string, timeout: numbe
 
 const checkDecidim = async (): Promise<HealthCheck> => {
 	const decidimUrl = process.env.DECIDIM_URL ?? 'http://decidim:3000';
-	return checkHttpService(`${decidimUrl}/health_check`, 'Decidim', 10000);
+	// Decidim doesn't have a dedicated health endpoint, so we check the home page
+	return checkHttpService(`${decidimUrl}/`, 'Decidim', 10000);
 };
 
 const checkGrafana = async (): Promise<HealthCheck> => {
