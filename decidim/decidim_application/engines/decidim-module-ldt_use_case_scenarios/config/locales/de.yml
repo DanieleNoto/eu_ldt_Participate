@@ -89,3 +89,9 @@ de:
                         experiment_saved: Experiment erfolgreich gespeichert.
                         duplicate_experiment: Experiment bereits vorhanden.
                         no_valid_token: Kein gültiges Token gefunden.
+        admin:
+            actions:
+                confirm_delete: 'Sind Sie sicher, dass Sie dieses Element löschen möchten?'
+                deleted: 'Element erfolgreich gelöscht.'
+                not_allowed: 'Sie sind nicht berechtigt, diese Aktion auszuführen.'
+                not_found: 'Element nicht gefunden.'
