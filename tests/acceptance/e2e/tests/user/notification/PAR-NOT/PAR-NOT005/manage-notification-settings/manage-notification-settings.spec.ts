@@ -1,7 +1,7 @@
 import { HomePage } from '@pages/pages/public/HomePage';
 import { AccountPage } from '@pages/pages/user/account/AccountPage';
 import { NotificationFrequency, NotificationSettingsPage } from '@pages/pages/user/account/NotificationSettingsPage';
-import test from '@playwright/test';
+import test, { expect } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -29,6 +29,9 @@ test.describe('[PAR-NOT005] – Manage notification settings', () => {
 		followedToggle: true,
 		newsletterToggle: true,
 		publicContactToggle: true,
+		evaluetorsEmailToggle: true,
+		administratorsEmailToggle: true,
+		administratorsReminderToggle: true,
 		frequency: NotificationFrequency.Daily
 	};
 	let notificationSettingsPage: NotificationSettingsPage;
@@ -57,6 +60,13 @@ test.describe('[PAR-NOT005] – Manage notification settings', () => {
 				await notificationSettingsPage.expectFrequencyToBe(notificationSettings.frequency);
 				await notificationSettingsPage.expectNewsletterToBe(notificationSettings.newsletterToggle);
 				await notificationSettingsPage.expectPublicContactToBe(notificationSettings.publicContactToggle);
+				await notificationSettingsPage.expectEvaluetorsEmailToBe(notificationSettings.evaluetorsEmailToggle);
+				await notificationSettingsPage.expectAdministratorsEmailToBe(
+					notificationSettings.administratorsEmailToggle
+				);
+				await notificationSettingsPage.expectAdministratorsReminderToBe(
+					notificationSettings.administratorsReminderToggle
+				);
 			});
 			await test.step('3. User: Customizes notification preferences by selecting or deselecting the types of notifications they wish to receive, and how often want to receive the notification mail.', async () => {
 				await notificationSettingsPage.setOwnActivity(!notificationSettings.ownActivityToggle);
@@ -76,8 +86,9 @@ test.describe('[PAR-NOT005] – Manage notification settings', () => {
 				await notificationSettingsPage.expectNewsletterToBe(!notificationSettings.newsletterToggle);
 				await notificationSettingsPage.expectPublicContactToBe(!notificationSettings.publicContactToggle);
 			});
-			await test.step('5. System: Confirms that the notification settings have been successfully updated.', async () => {
+			await test.step('6. System: Confirms that the notification settings have been successfully updated.', async () => {
 				await notificationSettingsPage.waitForSuccessFlashMessage();
+				expect(await notificationSettingsPage.hasSuccessFlashMessage()).toBe(true);
 			});
 			await test.step('Result.', async () => {
 				await notificationSettingsPage.expectOwnActivityToBe(!notificationSettings.ownActivityToggle);

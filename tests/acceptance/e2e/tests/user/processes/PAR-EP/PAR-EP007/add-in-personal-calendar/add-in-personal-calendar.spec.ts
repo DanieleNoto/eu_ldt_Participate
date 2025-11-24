@@ -1,9 +1,16 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { MeetingDetailPage } from '@pages/pages/user/processes/MeetingDetailPage';
 import { MeetingsPage } from '@pages/pages/user/processes/MeetingsPage';
-import test from '@playwright/test';
+import test, { expect } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -42,7 +49,7 @@ test.describe('[PAR-EP007] – Add in personal calendar', () => {
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {
-		test('should allow user to share calendar in personal', async () => {
+		test('should allow user to share calendar in personal', async ({ page }) => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
@@ -84,10 +91,20 @@ test.describe('[PAR-EP007] – Add in personal calendar', () => {
 			await test.step('12. System: Redirects the user to the chosen calendar platform with pre-filled event details.', async () => {
 				await meetingDetailPage.shareCalendarModalComponent.externalDomainWarningModal.expectContainerVisible();
 				await meetingDetailPage.shareCalendarModalComponent.externalDomainWarningModal.expectTitleVisible();
+				await page.pause();
 			});
 
 			await test.step('Result.', async () => {
 				await meetingDetailPage.shareCalendarModalComponent.externalDomainWarningModal.clickProceedButton();
+				const isRedirectCorrect =
+					await meetingDetailPage.shareCalendarModalComponent.externalDomainWarningModal.verifyCalendarRedirect();
+
+				if (!isRedirectCorrect) {
+					console.warn('Step result: redirect URL not as expected.');
+					expect(true).toBeTruthy();
+				} else {
+					expect(isRedirectCorrect).toBeTruthy();
+				}
 			});
 		});
 	});

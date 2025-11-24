@@ -1,0 +1,128 @@
+{
+	"_license": "SPDX-License-Identifier: AGPL-3.0",
+	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
+	"_authors": ["Simone Bianchelli"],
+	"cookies": [
+		{
+			"name": "AUTH_SESSION_ID",
+			"value": "ZmUxYzQxYjItODhlNC00NWY5LTkzNzctYmY2MWQ4MWUzOWU0LmNsN25INmk3SW9LMjZNU3RiZUR6WUVkMnpuVGZtbzFBLWtQbjNFN2FIUm9nUDFFUXgxbVQxOVJBMGluWDY3N1VNajZoN2c3c0V0T1oyMjFJV3JXVEhR.tool5-0-41237",
+			"domain": "im-int.ldttoolbox.app",
+			"path": "/realms/LDT/",
+			"expires": -1,
+			"httpOnly": true,
+			"secure": true,
+			"sameSite": "None"
+		},
+		{
+			"name": "KC_AUTH_SESSION_HASH",
+			"value": "NllDMb7mMMlLErZErYSTa5iGOTcaVhAxfCJhgQAXoGE",
+			"domain": "im-int.ldttoolbox.app",
+			"path": "/realms/LDT/",
+			"expires": 1761649762.869397,
+			"httpOnly": false,
+			"secure": true,
+			"sameSite": "Strict"
+		},
+		{
+			"name": "KEYCLOAK_LOCALE",
+			"value": "es",
+			"domain": "im-int.ldttoolbox.app",
+			"path": "/realms/LDT/",
+			"expires": -1,
+			"httpOnly": true,
+			"secure": true,
+			"sameSite": "None"
+		},
+		{
+			"name": "KEYCLOAK_IDENTITY",
+			"value": "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJkNzA0OTcyZS05MWVlLTRmZWQtYjFmMi0wZjA1YjQxNTFjN2EifQ.eyJleHAiOjE3NjE2ODU3MDQsImlhdCI6MTc2MTY0OTcwNCwianRpIjoiNjA5YTdlNjEtZDc1Yy00MWRkLTg1NDQtZmRjOGQ4ZjM3NjY3IiwiaXNzIjoiaHR0cHM6Ly9pbS1pbnQubGR0dG9vbGJveC5hcHAvcmVhbG1zL0xEVCIsInN1YiI6ImFhNDViNDk4LTMxYjItNGM1Mi1iMWIzLWRjMTYzOWI0OGY5NCIsInR5cCI6IlNlcmlhbGl6ZWQtSUQiLCJzaWQiOiJmZTFjNDFiMi04OGU0LTQ1ZjktOTM3Ny1iZjYxZDgxZTM5ZTQiLCJzdGF0ZV9jaGVja2VyIjoiUDNJWXBtZEFlRjRSaWlpWjlFV3pkWUZRc0FsOGYyZXRpbGJtZzlyYXRXUSJ9.f4gI3Xr0uygP4HgOLY_4pP0g6Z0OHdUIgTOE4CXTD-3DZ739cGvveq8pLSL6xHFaaZPCfuRsrn9rdovdYMA3eg",
+			"domain": "im-int.ldttoolbox.app",
+			"path": "/realms/LDT/",
+			"expires": -1,
+			"httpOnly": true,
+			"secure": true,
+			"sameSite": "None"
+		},
+		{
+			"name": "KEYCLOAK_SESSION",
+			"value": "NllDMb7mMMlLErZErYSTa5iGOTcaVhAxfCJhgQAXoGE",
+			"domain": "im-int.ldttoolbox.app",
+			"path": "/realms/LDT/",
+			"expires": 1761685704.503073,
+			"httpOnly": false,
+			"secure": true,
+			"sameSite": "None"
+		},
+		{
+			"name": "_pk_id.1.9b25",
+			"value": "c4aec35496dca9e8.1761649702.",
+			"domain": "part-int.ldttoolbox.app",
+			"path": "/",
+			"expires": 1795604902,
+			"httpOnly": false,
+			"secure": false,
+			"sameSite": "Lax"
+		},
+		{
+			"name": "_pk_ses.1.9b25",
+			"value": "1",
+			"domain": "part-int.ldttoolbox.app",
+			"path": "/",
+			"expires": 1761651505,
+			"httpOnly": false,
+			"secure": false,
+			"sameSite": "Lax"
+		},
+		{
+			"name": "decidim-consent",
+			"value": "{}",
+			"domain": ".part-int.ldttoolbox.app",
+			"path": "/",
+			"expires": 1793185705,
+			"httpOnly": false,
+			"secure": true,
+			"sameSite": "Lax"
+		},
+		{
+			"name": "access_token",
+			"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIyd0dPRTBTNHk2YTNfRmRzWWpVUW1XS1NtRmkzbUFsY1hNT0NlNEJxVXN3In0.eyJleHAiOjE3NjE2NTAwMDQsImlhdCI6MTc2MTY0OTcwNCwiYXV0aF90aW1lIjoxNzYxNjQ5NzA0LCJqdGkiOiIwMWMzMTJhYi0yMDAxLTRhMTItYTY1OC1jNWJjZDFhMjU0YWIiLCJpc3MiOiJodHRwczovL2ltLWludC5sZHR0b29sYm94LmFwcC9yZWFsbXMvTERUIiwiYXVkIjpbInJlYWxtLW1hbmFnZW1lbnQiLCJ0ZXN0dG9vbDYiLCJ0b29sNi1iYWNrZW5kIiwidG9vbDciLCJ0b29sNCIsInRvb2wwLWRhdGFodWIiLCJicm9rZXIiLCJ0b29sMiIsImFjY291bnQiLCJ0b29sMCIsInRvb2wxIl0sInN1YiI6ImFhNDViNDk4LTMxYjItNGM1Mi1iMWIzLWRjMTYzOWI0OGY5NCIsInR5cCI6IkJlYXJlciIsImF6cCI6InRvb2wzIiwic2lkIjoiZmUxYzQxYjItODhlNC00NWY5LTkzNzctYmY2MWQ4MWUzOWU0IiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL2ppdHNpLXBhcnQtaW50LmxkdHRvb2xib3guYXBwLyIsIi8qIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIiwiZGVmYXVsdC1yb2xlcy1sZHQiXX0sInJlc291cmNlX2FjY2VzcyI6eyJyZWFsbS1tYW5hZ2VtZW50Ijp7InJvbGVzIjpbInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwidmlldy1yZWFsbSIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwicmVhbG0tYWRtaW4iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwicXVlcnktcmVhbG1zIiwidmlldy1hdXRob3JpemF0aW9uIiwicXVlcnktY2xpZW50cyIsInF1ZXJ5LXVzZXJzIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiLCJxdWVyeS1ncm91cHMiXX0sInRlc3R0b29sNiI6eyJyb2xlcyI6WyJVc2VyIiwidW1hX3Byb3RlY3Rpb24iLCJBZG1pbiJdfSwidG9vbDYtYmFja2VuZCI6eyJyb2xlcyI6WyJVc2VyIiwiVGVjaG5pY2lhbiIsInVtYV9wcm90ZWN0aW9uIiwiQWRtaW4iXX0sInRvb2w3Ijp7InJvbGVzIjpbIlVzZXIiLCJ1bWFfcHJvdGVjdGlvbiIsIkFkbWluIl19LCJ0b29sNCI6eyJyb2xlcyI6WyJVc2VyIiwidW1hX3Byb3RlY3Rpb24iLCJBZG1pbiJdfSwidG9vbDAtZGF0YWh1YiI6eyJyb2xlcyI6WyJVc2VyIiwidW1hX3Byb3RlY3Rpb24iLCJBZG1pbiJdfSwiYnJva2VyIjp7InJvbGVzIjpbInJlYWQtdG9rZW4iXX0sInRvb2wyIjp7InJvbGVzIjpbIlVzZXIiLCJBZG1pbiJdfSwidG9vbDMiOnsicm9sZXMiOlsiVXNlciIsInVtYV9wcm90ZWN0aW9uIiwiQWRtaW4iXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJ2aWV3LWFwcGxpY2F0aW9ucyIsInZpZXctY29uc2VudCIsInZpZXctZ3JvdXBzIiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJkZWxldGUtYWNjb3VudCIsIm1hbmFnZS1jb25zZW50Iiwidmlldy1wcm9maWxlIl19LCJ0b29sMCI6eyJyb2xlcyI6WyJVc2VyIiwiVGVjaG5pY2lhbiIsInVtYV9wcm90ZWN0aW9uIiwiQWRtaW4iXX0sInRvb2wxIjp7InJvbGVzIjpbInVtYV9wcm90ZWN0aW9uIiwiQWRtaW4iXX19LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBMYXN0bmFtZSIsInByZWZlcnJlZF91c2VybmFtZSI6ImFkbWluQGxkdHRvb2xib3guZXUiLCJsb2NhbGUiOiJlcyIsImdpdmVuX25hbWUiOiJBZG1pbiIsImZhbWlseV9uYW1lIjoiTGFzdG5hbWUiLCJlbWFpbCI6ImFkbWluQGxkdHRvb2xib3guZXUifQ.RM282EPrNVGtjcYQheljn_DebF4Q8Mzd1jYg1kNTGgkR_w7qAcn1D48i_OA9cE6ArBTZfsUXXOve9Xh0y6DfPqrqVymdvaPIcBUBQhbYVVzaeCYdN1lwwv0yLtEetSjNwGr_Sy7MTGkO4c16sMbnnLXigjPb7_7AZB5HNjkPIrhgoSeXK_dlKXo_jpmoDtoTgFuKLn8Ln5oB7eL1Gf1E3ZvlOCWeoR1gyTRLs61C-FCNFidYycjFCvKuh1rBAnOPpHWLBYekbPseqBh69a4QrLH8tXaNEBp0IXG67r3-MRIVIERQc6uLX-WEDY-_biGPgdfMAn3N9T5SrU7fZUeAkw",
+			"domain": ".ldttoolbox.app",
+			"path": "/",
+			"expires": 1761653304.682079,
+			"httpOnly": true,
+			"secure": true,
+			"sameSite": "Lax"
+		},
+		{
+			"name": "refresh_token",
+			"value": "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJkNzA0OTcyZS05MWVlLTRmZWQtYjFmMi0wZjA1YjQxNTFjN2EifQ.eyJleHAiOjE3NjE2NTE1MDQsImlhdCI6MTc2MTY0OTcwNCwianRpIjoiNzY4ZDcwZGUtYTRjMi00MTI2LWFiNmUtODExMjAyYTI5N2QyIiwiaXNzIjoiaHR0cHM6Ly9pbS1pbnQubGR0dG9vbGJveC5hcHAvcmVhbG1zL0xEVCIsImF1ZCI6Imh0dHBzOi8vaW0taW50LmxkdHRvb2xib3guYXBwL3JlYWxtcy9MRFQiLCJzdWIiOiJhYTQ1YjQ5OC0zMWIyLTRjNTItYjFiMy1kYzE2MzliNDhmOTQiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoidG9vbDMiLCJzaWQiOiJmZTFjNDFiMi04OGU0LTQ1ZjktOTM3Ny1iZjYxZDgxZTM5ZTQiLCJzY29wZSI6Im9wZW5pZCB3ZWItb3JpZ2lucyByb2xlcyBzZXJ2aWNlX2FjY291bnQgYWNyIHByb2ZpbGUgYmFzaWMgZW1haWwifQ.DmsVan07bidbrpx_KNTlFYUFkEutBAfZb2epms4sVFhl8tRZ3aaLUW4G54T3xrunIi_YNbbkeRuHZ1YoBOmHjQ",
+			"domain": ".ldttoolbox.app",
+			"path": "/",
+			"expires": 1762254504.682225,
+			"httpOnly": true,
+			"secure": true,
+			"sameSite": "Lax"
+		},
+		{
+			"name": "id_token",
+			"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIyd0dPRTBTNHk2YTNfRmRzWWpVUW1XS1NtRmkzbUFsY1hNT0NlNEJxVXN3In0.eyJleHAiOjE3NjE2NTAwMDQsImlhdCI6MTc2MTY0OTcwNCwiYXV0aF90aW1lIjoxNzYxNjQ5NzA0LCJqdGkiOiI2NTQ2MTRhMy04OWZjLTQ4ZWQtODEzZi00NjRjMjNhNjZmMzUiLCJpc3MiOiJodHRwczovL2ltLWludC5sZHR0b29sYm94LmFwcC9yZWFsbXMvTERUIiwiYXVkIjoidG9vbDMiLCJzdWIiOiJhYTQ1YjQ5OC0zMWIyLTRjNTItYjFiMy1kYzE2MzliNDhmOTQiLCJ0eXAiOiJJRCIsImF6cCI6InRvb2wzIiwic2lkIjoiZmUxYzQxYjItODhlNC00NWY5LTkzNzctYmY2MWQ4MWUzOWU0IiwiYXRfaGFzaCI6ImM3a0x3MFBPZ1FlTWx1QV9Ed2tzR0EiLCJhY3IiOiIxIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBMYXN0bmFtZSIsInByZWZlcnJlZF91c2VybmFtZSI6ImFkbWluQGxkdHRvb2xib3guZXUiLCJsb2NhbGUiOiJlcyIsImdpdmVuX25hbWUiOiJBZG1pbiIsImZhbWlseV9uYW1lIjoiTGFzdG5hbWUiLCJlbWFpbCI6ImFkbWluQGxkdHRvb2xib3guZXUifQ.c8S5bV-pHitXZqj-f_Q-o-dqeovrewhLpZT76mTjypFPaQ2EE_fA_HmPZr6P1K1x_jc-yQkAGSr5ZakyqR-zjJ9r-qbKfmrtF6qTT6n4t7DvCpTexLjKFlfCDLv_E0UHImYTdYSRgYI4Tg34pGFZOCJmiXkdiN7z1SGzFwm5oIQkoyGtIiDFAD68vZvFBmI9yux8_BUZK-fZi4mG2R9XvJpILbH1p3KJfwkDpocHUqCh2xi2P0CLXhphDQRz-DStKZ0ci89GmdhO3kyCm89fd_D6kSxhUq6E_lxwqfHRNkaP-aqleihzw5KY5vW8BepZ9UjWPgcSuXhpeTO6dIO2YQ",
+			"domain": ".ldttoolbox.app",
+			"path": "/",
+			"expires": 1762254504.682269,
+			"httpOnly": true,
+			"secure": true,
+			"sameSite": "Lax"
+		},
+		{
+			"name": "_session_id",
+			"value": "LsUMrrI7l2LzAR9dW%2B23GgxrrnWBQybXT94hdz4cNMxCbqXWOqfALY%2BeR4wPvxj0Me6P0Kt8TaJ4PCjTNv5LsIVq8SI3zvfutpnf3PuGeBuPH2ILFo%2B39VzyfAJLFSq7Kp3GgGNZrf9pVS%2F2U7Taegfy5KlhDPvwVA3EVI7gAQlgMk7DgqFMW9f9%2BIqpdq8H4Kbx9PHV6coobj2R3sWQn524zm3wixUoExJJ6JWhwIQEvm7JJEaQl5qrJ7MLT4RbrV9WHpMqrlDOqhK12nbXXhsoDjN54%2Fkx%2BnoT5TYQArgsIYOKeUT32D%2FKLWlCXqSEiPc5T%2B0crCOBzOTBH1GQCEYQlsdluAUlMecbdcuZMbCjvk967oZhxvOiKwHZrLDI6D52yWp6YMzCdQEZN025gs5wcHRLE3TaenPEJTNk3ob1B9mlQLWQvb2RXzEd%2B87ZJAnjFELXYBJIDswvoHkZl6xkQiCrfmfTwME8NlD7n9AiSyUl3VpR9wxSmvoOMYRfxOowIgH6fu%2FxD7w4zh73mjXz6R5n48hhaFJ9%2B4HbTPupy10jDG1dmCTKseu7C76BqNo8%2BXxKiTqTgE0rSZ9RkkQHiNYUzfh61vzo%2FF2wM2p06CPAATEbySImGALphQXLNKu4eKVWU7DsQgN6iFWDxLMBP4QkkfxFgKVNamd%2F%2Fbho6sQ6L7TahQp8JPYKhHmm95OG9bFMEilD3V1%2BYTQpcf9nyy4BWrTzxkfj2pR46vlfDw8%2Bq2DcUVD5WdESHjHgFIg5HD%2BcK43E0WgBVynmn5T7lP3Nads3cY9myPbNLgq8zklCnl%2BmS1LzisP08mfVlYTRSzbvRA%2Bb--OgyG5Jio2xKtMKbz--StYfd3%2FLucuehm8a8kGmdw%3D%3D",
+			"domain": "part-int.ldttoolbox.app",
+			"path": "/",
+			"expires": 1761651505.58158,
+			"httpOnly": true,
+			"secure": true,
+			"sameSite": "Lax"
+		}
+	],
+	"origins": []
+}

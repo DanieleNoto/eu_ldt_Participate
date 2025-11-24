@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Simone Bianchelli
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
@@ -91,24 +98,20 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 			});
 			await test.step('8. System: Displays a prompt to confirm registration.', async () => {
 				await meetingDetailPage.expectRegistrationPromptVisible();
-				await meetingDetailPage
-					.getPage()
-					.screenshot({
-						path: 'test-results/screenshots/OnMeetingDetailPageExpectRegistrationPromptVisible.png',
-						fullPage: true
-					});
+				await meetingDetailPage.getPage().screenshot({
+					path: 'test-results/screenshots/OnMeetingDetailPageExpectRegistrationPromptVisible.png',
+					fullPage: true
+				});
 			});
 			await test.step('9. User: Confirms the registration.', async () => {
 				await meetingDetailPage.confirmRegistration();
 				await meetingDetailPage.waitForLoadState('networkidle');
 				await meetingDetailPage.getPage().reload({ waitUntil: 'networkidle' });
 				await meetingDetailPage.expectConfirmationMessageVisible();
-				await meetingDetailPage
-					.getPage()
-					.screenshot({
-						path: 'test-results/screenshots/OnMeetingDetailPageConfirmationMessageVisible.png',
-						fullPage: true
-					});
+				await meetingDetailPage.getPage().screenshot({
+					path: 'test-results/screenshots/OnMeetingDetailPageConfirmationMessageVisible.png',
+					fullPage: true
+				});
 			});
 			await test.step('10. System: Saves the registration information, adds the user to the attendee list, and provides a confirmation message.', async () => {
 				registrationCode = await meetingDetailPage.expectRegistrationCodeVisibleAndGet();
