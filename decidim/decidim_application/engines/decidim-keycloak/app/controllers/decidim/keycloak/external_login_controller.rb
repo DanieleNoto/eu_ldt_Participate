@@ -43,31 +43,26 @@ module Decidim
         state = SecureRandom.hex(32)
         session["omniauth.state"] = state
 
-        # Build Keycloak authorization URL
-        base_url = keycloak_config[:site].chomp("/")
-        realm = keycloak_config[:realm]
-        client_id = keycloak_config[:client_id]
-
         # Determine protocol and build callback URL
         protocol = request.ssl? ? "https" : "http"
         callback_url = "#{protocol}://#{request.host_with_port}/users/auth/keycloakopenid/callback"
 
-        # Build authorization URL with all required parameters
-        auth_params = {
-          client_id: client_id,
+        # Build validated Keycloak authorization URL using centralized configuration
+        auth_url = Decidim::Keycloak::Configuration.authorization_url(
           redirect_uri: callback_url,
-          response_type: "code",
-          scope: "openid profile email",
           state: state
-        }
+        )
 
-        auth_url = "#{base_url}/realms/#{realm}/protocol/openid-connect/auth?" +
-                   auth_params.map { |k, v| "#{k}=#{CGI.escape(v.to_s)}" }.join("&")
+        unless auth_url
+          Rails.logger.error "External login failed: Could not build valid authorization URL for #{current_organization.name}"
+          render plain: "Invalid authentication configuration", status: :internal_server_error
+          return
+        end
 
         Rails.logger.info "External login: Redirecting to Keycloak with state=#{state[0..8]}..."
         Rails.logger.info "   Callback URL: #{callback_url}"
 
-        # Redirect directly to Keycloak
+        # Redirect to the validated and sanitized Keycloak URL
         redirect_to auth_url, allow_other_host: true
       end
     end

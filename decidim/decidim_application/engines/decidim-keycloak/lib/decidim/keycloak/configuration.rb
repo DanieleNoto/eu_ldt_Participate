@@ -39,6 +39,41 @@ module Decidim
           site.present? && client_id.present? && client_secret.present?
         end
 
+        # Validate and return the authorization URL for Keycloak
+        # Returns nil if the configuration is invalid
+        def authorization_url(redirect_uri:, state:)
+          return nil unless valid?
+
+          begin
+            uri = URI.parse(site)
+
+            # Validate URI scheme and host
+            unless (uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)) && uri.host.present?
+              Rails.logger.error "Keycloak configuration error: Invalid site URL: #{site}"
+              return nil
+            end
+
+            # Build the base URL from validated components
+            base = "#{uri.scheme}://#{uri.host}"
+            base += ":#{uri.port}" unless uri.port == uri.default_port
+
+            # Construct authorization URL with escaped parameters
+            auth_params = {
+              client_id: CGI.escape(client_id),
+              redirect_uri: CGI.escape(redirect_uri),
+              response_type: "code",
+              scope: "openid profile email",
+              state: CGI.escape(state)
+            }
+
+            query_string = auth_params.map { |k, v| "#{k}=#{v}" }.join("&")
+            "#{base}/realms/#{CGI.escape(realm)}/protocol/openid-connect/auth?#{query_string}"
+          rescue URI::InvalidURIError => e
+            Rails.logger.error "Keycloak configuration error: Malformed site URL: #{site} - #{e.message}"
+            nil
+          end
+        end
+
         # Clear cached config (useful for testing)
         def reset!
           @config = nil
