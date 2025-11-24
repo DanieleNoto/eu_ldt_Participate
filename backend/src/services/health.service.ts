@@ -76,7 +76,7 @@ const checkRedis = async (): Promise<HealthCheck> => {
 
 		await redis.ping();
 		details = 'Redis connection successful';
-		await redis.disconnect();
+		redis.disconnect();
 	} catch (err) {
 		state = HealthStatus.UNHEALTHY;
 		details = `Redis connection failed: ${(err as Error).message}`;
@@ -91,6 +91,9 @@ const checkRedis = async (): Promise<HealthCheck> => {
 };
 
 const getStatusFromResponse = (status: number, serviceName: string): { state: string; details: string } => {
+	if (status === undefined || status === null) {
+		return { state: HealthStatus.DEGRADED, details: `${serviceName} returned undefined status` };
+	}
 	if (status === 200) {
 		return { state: HealthStatus.HEALTHY, details: `${serviceName} is responsive (HTTP ${status})` };
 	} else if (status >= 200 && status < 300) {
@@ -214,11 +217,11 @@ const checkInternalComponent = async (): Promise<HealthCheck> => {
  * If all are "Healthy", then the status will be "Healthy".
  */
 const getOverallStatus = (results: Record<string, HealthCheck>): string => {
-	const statuses = Object.values(results).map(check => check.status);
+	const statuses = new Set(Object.values(results).map(check => check.status));
 
-	if (statuses.includes(HealthStatus.UNHEALTHY)) {
+	if (statuses.has(HealthStatus.UNHEALTHY)) {
 		return HealthStatus.UNHEALTHY;
-	} else if (statuses.includes(HealthStatus.DEGRADED)) {
+	} else if (statuses.has(HealthStatus.DEGRADED)) {
 		return HealthStatus.DEGRADED;
 	}
 	return HealthStatus.HEALTHY;

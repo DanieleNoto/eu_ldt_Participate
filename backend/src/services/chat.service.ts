@@ -6,7 +6,7 @@
 import { FastifyRequest } from 'fastify';
 import { execute } from '../handlers/chat.registry';
 import Conversation from '../models/entities/conversation.model';
-import { loadTree, QATree } from '../utils/qaTree';
+import { loadTree } from '../utils/qaTree';
 
 export class ChatService {
 	/**

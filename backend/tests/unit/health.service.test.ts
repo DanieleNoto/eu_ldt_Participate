@@ -91,11 +91,11 @@ describe('HealthService', () => {
 			expect(result.checks.internal_component).toBeDefined();
 
 			// Verify each check has required properties
-			Object.values(result.checks).forEach(check => {
+			for (const check of Object.values(result.checks)) {
 				expect(check.status).toBeDefined();
 				expect(check.timestamp).toBeDefined();
 				expect([HealthStatus.HEALTHY, HealthStatus.DEGRADED, HealthStatus.UNHEALTHY]).toContain(check.status);
-			});
+			}
 		});
 
 		it('should return overall HEALTHY status when all checks pass', async () => {
@@ -203,8 +203,8 @@ describe('HealthService', () => {
 
 			expect(result.checks.decidim.status).toBe(HealthStatus.DEGRADED);
 			expect(result.checks.decidim.details).toContain('client error');
+			expect(result.checks.decidim.details).toContain('404');
 		});
-
 		it('should handle HTTP 5xx errors as unhealthy', async () => {
 			mockAxios.get.mockResolvedValue({ status: 500 });
 
@@ -212,8 +212,8 @@ describe('HealthService', () => {
 
 			expect(result.checks.decidim.status).toBe(HealthStatus.UNHEALTHY);
 			expect(result.checks.decidim.details).toContain('server error');
+			expect(result.checks.decidim.details).toContain('500');
 		});
-
 		it('should handle HTTP errors with response object', async () => {
 			const httpError = new Error('HTTP Error');
 			(httpError as any).response = { status: 503 };
@@ -361,11 +361,11 @@ describe('HealthService', () => {
 			expect(Object.keys(result).length).toBeGreaterThan(0);
 
 			// Verify each service has proper health check structure
-			Object.values(result).forEach(check => {
+			for (const check of Object.values(result)) {
 				expect(check.status).toBeDefined();
 				expect(check.timestamp).toBeDefined();
 				expect([HealthStatus.HEALTHY, HealthStatus.DEGRADED, HealthStatus.UNHEALTHY]).toContain(check.status);
-			});
+			}
 		});
 
 		it('should include all monitored services', async () => {
@@ -433,25 +433,26 @@ describe('HealthService', () => {
 	});
 
 	describe('HTTP status code handling', () => {
-		it('should handle 2xx status codes as HEALTHY', async () => {
+		it('should handle 2xx status codes (except 200) as DEGRADED', async () => {
 			mockAxios.get.mockResolvedValue({ status: 204 });
 
 			const result = await HealthService.health();
-			expect(result.checks.decidim.status).toBe(HealthStatus.HEALTHY);
+			expect(result.checks.decidim.status).toBe(HealthStatus.DEGRADED);
 		});
 
-		it('should handle 3xx status codes as HEALTHY', async () => {
+		it('should handle 3xx status codes as UNHEALTHY', async () => {
 			mockAxios.get.mockResolvedValue({ status: 301 });
 
 			const result = await HealthService.health();
-			expect(result.checks.decidim.status).toBe(HealthStatus.HEALTHY);
+			expect(result.checks.decidim.status).toBe(HealthStatus.UNHEALTHY);
 		});
-
 		it('should handle 401 as DEGRADED', async () => {
 			mockAxios.get.mockResolvedValue({ status: 401 });
 
 			const result = await HealthService.health();
 			expect(result.checks.decidim.status).toBe(HealthStatus.DEGRADED);
+			expect(result.checks.decidim.details).toContain('client error');
+			expect(result.checks.decidim.details).toContain('401');
 		});
 
 		it('should handle 403 as DEGRADED', async () => {
@@ -459,13 +460,16 @@ describe('HealthService', () => {
 
 			const result = await HealthService.health();
 			expect(result.checks.decidim.status).toBe(HealthStatus.DEGRADED);
+			expect(result.checks.decidim.details).toContain('client error');
+			expect(result.checks.decidim.details).toContain('403');
 		});
-
 		it('should handle 502 as UNHEALTHY', async () => {
 			mockAxios.get.mockResolvedValue({ status: 502 });
 
 			const result = await HealthService.health();
 			expect(result.checks.decidim.status).toBe(HealthStatus.UNHEALTHY);
+			expect(result.checks.decidim.details).toContain('server error');
+			expect(result.checks.decidim.details).toContain('502');
 		});
 
 		it('should handle 503 as UNHEALTHY', async () => {
@@ -473,6 +477,8 @@ describe('HealthService', () => {
 
 			const result = await HealthService.health();
 			expect(result.checks.decidim.status).toBe(HealthStatus.UNHEALTHY);
+			expect(result.checks.decidim.details).toContain('server error');
+			expect(result.checks.decidim.details).toContain('503');
 		});
 	});
 
@@ -561,15 +567,14 @@ describe('HealthService', () => {
 			process.env = originalEnv;
 		});
 
-		it('should handle all services returning 3xx redirects', async () => {
+		it('should handle all services returning 3xx redirects as UNHEALTHY', async () => {
 			mockAxios.get.mockResolvedValue({ status: 302 });
 
 			const result = await HealthService.health();
 
-			expect(result.status).toBe(HealthStatus.HEALTHY);
-			expect(result.checks.decidim.status).toBe(HealthStatus.HEALTHY);
+			expect(result.status).toBe(HealthStatus.UNHEALTHY);
+			expect(result.checks.decidim.status).toBe(HealthStatus.UNHEALTHY);
 		});
-
 		it('should handle mixed service states correctly', async () => {
 			mockAxios.get.mockImplementation((url: string) => {
 				if (url.includes('decidim')) return Promise.resolve({ status: 200 });
@@ -586,6 +591,10 @@ describe('HealthService', () => {
 
 			// Should be UNHEALTHY because jitsi returns 500
 			expect(result.status).toBe(HealthStatus.UNHEALTHY);
+			expect(result.checks.decidim.status).toBe(HealthStatus.HEALTHY);
+			expect(result.checks.grafana.status).toBe(HealthStatus.DEGRADED);
+			expect(result.checks.matomo.status).toBe(HealthStatus.DEGRADED);
+			expect(result.checks.jitsi_web.status).toBe(HealthStatus.UNHEALTHY);
 		});
 
 		it('should measure response time accurately', async () => {
@@ -727,16 +736,16 @@ describe('HealthService', () => {
 
 			const result = await HealthService.health();
 			expect(result.checks.decidim).toBeDefined();
+			expect(result.checks.decidim.status).toBe(HealthStatus.DEGRADED);
 		});
-
 		it('should properly measure timing for each service', async () => {
 			const result = await HealthService.health();
 
 			// All checks should have responseTime
-			Object.values(result.checks).forEach(check => {
+			for (const check of Object.values(result.checks)) {
 				expect(check.responseTime).toBeGreaterThanOrEqual(0);
 				expect(typeof check.responseTime).toBe('number');
-			});
+			}
 		});
 
 		it('should handle Grafana URL variations', async () => {
