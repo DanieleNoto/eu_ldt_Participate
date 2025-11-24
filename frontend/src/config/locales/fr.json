@@ -17,5 +17,13 @@
 		"cancel": "Annuler",
 		"send": "Envoyer",
 		"supportRequestSent": "Demande d'assistance envoyée. Notre équipe vous contactera."
+	},
+	"errorBoundary": {
+		"title": "500",
+		"subtitle": "Quelque chose s'est mal passé !",
+		"description": "Nous sommes désolés, mais nous n'avons pas pu vous fournir la page demandée. Veuillez réessayer plus tard.",
+		"goBackTo": "Retour à l'",
+		"home": "accueil",
+		"goBackToHome": "Retour à l'accueil"
 	}
 }

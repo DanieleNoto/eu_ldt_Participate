@@ -1,3 +1,8 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Pierluigi Spedicato
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ApiConfigConstructor } from '@app/core/api-client/models/api-config.model';
 import { ToastrHorizontalPosition, ToastrVerticalPosition } from '@app/shared/toastr/model/toastr-options.model';

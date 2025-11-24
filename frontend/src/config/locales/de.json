@@ -17,5 +17,13 @@
 		"cancel": "Abbrechen",
 		"send": "Senden",
 		"supportRequestSent": "Support-Anfrage gesendet. Unser Team wird sich mit Ihnen in Verbindung setzen."
+	},
+	"errorBoundary": {
+		"title": "500",
+		"subtitle": "Etwas ist schiefgelaufen!",
+		"description": "Es tut uns leid, aber wir konnten die angeforderte Seite nicht bereitstellen. Bitte versuchen Sie es später erneut.",
+		"goBackTo": "Zurück zur",
+		"home": "Startseite",
+		"goBackToHome": "Zurück zur Startseite"
 	}
 }

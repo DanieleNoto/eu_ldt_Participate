@@ -1,9 +1,19 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Gianfranco Cedro
+//   # Pierluigi Spedicato
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { ErrorInfo } from 'react';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-export default class ErrorBoundary extends React.Component {
-	constructor(props: any) {
+interface ErrorBoundaryState {
+	hasError: boolean;
+}
+
+class ErrorBoundary extends React.Component<WithTranslation, ErrorBoundaryState> {
+	constructor(props: WithTranslation) {
 		super(props);
 		this.state = { hasError: false };
 	}
@@ -19,21 +29,22 @@ export default class ErrorBoundary extends React.Component {
 	}
 
 	render() {
-		if ((this.state as any).hasError) {
+		const { t } = this.props;
+		if (this.state.hasError) {
 			// You can render any custom fallback UI
 			return (
 				<div className="mt-10 px-2">
-					<h1 className="text-5xl text-neta-complementary-red font-extrabold">500</h1>
-					<h2 className="text-3xl font-extrabold">Qualcosa è andato storto!</h2>
-					<h4>Ci dispiace ma non è stato possibile fornirti la pagina cercata. Riprova più tardi</h4>
+					<h1 className="text-5xl text-neta-complementary-red font-extrabold">{t('errorBoundary.title')}</h1>
+					<h2 className="text-3xl font-extrabold">{t('errorBoundary.subtitle')}</h2>
+					<h4>{t('errorBoundary.description')}</h4>
 					<div>
 						<a
 							href="/dashboard"
 							className="flex flex-row space-x-1 bg-neta-complementary-dark-yellow text-white px-3 py-0.5"
-							aria-label="Torna alla Home"
+							aria-label={t('errorBoundary.goBackToHome')}
 						>
-							<span>Torna alla </span>
-							<span className="font-extrabold">Home</span>
+							<span>{t('errorBoundary.goBackTo')}</span>
+							<span className="font-extrabold">{t('errorBoundary.home')}</span>
 							<span className="m-0"> &gt; </span>
 						</a>
 					</div>
@@ -44,3 +55,5 @@ export default class ErrorBoundary extends React.Component {
 		return (this.props as any).children;
 	}
 }
+
+export default withTranslation()(ErrorBoundary);

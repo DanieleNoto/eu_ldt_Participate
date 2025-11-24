@@ -1,3 +1,11 @@
+<!--
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Pierluigi Spedicato
+ -->
+
 # Eu LDT Starter FE
 
 A React + TypeScript starter project built with Vite that provides a modular architecture including routing, API communication, logging, internationalization (i18n), toast notifications, and more.

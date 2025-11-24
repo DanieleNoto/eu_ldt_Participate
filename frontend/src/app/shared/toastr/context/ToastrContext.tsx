@@ -1,3 +1,8 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Pierluigi Spedicato
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ToastrProps } from '@shared/toastr/model/toastr.props';
 import { createContext, Dispatch, JSX, ReactNode, useContext, useReducer } from 'react';
