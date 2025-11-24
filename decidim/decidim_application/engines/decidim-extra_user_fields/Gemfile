@@ -4,7 +4,7 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-DECIDIM_VERSION = "0.30.3"
+DECIDIM_VERSION = "0.30.4"
 
 source "https://rubygems.org"
 
