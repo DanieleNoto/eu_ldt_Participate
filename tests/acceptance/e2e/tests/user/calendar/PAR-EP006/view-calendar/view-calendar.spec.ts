@@ -1,6 +1,13 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { CalendarPage } from '@pages/pages/user/CalendarPage';
-import test from '@playwright/test';
+import test, { expect } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -16,6 +23,7 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The citizen has an active account on the platform and is logged in.
  *
  */
+
 test.beforeAll(async ({ browser }) => {
 	const context = await browser.newContext();
 	const page = await context.newPage();
@@ -39,16 +47,22 @@ test.describe('[PAR-EP006] – View calendar', () => {
 				await homePage.goToCalendarFromHomeMenu();
 				await calendarPage.getPage().waitForLoadState('networkidle');
 			});
-			await test.step('2. System: Displays the details of the selected process, including the title, description, phases, key objectives.', async () => {
+			await test.step('2. System: Displays an interactive calendar interface showing all events associated with processes.', async () => {
 				await calendarPage.expectCalendarVisible();
+				const isInterfaceVisible = await calendarPage.verifyCalendarInterface();
+				expect(isInterfaceVisible).toBeTruthy();
 			});
 			await test.step('3. User: Views events displayed on the calendar, including the title, date, time, and location.', async () => {
-				await calendarPage.filterByDebate();
+				const events = await calendarPage.getCalendarEvents();
+				expect(events.length).toBeGreaterThan(0); // fail if no events
+				console.log('Events found on calendar with details:', events);
 				await calendarPage.filterByDebate();
 				await calendarPage.filterByMeeting();
 			});
 			await test.step('4. System: Highlights events on their respective dates within the calendar view', async () => {
 				await calendarPage.expectCalendarVisible();
+				const hasEvents = await calendarPage.verifyAnyEventHighlighted();
+				expect(hasEvents).toBeTruthy(); // step result confirmation
 			});
 
 			await test.step('Result.', async () => {
