@@ -1,14 +1,14 @@
 let selectedMap = null;
 
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOMContentLoaded fired - initializing maps_association');
-  
-  // Setup event handlers
-  setupRadioHandlers();
-  setupCancelHandler();
-  setupSubmitHandler();
-  setupInputValidation();
-  console.log('Handlers setup complete');
+document.addEventListener('DOMContentLoaded', function () {
+	console.log('DOMContentLoaded fired - initializing maps_association');
+
+	// Setup event handlers
+	setupRadioHandlers();
+	setupCancelHandler();
+	setupSubmitHandler();
+	setupInputValidation();
+	console.log('Handlers setup complete');
 });
 
 function setupRadioHandlers() {
@@ -66,50 +66,50 @@ function setupCancelHandler() {
 }
 
 function setupSubmitHandler() {
-  // Find the form that contains our map-name field
-  const nameInput = document.getElementById('map-name');
-  const form = nameInput ? nameInput.closest('form') : null;
+	// Find the form that contains our map-name field
+	const nameInput = document.getElementById('map-name');
+	const form = nameInput ? nameInput.closest('form') : null;
 
-  if (form) {
-    // Intercept form submission to validate
-    form.addEventListener('submit', function(e) {
-      const mapIdField = document.getElementById('map-id-field');
-      const nameInput = document.getElementById('map-name');
+	if (form) {
+		// Intercept form submission to validate
+		form.addEventListener('submit', function (e) {
+			const mapIdField = document.getElementById('map-id-field');
+			const nameInput = document.getElementById('map-name');
 
-      // Clear previous errors
-      clearFieldErrors();
+			// Clear previous errors
+			clearFieldErrors();
 
-      let hasErrors = false;
+			let hasErrors = false;
 
-      // Check if a map is selected
-      if (!mapIdField || !mapIdField.value) {
-        e.preventDefault();
-        showError('Please select a map from the list above.');
-        hasErrors = true;
-      }
+			// Check if a map is selected
+			if (!mapIdField || !mapIdField.value) {
+				e.preventDefault();
+				showError('Please select a map from the list above.');
+				hasErrors = true;
+			}
 
-      // Check if name is filled
-      if (!nameInput || !nameInput.value.trim()) {
-        e.preventDefault();
-        showFieldError(nameInput, 'name_required');
-        hasErrors = true;
-      }
+			// Check if name is filled
+			if (!nameInput || !nameInput.value.trim()) {
+				e.preventDefault();
+				showFieldError(nameInput, 'name_required');
+				hasErrors = true;
+			}
 
-      if (!hasErrors) {
-        console.log('Form validation passed, submitting...');
-        // Disable submit button to prevent double submission
-        const submitBtn = document.getElementById('save-button');
-        if (submitBtn) {
-          submitBtn.disabled = true;
-          submitBtn.textContent = 'Creating...';
-        }
-      }
-      return !hasErrors;
-    });
-  }
+			if (!hasErrors) {
+				console.log('Form validation passed, submitting...');
+				// Disable submit button to prevent double submission
+				const submitBtn = document.getElementById('save-button');
+				if (submitBtn) {
+					submitBtn.disabled = true;
+					submitBtn.textContent = 'Creating...';
+				}
+			}
+			return !hasErrors;
+		});
+	}
 
-  // Setup input event listeners to clear errors when user types
-  setupInputValidation();
+	// Setup input event listeners to clear errors when user types
+	setupInputValidation();
 }
 
 function showFormWithDetails(map) {
@@ -150,67 +150,67 @@ function escapeHtml(text) {
 
 // Form validation helper functions
 function clearFieldErrors() {
-  // Remove error classes from all inputs
-  document.querySelectorAll('.form-control').forEach(input => {
-    input.classList.remove('is-invalid-input');
-  });
+	// Remove error classes from all inputs
+	document.querySelectorAll('.form-control').forEach(input => {
+		input.classList.remove('is-invalid-input');
+	});
 
-  // Hide all error messages
-  document.querySelectorAll('.form-error').forEach(msg => {
-    msg.classList.remove('is-visible');
-  });
+	// Hide all error messages
+	document.querySelectorAll('.form-error').forEach(msg => {
+		msg.classList.remove('is-visible');
+	});
 }
 
 function showFieldError(inputElement, messageKey) {
-  if (!inputElement) return;
+	if (!inputElement) return;
 
-  // Add error class to input
-  inputElement.classList.add('is-invalid-input');
+	// Add error class to input
+	inputElement.classList.add('is-invalid-input');
 
-  // Find and show the corresponding error message
-  const errorSpan = document.querySelector(`span[data-i18n="${messageKey}"]`);
-  if (errorSpan) {
-    // Create or update error message element
-    let errorMsg = inputElement.parentNode.querySelector('.form-error');
-    if (!errorMsg) {
-      errorMsg = document.createElement('small');
-      errorMsg.className = 'form-error';
-      inputElement.parentNode.appendChild(errorMsg);
-    }
-    errorMsg.textContent = errorSpan.textContent;
-    errorMsg.classList.add('is-visible');
-  }
+	// Find and show the corresponding error message
+	const errorSpan = document.querySelector(`span[data-i18n="${messageKey}"]`);
+	if (errorSpan) {
+		// Create or update error message element
+		let errorMsg = inputElement.parentNode.querySelector('.form-error');
+		if (!errorMsg) {
+			errorMsg = document.createElement('small');
+			errorMsg.className = 'form-error';
+			inputElement.parentNode.appendChild(errorMsg);
+		}
+		errorMsg.textContent = errorSpan.textContent;
+		errorMsg.classList.add('is-visible');
+	}
 
-  // Focus the input
-  inputElement.focus();
+	// Focus the input
+	inputElement.focus();
 }
 
 function showError(message) {
-  // For general errors, show in a general error area
-  const errorDiv = document.getElementById('error-state');
-  if (errorDiv) {
-    const errorMsg = errorDiv.querySelector('#error-message');
-    if (errorMsg) {
-      errorMsg.textContent = message;
-      errorDiv.style.display = 'block';
-    }
-  } else {
-    alert(message); // Fallback to alert if no error div
-  }
+	// For general errors, show in a general error area
+	const errorDiv = document.getElementById('error-state');
+	if (errorDiv) {
+		const errorMsg = errorDiv.querySelector('#error-message');
+		if (errorMsg) {
+			errorMsg.textContent = message;
+			errorDiv.style.display = 'block';
+		}
+	} else {
+		alert(message); // Fallback to alert if no error div
+	}
 }
 
 function setupInputValidation() {
-  // Clear errors when user starts typing
-  document.querySelectorAll('.form-control').forEach(input => {
-    input.addEventListener('input', function() {
-      if (this.classList.contains('is-invalid-input')) {
-        this.classList.remove('is-invalid-input');
-        // Hide error message
-        const errorMsg = this.parentNode.querySelector('.form-error');
-        if (errorMsg) {
-          errorMsg.classList.remove('is-visible');
-        }
-      }
-    });
-  });
+	// Clear errors when user starts typing
+	document.querySelectorAll('.form-control').forEach(input => {
+		input.addEventListener('input', function () {
+			if (this.classList.contains('is-invalid-input')) {
+				this.classList.remove('is-invalid-input');
+				// Hide error message
+				const errorMsg = this.parentNode.querySelector('.form-error');
+				if (errorMsg) {
+					errorMsg.classList.remove('is-visible');
+				}
+			}
+		});
+	});
 }

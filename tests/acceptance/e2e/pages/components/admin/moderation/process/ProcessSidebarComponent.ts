@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { Locator, Page, expect } from '@playwright/test';
 
 /**
@@ -8,9 +15,7 @@ export class ProcessSidebarComponent {
 	private readonly page: Page;
 
 	// Main sidebar container
-	private readonly sidebarMenuContainer: Locator;
 	private readonly sidebarMenu: Locator;
-	private readonly adminSidebarSettings: Locator;
 
 	// Desktop menu
 	private readonly desktopMenu: Locator;
@@ -44,9 +49,7 @@ export class ProcessSidebarComponent {
 		this.page = page;
 
 		// Main containers
-		this.sidebarMenuContainer = page.locator('.sidebar-menu__container');
 		this.sidebarMenu = page.locator('.sidebar-menu');
-		this.adminSidebarSettings = page.locator('#admin-sidebar-menu-settings');
 
 		// Desktop and mobile versions
 		this.desktopMenu = page.locator('.sidebar-menu .hidden.md\\:block ul').first();
@@ -334,18 +337,5 @@ export class ProcessSidebarComponent {
 		// Check that mobile menu has proper ARIA attributes
 		await expect(this.mobileDropdownMenu).toHaveAttribute('role', 'menu');
 		await expect(this.mobileDropdownMenu).toHaveAttribute('aria-labelledby');
-	}
-
-	// Debug methods
-	async debugSidebarState(): Promise<void> {
-		console.log('=== Process Sidebar Debug State ===');
-		console.log('Sidebar visible:', await this.isSidebarVisible());
-		console.log('Desktop menu visible:', await this.isDesktopMenuVisible());
-		console.log('Mobile dropdown visible:', await this.isMobileDropdownVisible());
-		console.log('Mobile menu expanded:', await this.isMobileMenuExpanded());
-		console.log('Current active section:', await this.getCurrentActiveSection());
-		console.log('Component counters:', await this.getAllComponentCounters());
-		console.log('Current URL:', this.page.url());
-		console.log('====================================');
 	}
 }

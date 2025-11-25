@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Simone Bianchelli
  * Denise Scarcelli
@@ -628,10 +628,10 @@ export class GrafanaDashboardPage {
 	 * Verifies that the visual feedback report is rendered with chart, axes, and legend.
 	 */
 	async verifyMonthlyRegistrationTrendPanel() {
-	  await expect(this.monthlyRegistrationContent).toBeVisible();
-	  await expect(this.monthlyRegistrationCanvas).toBeVisible();
-	  await expect(this.monthlyRegistrationAxes).toHaveCount(2);
-	  await expect(this.monthlyRegistrationLegend).toBeVisible();
-	  await expect(this.monthlyRegistrationPanel).toBeVisible();
+		await expect(this.monthlyRegistrationContent).toBeVisible();
+		await expect(this.monthlyRegistrationCanvas).toBeVisible();
+		await expect(this.monthlyRegistrationAxes).toHaveCount(2);
+		await expect(this.monthlyRegistrationLegend).toBeVisible();
+		await expect(this.monthlyRegistrationPanel).toBeVisible();
 	}
 }

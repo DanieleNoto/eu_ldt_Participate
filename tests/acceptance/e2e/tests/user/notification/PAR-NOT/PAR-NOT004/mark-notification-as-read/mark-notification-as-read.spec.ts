@@ -49,11 +49,10 @@ test.describe('[PAR-NOT004] – Mark notifications as reads', () => {
 			await test.step('4. User: Clicks the "Mark as Read" button to confirm their selection.', async () => {
 				await notificationPage.clickFirstMarkAsReadButton();
 			});
-			await test.step('4. System: hide notification after it is marked as read.', async () => {
-				await notificationPage.expectNotificationCountToBeLessThan(notificationCount);
+			await test.step('5. System: hide notification after it is marked as read.', async () => {
+				await notificationPage.expectToBeOnNotificationsPage();
 			});
 			await test.step('Result.', async () => {
-				await notificationPage.expectToBeOnNotificationsPage();
 				await notificationPage.expectNotificationCountToBeLessThan(notificationCount);
 			});
 		});
