@@ -13,7 +13,7 @@ data:
     NODE_ENV: 'production'
     CONTEXT_URL: '/api/v1'
     # CORS
-    CORS_ORIGINS: http://chatbot-frontend-svc:80,https://part-int.ldttoolbox.app/
+    CORS_ORIGINS: https://chatbot-frontend-svc:80,https://part-int.ldttoolbox.app/
     SWAGGER_GEN_DOC_FILE: 'false'
     # Security
     DISABLE_HELMET: 'false'
@@ -46,18 +46,16 @@ data:
     SEQUELIZE_MIGRATION_STORAGE: sequelize
     SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME: SequelizeData
     # Logger
-    LOGGER_TARGET:
-        ''
-        # SMTP/Email Configuration
+    LOGGER_TARGET: ''
+    # SMTP/Email Configuration
     SMTP_ADDRESS: smtp.gmail.com
     SMTP_PORT: '587'
     SMTP_DOMAIN: part-int.ldttoolbox.app
     SMTP_AUTHENTICATION: plain
     SMTP_ENABLE_STARTTLS_AUTO: 'true'
     SMTP_OPENSSL_VERIFY_MODE: ''
-    SMTP_USER_NAME:
-        ldt.test.smtp@gmail.com
-        # Service URLs
+    SMTP_USER_NAME: ldt.test.smtp@gmail.com
+    # Service URLs
     GRAFANA_URL: https://grafana
     DECIDIM_URL: https://decidim
     MATOMO_URL: https://matomo

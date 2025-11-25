@@ -251,8 +251,7 @@ de:
             admin:
                 questionnaire_templates:
                     preview:
-                        tos_agreement: 'Mit Ihrer Teilnahme stimmen Sie folgender Datenschutzrichtlinie
-                            zu:'
+                        tos_agreement: 'Mit Ihrer Teilnahme stimmen Sie folgender Datenschutzrichtlinie zu:'
         welcome_notification:
             default_body: <br><p>Guten Tag {{name}},</p><p>Vielen Dank dafür, dass Sie {{organization}}
                 beigetreten sind und herzlich willkommen!</p><ul><li>Wenn Sie einen kurzen
