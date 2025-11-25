@@ -19,7 +19,7 @@ module Decidim
                 |
                 |    keycloakopenid:
                 |      enabled: true
-                |      icon_path: media/images/keycloak_logo.svg
+                |      icon_path: /media/images/keycloak_logo.svg
                 |      client_id: <%= ENV["OMNIAUTH_KEYCLOAK_CLIENT_ID"] %>
                 |      client_secret: <%= ENV["OMNIAUTH_KEYCLOAK_CLIENT_SECRET"] %>
                 |      site: <%= ENV["OMNIAUTH_KEYCLOAK_SITE"] %>
@@ -33,7 +33,7 @@ module Decidim
                 |
                 |    keycloakopenid:
                 |      enabled: false
-                |      icon_path: media/images/keycloak_logo.svg
+                |      icon_path: /media/images/keycloak_logo.svg
                 |      client_id: fake-keycloakopenid-client-id
                 |      client_secret: fake-keycloakopenid-client-secret
                 |      site: https://fake.keycloakopenid.site
