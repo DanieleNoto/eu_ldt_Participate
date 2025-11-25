@@ -60,3 +60,6 @@ data:
     DECIDIM_URL: https://decidim
     MATOMO_URL: https://matomo
     JITSI_WEB_URL: https://jitsi-web
+    DECIDIM_PRIMARY_COLOR: '#004494'
+    DECIDIM_ORGANIZATION_NAME: 'EU LDT Participate Tool'
+    DECIDIM_LOGO_URL: 'https://part-int.ldttoolbox.app/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBVQT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--b7d0d089d19110c050f1898625f25f369aac73d6/image.png'
