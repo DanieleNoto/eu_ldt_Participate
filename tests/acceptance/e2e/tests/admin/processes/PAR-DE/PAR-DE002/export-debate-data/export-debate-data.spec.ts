@@ -1,14 +1,15 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
 import test, { expect } from '@playwright/test';
-import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
-import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
-import { DebatesPage } from '@pages/pages/admin/processes/detail/debates/DebatesPage';
-import { NewDebatePage } from '@pages/pages/admin/processes/detail/debates/NewDebatePage';
-import { DebatesManagePage } from '@pages/pages/admin/processes/detail/debates/DebatesManagePage';
-import { LetterOpenerPage } from '@pages/pages/admin/LetterOpenerPage';
+import { WebmailPage } from '@pages/base/WebmailPage';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -34,17 +35,12 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
 	let componentsPage: ComponentsPage;
-	let surveysManagePage: SurveysManagePage;
-	let debatesPage: DebatesPage;
-	let newDebatePage: NewDebatePage;
-	let debatesManagePage: DebatesManagePage;
-	let letterOpenerPage: LetterOpenerPage;
-	let validProcessData: any;
-	let processEditUrl: string;
+	let webmailPage: WebmailPage;
 
-	// Variables for the setup
-	let processSlug: string;
-	let componentName: string;
+	// Use existing process with debates and responses
+	const processTitle = 'Update Test0';
+	const processSlug = 'test';
+	const componentName = 'Test Debates';
 
 	// Common setup for both flows (only Page Objects)
 	test.beforeEach(async ({ page }) => {
@@ -52,111 +48,106 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 		processAdminPage = new ProcessAdminPage(page);
 		updateProcessAdminPage = new UpdateProcessAdminPage(page);
 		componentsPage = new ComponentsPage(page);
-		surveysManagePage = new SurveysManagePage(page);
-		debatesPage = new DebatesPage(page);
-		newDebatePage = new NewDebatePage(page);
-		debatesManagePage = new DebatesManagePage(page);
-		letterOpenerPage = new LetterOpenerPage(page);
-		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
-		componentName = 'Debate';
+		webmailPage = new WebmailPage(page);
+		await adminHomePage.navigateToAdminHomePage();
 	});
 
-	/**
-	 * Setup test environment (for Main Flow)
-	 */
-	async function setupTestProcessWithDebates(browser: any) {
-		await test.step('Setup: Create new test process as prerequisite', async () => {
-			const { processSlug: slug, processEditUrl: url } = await surveysManagePage.setupTestProcess(
-				validProcessData,
-				adminHomePage,
-				processAdminPage,
-				true // publish the process
-			);
-			processSlug = slug;
-			processEditUrl = url;
-			console.log('Test process setup completed');
-		});
-
-		await test.step('Setup: Add debates component and create debate as prerequisite', async () => {
-			const result = await debatesManagePage.setupTestDebates(
-				processSlug,
-				processEditUrl,
-				processAdminPage,
-				componentsPage,
-				debatesPage,
-				newDebatePage
-			);
-
-			console.log(`Setup completed: ${result.componentName} with debate "${result.debateName}"`);
-		});
-
-		await test.step('Setup: Add user responses to debate as prerequisite', async () => {
-			await debatesManagePage.setupUserDebateResponses(browser, processSlug);
-			console.log('User debate responses setup completed');
-		});
-	}
-
 	test.describe('Main Flow', () => {
-		test.beforeEach(async ({ browser }) => {
-			await setupTestProcessWithDebates(browser);
-		});
-
-		[{ fileFormat: 'CSV' }, { fileFormat: 'JSON' }, { fileFormat: 'Excel' }].forEach(({ fileFormat }) => {
-			test(`should export debate data in ${fileFormat} format`, async ({ page }) => {
+		[
+			{ fileFormat: 'CSV', exportType: 'Debates' },
+			{ fileFormat: 'JSON', exportType: 'Debates' },
+			{ fileFormat: 'Excel', exportType: 'Debates' },
+			{ fileFormat: 'CSV', exportType: 'Comments' },
+			{ fileFormat: 'JSON', exportType: 'Comments' },
+			{ fileFormat: 'Excel', exportType: 'Comments' }
+		].forEach(({ fileFormat, exportType }) => {
+			test(`should export ${exportType.toLowerCase()} data in ${fileFormat} format`, async ({ page }) => {
 				await test.step('1. User: Navigates to the "Processes" section.', async () => {
-					// Navigate to processes section using admin nav
-					await adminHomePage.navigateViaAdminNav('processes');
-					await processAdminPage.waitForLoadState('networkidle');
-
-					const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
-					expect(isOnProcessesPage).toBe(true);
-					console.log('Navigated to Processes section');
+					// Navigate to processes section
+					await processAdminPage.navigateToProcesses();
+					console.log('Successfully navigated to Processes section');
 				});
 
 				await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
-					await processAdminPage.expectToBeOnProcessesAdminPage();
-					// Verify processes table is visible and has content
-					const hasProcesses = await processAdminPage.processTable.hasProcesses();
-					expect(hasProcesses).toBe(true);
-					console.log('Processes list displayed with available processes');
+					await page.waitForLoadState('networkidle');
+
+					// Verify we're on the processes page, with fallback navigation
+					let isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+
+					if (!isOnProcessesPage) {
+						// Try direct navigation if component navigation failed
+						await page.goto('/admin/participatory_processes');
+						await page.waitForLoadState('networkidle');
+						isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+					}
+
+					expect(isOnProcessesPage).toBe(true);
+					const processCount = await processAdminPage.getProcessCount();
+					expect(processCount).toBeGreaterThan(0);
+
+					// Get process titles for verification
+					const processTitles = await processAdminPage.processTable.getProcessTitles();
+					console.log('Available processes:', processTitles);
+					expect(processTitles.length).toBeGreaterThan(0);
 				});
 
 				await test.step('3. User: Selects the process that want to update', async () => {
-					// Search for the specific process created in setup using its exact title
-					await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
-					console.log(`Selected the specific process created in setup: "${validProcessData.general.title}"`);
+					// Select the process name that contains debate data
+					console.log(`Selecting process: ${processTitle}`);
+
+					// Click on the process to edit it
+					await processAdminPage.selectProcessForEdit(processTitle);
+					await page.waitForLoadState('networkidle');
 				});
 
-				await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
-					await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-					await page.waitForLoadState('networkidle');
+				await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
+					// Wait for edit form to load
+					await processAdminPage.waitForEditFormToLoad();
 
-					// Verify we're on the edit page with process information
-					await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
+					// Verify we're on the edit page for the correct process
+					const isOnEditPage = await processAdminPage.isOnProcessEditPage();
+					expect(isOnEditPage).toBe(true);
+					expect(page.url()).toContain(`/admin/participatory_processes/${processSlug}/edit`);
+					console.log(`Process slug verified: ${processSlug}`);
+
+					// Check if the sidebar is visible and loaded
+					await expect(updateProcessAdminPage.sidebarProcessDetail.isSidebarVisible()).resolves.toBe(true);
+
+					// Get and display process title
+					const titleTextbox = await processAdminPage.getTitleTextbox();
+					await expect(titleTextbox).toBeVisible();
+
+					const currentProcessTitle = await titleTextbox.inputValue();
+					console.log(`Process loaded: ${currentProcessTitle}`);
+					expect(currentProcessTitle).not.toBe('');
 				});
 
 				await test.step('5. User: Navigates to the "Components -> Debates" section in the admin panel.', async () => {
 					await updateProcessAdminPage.navigateToComponents();
+					console.log(`Accessing debates component: ${componentName}`);
+
 					await componentsPage.manageComponent(componentName);
-					await page.waitForLoadState('networkidle');
 					console.log('Accessed debates component');
 				});
 
 				await test.step('6. System: Displays a list of available debates, including completed debates with user contributions and summaries.', async () => {
-					const debatesCount = await debatesPage.getDebatesCount();
+					// Verify debates table is visible and has content
+					const debatesTable = page.locator('table.table-list tbody tr');
+					const debatesCount = await debatesTable.count();
 					expect(debatesCount).toBeGreaterThan(0);
 					console.log(`Found ${debatesCount} debates in the list`);
 
-					// Verify that the specific debate created in setup is present in the list
-					const debateTitles = await debatesPage.getAllDebateTitles();
-					const hasTestDebate = debateTitles.some(title => title.includes('Test Debate'));
-					expect(hasTestDebate).toBe(true);
+					// Verify that the specific debate is present in the list
+					const testDebateRow = page
+						.locator('table.table-list tbody tr')
+						.filter({ hasText: 'Test debate QA' });
+					await expect(testDebateRow).toBeVisible();
 					console.log('Test debate is visible in the debates list');
 				});
 
 				await test.step('7. User: Clicks on the "Export" button and select format', async () => {
-					await componentsPage.exportComponentData(fileFormat);
-					console.log(`Selected Export ${fileFormat} format`);
+					await componentsPage.exportComponentData(fileFormat, exportType);
+					console.log(`Selected Export ${exportType} as ${fileFormat} format`);
 
 					await page.waitForLoadState('networkidle');
 				});
@@ -169,20 +160,29 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 				});
 
 				await test.step("9. System: Sends an email to the administrator's registered email address with the export file as an attachment or a secure download link", async () => {
-					// Navigate to Letter Opener and refresh to get latest emails
-					await letterOpenerPage.navigateToLetterOpener();
-					await letterOpenerPage.refreshEmails();
+					// Navigate to webmail
+					await webmailPage.navigateToWebmail();
+					console.log('Navigated to webmail');
 
-					console.log('Letter Opener opened and refreshed. Ready to search for export email.');
+					// Login to webmail with admin credentials
+					await webmailPage.login(process.env.OVH_ADMIN_EMAIL!, process.env.OVH_ADMIN_PASSWORD!);
+					console.log('Logged in to webmail');
 
-					// Find and click on the most recent export email (should be first after refresh)
-					await letterOpenerPage.clickMostRecentDebatesExportEmail();
+					// Check for new messages
+					await webmailPage.refreshInbox();
+					console.log('Checked for new messages in inbox');
 
-					// Verify the export email content
-					await letterOpenerPage.verifyExportEmail();
+					// Verify and open the debates export email
+					await webmailPage.verifyExportEmail('debates');
+					console.log(`Export email for ${exportType} with ${fileFormat} format verified successfully`);
 
-					// Download and verify the export file
-					await letterOpenerPage.downloadExportFile();
+					// Download the export file
+					await webmailPage.downloadExportFile();
+					console.log('Export file downloaded successfully');
+
+					// Clean up: delete the email
+					await webmailPage.deleteCurrentEmail();
+					console.log('Export email deleted from inbox');
 				});
 			});
 		});

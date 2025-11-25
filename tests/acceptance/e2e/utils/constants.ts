@@ -81,7 +81,9 @@ export const BASE_URLS = {
 
 export const EMAIL_URLS = {
 	LETTER_OPENER: `${process.env.FE_BASE_URL || 'http://localhost:3000'}/letter_opener/`,
-	OVH_MAIL: process.env.OVH_URL || 'https://www.ovhcloud.com/es-es/mail/'
+	OVH_MAIL: process.env.OVH_URL || 'https://www.ovhcloud.com/es-es/mail/',
+	MAILINATOR: 'https://www.mailinator.com',
+	MAILINATOR_INBOX: (emailPrefix: string) => `${EMAIL_URLS.MAILINATOR}/v4/public/inboxes.jsp?to=${emailPrefix}`
 } as const;
 
 export const GRAFANA_URLS = {

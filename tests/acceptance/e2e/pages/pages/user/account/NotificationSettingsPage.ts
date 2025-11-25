@@ -34,7 +34,7 @@ export class NotificationSettingsPage extends AuthenticatedPage {
 	);
 	private readonly administratorsReminderToggle = this.page.locator(
 		'label[for="user_notification_settings[close_meeting_reminder]"] span.toggle__switch-toggle-content'
-	);		
+	);
 
 	// Frequency radios
 	private readonly frequencyNone = this.page.locator('label[for="user_notifications_sending_frequency_none"]');
@@ -118,7 +118,7 @@ export class NotificationSettingsPage extends AuthenticatedPage {
 	}
 	async expectAdministratorsReminderToBe(enabled: boolean): Promise<void> {
 		await expect(this.administratorsReminderToggle).toBeChecked({ checked: enabled });
-	}		
+	}
 	async expectFrequencyToBe(frequency: NotificationFrequency): Promise<void> {
 		switch (frequency) {
 			case NotificationFrequency.None:

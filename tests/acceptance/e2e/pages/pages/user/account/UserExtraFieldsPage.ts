@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ * Simone Bianchelli
+ */
+
 import { Page, expect, Locator } from '@playwright/test';
 import { TEST_SELECTORS } from '@utils/constants';
 import { AuthenticatedPage } from '../../../base/AuthenticatedPage';
@@ -9,7 +16,7 @@ export interface UserAccountFieldValues {
 	gender: string;
 	country: string;
 	postalCode: string;
-	phoneNumber: string;
+	phoneNumber?: string; // Optional - not required during registration
 	location: string;
 }
 
@@ -143,7 +150,9 @@ export class UserExtraFieldsPage extends AuthenticatedPage {
 		await expect(this.page.locator('#user_gender')).toHaveValue(expectedData.gender);
 		await expect(this.page.locator('#user_country')).toHaveValue(expectedData.country);
 		await expect(this.page.locator('#user_postal_code')).toHaveValue(expectedData.postalCode);
-		await expect(this.page.locator('#user_phone_number')).toHaveValue(expectedData.phoneNumber);
+		if (expectedData.phoneNumber) {
+			await expect(this.page.locator('#user_phone_number')).toHaveValue(expectedData.phoneNumber);
+		}
 		await expect(this.page.locator('#user_location')).toHaveValue(expectedData.location);
 	}
 

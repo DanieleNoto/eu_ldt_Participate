@@ -61,8 +61,12 @@ test.describe('[PAR-NOT005] – Manage notification settings', () => {
 				await notificationSettingsPage.expectNewsletterToBe(notificationSettings.newsletterToggle);
 				await notificationSettingsPage.expectPublicContactToBe(notificationSettings.publicContactToggle);
 				await notificationSettingsPage.expectEvaluetorsEmailToBe(notificationSettings.evaluetorsEmailToggle);
-				await notificationSettingsPage.expectAdministratorsEmailToBe(notificationSettings.administratorsEmailToggle);
-				await notificationSettingsPage.expectAdministratorsReminderToBe(notificationSettings.administratorsReminderToggle);
+				await notificationSettingsPage.expectAdministratorsEmailToBe(
+					notificationSettings.administratorsEmailToggle
+				);
+				await notificationSettingsPage.expectAdministratorsReminderToBe(
+					notificationSettings.administratorsReminderToggle
+				);
 			});
 			await test.step('3. User: Customizes notification preferences by selecting or deselecting the types of notifications they wish to receive, and how often want to receive the notification mail.', async () => {
 				await notificationSettingsPage.setOwnActivity(!notificationSettings.ownActivityToggle);
