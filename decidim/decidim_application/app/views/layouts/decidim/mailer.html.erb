@@ -54,7 +54,7 @@
                               <center>
                                 <% if @organization.official_img_footer.present? %>
                                   <%= link_to decidim.root_url(host: @organization.host) do %>
-                                    <%= image_tag @organization.attached_uploader(:official_img_footer).path, alt: organization_name(@organization), style: "max-height: 48px; height: auto; display: block; margin: 0 auto;" %>
+                                    <%= image_tag @organization.attached_uploader(:official_img_footer).path, alt: organization_name(@organization), height: "32", style: "max-height: 32px; height: 32px; width: auto; display: block; margin: 0 auto;" %>
                                   <% end %>
                                 <% else %>
                                   <%= render partial: "layouts/decidim/mailer_logo", locals: { organization: @organization } %>
