@@ -6,10 +6,12 @@
 
 import { Page, expect } from '@playwright/test';
 import { BasePage } from '../../../base/BasePage';
+import { TEST_SELECTORS } from '../../../../utils/constants';
 
 /**
  * Page Object Model for the public Use Case Scenarios page
  */
+
 export class UseCaseScenariosPage extends BasePage {
 	constructor(page: Page) {
 		super(page);
@@ -19,6 +21,7 @@ export class UseCaseScenariosPage extends BasePage {
 	 * Verifies that experiment ID is visible on the page
 	 * @param experimentId - The experiment ID to verify
 	 */
+
 	async verifyExperimentIdVisible(experimentId: string): Promise<void> {
 		const associationName = `association test ${experimentId}`;
 		const locator = this.page.getByText(associationName).first();
@@ -26,19 +29,173 @@ export class UseCaseScenariosPage extends BasePage {
 	}
 
 	/**
-	 * Click s on the association link with the specified name
+	 * Clicks on the association link with the specified name
 	 * @param experimentId - The ID of the experiment to search for
 	 */
+
 	async clickAssociationLink(experimentId: string): Promise<void> {
 		const associationName = `association test ${experimentId}`;
 		const locator = this.page.getByText(associationName).first();
 		await locator.click();
 	}
 
-	/**
-	 * Verify the "Experiment ID <experimentId>" is visible on the page
-	 */
 	async verifyExperimentIdDetailVisible(experimentId: string): Promise<void> {
 		await expect(this.page.getByText(`Experiment ID ${experimentId}`)).toBeVisible();
+	}
+
+	async verifyScenariosDisplayed(): Promise<void> {
+		const scenarioList = this.page.locator(TEST_SELECTORS.PROCESS.SCENARIO_LIST);
+		const countScenarios = await scenarioList.count();
+		expect(countScenarios).toBeGreaterThan(0);
+	}
+
+	async selectFirstScenario(): Promise<void> {
+		const firstScenario = this.page.locator(TEST_SELECTORS.PROCESS.FIRST_SCENARIO);
+		const firstScenarioTitleLocator = this.page.locator(
+			TEST_SELECTORS.PROCESS.FIRST_SCENARIO + ' .card__list-title'
+		);
+		const selectedScenarioTitle = (await firstScenarioTitleLocator.innerText()).trim();
+		(this.page as any).__selectedScenarioTitle = selectedScenarioTitle;
+
+		const metadataLocator = this.page
+			.locator(TEST_SELECTORS.PROCESS.FIRST_SCENARIO + ' .card__list-metadata > div')
+			.first();
+		if ((await metadataLocator.count()) > 0) {
+			let metadataText = (await metadataLocator.innerText()).trim();
+			metadataText = metadataText
+				.replace(/\s+/g, ' ')
+				.replace(/\u2026/g, '')
+				.replace(/\.{3,}/g, '')
+				.replace(/[\u200B-\u200D\uFEFF]/g, '')
+				.trim();
+			(this.page as any).__selectedScenarioMetadata = metadataText;
+		}
+
+		await firstScenario.click();
+		await this.page.waitForLoadState('networkidle');
+	}
+
+	async verifyUseCaseContentEmbedded(): Promise<void> {
+		const useCaseContent = this.page.locator(TEST_SELECTORS.PROCESS.USE_CASE_CONTENT);
+		const countContent = await useCaseContent.count();
+		expect(countContent).toBeGreaterThan(0);
+	}
+
+	async verifyAiLabel(): Promise<void> {
+		const aiLabel = this.page.locator(TEST_SELECTORS.PROCESS.AI_LABEL);
+		await expect(aiLabel).toBeVisible();
+		await expect(aiLabel).toContainText('AI');
+	}
+
+	async verifyProcessContentWithUseCase(): Promise<void> {
+		const heading = this.page.locator(TEST_SELECTORS.PROCESS.SCENARIO_HEADING);
+		await expect(heading).toBeVisible();
+
+		const selectedScenarioTitle = (this.page as any).__selectedScenarioTitle as string;
+		if (!selectedScenarioTitle) throw new Error('No scenario title saved from Step 5');
+		await expect(heading).toContainText(selectedScenarioTitle);
+
+		const savedMetadataID = (this.page as any).__selectedScenarioMetadata as string;
+		if (!savedMetadataID) throw new Error('No saved metadata found from Step 5');
+
+		const metaTextLocator = this.page.locator(TEST_SELECTORS.PROCESS.EXPERIMENT_ID_TEXT);
+		await expect(metaTextLocator).toBeVisible();
+		const displayedID = (await metaTextLocator.innerText()).trim();
+		expect(displayedID).toContain(savedMetadataID);
+
+		const detailsHeading = this.page.locator(TEST_SELECTORS.PROCESS.EXPERIMENT_DETAILS_HEADING);
+		await expect(detailsHeading).toHaveText(/Experiment Details/i);
+	}
+
+	async verifyAdditionalUseCaseInfo(): Promise<void> {
+		const expIdTitle = this.page.locator(TEST_SELECTORS.PROCESS.EXPERIMENT_ID_TITLE);
+		await expect(expIdTitle).toHaveText('Experiment ID');
+
+		const iframeContainer = this.page.locator(TEST_SELECTORS.PROCESS.METRICS_IFRAME_CONTAINER);
+		await expect(iframeContainer).toBeVisible();
+	}
+
+	async verifyBasicInformationSection() {
+		const frame = this.page.frameLocator(TEST_SELECTORS.PROCESS.METRICS_IFRAME_CONTAINER);
+
+		await expect(frame.locator('h2')).toHaveText('Basic information');
+
+		const labels = ['ID', 'Status', 'Experiment Version', 'Model', 'Data soure'];
+
+		for (const label of labels) {
+			const row = frame.locator(`tr:has-text("${label}")`);
+			const valueCell = row.locator('td').nth(1).locator('div');
+			await expect(valueCell).toBeVisible();
+			await expect(valueCell).not.toHaveText('');
+		}
+	}
+
+	async getRealtimeMonitoringInfo() {
+		const frame = this.page.frameLocator(TEST_SELECTORS.PROCESS.METRICS_IFRAME_CONTAINER);
+		const container = frame.locator(TEST_SELECTORS.PROCESS.REALTIME_MONITORING_CONTAINER);
+
+		const chartSelector = container.locator(TEST_SELECTORS.PROCESS.REALTIME_ACTIONS_CHART);
+		await chartSelector.waitFor({ state: 'visible' });
+		const chartText = await chartSelector.innerText();
+
+		const placeholder = container.locator(TEST_SELECTORS.PROCESS.REALTIME_CHART_PLACEHOLDER);
+		const chart = container.locator(TEST_SELECTORS.PROCESS.REALTIME_CHART);
+
+		let chartState: string;
+		if (await placeholder.isVisible()) {
+			chartState = (await placeholder.innerText())?.trim() ?? 'placeholder visible';
+		} else {
+			chartState = 'chart rendered';
+		}
+
+		return {
+			chartSelected: chartText?.trim(),
+			chartState
+		};
+	}
+
+	async getChartOptions() {
+		const frame = this.page.frameLocator(TEST_SELECTORS.PROCESS.METRICS_IFRAME_CONTAINER);
+
+		const combo = frame.locator(TEST_SELECTORS.PROCESS.REALTIME_ACTIONS_CHART);
+
+		await combo.waitFor({ state: 'visible' });
+
+		await combo.click({ force: true });
+		await combo.press('ArrowDown');
+
+		const optionsLocator = frame.locator('ul[role="listbox"] li[role="option"]');
+
+		await optionsLocator.first().waitFor({ state: 'visible' });
+
+		const options = await optionsLocator.allTextContents();
+
+		await combo.press('Escape');
+
+		return options.map(opt => opt.trim());
+	}
+
+	async verifyTabsPresent(expectedTabs: string[]) {
+		const iframe = this.page.locator('#experiment-iframe');
+		const frame = await iframe.contentFrame();
+		if (!frame) {
+			throw new Error('Iframe not available');
+		}
+
+		for (const tab of expectedTabs) {
+			await frame.getByRole('tab', { name: tab }).click();
+		}
+	}
+
+	async verifyInferenceResponseSection() {
+		const frame = this.page.frameLocator('#experiment-iframe');
+
+		const section = frame.locator('div.uc\\:flex.uc\\:items-center.uc\\:justify-between.uc\\:mb-1');
+
+		await expect(section.locator('div.uc\\:font-semibold')).toHaveText('Inference Response');
+
+		await expect(section.getByRole('button', { name: 'Collapse' })).toBeVisible();
+		await expect(section.getByRole('button', { name: 'Copy' })).toBeVisible();
+		await expect(section.getByRole('button', { name: 'Download' })).toBeVisible();
 	}
 }
