@@ -6,9 +6,9 @@
 # frozen_string_literal: true
 
 class JitsiUrlController < Decidim::Admin::ApplicationController
-  # Default constants for Jitsi
-  JITSI_DEFAULT_SERVER_URL = "https://jitsi-part-int.ldttoolbox.app/"
-  JITSI_DEFAULT_ROOM_PREFIX = "decidim-meeting-"
+  # Default constants for Jitsi (read from ENV)
+  JITSI_DEFAULT_SERVER_URL = ENV.fetch("DECIDIM_JITSI_URL", "https://jitsi-part-int.ldttoolbox.app/")
+  JITSI_DEFAULT_ROOM_PREFIX = ENV.fetch("DECIDIM_JITSI_ROOM_PREFIX", "decidim-meeting-")
 
   before_action :load_meeting
   before_action :set_component_context

@@ -23,7 +23,8 @@ data:
     DECIDIM_FORCE_SSL: 'true'
     DECIDIM_FOLLOW_HTTP_X_FORWARDED_HOST: 'true'
     DECIDIM_HOST: part-int.ldttoolbox.app
-    DECIDIM_JITSI_URL: jitsi-part-int.ldttoolbox.app
+    DECIDIM_JITSI_URL: https://jitsi-part-int.ldttoolbox.app/
+    DECIDIM_JITSI_ROOM_PREFIX: decidim-meeting-
     DECIDIM_MAILER_SENDER: info@ldttoolbox.eu
     DECIDIM_PROTOCOL: https
     DECIDIM_ENABLE_HTML_HEADER_SNIPPETS: 'true'
