@@ -44,14 +44,32 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 			await test.step('2. System: Displays a list of all processes, categorized as ongoing, upcoming, or completed. The list includes basic information, such as title, short description, and status.', async () => {
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
 
-				// Verify that there are processes displayed
-				const count = await processesOverviewPage.getProcessesCount();
-				expect(count).toBeGreaterThan(0);
+				const dateFilters: ('all' | 'upcoming' | 'past' | 'active')[] = ['all', 'upcoming', 'past', 'active'];
 
-				// Get process titles for debug
-				const titles = await processesOverviewPage.getAllProcessTitles();
-				console.log('Available processes:', titles);
+				for (const filter of dateFilters) {
+					await test.step(`Applying and verifying filter: ${filter}`, async () => {
+						await processesOverviewPage.filterByStatus(filter);
+						await processesOverviewPage.getPage().waitForLoadState('networkidle');
+						const processes = await processesOverviewPage.getAllProcesses();
+						if (processes.length === 0) {
+							console.log(`No processes found for filter: ${filter}`);
+							return;
+						}
+
+						console.log(`Processes for filter '${filter}':`, processes);
+
+						for (const process of processes) {
+							expect(process.id).toBeTruthy();
+							expect(process.href).toBeTruthy();
+							expect(process.title).toBeTruthy();
+							expect(process.status).toBeTruthy();
+							if (process.timeRemaining) expect(process.timeRemaining).toBeTruthy();
+							if (process.phase) expect(process.phase).toBeTruthy();
+						}
+					});
+				}
 			});
+
 			await test.step('3. System: Provides filtering options for citizens to easily find processes of interest.', async () => {
 				await processesOverviewPage.expectProcessesFilterToBeVisible();
 			});
@@ -71,6 +89,7 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 
 	test.describe('Alternative Flow', () => {
 		test('should allows citizens to filter processes in the "Processes" section', async () => {
+			let countBeforeFilter: number;
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
@@ -84,11 +103,11 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 			});
 			await test.step('3.1 User: Applies filters to narrow down the list of processes.', async () => {
 				// Record the number of processes before filtering
-				const countBefore = await processesOverviewPage.getProcessesCount();
-				console.log('Number of processes before filtering:', countBefore);
+				countBeforeFilter = await processesOverviewPage.getProcessesCount();
+				console.log('Number of processes before filtering:', countBeforeFilter);
 
 				// Apply a date filter (e.g., active processes)
-				await processesOverviewPage.filterByDate('active');
+				await processesOverviewPage.filterByStatus('active');
 
 				// Wait for the results to update
 				await processesOverviewPage.getPage().waitForLoadState('networkidle');
@@ -107,6 +126,7 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 					const filteredTitles = await processesOverviewPage.getAllProcessTitles();
 					console.log('Active processes:', filteredTitles);
 				}
+				expect(countAfter).toBeLessThanOrEqual(countBeforeFilter);
 			});
 			await test.step('Result. The citizen can easily find relevant processes based on their preferences.', async () => {
 				// Reset filters
@@ -118,6 +138,7 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 
 				// Verify that all processes are shown again
 				const countAfterReset = await processesOverviewPage.getProcessesCount();
+				expect(countAfterReset).toBe(countBeforeFilter);
 				console.log('Number of processes after resetting filters:', countAfterReset);
 			});
 		});

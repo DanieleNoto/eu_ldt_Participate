@@ -161,6 +161,7 @@ export default defineConfig({
 			use: {
 				...devices['Desktop Chrome']
 			},
+			dependencies: ['admin-setup'], // note: some guest tests might need admin setup (e.g. PAR-CP004)
 			testMatch: ['tests/guest/**/*.spec.ts', '**/tests/guest/**/*.spec.ts']
 		},
 

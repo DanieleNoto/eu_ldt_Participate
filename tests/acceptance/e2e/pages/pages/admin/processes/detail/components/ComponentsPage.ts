@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
  * Simone Bianchelli
@@ -523,30 +523,46 @@ export class ComponentsPage extends BaseAdminPage {
 		await link.click();
 	}
 	/**
+	 * Verify that the Export button is visible
+	 */
+	async expectExportButtonVisible(): Promise<void> {
+		await expect(this.page.locator('[data-toggle="export-dropdown"]')).toBeVisible();
+	}
+
+	/**
 	 * Click on the Export button to open export dropdown/modal
 	 */
 	async clickExportButton(): Promise<void> {
-		await this.page.getByText('Export', { exact: true }).click();
+		await this.page.locator('[data-toggle="export-dropdown"]').click();
 	}
 
 	/**
 	 * Select a specific export format from the export options
-	 * @param fileFormat - The format to export (CSV, JSON, Excel)
+	 * Generic method that works for all component types (Survey, Meeting, Debate)
+	 * @param fileFormat - The format to export (CSV, JSON, Excel, PDF)
+	 * @param exportType - Optional: The type of data to export
 	 */
-	async selectExportFormat(fileFormat: string): Promise<void> {
-		await this.page
-			.getByRole('link', { name: `Export ${fileFormat}` })
-			.first()
-			.click();
+	async selectExportFormat(fileFormat: string, exportType?: string): Promise<void> {
+		// If exportType is specified, use it to match the exact link
+		if (exportType) {
+			await this.page.getByRole('link', { name: new RegExp(`${exportType} as ${fileFormat}$`, 'i') }).click();
+		} else {
+			// Generic selector that matches any link ending with "as {fileFormat}"
+			await this.page
+				.getByRole('link', { name: new RegExp(`as ${fileFormat}$`) })
+				.first()
+				.click();
+		}
 	}
 
 	/**
 	 * Complete export process: open export menu and select format
-	 * @param fileFormat - The format to export (CSV, JSON, Excel)
+	 * @param fileFormat - The format to export (CSV, JSON, Excel, PDF)
+	 * @param exportType - Optional: The type of data to export
 	 */
-	async exportComponentData(fileFormat: string): Promise<void> {
+	async exportComponentData(fileFormat: string, exportType?: string): Promise<void> {
 		await this.clickExportButton();
-		await this.selectExportFormat(fileFormat);
+		await this.selectExportFormat(fileFormat, exportType);
 	}
 
 	/**

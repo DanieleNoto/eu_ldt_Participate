@@ -84,7 +84,6 @@ test.describe('[PAR-PPM008] – Update process', () => {
 			await test.step('5. User: edits the desired fields of the process', async () => {
 				// Step 5: Edits the desired fields of the process
 				console.log('Updating process fields with new information...');
-
 				// Update General Info fields
 				await processAdminPage.updateGeneralInfo(updateData.general);
 
@@ -124,28 +123,24 @@ test.describe('[PAR-PPM008] – Update process', () => {
 
 				// Verify we're still on a valid admin page (could be process list or edit page)
 				await expect(page).toHaveURL(/\/admin\/participatory_processes/);
-
 				// Verify the updated data is reflected
 				if (updateData.general?.title) {
-					// Check if the updated title is visible somewhere on the page
-					await expect(page.getByText(updateData.general.title)).toBeVisible({ timeout: 10000 });
+				  // Check if the updated title appears somewhere in the table
+					const titleInput = page.locator('#participatory_process_title_en');
+					await expect(titleInput).toBeVisible();
+					await expect(titleInput).toHaveValue(updateData.general.title);
 				}
 			});
-
 			await test.step('Verify the process is updated and available', async () => {
 				// Result: The process is updated with new information and available for viewing
-
-				// Navigate back to processes list to verify the update
 				await processAdminPage.navigateToProcesses();
-
-				// Search for the updated process if we have a searchable title
-				if (updateData.general?.title) {
-					await processAdminPage.searchProcesses(updateData.general.title);
-
-					// Verify the updated process appears in search results
-					const searchResults = await processAdminPage.getProcessCount();
-					expect(searchResults).toBeGreaterThanOrEqual(1);
-				}
+				
+				// Always search for the updated process (title is mandatory)
+				await processAdminPage.searchProcesses(updateData.general.title);
+				
+				// Verify the updated process appears in search results
+				const searchResults = await processAdminPage.getProcessCount();
+				expect(searchResults).toBe(1);
 			});
 		});
 	});
@@ -212,6 +207,7 @@ test.describe('[PAR-PPM008] – Update process', () => {
 				await processAdminPage.saveProcessChanges();
 
 				await processAdminPage.expectUpdateSuccessMessage();
+				await processAdminPage.expectMetadataInfoUpdated(metadataUpdates);
 			});
 		});
 	});

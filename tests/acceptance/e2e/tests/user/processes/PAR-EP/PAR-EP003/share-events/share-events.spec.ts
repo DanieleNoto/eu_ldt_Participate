@@ -1,9 +1,15 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { MeetingDetailPage } from '@pages/pages/user/processes/MeetingDetailPage';
 import { MeetingsPage } from '@pages/pages/user/processes/MeetingsPage';
-import test from '@playwright/test';
+import test, { expect } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -42,45 +48,53 @@ test.describe('[PAR-EP003] – Share events', () => {
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {
-		test('should allow user to endorse a debate', async () => {
+		test('Should allows citizens to share events', async () => {
+			let step9Passed = false;
+			let step10Passed = false;
 			await test.step('1. User: navigates to the "Processes" section', async () => {
-				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
 				await processesOverviewPage.getPage().waitForLoadState('networkidle');
-
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
-				await processesOverviewPage.navigateToProcessByIndex(0);
+				await processesOverviewPage.applyDateFilterAndEnsureGridLoaded('all');
+				await processesOverviewPage.checkProcessVisibility('Update Test0');
+				await processesOverviewPage.navigateToProcess('Update Test0', 'test');
+				await processesOverviewPage.getPage().waitForLoadState('networkidle');
 			});
 			await test.step('2. System: Displays the details of the selected process, including the title, description, phases, key objectives.', async () => {
 				await processDetailPage.expectToBeOnProcessDetailPage();
+				await processDetailPage.verifyProcessDescriptionSection();
+				await processDetailPage.collectAndVerifyParticipatoryMenuItems();
 			});
 			await test.step('3. User: Navigate to the “Meetings” section of the process', async () => {
 				await processDetailPage.navigateToMeetingsPage();
 			});
 			await test.step('4. System: Displays a list of available meetings, including relevant details such as title, date, time, location, and availability.', async () => {
-				await meetingsPage.expectOnMeetingsPage();
+				await processDetailPage.enhancedVerifyMeetingsCardListVisible();
 			});
 			await test.step('5. User: Selects a specific meeting to view more details.', async () => {
 				await meetingsPage.clickMeetingCardByIndex(0);
 			});
 			await test.step('6. System: Displays the meeting details, including the agenda, location, date, time, and access settings.', async () => {
-				await meetingDetailPage.expectOnMeetingDetailPage();
+				await meetingDetailPage.verifyMeetingDetails();
 			});
 			await test.step('7. User: Clicks on the "Share" button to share the meeting.', async () => {
 				await meetingDetailPage.clickShareButton();
 			});
 			await test.step('8. System: Displays sharing options for social media platforms and provides a shareable link.', async () => {
-				await meetingDetailPage.shareModalComponent.expectModalVisible();
+				await meetingDetailPage.shareModalComponent.verifyAllSocialSharingUrls();
 			});
 			await test.step('9. User: Selects a social media platform or copies the link to share the meeting details.', async () => {
 				await meetingDetailPage.shareModalComponent.copyShareLink();
+				step9Passed = true;
 			});
 			await test.step('10. System: Redirects to the chosen social media platform or copies the shareable link for the user.', async () => {
-				await meetingDetailPage.shareModalComponent.expectClipboardCopySuccess();
+				await meetingDetailPage.shareModalComponent.verifySocialShareRedirects();
+				step10Passed = true;
 			});
 
 			await test.step('Result.', async () => {
-				await meetingDetailPage.shareModalComponent.expectClipboardCopySuccess();
+				expect(step9Passed).toBeTruthy();
+				expect(step10Passed).toBeTruthy();
 			});
 		});
 	});

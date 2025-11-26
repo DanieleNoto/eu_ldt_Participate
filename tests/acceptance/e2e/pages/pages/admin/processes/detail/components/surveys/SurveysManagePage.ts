@@ -1,3 +1,9 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
 import { expect, Page } from '@playwright/test';
 import { BaseAdminPage } from '../../../../BaseAdminPage';
 import { HomePage } from '@pages/pages/public/HomePage';
@@ -526,6 +532,23 @@ export class SurveysManagePage extends BaseAdminPage {
 		);
 		await this.page.waitForLoadState('networkidle');
 		console.log('Accessed questions management page');
+	}
+
+	/**
+	 * Helper function to access questions management for a specific survey by title
+	 * Finds the survey row in the table and clicks the "Manage questions" action
+	 * @param surveyTitle - The title of the survey to manage
+	 */
+	async accessQuestionsManagementBySurveyTitle(surveyTitle: string): Promise<void> {
+		// Find the row containing the survey title and click "Manage questions" in that row
+		const surveyRow = this.page.locator('table.table-list tbody tr').filter({ hasText: surveyTitle });
+		await surveyRow.locator('a[title="Manage questions"]').click();
+		console.log(`Accessed questions management for survey: "${surveyTitle}"`);
+
+		await this.page.waitForURL(
+			/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
+		);
+		await this.page.waitForLoadState('networkidle');
 	}
 
 	/**

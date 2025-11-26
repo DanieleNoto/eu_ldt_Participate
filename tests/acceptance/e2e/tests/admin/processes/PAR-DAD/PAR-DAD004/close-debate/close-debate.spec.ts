@@ -108,6 +108,18 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 				// Wait for the new page to be fully loaded
 				await newPage.waitForLoadState('networkidle');
 
+				// Verify closure announcement and conclusions in the preview tab
+				const successFlashSection = newPage.locator('.flash.success[data-announcement]');
+				await expect(successFlashSection).toBeVisible();
+
+				const conclusionHeaderLocator = successFlashSection.locator('.flash__title');
+				await expect(conclusionHeaderLocator).toBeVisible();
+				await expect(conclusionHeaderLocator).toContainText('conclusions');
+
+				const conclusionMessageLocator = successFlashSection.locator('.flash__message');
+				await expect(conclusionMessageLocator).toBeVisible();
+				await expect(conclusionMessageLocator).toContainText(conclusionText);
+
 				// Close the new tab
 				await newPage.close();
 			});

@@ -4,82 +4,30 @@ export class DebatesOverviewPage {
 	private readonly page: Page;
 
 	// Main page elements
-	private readonly pageTitle: Locator;
 	private readonly newDebateButton: Locator;
 	private readonly debatesSection: Locator;
 	private readonly debatesCountHeading: Locator;
 
 	// Filter and search elements
-	private readonly filterForm: Locator;
 	private readonly searchInput: Locator;
 	private readonly searchButton: Locator;
-	private readonly filterDropdownButton: Locator;
-
-	// Date filter
-	private readonly dateFilterButton: Locator;
-	private readonly dateFilterAll: Locator;
-	private readonly dateFilterOpen: Locator;
-	private readonly dateFilterClosed: Locator;
-
-	// Origin filter
-	private readonly originFilterButton: Locator;
-	private readonly originFilterAll: Locator;
-	private readonly originFilterOfficial: Locator;
-	private readonly originFilterParticipants: Locator;
-	private readonly originFilterUserGroup: Locator;
-
-	// Order by dropdown
-	private readonly orderByButton: Locator;
-	private readonly orderByDropdown: Locator;
-	private readonly orderByRandom: Locator;
-	private readonly orderByRecent: Locator;
-	private readonly orderByCommented: Locator;
-	private readonly orderByUpdated: Locator;
 
 	// Debates list
-	private readonly debatesList: Locator;
 	private readonly debateCards: Locator;
 
 	constructor(page: Page) {
 		this.page = page;
 
 		// Main page elements
-		this.pageTitle = this.page.locator('.title-decorator');
 		this.newDebateButton = this.page.locator('a.button.button__xl.button__secondary', { hasText: 'New debate' });
 		this.debatesSection = this.page.locator('#debates');
 		this.debatesCountHeading = this.page.locator('#debates h2');
 
 		// Filter and search elements
-		this.filterForm = this.page.locator('form.new_filter');
 		this.searchInput = this.page.locator('input[name="filter[search_text_cont]"]');
 		this.searchButton = this.page.locator('button[type="submit"][aria-label="Search"]');
-		this.filterDropdownButton = this.page.locator('#dropdown-trigger-filters');
-
-		// Date filter
-		this.dateFilterButton = this.page.locator('#trigger-menu-date');
-		this.dateFilterAll = this.page.locator('input[value="all"][name="filter[with_any_state]"]');
-		this.dateFilterOpen = this.page.locator('input[value="open"][name="filter[with_any_state]"]');
-		this.dateFilterClosed = this.page.locator('input[value="closed"][name="filter[with_any_state]"]');
-
-		// Origin filter
-		this.originFilterButton = this.page.locator('#trigger-menu-origin');
-		this.originFilterAll = this.page.locator('input[name="filter[with_any_origin][]"][value=""]');
-		this.originFilterOfficial = this.page.locator('input[value="official"][name="filter[with_any_origin][]"]');
-		this.originFilterParticipants = this.page.locator(
-			'input[value="participants"][name="filter[with_any_origin][]"]'
-		);
-		this.originFilterUserGroup = this.page.locator('input[value="user_group"][name="filter[with_any_origin][]"]');
-
-		// Order by dropdown
-		this.orderByButton = this.page.locator('#dropdown-trigger-order');
-		this.orderByDropdown = this.page.locator('#dropdown-menu-order');
-		this.orderByRandom = this.page.locator('a[data-order="random"]');
-		this.orderByRecent = this.page.locator('a[data-order="recent"]');
-		this.orderByCommented = this.page.locator('a[data-order="commented"]');
-		this.orderByUpdated = this.page.locator('a[data-order="updated"]');
 
 		// Debates list
-		this.debatesList = this.page.locator('.card__list-list');
 		this.debateCards = this.page.locator('a.card__list');
 	}
 

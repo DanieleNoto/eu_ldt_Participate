@@ -285,4 +285,11 @@ export class ManagePageComponentPage extends BaseAdminPage {
 	async expectUpdateButtonToBeDisabled() {
 		await expect(this.updateButton).toBeDisabled();
 	}
+
+	public async expectBodyContent(expectedContent: string): Promise<void> {
+		const selector = await LocalizationUtils.getWorkingLocalizedSelector(this.getPage(), 'page_body');
+		const editorLocator = this.getPage().locator(`${selector} .tiptap`);
+		await editorLocator.waitFor({ state: 'visible' });
+		await expect(editorLocator).toHaveText(expectedContent);
+	}
 }

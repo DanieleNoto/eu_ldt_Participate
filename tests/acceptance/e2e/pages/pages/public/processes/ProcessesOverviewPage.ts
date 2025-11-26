@@ -393,7 +393,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	 * Filters processes by date: all, upcoming, past, or active
 	 * @param option - The date filter option: 'all', 'upcoming', 'past', or 'active'
 	 */
-	async filterByDate(option: 'all' | 'upcoming' | 'past' | 'active'): Promise<void> {
+	async filterByStatus(option: 'all' | 'upcoming' | 'past' | 'active'): Promise<void> {
 		await this.openDateFilter();
 
 		switch (option) {
@@ -487,7 +487,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 
 	/**
 	 * Checks which date filter option is currently selected
-	 * @returns The currently selected option: 'all', 'upcoming', 'past', or 'active'
+	 * @returns The currently selected option: 'all', 'upcoming', 'past' or 'active'
 	 */
 	async getSelectedDateFilter(): Promise<'all' | 'upcoming' | 'past' | 'active'> {
 		await this.openDateFilter();
@@ -519,7 +519,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 
 		if (currentFilter !== dateOption) {
 			// Apply the date filter
-			await this.filterByDate(dateOption);
+			await this.filterByStatus(dateOption);
 			console.log(`Applied "${dateOption}" date filter`);
 		} else {
 			console.log(`"${dateOption}" date filter is already applied`);
@@ -595,5 +595,64 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 			await this.waitForLoadState('networkidle');
 			console.log(`Successfully navigated to process URL: ${processUrl}`);
 		}
+	}
+
+	/**
+	 * Retrieves all processes displayed in the grid with their details.
+	 * @returns An array of objects containing id, href, title, status, timeRemaining, and phase for each process.
+	 */
+
+	async getAllProcesses(): Promise<
+		{
+			id: string;
+			href: string;
+			title: string;
+			status: string;
+			timeRemaining: string;
+			phase: string;
+		}[]
+	> {
+		const processes: {
+			id: string;
+			href: string;
+			title: string;
+			status: string;
+			timeRemaining: string;
+			phase: string;
+		}[] = [];
+
+		const processCards = this.allProcessCards;
+		const count = await processCards.count();
+
+		for (let i = 0; i < count; i++) {
+			const card = processCards.nth(i);
+
+			const id = (await card.getAttribute('id')) || '';
+			const href = (await card.getAttribute('href')) || '';
+			const title = (await card.locator('.card__title, h3').textContent())?.trim() || '';
+			const metadataDivs = card.locator('.card__grid-metadata div');
+
+			let timeRemaining = '';
+			if ((await metadataDivs.count()) > 0) {
+				timeRemaining = (await metadataDivs.nth(0).textContent())?.trim() || '';
+			}
+
+			let phase = '';
+			if ((await metadataDivs.count()) > 1) {
+				phase = (await metadataDivs.nth(1).textContent())?.trim() || '';
+			}
+
+			// The "status" can be derived from the timeRemaining text or other info
+			let status = '';
+			const lower = timeRemaining.toLowerCase();
+			if (lower.includes('remaining')) status = 'ongoing';
+			else if (lower.includes('finished')) status = 'completed';
+			else if (lower.includes('upcoming')) status = 'upcoming';
+			else status = 'unknown';
+
+			processes.push({ id, href, title, status, timeRemaining, phase });
+		}
+
+		return processes;
 	}
 }

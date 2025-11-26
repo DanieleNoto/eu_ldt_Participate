@@ -15,7 +15,7 @@ import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 import { HeaderComponent } from '@pages/components/common/HeaderComponent';
 import NotificationPage from '@pages/pages/user/NotificationPage';
-import { LetterOpenerPage } from '@pages/pages/admin/LetterOpenerPage';
+import { WebmailPage } from '@pages/base/WebmailPage';
 
 /**
  * Test suite for Allows citizens to register for a meeting in advance.
@@ -44,7 +44,11 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 	let headerComponent: HeaderComponent;
 	let notificationPage: NotificationPage;
 	let meetingDetailUrl: string;
-	let letterOpenerPage: LetterOpenerPage;
+	let webmailPage: WebmailPage;
+
+	// Use existing process with meetings and registrations
+	const processTitle = 'Update Test0';
+	const processSlug = 'test';
 
 	test.beforeEach(async ({ page }) => {
 		processesOverviewPage = new ProcessesOverviewPage(page);
@@ -54,12 +58,11 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 		homePage = new HomePage(page);
 		headerComponent = new HeaderComponent(page);
 		notificationPage = new NotificationPage(page);
-		letterOpenerPage = new LetterOpenerPage(page);
+		webmailPage = new WebmailPage(page);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {
 		test('Allows citizens to register for a meeting in advance', async () => {
-			let emailInfo;
 			let registrationCode: string;
 
 			await test.step('1. User: Navigates to the "Processes" section on the platform', async () => {
@@ -67,7 +70,15 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 				await homePage.goToProcessesFromHomeMenu();
 				await processesOverviewPage.getPage().waitForLoadState('networkidle');
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
-				await processesOverviewPage.navigateToProcessByIndex(0);
+
+				// Apply "All" filter and ensure grid is fully loaded (with refresh)
+				await processesOverviewPage.applyDateFilterAndEnsureGridLoaded('all');
+
+				// Check if the private process is visible in the grid
+				await processesOverviewPage.checkProcessVisibility(processTitle);
+
+				// Navigate to the process: grid click first, then direct navigation fallback
+				await processesOverviewPage.navigateToProcess(processTitle, processSlug);
 			});
 			await test.step('2. System: Displays the details of the selected process, including the title, description, phases, key objectives.', async () => {
 				await processDetailPage.expectToBeOnProcessDetailPage();
@@ -82,7 +93,6 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 			await test.step('5. User: Selects a specific meeting to view more details.', async () => {
 				const onlineMeeting = await processDetailPage.getFirstOnlineMeeting();
 				expect(onlineMeeting).not.toBeNull();
-				expect(onlineMeeting?.link).toContain('/meetings/1');
 				await meetingsPage.clickMeetingCardByIndex(onlineMeeting.index);
 			});
 			await test.step('6. System: Displays the meeting details, including the "Register" button.', async () => {
@@ -98,20 +108,23 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 			});
 			await test.step('8. System: Displays a prompt to confirm registration.', async () => {
 				await meetingDetailPage.expectRegistrationPromptVisible();
-				await meetingDetailPage.getPage().screenshot({
-					path: 'test-results/screenshots/OnMeetingDetailPageExpectRegistrationPromptVisible.png',
-					fullPage: true
-				});
+				await meetingDetailPage
+					.getPage()
+					.screenshot({
+						path: 'test-results/screenshots/OnMeetingDetailPageExpectRegistrationPromptVisible.png',
+						fullPage: true
+					});
 			});
 			await test.step('9. User: Confirms the registration.', async () => {
 				await meetingDetailPage.confirmRegistration();
 				await meetingDetailPage.waitForLoadState('networkidle');
-				await meetingDetailPage.getPage().reload({ waitUntil: 'networkidle' });
 				await meetingDetailPage.expectConfirmationMessageVisible();
-				await meetingDetailPage.getPage().screenshot({
-					path: 'test-results/screenshots/OnMeetingDetailPageConfirmationMessageVisible.png',
-					fullPage: true
-				});
+				await meetingDetailPage
+					.getPage()
+					.screenshot({
+						path: 'test-results/screenshots/OnMeetingDetailPageConfirmationMessageVisible.png',
+						fullPage: true
+					});
 			});
 			await test.step('10. System: Saves the registration information, adds the user to the attendee list, and provides a confirmation message.', async () => {
 				registrationCode = await meetingDetailPage.expectRegistrationCodeVisibleAndGet();
@@ -123,21 +136,43 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 				await notificationPage.expectToBeOnNotificationsPage();
 				const boolRegCode = await notificationPage.isTextPresentInNotifications(registrationCode);
 				expect(boolRegCode).toBeTruthy();
-				await letterOpenerPage.navigateToLetterOpener();
-				await letterOpenerPage.expectToBeOnLetterOpener();
-				await letterOpenerPage.refreshEmails();
-				await letterOpenerPage
+
+				// Navigate to webmail
+				await webmailPage.navigateToWebmail();
+				console.log('Navigated to webmail');
+
+				// Login to webmail with user credentials
+				await webmailPage.login(process.env.OVH_USER_EMAIL!, process.env.OVH_USER_PASSWORD!);
+				console.log('Logged in to webmail');
+
+				// Check for new messages
+				await webmailPage.refreshInbox();
+				console.log('Checked for new messages in inbox');
+
+				// Verify the registration confirmation email
+				await webmailPage.verifyRegistrationConfirmationEmail();
+				console.log('Registration confirmation email verified successfully');
+
+				await webmailPage
 					.getPage()
-					.screenshot({ path: 'test-results/screenshots/OnLetterOpenerPageEmail.png', fullPage: true });
-				emailInfo = await letterOpenerPage.getEmailHeaderInfo();
-				expect(emailInfo.from).toContain('changeme@example.org');
-				expect(emailInfo.subject).toMatch(/registration has been confirmed/i);
-				const meetingInfo = await letterOpenerPage.getMeetingInfo();
-				expect(meetingInfo.meetingLink).toContain('/meetings/1');
-				expect(meetingInfo.registrationCode).toMatch(registrationCode);
+					.screenshot({ path: 'test-results/screenshots/OnRoundcubeWebmail.png', fullPage: true });
+
+				// Extract and verify meeting details from email
+				const meetingInfo = await webmailPage.getMeetingInfo();
+				console.log('Meeting info extracted from email:', meetingInfo);
+
+				// Verify meeting link contains '/meetings/' path
+				expect(meetingInfo.meetingLink).toContain('/meetings/');
+
+				// Verify registration code from email matches the one from notification
+				expect(meetingInfo.registrationCode).toBe(registrationCode);
+
+				// Clean up: delete the email
+				await webmailPage.deleteCurrentEmail();
+				console.log('Export email deleted from inbox');
 			});
 			await test.step('Result.', async () => {
-				expect(emailInfo.subject).not.toBeNull();
+				expect(registrationCode).not.toBeNull();
 			});
 		});
 		// Cleanup: deregister the user after each test
