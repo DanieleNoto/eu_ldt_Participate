@@ -1,3 +1,9 @@
+<!-- SPDX-License-Identifier: AGPL-3.0
+Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+Authors:
+Pierluigi Spedicato
+-->
+
 # Contributing Guide
 
 - Contributing to the EU LDT TOOL NAME is fairly easy. This document shows you how to get started.
