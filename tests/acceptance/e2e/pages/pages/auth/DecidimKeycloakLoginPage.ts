@@ -26,7 +26,7 @@ export class DecidimLoginPage extends BasePage {
 
 		await this.page.getByRole('button').filter({ hasText: 'Continue' }).click();
 
-		await this.page.getByRole('textbox', { name: 'Email' }).fill(username);
+		await this.page.getByRole('textbox', { name: 'username' }).fill(username);
 		await this.page.getByRole('textbox', { name: 'Password' }).fill(password);
 
 		await this.page.getByRole('button', { name: 'Sign In' }).click();

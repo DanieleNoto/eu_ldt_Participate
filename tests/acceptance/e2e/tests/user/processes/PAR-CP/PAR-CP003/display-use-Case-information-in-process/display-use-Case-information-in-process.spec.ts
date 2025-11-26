@@ -1,3 +1,9 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ */
+
 import { test, expect } from '@playwright/test';
 import { DecidimKeycloakAuthHelper } from '../../../../../../utils/decidim-keycloak-auth';
 import { CookieBarComponent } from '@pages/components/common/CookieBarComponent';

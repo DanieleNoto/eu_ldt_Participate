@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denise Scarcelli
  * Simone Bianchelli
@@ -43,7 +43,6 @@ export class ProcessDetailPage extends AuthenticatedPage {
 
 	// Related documents section
 	private readonly relatedDocumentsHeading: Locator;
-	private readonly attachmentLinks: Locator;
 
 	constructor(page: Page) {
 		super(page);
@@ -67,12 +66,12 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		// Help elements
 		this.debatesLink = page.locator('a[href$="/debates"]:visible').first();
 		this.meetingsLink = page.locator('a[href$="/meetings"]:visible').first();
+
 		this.meetingCards = this.page.locator('.card__list-list .card__list');
 		// Related documents section
 		this.relatedDocumentsHeading = page
 			.locator('.content-block__title h2.decorator')
 			.filter({ hasText: 'Related documents' });
-		this.attachmentLinks = page.locator('a[title="Download file"]');
 	}
 
 	// Navigation methods
@@ -691,5 +690,118 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		}
 
 		throw new Error(`Menu item "${target}" not found`);
+	}
+
+	public async openProcessSteps(timeout = 7000): Promise<boolean> {
+		const modalSel = '#process-steps-modal-content';
+		const userMenuBtn = this.page.getByRole('button', { name: 'User menu' }).first();
+
+		if ((await userMenuBtn.count()) === 0) throw new Error('User menu button not found');
+
+		await userMenuBtn.hover();
+		await this.page.waitForTimeout(200);
+		await userMenuBtn.click().catch(() => {});
+
+		// try to find a link near "Current phase"
+		const currentPhase = this.page.getByLabel('User menu').getByText('Current phase').first();
+		let clicked = false;
+
+		if ((await currentPhase.count()) > 0) {
+			// in the context of the ancestor take the first useful link (we assume it always exists)
+			const candidate = await currentPhase.evaluate(node => {
+				const anc = node.closest('li') || node.closest('div') || node.parentElement;
+				const container = anc || node.parentElement;
+				const links = container ? Array.from(container.querySelectorAll('a')) : [];
+				// filter irrelevant links
+				const filtered = links.filter(a => {
+					const t = (a.textContent || '').trim().toLowerCase();
+					const h = a.getAttribute('href') || '';
+					return !(t.includes('skip to') || h.startsWith('#'));
+				});
+				const chosen = filtered[0] || links[0] || null;
+				return chosen ? { href: chosen.getAttribute('href'), text: (chosen.textContent || '').trim() } : null;
+			});
+
+			// Click the link found: first try by href, otherwise by text
+			if (candidate?.href) {
+				const loc = this.page.locator(`a[href="${candidate.href}"]`).first();
+				if ((await loc.count()) > 0) {
+					await loc.scrollIntoViewIfNeeded().catch(() => {});
+					await loc.click().catch(() => {});
+					clicked = true;
+				}
+			}
+
+			if (!clicked && candidate?.text) {
+				const byText = this.page.getByRole('link', { name: candidate.text }).first();
+				if ((await byText.count()) > 0) {
+					await byText.scrollIntoViewIfNeeded().catch(() => {});
+					await byText.click().catch(() => {});
+					clicked = true;
+				}
+			}
+		}
+
+		// assuming there is always a link near "Current phase", if we haven't clicked it, we report an error
+		if (!clicked) throw new Error('No clickable link found near "Current phase"');
+
+		// wait for modal: wait for visibility (visible also implies attached)
+		try {
+			await this.page.waitForSelector(modalSel, { state: 'visible', timeout });
+		} catch {
+			// If waitForSelector('visible') fails, try the fallback: wait for attached and then poll on isVisible
+			await this.page.waitForSelector(modalSel, { state: 'attached', timeout }).catch(() => {});
+			const start = Date.now();
+			let visible = false;
+			while (Date.now() - start < timeout) {
+				if (await this.page.isVisible(modalSel).catch(() => false)) {
+					visible = true;
+					break;
+				}
+				await this.page.waitForTimeout(150);
+			}
+			if (!visible) throw new Error('Process steps modal did not become visible within timeout');
+		}
+		return true;
+	}
+
+	async getProcessPhaseInfo(): Promise<{
+		title: string;
+		phaseName: string;
+		dateRange: string;
+		description: string;
+	}> {
+		// Locate the modal container
+		const modal = this.page.locator('#process-steps-modal-content');
+
+		// Ensure the modal title "Process phases" is present
+		const titleLocator = modal.locator('#dialog-title-process-steps-modal');
+		await expect(titleLocator).toHaveText('Process phases');
+
+		// Extract the phase name, removing "Current phase" if present
+		const phaseTitleLocator = modal.locator('.participatory-space__metadata-modal__step-title');
+		const rawPhaseText = await phaseTitleLocator.innerText();
+		const phaseName = rawPhaseText.replace('Current phase', '').trim();
+
+		// Extract the date range of the phase
+		const dateLocator = modal.locator('.participatory-space__metadata-modal__step-dates');
+		const dateRange = await dateLocator.innerText();
+
+		// Extract the phase description text
+		const descriptionLocator = modal.locator('.rich-text-display');
+		const description = await descriptionLocator.innerText();
+
+		// Click the close button to dismiss the modal
+		const closeButton = modal.locator('button[data-dialog-close="process-steps-modal"]');
+		await expect(closeButton).toBeVisible();
+		await closeButton.click();
+
+		// Return extracted information
+		return {
+			title: 'Process phases',
+			phaseName,
+			dateRange,
+			description
+		};
 	}
 }

@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Simone Bianchelli
+ */
+
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { MeetingsPage } from '@pages/pages/admin/processes/detail/meetings/MeetingsPage';
@@ -86,9 +93,7 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 					expect(beforeMeetingCount).toBeGreaterThan(0);
 					const closedCount = await meetingsPage.countClosedMeetings();
 					console.log(
-						closedCount > 0
-							? `Closed meetings found: ${closedCount}`
-							: 'No closed meetings found.'
+						closedCount > 0 ? `Closed meetings found: ${closedCount}` : 'No closed meetings found.'
 					);
 					await componentsPage
 						.getPage()

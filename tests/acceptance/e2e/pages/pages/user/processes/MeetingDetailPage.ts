@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { AuthenticatedPage } from '@pages/base/AuthenticatedPage';
 import { ShareCalendarModalComponent } from '@pages/components/common/ShareCalendarModalComponent';
 import { ShareModalComponent } from '@pages/components/common/ShareModalComponent';
@@ -314,5 +321,57 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	async joinMeetingWhenAvailable(maxWaitMinutes: number = 60) {
 		await this.waitForJoinMeeting(maxWaitMinutes);
 		await this.clickJoinMeetingButton();
+	}
+	/**
+	 * Verifies that the meeting page displays the essential details:
+	 * - Meeting title
+	 * - Calendar structure with month, day, and year (not relying on specific values)
+	 * - Location and address
+	 * - Start and end time
+	 * - Meeting author
+	 */
+	public async verifyMeetingDetails(): Promise<void> {
+		// Verify the meeting title (e.g., "Meeting 1")
+		const title = this.page.getByRole('heading', { level: 1 });
+		await expect(title).toBeVisible();
+
+		// Verify the calendar container is visible
+		const calendar = this.page.locator('.meeting__calendar');
+		await expect(calendar).toBeVisible();
+
+		// Verify that the calendar contains month, day, and year blocks with at least one <p> each
+		const monthBlock = calendar.locator('.meeting__calendar-month p');
+		const dayBlock = calendar.locator('.meeting__calendar-day p');
+		const yearBlock = calendar.locator('.meeting__calendar-year p');
+
+		expect(await monthBlock.count()).toBeGreaterThan(0);
+		expect(await dayBlock.count()).toBeGreaterThan(0);
+		expect(await yearBlock.count()).toBeGreaterThan(0);
+
+		// Verify location and address are visible and contain text
+		const location = this.page.locator('p.address__location');
+		const address = this.page.locator('.address__address');
+		await expect(location).toBeVisible();
+		await expect(address).toBeVisible();
+
+		// Verify that time container exists and contains at least two time blocks
+		const timeContainer = this.page.locator('div.address__location');
+		await expect(timeContainer).toBeVisible();
+
+		const timeBlocks = timeContainer.locator('.has-tip');
+		expect(await timeBlocks.count()).toBeGreaterThan(1);
+
+		for (let i = 0; i < (await timeBlocks.count()); i++) {
+			const time = timeBlocks.nth(i);
+			await expect(time).toBeVisible();
+			const text = await time.innerText();
+			expect(text.trim().length).toBeGreaterThan(0);
+		}
+
+		// Verify the meeting author is visible and contains text (filtered to avoid strict mode error)
+		const author = this.page.getByText('Official meeting', { exact: true });
+		await expect(author).toBeVisible();
+		const authorText = await author.innerText();
+		expect(authorText.trim().length).toBeGreaterThan(0);
 	}
 }
