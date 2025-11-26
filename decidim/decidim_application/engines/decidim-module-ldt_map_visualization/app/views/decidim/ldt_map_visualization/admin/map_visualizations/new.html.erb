@@ -54,7 +54,7 @@
                       <% if map['map_image'].present? %>
                         <img src="<%= map['map_image'] %>" alt="<%= map['name'] || 'Map' %>" style="max-width: 80px; max-height: 80px; object-fit: contain;">
                       <% else %>
-                        <span style="color: #999;">No image</span>
+                        <span style="color: #999;"><%= t('.no_image') %></span>
                       <% end %>
                     </td>
                     <td class="!text-left" data-label="Name">

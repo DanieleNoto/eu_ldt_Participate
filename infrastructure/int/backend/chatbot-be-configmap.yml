@@ -18,8 +18,6 @@ data:
     # Security
     DISABLE_HELMET: 'false'
     JWT_ENABLE_CHECK: 'false'
-    JWT_ISSUER_PUBKEY: ''
-    JWT_TOKEN_URL: ''
     DATABASE_SYNC: 'false'
     LOGGER_LEVEL: 'info'
     RATE_LIMIT_TIME_WINDOW: '1 minute'
@@ -45,15 +43,12 @@ data:
     SEQUELIZE_SEEDER_STORAGE_TABLE_NAME: SequelizeData
     SEQUELIZE_MIGRATION_STORAGE: sequelize
     SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME: SequelizeData
-    # Logger
-    LOGGER_TARGET: ''
     # SMTP/Email Configuration
     SMTP_ADDRESS: smtp.gmail.com
     SMTP_PORT: '587'
     SMTP_DOMAIN: part-int.ldttoolbox.app
     SMTP_AUTHENTICATION: plain
     SMTP_ENABLE_STARTTLS_AUTO: 'true'
-    SMTP_OPENSSL_VERIFY_MODE: ''
     SMTP_USER_NAME: ldt.test.smtp@gmail.com
     # Service URLs
     GRAFANA_URL: https://grafana

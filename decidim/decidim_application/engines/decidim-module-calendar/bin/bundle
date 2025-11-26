@@ -1,4 +1,8 @@
 #!/usr/bin/env ruby
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
 # frozen_string_literal: true
 
 require "rubygems"
@@ -10,7 +14,7 @@ m = Module.new do
     File.expand_path($PROGRAM_NAME) == File.expand_path(__FILE__)
   end
 
-  def cli_arg_version
+  def cli_arg_version # rubocop:disable Metrics/CyclomaticComplexity
     return unless invoked_as_script? # do not want to hijack other binstubs
     return unless "update".start_with?(ARGV.first || " ") # must be running `bundle update`
 

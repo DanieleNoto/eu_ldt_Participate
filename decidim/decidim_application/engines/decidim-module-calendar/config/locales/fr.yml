@@ -2,45 +2,60 @@
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
 # Denis Vasilev Dimchev
+---
 fr:
-  decidim:
-    calendar:
-      admin:
-        actions:
-          new_external_event: Nouvel événement externe
-        external_events:
-          index:
-            title: Évènements externes
-            no_records_html: <p>Aucun événement externe créé.</p> <p>Commencez par ajouter un événement externe du bouton "<a href="%{new_set_link}">%{button_name}</a>.</p>
-          create:
-            invalid: Évènement externe invalide
-            success: Événement externe créé avec succès
-          destroy:
-            success: Événement externe supprimé avec succès
-          edit:
-            save: Enregistrer l'événement externe
-          form:
-            title: Événement externe
-            title_label: Titre
-            start_at: Commence à
-            end_at: Prend fin à
-            url: URL
-            url_help_text: Doit commencer par http:// ou https://
-          new:
-            title: Nouvel événement externe
-            create: Créer un événement externe
-          update:
-            invalid: Erreur lors de la mise à jour de l'événement externe
-            success: Événement externe mis à jour avec succès
-      index:
-        title: Calendrier global
-        filters:
-          consultation: Consultations
-          debate: Débats
-          external_event: External Events
-          meeting: Réunions
-          participatory_step: Concertation
-      menu:
-        calendar: Calendrier
-        gantt: Graphe de Gantt
-        ical: Télécharger iCAL
+    activerecord:
+        models:
+            decidim/calendar/dummy_calendar:
+                one: Calendrier
+                other: Calendriers
+    decidim:
+        calendar:
+            admin:
+                actions:
+                    new_external_event: Nouvel événement externe
+                external_events:
+                    index:
+                        title: Évènements externes
+                        no_records_html: <p>Aucun événement externe créé.</p> <p>Commencez par ajouter un événement externe du bouton "<a href="%{new_set_link}">%{button_name}</a>.</p>
+                    create:
+                        invalid: Évènement externe invalide
+                        success: Événement externe créé avec succès
+                    destroy:
+                        success: Événement externe supprimé avec succès
+                    edit:
+                        save: Enregistrer l'événement externe
+                    form:
+                        title: Événement externe
+                        title_label: Titre
+                        start_at: Commence à
+                        end_at: Prend fin à
+                        url: URL
+                        url_help_text: Doit commencer par http:// ou https://
+                    new:
+                        title: Nouvel événement externe
+                        create: Créer un événement externe
+                    update:
+                        invalid: Erreur lors de la mise à jour de l'événement externe
+                        success: Événement externe mis à jour avec succès
+            calendar:
+                calendar_modal:
+                    calendar_url: URL du calendrier
+                    copy_calendar_url: Copier
+                    copy_calendar_url_clarification: Copier l'URL du calendrier dans le presse-papiers
+                    copy_calendar_url_copied: Copié !
+                    copy_calendar_url_description: Vous pouvez voir toutes ces informations dans votre application ou fournisseur de calendrier. Copiez et collez cette URL dans votre calendrier en utilisant l'option "Ajouter un nouveau calendrier à partir d'une URL".
+                    copy_calendar_url_message: L'URL a été copiée avec succès dans le presse-papiers.
+                    export_calendar: Exporter le calendrier
+            index:
+                title: Calendrier global
+                filters:
+                    consultation: Consultations
+                    debate: Débats
+                    external_event: Événements externes
+                    meeting: Réunions
+                    participatory_step: Concertation
+            menu:
+                calendar: Calendrier
+                gantt: Graphe de Gantt
+                ical: Télécharger iCAL

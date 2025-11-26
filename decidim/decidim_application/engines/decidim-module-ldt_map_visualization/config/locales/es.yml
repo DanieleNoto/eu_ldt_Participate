@@ -73,6 +73,7 @@ es:
                         owner: Propietario
                         scope: Alcance
                         description: Descripción
+                        no_image: Sin imagen
                     create:
                         success: Visualización de mapa creada exitosamente
                         error: Error al crear la visualización de mapa

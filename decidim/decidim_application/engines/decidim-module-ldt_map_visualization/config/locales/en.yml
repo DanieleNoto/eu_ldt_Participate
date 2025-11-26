@@ -73,6 +73,7 @@ en:
                         owner: Owner
                         scope: Scope
                         description: Description
+                        no_image: No image
                     create:
                         success: Map visualization created successfully
                         error: Error creating map visualization

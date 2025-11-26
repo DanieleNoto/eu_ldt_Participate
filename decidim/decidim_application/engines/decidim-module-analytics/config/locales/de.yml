@@ -4,26 +4,38 @@
 # Gianfranco Cedro
 ---
 de:
-  decidim:
-    analytics:
-      menu:
-        analytics: Analysen
-        statistics: Statistiken
-      admin:
-        missing_configuration: "Matomo-Konfiguration fehlt. Bitte konfigurieren Sie server_address, site_id und token_auth in Ihren Zugangsdaten oder Secrets."
-        statistics:
-          description: "Greifen Sie auf das Grafana-Analytics-Dashboard zu, um umfassende Plattformstatistiken und Metriken anzuzeigen."
-          open_full_dashboard: "In neuem Tab öffnen"
-          refresh: "Aktualisieren"
-          unable_to_load: "Grafana-Dashboard konnte nicht geladen werden."
-          check_configuration: "Bitte überprüfen Sie:"
-          grafana_running: "Grafana-Server läuft unter %{server}"
-          dashboards_configured: "Dashboards sind ordnungsgemäß konfiguriert"
-          network_connectivity: "Netzwerkverbindung zwischen Diensten"
-          try_accessing: "Versuchen Sie, auf"
-          grafana_directly: "Grafana direkt zuzugreifen"
-          verify_configuration: "um die Konfiguration zu überprüfen."
-    admin:
-      titles:
-        analytics: Analysen
-        statistics: Statistiken
+    decidim:
+        analytics:
+            menu:
+                analytics: Analysen
+                statistics: Statistiken
+            admin:
+                missing_configuration: 'Matomo-Konfiguration fehlt. Bitte konfigurieren Sie server_address, site_id und token_auth in Ihren Zugangsdaten oder Secrets.'
+                unable_to_load_matomo: 'Matomo-Dashboard konnte nicht geladen werden.'
+                please_check: 'Bitte überprüfen Sie:'
+                matomo_server_running: 'Matomo-Server läuft unter'
+                site_id_exists: 'existiert in Matomo'
+                token_permissions: 'Token hat die erforderlichen Berechtigungen für die Dashboard-Einbettung'
+                try_accessing: 'Versuchen Sie, auf'
+                matomo_directly: 'Matomo direkt zuzugreifen'
+                verify_configuration: 'um die Konfiguration zu überprüfen.'
+                missing_configuration_values: 'Fehlende Konfigurationswerte:'
+                server_address: 'Serveradresse'
+                site_id: 'Site-ID'
+                authentication_token: 'Authentifizierungstoken'
+                statistics:
+                    description: 'Greifen Sie auf das Grafana-Analytics-Dashboard zu, um umfassende Plattformstatistiken und Metriken anzuzeigen.'
+                    open_full_dashboard: 'In neuem Tab öffnen'
+                    refresh: 'Aktualisieren'
+                    unable_to_load: 'Grafana-Dashboard konnte nicht geladen werden.'
+                    check_configuration: 'Bitte überprüfen Sie:'
+                    grafana_running: 'Grafana-Server läuft unter %{server}'
+                    dashboards_configured: 'Dashboards sind ordnungsgemäß konfiguriert'
+                    network_connectivity: 'Netzwerkverbindung zwischen Diensten'
+                    try_accessing: 'Versuchen Sie, auf'
+                    grafana_directly: 'Grafana direkt zuzugreifen'
+                    verify_configuration: 'um die Konfiguration zu überprüfen.'
+        admin:
+            titles:
+                analytics: Analysen
+                statistics: Statistiken

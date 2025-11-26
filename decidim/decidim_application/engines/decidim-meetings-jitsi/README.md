@@ -1,3 +1,10 @@
+<!--
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+// # Gianfranco Cedro
+ -->
+
 # Decidim::Meetings::Jitsi
 
 A custom gem that extends Decidim Meetings with Jitsi Meet integration features. This gem provides an easy way to generate Jitsi meeting URLs directly from the Decidim admin interface and supports JWT authentication for secure access.

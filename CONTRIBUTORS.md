@@ -1,3 +1,11 @@
+<!--
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+// # Gianfranco Cedro
+// # Pierluigi Spedicato
+ -->
+
 | NAME                        | EMAIL                        | ACTIVE |
 | --------------------------- | ---------------------------- | ------ |
 | Elena Mengual Mesa          | elena.menugal@nunsys.com     | Yes    |

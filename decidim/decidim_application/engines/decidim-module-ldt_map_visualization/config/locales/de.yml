@@ -71,8 +71,9 @@ de:
                         cancel: Abbrechen
                         map_image: Vorschau
                         owner: Eigentümer
-                        scope: Bereich
+                        scope: Umfang
                         description: Beschreibung
+                        no_image: Kein Bild
                     create:
                         success: Kartendarstellung erfolgreich erstellt
                         error: Fehler beim Erstellen der Kartendarstellung

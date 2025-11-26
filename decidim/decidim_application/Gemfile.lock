@@ -51,7 +51,7 @@ PATH
 PATH
   remote: engines/decidim-module-calendar
   specs:
-    decidim-calendar (0.30.0)
+    decidim-calendar (0.30.4)
       decidim-admin (>= 0.30, < 0.31)
       decidim-core (>= 0.30, < 0.31)
 
