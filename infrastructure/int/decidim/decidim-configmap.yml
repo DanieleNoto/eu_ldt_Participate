@@ -13,8 +13,8 @@ metadata:
     name: decidim-configmap
 data:
     CHATBOT_ENABLED: 'true'
-    CHATBOT_URL: https://chatbot-frontend-svc
-    CHATBOT_BACKEND_URL: https://chatbot-backend-svc:3002
+    CHATBOT_URL: http://chatbot-frontend-svc:80
+    CHATBOT_BACKEND_URL: http://chatbot-backend-svc:3002
     DATABASE_HOST: db
     DATABASE_NAME: decidim_application_development
     # DATABASE_USERNAME: postgres
