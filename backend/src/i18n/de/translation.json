@@ -19,6 +19,7 @@
 	"initiatives_question": "Was sind Initiativen?",
 	"initiatives_answer": "Eine Initiative ist ein Vorschlag, der von jedermann aus eigener Initiative (unabhängig von anderen Kanälen oder Beteiligungsräumen) durch die Sammlung von (digitalen) Unterschriften für die Organisation zur Durchführung einer bestimmten Aktion (Änderung einer Verordnung, Initiierung eines Projekts) gefördert werden kann , ändern Sie den Namen einer Abteilung oder einer Straße usw.).\n\nDie Initiatoren einer Initiative können ihre Ziele festlegen, Unterstützung sammeln, diskutieren, verbreiten und Treffpunkte definieren, an denen Unterschriften der Teilnehmer oder Debatten gesammelt werden können, die für andere Teilnehmer offen sind.\n\nBeispiele: Eine Initiative kann Unterschriften sammeln, um eine Konsultation unter allen Mitarbeitern einer Organisation einzuberufen, eine Versammlung zu gründen oder einzuberufen oder einen Prozess zur Aufstockung des Budgets für ein Gebiet oder einen Bereich der Organisation einzuleiten. Während des Sammelns von Unterschriften können mehr Personen zu diesem Bedarf beitragen und ihn in der Organisation vorantreiben.",
 	"restart": "Thema wechseln",
-	"support": "Weitere Unterst\u00fctzung",
+	"support": "Weitere Unterstützung",
+	"conversationId": "Gesprächs-ID",
 	"legalNotice": "Diese E-Mail wurde von einer Benachrichtigungs-E-Mail-Adresse gesendet, die keine eingehenden E-Mails akzeptieren kann. Bitte antworten Sie nicht auf diese Nachricht."
 }

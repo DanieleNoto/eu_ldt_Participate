@@ -25,13 +25,6 @@ interface LegalNotices {
 	[key: string]: string;
 }
 
-const LEGAL_NOTICES: LegalNotices = {
-	en: 'This email was sent from a notification email address that cannot accept incoming email. Please do not reply to this message.',
-	es: 'Este correo electrónico se envió desde una dirección de correo electrónico de notificación que no puede aceptar correo electrónico entrante. No responda a este mensaje.',
-	fr: "Cet e-mail a été envoyé à partir d'une adresse e-mail de notification qui ne peut pas accepter les e-mails entrants. Veuillez ne pas répondre à ce message.",
-	de: 'Diese E-Mail wurde von einer Benachrichtigungs-E-Mail-Adresse gesendet, die keine eingehenden E-Mails akzeptieren kann. Bitte antworten Sie nicht auf diese Nachricht.'
-};
-
 class SupportController {
 	async send(request: FastifyRequest, reply: FastifyReply) {
 		try {
@@ -43,6 +36,7 @@ class SupportController {
 
 			const config = this._getEmailConfig();
 			const legalNotice = this._getLegalNotice(language, request.i18n);
+			const conversationIdLabel = request.i18n.t('conversationId', { lng: language });
 
 			logger.info({
 				msg: 'Sending email',
@@ -53,8 +47,13 @@ class SupportController {
 				}
 			});
 
-			const htmlContent = this._buildHtmlContent(config, conversationId, message, legalNotice);
-
+			const htmlContent = this._buildHtmlContent(
+				config,
+				conversationId,
+				message,
+				legalNotice,
+				conversationIdLabel
+			);
 			const info = await transporter.sendMail({
 				from: config.from,
 				to: config.to,
@@ -158,7 +157,8 @@ class SupportController {
 		config: EmailConfig,
 		conversationId: string,
 		message: string,
-		legalNotice: string
+		legalNotice: string,
+		conversationIdLabel: string
 	): string {
 		const { primaryColor, organizationName, organizationUrl, logoUrl } = config;
 
@@ -231,7 +231,7 @@ class SupportController {
 			<img src="${logoUrl}" alt="${organizationName}" height="32">
 		</div>
 		<div class="content">
-			<p><strong>Conversation ID:</strong> ${conversationId}</p>
+			<p><strong>${conversationIdLabel}:</strong> ${conversationId}</p>
 			<p>${message.replaceAll('\n', '<br>')}</p>
 		</div>
 		<div class="footer">
