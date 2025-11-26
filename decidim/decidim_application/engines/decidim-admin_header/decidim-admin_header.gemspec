@@ -11,12 +11,12 @@ Gem::Specification.new do |spec|
   spec.version = Decidim::AdminHeader::VERSION
   spec.authors = ["Gianfranco Cedro"]
   spec.email = ["gianfranco.cedro@eng.it"]
-  spec.homepage = "https://dev.azure.com/EULDT-Toolbox/_git/EU%20LDT%20Participate?path=/decidim/decidim_application/engines/decidim-admin_header"
+  spec.homepage = "https://decidim.org"
   spec.summary = "Tool0 LDT Header integration"
   spec.description = "Integration of Tool0 LDT Header into Decidim."
   spec.license = "AGPL-3.0-or-later"
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://dev.azure.com/EULDT-Toolbox/_git/EU%20LDT%20Participate?path=/decidim/decidim_application/engines/decidim-admin_header"
+  spec.metadata["source_code_uri"] = "https://github.com/decidim/decidim"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]

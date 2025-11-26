@@ -11,14 +11,13 @@ Gem::Specification.new do |spec|
   spec.version = Decidim::Meetings::Jitsi::VERSION
   spec.authors = ["Gianfranco Cedro"]
   spec.email = ["gianfranco.cedro@eng.it"]
-  spec.homepage = "https://dev.azure.com/EULDT-Toolbox/_git/EU%20LDT%20Participate?path=/decidim/decidim_application/decidim-meetings-jitsi"
+  spec.homepage = "https://decidim.org"
   spec.summary = "Jitsi integration for Decidim Meetings"
   spec.description = "Extends Decidim Meetings component to support Jitsi for online meetings"
   spec.license = "AGPL-3.0-or-later"
   spec.required_ruby_version = ">= 3.1"
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://dev.azure.com/EULDT-Toolbox/_git/EU%20LDT%20Participate?path=/decidim/decidim_application/decidim-meetings-jitsi"
-  spec.metadata["changelog_uri"] = "https://dev.azure.com/EULDT-Toolbox/_git/EU%20LDT%20Participate?path=/decidim/decidim_application/decidim-meetings-jitsi/CHANGELOG.MD"
+  spec.metadata["source_code_uri"] = "https://github.com/decidim/decidim"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
