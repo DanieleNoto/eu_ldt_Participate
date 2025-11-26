@@ -43,6 +43,126 @@ interface ChatbotProps {
 	language?: string;
 }
 
+// Extract FAQ list component to reduce cognitive complexity
+const FaqList: React.FC<{ faqs: Faq[]; loading: boolean; onFaqClick: (faq: Faq) => void }> = ({ faqs, loading, onFaqClick }) => (
+	<div className="flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-400">
+		<div className="w-9 flex-shrink-0" />
+		<ul className="flex flex-col gap-2 list-disc pl-6">
+			{faqs.map(faq => (
+				<li key={faq.id} className="list-item">
+					<button
+						disabled={loading}
+						onClick={() => onFaqClick(faq)}
+						className="text-left text-[16px] font-bold leading-[24px] tracking-[0.5px] text-[#004494] underline hover:text-[#003366] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200"
+						style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
+					>
+						{faq.question}
+					</button>
+				</li>
+			))}
+		</ul>
+	</div>
+);
+
+// Extract suggestion chips component to reduce cognitive complexity
+const SuggestionChips: React.FC<{ 
+	suggestions: Suggestion[]; 
+	loading: boolean; 
+	showFaqs: boolean; 
+	onSuggestionClick: (s: Suggestion) => void;
+	t: (key: string) => string;
+}> = ({ suggestions, loading, showFaqs, onSuggestionClick, t }) => (
+	<div className="flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-500">
+		<div className="w-9 flex-shrink-0" />
+		<div className="flex flex-col gap-3">
+			{showFaqs && (
+				<p
+					className="text-[14px] font-medium text-[#696F72] tracking-[0.25px]"
+					style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
+				>
+					{t('chatbot.orSelectAnotherTopic')}
+				</p>
+			)}
+			<div className="flex flex-wrap gap-2" aria-label={t('chatbot.suggestions')}>
+				{suggestions.map(s => (
+					<button
+						key={s.id}
+						disabled={loading}
+						onClick={() => onSuggestionClick(s)}
+						className="px-4 py-1.5 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
+						style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
+					>
+						{s.text}
+					</button>
+				))}
+			</div>
+		</div>
+	</div>
+);
+
+// Extract support mode form to reduce cognitive complexity
+const SupportModeForm: React.FC<{
+	supportText: string;
+	supportError: string;
+	loading: boolean;
+	onTextChange: (value: string) => void;
+	onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+	onSend: () => void;
+	onCancel: () => void;
+	t: (key: string, params?: Record<string, unknown>) => string;
+}> = ({ supportText, supportError, loading, onTextChange, onKeyDown, onSend, onCancel, t }) => (
+	<div className="flex flex-col gap-3">
+		<label
+			className="flex flex-col gap-2 text-[14px] tracking-[0.25px] text-[#3C4245]"
+			style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
+		>
+			<span className="font-medium">{t('chatbot.describeYourIssue')}</span>
+			<textarea
+				id='supportText'
+				value={supportText}
+				maxLength={500}
+				onChange={e => onTextChange(e.target.value)}
+				onKeyDown={onKeyDown}
+				placeholder={t('chatbot.typeHere')}
+				aria-invalid={!!supportError}
+				aria-describedby={supportError ? 'support-error' : undefined}
+				className={`w-full resize-y min-h-[100px] rounded-lg border bg-white px-3 py-2 text-[14px] leading-5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 ${supportError ? 'border-red-500' : 'border-[#CBD5E1]'}`}
+				style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
+			/>
+			{supportError && (
+				<span
+					id="support-error"
+					className="text-[12px] text-red-600 mt-1"
+					role="alert"
+					style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
+				>
+					{supportError}
+				</span>
+			)}
+		</label>
+		<div className="flex justify-end gap-3">
+			<button
+				type="button"
+				onClick={onCancel}
+				disabled={loading}
+				className="px-5 py-2 rounded-lg border border-[#BFC8CA] bg-white text-[14px] tracking-[0.1px] text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
+				style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
+			>
+				{t('chatbot.cancel')}
+			</button>
+			<button
+				type="button"
+				onClick={onSend}
+				disabled={loading || supportText.trim().length < 20}
+				className="px-5 py-2 rounded-lg bg-[#004494] text-white text-[14px] tracking-[0.1px] font-medium hover:brightness-110 disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#004494]/40 transition-all duration-200 hover:scale-105 hover:shadow-lg"
+				style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
+			>
+				{t('chatbot.send')}
+			</button>
+		</div>
+	</div>
+);
+
 const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 'en' }) => {
 	const [conversationId, setConversationId] = useState<string | undefined>();
 	const [messages, setMessages] = useState<Message[]>([]);
@@ -487,56 +607,15 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 									</div>
 								</div>
 
-								{/* Show FAQ list after bot message */}
-								{showFaqs && (
-									<div className="flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-400">
-										<div className="w-9 flex-shrink-0" /> {/* Spacer for alignment with avatar */}
-										<ul className="flex flex-col gap-2 list-disc pl-6">
-											{faqs.map(faq => (
-												<li key={faq.id} className="list-item">
-													<button
-														disabled={loading}
-														onClick={() => handleFaqClick(faq)}
-														className="text-left text-[16px] font-bold leading-[24px] tracking-[0.5px] text-[#004494] underline hover:text-[#003366] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200"
-														style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
-													>
-														{faq.question}
-													</button>
-												</li>
-											))}
-										</ul>
-									</div>
-								)}
-
-								{/* Show suggestion chips after the FAQ list or when no FAQs */}
+								{showFaqs && <FaqList faqs={faqs} loading={loading} onFaqClick={handleFaqClick} />}
 								{showSuggestions && (
-									<div className="flex items-start gap-4 w-full animate-in slide-in-from-bottom-2 duration-500">
-										<div className="w-9 flex-shrink-0" /> {/* Spacer for alignment with avatar */}
-										<div className="flex flex-col gap-3">
-											{/* Label for other topics when FAQs are also shown */}
-											{showFaqs && (
-												<p
-													className="text-[14px] font-medium text-[#696F72] tracking-[0.25px]"
-													style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
-												>
-													{t('chatbot.orSelectAnotherTopic')}
-												</p>
-											)}
-											<div className="flex flex-wrap gap-2" aria-label={t('chatbot.suggestions')}>
-												{suggestions.map(s => (
-													<button
-														key={s.id}
-														disabled={loading}
-														onClick={() => handleSuggestionClick(s)}
-													className="px-4 py-1.5 text-[14px] tracking-[0.1px] rounded-lg border border-[#BFC8CA] bg-white text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
-													style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
-													>
-														{s.text}
-													</button>
-												))}
-											</div>
-										</div>
-									</div>
+									<SuggestionChips 
+										suggestions={suggestions} 
+										loading={loading} 
+										showFaqs={showFaqs} 
+										onSuggestionClick={handleSuggestionClick}
+										t={t}
+									/>
 								)}
 							</div>
 						);
@@ -583,70 +662,26 @@ const Chatbot: React.FC<ChatbotProps> = ({ onSupportSent, className, language = 
 						</>
 					)}
 					{supportMode && (
-						<div className="flex flex-col gap-3">
-							<label
-								className="flex flex-col gap-2 text-[14px] tracking-[0.25px] text-[#3C4245]"
-								style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
-							>
-								<span className="font-medium">{t('chatbot.describeYourIssue')}</span>
-								<textarea
-									id='supportText'
-									value={supportText}
-									maxLength={500}
-									onChange={e => {
-										const newValue = e.target.value;
-										setSupportText(newValue);
-										// Clear error when user starts typing
-										if (supportError) {
-											setSupportError('');
-										}
-									}}
-									onKeyDown={handleSupportTextareaKey}
-									placeholder={t('chatbot.typeHere')}
-									aria-invalid={!!supportError}
-									aria-describedby={supportError ? 'support-error' : undefined}
-									className={`w-full resize-y min-h-[100px] rounded-lg border bg-white px-3 py-2 text-[14px] leading-5 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 ${supportError ? 'border-red-500' : 'border-[#CBD5E1]'}`}
-									style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
-								/>
-								{supportError && (
-								<span
-									id="support-error"
-									className="text-[12px] text-red-600 mt-1"
-									role="alert"
-									style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
-								>
-									{supportError}
-								</span>
-							)}
-							</label>
-							<div className="flex justify-end gap-3">
-								<button
-									type="button"
-									onClick={() => setSupportMode(false)}
-									disabled={loading}
-									className="px-5 py-2 rounded-lg border border-[#BFC8CA] bg-white text-[14px] tracking-[0.1px] text-[#171D1E] hover:bg-[#F6F8FA] disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#3F51B5]/40 transition-all duration-200 hover:scale-105 hover:shadow-md"
-									style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
-								>
-									{t('chatbot.cancel')}
-								</button>
-							<button
-								type="button"
-								onClick={() => {
-									const error = validateSupportText(supportText);
-									if (error) {
-										setSupportError(error);
-									} else {
-										sendSupport();
-									}
-								}}
-								disabled={loading || supportText.trim().length < 20}
-								className="px-5 py-2 rounded-lg bg-[#004494] text-white text-[14px] tracking-[0.1px] font-medium hover:brightness-110 disabled:opacity-50 focus:outline-none focus-visible:ring focus-visible:ring-[#004494]/40 transition-all duration-200 hover:scale-105 hover:shadow-lg"
-								style={{ fontFamily: "'Source Sans Pro', ui-sans-serif, system-ui, sans-serif" }}
-							>
-								{t('chatbot.send')}
-							</button>
-							</div>
-						</div>
+						<SupportModeForm
+							supportText={supportText}
+							supportError={supportError}
+							loading={loading}
+							onTextChange={(value) => {
+								setSupportText(value);
+								if (supportError) setSupportError('');
+							}}
+							onKeyDown={handleSupportTextareaKey}
+							onSend={() => {
+								const error = validateSupportText(supportText);
+								if (error) {
+									setSupportError(error);
+								} else {
+									sendSupport();
+								}
+							}}
+							onCancel={() => setSupportMode(false)}
+							t={t}
+						/>
 					)}
 				</div>
 			)}
