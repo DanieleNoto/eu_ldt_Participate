@@ -34,9 +34,15 @@ module Decidim
         # Call parent create (handles user creation/sign-in)
         result = super
 
-        # After user is signed in, save token to cache
+        # After user is signed in, save token to cache and update user locale
         if auth_data&.provider == "keycloakopenid" && current_user
           save_keycloak_token_to_cache(current_user, auth_data)
+
+          # Save locale to user if we have one
+          if user_locale.present? && current_user.locale != user_locale
+            current_user.update_column(:locale, user_locale)
+            Rails.logger.info "[Keycloak] Updated user #{current_user.id} locale to: #{user_locale}"
+          end
 
           # Mark session as Keycloak authenticated for Single Logout
           session[:keycloak_authenticated] = true
