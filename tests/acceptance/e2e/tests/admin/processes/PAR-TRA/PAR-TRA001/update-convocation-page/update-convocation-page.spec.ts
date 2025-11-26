@@ -115,7 +115,7 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 				await previewPage.waitForLoadState('domcontentloaded');
 				const paragraph = previewPage.locator('div.rich-text-display p');
 				const text = await paragraph.textContent();
-				console.log('Testo catturato dalla preview:', text);
+				console.log('Text captured by preview:', text);
 				await expect(paragraph).toHaveText(bodyContent);
 			});
 		});
