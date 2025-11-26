@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
+#   Denis Vasilev Dimchev
 #   Gianfranco Cedro
 #   Marco Cerdelli
 ---
@@ -16,12 +17,10 @@ de:
         meetings:
             settings:
                 global:
-                    terms_and_conditions_url_for_meeting_creators: Datenschutzrichtlinien-URL
-                        für Meeting-Ersteller
+                    terms_and_conditions_url_for_meeting_creators: Datenschutzrichtlinien-URL für Meeting-Ersteller
     decidim:
         account:
-            blocked: Dieses Konto wurde wegen Verstoßes gegen die Datenschutzrichtlinie
-                gesperrt
+            blocked: Dieses Konto wurde wegen Verstoßes gegen die Datenschutzrichtlinie gesperrt
         admin:
             admin_terms_of_service:
                 accept:
@@ -29,14 +28,12 @@ de:
                     success: Super! Sie haben die Admin-Datenschutzrichtlinie akzeptiert.
                 actions:
                     accept: Ich stimme dieser Datenschutzrichtlinie zu
-                    are_you_sure: Sind Sie sicher, dass Sie die Admin-Datenschutzrichtlinie
-                        ablehnen möchten?
+                    are_you_sure: Sind Sie sicher, dass Sie die Admin-Datenschutzrichtlinie ablehnen möchten?
                     refuse: Admin-Datenschutzrichtlinie ablehnen
                     title: Datenschutzrichtlinie zustimmen
                 required_review:
                     alert: 'Erforderlich: Überprüfen Sie unsere Admin-Datenschutzrichtlinie'
-                    callout: Bitte nehmen Sie sich einen Moment Zeit, um die Admin-Datenschutzrichtlinie
-                        zu lesen. Ansonsten können Sie die Plattform nicht verwalten.
+                    callout: Bitte nehmen Sie sich einen Moment Zeit, um die Admin-Datenschutzrichtlinie zu lesen. Ansonsten können Sie die Plattform nicht verwalten.
                 title: Admin-Datenschutzrichtlinie
             organization:
                 form:
@@ -74,16 +71,13 @@ de:
                     author: Der Name des Teilnehmers, der diesen Kommentar erstellt hat
                     body: Der Kommentar selbst
                     commentable_id: Die eindeutige ID des kommentierten Elements
-                    commentable_type: Der Typ des kommentierten Elements (Ergebnis, Vorschlag
-                        usw.)
+                    commentable_type: Der Typ des kommentierten Elements (Ergebnis, Vorschlag usw.)
                     created_at: Das Datum, an dem dieser Kommentar erstellt wurde
                     depth: Die Position dieses Kommentars im Kommentarbaum
                     id: Die ID dieses Kommentars
                     locale: Die Sprache des Teilnehmers beim Schreiben dieses Kommentars
-                    root_commentable_url: Die URL der Ressource, mit der dieser Kommentar verknüpft
-                        ist
-                    user_group: Der Name der Benutzergruppe, die diesen Kommentar erstellt hat
-                        (falls vorhanden)
+                    root_commentable_url: Die URL der Ressource, mit der dieser Kommentar verknüpft ist
+                    user_group: Der Name der Benutzergruppe, die diesen Kommentar erstellt hat (falls vorhanden)
                 follows:
                     created_at: Datum und Uhrzeit, zu der das Follow erstellt wurde
                     followable: Die Ressource oder der Bereich, dem gefolgt wird
@@ -103,10 +97,8 @@ de:
                     updated_at: Das Datum der letzten Aktualisierung dieses Gesprächs
                 notifications:
                     created_at: Datum und Uhrzeit, zu der die Benachrichtigung erstellt wurde
-                    event_class: Die Klasse des Ereignisses, das die Benachrichtigung ausgelöst
-                        hat
-                    event_name: Der Name des Ereignisses, das die Benachrichtigung ausgelöst
-                        hat
+                    event_class: Die Klasse des Ereignisses, das die Benachrichtigung ausgelöst hat
+                    event_name: Der Name des Ereignisses, das die Benachrichtigung ausgelöst hat
                     extra: Zusätzliche Informationen zu dieser Benachrichtigung
                     id: Die eindeutige Kennung dieser Benachrichtigung
                     resource_type: Der Ressourcentyp, auf den sich die Benachrichtigung bezieht
@@ -117,8 +109,7 @@ de:
                     privatable_to: Der Bereich, zu dem dieser private Nutzer gehört
                     published: Ob dieser private Nutzer veröffentlicht ist oder nicht
                     role: Die Rolle dieses privaten Nutzers
-                    updated_at: Datum und Uhrzeit der letzten Aktualisierung dieses privaten
-                        Nutzers
+                    updated_at: Datum und Uhrzeit der letzten Aktualisierung dieses privaten Nutzers
                 reports:
                     created_at: Datum und Uhrzeit der Erstellung dieses Berichts
                     details: Die Details dieses Berichts
@@ -132,15 +123,12 @@ de:
                     id: Die eindeutige Kennung dieser Benutzergruppe
                     name: Der Name dieser Benutzergruppe
                     phone: Die Telefonnummer dieser Benutzergruppe
-                    verified_at: Datum und Uhrzeit, zu denen diese Benutzergruppe verifiziert
-                        wurde
+                    verified_at: Datum und Uhrzeit, zu denen diese Benutzergruppe verifiziert wurde
                 users:
                     about: Die Biografie dieses Nutzers
-                    accepted_tos_version: Das Datum, an dem der Nutzer die Datenschutzrichtlinie
-                        dieser Plattform akzeptiert hat
+                    accepted_tos_version: Das Datum, an dem der Nutzer die Datenschutzrichtlinie dieser Plattform akzeptiert hat
                     admin: Ob dieser Nutzer Administrator ist
-                    confirmation_sent_at: Datum und Uhrzeit, zu denen die Bestätigung gesendet
-                        wurde
+                    confirmation_sent_at: Datum und Uhrzeit, zu denen die Bestätigung gesendet wurde
                     confirmed_at: Datum und Uhrzeit, zu denen dieser Nutzer bestätigt wurde
                     created_at: Datum und Uhrzeit, zu denen dieser Nutzer erstellt wurde
                     current_sign_in_at: Datum und Uhrzeit der aktuellen Anmeldung
@@ -151,62 +139,44 @@ de:
                     followers_count: Die Anzahl der Teilnehmer, die diesem Nutzer folgen
                     following_count: Die Anzahl der Teilnehmer, denen dieser Nutzer folgt
                     id: Die eindeutige Kennung dieses Nutzers
-                    invitation_accepted_at: Datum und Uhrzeit, zu denen die Einladung akzeptiert
-                        wurde
-                    invitation_created_at: Datum und Uhrzeit, zu denen die Einladung erstellt
-                        wurde
+                    invitation_accepted_at: Datum und Uhrzeit, zu denen die Einladung akzeptiert wurde
+                    invitation_created_at: Datum und Uhrzeit, zu denen die Einladung erstellt wurde
                     invitation_sent_at: Datum und Uhrzeit, zu denen die Einladung gesendet wurde
-                    invitations_count: Die Anzahl der Einladungen, die dieser Nutzer gesendet
-                        hat
+                    invitations_count: Die Anzahl der Einladungen, die dieser Nutzer gesendet hat
                     invited_by: Der Nutzer, der diesen Nutzer eingeladen hat
                     last_sign_in_at: Datum und Uhrzeit der letzten Anmeldung
                     last_sign_in_ip: Die IP-Adresse der letzten Anmeldung
                     locale: Die vom Nutzer ausgewählte Sprache
                     managed: Ob dieser Nutzer von einem anderen Nutzer verwaltet wird
                     name: Der Name dieses Nutzers
-                    newsletter_notifications_at: Datum und Uhrzeit, zu denen der Nutzer zuletzt
-                        den Newsletter erhalten hat
+                    newsletter_notifications_at: Datum und Uhrzeit, zu denen der Nutzer zuletzt den Newsletter erhalten hat
                     nickname: Der Spitzname des Nutzers
                     notification_settings: Die vom Nutzer ausgewählten Benachrichtigungseinstellungen
-                    notifications_sending_frequency: Die Häufigkeit, mit der dieser Nutzer Benachrichtigungen
-                        erhält
-                    officialized_as: Die Bezeichnung der offiziellen Rolle (Berater, Bürgermeister
-                        usw.)
-                    officialized_at: Datum und Uhrzeit, zu denen dieser Nutzer offiziell bestätigt
-                        wurde
+                    notifications_sending_frequency: Die Häufigkeit, mit der dieser Nutzer Benachrichtigungen erhält
+                    officialized_as: Die Bezeichnung der offiziellen Rolle (Berater, Bürgermeister usw.)
+                    officialized_at: Datum und Uhrzeit, zu denen dieser Nutzer offiziell bestätigt wurde
                     organization: Die Organisation, zu der dieser Nutzer gehört
                     password_updated_at: Das Datum der letzten Passwortänderung
                     personal_url: Die persönliche URL dieses Nutzers
-                    remember_created_at: Datum und Uhrzeit, zu denen die „angemeldet bleiben“-Option
-                        aktiviert wurde
-                    reset_password_sent_at: Datum und Uhrzeit, zu denen die Passwortzurücksetzung
-                        gesendet wurde
+                    remember_created_at: Datum und Uhrzeit, zu denen die „angemeldet bleiben“-Option aktiviert wurde
+                    reset_password_sent_at: Datum und Uhrzeit, zu denen die Passwortzurücksetzung gesendet wurde
                     roles: Die Rolle dieses Nutzers, falls vorhanden
                     sign_in_count: Die Anzahl der Anmeldungen dieses Nutzers
                     type: Der Typ dieses Nutzers
-                    unconfirmed_email: Die E-Mail-Adresse, die dieser Nutzer noch nicht bestätigt
-                        hat
+                    unconfirmed_email: Die E-Mail-Adresse, die dieser Nutzer noch nicht bestätigt hat
                     updated_at: Datum und Uhrzeit der letzten Aktualisierung dieses Nutzers
             show:
                 action: Aktion
                 download: Datei herunterladen
                 download_data: Daten herunterladen
-                download_data_description_1: Hier findest du alle für dein Konto verfügbaren
-                    Downloads. Diese .zip-Dateien bleiben zwei Wochen lang verfügbar, bevor
-                    sie gelöscht werden.
-                download_data_description_2: Du kannst eine .zip-Datei mit deinen Beiträgen
-                    und persönlichen Daten anfordern.
+                download_data_description_1: Hier findest du alle für dein Konto verfügbaren Downloads. Diese .zip-Dateien bleiben zwei Wochen lang verfügbar, bevor sie gelöscht werden.
+                download_data_description_2: Du kannst eine .zip-Datei mit deinen Beiträgen und persönlichen Daten anfordern.
                 download_your_data: Persönliche Daten
                 expiration: Ablauf
                 expired: Bereits abgelaufen
                 explanation:
-                    body_1: Diese Dateien sind Datensätze, die aus deiner Aktivität auf dieser
-                        Plattform exportiert wurden, wie Vorschläge oder Kommentare. Sie enthalten
-                        rohe, strukturierte Daten, die für Analyse, Forschung oder die Integration
-                        in andere Tools verwendet werden können.
-                    body_2: Diese Dateien liegen im CSV-Format (Comma-Separated Values) vor,
-                        einem weit verbreiteten Format, das von vielen Anwendungen unterstützt
-                        wird, darunter Tabellenkalkulationen, Texteditoren und Datenanalysetools.
+                    body_1: Diese Dateien sind Datensätze, die aus deiner Aktivität auf dieser Plattform exportiert wurden, wie Vorschläge oder Kommentare. Sie enthalten rohe, strukturierte Daten, die für Analyse, Forschung oder die Integration in andere Tools verwendet werden können.
+                    body_2: Diese Dateien liegen im CSV-Format (Comma-Separated Values) vor, einem weit verbreiteten Format, das von vielen Anwendungen unterstützt wird, darunter Tabellenkalkulationen, Texteditoren und Datenanalysetools.
                     title: Was sind diese Dateien?
                 files_to_download: Herunterzuladende Dateien
                 request_data: Anfordern
@@ -218,8 +188,20 @@ de:
                         tos: Datenschutzrichtlinie
                 questionnaires:
                     responses:
-                        tos_agreement: 'Mit Ihrer Teilnahme stimmen Sie folgender Datenschutzrichtlinie
-                            zu:'
+                        tos_agreement: Durch die Teilnahme akzeptieren Sie die Datenschutzrichtlinie
+            questionnaires:
+                responses:
+                    tos_agreement: Durch die Teilnahme akzeptieren Sie die Datenschutzrichtlinie
+                show:
+                    tos_agreement: Ich habe die spezifische Datenschutzrichtlinie für diese Umfrage gelesen und akzeptiere sie, die die zusätzlich erhobenen Daten, die Verarbeitungszwecke und die Rechtsgrundlage zusätzlich zur allgemeinen Datenschutzrichtlinie erläutert.
+        initiatives:
+            admin:
+                actions:
+                    new_initiative_type: Neuer Initiative-Typ
+                index:
+                    initiatives_types:
+                        alert_html: '<p>Sie müssen mindestens einen Initiative-Typ erstellen, damit die Teilnehmer mit der Erstellung von Initiativen beginnen können.</p><p> %{link}</p>'
+                        button: Neuer Initiative-Typ
         pages:
             privacy_policy:
                 accept:
@@ -229,49 +211,30 @@ de:
                     agreement: Ich stimme dieser Datenschutzrichtlinie zu
                     legend: Datenschutzrichtlinie zustimmen
                 refuse:
-                    modal_body: Wenn Sie ablehnen, können Sie die Plattform nicht nutzen. Sie
-                        können <a href="%{download_your_data_path}">Ihre Daten herunterladen</a>
-                        und/oder <a href="%{delete_path}">Ihr Konto löschen</a>.
+                    modal_body: Wenn Sie ablehnen, können Sie die Plattform nicht nutzen. Sie können <a href="%{download_your_data_path}">Ihre Daten herunterladen</a> und/oder <a href="%{delete_path}">Ihr Konto löschen</a>.
                     modal_btn_continue: Datenschutzrichtlinie akzeptieren und fortfahren
                     modal_btn_exit: Ich prüfe sie später
                     modal_button: Datenschutzrichtlinie ablehnen
-                    modal_title: Möchten Sie die aktualisierte Datenschutzrichtlinie wirklich
-                        ablehnen?
+                    modal_title: Möchten Sie die aktualisierte Datenschutzrichtlinie wirklich ablehnen?
                 required_review:
-                    alert: Wir haben unsere Datenschutzrichtlinie aktualisiert, bitte überprüfen
-                        Sie sie.
-                    body: Bitte nehmen Sie sich einen Moment Zeit, um die Aktualisierungen unserer
-                        Datenschutzrichtlinie zu überprüfen. Andernfalls können Sie die Plattform
-                        nicht nutzen.
+                    alert: Wir haben unsere Datenschutzrichtlinie aktualisiert, bitte überprüfen Sie sie.
+                    body: Bitte nehmen Sie sich einen Moment Zeit, um die Aktualisierungen unserer Datenschutzrichtlinie zu überprüfen. Andernfalls können Sie die Plattform nicht nutzen.
                     title: 'Erforderlich: Überprüfen Sie die Aktualisierungen unserer Datenschutzrichtlinie'
         profile:
-            inaccessible_message: Dieses Profil ist aufgrund eines Verstoßes gegen die Datenschutzrichtlinie
-                nicht zugänglich!
+            inaccessible_message: Dieses Profil ist aufgrund eines Verstoßes gegen die Datenschutzrichtlinie nicht zugänglich!
         templates:
             admin:
                 questionnaire_templates:
                     preview:
-                        tos_agreement: 'Mit Ihrer Teilnahme stimmen Sie folgender Datenschutzrichtlinie zu:'
+                        tos_agreement: Durch die Teilnahme akzeptieren Sie die Datenschutzrichtlinie
         welcome_notification:
-            default_body: <br><p>Guten Tag {{name}},</p><p>Vielen Dank dafür, dass Sie {{organization}}
-                beigetreten sind und herzlich willkommen!</p><ul><li>Wenn Sie einen kurzen
-                Überblick darüber bekommen möchten, was Sie hier tun können, schauen Sie sich
-                den <a href="{{help_url}}">Hilfe-Abschnitt </a> an.</li><br><li>Sobald Sie
-                ihn gelesen haben, bekommen Sie Ihr erstes Abzeichen. Hier finden Sie eine<a
-                href="{{badges_url}}">Liste aller Abzeichen</a>, die Sie bei der Teilnahme
-                auf {{organization}} erhalten können</li><br><li>Folgen Sie anderen Menschen,
-                teilen Sie die Erfahrung der Zusammenarbeit und Teilnahme auf {{organization}}
-                mit ihnen. Machen Sie Vorschläge und Kommentare, nehmen Sie an Debatten teil,
-                denken Sie darüber nach, wie Sie zum Gemeinwohl beitragen können, liefern
-                Sie Argumente zum Überzeugen, hören und lesen Sie, um sich überzeugen zu lassen,
-                drücken Sie Ihre Ideen auf konkrete und direkte Weise aus, reagieren Sie mit
-                Geduld und Entschlossenheit, verteidigen Sie Ihre Ideen und bleiben Sie offen
-                für die Zusammenarbeit und die Ideen anderer Menschen.</li></ul>
+            default_body: <br><p>Guten Tag {{name}},</p><p>Vielen Dank dafür, dass Sie {{organization}} beigetreten sind und herzlich willkommen!</p><ul><li>Wenn Sie einen kurzen Überblick darüber bekommen möchten, was Sie hier tun können, schauen Sie sich den <a href="{{help_url}}">Hilfe-Abschnitt </a> an.</li><br><li>Sobald Sie ihn gelesen haben, bekommen Sie Ihr erstes Abzeichen. Hier finden Sie eine<a href="{{badges_url}}">Liste aller Abzeichen</a>, die Sie bei der Teilnahme auf {{organization}} erhalten können</li><br><li>Folgen Sie anderen Menschen, teilen Sie die Erfahrung der Zusammenarbeit und Teilnahme auf {{organization}} mit ihnen. Machen Sie Vorschläge und Kommentare, nehmen Sie an Debatten teil, denken Sie darüber nach, wie Sie zum Gemeinwohl beitragen können, liefern Sie Argumente zum Überzeugen, hören und lesen Sie, um sich überzeugen zu lassen, drücken Sie Ihre Ideen auf konkrete und direkte Weise aus, reagieren Sie mit Geduld und Entschlossenheit, verteidigen Sie Ihre Ideen und bleiben Sie offen für die Zusammenarbeit und die Ideen anderer Menschen.</li></ul>
     devise:
         omniauth_callbacks:
-            add_tos_errors: Die Datenschutzrichtlinie muss akzeptiert werden, um ein Konto
-                zu erstellen.
+            add_tos_errors: Die Datenschutzrichtlinie muss akzeptiert werden, um ein Konto zu erstellen.
     layouts:
         decidim:
+            edit_link:
+                edit: Bearbeiten
             footer:
                 terms_of_service: Datenschutzrichtlinie

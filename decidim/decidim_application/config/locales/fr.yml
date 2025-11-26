@@ -17,30 +17,23 @@ fr:
         meetings:
             settings:
                 global:
-                    terms_and_conditions_url_for_meeting_creators: URL de la politique de confidentialité
-                        pour les créateurs de réunions
+                    terms_and_conditions_url_for_meeting_creators: URL de la politique de confidentialité pour les créateurs de réunions
     decidim:
         account:
-            blocked: Ce compte a été bloqué en raison d'une violation de la politique de
-                confidentialité
+            blocked: Ce compte a été bloqué en raison d'une violation de la politique de confidentialité
         admin:
             admin_terms_of_service:
                 accept:
-                    error: Une erreur s'est produite lors de l'acceptation de la politique de
-                        confidentialité administrateur.
-                    success: Félicitations ! Vous avez accepté la politique de confidentialité
-                        administrateur.
+                    error: Une erreur s'est produite lors de l'acceptation de la politique de confidentialité administrateur.
+                    success: Félicitations ! Vous avez accepté la politique de confidentialité administrateur.
                 actions:
                     accept: J'accepte la politique de confidentialité
-                    are_you_sure: Êtes-vous sûr de vouloir refuser la politique de confidentialité
-                        administrateur ?
+                    are_you_sure: Êtes-vous sûr de vouloir refuser la politique de confidentialité administrateur ?
                     refuse: Refuser la politique de confidentialité administrateur
                     title: Accepter la politique de confidentialité
                 required_review:
                     alert: 'Requis: Consultez notre politique de confidentialité administrateur'
-                    callout: Veuillez prendre le temps de lire la politique de confidentialité
-                        administrateur. Dans le cas contraire, vous ne serrez pas en mesure d'administrer
-                        la plateforme.
+                    callout: Veuillez prendre le temps de lire la politique de confidentialité administrateur. Dans le cas contraire, vous ne serrez pas en mesure d'administrer la plateforme.
                 title: Politique de confidentialité administrateur
             organization:
                 form:
@@ -78,15 +71,13 @@ fr:
                     author: Le nom du participant ayant rédigé ce commentaire
                     body: Le commentaire
                     commentable_id: L’identifiant unique de l’élément commenté
-                    commentable_type: Le type de l’élément commenté (résultat, proposition,
-                        etc.)
+                    commentable_type: Le type de l’élément commenté (résultat, proposition, etc.)
                     created_at: La date de création de ce commentaire
                     depth: La position du commentaire dans l’arborescence (réponse ou sous-réponse)
                     id: L’identifiant de ce commentaire
                     locale: La langue utilisée par le participant lors de la rédaction
                     root_commentable_url: L’URL de la ressource liée à ce commentaire
-                    user_group: Le nom du groupe d’utilisateurs ayant rédigé ce commentaire
-                        (le cas échéant)
+                    user_group: Le nom du groupe d’utilisateurs ayant rédigé ce commentaire (le cas échéant)
                 follows:
                     created_at: La date et l’heure de création du suivi
                     followable: La ressource ou l’espace suivi
@@ -118,8 +109,7 @@ fr:
                     privatable_to: L’espace auquel appartient cet utilisateur privé
                     published: Si cet utilisateur privé est publié ou non
                     role: Le rôle de cet utilisateur privé
-                    updated_at: La date et l’heure de la dernière mise à jour de cet utilisateur
-                        privé
+                    updated_at: La date et l’heure de la dernière mise à jour de cet utilisateur privé
                 reports:
                     created_at: La date et l’heure de création de ce signalement
                     details: Les détails de ce signalement
@@ -136,8 +126,7 @@ fr:
                     verified_at: La date et l’heure de vérification de ce groupe d’utilisateurs
                 users:
                     about: La biographie de cet utilisateur
-                    accepted_tos_version: La date à laquelle l’utilisateur a accepté les conditions
-                        d’utilisation
+                    accepted_tos_version: La date à laquelle l’utilisateur a accepté les conditions d’utilisation
                     admin: Si cet utilisateur est administrateur
                     confirmation_sent_at: La date et l’heure d’envoi de la confirmation
                     confirmed_at: La date et l’heure de confirmation de cet utilisateur
@@ -160,21 +149,17 @@ fr:
                     locale: La langue sélectionnée par cet utilisateur
                     managed: Si cet utilisateur est géré par un autre utilisateur
                     name: Le nom de cet utilisateur
-                    newsletter_notifications_at: La date et l’heure de la dernière réception
-                        de la newsletter
+                    newsletter_notifications_at: La date et l’heure de la dernière réception de la newsletter
                     nickname: Le pseudonyme de l’utilisateur
                     notification_settings: Les paramètres de notification choisis par cet utilisateur
-                    notifications_sending_frequency: La fréquence d’envoi des notifications
-                        reçues par cet utilisateur
+                    notifications_sending_frequency: La fréquence d’envoi des notifications reçues par cet utilisateur
                     officialized_as: Le nom de l’officialisation (Conseiller, Maire, etc.)
                     officialized_at: La date et l’heure de l’officialisation de cet utilisateur
                     organization: L’organisation à laquelle appartient cet utilisateur
                     password_updated_at: La date de la dernière mise à jour du mot de passe
                     personal_url: L’URL personnelle de cet utilisateur
-                    remember_created_at: La date et l’heure d’activation de l’option « se souvenir
-                        de moi »
-                    reset_password_sent_at: La date et l’heure d’envoi de la réinitialisation
-                        du mot de passe
+                    remember_created_at: La date et l’heure d’activation de l’option « se souvenir de moi »
+                    reset_password_sent_at: La date et l’heure d’envoi de la réinitialisation du mot de passe
                     roles: Le rôle de cet utilisateur, s’il en a un
                     sign_in_count: Le nombre de connexions effectuées par cet utilisateur
                     type: Le type de cet utilisateur
@@ -184,22 +169,14 @@ fr:
                 action: Action
                 download: Télécharger le fichier
                 download_data: Télécharger les données
-                download_data_description_1: Vous trouverez ici tous les téléchargements disponibles
-                    pour votre compte. Ces fichiers .zip resteront disponibles pendant deux
-                    semaines avant d’être supprimés.
-                download_data_description_2: Vous pouvez demander un fichier .zip contenant
-                    vos contributions et vos données personnelles.
+                download_data_description_1: Vous trouverez ici tous les téléchargements disponibles pour votre compte. Ces fichiers .zip resteront disponibles pendant deux semaines avant d’être supprimés.
+                download_data_description_2: Vous pouvez demander un fichier .zip contenant vos contributions et vos données personnelles.
                 download_your_data: Données personnelles
                 expiration: Expiration
                 expired: Expiré
                 explanation:
-                    body_1: Ces fichiers sont des jeux de données exportés de votre activité
-                        sur cette plateforme, comme les propositions ou les commentaires. Ils
-                        fournissent des données brutes et structurées pouvant être utilisées pour
-                        l’analyse, la recherche ou l’intégration avec d’autres outils.
-                    body_2: Ces fichiers sont au format CSV (Comma-Separated Values), un format
-                        largement utilisé et compatible avec de nombreux logiciels, tels que les
-                        tableurs, éditeurs de texte ou outils d’analyse de données.
+                    body_1: Ces fichiers sont des jeux de données exportés de votre activité sur cette plateforme, comme les propositions ou les commentaires. Ils fournissent des données brutes et structurées pouvant être utilisées pour l’analyse, la recherche ou l’intégration avec d’autres outils.
+                    body_2: Ces fichiers sont au format CSV (Comma-Separated Values), un format largement utilisé et compatible avec de nombreux logiciels, tels que les tableurs, éditeurs de texte ou outils d’analyse de données.
                     title: Qu’est-ce que ces fichiers ?
                 files_to_download: Fichiers à télécharger
                 request_data: Demander
@@ -212,68 +189,52 @@ fr:
                 questionnaires:
                     responses:
                         tos_agreement: En participant, vous acceptez la politique de confidentialité
+            questionnaires:
+                responses:
+                    tos_agreement: En participant, vous acceptez la politique de confidentialité
+                show:
+                    tos_agreement: J'ai lu et j'accepte la politique de confidentialité spécifique à ce sondage décrite ci-dessus, qui explique les données supplémentaires collectées, les finalités du traitement et la base juridique, en plus de la politique de confidentialité générale.
         initiatives:
             admin:
                 actions:
                     new_initiative_type: Nouveau type d'initiative
                 index:
                     initiatives_types:
-                        alert_html: "<p>Vous devez créer au moins un type d'initiative afin que
-                            les participants puissent commencer à créer des initiatives.</p><p>
-                            %{link}</p>"
+                        alert_html: "<p>Vous devez créer au moins un type d'initiative afin que les participants puissent commencer à créer des initiatives.</p><p> %{link}</p>"
                         button: Nouveau type d'initiative
-        notifications_settings:
-            show:
-                allow_public_contact: Autoriser tout le monde à m'envoyer un message direct
-                    même si je ne les suis pas.
         pages:
             privacy_policy:
                 accept:
-                    error: Un problème est survenu lors de l'acceptation de la politique de
-                        confidentialité.
+                    error: Un problème est survenu lors de l'acceptation de la politique de confidentialité.
                     success: Félicitations ! Vous avez accepté la politique de confidentialité.
                 form:
                     agreement: J'accepte cette politique de confidentialité
                     legend: Accepter la politique de confidentialité
                 refuse:
-                    modal_body: Si vous refusez, vous ne pourrez pas utiliser la plateforme,
-                        vous pouvez <a href="%{download_your_data_path}">télécharger vos données</a>
-                        et/ou <a href="%{delete_path}">supprimer votre compte</a>.
+                    modal_body: Si vous refusez, vous ne pourrez pas utiliser la plateforme, vous pouvez <a href="%{download_your_data_path}">télécharger vos données</a> et/ou <a href="%{delete_path}">supprimer votre compte</a>.
                     modal_btn_continue: Accepter la politique de confidentialité et continuer
                     modal_btn_exit: Je la relirai plus tard
                     modal_button: Refuser la politique de confidentialité
-                    modal_title: Refusez-vous vraiment la politique de confidentialité mise
-                        à jour ?
+                    modal_title: Refusez-vous vraiment la politique de confidentialité mise à jour ?
                 required_review:
-                    alert: Nous avons mis à jour notre politique de confidentialité, veuillez
-                        la consulter.
-                    body: Veuillez prendre un moment pour consulter les mises à jour de notre
-                        politique de confidentialité. Sinon, vous ne pourrez pas utiliser la plateforme.
+                    alert: Nous avons mis à jour notre politique de confidentialité, veuillez la consulter.
+                    body: Veuillez prendre un moment pour consulter les mises à jour de notre politique de confidentialité. Sinon, vous ne pourrez pas utiliser la plateforme.
                     title: 'Requis : Consultez les mises à jour de notre politique de confidentialité'
         profile:
-            inaccessible_message: Ce profil est inaccessible en raison d'une violation de
-                la politique de confidentialité !
+            inaccessible_message: Ce profil est inaccessible en raison d'une violation de la politique de confidentialité !
         templates:
             admin:
                 questionnaire_templates:
                     preview:
-                        tos_agreement: En participant, vous acceptez cette politique de confidentialité
+                        tos_agreement: En participant, vous acceptez la politique de confidentialité
         welcome_notification:
-            default_body: <br><p>Bonjour {{name}},</p><p>Merci d'avoir rejoint {{organization}}
-                et bienvenue!</p><ul><li>Si vous souhaitez avoir une idée rapide de ce que
-                vous pouvez faire ici, consultez la section <a href="{{help_url}}">Aide</a>
-                .</li><br><li>En somme, rejoignez d'autres personnes, partagez avec eux l'expérience
-                d'être engagés et participer à {{organization}}.</li><br><li>Faites des propositions,
-                des commentaires, lancez des débats, réfléchissez à la manière de contribuer
-                au bien commun, fournissez des arguments pour convaincre, écoutez et lisez
-                pour être convaincu, exprimez vos idées de manière concrète et directe, répondez
-                avec patience et décision, défendez vos idées dans un esprit ouvert pour collaborer
-                et enrichir les idées des autres.</li></ul>
+            default_body: <br><p>Bonjour {{name}},</p><p>Merci d'avoir rejoint {{organization}} et bienvenue!</p><ul><li>Si vous souhaitez avoir une idée rapide de ce que vous pouvez faire ici, consultez la section <a href="{{help_url}}">Aide</a> .</li><br><li>En somme, rejoignez d'autres personnes, partagez avec eux l'expérience d'être engagés et participer à {{organization}}.</li><br><li>Faites des propositions, des commentaires, lancez des débats, réfléchissez à la manière de contribuer au bien commun, fournissez des arguments pour convaincre, écoutez et lisez pour être convaincu, exprimez vos idées de manière concrète et directe, répondez avec patience et décision, défendez vos idées dans un esprit ouvert pour collaborer et enrichir les idées des autres.</li></ul>
     devise:
         omniauth_callbacks:
-            add_tos_errors: La politique de confidentialité doit être acceptée pour créer
-                un compte.
+            add_tos_errors: La politique de confidentialité doit être acceptée pour créer un compte.
     layouts:
         decidim:
+            edit_link:
+                edit: Éditer
             footer:
                 terms_of_service: Politique de confidentialité
