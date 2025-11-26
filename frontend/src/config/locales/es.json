@@ -16,7 +16,9 @@
 		"typeHere": "Escribe aquí...",
 		"cancel": "Cancelar",
 		"send": "Enviar",
-		"supportRequestSent": "Solicitud de soporte enviada. Nuestro equipo se pondrá en contacto contigo."
+		"supportRequestSent": "Solicitud de soporte enviada. Nuestro equipo se pondrá en contacto contigo.",
+		"validationMinLength": "Por favor escribe al menos 20 caracteres (actuales: {count}).",
+		"validationRequired": "Por favor describe tu problema antes de enviar."
 	},
 	"errorBoundary": {
 		"title": "500",

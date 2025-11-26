@@ -13,10 +13,12 @@
 		"askSupport": "Demander de l'aide",
 		"orSelectAnotherTopic": "Ou sélectionnez un autre sujet :",
 		"describeYourIssue": "Décrivez votre problème",
-		"typeHere": "Écrivez ici...",
+		"typeHere": "Tapez ici...",
 		"cancel": "Annuler",
 		"send": "Envoyer",
-		"supportRequestSent": "Demande d'assistance envoyée. Notre équipe vous contactera."
+		"supportRequestSent": "Demande d'assistance envoyée. Notre équipe vous contactera.",
+		"validationMinLength": "Veuillez écrire au moins 20 caractères (actuels: {count}).",
+		"validationRequired": "Veuillez décrire votre problème avant d'envoyer."
 	},
 	"errorBoundary": {
 		"title": "500",

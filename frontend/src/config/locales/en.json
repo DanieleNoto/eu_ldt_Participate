@@ -16,7 +16,9 @@
 		"typeHere": "Type here...",
 		"cancel": "Cancel",
 		"send": "Send",
-		"supportRequestSent": "Support request sent. Our team will contact you."
+		"supportRequestSent": "Support request sent. Our team will contact you.",
+		"validationMinLength": "Please write at least 20 characters (current: {count}).",
+		"validationRequired": "Please describe your issue before sending."
 	},
 	"errorBoundary": {
 		"title": "500",
