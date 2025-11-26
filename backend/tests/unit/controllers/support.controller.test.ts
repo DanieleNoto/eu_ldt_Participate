@@ -31,8 +31,16 @@ describe('SupportController', () => {
 		mockedNodemailer.createTransport = jest.fn().mockReturnValue(mockTransporter);
 
 		mockRequest = {
-			body: {}
-		};
+			body: {},
+			i18n: {
+				t: jest.fn((key: string) => {
+					const translations: Record<string, string> = {
+						'legalNotice': 'This email was sent from a notification email address that cannot accept incoming email. Please do not reply to this message.'
+					};
+					return translations[key] || key;
+				})
+			}
+		} as any;
 
 		mockReply = {
 			send: jest.fn().mockReturnThis(),
