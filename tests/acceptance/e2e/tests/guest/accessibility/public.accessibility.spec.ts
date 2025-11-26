@@ -99,7 +99,7 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 	});
 
 	test.afterAll(async () => {
-		// Writes summary.json and removes older scans, keeping only the latest per stepName
-		await saveAccessibilityResults();
+		// Writes summary-public.json and removes older scans, keeping only the latest per stepName
+		await saveAccessibilityResults('public');
 	});
 });

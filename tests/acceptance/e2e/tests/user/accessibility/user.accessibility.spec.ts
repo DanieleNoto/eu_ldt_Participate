@@ -144,6 +144,6 @@ test.describe('[PAR-USA03] Accessibility - Footer Navigation', () => {
 	});
 
 	test.afterAll(async () => {
-		await saveAccessibilityResults();
+		await saveAccessibilityResults('user');
 	});
 });

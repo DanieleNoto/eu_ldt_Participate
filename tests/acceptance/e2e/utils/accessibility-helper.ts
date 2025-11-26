@@ -197,10 +197,11 @@ async function pruneOldScansKeepLatest(): Promise<void> {
 }
 
 /**
- * Aggregates basic counts from per-scan JSONs into summary.json
+ * Aggregates basic counts from per-scan JSONs into summary.json (or custom summary-{prefix}.json)
  * and prunes older scans keeping only the latest per stepName.
+ * @param summaryPrefix - Optional prefix for the summary filename (e.g., 'admin' produces 'summary-admin.json')
  */
-export async function saveAccessibilityResults(): Promise<void> {
+export async function saveAccessibilityResults(summaryPrefix?: string): Promise<void> {
 	try {
 		// prune older timestamped scans, then aggregate what's left
 		await fs.mkdir(OUT_DIR, { recursive: true });
@@ -238,8 +239,9 @@ export async function saveAccessibilityResults(): Promise<void> {
 			details: summaries
 		};
 
-		await fs.writeFile(path.join(OUT_DIR, 'summary.json'), JSON.stringify(aggregate, null, 2), 'utf8');
-		console.log(`Accessibility summary written to ${path.join(OUT_DIR, 'summary.json')}`);
+		const summaryFilename = summaryPrefix ? `summary-${summaryPrefix}.json` : 'summary.json';
+		await fs.writeFile(path.join(OUT_DIR, summaryFilename), JSON.stringify(aggregate, null, 2), 'utf8');
+		console.log(`Accessibility summary written to ${path.join(OUT_DIR, summaryFilename)}`);
 	} catch (err) {
 		console.warn('saveAccessibilityResults: failed to aggregate results', err);
 	}

@@ -108,6 +108,24 @@ jobs:
             condition: succeededOrFailed()
             continueOnError: true
 
+          # Generate WCAG 2.0/2.1 AA violations report
+          - script: |
+                cd tests/acceptance/e2e/scripts
+                python3 generate_wcag_report.py
+            displayName: 'Generate WCAG 2.0/2.1 AA Violations Report'
+            condition: succeededOrFailed()
+            continueOnError: true
+
+          # Publish WCAG violations report as artifact
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish WCAG Violations Report'
+            inputs:
+                PathtoPublish: 'tests/acceptance/e2e/a11y-reports/WCAG_2.0_2.1_AA_VIOLATIONS_REPORT.txt'
+                ArtifactName: 'WCAG-ViolationsReport'
+                publishLocation: 'Container'
+            condition: succeededOrFailed()
+            continueOnError: true
+
     - job: PerformanceTests
       displayName: Service Load Test
       steps:

@@ -269,7 +269,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 	});
 
 	test.afterAll(async () => {
-		// Writes summary.json and removes older scans, keeping only the latest per stepName
-		await saveAccessibilityResults();
+		// Writes summary-admin.json and removes older scans, keeping only the latest per stepName
+		await saveAccessibilityResults('admin');
 	});
 });
