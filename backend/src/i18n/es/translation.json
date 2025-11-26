@@ -18,6 +18,7 @@
 	"conferences_answer": "Una conferencia es una colección de reuniones organizadas en un programa, con un número de personas invitadas como ponentes, y otros campos de información típicos de grandes congresos o eventos sociales (registro, lista de organizaciones que apoyan o patrocinan el evento, etc.).\n\nEjemplos: Una conferencia puede ser un evento relevante para una organización y sus miembros, o tiene lugar como parte de un proceso participativo o después de una consulta.",
 	"initiatives_question": "¿Qué son las iniciativas?",
 	"initiatives_answer": "Una iniciativa es una propuesta que puede impulsar cualquier persona por iniciativa propia (independientemente del resto de canales o espacios de participación) mediante la recogida de firmas (digitales) para que la organización lleve a cabo una acción específica (modificar un reglamento, iniciar un proyecto, cambiar el nombre de un departamento o una calle, etc.).\n\nLas personas promotoras de una iniciativa pueden definir los objetivos de la misma, recoger apoyos, debatir, difundirla y definir puntos de encuentro donde se puedan recoger firmas de los asistentes o debates abiertos a otras participantes.\n\nEjemplos: Una iniciativa puede recoger firmas para convocar una consulta entre todas las personas de una organización, o para crear o convocar una asamblea, o para iniciar un proceso de aumento de presupuesto para un territorio o ámbito de la organización. Durante el proceso de recogida de firmas se pueden sumar más personas a esta demanda y lograr llevarla adelante en la organización.",
-	"restart": "Cambiar tema",
-	"support": "Soporte adicional"
+	"restart": "Cambiar de tema",
+	"support": "Más soporte",
+	"legalNotice": "Este correo electrónico se envió desde una dirección de correo electrónico de notificación que no puede aceptar correo electrónico entrante. No responda a este mensaje."
 }

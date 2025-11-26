@@ -42,7 +42,7 @@ class SupportController {
 			await this._verifySmtpConnection(transporter);
 
 			const config = this._getEmailConfig();
-			const legalNotice = this._getLegalNotice(language);
+			const legalNotice = this._getLegalNotice(language, request.i18n);
 
 			logger.info({
 				msg: 'Sending email',
@@ -150,8 +150,8 @@ class SupportController {
 		};
 	}
 
-	private _getLegalNotice(language: string): string {
-		return LEGAL_NOTICES[language] ?? LEGAL_NOTICES.en;
+	private _getLegalNotice(language: string, i18n: typeof import('i18next').default): string {
+		return i18n.t('legalNotice', { lng: language });
 	}
 
 	private _buildHtmlContent(
