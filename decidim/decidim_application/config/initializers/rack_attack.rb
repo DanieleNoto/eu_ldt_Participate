@@ -40,18 +40,9 @@ if defined?(Rack::Attack)
     ) || req.path.match?(/\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/i)
   end
 
-  # API endpoints: more restrictive
-  Rack::Attack.throttle("api/ip", limit: 100, period: 1.minute) do |req|
-    req.ip if req.path.start_with?("/api")
-  end
-
   # Login attempts: very restrictive to prevent brute force
   # 5 attempts per 20 seconds, then 15 per hour
   Rack::Attack.throttle("logins/ip", limit: 5, period: 20.seconds) do |req|
-    req.ip if req.path == "/users/sign_in" && req.post?
-  end
-
-  Rack::Attack.throttle("logins/ip/hourly", limit: 15, period: 1.hour) do |req|
     req.ip if req.path == "/users/sign_in" && req.post?
   end
 
