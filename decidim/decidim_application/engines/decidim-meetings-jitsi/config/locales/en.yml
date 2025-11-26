@@ -5,12 +5,17 @@
 en:
     decidim:
         meetings:
+            jitsi:
+                application_title: 'Decidim Meetings Jitsi'
             admin:
                 meetings:
                     form:
                         generate_jitsi_url: 'Generate Jitsi URL'
                         jitsi_help_text: 'Click to automatically generate a Jitsi meeting URL'
                         jitsi_server_settings: 'Jitsi Server Configuration'
+                        jitsi_meeting_generator: 'Jitsi Meeting Generator'
+                        jitsi_generator_help: 'Generate a Jitsi meeting URL automatically for this online meeting'
+                        error_generating_url: 'Error generating Jitsi URL'
                     jitsi_url_generated: 'Jitsi URL generated successfully'
                     jitsi_url_error: 'Error generating Jitsi URL'
                     jitsi_generator_disabled: 'Jitsi generator is disabled for this component'

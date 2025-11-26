@@ -10,10 +10,10 @@
   <div class="row column jitsi-generator-section" id="jitsi-generator-section" style="display: none;">
     <div class="mb-2">
       <label class="text-sm font-medium text-gray-700 mb-2 block">
-        Jitsi Meeting Generator
+        <%= t("decidim.meetings.admin.meetings.form.jitsi_meeting_generator") %>
       </label>
       <p class="help-text mb-3">
-        Generate a Jitsi meeting URL automatically for this online meeting
+        <%= t("decidim.meetings.admin.meetings.form.jitsi_generator_help") %>
       </p>
       <button type="button"
               class="button button__sm button__secondary generate-jitsi-url"
@@ -23,7 +23,7 @@
         <svg width="1em" height="1em" role="img" aria-hidden="true">
           <use href="/decidim-packs/media/images/remixicon.symbol-e643e553623ffcd49f94.svg#ri-video-line"></use>
         </svg>
-        Generate Jitsi URL
+        <%= t("decidim.meetings.admin.meetings.form.generate_jitsi_url") %>
       </button>
     </div>
   </div>
@@ -85,7 +85,7 @@
             })
             .catch(error => {
               console.error('Error:', error);
-              alert('Error generating Jitsi URL');
+              alert('<%= t("decidim.meetings.admin.meetings.form.error_generating_url") %>');
             });
           } else {
             // New meeting: generate client-side
