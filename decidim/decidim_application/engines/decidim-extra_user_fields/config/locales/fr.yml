@@ -129,8 +129,9 @@ fr:
                 other: Autre
             registration_form:
                 signup:
-                    legend: Plus d'information
-                    underage: Je suis âgé de moins de %{limit} ans et j'accepte d'obtenir une autorisation parentale
+                    legend: Plus d'informations
+                    select_gender: Sélectionnez votre genre
+                    underage: J'ai moins de %{limit} ans et j'accepte d'obtenir une autorisation parentale
         statutory_representative:
             inform:
                 body: |

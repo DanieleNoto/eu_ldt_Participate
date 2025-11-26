@@ -14,7 +14,7 @@ module Decidim
 
         template = ""
         template += (label_text + required_for_attribute(name)) if options.fetch(:label, true)
-        template += country_select(name)
+        template += country_select(name, { selected: options.fetch(:default, "ES") })
         template.html_safe
       end
     end

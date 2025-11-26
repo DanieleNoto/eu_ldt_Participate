@@ -130,7 +130,8 @@ de:
             registration_form:
                 signup:
                     legend: Weitere Informationen
-                    underage: Ich bin unter %{limit} Jahren alt und stimme zu, eine elterliche Genehmigung zu erhalten
+                    select_gender: Wählen Sie Ihr Geschlecht
+                    underage: Ich bin unter %{limit} Jahre alt und stimme zu, eine elterliche Genehmigung zu erhalten
         statutory_representative:
             inform:
                 body: |

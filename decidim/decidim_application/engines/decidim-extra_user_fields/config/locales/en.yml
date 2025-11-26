@@ -130,6 +130,7 @@ en:
             registration_form:
                 signup:
                     legend: More information
+                    select_gender: Select your gender
                     underage: I am under %{limit} years old and I agree to get a parental authorization
         statutory_representative:
             inform:
