@@ -144,7 +144,9 @@
               </tr>
               <tr>
                 <th class="small-12 first columns footnote">
-                  <%= t("decidim.newsletter_mailer.newsletter.no_reply_notice") %>
+                  <%= t("decidim.newsletter_mailer.newsletter.no_reply_notice", 
+                       privacy_policy_url: decidim.page_url(Decidim::StaticPage.find_by(slug: "terms-and-conditions", organization: @organization)&.slug || "terms-and-conditions", host: @organization.host),
+                       notification_preferences_url: decidim.notifications_settings_url(host: @organization.host)).html_safe %>
                 </th>
               </tr>
             </table>

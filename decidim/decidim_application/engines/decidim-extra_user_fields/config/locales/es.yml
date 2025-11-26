@@ -135,8 +135,8 @@ es:
         statutory_representative:
             inform:
                 body: |
-                    Hola,
-                    Has sido designado como el representante legal de %{name} para su registro en  %{organization}.
-                    Atentamente,
-                    El equipo de %{organization}
+                    <p>Hola,</p>
+                    <p>Has sido designado como el representante legal de %{name} para su registro en  %{organization}.</p>
+                    <p>Atentamente,<br/>
+                    El equipo de %{organization}</p>
                 subject: Has sido designado como representante legal

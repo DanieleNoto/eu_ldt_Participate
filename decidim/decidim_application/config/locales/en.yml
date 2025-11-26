@@ -229,6 +229,11 @@ en:
                         tos_agreement: By participating you accept its Privacy Policy
         welcome_notification:
             default_body: <br><p>Hi {{name}},</p><p>Thanks for joining {{organization}} and welcome!</p><ul><li>If you want to get a quick idea of what you can do here, have a look at the <a href="{{help_url}}">Help</a> section.</li><br><li>Once you have read it you will get your first badge. Here is a <a href="{{badges_url}}">list of all the badges</a> you can get as you participate in {{organization}}</li><br><li>Last but not least, join other people, share with them the experience of being engaged and participating in {{organization}}. Make proposals, comments, debate, think about how to contribute to the common good, provide arguments to convince, listen and read to be convinced, express your ideas in a concrete and direct way, respond with patience and decision, defend your ideas and keep an open mind to collaborate and join other people's ideas.</li></ul>
+        newsletter_mailer:
+            newsletter:
+                no_reply_notice: |
+                    <strong>Automatic Notification:</strong> This email has been sent from a notification-only address that does not accept incoming messages. Please do not reply to this email.<br><br>
+                    <strong>Data Protection:</strong> You can review how we process your data and how to exercise your rights in the <a href="%{privacy_policy_url}">Privacy Policy</a>, as well as manage the receipt of emails in your <a href="%{notification_preferences_url}">Notification Preferences</a>.
     devise:
         omniauth_callbacks:
             add_tos_errors: Privacy policy must be accepted in order to create an account.

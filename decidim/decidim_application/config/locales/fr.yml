@@ -229,6 +229,11 @@ fr:
                         tos_agreement: En participant, vous acceptez la politique de confidentialité
         welcome_notification:
             default_body: <br><p>Bonjour {{name}},</p><p>Merci d'avoir rejoint {{organization}} et bienvenue!</p><ul><li>Si vous souhaitez avoir une idée rapide de ce que vous pouvez faire ici, consultez la section <a href="{{help_url}}">Aide</a> .</li><br><li>En somme, rejoignez d'autres personnes, partagez avec eux l'expérience d'être engagés et participer à {{organization}}.</li><br><li>Faites des propositions, des commentaires, lancez des débats, réfléchissez à la manière de contribuer au bien commun, fournissez des arguments pour convaincre, écoutez et lisez pour être convaincu, exprimez vos idées de manière concrète et directe, répondez avec patience et décision, défendez vos idées dans un esprit ouvert pour collaborer et enrichir les idées des autres.</li></ul>
+        newsletter_mailer:
+            newsletter:
+                no_reply_notice: |
+                    Cet e-mail a été envoyé depuis une adresse de notification uniquement qui n'accepte pas les messages entrants. Veuillez ne pas répondre à cet e-mail.<br><br>
+                    Vous pouvez consulter comment nous traitons vos données et comment exercer vos droits dans la <a href="%{privacy_policy_url}">Politique de Confidentialité</a>, ainsi que gérer la réception des e-mails dans vos <a href="%{notification_preferences_url}">Préférences de Notification</a>.
     devise:
         omniauth_callbacks:
             add_tos_errors: La politique de confidentialité doit être acceptée pour créer un compte.

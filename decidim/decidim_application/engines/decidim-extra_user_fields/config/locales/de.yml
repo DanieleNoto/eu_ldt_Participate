@@ -135,8 +135,8 @@ de:
         statutory_representative:
             inform:
                 body: |
-                    Hallo,
-                    Sie wurden als gesetzlicher Vertreter von %{name} für die Registrierung bei %{organization} benannt.
-                    Beste grüße,
-                    Das %{organization} Team
+                    <p>Hallo,</p>
+                    <p>Sie wurden als gesetzlicher Vertreter von %{name} für die Registrierung bei %{organization} benannt.</p>
+                    <p>Beste grüße,<br />
+                    Das %{organization} Team</p>
                 subject: Sie wurden als gesetzlicher Vertreter benannt

@@ -135,8 +135,8 @@ fr:
         statutory_representative:
             inform:
                 body: |
-                    Bonjour,
-                    Vous avez été désigné comme représentant légal de %{name} pour son inscription à %{organization}.
-                    Cordialement,
-                    L'équipe de %{organization}
+                    <p>Bonjour,</p>
+                    <p>Vous avez été désigné comme représentant légal de %{name} pour son inscription à %{organization}.</p>
+                    <p>Cordialement,<br/>
+                    L'équipe de %{organization}</p>
                 subject: Vous avez été désigné comme représentant légal
