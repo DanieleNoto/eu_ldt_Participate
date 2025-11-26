@@ -42,7 +42,7 @@ test.describe('[PAR-DAAP003] – Request deletion of personal account', () => {
 			await accountDeletionPage.navigateToMyAccount();
 			await accountDeletionPage.navigateToAccountDeletion();
 			// Fill deletion reason
-			const deletionReason = 'Ci ho ripensato';
+			const deletionReason = 'I changed my mind';
 			await accountDeletionPage.fillDeleteReason(deletionReason);
 
 			// Click delete account button

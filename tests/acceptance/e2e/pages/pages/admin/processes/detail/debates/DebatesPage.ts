@@ -9,29 +9,16 @@ import { BaseAdminPage } from '../../../BaseAdminPage';
 export class DebatesPage extends BaseAdminPage {
 	// Sidebar component
 	public readonly sidebarProcessDetail: SidebarProcessDetailComponent;
-	private readonly pageTitle: Locator;
-
-	private readonly exportButton: Locator;
-	private readonly exportDropdown: Locator;
-
 	private readonly newDebateButton: Locator;
-	private readonly configureButton: Locator;
-
 	// Table elements
-	private readonly debatesTable: Locator;
 	private readonly tableRows: Locator;
-	private readonly tableHeaders: Locator;
 
 	constructor(page: Page) {
 		super(page);
-		this.pageTitle = page.locator('.item_show__header-title h1, h1.item_show__header-title');
-
 		this.newDebateButton = page.locator('a.button:has-text("New debate")');
 
 		// Table elements
-		this.debatesTable = page.locator('table.table-list');
 		this.tableRows = page.locator('table.table-list tbody tr');
-		this.tableHeaders = page.locator('table.table-list thead th');
 	}
 
 	async createNewDebate(): Promise<void> {
