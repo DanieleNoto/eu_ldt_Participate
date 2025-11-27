@@ -1,7 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_proposals (originally 20200203111239)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:03:12 UTC
 class AddProposalValuationAssignments < ActiveRecord::Migration[5.2]
   def change
     create_table :decidim_proposals_valuation_assignments do |t|

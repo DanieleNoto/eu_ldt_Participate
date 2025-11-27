@@ -1,10 +1,14 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
 # frozen_string_literal: true
 
 module Api
   class AssetsController < ApplicationController
     before_action :set_asset, only: [:show]
 
-        # GET /api/assets
+    # GET /api/assets
     def index
       collector = AssetCollector.new(current_organization)
       @assets = collector.collect_all
@@ -42,19 +46,19 @@ module Api
       end
     rescue ArgumentError => e
       render json: { error: e.message }, status: :bad_request
-    rescue => e
+    rescue StandardError => e
       Rails.logger.error "Error in assets index: #{e.message}\n#{e.backtrace.join("\n")}"
-      render json: { error: 'Internal server error' }, status: :internal_server_error
+      render json: { error: "Internal server error" }, status: :internal_server_error
     end
 
     # GET /api/assets/:id
     def show
       render json: @asset
     rescue ActiveRecord::RecordNotFound
-      render json: { error: 'Asset not found' }, status: :not_found
-    rescue => e
+      render json: { error: "Asset not found" }, status: :not_found
+    rescue StandardError => e
       Rails.logger.error "Error in assets show: #{e.message}\n#{e.backtrace.join("\n")}"
-      render json: { error: 'Internal server error' }, status: :internal_server_error
+      render json: { error: "Internal server error" }, status: :internal_server_error
     end
 
     private
@@ -65,6 +69,7 @@ module Api
 
     def set_asset
       raise ActiveRecord::RecordNotFound unless current_organization
+
       @asset = AssetFormatter.find_asset_by_composite_id(params[:id], current_organization)
       raise ActiveRecord::RecordNotFound unless @asset
     end

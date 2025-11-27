@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+
 # frozen_string_literal: true
 
 module Decidim
@@ -6,14 +11,14 @@ module Decidim
       include Decidim::HasComponent
       include Decidim::Resourceable
       include Decidim::Traceable
-      
+
       self.table_name = "decidim_ldt_use_case_scenarios_use_case_scenarios"
-      
+
       component_manifest_name "ldt_use_case_scenarios"
-      
+
       validates :name, presence: true
       validates :experiment_id, presence: true
-      
+
       store :experiment_data, accessors: [:experiment_name, :experiment_description, :experiment_status]
 
       # Custom setter to handle JSON string conversion
@@ -27,7 +32,7 @@ module Decidim
             super({})
           end
         else
-          super(value)
+          super
         end
       end
 
@@ -36,9 +41,7 @@ module Decidim
       private
 
       def experiment_data_not_blank
-        if experiment_data.blank? || (experiment_data.is_a?(Hash) && experiment_data.empty?)
-          errors.add(:experiment_data, "cannot be blank")
-        end
+        errors.add(:experiment_data, "cannot be blank") if experiment_data.blank? || (experiment_data.is_a?(Hash) && experiment_data.empty?)
       end
     end
   end

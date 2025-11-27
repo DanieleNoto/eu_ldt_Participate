@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# marcocerdelli
+apiVersion: v1
+kind: Service
+metadata:
+    name: chatbot-frontend-svc
+    namespace: participate
+spec:
+    type: ClusterIP
+    selector:
+        app: chatbot-webapp
+    ports:
+        - name: http
+          port: 80
+          targetPort: 5001
+          protocol: TCP
+

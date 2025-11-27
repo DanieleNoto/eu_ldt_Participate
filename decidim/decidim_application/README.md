@@ -1,3 +1,10 @@
+<!--
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Marco Pinnella
+ -->
+
 # decidim_application
 
 Free Open-Source participatory democracy, citizen participation and open government for cities and organizations

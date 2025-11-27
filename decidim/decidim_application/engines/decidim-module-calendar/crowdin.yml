@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+files:
+  - source: /config/locales/en.yml
+    translation: /config/locales/%two_letters_code%.yml

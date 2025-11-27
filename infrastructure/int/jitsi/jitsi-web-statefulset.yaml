@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alvaro Iglesias Sanchez
+# Gianfranco Cedro
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -20,6 +25,7 @@ spec:
             containers:
                 - name: jitsi-web
                   image: jitsi/web:stable-8960
+                  imagePullPolicy: IfNotPresent
                   resources:
                       requests:
                           memory: '128Mi'

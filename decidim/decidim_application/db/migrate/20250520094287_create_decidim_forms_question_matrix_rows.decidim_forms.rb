@@ -1,7 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_forms (originally 20200225123810)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:56 UTC
 class CreateDecidimFormsQuestionMatrixRows < ActiveRecord::Migration[5.2]
   def change
     create_table :decidim_forms_question_matrix_rows do |t|

@@ -1,4 +1,10 @@
-import { FastifyInstance, FastifyRequest, FastifyReply, RouteOptions } from 'fastify';
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Gianfranco Cedro
+//   # Pierluigi Spedicato
+import { FastifyInstance, FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
 import { HttpMethod } from '../../enums/http-methods.enum';
 
 interface RegisterRouteOptions {
@@ -13,12 +19,12 @@ interface RegisterRouteOptions {
 }
 
 export const registerRoute = (options: RegisterRouteOptions) => {
-	const { app, resourceName, method, path = '/', bodySchema, response, controllerMethod } = options;
+	const { app, resourceName, method, path = '', bodySchema, response, controllerMethod } = options;
 
 	const fullPath = `/${resourceName}${path}`;
 
 	const routeOptions: RouteOptions = {
-		method: method.toLowerCase() as 'GET' | 'POST',
+		method: method.toLowerCase(),
 		url: fullPath,
 		handler: controllerMethod
 	};

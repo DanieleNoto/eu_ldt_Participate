@@ -1,69 +1,87 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
 ---
 fr:
-  decidim:
-    components:
-      ldt_map_visualization:
-        name: Visualisation de Carte LDT
-        settings:
-          global:
-            title: Titre
-    ldt_map_visualization:
-      map_visualizations:
-        index:
-          title: Visualisations de Carte
-          no_maps: Aucune visualisation de carte disponible
-          view_map: Voir la carte
-        map_visualizations:
-          empty: Aucune visualisation de carte disponible pour le moment.
-          count:
-            one: "%{count} visualisation de carte"
-            other: "%{count} visualisations de carte"
-          no_maps: Aucune visualisation de carte disponible
-          owner: Propriétaire
-          scope: Portée
-          view_map: Voir la carte
-          map_id: ID de la carte
-        show:
-          description: Description
-          map_details: Détails de la carte
-          map_id: ID de la carte
-          owner: Propriétaire
-          scope: Portée
-          actions: Actions
-          back_to_list: Retour à la liste
-          edit: Modifier
-          created_at: Créé le
-      admin:
-        map_visualizations:
-          index:
-            title: Gérer les Visualisations de Carte
-            preview: Aperçu
-            name: Nom
-            map_id: ID de la carte
-            owner: Propriétaire
-            scope: Portée
-            description: Description
-            actions: Actions
-            new: Ajouter une nouvelle carte
-            no_maps: Aucune visualisation de carte disponible pour le moment
-            no_image: Pas d'image
-            edit: Modifier
-            delete: Supprimer
-          new:
-            title: Créer une Visualisation de Carte
-            no_maps: Pas de cartes disponibles
-            submit: Créer
-            name: Nom
-            map_name: Nom de la Visualisation
-            enter_map_name: Entrez un nom pour cette visualisation de carte
-            name_required: Le nom de la visualisation est requis
-            save_error: Erreur lors de l'enregistrement de la visualisation de carte. Veuillez réessayer.
-            loading_maps: Chargement des cartes disponibles...
-            cancel: Annuler
-            map_image: Aperçu
-            owner: Propriétaire
-            scope: Portée
-            description: Description
-            map_id: ID de la carte
-            preview: Aperçu
-            no_image: Pas d'image
+    layouts:
+        decidim:
+            shared:
+                layout_center:
+                    owner: ''
+                    created_at: ''
+                    back_to_list: ''
+    decidim:
+        components:
+            ldt_map_visualization:
+                name: Visualisation de Carte LDT
+                settings:
+                    global:
+                        title: Titre
+        ldt_map_visualization:
+            map_visualizations:
+                index:
+                    title: Visualisations de Carte
+                map_visualizations:
+                    empty: Aucune visualisation de carte disponible pour le moment.
+                    count:
+                        one: '%{count} visualisation de carte'
+                        other: '%{count} visualisations de carte'
+                    no_maps: Aucune visualisation de carte disponible
+                    owner: Propriétaire
+                    scope: Portée
+                    view_map: Voir la carte
+                    map_id: ID de la carte
+                show:
+                    description: Description
+                    map_details: Détails de la carte
+                    map_id: ID de la carte
+                    owner: Propriétaire
+                    scope: Portée
+                    actions: Actions
+                    back_to_list: Retour à la liste
+                    edit: Modifier
+                    created_at: Créé le
+            admin:
+                map_visualizations:
+                    index:
+                        title: Gérer les Visualisations de Carte
+                        preview: Aperçu
+                        name: Nom
+                        map_id: ID de la carte
+                        owner: Propriétaire
+                        scope: Portée
+                        description: Description
+                        actions: Actions
+                        new: Ajouter une nouvelle carte
+                        no_maps: Aucune visualisation de carte disponible pour le moment
+                        no_image: Pas d'image
+                        edit: Modifier
+                        delete: Supprimer
+                    new:
+                        title: Créer une Visualisation de Carte
+                        no_maps: Pas de cartes disponibles
+                        submit: Créer
+                        name: Nom
+                        map_name: Nom de la Visualisation
+                        enter_map_name: Entrez un nom pour cette visualisation de carte
+                        name_required: Le nom de la visualisation est requis
+                        save_error: Erreur lors de l'enregistrement de la visualisation de carte. Veuillez réessayer.
+                        loading_maps: Chargement des cartes disponibles...
+                        cancel: Annuler
+                        map_image: Aperçu
+                        owner: Propriétaire
+                        scope: Portée
+                        description: Description
+                        no_image: Aucune image
+                    create:
+                        success: Visualisation de carte créée avec succès
+                        error: Erreur lors de la création de la visualisation de carte
+                        duplicate_map: Cette carte a déjà été ajoutée à ce composant.
+                    update:
+                        success: Visualisation de carte mise à jour avec succès
+                        error: Erreur lors de la mise à jour de la visualisation de carte
+                    destroy:
+                        success: Visualisation de carte supprimée avec succès
+                        error: Erreur lors de la suppression de la visualisation de carte
+                        not_found: Visualisation de carte non trouvée

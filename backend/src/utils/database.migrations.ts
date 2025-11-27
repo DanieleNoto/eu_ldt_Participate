@@ -1,3 +1,8 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Pierluigi Spedicato
 import path from 'node:path';
 import { Sequelize } from 'sequelize';
 import { SequelizeStorage, Umzug } from 'umzug';
@@ -10,7 +15,7 @@ export const runSeeders = async () => {
 			glob: ['*.{js,ts}', { cwd: path.join(__dirname, '../../db/seeders') }],
 			// eslint-disable-next-line @typescript-eslint/no-shadow
 			resolve: ({ name, path, context }) => {
-				const migration = require(path || '');
+				const migration = require(path ?? '');
 				logger.debug(migration);
 				return {
 					name,
@@ -22,7 +27,7 @@ export const runSeeders = async () => {
 		context: sequelize.getQueryInterface(),
 		storage: new SequelizeStorage({
 			sequelize,
-			modelName: process.env.SEQUELIZE_SEEDER_STORAGE_TABLE_NAME || 'SequelizeData'
+			modelName: process.env.SEQUELIZE_SEEDER_STORAGE_TABLE_NAME ?? 'SequelizeData'
 		}),
 		logger
 	});
@@ -44,7 +49,7 @@ export const runMigrations = async () => {
 			glob: ['*.{js,ts}', { cwd: path.join(__dirname, '../../db/migrations') }],
 			// eslint-disable-next-line @typescript-eslint/no-shadow
 			resolve: ({ name, path, context }) => {
-				const migration = require(path || '');
+				const migration = require(path ?? '');
 				logger.debug(migration);
 				return {
 					name,
@@ -56,7 +61,7 @@ export const runMigrations = async () => {
 		context: sequelize.getQueryInterface(),
 		storage: new SequelizeStorage({
 			sequelize,
-			modelName: process.env.SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME || 'SequelizeData'
+			modelName: process.env.SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME ?? 'SequelizeData'
 		}),
 		logger
 	});

@@ -1,3 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+  # Denis Vasilev Dimchev
+  # Gianfranco Cedro
+  # Marco Pinnella
+  # Pierluigi Spedicato
+
+
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -10,14 +19,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
+ActiveRecord::Schema[7.0].define(version: 2025_11_24_122042) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "ltree"
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
-
-  create_table "SequelizeData", primary_key: "name", id: { type: :string, limit: 255 }, force: :cascade do |t|
-  end
 
   create_table "active_hashcash_stamps", force: :cascade do |t|
     t.string "version", null: false
@@ -62,14 +68,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
-  end
-
-  create_table "conversations", id: :uuid, default: nil, force: :cascade do |t|
-    t.uuid "conversationId", null: false
-    t.string "nodeId", limit: 255, null: false
-    t.string "message", limit: 1000, null: false
-    t.timestamptz "createdAt", null: false
-    t.timestamptz "updatedAt", null: false
   end
 
   create_table "decidim_accountability_results", id: :serial, force: :cascade do |t|
@@ -1549,7 +1547,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
     t.index ["privatable_to_type", "privatable_to_id"], name: "space_privatable_to_privatable_id"
   end
 
-  create_table "decidim_private_exports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "decidim_private_exports", force: :cascade do |t|
+    t.uuid "uuid", null: false
     t.string "export_type", null: false
     t.string "attached_to_type"
     t.integer "attached_to_id"
@@ -1560,6 +1559,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["uuid"], name: "index_decidim_private_exports_on_uuid", unique: true
   end
 
   create_table "decidim_proposals_collaborative_draft_collaborator_requests", force: :cascade do |t|
@@ -2082,6 +2082,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
     t.jsonb "officialized_as"
     t.datetime "admin_terms_accepted_at", precision: nil
     t.boolean "email_on_assigned_proposals", default: true
+    t.text "keycloak_token", comment: "Keycloak JWT access token for Tool0 API access"
+    t.datetime "keycloak_token_expires_at", precision: nil, comment: "Timestamp when the Keycloak JWT token expires"
     t.index ["confirmation_token"], name: "index_decidim_users_on_confirmation_token", unique: true
     t.index ["decidim_organization_id"], name: "index_decidim_users_on_decidim_organization_id"
     t.index ["email", "decidim_organization_id"], name: "index_decidim_users_on_email_and_decidim_organization_id", unique: true, where: "((deleted_at IS NULL) AND (managed = false) AND ((type)::text = 'Decidim::User'::text))"
@@ -2090,6 +2092,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_21_151946) do
     t.index ["invitations_count"], name: "index_decidim_users_on_invitations_count"
     t.index ["invited_by_id", "invited_by_type"], name: "index_decidim_users_on_invited_by_id_and_invited_by_type"
     t.index ["invited_by_id"], name: "index_decidim_users_on_invited_by_id"
+    t.index ["keycloak_token_expires_at"], name: "idx_decidim_users_keycloak_token_expires_at"
     t.index ["nickname", "decidim_organization_id"], name: "index_decidim_users_on_nickame_and_decidim_organization_id", unique: true, where: "((deleted_at IS NULL) AND (managed = false))"
     t.index ["notifications_sending_frequency"], name: "index_decidim_users_on_notifications_sending_frequency"
     t.index ["officialized_at"], name: "index_decidim_users_on_officialized_at"

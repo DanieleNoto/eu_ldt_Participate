@@ -16,6 +16,16 @@
 		"typeHere": "Type here...",
 		"cancel": "Cancel",
 		"send": "Send",
-		"supportRequestSent": "Support request sent. Our team will contact you."
+		"supportRequestSent": "Support request sent. Our team will contact you.",
+		"validationMinLength": "Please write at least 20 characters (current: {count}).",
+		"validationRequired": "Please describe your issue before sending."
+	},
+	"errorBoundary": {
+		"title": "500",
+		"subtitle": "Something went wrong!",
+		"description": "We're sorry, but we couldn't provide the requested page. Please try again later.",
+		"goBackTo": "Go back to",
+		"home": "Home",
+		"goBackToHome": "Go back to Home"
 	}
 }

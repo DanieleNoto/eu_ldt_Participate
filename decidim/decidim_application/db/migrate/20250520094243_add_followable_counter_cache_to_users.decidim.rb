@@ -1,7 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim (originally 20210310120640)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:52 UTC
 class AddFollowableCounterCacheToUsers < ActiveRecord::Migration[5.2]
   class Follow < ApplicationRecord
     self.table_name = "decidim_follows"
@@ -15,7 +20,8 @@ class AddFollowableCounterCacheToUsers < ActiveRecord::Migration[5.2]
   end
 
   def change
-    add_column :decidim_users, :follows_count, :integer, null: false, default: 0, index: true
+    add_column :decidim_users, :follows_count, :integer, null: false, default: 0
+    add_index :decidim_users, :follows_count
 
     reversible do |dir|
       dir.up do

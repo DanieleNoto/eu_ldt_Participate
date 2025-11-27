@@ -1,14 +1,19 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
+# Marco Pinnella
 # frozen_string_literal: true
 
 source "https://rubygems.org"
 
 ruby RUBY_VERSION
 
-
-DECIDIM_VERSION = "0.30.2"
+DECIDIM_VERSION = "0.30.4"
 
 gem "decidim", DECIDIM_VERSION
-gem "decidim-calendar", git: "https://github.com/decidim-ice/decidim-module-calendar"
+gem "decidim-calendar", path: "./engines/decidim-module-calendar"
 # Temporarily disable AI module due to Redis configuration issues
 # gem "decidim-ai", DECIDIM_VERSION
 gem "decidim-conferences", DECIDIM_VERSION
@@ -23,22 +28,21 @@ gem "puma", ">= 6.3.1"
 # Add mutex_m to fix warning in Ruby 3.3.4
 gem "mutex_m", "~> 0.2.0"
 
-gem "decidim-extra_user_fields", path: './engines/decidim-extra_user_fields'
-gem "decidim-keycloak", path: "./engines/decidim-keycloak"
+gem "decidim-admin_header", path: "./engines/decidim-admin_header"
 gem "decidim-analytics", path: "./engines/decidim-module-analytics"
-gem "decidim-ldt_use_case_scenarios", path: "./engines/decidim-module-ldt_use_case_scenarios"
+gem "decidim-extra_user_fields", path: "./engines/decidim-extra_user_fields"
+gem "decidim-keycloak", path: "./engines/decidim-keycloak"
 gem "decidim-ldt_map_visualization", path: "./engines/decidim-module-ldt_map_visualization"
-gem 'decidim-meetings-jitsi', path: './engines/decidim-meetings-jitsi'
-gem 'decidim-admin_header', path: './engines/decidim-admin_header'
+gem "decidim-ldt_use_case_scenarios", path: "./engines/decidim-module-ldt_use_case_scenarios"
+gem "decidim-meetings-jitsi", path: "./engines/decidim-meetings-jitsi"
 
 gem "decidim-decidim_awesome", "~> 0.13.1", git: "https://github.com/decidim-ice/decidim-module-decidim_awesome.git"
-gem 'lograge'
-gem 'logstash-event'
+gem "lograge"
+gem "logstash-event"
 
 group :development, :test do
   gem "byebug", "~> 11.0", platform: :mri
   gem "decidim-dev", DECIDIM_VERSION
-  gem "brakeman", "~> 7.0"
   gem "parallel_tests", "~> 4.2"
 end
 

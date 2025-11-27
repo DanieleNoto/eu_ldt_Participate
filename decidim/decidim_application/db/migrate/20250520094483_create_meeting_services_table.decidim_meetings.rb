@@ -1,7 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_meetings (originally 20200702123209)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:03:00 UTC
 class CreateMeetingServicesTable < ActiveRecord::Migration[5.2]
   def change
     create_table :decidim_meetings_services do |t|

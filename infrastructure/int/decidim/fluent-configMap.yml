@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alvaro Iglesias Sanchez
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-configmap
+  namespace: participate
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush        5
+        Daemon       Off
+        Log_Level    info
+        Parsers_File parsers.conf
+
+    [INPUT]
+        Name        tail
+        Path        /code/log/*.log
+        Path_Key    filename
+        Tag         app.log
+        DB          /code/log/flb_kube.db
+        Refresh_Interval 5
+        Parser      json
+
+    [FILTER]
+        Name        modify
+        Match       *
+        Add         source "fluent-bit"
+        
+    [OUTPUT]
+        Name        loki
+        Match       *
+        Host        57.153.120.144
+        Port        9999
+        URI         /loki/api/v1/push
+        Labels      job="app"
+        Line_Format  json
+
+  parsers.conf: |
+    [PARSER]
+        Name        json
+        Format      json
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%LZ

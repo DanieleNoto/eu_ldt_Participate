@@ -16,6 +16,16 @@
 		"typeHere": "Hier eingeben...",
 		"cancel": "Abbrechen",
 		"send": "Senden",
-		"supportRequestSent": "Support-Anfrage gesendet. Unser Team wird sich mit Ihnen in Verbindung setzen."
+		"supportRequestSent": "Support-Anfrage gesendet. Unser Team wird sich mit Ihnen in Verbindung setzen.",
+		"validationMinLength": "Bitte schreiben Sie mindestens 20 Zeichen (aktuell: {count}).",
+		"validationRequired": "Bitte beschreiben Sie Ihr Problem vor dem Senden."
+	},
+	"errorBoundary": {
+		"title": "500",
+		"subtitle": "Etwas ist schiefgelaufen!",
+		"description": "Es tut uns leid, aber wir konnten die angeforderte Seite nicht bereitstellen. Bitte versuchen Sie es später erneut.",
+		"goBackTo": "Zurück zur",
+		"home": "Startseite",
+		"goBackToHome": "Zurück zur Startseite"
 	}
 }

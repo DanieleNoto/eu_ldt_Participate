@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
 # frozen_string_literal: true
 
 source "https://rubygems.org"
@@ -15,8 +19,8 @@ DECIDIM_VERSION = Decidim::Analytics::DECIDIM_VERSION
 gem "decidim", DECIDIM_VERSION
 gem "decidim-analytics", path: "."
 
-gem "puma", ">= 6.0"
 gem "bootsnap", "~> 1.16"
+gem "puma", ">= 6.0"
 
 group :development, :test do
   gem "byebug", "~> 11.0", platform: :mri

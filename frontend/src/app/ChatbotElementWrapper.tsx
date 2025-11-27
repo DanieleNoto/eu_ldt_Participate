@@ -1,3 +1,8 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Gianfranco Cedro
 import { createRoot, Root } from 'react-dom/client';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
@@ -52,7 +57,7 @@ class EuChatbotElement extends HTMLElement {
 	}
 
 	public getLanguage(): string {
-		return this.getAttribute('language') || 'en';
+		return this.getAttribute('language') ?? 'en';
 	}
 
 	private _setupShadowDOM() {
@@ -70,11 +75,34 @@ class EuChatbotElement extends HTMLElement {
 				right: 20px;
 				z-index: 2147483647; /* Maximum z-index */
 				font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-				pointer-events: none; /* Allow clicks through when chatbot is closed */
+				display: flex;
+				flex-direction: column;
+				align-items: flex-end; /* Align button and dialog to the right */
+				gap: 12px; /* Space between dialog and button */
 			}
 
-			:host > div {
+			#chatbot-root {
 				pointer-events: auto; /* Re-enable clicks on the chatbot itself */
+				display: flex;
+				flex-direction: column;
+				align-items: flex-end;
+				gap: 12px;
+			}
+			
+			/* Ensure dialog appears above button */
+			#chatbot-root dialog[open] {
+				position: static !important;
+				margin: 0;
+			}
+			
+			/* Button stays at bottom */
+			#chatbot-root > button {
+				order: 2;
+			}
+			
+			/* Dialog appears above button */
+			#chatbot-root > dialog {
+				order: 1;
 			}
 
 			*, *::before, *::after {
@@ -109,7 +137,7 @@ class EuChatbotElement extends HTMLElement {
 	}
 
 	private async _injectGlobalStyles() {
-		const baseUrl = (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '';
+		const baseUrl = (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ ?? '';
 		const loadedGlobal = baseUrl ? await this._loadGlobalCSS(baseUrl) : false;
 		this._applyProtectiveOverrides(loadedGlobal);
 	}
@@ -117,9 +145,28 @@ class EuChatbotElement extends HTMLElement {
 	private async _loadGlobalCSS(baseUrl: string): Promise<boolean> {
 		try {
 			const url = `${baseUrl}/global.css`;
+			
+			// Try using <link> tag first (more reliable for Shadow DOM)
+			if (this._shadowRoot) {
+				const linkElement = document.createElement('link');
+				linkElement.rel = 'stylesheet';
+				linkElement.href = url;
+				linkElement.dataset.source = 'global.css';
+				
+				// Insert before mount point
+				this._shadowRoot.insertBefore(linkElement, this._mountPoint);
+				
+				// eslint-disable-next-line no-console
+				console.log('[Chatbot] Loading styles via <link> from', url);
+				return true;
+			}
+			
+			// Fallback to fetch if link doesn't work
 			const cssResponse = await fetch(url).catch(() => null);
 			
 			if (!cssResponse?.ok) {
+				// eslint-disable-next-line no-console
+				console.warn('[Chatbot] Failed to fetch CSS from', url);
 				return false;
 			}
 
@@ -207,7 +254,7 @@ class EuChatbotElement extends HTMLElement {
 	private _render() {
 		if (!this._root) return;
 
-		const language = this.getAttribute('language') || 'en';
+		const language = this.getAttribute('language') ?? 'en';
 
 		try {
 			const content = (

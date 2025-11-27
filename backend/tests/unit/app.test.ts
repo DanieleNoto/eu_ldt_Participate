@@ -1,4 +1,7 @@
-// Test coverage for main app
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
 import { build } from '../../src/app';
 
 // Mock all plugins
@@ -11,8 +14,16 @@ jest.mock('../../src/middlewares/error-handler.middleware', () =>
 );
 
 describe('App', () => {
+	let app: any;
+
+	afterEach(async () => {
+		if (app) {
+			await app.close();
+		}
+	});
+
 	test('should build fastify instance', async () => {
-		const app = await build();
+		app = await build();
 
 		expect(app).toBeDefined();
 		expect(typeof app.listen).toBe('function');
@@ -20,8 +31,7 @@ describe('App', () => {
 	});
 
 	test('should build fastify instance with options', async () => {
-		const options = { logger: false };
-		const app = await build(options);
+		app = await build({ logger: false });
 
 		expect(app).toBeDefined();
 	});

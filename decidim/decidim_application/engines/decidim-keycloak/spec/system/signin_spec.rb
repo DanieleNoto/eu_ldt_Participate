@@ -1,9 +1,13 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
 # frozen_string_literal: true
 
 require "spec_helper"
 
-describe "Login page", type: :system do
-  let!(:organization) { create :organization }
+describe "Login page" do
+  let!(:organization) { create(:organization) }
 
   before do
     organization.omniauth_settings = omniauth_settings.transform_values do |v|
@@ -40,7 +44,7 @@ describe "Login page", type: :system do
     end
 
     it "has no button" do
-      expect(page).not_to have_content "Sign in with Keycloakopenid"
+      expect(page).to have_no_content "Sign in with Keycloakopenid"
     end
   end
 end

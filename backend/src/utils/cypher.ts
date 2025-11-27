@@ -1,25 +1,31 @@
-import { BinaryLike, createCipheriv, createDecipheriv, randomBytes, scrypt, Cipheriv, Decipheriv } from 'node:crypto';
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Gianfranco Cedro
+//   # Pierluigi Spedicato
+import { BinaryLike, createCipheriv, createDecipheriv, randomBytes, scrypt } from 'node:crypto';
 import { promisify } from 'util';
 import appConfig from '../config/config';
 
 const config = appConfig.cypher;
 
 const iv = randomBytes(16);
-const secret = process.env.CYPHER_SECRET || '';
-const salt = process.env.CYPHER_SALT || '';
+const secret = process.env.CYPHER_SECRET ?? '';
+const salt = process.env.CYPHER_SALT ?? '';
 
 const getKey = async (): Promise<Buffer> => {
 	const keys = (await promisify(scrypt)(secret, salt, 32)) as Buffer;
 	return keys;
 };
 
-const getCipher = async (): Promise<Cipheriv> => {
+const getCipher = async () => {
 	const key = await getKey();
 	const cipher = createCipheriv(config.algorithm, key, iv);
 	return cipher;
 };
 
-const getDecipher = async (ivv: BinaryLike): Promise<Decipheriv> => {
+const getDecipher = async (ivv: BinaryLike) => {
 	const key = await getKey();
 	const cipher = createDecipheriv(config.algorithm, key, ivv);
 	return cipher;

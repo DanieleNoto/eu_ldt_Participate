@@ -1,3 +1,7 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Pierluigi Spedicato
 import jwt from '@fastify/jwt';
 import fp from 'fastify-plugin';
 import appConfig from '../config/config';

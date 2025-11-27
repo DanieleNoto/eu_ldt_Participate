@@ -1,7 +1,11 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim (originally 20210831181635)
-# This migration comes from active_storage (originally 20191206030411)
 class CreateActiveStorageVariantRecords < ActiveRecord::Migration[6.0]
   def change
     create_table :active_storage_variant_records do |t|

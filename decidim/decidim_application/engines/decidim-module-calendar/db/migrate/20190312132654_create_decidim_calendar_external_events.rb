@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
+
+# frozen_string_literal: true
+
+class CreateDecidimCalendarExternalEvents < ActiveRecord::Migration[5.2]
+  def change
+    create_table :decidim_calendar_external_events do |t|
+      t.jsonb :title, null: false
+      t.datetime :start_at, null: false
+      t.datetime :end_at, null: false
+      t.string :url
+      t.integer :decidim_author_id, null: false
+      t.string :decidim_author_type
+      t.integer :decidim_organization_id, null: false
+
+      t.index :decidim_author_id, name: :decidim_calendar_external_event_author
+      t.index :decidim_organization_id, name: :decidim_calendar_external_event_organization
+    end
+  end
+end

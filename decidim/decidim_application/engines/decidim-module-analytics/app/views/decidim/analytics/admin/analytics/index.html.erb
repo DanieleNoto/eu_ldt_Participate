@@ -1,3 +1,10 @@
+<%#
+  SPDX-License-Identifier: AGPL-3.0
+  Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+  Authors:
+    Gianfranco Cedro
+%>
+
 <% add_decidim_page_title(t("decidim.admin.titles.analytics")) %>
 
 <style>
@@ -39,33 +46,33 @@
                 height="1000px"
                 class="analytics-iframe">
         </iframe>
-        
+
         <div id="matomo-error" style="display: none;" class="callout alert">
-          <p><strong>Unable to load Matomo dashboard.</strong></p>
-          <p>Please check:</p>
+          <p><strong><%= t("decidim.analytics.admin.unable_to_load_matomo") %></strong></p>
+          <p><%= t("decidim.analytics.admin.please_check") %></p>
           <ul>
-            <li>Matomo server is running at <code><%= @server_address %></code></li>
-            <li>Site ID <code><%= @site_id %></code> exists in Matomo</li>
-            <li>Token has proper permissions for dashboard embedding</li>
+            <li><%= t("decidim.analytics.admin.matomo_server_running") %> <code><%= @server_address %></code></li>
+            <li><%= t("decidim.analytics.admin.site_id") %> <code><%= @site_id %></code> <%= t("decidim.analytics.admin.site_id_exists") %></li>
+            <li><%= t("decidim.analytics.admin.token_permissions") %></li>
           </ul>
-          <p>Try accessing <a href="<%= @server_address %>" target="_blank">Matomo directly</a> to verify configuration.</p>
+          <p><%= t("decidim.analytics.admin.try_accessing") %> <a href="<%= @server_address %>" target="_blank"><%= t("decidim.analytics.admin.matomo_directly") %></a> <%= t("decidim.analytics.admin.verify_configuration") %></p>
         </div>
       </div>
-      
+
       <script>
         document.getElementById('matomo-iframe').addEventListener('load', function() {
           console.log('Matomo widget loaded successfully');
-          
+
           // Hide error message if shown
           var errorDiv = document.getElementById('matomo-error');
           if (errorDiv) {
             errorDiv.style.display = 'none';
           }
         });
-        
+
         document.getElementById('matomo-iframe').addEventListener('error', function() {
           console.error('Failed to load Matomo widget');
-          
+
           var errorDiv = document.getElementById('matomo-error');
           if (errorDiv) {
             errorDiv.style.display = 'block';
@@ -75,15 +82,13 @@
     <% else %>
       <div class="callout warning">
         <p><%= t("decidim.analytics.admin.missing_configuration") %></p>
-        <p>Missing configuration values:</p>
+        <p><%= t("decidim.analytics.admin.missing_configuration_values") %></p>
         <ul>
-          <% unless @server_address.present? %><li>Server Address</li><% end %>
-          <% unless @site_id.present? %><li>Site ID</li><% end %>
-          <% unless @token_auth.present? %><li>Authentication Token</li><% end %>
+          <% unless @server_address.present? %><li><%= t("decidim.analytics.admin.server_address") %></li><% end %>
+          <% unless @site_id.present? %><li><%= t("decidim.analytics.admin.site_id") %></li><% end %>
+          <% unless @token_auth.present? %><li><%= t("decidim.analytics.admin.authentication_token") %></li><% end %>
         </ul>
       </div>
     <% end %>
   </div>
 </div>
-
-

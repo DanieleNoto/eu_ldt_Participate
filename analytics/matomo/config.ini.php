@@ -1,3 +1,9 @@
+<!-- 
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+  # Gianfranco Cedro
+-->
 ; <?php exit; ?> DO NOT REMOVE THIS LINE
 ; file automatically generated or modified by Matomo; you can manually override the default values in global.ini.php by redefining them in this file.
 [General]

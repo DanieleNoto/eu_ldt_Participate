@@ -1,91 +1,142 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
+# Simone Bianchelli
 ---
 de:
-  activemodel:
-    attributes:
-      user:
-        country: Land
-        date_of_birth: Geburtsdatum
-        gender: Geschlecht
-        location: Standort
-        phone_number: Telefonnummer
-        postal_code: Postleitzahl
-    errors:
-      models:
-        user:
-          attributes:
-            date_of_birth:
-              underage: ungültig. Wenn Sie minderjährig sind, müssen Sie die Erlaubnis der Eltern einholen
-            phone_number:
-              invalid: ist kein gültiges Telefonformat
-              too_long: ist zu lang (maximal 100 Zeichen)
-            postal_code:
-              too_long: ist zu lang (maximal 50 Zeichen)
-            location:
-              too_long: ist zu lang (maximal 100 Zeichen)
-            statutory_representative_email:
-              too_long: ist zu lang (maximal 100 Zeichen)
-  decidim:
-    admin:
-      actions:
-        export: Exportieren
-      exports:
-        export_as: Exportieren im Format %{export_format}
-      extra_user_fields:
-        menu:
-          title: Benutzerdefinierte Anmeldefelder verwalten
-    components:
-      extra_user_fields:
-        name: Benutzerdefinierte Anmeldefelder
-    extra_user_fields:
-      admin:
-        exports:
-          users: Teilnehmer
-        extra_user_fields:
-          fields:
-            country:
-              description: Dieses Feld enthält eine Liste von Ländern. Der Benutzer kann ein Land auswählen.
-              label: Das Feld Land aktivieren
-            date_of_birth:
-              description: Dieses Feld ist ein Feld für das Geburtsdatum. Der Benutzer kann ein Datum auswählen.
-              label: Das Feld Geburtsdatum aktivieren
-            gender:
-              description: Dieses Feld ist ein Feld für die Geschlechtsidentität. Der Benutzer kann ein Geschlecht auswählen.
-              label: Das Feld Geschlecht aktivieren
-            location:
-              description: Dieses Feld ermöglicht das Hinzufügen von Text. Der Benutzer kann einen Ort auswählen.
-              label: Das Feld Standort aktivieren
-            phone_number:
-              description: Dieses Feld ist ein Telefonnummernfeld. Der Benutzer kann eine Nummer auswählen.
-              label: Das Feld Telefonnummer aktivieren
-            postal_code:
-              description: Dieses Feld ist für die Postleitzahl. Der Benutzer kann eine Postleitzahl auswählen.
-              label: Das Postleitzahlenfeld aktivieren.
-          form:
-            callout:
-              help: Aktivieren Sie die Funktion für benutzerdefinierte Anmeldefelder, um zusätzliche Felder in Ihrem Anmeldeformular zu verwalten. Auch bei aktivierter Option wird das Anmeldeformular nur aktualisiert, wenn mindestens ein zusätzliches Feld aktiviert ist.
+    activemodel:
+        attributes:
+            user:
+                country: Land
+                date_of_birth: Geburtsdatum
+                gender: Geschlecht
+                location: Standort
+                phone_number: Telefonnummer
+                postal_code: Postleitzahl
+                personal_url: Persönliche URL
+                statutory_representative_email: Vertreter-E-Mail
+                underage: Minderjährig
+        errors:
+            models:
+                user:
+                    attributes:
+                        date_of_birth:
+                            future_date: darf nicht in der Zukunft liegen
+                            underage: ungültig. Wenn Sie minderjährig sind, müssen Sie die Erlaubnis der Eltern einholen
+                        phone_number:
+                            invalid: ist kein gültiges Telefonformat
+                            too_long: ist zu lang (maximal 100 Zeichen)
+                        postal_code:
+                            too_long: ist zu lang (maximal 50 Zeichen)
+                        location:
+                            too_long: ist zu lang (maximal 100 Zeichen)
+                        statutory_representative_email:
+                            too_long: ist zu lang (maximal 100 Zeichen)
+                        personal_url:
+                            invalid_url: Ist keine gültige URL (muss mit http:// oder https:// beginnen)
+                            invalid: Ist keine gültige URL (muss mit http:// oder https:// beginnen)
+                        password:
+                            too_short: Ist zu kurz (mindestens 8 Zeichen)
+                            too_common: Ist zu häufig - bitte wählen Sie ein sichereres Passwort
+                            name_included_in_password: Ist zu ähnlich zu Ihrem Namen
+                            email_included_in_password: Ist zu ähnlich zu Ihrer E-Mail
+                            nickname_included_in_password: Ist zu ähnlich zu Ihrem Benutzernamen
+                            not_enough_unique_characters: Hat nicht genug eindeutige Zeichen
+                        old_password:
+                            invalid: ist nicht korrekt - bitte überprüfen Sie Ihr aktuelles Passwort
+    password_validator:
+        denied: Wird abgelehnt
+        domain_included_in_password: Ist dem Domainnamen zu ähnlich
+        email_included_in_password: Ist zu ähnlich zu Ihrer E-Mail
+        fallback: Ist nicht gültig
+        name_included_in_password: Ist zu ähnlich zu Ihrem Namen
+        nickname_included_in_password: Ist zu ähnlich zu Ihrem Benutzernamen
+        not_enough_unique_characters: Hat nicht genug eindeutige Zeichen
+        password_not_allowed: Ist nicht zulässig
+        password_repeated: Sie können Ihr altes Passwort nicht wiederverwenden
+        password_too_common: Ist zu häufig - bitte wählen Sie ein sichereres Passwort
+        password_too_long: Ist zu lang
+        password_too_short: Ist zu kurz (mindestens 8 Zeichen)
+    decidim:
+        devise:
+            shared:
+                password_fields:
+                    password_requirements: '15 Zeichen Minimum, darf nicht zu häufig sein (z.B. 123456), muss sich von Ihrem Benutzernamen und Ihrer E-Mail unterscheiden und muss sich von Ihren alten Passwörtern unterscheiden.'
+                    show_password: Passwort anzeigen
+                    hide_password: Passwort verbergen
+                    hidden_password: Passwort verborgen
+                    shown_password: Passwort sichtbar
+        account:
+            show:
+                personal_url_help_text: Muss mit http:// oder https:// beginnen
+        admin:
             extra_user_fields:
-              extra_user_fields_enabled: Benutzerdefinierte Anmeldefelder aktivieren
-              section: Verfügbare Anmeldefelder für das Anmeldeformular
-            global:
-              title: Aktivieren / Deaktivieren von benutzerdefinierten Anmeldefeldern
-          index:
-            save: Speichern
-            title: Benutzerdefinierte Anmeldefelder verwalten
-          update:
-            failure: Bei der Aktualisierung ist ein Fehler aufgetreten.
-            success: Die Anmeldefelder wurden erfolgreich aktualisiert.
-      genders:
-        female: Frau
-        male: Mann
-        other: Divers
-      registration_form:
-        signup:
-          legend: Weitere Informationen
-    statutory_representative:
-      inform:
-        body: |
-          Hallo,
-          Sie wurden als gesetzlicher Vertreter von %{name} für die Registrierung bei %{organization} benannt.
-          Beste grüße,
-          Das %{organization} Team
-        subject: Sie wurden als gesetzlicher Vertreter benannt
+                menu:
+                    title: Benutzerdefinierte Anmeldefelder verwalten
+        components:
+            extra_user_fields:
+                name: Benutzerdefinierte Anmeldefelder
+        extra_user_fields:
+            admin:
+                exports:
+                    users: Teilnehmer
+                extra_user_fields:
+                    fields:
+                        country:
+                            description: Dieses Feld enthält eine Liste von Ländern. Der Benutzer kann ein Land auswählen.
+                            label: Das Feld Land aktivieren
+                        date_of_birth:
+                            description: Dieses Feld ist ein Feld für das Geburtsdatum. Der Benutzer kann ein Datum auswählen.
+                            label: Das Feld Geburtsdatum aktivieren
+                        gender:
+                            description: Dieses Feld ist ein Feld für die Geschlechtsidentität. Der Benutzer kann ein Geschlecht auswählen.
+                            label: Das Feld Geschlecht aktivieren
+                        location:
+                            description: Dieses Feld ermöglicht das Hinzufügen von Text. Der Benutzer kann einen Ort auswählen.
+                            label: Das Feld Standort aktivieren
+                        phone_number:
+                            description: Dieses Feld ist ein Telefonnummernfeld. Der Benutzer kann eine Nummer auswählen.
+                            label: Das Feld Telefonnummer aktivieren
+                            pattern: Validierungsmuster für Telefonnummern (regexp)
+                            pattern_help_html: Kopieren Sie diesen regulären Ausdruck <code class="label">^(\+34|0034|34)?[ -]*[6-9][ -]*([0-9][ -]*){8}$</code> um dieses Telefonformat +34999111222 zu validieren. Sie können den regulären Ausdruck <a href="https://rubular.com/r/dJZGjlLIadxElo" target="_blank">hier</a> überprüfen.
+                            placeholder: Telefonnummer-Platzhalter
+                        postal_code:
+                            description: Dieses Feld ist für die Postleitzahl. Der Benutzer kann eine Postleitzahl auswählen.
+                            label: Das Postleitzahlenfeld aktivieren
+                        underage:
+                            description: Dieses Feld ist ein Boolean-Feld. Der Benutzer kann ankreuzen, ob er minderjährig ist.
+                            label: Elternberechtigungsfeld aktivieren
+                            limit: Dies legt das Alterslimit fest (z.B. 18 Jahre alt)
+                    form:
+                        callout:
+                            help: Aktivieren Sie die Funktion für benutzerdefinierte Anmeldefelder, um zusätzliche Felder in Ihrem Anmeldeformular zu verwalten. Auch bei aktivierter Option wird das Anmeldeformular nur aktualisiert, wenn mindestens ein zusätzliches Feld aktiviert ist.
+                        extra_user_fields:
+                            extra_user_fields_enabled: Benutzerdefinierte Anmeldefelder aktivieren
+                            section: Verfügbare Anmeldefelder für das Anmeldeformular
+                        global:
+                            title: Aktivieren / Deaktivieren von benutzerdefinierten Anmeldefeldern
+                    index:
+                        save: Speichern
+                        title: Benutzerdefinierte Anmeldefelder verwalten
+                    update:
+                        failure: Bei der Aktualisierung ist ein Fehler aufgetreten.
+                        success: Die Anmeldefelder wurden erfolgreich aktualisiert.
+            genders:
+                female: Frau
+                male: Mann
+                other: Divers
+            registration_form:
+                signup:
+                    legend: Weitere Informationen
+                    select_gender: Wählen Sie Ihr Geschlecht
+                    underage: Ich bin unter %{limit} Jahre alt und stimme zu, eine elterliche Genehmigung zu erhalten
+        statutory_representative:
+            inform:
+                body: |
+                    <p>Hallo,</p>
+                    <p>Sie wurden als gesetzlicher Vertreter von %{name} für die Registrierung bei %{organization} benannt.</p>
+                    <p>Beste grüße,<br />
+                    Das %{organization} Team</p>
+                subject: Sie wurden als gesetzlicher Vertreter benannt

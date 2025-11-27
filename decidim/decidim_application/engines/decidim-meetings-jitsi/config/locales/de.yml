@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+de:
+    decidim:
+        meetings:
+            jitsi:
+                application_title: 'Decidim Meetings Jitsi'
+            admin:
+                meetings:
+                    form:
+                        generate_jitsi_url: 'Jitsi-URL generieren'
+                        jitsi_help_text: 'Klicken Sie, um automatisch eine Jitsi-Meeting-URL zu generieren'
+                        jitsi_server_settings: 'Jitsi-Server-Konfiguration'
+                        jitsi_meeting_generator: 'Jitsi-Meeting-Generator'
+                        jitsi_generator_help: 'Automatisch eine Jitsi-Meeting-URL für dieses Online-Meeting generieren'
+                        error_generating_url: 'Fehler beim Generieren der Jitsi-URL'
+                    jitsi_url_generated: 'Jitsi-URL erfolgreich generiert'
+                    jitsi_url_error: 'Fehler beim Generieren der Jitsi-URL'
+                    jitsi_generator_disabled: 'Der Jitsi-Generator ist für diese Komponente deaktiviert'
+            live_events:
+                show:
+                    jwt_enabled: 'Sicherer Zugang Aktiviert'
+                    jwt_description: 'Dieses Meeting verwendet JWT-Authentifizierung für sicheren Zugang.'
+                    meeting_details: 'Meeting-Details'
+                    start_time: 'Startzeit'
+                    end_time: 'Endzeit'
+                    no_online_meeting_url: 'Für dieses Meeting ist keine Online-Meeting-URL konfiguriert.'
+                    moderator_info: 'Sie sind ein Moderator'
+                    moderator_description: 'Als Organisator des Meetings haben Sie Moderatorenrechte in diesem Meeting.'
+        components:
+            meetings:
+                settings:
+                    global:
+                        jitsi_server_url: 'Jitsi-Server-URL'
+                        jitsi_server_url_help: 'URL des zu verwendenden Jitsi-Servers (z.B.: https://jitsi-part-int.ldttoolbox.app/)'
+                        jitsi_room_prefix: 'Jitsi-Raum-Präfix'
+                        jitsi_room_prefix_help: 'Präfix, das den Jitsi-Raumnamen hinzugefügt werden soll'
+                        enable_jitsi_generator: 'Jitsi-URL-Generator aktivieren'
+                        enable_jitsi_generator_help: 'Ermöglicht Administratoren, Jitsi-URLs automatisch zu generieren'

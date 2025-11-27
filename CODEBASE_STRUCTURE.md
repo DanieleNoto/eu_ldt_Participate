@@ -1,3 +1,9 @@
+<!-- SPDX-License-Identifier: AGPL-3.0
+Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+Authors:
+Pierluigi Spedicato
+-->
+
 # EU LDT Participate — Codebase Structure
 
 Below is a suggested monorepo structure for **EU LDT Participate**, organized to clearly separate each component and facilitate modular development, testing, and deployment.
@@ -100,8 +106,8 @@ Below is a suggested monorepo structure for **EU LDT Participate**, organized to
 
 **Notes:**
 
-* **Project Name:** All documentation files clearly reference **EU LDT Participate**.
-* **Modularity:** Each major component (Decidim, analytics, Jitsi, chatbot FE/BE) is isolated under its own top-level directory.
-* **CI/CD:** Centralized in `cicd/` with reusable scripts and pipeline definitions.
-* **Infrastructure:** Use Terraform, Ansible, and/or Helm to version and automate deployments.
-* **Testing:** Separate test suites at component and monorepo levels to ensure quality and prevent regressions.
+- **Project Name:** All documentation files clearly reference **EU LDT Participate**.
+- **Modularity:** Each major component (Decidim, analytics, Jitsi, chatbot FE/BE) is isolated under its own top-level directory.
+- **CI/CD:** Centralized in `cicd/` with reusable scripts and pipeline definitions.
+- **Infrastructure:** Use Terraform, Ansible, and/or Helm to version and automate deployments.
+- **Testing:** Separate test suites at component and monorepo levels to ensure quality and prevent regressions.

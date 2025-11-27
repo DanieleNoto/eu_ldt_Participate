@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+/.bundle/
+/vendor/bundle
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+
+# Node
+/node_modules/
+
+# rspec failure tracking
+.rspec-failures
+
+# rbenv environment variables
+.rbenv-vars
+
+# default test application
+spec/decidim_dummy_app
+
+# default development application
+development_app
+tailwind.config.js
+.rbenv-vars
+.vscode
+.byebug_history
+*.gem
+node_modules/
+npm_debug.log
+.rubocop-*

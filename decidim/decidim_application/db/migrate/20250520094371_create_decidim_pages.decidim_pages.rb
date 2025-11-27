@@ -1,7 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_pages (originally 20161116121353)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:03:04 UTC
 class CreateDecidimPages < ActiveRecord::Migration[5.0]
   def change
     create_table :decidim_pages_pages do |t|

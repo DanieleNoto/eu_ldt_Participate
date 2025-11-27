@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+
 # frozen_string_literal: true
 
 module Decidim
@@ -15,9 +20,9 @@ module Decidim
 
       def show
         @use_case_scenario = use_case_scenario
-        @tool2_iframe_url = ENV.fetch('TOOL2_IFRAME_URL', 'https://ucs-int.ldttoolbox.app/embed/experiment-execution')
+        @tool2_iframe_url = ENV.fetch("TOOL2_IFRAME_URL", "https://ucs-int.ldttoolbox.app/embed/experiment-execution")
       rescue ActiveRecord::RecordNotFound
-        flash[:alert] = t("decidim.ldt_use_case_scenarios.use_case_scenarios.show.not_found")
+        flash[:alert] = t(".not_found")
         redirect_to use_case_scenarios_path
       end
 
@@ -29,8 +34,8 @@ module Decidim
 
       def use_case_scenarios
         @use_case_scenarios ||= UseCaseScenario
-                                  .where(decidim_component_id: current_component.id)
-                                  .order(created_at: :desc)
+                                .where(decidim_component_id: current_component.id)
+                                .order(created_at: :desc)
       end
 
       def use_case_scenario

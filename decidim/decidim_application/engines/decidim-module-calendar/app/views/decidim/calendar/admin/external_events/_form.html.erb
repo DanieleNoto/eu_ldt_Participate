@@ -1,0 +1,31 @@
+<%#
+ SPDX-License-Identifier: AGPL-3.0
+ Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ Authors:
+   Denis Vasilev Dimchev
+%>
+
+<div class="form__wrapper">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t(".title") %></h2>
+  </div>
+  <div class="card pt-4">
+    <div class="card-section">
+      <div class="row column">
+        <%= form.translated :text_field, :title, autofocus: true, label: t(".title_label") %>
+      </div>
+      <div class="row">
+        <div class="columns xlarge-6">
+          <%= form.datetime_field :start_at, label: t(".start_at") %>
+        </div>
+
+        <div class="columns xlarge-6">
+          <%= form.datetime_field :end_at, label: t(".end_at") %>
+        </div>
+      </div>
+      <div class="row column">
+        <%= form.url_field :url, label: t(".url"), help_text: t("url_help_text", scope: "decidim.calendar.admin.external_events.form", default: "Must start with http:// or https://") %>
+      </div>
+    </div>
+  </div>
+</div>

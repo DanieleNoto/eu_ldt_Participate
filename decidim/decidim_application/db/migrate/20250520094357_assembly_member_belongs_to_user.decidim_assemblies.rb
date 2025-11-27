@@ -1,7 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_assemblies (originally 20180426162405)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:30 UTC
 class AssemblyMemberBelongsToUser < ActiveRecord::Migration[5.1]
   def change
     add_reference :decidim_assembly_members, :decidim_user, index: { name: "index_decidim_assembly_members_on_decidim_user_id" }

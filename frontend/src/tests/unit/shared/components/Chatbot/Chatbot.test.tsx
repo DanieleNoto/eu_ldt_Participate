@@ -1,3 +1,7 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
 // @ts-nocheck
 import '@testing-library/jest-dom';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
@@ -325,14 +329,14 @@ describe('Chatbot Component', () => {
 			await user.click(supportButton);
 
 			const textarea = screen.getByLabelText(/describe your issue/i);
-			await user.type(textarea, 'I need help');
+			await user.type(textarea, 'I need help with my account settings and password');
 
 			const sendButton = screen.getByRole('button', { name: 'Send' });
 			await user.click(sendButton);
 
 			await waitFor(() => {
 				expect(mockSupportApi.requestWithOptions).toHaveBeenCalledWith({
-					body: { conversationId: 'test-conversation-1', message: 'I need help' }
+					body: { conversationId: 'test-conversation-1', message: 'I need help with my account settings and password' }
 				});
 			});
 		});
@@ -374,12 +378,12 @@ describe('Chatbot Component', () => {
 			await user.click(supportButton);
 
 			const textarea = screen.getByLabelText(/describe your issue/i);
-			await user.type(textarea, 'I need help');
+			await user.type(textarea, 'I need help with my account settings and password');
 			await user.keyboard('{Enter}');
 
 			await waitFor(() => {
 				expect(mockSupportApi.requestWithOptions).toHaveBeenCalledWith({
-					body: { conversationId: 'test-conversation-1', message: 'I need help' }
+					body: { conversationId: 'test-conversation-1', message: 'I need help with my account settings and password' }
 				});
 			});
 		});
@@ -446,7 +450,7 @@ describe('Chatbot Component', () => {
 			await user.click(supportButton);
 
 			const textarea = screen.getByLabelText(/describe your issue/i);
-			await user.type(textarea, 'I need help');
+			await user.type(textarea, 'I need help with my account settings and password');
 
 			const sendButton = screen.getByRole('button', { name: 'Send' });
 			await user.click(sendButton);
@@ -723,7 +727,7 @@ describe('Chatbot Component', () => {
 			await user.click(supportButton);
 
 			const textarea = screen.getByLabelText(/describe your issue/i);
-			await user.type(textarea, 'I need help');
+			await user.type(textarea, 'I need help with my account settings and password');
 
 			const sendButton = screen.getByRole('button', { name: 'Send' });
 			await user.click(sendButton);

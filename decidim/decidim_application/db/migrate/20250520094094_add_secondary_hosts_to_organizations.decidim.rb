@@ -1,9 +1,15 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim (originally 20170306144354)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:40 UTC
 class AddSecondaryHostsToOrganizations < ActiveRecord::Migration[5.0]
   def change
-    add_column :decidim_organizations, :secondary_hosts, :string, array: true, default: [], index: true
+    add_column :decidim_organizations, :secondary_hosts, :string, array: true, default: []
+    add_index :decidim_organizations, :secondary_hosts
   end
 end

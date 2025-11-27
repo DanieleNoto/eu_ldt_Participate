@@ -1,20 +1,18 @@
 #!/bin/bash
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
 set -e
 
-echo "--- Shakapacker: Checking if gems are available ---"
+echo "=== Shakapacker Dev Server Initialization ==="
 
-# Check if bundle can load gems, if not, force bundle install
-if ! bundle check > /dev/null 2>&1; then
-  echo "--- Shakapacker: Gems missing, running bundle install ---"
-  # Try bundle install, if it fails due to dependency conflicts, regenerate Gemfile.lock
-  if ! bundle install; then
-    echo "--- Shakapacker: Bundle install failed, regenerating Gemfile.lock ---"
-    rm -f Gemfile.lock
-    bundle install
-  fi
-else
-  echo "--- Shakapacker: Gems available ---"
-fi
+# Ensure tmp directory exists with proper permissions
+echo "--- Setting up tmp directory ---"
+mkdir -p tmp/pids tmp/cache log
 
-echo "--- Shakapacker: Starting shakapacker-dev-server ---"
+# Create webpacker runtime file if it doesn't exist
+[ -f tmp/webpacker_runtime.yml ] || touch tmp/webpacker_runtime.yml
+
+echo "--- Starting Shakapacker dev server ---"
 exec bundle exec bin/shakapacker-dev-server

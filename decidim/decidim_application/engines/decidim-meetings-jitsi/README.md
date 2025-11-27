@@ -1,14 +1,23 @@
+<!--
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+// # Gianfranco Cedro
+ -->
+
 # Decidim::Meetings::Jitsi
 
-A custom gem that extends Decidim Meetings with Jitsi Meet integration features. This gem provides an easy way to generate Jitsi meeting URLs directly from the Decidim admin interface.
+A custom gem that extends Decidim Meetings with Jitsi Meet integration features. This gem provides an easy way to generate Jitsi meeting URLs directly from the Decidim admin interface and supports JWT authentication for secure access.
 
 ## Features
 
 - **Jitsi URL Generator**: Automatically generates Jitsi meeting URLs with customizable room names
+- **JWT Authentication**: Secure Jitsi meetings with JWT tokens
 - **Component Settings Integration**: Configurable Jitsi server URL and room prefix through component settings
 - **Admin Interface**: Simple button to generate Jitsi URLs directly from the meeting form
 - **Smart URL Detection**: Automatically detects if a meeting already uses a Jitsi URL from the configured server
 - **Flexible Configuration**: Supports both default values and custom settings per component
+- **Moderator Detection**: Automatically grants moderator privileges to meeting organizers
 
 ## Usage
 
@@ -16,9 +25,25 @@ A custom gem that extends Decidim Meetings with Jitsi Meet integration features.
 
 In the Decidim admin panel, when configuring a Meetings component, you can set:
 
-- **Jitsi Server URL**: The Jitsi server to use (default: `https://meet.jit.si`)
+- **Jitsi Server URL**: The Jitsi server to use (default: `https://jitsi-part-int.ldttoolbox.app/`)
 - **Jitsi Room Prefix**: Prefix for generated room names (default: `decidim-meeting-`)
 - **Enable Jitsi Generator**: Toggle to enable/disable the generator feature
+
+### JWT Authentication
+
+The gem automatically generates JWT tokens for authenticated access to Jitsi meetings when the following environment variables are set:
+
+```bash
+JWT_APP_ID=your_app_id
+OMNIAUTH_KEYCLOAK_CLIENT_SECRET=your_secret_key
+```
+
+JWT tokens include:
+
+- User identity (name, email, avatar)
+- Moderator status (for meeting organizers and admins)
+- Organization context
+- Room information
 
 ### Generating Jitsi URLs
 
@@ -32,7 +57,7 @@ In the Decidim admin panel, when configuring a Meetings component, you can set:
 
 The gem uses the following constants for default values:
 
-- `JITSI_DEFAULT_SERVER_URL = "https://meet.jit.si"`
+- `JITSI_DEFAULT_SERVER_URL = "https://jitsi-part-int.ldttoolbox.app/"`
 - `JITSI_DEFAULT_ROOM_PREFIX = "decidim-meeting-"`
 
 These can be overridden through component settings.

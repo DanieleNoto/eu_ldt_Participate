@@ -1,14 +1,19 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Pierluigi Spedicato
+import { chatbotConfig } from '@config/chatbot.config';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useEffect, useState } from 'react';
 import { Provider, useDispatch } from 'react-redux';
-import { chatbotConfig } from '@config/chatbot.config';
-import { ConfigProvider } from './config/ConfigContext';
-import { PALETTE } from './theme/styles/palette';
-import { ToastrProvider } from './shared/toastr/context/ToastrContext';
 import '../i18n';
-import { store } from './store/store';
+import { ConfigProvider } from './config/ConfigContext';
+import { ToastrProvider } from './shared/toastr/context/ToastrContext';
 import { ConfigState, setBackendBaseUrl } from './store/config/config-slice';
+import { store } from './store/store';
+import { PALETTE } from './theme/styles/palette';
 
 // query client for tanstackQuery
 const queryClient = new QueryClient({});
@@ -85,13 +90,16 @@ const RuntimeConfigInitializer = ({
 		let active = true;
 		const baseConfig = chatbotConfig;
 		const getViteApiUrl = () => {
+			// Priority: process.env (Node.js) > globalThis (runtime override) > import.meta.env (build time)
 			const env = typeof process === 'undefined' ? undefined : (process.env as Record<string, string | undefined>);
 			if (env?.VITE_API_URL) {
 				return env.VITE_API_URL;
 			}
-			if (typeof globalThis !== 'undefined' && (globalThis as { __VITE_API_URL__?: string }).__VITE_API_URL__) {
-				return (globalThis as { __VITE_API_URL__?: string }).__VITE_API_URL__;
+			// Allow runtime override via globalThis (useful for embedding config at runtime)
+			if (typeof globalThis !== 'undefined' && (globalThis as any).__VITE_API_URL__) {
+				return (globalThis as any).__VITE_API_URL__;
 			}
+			// No build-time import.meta reference here to keep compatibility with test TS config
 			return undefined;
 		};
 
@@ -120,7 +128,7 @@ const RuntimeConfigInitializer = ({
 			};
 		}
 
-		const baseUrl = normalizeBaseUrl((globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '');
+		const baseUrl = normalizeBaseUrl((globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ ?? '');
 		
 		if (!baseUrl) {
 			applyWithEnvOverride();

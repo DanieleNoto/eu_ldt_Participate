@@ -1,9 +1,15 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_meetings (originally 20210727085318)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:03:04 UTC
 class AddStateFieldToMeeting < ActiveRecord::Migration[6.0]
   def change
-    add_column :decidim_meetings_meetings, :state, :string, index: true
+    add_column :decidim_meetings_meetings, :state, :string
+    add_index :decidim_meetings_meetings, :state
   end
 end

@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alvaro Iglesias Sanchez
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -5,8 +9,3 @@ metadata:
 data:
     POSTGRES_DATABASE: decidim_application_development
     PGDATA: /var/lib/postgresql/data/pgdata
-
-
-    # DATABASE_HOST: db
-    # DATABASE_NAME: decidim_application_development
-    ## DATABASE_USERNAME: postgres

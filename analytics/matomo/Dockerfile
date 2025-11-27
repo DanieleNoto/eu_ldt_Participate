@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
 FROM matomo:5.5.0
 
 # Enable Apache headers module and create configuration for iframe embedding
@@ -19,11 +23,13 @@ RUN a2enmod headers && \
     echo '</VirtualHost>' >> /etc/apache2/sites-available/matomo-embed.conf && \
     a2ensite matomo-embed
 
-# Copy custom config file that will be used by Matomo
-COPY config.ini.php /var/www/html/config/config.ini.php
-RUN chown www-data:www-data /var/www/html/config/config.ini.php && \
-    # Fix permissions for Apache
-    chown -R www-data:www-data /var/www/html
+# Copy custom config file with correct ownership
+COPY --chown=www-data:www-data config.ini.php /var/www/html/config/config.ini.php
+
+# Fix permissions for Apache (only for directories that exist)
+RUN mkdir -p /var/www/html/tmp && \
+    chown -R www-data:www-data /var/www/html/config && \
+    chown www-data:www-data /var/www/html/tmp
 
 # Switch to non-root user for security
 USER www-data

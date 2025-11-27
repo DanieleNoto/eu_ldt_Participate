@@ -1,3 +1,9 @@
+<%#
+ SPDX-License-Identifier: AGPL-3.0
+ Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ Authors:
+   Gianfranco Cedro
+%>
 <% add_decidim_page_title(t(".title")) %>
 
 <div class="item_show__header">
@@ -8,9 +14,9 @@
 
 <div class="item__edit item__edit-1col">
   <div class="item__edit-form">
-    <div class="card maps-association" 
+    <div class="card maps-association"
          data-admin-path="<%= "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/map_visualizations" %>"
-         data-i18n-name-required="<%= t(".name_required") %>" 
+         data-i18n-name-required="<%= t(".name_required") %>"
          data-i18n-save-error="<%= t(".save_error") %>">
 
       <% if @maps_error.present? %>
@@ -41,13 +47,13 @@
                 <% @maps.each do |map| %>
                   <tr data-map-id="<%= map['id'] %>">
                     <td data-label="Select">
-                      <input type="radio" name="selected_map" value="<%= map['id'] %>" class="select-map-radio" />
+                      <input type="radio" name="selected_map" value="<%= map['id'] %>" class="select-map-radio">
                     </td>
                     <td data-label="Preview">
                       <% if map['map_image'].present? %>
-                        <img src="<%= map['map_image'] %>" alt="<%= map['name'] || 'Map' %>" style="max-width: 80px; max-height: 80px; object-fit: contain;" />
+                        <img src="<%= map['map_image'] %>" alt="<%= map['name'] || 'Map' %>" style="max-width: 80px; max-height: 80px; object-fit: contain;">
                       <% else %>
-                        <span style="color: #999;">No image</span>
+                        <span style="color: #999;"><%= t('.no_image') %></span>
                       <% end %>
                     </td>
                     <td class="!text-left" data-label="Name">
@@ -77,13 +83,13 @@
             <!-- Hidden field for map_id -->
             <%= f.hidden_field :map_id, id: "map-id-field" %>
             <%= f.hidden_field :map_data, id: "map-data-field" %>
-            
+
             <!-- Selected map info will be inserted here by JavaScript -->
             <div data-selected-map-info></div>
-            
+
             <!-- Map Name Field -->
             <div class="field">
-              <%= f.text_field :name, 
+              <%= f.text_field :name,
                   id: "map-name",
                   placeholder: t('.enter_map_name'),
                   required: true %>

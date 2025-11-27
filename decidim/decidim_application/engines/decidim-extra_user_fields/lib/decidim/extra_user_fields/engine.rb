@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
 # frozen_string_literal: true
 
 require "rails"
@@ -37,6 +42,9 @@ module Decidim
           Decidim::AccountForm.class_eval do
             include Decidim::ExtraUserFields::FormsDefinitions
           end
+
+          require "decidim/account_form_override"
+          Decidim::AccountForm.prepend(Decidim::AccountFormOverride)
 
           Decidim::CreateRegistration.class_eval do
             prepend Decidim::ExtraUserFields::CreateRegistrationsCommandsOverrides

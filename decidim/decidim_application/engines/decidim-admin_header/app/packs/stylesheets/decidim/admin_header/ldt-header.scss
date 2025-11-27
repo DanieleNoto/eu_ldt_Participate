@@ -1,14 +1,30 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Gianfranco Cedro
 /* LDT Admin Header Styles */
 
 .ldt-admin-header {
   height: 56px;
   max-height: 56px;
   background-color: #FCFCFC;
+  padding: 8px 16px;
 }
 
 .ldt-admin-header #ldt-logo {
   max-height: 28px;
   max-width: 112px;
+  display: flex;
+  align-items: center;
+
+  img,
+  .ldt-logo {
+    width: 112px;
+    height: 28px;
+    object-fit: contain;
+    display: block;
+  }
 }
 
 .ldt-admin-breadcrumb {
@@ -18,47 +34,81 @@
   padding-left: 32px;
 }
 
-/* Tools Button Styles */
+/* Tools Button Styles - Updated to match Figma design */
 .tools-button {
   display: flex;
   align-items: center;
-  background: none;
-  border: 1px solid #004494;
+  background: transparent;
+  border: 1px solid #6F797A;
   border-radius: 8px;
   padding: 8px 16px;
+  height: 40px;
   cursor: pointer;
   gap: 8px;
   transition: all 0.2s ease;
   position: relative;
+
   &:hover {
-      background: #004494;
-      transform: translateY(-1px);
-      .tools-text {
-        color: #FFFFFF !important;
-      }
-      svg {
-        fill: #FFFFFF !important;
-      }
+    background: #004494;
+    border-color: #004494;
+    transform: translateY(-1px);
+    .tools-text {
+      color: #FFFFFF !important;
     }
+    svg path {
+      fill: #FFFFFF !important;
+    }
+  }
+  
   &:active {
-      transform: translateY(0);
-    }
+    transform: translateY(0);
+  }
     
   .tools-text {
-      color: #004494;
-      font-weight: 700;
-      font-size: 14px;
-      line-height: 20px;
-      letter-spacing: 0.1px;
-      text-align: center;
-      vertical-align: middle;
-    }
+    color: #004494;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+    text-align: center;
+    vertical-align: middle;
+  }
     
   .tools-icon {
-      width: 20px;
-      height: 20px;
-      fill: #004494;
-    }
+    width: 18px;
+    height: 18px;
+  }
+  
+  svg path {
+    fill: #004494;
+    transition: fill 0.2s ease;
+  }
+}
+
+/* Icon sizing to match Figma specs */
+.tools-button svg,
+.tools-button .tools-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.help-button img,
+.help-button svg,
+.help-button #help-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
+}
+
+.user-button img,
+.user-button svg,
+.user-button #user-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  display: block;
 }
 
 
@@ -75,12 +125,21 @@
   max-width: 280px;
   z-index: 1000;
   margin-top: 4px;
-  overflow-y: auto;
-  max-height: 600px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
 }
 
 .tools-dropdown.hidden {
-  display: none;
+  max-height: 0;
+  pointer-events: none;
+}
+
+.tools-dropdown hr {
+  margin: 8px 8px 0px;
+  flex-shrink: 0;
+  border-width: 0px 0px thin;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.12);
 }
 
 .loading-message {
@@ -93,7 +152,6 @@
 /* Group Header Styles */
 .application-group {
   margin: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   
   &:last-child {
     border-bottom: none;
@@ -116,21 +174,15 @@
     }
     
     span {
-      font-size: 12px;
-      font-weight: 600;
-      color: rgba(0, 0, 0, 0.54);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-size: 14px;
+      font-weight: 700;
       flex: 1;
     }
     
     svg {
-      width: 20px;
-      height: 20px;
-      fill: rgba(0, 0, 0, 0.54);
+      width: 24px;
+      height: 24px;
       transition: transform 0.2s ease;
-      flex-shrink: 0;
-      margin-left: 8px;
     }
     
     &[aria-expanded="false"] svg {
@@ -140,9 +192,12 @@
   
   .group-applications {
     display: block;
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
     
     &.collapsed {
-      display: none;
+      max-height: 0;
     }
   }
 }
@@ -167,24 +222,24 @@
     }
     
     &.selected {
-      background-color: rgba(0, 69, 148, 0.08);
       color: #004494;
-      font-weight: 500;
+      font-weight: bold
     }
     
     span:first-child {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 20px;
-      height: 20px;
       flex-shrink: 0;
+    }
+
+    span:hover {
+      font-weight: 700;
     }
     
     svg {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
     }
   }
 }
@@ -244,8 +299,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   background: none;
   border: none;
   cursor: pointer;
@@ -272,12 +327,19 @@
   right: 0;
   background-color: rgb(255, 255, 255);
   color: rgba(0, 0, 0, 0.87);
-  box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.30), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
   border-radius: 4px;
   z-index: 1001;
-  min-width: 160px;
+  width: 200px;
+  min-width: 112px;
+  max-width: 280px;
   overflow: hidden;
+  padding: 8px 0;
   margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
   
   &.hidden {
     display: none;
@@ -288,25 +350,35 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 16px;
+  padding: 8px 12px;
+  height: 48px;
   color: rgba(0, 0, 0, 0.87);
   text-decoration: none;
   font-size: 14px;
   font-weight: 400;
   transition: background-color 0.2s ease;
+  width: 100%;
   
   &:hover {
     background-color: rgba(0, 0, 0, 0.04);
   }
   
   .logout-icon {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     fill: currentColor;
     flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   
   span {
-    flex: 1;
+    color: #21272A;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px; /* 150% */
+    letter-spacing: 0.5px;
   }
 }

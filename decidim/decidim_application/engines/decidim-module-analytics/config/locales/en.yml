@@ -1,25 +1,41 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
 ---
 en:
-  decidim:
-    analytics:
-      menu:
-        analytics: Analytics
-        statistics: Statistics
-      admin:
-        missing_configuration: "Matomo configuration is missing. Please configure server_address, site_id, and token_auth in your credentials or secrets."
-        statistics:
-          description: "Access Grafana analytics dashboard to view comprehensive platform statistics and metrics."
-          open_full_dashboard: "Open in New Tab"
-          refresh: "Refresh"
-          unable_to_load: "Unable to load Grafana dashboard."
-          check_configuration: "Please check:"
-          grafana_running: "Grafana server is running at %{server}"
-          dashboards_configured: "Dashboards are properly configured"
-          network_connectivity: "Network connectivity between services"
-          try_accessing: "Try accessing"
-          grafana_directly: "Grafana directly"
-          verify_configuration: "to verify configuration."
-    admin:
-      titles:
-        analytics: Analytics
-        statistics: Statistics
+    decidim:
+        analytics:
+            menu:
+                analytics: Analytics
+                statistics: Statistics
+            admin:
+                missing_configuration: 'Matomo configuration is missing. Please configure server_address, site_id, and token_auth in your credentials or secrets.'
+                unable_to_load_matomo: 'Unable to load Matomo dashboard.'
+                please_check: 'Please check:'
+                matomo_server_running: 'Matomo server is running at'
+                site_id_exists: 'exists in Matomo'
+                token_permissions: 'Token has proper permissions for dashboard embedding'
+                try_accessing: 'Try accessing'
+                matomo_directly: 'Matomo directly'
+                verify_configuration: 'to verify configuration.'
+                missing_configuration_values: 'Missing configuration values:'
+                server_address: 'Server Address'
+                site_id: 'Site ID'
+                authentication_token: 'Authentication Token'
+                statistics:
+                    description: 'Access Grafana analytics dashboard to view comprehensive platform statistics and metrics.'
+                    open_full_dashboard: 'Open in New Tab'
+                    refresh: 'Refresh'
+                    unable_to_load: 'Unable to load Grafana dashboard.'
+                    check_configuration: 'Please check:'
+                    grafana_running: 'Grafana server is running at %{server}'
+                    dashboards_configured: 'Dashboards are properly configured'
+                    network_connectivity: 'Network connectivity between services'
+                    try_accessing: 'Try accessing'
+                    grafana_directly: 'Grafana directly'
+                    verify_configuration: 'to verify configuration.'
+        admin:
+            titles:
+                analytics: Analytics
+                statistics: Statistics

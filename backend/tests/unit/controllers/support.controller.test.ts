@@ -1,3 +1,7 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
 import { FastifyRequest, FastifyReply } from 'fastify';
 import SupportController from '../../../src/controllers/support.controller';
 import nodemailer from 'nodemailer';
@@ -27,8 +31,17 @@ describe('SupportController', () => {
 		mockedNodemailer.createTransport = jest.fn().mockReturnValue(mockTransporter);
 
 		mockRequest = {
-			body: {}
-		};
+			body: {},
+			i18n: {
+				t: jest.fn((key: string) => {
+					const translations: Record<string, string> = {
+						legalNotice:
+							'This email was sent from a notification email address that cannot accept incoming email. Please do not reply to this message.'
+					};
+					return translations[key] || key;
+				})
+			}
+		} as any;
 
 		mockReply = {
 			send: jest.fn().mockReturnThis(),

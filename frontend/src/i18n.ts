@@ -1,7 +1,14 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Pierluigi Spedicato
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import commonEn from './config/locales/en.json';
 import commonEs from './config/locales/es.json';
+import commonDe from './config/locales/de.json';
+import commonFr from './config/locales/fr.json';
 
 export const defaultNS = 'common';
 export const resources = {
@@ -10,6 +17,12 @@ export const resources = {
 	},
 	es: {
 		common: commonEs
+	},
+	de: {
+		common: commonDe
+	},
+	fr: {
+		common: commonFr
 	}
 } as const;
 

@@ -1,3 +1,7 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Pierluigi Spedicato
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
@@ -18,8 +22,8 @@ const errorHandler = (error: FastifyError, request: FastifyRequest, reply: Fasti
 	}
 
 	const responseData = {
-		statusCode: error.statusCode || 500,
-		error: error.name || error.message || 'Internal Server Error',
+		statusCode: error.statusCode ?? 500,
+		error: error.name ?? error.message ?? 'Internal Server Error',
 		message: error.message
 	};
 

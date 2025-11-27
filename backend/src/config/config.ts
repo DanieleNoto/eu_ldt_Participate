@@ -1,3 +1,8 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Pierluigi Spedicato
 import * as dotenv from 'dotenv';
 import { PinoLoggerOptions } from 'fastify/types/logger';
 import { FastifyDynamicSwaggerOptions } from '@fastify/swagger';
@@ -39,15 +44,13 @@ interface Config {
 	};
 }
 
-// TODO [HIGH][20250205][piespedica]: Check config structure
 const appConfig: Config = {
 	port: process.env.PORT ? Number.parseInt(process.env.PORT, 10) : 3002,
-	nodeEnv: process.env.NODE_ENV || 'development',
-	// jwtSecret: process.env.JWT_SECRET || 'changeme',
+	nodeEnv: process.env.NODE_ENV ?? 'development',
 	jwtConfig: {
 		enable: process.env.JWT_ENABLE_CHECK === 'true',
 		secret: {
-			public: process.env.JWT_ISSUER_PUBKEY || 'changeme'
+			public: process.env.JWT_ISSUER_PUBKEY ?? 'changeme'
 		}
 	},
 	swagger: swaggerConfig,
@@ -55,7 +58,7 @@ const appConfig: Config = {
 	logger: getLoggerConfig(),
 	rateLimit: {
 		max: process.env.RATE_LIMIT_MAX ? Number.parseInt(process.env.RATE_LIMIT_MAX, 10) : 100,
-		timeWindow: process.env.RATE_LIMIT_TIME_WINDOW || '1 minute',
+		timeWindow: process.env.RATE_LIMIT_TIME_WINDOW ?? '1 minute',
 		global: true,
 		errorResponseBuilder: (request, context) => {
 			return {

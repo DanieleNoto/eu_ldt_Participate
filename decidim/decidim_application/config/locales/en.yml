@@ -1,34 +1,10 @@
-# Files in the config/locales directory are used for internationalization
-# and are automatically loaded by Rails. If you want to use locales other
-# than English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# The following keys must be escaped otherwise they will not be retrieved by
-# the default I18n backend:
-#
-# true, false, on, off, yes, no
-#
-# Instead, surround them with single quotes.
-#
-# en:
-#   "true": "foo"
-#
-# To learn more, please read the Rails Internationalization guide
-# available at https://guides.rubyonrails.org/i18n.html.
-
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+#   Denis Vasilev Dimchev
+#   Gianfranco Cedro
+#   Marco Cerdelli
+---
 en:
     activemodel:
         attributes:
@@ -37,8 +13,14 @@ en:
                 tos_version: Privacy policy version
             user:
                 tos_agreement: Privacy policy agreement
-
+    components:
+        meetings:
+            settings:
+                global:
+                    terms_and_conditions_url_for_meeting_creators: Privacy policy URL for meeting creators
     decidim:
+        account:
+            blocked: This account has been blocked due to privacy policy violation
         admin:
             admin_terms_of_service:
                 accept:
@@ -56,34 +38,16 @@ en:
             organization:
                 form:
                     admin_terms_of_service: Admin privacy policy
-
             static_pages:
                 edit:
-                    changed_notably_help: If checked, participants will be notified to accept the privacy policy.
-
-        account:
-            blocked: This account has been blocked due to privacy policy violation
+                    changed_notably_help: If checked, participants will be notified to accept
+                        the privacy policy.
         admin_terms_of_service:
-            default_body: '<h2>ADMIN PRIVACY POLICY</h2><p>We trust you have received the usual lecture from the local System Administrator. It usually boils down to these three things:</p><ol><li>Respect the privacy of others.</li><li>Think before you click.</li><li>With great power comes great responsibility.</li></ol>'
-
-        templates:
-            admin:
-                questionnaire_templates:
-                    preview:
-                        tos_agreement: By participating you accept its Privacy Policy
-
-        forms:
-            admin:
-                models:
-                    components:
-                        tos: Privacy Policy
-
-            questionnaires:
-                show:
-                    tos_agreement: I have read and accept the specific Privacy Policy for this survey described above, which explains the additional data collected, the puposes of processing, and the legal basis, in addition to the general Privacy Policy.
-                responses:
-                    tos_agreement: By participating you accept its Privacy Policy
-
+            default_body: '<h2>ADMIN PRIVACY POLICY</h2><p>We trust you have received the
+                usual lecture from the local System Administrator. It usually boils down to
+                these three things:</p><ol><li>Respect the privacy of others.</li><li>Think
+                before you click.</li><li>
+                With great power comes great responsibility.</li></ol>'
         demographics:
             demographics:
                 questionnaire:
@@ -96,8 +60,148 @@ en:
                     tos_title: Privacy Policy
         download_your_data:
             help:
+                comment_votes:
+                    comment: The ID of the voted comment
+                    created_at: The date when this vote was created
+                    id: The ID of the vote
+                    updated_at: The date when this vote was last updated
+                    weight: The weight of the vote (1 for positive, -1 for negative)
+                comments:
+                    alignment: Whether this comment was in favor, against or neutral
+                    author: The name of the participant who made this comment
+                    body: The comment itself
+                    commentable_id: The unique ID of the commented resource
+                    commentable_type: The type of the commented resource (result, proposal, etc.)
+                    created_at: The date when this comment was created
+                    depth: The position of this comment in the comment tree
+                    id: The ID of this comment
+                    locale: The language the participant had when writing this comment
+                    root_commentable_url: The URL of the resource linked to this comment
+                    user_group: The name of the user group who made this comment (if any)
+                follows:
+                    created_at: The date and time when the follow was created
+                    followable: The resource or space being followed
+                    id: The unique identifier of this follow
+                    updated_at: The date and time of the last update of the follow
+                identities:
+                    created_at: The date and time when this identity was created
+                    id: The unique identifier of this identity
+                    provider: The provider of this identity
+                    uid: The unique identifier of this identity
+                    updated_at: The date and time of the last update of this identity
+                    user: The user to whom this identity belongs
+                messaging_conversations:
+                    created_at: The date when this conversation was created
+                    id: The unique identifier of this conversation
+                    messages: The messages of this conversation
+                    updated_at: The date when this conversation was last updated
+                notifications:
+                    created_at: The date and time when the notification was created
+                    event_class: The class of the event that triggered the notification
+                    event_name: The name of the event that triggered the notification
+                    extra: Additional information about this notification
+                    id: The unique identifier of this notification
+                    resource_type: The resource type related to this notification
+                    updated_at: The date and time of the last update of this notification
+                participatory_space_private_users:
+                    created_at: The date and time of creation of this private user
+                    id: The unique identifier of this private user
+                    privatable_to: The space to which this private user belongs
+                    published: Whether this private user is published or not
+                    role: The role of this private user
+                    updated_at: The date and time of the last update of this private user
+                reports:
+                    created_at: The date and time when this report was created
+                    details: The details of this report
+                    id: The unique identifier of this report
+                    locale: The language of this report
+                    moderation: The moderation associated with this report
+                    reason: The reason for this report
+                    updated_at: The date and time of the last update of this report
+                user_groups:
+                    document_number: The document number of this user group
+                    id: The unique identifier of this user group
+                    name: The name of this user group
+                    phone: The phone number of this user group
+                    verified_at: The date and time when this user group was verified
                 users:
+                    about: The biography of this user
                     accepted_tos_version: The date when the Privacy Policy of this platform was accepted by the user
+                    admin: Whether this user is an administrator
+                    confirmation_sent_at: The date and time when the confirmation was sent
+                    confirmed_at: The date and time when this user was confirmed
+                    created_at: The date and time when this user was created
+                    current_sign_in_at: The date and time of the current sign in
+                    current_sign_in_ip: The IP address of the current sign in
+                    delete_reason: The reason given for deleting this user
+                    deleted_at: The date and time when this user was deleted
+                    email: The email address of this user
+                    followers_count: The number of participants following this user
+                    following_count: The number of participants this user is following
+                    id: The unique identifier of this user
+                    invitation_accepted_at: The date and time when the invitation was accepted
+                    invitation_created_at: The date and time when the invitation was created
+                    invitation_sent_at: The date and time when the invitation was sent
+                    invitations_count: The number of invitations sent by this user
+                    invited_by: The user who invited this user
+                    last_sign_in_at: The date and time of the last sign in
+                    last_sign_in_ip: The IP address of the last sign in
+                    locale: The language selected by this user
+                    managed: Whether this user is managed by another user
+                    name: The name of this user
+                    newsletter_notifications_at: The date and time of the last newsletter reception
+                    nickname: The user's nickname
+                    notification_settings: The notification settings selected by this user
+                    notifications_sending_frequency: The frequency at which this user receives notifications
+                    officialized_as: The name of the officialization (Councilor, Mayor, etc.)
+                    officialized_at: The date and time when this user was officialized
+                    organization: The organization to which this user belongs
+                    password_updated_at: The date of the last password update
+                    personal_url: The personal URL of this user
+                    remember_created_at: The date and time when the remember me option was activated
+                    reset_password_sent_at: The date and time when the password reset was sent
+                    roles: The role of this user if they have one
+                    sign_in_count: The number of times this user has signed in
+                    type: The type of this user
+                    unconfirmed_email: The email address that has not yet been confirmed
+                    updated_at: The date and time of the last update of this user
+            show:
+                action: Action
+                download: Download file
+                download_data: Download data
+                download_data_description_1: Here you can find all the downloads available for your account. These .zip files will remain available for two weeks before being deleted.
+                download_data_description_2: You can request a .zip file with your contributions and your personal data.
+                download_your_data: Personal data
+                expiration: Expiration
+                expired: Already expired
+                explanation:
+                    body_1: These files are data sets exported from your activity on this platform, such as proposals or comments. They provide raw and structured data that can be used for analysis, research or integration with other tools.
+                    body_2: These files are in CSV (Comma-Separated Values) format, a widely used format compatible with many programs, including spreadsheets, text editors and data analysis tools.
+                    title: What are these files?
+                files_to_download: Files to download
+                request_data: Request
+                type: Download type
+        forms:
+            admin:
+                models:
+                    components:
+                        tos: Privacy Policy
+                questionnaires:
+                    responses:
+                        tos_agreement: By participating you accept its Privacy Policy
+            questionnaires:
+                responses:
+                    tos_agreement: By participating you accept its Privacy Policy
+                show:
+                    tos_agreement: I have read and accept the specific Privacy Policy for this survey described above, which explains the additional data collected, the puposes of processing, and the legal basis, in addition to the general Privacy Policy.
+        initiatives:
+            admin:
+                actions:
+                    new_initiative_type: New initiative type
+                index:
+                    initiatives_types:
+                        alert_html: '<p>You must create at least one initiative type so that participants can start creating initiatives.</p><p> %{link}</p>'
+                        button: New initiative type
         pages:
             privacy_policy:
                 accept:
@@ -118,15 +222,24 @@ en:
                     title: 'Required: Review updates to our privacy policy'
         profile:
             inaccessible_message: This profile is inaccessible due to privacy policy violation!
-    components:
-        meetings:
-            settings:
-                global:
-                    terms_and_conditions_url_for_meeting_creators: Privacy policy URL for meeting creators
+        templates:
+            admin:
+                questionnaire_templates:
+                    preview:
+                        tos_agreement: By participating you accept its Privacy Policy
+        welcome_notification:
+            default_body: <br><p>Hi {{name}},</p><p>Thanks for joining {{organization}} and welcome!</p><ul><li>If you want to get a quick idea of what you can do here, have a look at the <a href="{{help_url}}">Help</a> section.</li><br><li>Once you have read it you will get your first badge. Here is a <a href="{{badges_url}}">list of all the badges</a> you can get as you participate in {{organization}}</li><br><li>Last but not least, join other people, share with them the experience of being engaged and participating in {{organization}}. Make proposals, comments, debate, think about how to contribute to the common good, provide arguments to convince, listen and read to be convinced, express your ideas in a concrete and direct way, respond with patience and decision, defend your ideas and keep an open mind to collaborate and join other people's ideas.</li></ul>
+        newsletter_mailer:
+            newsletter:
+                no_reply_notice: |
+                    This email has been sent from a notification-only address that does not accept incoming messages. Please do not reply to this email.<br><br>
+                    You can review how we process your data and how to exercise your rights in the <a href="%{privacy_policy_url}">Privacy Policy</a>, as well as manage the receipt of emails in your <a href="%{notification_preferences_url}">Notification Preferences</a>.
     devise:
         omniauth_callbacks:
             add_tos_errors: Privacy policy must be accepted in order to create an account.
     layouts:
         decidim:
+            edit_link:
+                edit: Edit
             footer:
                 terms_of_service: Privacy Policy

@@ -1,4 +1,9 @@
-// Code Coverage
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Gianfranco Cedro
+//   # Pierluigi Spedicato
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { formatLog } from '../../../src/utils/logger';
 
@@ -29,7 +34,7 @@ describe('Logs-check service test', () => {
 				}
 			},
 			source: {
-				environment: 'development',
+				environment: 'test',
 				file: '/api/test',
 				function: 'GET'
 			},

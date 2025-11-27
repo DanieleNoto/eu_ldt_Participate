@@ -1,3 +1,8 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Pierluigi Spedicato
 import { useConfig } from '@app/config/ConfigContext';
 import { Alert, Snackbar } from '@mui/material';
 import { useToastrState } from '@shared/toastr/context/ToastrContext';
@@ -21,7 +26,7 @@ const ToastrRender = (): JSX.Element => {
 	const toastrConfig = config.toastr;
 	const { state } = useToastrState();
 	const { toastr } = state;
-	const tArray = toastr?.entries() || [];
+	const tArray = toastr?.entries() ?? [];
 
 	return (
 		<>
@@ -31,8 +36,8 @@ const ToastrRender = (): JSX.Element => {
 					open={true}
 					onClose={toast[1].onClose}
 					anchorOrigin={{
-						vertical: toastrConfig.vertical || 'top',
-						horizontal: toastrConfig.horizontal || 'center'
+						vertical: toastrConfig.vertical ?? 'top',
+						horizontal: toastrConfig.horizontal ?? 'center'
 					}}
 					sx={{ marginTop: '80px' }}
 				>

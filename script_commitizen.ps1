@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Pierluigi Spedicato
+
 # Define start tag parameters
 param (
     [string]$startTag = "D03.04.Oct",  # Default value if parameter not provided

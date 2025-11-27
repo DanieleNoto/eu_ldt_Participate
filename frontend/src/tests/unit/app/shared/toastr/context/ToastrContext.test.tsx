@@ -1,3 +1,7 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
 import { render, screen, act, cleanup } from '@testing-library/react';
 import { renderHook } from '@testing-library/react';
 import { ToastrProvider, useToastrState } from '@app/shared/toastr/context/ToastrContext';

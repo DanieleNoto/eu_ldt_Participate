@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# marcocerdelli
+apiVersion: v1
+kind: Service
+metadata:
+    name: chatbot-backend-svc
+    namespace: participate
+spec:
+    type: ClusterIP
+    selector:
+        app: chatbot-webapp
+    ports:
+        - port: 3002
+          targetPort: 3002
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: chatbot-pg-svc
+    namespace: participate
+spec:
+    type: ClusterIP
+    selector:
+        app: chatbot-webapp
+    ports:
+        - name: pgsql
+          protocol: TCP
+          port: 5432
+          targetPort: 5432
+

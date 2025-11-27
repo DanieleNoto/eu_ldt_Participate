@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+
+# frozen_string_literal: true
+
 class CreateDecidimLdtUseCaseScenariosUseCaseScenarios < ActiveRecord::Migration[6.1]
   def change
     create_table :decidim_ldt_use_case_scenarios_use_case_scenarios do |t|
@@ -9,13 +16,13 @@ class CreateDecidimLdtUseCaseScenariosUseCaseScenarios < ActiveRecord::Migration
       t.timestamps
     end
 
-    add_index :decidim_ldt_use_case_scenarios_use_case_scenarios, 
+    add_index :decidim_ldt_use_case_scenarios_use_case_scenarios,
               :decidim_component_id,
-              name: 'idx_ldt_ucs_comp'
+              name: "idx_ldt_ucs_comp"
 
-    add_index :decidim_ldt_use_case_scenarios_use_case_scenarios, 
-              [:decidim_component_id, :experiment_id], 
+    add_index :decidim_ldt_use_case_scenarios_use_case_scenarios,
+              [:decidim_component_id, :experiment_id],
               unique: true,
-              name: 'idx_ldt_ucs_comp_exp'
+              name: "idx_ldt_ucs_comp_exp"
   end
 end

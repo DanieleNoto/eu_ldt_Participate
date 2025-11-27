@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
+# Marco Pinnella
 # See https://git-scm.com/docs/gitattributes for more about git attribute files.
 
 # Set default line ending behavior
@@ -23,6 +29,8 @@
 # Declare files that will always have LF line endings on checkout
 *.sh text eol=lf
 bin/* text eol=lf
+docker-entrypoint.sh export-ignore diff=sh
+shakapacker-entrypoint.sh export-ignore diff=sh
 
 # Mark the database schema as having been generated.
 db/schema.rb linguist-generated

@@ -1,8 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
 # frozen_string_literal: true
 
 require "i18n/tasks"
 
-describe "I18n sanity" do
+describe "Decidim::Keycloak I18n" do
   let(:locales) do
     ENV["ENFORCED_LOCALES"].presence || "en"
   end

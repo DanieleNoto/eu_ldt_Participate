@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+# marcocerdelli
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: chatbot-frontend-config
+    namespace: participate
+data:
+    NODE_ENV: 'production'
+    VITE_API_URL: 'https://chatbot-backend-svc:3002'

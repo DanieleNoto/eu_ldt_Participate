@@ -1,4 +1,9 @@
 #!/bin/bash
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
 
 # Clean up any stale PID file (safety check)
 [ -f tmp/pids/server.pid ] && rm -f tmp/pids/server.pid
@@ -21,21 +26,18 @@ if [ "$RAILS_ENV" = "production" ]; then
   fi
   echo "--- Database setup completed ---"
   
-  # Asset verification (must be precompiled)
-  # shakapacker is configured to output to `public/decidim-packs` (see config/shakapacker.yml)
-  echo "--- Verifying precompiled assets (public/decidim-packs) ---"
-  if [ ! -d "public/decidim-packs" ] || [ -z "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
-    echo "ERROR: No precompiled assets found in production"
-    echo "'public/decidim-packs' not exist or is empty. Assets must be precompiled during Docker image build"
+  # Run storage cleanup on production startup
+  echo "--- Running storage cleanup ---"
+  bin/rails storage:cleanup_orphaned_blobs
+  
+  # Verify assets compiled by init container
+  echo "--- Verifying assets from init container ---"
+  if [ ! -d "public/packs" ] || [ -z "$(ls -A public/packs 2>/dev/null)" ]; then
+    echo "ERROR: No compiled assets found in public/packs"
+    echo "The init container may have failed to compile assets"
+    exit 1
   else
-    echo "--- 'public/decidim-packs' exist. Precompiled assets verified, ready to serve ---"
-  fi
-
-  # Ensure backwards compatibility: some tools/scripts may still look under public/packs
-  # If public/packs is missing but public/decidim-packs exists, create a symlink to it.
-  if [ ! -e public/packs ] && [ -d public/decidim-packs ]; then
-    echo "--- Creating compatibility symlink public/packs -> public/decidim-packs ---"
-    ln -sfn public/decidim-packs public/packs || true
+    echo "--- Compiled assets verified successfully ---"
   fi
   
   # No data setup in production
@@ -100,8 +102,17 @@ else
   echo "--- Database setup completed ---"
   
   # Asset precompilation for non-dev environments
-  echo "--- Precompiling assets ---"
-  bin/rails assets:precompile
+  echo "--- Checking assets for ${RAILS_ENV} ---"
+  if [ ! -d "public/decidim-packs" ] || [ -z "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
+    echo "--- No precompiled assets found, compiling now ---"
+    if ! bin/rails assets:precompile; then
+      echo "ERROR: Asset precompilation failed"
+      exit 1
+    fi
+    echo "--- Assets compiled successfully ---"
+  else
+    echo "--- Precompiled assets found, skipping compilation ---"
+  fi
 
   # After precompile, ensure compatibility symlink exists so any code expecting public/packs works
   if [ ! -e public/packs ] && [ -d public/decidim-packs ]; then

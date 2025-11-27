@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
 # frozen_string_literal: true
 
 module Decidim
@@ -17,7 +21,7 @@ module Decidim
         end
 
         resources :extra_user_fields, only: [:index]
-        match "/extra_user_fields" => "extra_user_fields#update", :via => :patch, as: "update"
+        match "/extra_user_fields" => "extra_user_fields#update", :via => :patch, :as => "update"
 
         root to: "extra_user_fields#index"
       end

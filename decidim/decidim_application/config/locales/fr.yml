@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+#   Denis Vasilev Dimchev
+#   Gianfranco Cedro
+#   Marco Cerdelli
+---
 fr:
     activemodel:
         attributes:
@@ -6,7 +13,14 @@ fr:
                 tos_version: Version de la politique de confidentialité
             user:
                 tos_agreement: Accord sur la politique de confidentialité
+    components:
+        meetings:
+            settings:
+                global:
+                    terms_and_conditions_url_for_meeting_creators: URL de la politique de confidentialité pour les créateurs de réunions
     decidim:
+        account:
+            blocked: Ce compte a été bloqué en raison d'une violation de la politique de confidentialité
         admin:
             admin_terms_of_service:
                 accept:
@@ -26,28 +40,18 @@ fr:
                     admin_terms_of_service: Politique de confidentialité administrateur
             static_pages:
                 edit:
-                    changed_notably_help: Si cette case est cochée, les utilisateurs devront accepter la nouvelle politique de confidentialité.
-        templates:
-            admin:
-                questionnaire_templates:
-                    preview:
-                        tos_agreement: En participant, vous acceptez cette politique de confidentialité
-        forms:
-            admin:
-                models:
-                    components:
-                        tos: Politique de confidentialité
-                questionnaires:
-                    responses:
-                        tos_agreement: En participant, vous acceptez la politique de confidentialité
+                    changed_notably_help: Si cette case est cochée, les utilisateurs devront
+                        accepter la nouvelle politique de confidentialité.
+        admin_terms_of_service:
+            default_body: '<h2>POLITIQUE DE CONFIDENTIALITÉ ADMIN</h2><p>Nous espérons que
+                vous avez reçu le discours habituel de l’administrateur système local. Cela
+                se résume généralement à trois choses :</p><ol><li>Respectez la vie privée
+                des autres.</li><li>Réfléchissez avant de cliquer.</li><li>Un grand pouvoir
+                implique de grandes responsabilités.</li></ol>'
         demographics:
             demographics:
                 questionnaire:
                     terms_of_service: Politique de confidentialité
-        account:
-            blocked: Ce compte a été bloqué en raison d'une violation de la politique de confidentialité
-        admin_terms_of_service:
-            default_body: '<h2>POLITIQUE DE CONFIDENTIALITÉ ADMIN</h2><p>Nous espérons que vous avez reçu le discours habituel de l’administrateur système local. Cela se résume généralement à trois choses :</p><ol><li>Respectez la vie privée des autres.</li><li>Réfléchissez avant de cliquer.</li><li>Un grand pouvoir implique de grandes responsabilités.</li></ol>'
         devise:
             registrations:
                 new:
@@ -56,8 +60,148 @@ fr:
                     tos_title: Politique de confidentialité
         download_your_data:
             help:
+                comment_votes:
+                    comment: L’identifiant du commentaire voté
+                    created_at: La date de création de ce vote
+                    id: L’identifiant du vote
+                    updated_at: La date de la dernière mise à jour du vote
+                    weight: Le poids du vote (1 pour un vote positif, -1 pour un vote négatif)
+                comments:
+                    alignment: Si ce commentaire est favorable, défavorable ou neutre
+                    author: Le nom du participant ayant rédigé ce commentaire
+                    body: Le commentaire
+                    commentable_id: L’identifiant unique de l’élément commenté
+                    commentable_type: Le type de l’élément commenté (résultat, proposition, etc.)
+                    created_at: La date de création de ce commentaire
+                    depth: La position du commentaire dans l’arborescence (réponse ou sous-réponse)
+                    id: L’identifiant de ce commentaire
+                    locale: La langue utilisée par le participant lors de la rédaction
+                    root_commentable_url: L’URL de la ressource liée à ce commentaire
+                    user_group: Le nom du groupe d’utilisateurs ayant rédigé ce commentaire (le cas échéant)
+                follows:
+                    created_at: La date et l’heure de création du suivi
+                    followable: La ressource ou l’espace suivi
+                    id: L’identifiant unique de ce suivi
+                    updated_at: La date et l’heure de la dernière mise à jour du suivi
+                identities:
+                    created_at: La date et l’heure de création de cette identité
+                    id: L’identifiant unique de cette identité
+                    provider: Le fournisseur de cette identité
+                    uid: L’identifiant unique de cette identité
+                    updated_at: La date et l’heure de la dernière mise à jour de cette identité
+                    user: L’utilisateur auquel appartient cette identité
+                messaging_conversations:
+                    created_at: La date de création de cette conversation
+                    id: L’identifiant unique de cette conversation
+                    messages: Les messages de cette conversation
+                    updated_at: La date de la dernière mise à jour de cette conversation
+                notifications:
+                    created_at: La date et l’heure de création de la notification
+                    event_class: La classe de l’événement ayant déclenché la notification
+                    event_name: Le nom de l’événement ayant déclenché la notification
+                    extra: Informations supplémentaires concernant cette notification
+                    id: L’identifiant unique de cette notification
+                    resource_type: Le type de ressource lié à cette notification
+                    updated_at: La date et l’heure de la dernière mise à jour de cette notification
+                participatory_space_private_users:
+                    created_at: La date et l’heure de création de cet utilisateur privé
+                    id: L’identifiant unique de cet utilisateur privé
+                    privatable_to: L’espace auquel appartient cet utilisateur privé
+                    published: Si cet utilisateur privé est publié ou non
+                    role: Le rôle de cet utilisateur privé
+                    updated_at: La date et l’heure de la dernière mise à jour de cet utilisateur privé
+                reports:
+                    created_at: La date et l’heure de création de ce signalement
+                    details: Les détails de ce signalement
+                    id: L’identifiant unique de ce signalement
+                    locale: La langue de ce signalement
+                    moderation: La modération associée à ce signalement
+                    reason: La raison de ce signalement
+                    updated_at: La date et l’heure de la dernière mise à jour de ce signalement
+                user_groups:
+                    document_number: Le numéro de document de ce groupe d’utilisateurs
+                    id: L’identifiant unique de ce groupe d’utilisateurs
+                    name: Le nom de ce groupe d’utilisateurs
+                    phone: Le numéro de téléphone de ce groupe d’utilisateurs
+                    verified_at: La date et l’heure de vérification de ce groupe d’utilisateurs
                 users:
-                    accepted_tos_version: La date à laquelle l'utilisateur a accepté la politique de confidentialité de cette plateforme
+                    about: La biographie de cet utilisateur
+                    accepted_tos_version: La date à laquelle l’utilisateur a accepté les conditions d’utilisation
+                    admin: Si cet utilisateur est administrateur
+                    confirmation_sent_at: La date et l’heure d’envoi de la confirmation
+                    confirmed_at: La date et l’heure de confirmation de cet utilisateur
+                    created_at: La date et l’heure de création de cet utilisateur
+                    current_sign_in_at: La date et l’heure de la connexion actuelle
+                    current_sign_in_ip: L’adresse IP de la connexion actuelle
+                    delete_reason: La raison de la suppression de cet utilisateur
+                    deleted_at: La date et l’heure de suppression de cet utilisateur
+                    email: L’adresse e-mail de cet utilisateur
+                    followers_count: Le nombre de participants qui suivent cet utilisateur
+                    following_count: Le nombre de participants suivis par cet utilisateur
+                    id: L’identifiant unique de cet utilisateur
+                    invitation_accepted_at: La date et l’heure d’acceptation de l’invitation
+                    invitation_created_at: La date et l’heure de création de l’invitation
+                    invitation_sent_at: La date et l’heure d’envoi de l’invitation
+                    invitations_count: Le nombre d’invitations envoyées à cet utilisateur
+                    invited_by: L’utilisateur qui a invité cet utilisateur
+                    last_sign_in_at: La date et l’heure de la dernière connexion
+                    last_sign_in_ip: L’adresse IP de la dernière connexion
+                    locale: La langue sélectionnée par cet utilisateur
+                    managed: Si cet utilisateur est géré par un autre utilisateur
+                    name: Le nom de cet utilisateur
+                    newsletter_notifications_at: La date et l’heure de la dernière réception de la newsletter
+                    nickname: Le pseudonyme de l’utilisateur
+                    notification_settings: Les paramètres de notification choisis par cet utilisateur
+                    notifications_sending_frequency: La fréquence d’envoi des notifications reçues par cet utilisateur
+                    officialized_as: Le nom de l’officialisation (Conseiller, Maire, etc.)
+                    officialized_at: La date et l’heure de l’officialisation de cet utilisateur
+                    organization: L’organisation à laquelle appartient cet utilisateur
+                    password_updated_at: La date de la dernière mise à jour du mot de passe
+                    personal_url: L’URL personnelle de cet utilisateur
+                    remember_created_at: La date et l’heure d’activation de l’option « se souvenir de moi »
+                    reset_password_sent_at: La date et l’heure d’envoi de la réinitialisation du mot de passe
+                    roles: Le rôle de cet utilisateur, s’il en a un
+                    sign_in_count: Le nombre de connexions effectuées par cet utilisateur
+                    type: Le type de cet utilisateur
+                    unconfirmed_email: L’adresse e-mail non confirmée de cet utilisateur
+                    updated_at: La date et l’heure de la dernière mise à jour de cet utilisateur
+            show:
+                action: Action
+                download: Télécharger le fichier
+                download_data: Télécharger les données
+                download_data_description_1: Vous trouverez ici tous les téléchargements disponibles pour votre compte. Ces fichiers .zip resteront disponibles pendant deux semaines avant d’être supprimés.
+                download_data_description_2: Vous pouvez demander un fichier .zip contenant vos contributions et vos données personnelles.
+                download_your_data: Données personnelles
+                expiration: Expiration
+                expired: Expiré
+                explanation:
+                    body_1: Ces fichiers sont des jeux de données exportés de votre activité sur cette plateforme, comme les propositions ou les commentaires. Ils fournissent des données brutes et structurées pouvant être utilisées pour l’analyse, la recherche ou l’intégration avec d’autres outils.
+                    body_2: Ces fichiers sont au format CSV (Comma-Separated Values), un format largement utilisé et compatible avec de nombreux logiciels, tels que les tableurs, éditeurs de texte ou outils d’analyse de données.
+                    title: Qu’est-ce que ces fichiers ?
+                files_to_download: Fichiers à télécharger
+                request_data: Demander
+                type: Type de téléchargement
+        forms:
+            admin:
+                models:
+                    components:
+                        tos: Politique de confidentialité
+                questionnaires:
+                    responses:
+                        tos_agreement: En participant, vous acceptez la politique de confidentialité
+            questionnaires:
+                responses:
+                    tos_agreement: En participant, vous acceptez la politique de confidentialité
+                show:
+                    tos_agreement: J'ai lu et j'accepte la politique de confidentialité spécifique à ce sondage décrite ci-dessus, qui explique les données supplémentaires collectées, les finalités du traitement et la base juridique, en plus de la politique de confidentialité générale.
+        initiatives:
+            admin:
+                actions:
+                    new_initiative_type: Nouveau type d'initiative
+                index:
+                    initiatives_types:
+                        alert_html: "<p>Vous devez créer au moins un type d'initiative afin que les participants puissent commencer à créer des initiatives.</p><p> %{link}</p>"
+                        button: Nouveau type d'initiative
         pages:
             privacy_policy:
                 accept:
@@ -75,18 +219,27 @@ fr:
                 required_review:
                     alert: Nous avons mis à jour notre politique de confidentialité, veuillez la consulter.
                     body: Veuillez prendre un moment pour consulter les mises à jour de notre politique de confidentialité. Sinon, vous ne pourrez pas utiliser la plateforme.
-                    title: "Requis : Consultez les mises à jour de notre politique de confidentialité"
+                    title: 'Requis : Consultez les mises à jour de notre politique de confidentialité'
         profile:
             inaccessible_message: Ce profil est inaccessible en raison d'une violation de la politique de confidentialité !
-    components:
-        meetings:
-            settings:
-                global:
-                    terms_and_conditions_url_for_meeting_creators: URL de la politique de confidentialité pour les créateurs de réunions
+        templates:
+            admin:
+                questionnaire_templates:
+                    preview:
+                        tos_agreement: En participant, vous acceptez la politique de confidentialité
+        welcome_notification:
+            default_body: <br><p>Bonjour {{name}},</p><p>Merci d'avoir rejoint {{organization}} et bienvenue!</p><ul><li>Si vous souhaitez avoir une idée rapide de ce que vous pouvez faire ici, consultez la section <a href="{{help_url}}">Aide</a> .</li><br><li>En somme, rejoignez d'autres personnes, partagez avec eux l'expérience d'être engagés et participer à {{organization}}.</li><br><li>Faites des propositions, des commentaires, lancez des débats, réfléchissez à la manière de contribuer au bien commun, fournissez des arguments pour convaincre, écoutez et lisez pour être convaincu, exprimez vos idées de manière concrète et directe, répondez avec patience et décision, défendez vos idées dans un esprit ouvert pour collaborer et enrichir les idées des autres.</li></ul>
+        newsletter_mailer:
+            newsletter:
+                no_reply_notice: |
+                    Cet e-mail a été envoyé depuis une adresse de notification uniquement qui n'accepte pas les messages entrants. Veuillez ne pas répondre à cet e-mail.<br><br>
+                    Vous pouvez consulter comment nous traitons vos données et comment exercer vos droits dans la <a href="%{privacy_policy_url}">Politique de Confidentialité</a>, ainsi que gérer la réception des e-mails dans vos <a href="%{notification_preferences_url}">Préférences de Notification</a>.
     devise:
         omniauth_callbacks:
             add_tos_errors: La politique de confidentialité doit être acceptée pour créer un compte.
     layouts:
         decidim:
+            edit_link:
+                edit: Éditer
             footer:
                 terms_of_service: Politique de confidentialité

@@ -1,0 +1,158 @@
+<%#
+  SPDX-License-Identifier: AGPL-3.0
+  Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+  Authors:
+    Gianfranco Cedro
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <%= tag :meta, "http-equiv": "Content-Type", content: "text/html; charset=utf-8" %>
+    <%= tag :meta, name: "viewport", content: "width=device-width" %>
+    <%= stylesheet_pack_tag "decidim_email" %>
+    <style type="text/css">
+      a {
+        color: <%= @organization.colors["primary"] || '#004494' %> !important;
+      }
+      .decidim-bar a,
+      .cityhall-bar a {
+        color: #ffffff !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- <style> -->
+    <table class="body">
+      <% if content_for?(:see_on_website) %>
+        <table class="container">
+          <th class="small-12 first columns headnote float-right">
+            <%= yield(:see_on_website) %>
+          </th>
+        </table>
+      <% end %>
+      <tr>
+        <td class="float-center" align="center" valign="top">
+          <center>
+            <table class="main container">
+              <tr>
+                <td class="decidim-bar" style="background-color: <%= @organization.colors["primary"] || '#004494' %>; color: #ffffff;">
+                  <table class="row collapse">
+                    <tr>
+                      <th class="small-3 large-3 first columns decidim-bar" style="background-color: <%= @organization.colors["primary"] || '#004494' %>; color: #ffffff;">
+                        <table>
+                          <tr>
+                            <th>
+                            </th>
+                          </tr>
+                        </table>
+                      </th>
+                      <th class="small-6 large-6 columns decidim-bar" style="background-color: <%= @organization.colors["primary"] || '#004494' %>; color: #ffffff;">
+                        <table>
+                          <tr>
+                            <th>
+                              <center>
+                                <% if @organization.official_img_footer.present? %>
+                                  <%= link_to decidim.root_url(host: @organization.host) do %>
+                                    <%= image_tag @organization.attached_uploader(:official_img_footer).path, alt: organization_name(@organization), height: "32", style: "max-height: 32px; height: 32px; width: auto; display: block; margin: 0 auto;" %>
+                                  <% end %>
+                                <% else %>
+                                  <%= render partial: "layouts/decidim/mailer_logo", locals: { organization: @organization } %>
+                                <% end %>
+                              </center>
+                            </th>
+                          </tr>
+                        </table>
+                      </th>
+                      <th class="small-3 large-3 last columns decidim-bar" style="background-color: <%= @organization.colors["primary"] || '#004494' %>; color: #ffffff;">
+                      </th>
+                      <th class="expander"></th>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <table class="spacer">
+                    <tbody>
+                      <tr>
+                        <td height="40px" style="font-size:40px;line-height:40px;"> </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <table class="row content">
+                    <tr>
+                      <th class="small-12 first columns" style="padding: 32px 64px;">
+                        <%= yield %>
+                      </th>
+                      <th class="expander"></th>
+                    </tr>
+                  </table>
+
+                  <table class="row">
+                    <tr>
+                      <th class="small-12 first columns">
+                      </th>
+                      <th class="expander"></th>
+                    </tr>
+                  </table>
+
+                  <table class="row">
+                    <tr>
+                      <th class="expander"></th>
+                      <th class="small-12 first columns cityhall-bar" style="background-color: <%= @organization.colors["primary"] || '#004494' %>; color: #ffffff;">
+                        <div class="decidim-logo" style="float: right; text-align: right; padding-right: 16px">
+                          <% if @custom_url_for_mail_root.present? %>
+                            <%= link_to organization_name(@organization).html_safe, @custom_url_for_mail_root %>
+                          <% else %>
+                            <%= link_to organization_name(@organization).html_safe, decidim.root_url(host: @organization.host) %>
+                          <% end %>
+                        </div>
+                      </th>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+            <% if content_for?(:note) or content_for?(:unsubscribe) %>
+              <table class="container">
+                <tr>
+                  <td>
+                    <table class="row">
+                      <th class="expander"></th>
+                      <th class="small-12 first last columns footnote">
+                        <center>
+                          <%= yield(:note) if content_for?(:note) %>
+                          <%= yield(:unsubscribe) if content_for?(:unsubscribe) %>
+                        </center>
+                      </th>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            <% end %>
+          </center>
+        </td>
+      </tr>
+      <tr>
+        <td class="float-center" align="center" valign="top">
+          <center>
+            <table class="container">
+              <tr>
+                <td height="10px" style="font-size:10px;line-height:10px;"> </td>
+              </tr>
+              <tr>
+                <th class="small-12 first columns footnote">
+                  <%= t("decidim.newsletter_mailer.newsletter.no_reply_notice", 
+                       privacy_policy_url: decidim.page_url(Decidim::StaticPage.find_by(slug: "terms-and-conditions", organization: @organization)&.slug || "terms-and-conditions", host: @organization.host),
+                       notification_preferences_url: decidim.notifications_settings_url(host: @organization.host)).html_safe %>
+                </th>
+              </tr>
+            </table>
+          </center>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

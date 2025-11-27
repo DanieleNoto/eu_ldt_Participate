@@ -1,3 +1,7 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SimplifiedMainProvider from '@app/SimplifiedMainProvider';
@@ -28,7 +32,7 @@ const ChatbotWebComponent: React.FC<ChatbotWebComponentProps> = ({
 
 	useEffect(() => {
 		// Resolve base URL (loader sets window.__CHATBOT_BASE_URL__)
-		const baseUrl = (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ || '';
+		const baseUrl = (globalThis as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__ ?? '';
 		const normalized = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 		// If we have a config injected already (SSR or earlier script), skip network fetch
 		if ((globalThis as { __CHATBOT_CONFIG__?: unknown }).__CHATBOT_CONFIG__) {

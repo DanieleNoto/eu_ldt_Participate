@@ -1,11 +1,10 @@
-# This migration comes from active_hashcash (originally 20240215143453)
-# Successful hashcash stamp are stored in the database.
-# This migration creates the table for the model ActiveHashcash::Stamp.
-# Run the following commands to add it to your Rails application:
-#
-#   rails active_hashcash:install:migrations
-#   rails db:migrate
-#
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+
+# frozen_string_literal: true
+
 class CreateActiveHashcashStamps < ActiveRecord::Migration[5.2]
   def change
     create_table :active_hashcash_stamps do |t|

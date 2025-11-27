@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alvaro Iglesias
+# Alvaro Iglesias Sanchez
+# Gianfranco Cedro
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -17,9 +23,106 @@ spec:
         spec:
             automountServiceAccountToken: false
             securityContext:
-              fsGroup: 1000  # group ID of decidim user
-              runAsUser: 1000
-              runAsGroup: 1000
+                fsGroup: 1000 # group ID of decidim user
+                runAsUser: 1000
+                runAsGroup: 1000
+            initContainers:
+                - name: asset-compiler
+                  image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  resources:
+                      requests:
+                          memory: '2Gi'
+                          cpu: '1000m'
+                          ephemeral-storage: '2Gi'
+                      limits:
+                          memory: '4Gi'
+                          cpu: '2'
+                          ephemeral-storage: '4Gi'
+                  envFrom:
+                      - secretRef:
+                            name: decidim-secret
+                      - configMapRef:
+                            name: decidim-configmap
+                  env:
+                      - name: NODE_OPTIONS
+                        value: '--max-old-space-size=3072'
+                      - name: RAILS_ENV
+                        value: production
+                      - name: SHAKAPACKER_PRECOMPILE
+                        value: 'true'
+                  command:
+                      - /bin/bash
+                      - -c
+                      - |
+                          echo "=== ASSET COMPILATION INIT CONTAINER ==="
+                          cd /code
+
+                          echo "--- Verifying permissions ---"
+                          echo "Current user: $(id)"
+                          echo "/code directory permissions: $(ls -ld /code)"
+                          if [ ! -w /code ]; then
+                            echo "ERROR: /code directory is not writable by current user"
+                            echo "Attempting to fix permissions..."
+                            chmod 775 /code 2>/dev/null || echo "Cannot chmod /code"
+                          fi
+
+                          # Test if we can create files in /code
+                          if touch /code/.permission_test 2>/dev/null; then
+                            echo "✓ Permission check passed: can write to /code"
+                            rm /code/.permission_test
+                          else
+                            echo "✗ Permission check failed: cannot write to /code"
+                            exit 1
+                          fi
+
+                          echo "--- Preparing static assets (Keycloak logo) ---"
+                          mkdir -p public/media/images
+                          if [ -f "engines/decidim-keycloak/app/packs/images/keycloak_logo.svg" ]; then
+                            cp engines/decidim-keycloak/app/packs/images/keycloak_logo.svg public/media/images/
+                            echo "Keycloak logo copied to public/media/images/"
+                          else
+                            echo "WARNING: Keycloak logo source not found at engines/decidim-keycloak/app/packs/images/keycloak_logo.svg"
+                          fi
+
+                          echo "--- Cleaning old Shakapacker assets and manifest ---"
+                          bin/rails shakapacker:clean || bin/rails shakapacker:clobber || true
+                          rm -f public/sw.js public/sw.js.map public/decidim-packs/manifest.json
+                          echo "Removed old manifest files to force regeneration"
+
+                          echo "--- Verifying webpack executable ---"
+                          if [ ! -x /code/node_modules/.bin/webpack ]; then
+                            echo "ERROR: webpack is not executable"
+                            ls -la /code/node_modules/.bin/webpack || true
+                            echo "Attempting to fix permissions for node_modules/.bin"
+                            chmod -R u+x,g+x,o+x /code/node_modules/.bin 2>/dev/null || true
+                            chmod -R u+r,g+r,o+r /code/node_modules/.bin 2>/dev/null || true
+                          fi
+
+                          echo "--- Compiling assets with Shakapacker ---"
+                          if SHAKAPACKER_PRECOMPILE=true bundle exec rake shakapacker:compile; then
+                            echo "Assets compiled successfully"
+                            
+                            # Verify assets exist
+                            if [ -d "public/packs" ] && [ -n "$(ls -A public/packs 2>/dev/null)" ]; then
+                              echo "Assets verification passed"
+                              exit 0
+                            else
+                              echo "ERROR: Assets were not created in public/packs"
+                              exit 1
+                            fi
+                          else
+                            echo "Asset compilation failed"
+                            exit 1
+                          fi
+                  volumeMounts:
+                      - mountPath: /code/data
+                        name: decidim-pvc
+                      - mountPath: /code/storage
+                        name: decidim-pvc
+                      - mountPath: /code/public
+                        name: decidim-pvc
+                      - mountPath: /code/tmp
+                        name: tmp-volume
             containers:
                 - name: decidim
                   resources:
@@ -54,6 +157,187 @@ spec:
                         name: decidim-pvc
                       - mountPath: /code/storage
                         name: decidim-pvc
+                      - mountPath: /code/public
+                        name: decidim-pvc
+                      - mountPath: /code/tmp
+                        name: tmp-volume
+                      - mountPath: /code/log 
+                        name: tmp-volume
+                                         
+                - name: open-data-exporter
+                  image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  envFrom:
+                      - secretRef:
+                            name: decidim-secret
+                      - configMapRef:
+                            name: decidim-configmap
+                  command:
+                      - /bin/bash
+                      - -c
+                      - |
+                          echo "=== OPEN DATA EXPORTER CONTAINER ==="
+                          cd /code
+
+                          # Function to run the export
+                          run_export() {
+                            echo "$(date): Starting Open Data export..."
+                            if bundle exec rake decidim:open_data:export; then
+                              echo "$(date): Open Data export completed successfully"
+                            else
+                              echo "$(date): Open Data export failed"
+                            fi
+                          }
+
+                          # Run initial export on startup
+                          run_export
+
+                          # Run daily at midnight
+                          while true; do
+                            # Calculate seconds until next midnight
+                            now=$(date +%s)
+                            midnight=$(date -d 'tomorrow 00:00:00' +%s)
+                            sleep_seconds=$((midnight - now))
+                            
+                            echo "$(date): Sleeping for $sleep_seconds seconds until next export..."
+                            sleep $sleep_seconds
+                            
+                            run_export
+                          done
+                  volumeMounts:
+                      - mountPath: /code/data
+                        name: decidim-pvc
+                        readOnly: true
+                      - mountPath: /code/storage
+                        name: decidim-pvc
+                        readOnly: true
+                      - mountPath: /code/public
+                        name: decidim-pvc
+                        readOnly: true
+                  resources:
+                      requests:
+                          memory: '256Mi'
+                          cpu: '100m'
+                          ephemeral-storage: '1Gi'
+                      limits:
+                          memory: '512Mi'
+                          cpu: '200m'
+                          ephemeral-storage: '2Gi'
+                - name: sidekiq
+                  image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  command: ['/bin/sh', '-lc']
+                  args:
+                      - |
+                          set -e
+
+                          echo "Starting Sidekiq wrapper: waiting for redis..."
+                          # Prefer redis-cli if present (handles auth and URLs), otherwise fall back to nc TCP check.
+                          if command -v redis-cli >/dev/null 2>&1; then
+                            if [ -n "${REDIS_URL:-}" ]; then
+                              until redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1; do
+                                echo "redis not reachable yet; sleeping 1s"
+                                sleep 1
+                              done
+                            fi
+                          else
+                            until nc -z ${REDIS_HOST:-redis} ${REDIS_PORT:-6379}; do
+                              echo "redis not reachable yet; sleeping 1s"
+                              sleep 1
+                            done
+                          fi
+                          echo "redis reachable; exec sidekiq"
+                          exec bundle exec sidekiq -e ${RAILS_ENV:-production} -c 5 \
+                          -q decidim_production_mailers,4 \
+                          -q decidim_production_default,2 \
+                          -q decidim_production_newsletters,2 \
+                          -q decidim_production_events,2 \
+                          -q decidim_production_translations,2 \
+                          -q decidim_production_vote_reminder,2 \
+                          -q decidim_production_reminders,2 \
+                          -q decidim_production_delete_inactive_participants,2 \
+                          -q decidim_production_newsletters_opt_in,2 \
+                          -q decidim_production_conference_diplomas,2 \
+                          -q decidim_production_user_report,2 \
+                          -q decidim_production_block_user,2 \
+                          -q decidim_production_exports,1 \
+                          -q decidim_production_close_meeting_reminder,1 \
+                          -q decidim_production_spam_analysis,1 \
+                          -q active_storage_analysis,1 \
+                          -q active_storage_purge,1
+
+                  envFrom:
+                      - secretRef:
+                            name: decidim-secret
+                      - configMapRef:
+                            name: decidim-configmap
+                  resources:
+                      requests:
+                          memory: '512Mi'
+                          cpu: '250m'
+                          ephemeral-storage: '1Gi'
+                      limits:
+                          memory: '1Gi'
+                          cpu: '500m'
+                          ephemeral-storage: '2Gi'
+                  livenessProbe:
+                      exec:
+                          command:
+                              - /bin/sh
+                              - -c
+                              - "ps aux | grep '[s]idekiq' || exit 1"
+                      initialDelaySeconds: 30
+                      periodSeconds: 30
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  readinessProbe:
+                      exec:
+                          command:
+                              - /bin/sh
+                              - -c
+                              - "ps aux | grep '[s]idekiq' || exit 1"
+                      initialDelaySeconds: 10
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                  volumeMounts:
+                      - mountPath: /code/data
+                        name: decidim-pvc
+                      - mountPath: /code/storage
+                        name: decidim-pvc
+                      - mountPath: /code/public
+                        name: decidim-pvc
+                        readOnly: true
+                      - mountPath: /code/tmp
+                        name: tmp-volume
+
+                - name: fluent-bit
+                  image: cr.fluentbit.io/fluent/fluent-bit:2.2-debug
+                  imagePullPolicy: IfNotPresent
+                  securityContext:
+                    runAsUser: 0    # usuario no root
+                    runAsGroup: 0
+                    allowPrivilegeEscalation: false
+                  resources:
+                    requests:
+                      cpu: "100m"
+                      memory: "100Mi"
+                    limits:
+                      cpu: "200m"
+                      memory: "200Mi"
+                  volumeMounts:
+                   - name: tmp-volume
+                     mountPath: /code/log
+                   - name: config
+                     mountPath: /fluent-bit/etc/ 
+ 
+            volumes:
+                - name: tmp-volume
+                  emptyDir: {}
+                - name: fluentbit-buffer
+                  emptyDir: {}
+                - name: config
+                  configMap:
+                    name: fluent-configmap
+
+
     volumeClaimTemplates:
         - metadata:
               name: decidim-pvc
@@ -61,4 +345,4 @@ spec:
               accessModes: ['ReadWriteOnce']
               resources:
                   requests:
-                      storage: 1Gi
+                      storage: 5Gi

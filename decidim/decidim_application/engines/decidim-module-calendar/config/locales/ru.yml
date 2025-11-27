@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+ru:
+  decidim:
+    calendar:
+      admin:
+        actions:
+          new_external_event: New external event
+        external_events:
+          index:
+            title: External events
+            no_records_html: <p>No external events created.</p> <p>Start by adding a external event from the "<a href="%{new_set_link}">%{button_name}</a>" button.</p>
+          create:
+            invalid: Invalid external event
+            success: External event created successfully
+          destroy:
+            success: External event deleted successfully
+          edit:
+            save: Save external event
+          form:
+            title: External event
+            title_label: Title
+            start_at: Start at
+            end_at: End at
+            url: URL
+            url_help_text: Must start with http:// or https://
+          new:
+            title: New external event
+            create: Create external event
+          update:
+            invalid: Error updating external event
+            success: External event updated successfully
+      index:
+        title: Global Calendar
+        filters:
+          consultation: Consultations
+          debate: Debates
+          external_event: External events
+          meeting: Meetings
+          participatory_step: Participatory Process
+      menu:
+        calendar: Calendar
+        gantt: Gantt Graph
+        ical: Download ICAL

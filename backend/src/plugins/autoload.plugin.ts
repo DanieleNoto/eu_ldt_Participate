@@ -1,3 +1,8 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Pierluigi Spedicato
 /* eslint-disable prefer-arrow/prefer-arrow-functions */
 import autoload from '@fastify/autoload';
 import fp from 'fastify-plugin';
@@ -10,6 +15,6 @@ export default fp(async function (fastify, opts) {
 
 	fastify.register(autoload, {
 		dir: routesDir,
-		options: Object.assign({ prefix: process.env.CONTEXT_URL }, opts)
+		options: { prefix: process.env.CONTEXT_URL, ...opts }
 	});
 });

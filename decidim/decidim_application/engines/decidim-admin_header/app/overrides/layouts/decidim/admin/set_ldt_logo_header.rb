@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+# frozen_string_literal: true
+
 Deface::Override.new(
   virtual_path: "layouts/decidim/admin/_application",
   name: "set_ldt_logo_header",
@@ -27,7 +33,7 @@ Deface::Override.new(
     <%= main_menu_modules.render %>
     <%= main_menu.render %>
   </div>
-  
+
   HTML
-  
+
 )

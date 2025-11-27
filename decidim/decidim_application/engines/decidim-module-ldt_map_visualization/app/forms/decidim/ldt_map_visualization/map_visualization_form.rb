@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+
 # frozen_string_literal: true
 
 module Decidim
@@ -18,7 +23,7 @@ module Decidim
         if params.respond_to?(:require)
           begin
             permitted = params.require(:map_visualization_form).permit(:name, :map_id, :map_data)
-          rescue => _e
+          rescue StandardError => _e
             permitted = {}
           end
         elsif params.is_a?(Hash)
@@ -37,6 +42,7 @@ module Decidim
       # Build from a model-like object
       def self.from_model(model)
         return new unless model
+
         new.tap do |f|
           f.name = model.name if model.respond_to?(:name)
           f.map_id = model.map_id if model.respond_to?(:map_id)

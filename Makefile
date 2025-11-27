@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
+# Simone Bianchelli
+# denise.scarcelli
 # EU LDT Participate - Development Makefile
 # This Makefile automates the setup and testing of the EU LDT Participate platform
 
@@ -131,9 +138,9 @@ build-grafana: ## Build custom Grafana Docker image
 build-analytics-images: build-matomo build-grafana ## Build both Matomo and Grafana custom Docker images
 	@echo "$(GREEN)✓ All analytics images built successfully$(NC)"
 
-setup-decidim: check-prerequisites ## Setup Decidim with Docker Compose
-	@echo "$(YELLOW)Setting up Decidim...$(NC)"
-	@docker compose build --build-arg RAILS_ENV=development --build-arg NODE_ENV=development --progress=plain --no-cache
+setup-decidim: check-prerequisites ## Setup Decidim with Docker Compose (builds only the decidim service)
+	@echo "$(YELLOW)Setting up Decidim (building only decidim service)...$(NC)"
+	@docker compose build decidim --build-arg RAILS_ENV=development --build-arg NODE_ENV=development --progress=plain --no-cache
 	@echo "$(GREEN)✓ Decidim setup completed$(NC)"
 
 setup: setup-node install-deps setup-playwright setup-frontend setup-backend setup-jitsi setup-matomo setup-grafana setup-decidim ## Complete environment setup
@@ -313,8 +320,16 @@ logs-chatbot: ## Show chatbot container logs
 	@echo "$(YELLOW)Showing chatbot-frontend logs...$(NC)"
 	@docker compose logs -f chatbot-frontend
 
-rebuild-all: rebuild-chatbot ## Rebuild all Docker containers
-	@echo "$(YELLOW)Rebuilding all containers...$(NC)"
-	@docker compose build
-	@echo "$(GREEN)✓ All containers rebuilt$(NC)"
+rebuild-all: ## Rebuild all Docker containers (WARNING: This rebuilds ALL services)
+	@echo "$(YELLOW)WARNING: This will rebuild ALL Docker containers in docker-compose.yml$(NC)"
+	@echo "$(YELLOW)This includes Decidim, chatbot frontend/backend, databases, etc.$(NC)"
+	@echo "$(YELLOW)This operation may take a long time. Continue? (y/N)$(NC)"
+	@read -p "" -n 1 -r; echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		echo "$(YELLOW)Rebuilding all containers...$(NC)"; \
+		docker compose build; \
+		echo "$(GREEN)✓ All containers rebuilt$(NC)"; \
+	else \
+		echo "$(YELLOW)Operation cancelled$(NC)"; \
+	fi
 

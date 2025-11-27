@@ -1,3 +1,7 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';

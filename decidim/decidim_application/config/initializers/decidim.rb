@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Gianfranco Cedro
+# Marco Pinnella
+# Pierluigi Spedicato
 # frozen_string_literal: true
 
 Decidim.configure do |config|
@@ -380,141 +387,148 @@ Decidim.configure do |config|
 
   # Defines additional content security policies following the structure
   # Read more: https://docs.decidim.org/en/develop/configure/initializer#_content_security_policy
-  
+
   # Get embeddable services from environment variable for CSP frame-src
-  embeddable_services = ENV.fetch("MEETINGS_EMBEDDABLE_SERVICES", "www.youtube.com www.twitch.tv meet.jit.si").split(" ")
-  
+  embeddable_services = ENV.fetch("MEETINGS_EMBEDDABLE_SERVICES", "www.youtube.com www.twitch.tv meet.jit.si").split
+
   # Add Matomo server to frame-src for analytics iframe
   matomo_hosts = []
-  if ENV['MATOMO_SERVER_ADDRESS'].present?
+  if ENV["MATOMO_SERVER_ADDRESS"].present?
     # Parse the Matomo URL to get the host and port for CSP
     begin
-      matomo_uri = URI.parse(ENV['MATOMO_SERVER_ADDRESS'])
+      matomo_uri = URI.parse(ENV["MATOMO_SERVER_ADDRESS"])
       matomo_host_with_port = "#{matomo_uri.host}:#{matomo_uri.port}"
-      matomo_hosts = [matomo_host_with_port, ENV['MATOMO_SERVER_ADDRESS']]
+      matomo_hosts = [matomo_host_with_port, ENV["MATOMO_SERVER_ADDRESS"]].compact
     rescue URI::InvalidURIError
-      Rails.logger.warn "Invalid MATOMO_SERVER_ADDRESS: #{ENV['MATOMO_SERVER_ADDRESS']}"
+      Rails.logger.warn "Invalid MATOMO_SERVER_ADDRESS: #{ENV["MATOMO_SERVER_ADDRESS"]}"
+      matomo_hosts = []
     end
   end
-  
+
   # Add Grafana server to frame-src for statistics iframe
   grafana_hosts = []
-  if ENV['GF_SERVER_ROOT_URL'].present?
-    grafana_hosts = [ENV['GF_SERVER_ROOT_URL']]
+  if ENV["GF_SERVER_ROOT_URL"].present?
+    grafana_hosts = [ENV["GF_SERVER_ROOT_URL"]]
     # Also add parsed host:port version
     begin
-      grafana_uri = URI.parse(ENV['GF_SERVER_ROOT_URL'])
+      grafana_uri = URI.parse(ENV["GF_SERVER_ROOT_URL"])
       grafana_host_with_port = "#{grafana_uri.host}:#{grafana_uri.port}"
       grafana_hosts += [grafana_host_with_port] unless grafana_hosts.include?(grafana_host_with_port)
     rescue URI::InvalidURIError
-      Rails.logger.warn "Invalid GF_SERVER_ROOT_URL: #{ENV['GF_SERVER_ROOT_URL']}"
+      Rails.logger.warn "Invalid GF_SERVER_ROOT_URL: #{ENV["GF_SERVER_ROOT_URL"]}"
     end
-  elsif ENV['GF_SERVER_DOMAIN'].present?
+  elsif ENV["GF_SERVER_DOMAIN"].present?
     # Construct Grafana URL from domain
-    grafana_domain = ENV['GF_SERVER_DOMAIN']
-    if grafana_domain.include?('localhost')
-      grafana_hosts = ["http://#{grafana_domain}:3001", "http://localhost:3001"]
-    else
-      grafana_hosts = ["https://#{grafana_domain}", "http://#{grafana_domain}"]
-    end
+    grafana_domain = ENV["GF_SERVER_DOMAIN"]
+    grafana_hosts = if grafana_domain.include?("localhost")
+                      ["http://#{grafana_domain}:3001", "http://localhost:3001"]
+                    else
+                      ["https://#{grafana_domain}", "http://#{grafana_domain}"]
+                    end
   else
     # Default to Grafana container name (internal Docker network)
     grafana_hosts = ["http://grafana:3000", "http://localhost:3001"]
   end
-  
+
   # Add Keycloak server to frame-src for authentication iframe
   keycloak_hosts = []
-  if ENV['OMNIAUTH_KEYCLOAK_SITE'].present?
+  if ENV["OMNIAUTH_KEYCLOAK_SITE"].present?
     begin
-      keycloak_uri = URI.parse(ENV['OMNIAUTH_KEYCLOAK_SITE'])
+      keycloak_uri = URI.parse(ENV["OMNIAUTH_KEYCLOAK_SITE"])
       keycloak_host_with_port = "#{keycloak_uri.host}:#{keycloak_uri.port}"
-      keycloak_hosts = [keycloak_host_with_port, ENV['OMNIAUTH_KEYCLOAK_SITE'].chomp('/')]
+      keycloak_hosts = [keycloak_host_with_port, ENV["OMNIAUTH_KEYCLOAK_SITE"].chomp("/")].compact
     rescue URI::InvalidURIError
-      Rails.logger.warn "Invalid OMNIAUTH_KEYCLOAK_SITE: #{ENV['OMNIAUTH_KEYCLOAK_SITE']}"
+      Rails.logger.warn "Invalid OMNIAUTH_KEYCLOAK_SITE: #{ENV["OMNIAUTH_KEYCLOAK_SITE"]}"
+      keycloak_hosts = []
     end
   end
-  
+
   # Add Tool0 server to frame-src for external applications
   tool0_hosts = []
-  if ENV['TOOL0_DOMAIN'].present?
+  if ENV["TOOL0_DOMAIN"].present?
     begin
-      tool0_uri = URI.parse(ENV['TOOL0_DOMAIN'])
+      tool0_uri = URI.parse(ENV["TOOL0_DOMAIN"])
       tool0_host_with_port = "#{tool0_uri.host}:#{tool0_uri.port}"
-      tool0_hosts = [tool0_host_with_port, ENV['TOOL0_DOMAIN'].chomp('/')]
+      tool0_hosts = [tool0_host_with_port, ENV["TOOL0_DOMAIN"].chomp("/")].compact
     rescue URI::InvalidURIError
-      Rails.logger.warn "Invalid TOOL0_DOMAIN: #{ENV['TOOL0_DOMAIN']}"
+      Rails.logger.warn "Invalid TOOL0_DOMAIN: #{ENV["TOOL0_DOMAIN"]}"
+      tool0_hosts = []
     end
   end
-  
-  frame_src_hosts = %w('self') + embeddable_services + matomo_hosts + grafana_hosts + keycloak_hosts + tool0_hosts
-  
+
+  # Safely build frame_src_hosts array, filtering out nil values
+  frame_src_hosts = (%w(self) + embeddable_services + matomo_hosts + grafana_hosts + keycloak_hosts + tool0_hosts).compact
+
   config.content_security_policies_extra = {
-    "default-src" => %w('self' https:),
-    "script-src" => %w('self' 'unsafe-inline' 'unsafe-eval'),
-    "style-src" => %w('self' 'unsafe-inline'),
-    "connect-src" => %w('self'),
-    "font-src" => %w('self'),
-    "frame-src" => frame_src_hosts,
+    "default-src" => %w(self https:),
+    "script-src" => %w(self unsafe-inline unsafe-eval),
+    "style-src" => %w(self unsafe-inline),
+    "connect-src" => %w(self),
+    "font-src" => %w(self data: https: ms-browser-extension:),
+    "frame-src" => frame_src_hosts
   }
 
   # Allow webpack dev server in development
   if Rails.env.development?
-    config.content_security_policies_extra["script-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
+    config.content_security_policies_extra["script-src"] += %w(http://localhost:3035 http://0.0.0.0:3035 ws://0.0.0.0:3035 ws://localhost:3035)
     config.content_security_policies_extra["style-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
-    config.content_security_policies_extra["connect-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
+    config.content_security_policies_extra["connect-src"] += %w(http://localhost:3035 http://0.0.0.0:3035 ws://0.0.0.0:3035 ws://localhost:3035)
+    config.content_security_policies_extra["font-src"] += %w(http://localhost:3035 http://0.0.0.0:3035)
   end
 
   # Add chatbot URL to CSP if configured
-  if ENV['CHATBOT_ENABLED'] == 'true' && ENV['CHATBOT_URL'].present?
-    chatbot_url = ENV['CHATBOT_URL']
-    config.content_security_policies_extra["script-src"] += [chatbot_url]
-    config.content_security_policies_extra["style-src"] += [chatbot_url]
-    config.content_security_policies_extra["connect-src"] += [chatbot_url]
-    
+  if ENV["CHATBOT_ENABLED"] == "true" && ENV["CHATBOT_URL"].present?
+    chatbot_url = ENV["CHATBOT_URL"]&.strip
+    if chatbot_url.present?
+      config.content_security_policies_extra["script-src"] += [chatbot_url]
+      config.content_security_policies_extra["style-src"] += [chatbot_url]
+      config.content_security_policies_extra["connect-src"] += [chatbot_url]
+    end
+
     # Add chatbot backend API URL for AJAX requests
-    chatbot_backend_url = ENV.fetch('CHATBOT_BACKEND_URL', 'http://localhost:3002')
-    config.content_security_policies_extra["connect-src"] += [chatbot_backend_url]
-    # Allow Matomo analytics in development
-    if ENV['MATOMO_SERVER_ADDRESS'].present?
-      matomo_uri = URI.parse(ENV['MATOMO_SERVER_ADDRESS'])
-      matomo_full = ENV['MATOMO_SERVER_ADDRESS']
-      
-      config.content_security_policies_extra["script-src"] += [matomo_full]
-      config.content_security_policies_extra["connect-src"] += [matomo_full]
-      config.content_security_policies_extra["img-src"] ||= %w('self' data:)
-      config.content_security_policies_extra["img-src"] += [matomo_full]
-    end
-    
-    # Allow Grafana analytics in development
-    grafana_hosts.each do |grafana_url|
-      next if grafana_url.blank?
-      
-      config.content_security_policies_extra["script-src"] += [grafana_url]
-      config.content_security_policies_extra["connect-src"] += [grafana_url]
-      config.content_security_policies_extra["img-src"] ||= %w('self' data:)
-      config.content_security_policies_extra["img-src"] += [grafana_url]
-    end
-    
-    # Allow Keycloak authentication in development
-    keycloak_hosts.each do |keycloak_url|
-      next if keycloak_url.blank?
-      
-      config.content_security_policies_extra["connect-src"] += [keycloak_url]
-    end
+    chatbot_backend_url = ENV.fetch("CHATBOT_BACKEND_URL", "http://localhost:3002")&.strip
+    config.content_security_policies_extra["connect-src"] += [chatbot_backend_url] if chatbot_backend_url.present?
   end
 
   # Allow Matomo analytics in development
-  if Rails.env.development? && ENV['MATOMO_URL'].present?
-    matomo_host = URI.parse(ENV['MATOMO_URL']).host
-    matomo_port = URI.parse(ENV['MATOMO_URL']).port
-    matomo_full = "http://#{matomo_host}:#{matomo_port}"
-    
+  if ENV["MATOMO_SERVER_ADDRESS"].present?
+    URI.parse(ENV["MATOMO_SERVER_ADDRESS"])
+    matomo_full = ENV["MATOMO_SERVER_ADDRESS"]
+
     config.content_security_policies_extra["script-src"] += [matomo_full]
     config.content_security_policies_extra["connect-src"] += [matomo_full]
-    config.content_security_policies_extra["img-src"] ||= %w('self' data:)
+    config.content_security_policies_extra["img-src"] ||= %w(self data:)
     config.content_security_policies_extra["img-src"] += [matomo_full]
   end
 
+  # Allow Grafana analytics in development
+  grafana_hosts.each do |grafana_url|
+    next if grafana_url.blank?
+
+    config.content_security_policies_extra["script-src"] += [grafana_url]
+    config.content_security_policies_extra["connect-src"] += [grafana_url]
+    config.content_security_policies_extra["img-src"] ||= %w(self data:)
+    config.content_security_policies_extra["img-src"] += [grafana_url]
+  end
+
+  # Allow Keycloak authentication in development
+  keycloak_hosts.each do |keycloak_url|
+    next if keycloak_url.blank?
+
+    config.content_security_policies_extra["connect-src"] += [keycloak_url]
+  end
+
+  # Allow Matomo analytics in development
+  if Rails.env.development? && ENV["MATOMO_URL"].present?
+    matomo_host = URI.parse(ENV.fetch("MATOMO_URL", nil)).host
+    matomo_port = URI.parse(ENV.fetch("MATOMO_URL", nil)).port
+    matomo_full = "http://#{matomo_host}:#{matomo_port}"
+
+    config.content_security_policies_extra["script-src"] += [matomo_full]
+    config.content_security_policies_extra["connect-src"] += [matomo_full]
+    config.content_security_policies_extra["img-src"] ||= %w(self data:)
+    config.content_security_policies_extra["img-src"] += [matomo_full]
+  end
 
   # Admin admin password configurations
   Rails.application.secrets.dig(:decidim, :admin_password, :strong).tap do |strong_pw|
@@ -565,6 +579,9 @@ if Decidim.module_installed? :meetings
     unless Rails.application.secrets.dig(:decidim, :meetings, :enable_proposal_linking) == "auto"
       config.enable_proposal_linking = Rails.application.secrets.dig(:decidim, :meetings, :enable_proposal_linking).present?
     end
+    # Jitsi configuration
+    config.jitsi_url = ENV.fetch("DECIDIM_JITSI_URL", "meet.jit.si")
+    config.jitsi_jwt_secret = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_SECRET", "default-secret-change-in-production")
   end
 end
 

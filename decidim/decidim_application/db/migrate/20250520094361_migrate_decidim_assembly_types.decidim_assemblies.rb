@@ -1,8 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_assemblies (originally 20200108123050)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:30 UTC
-# Migrates freezed assembly types to a table where to configure them
 class MigrateDecidimAssemblyTypes < ActiveRecord::Migration[5.2]
   LEGACY_TYPES = {
     "government" => "Government",

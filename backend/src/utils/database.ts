@@ -1,3 +1,9 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Gianfranco Cedro
+//   # Pierluigi Spedicato
 import { exit } from 'process';
 import { DataType } from 'sequelize-typescript';
 import { sequelize } from '../config/database';
@@ -15,14 +21,21 @@ const needSync = async () => {
 	return !exists;
 };
 export const createDBConnection = async () => {
-	logger.info({ msg: 'Trying to connect to the database...' });
+	// Construct database URL for logging
+	const dbHost = process.env.DB_HOST ?? 'localhost';
+	const dbPort = process.env.DB_PORT ?? '5432';
+	const dbUsername = process.env.DB_USERNAME ?? 'postgres';
+	const dbName = process.env.DB_NAME ?? 'postgres';
+	const constructedDatabaseURL = `postgres://${dbUsername}:***@${dbHost}:${dbPort}/${dbName}`;
+
+	logger.info({ msg: 'Trying to connect to the database...', config: constructedDatabaseURL });
 	try {
 		logger.info('Authenticating database connection...');
 		await sequelize.authenticate();
 		logger.info('Database connection established successfully');
 
 		// Create schema if it doesn't exist (for non-public schemas)
-		const dbSchema = process.env.DB_SCHEMA || 'public';
+		const dbSchema = process.env.DB_SCHEMA ?? 'public';
 		if (dbSchema !== 'public') {
 			logger.info(`Ensuring schema '${dbSchema}' exists...`);
 			await sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${dbSchema}"`);
@@ -48,5 +61,5 @@ export const createDBConnection = async () => {
 	}
 };
 
-export const isSQLite = process.env.DB_DIALECT === 'sqlite';
-export const ofString = isSQLite ? DataType.JSON : DataType.ARRAY(DataType.STRING);
+export const isSQLite = false; // Always postgres
+export const ofString = DataType.ARRAY(DataType.STRING); // Always use postgres array type

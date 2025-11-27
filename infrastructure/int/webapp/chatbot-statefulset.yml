@@ -1,0 +1,216 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+# marcocerdelli
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: chatbot-webapp
+    namespace: participate
+spec:
+    selector:
+        matchLabels:
+            app: chatbot-webapp
+    serviceName: chatbot-webapp
+    replicas: 1
+    minReadySeconds: 10
+    template:
+        metadata:
+            labels:
+                app: chatbot-webapp
+        spec:
+            terminationGracePeriodSeconds: 10
+            hostname: chatbot-webapp
+            imagePullSecrets:
+                - name: acr-secret
+            #----------ADD ASR-------------------------------------
+            serviceAccountName: default
+            automountServiceAccountToken: false
+            #------------------------------------------------------
+            initContainers:
+                - name: init-postgres-data
+                  image: busybox
+                  command:
+                      [
+                          'sh',
+                          '-c',
+                          'mkdir -p /var/lib/postgresql/data/pgdata && chown -R 999:999 /var/lib/postgresql/data/pgdata'
+                      ]
+                  volumeMounts:
+                      - name: chatbot-pg-storage
+                        mountPath: /var/lib/postgresql/data
+            containers:
+                - name: chatbot-backend
+                  image: euldtshared.azurecr.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  imagePullPolicy: Always
+                  resources:
+                      requests:
+                          cpu: '100m'
+                          memory: '128Mi'
+                          ephemeral-storage: '1Gi'
+                      limits:
+                          cpu: '250m'
+                          memory: '256Mi'
+                          ephemeral-storage: '2Gi'
+                  ports:
+                      - containerPort: 3002
+                        name: http-web
+                  volumeMounts:
+                      - name: chatbot-backend-storage
+                        mountPath: /mnt/shared
+                        readOnly: false
+                  startupProbe:
+                      httpGet:
+                          path: api/v1/health
+                          port: 3002
+                      initialDelaySeconds: 50
+                      periodSeconds: 15
+                      timeoutSeconds: 15
+                      failureThreshold: 20
+                  livenessProbe:
+                      httpGet:
+                          path: api/v1/health/live
+                          port: 3002
+                      initialDelaySeconds: 70
+                      periodSeconds: 30
+                      timeoutSeconds: 10
+                      failureThreshold: 3
+                  readinessProbe:
+                      httpGet:
+                          path: api/v1/health/ready
+                          port: 3002
+                      initialDelaySeconds: 40
+                      periodSeconds: 10
+                      timeoutSeconds: 10
+                      failureThreshold: 6
+                  envFrom:
+                      - secretRef:
+                            name: chatbot-backend-secret
+                      - configMapRef:
+                            name: chatbot-backend-config
+                      - secretRef:
+                            name: chatbot-backend-db-secret
+                      - configMapRef:
+                            name: chatbot-backend-db-config
+                - name: chatbot-pg
+                  image: docker.io/library/postgres:17.3
+                  imagePullPolicy: IfNotPresent
+                  resources:
+                      requests:
+                          cpu: '100m'
+                          memory: '128Mi'
+                          ephemeral-storage: '1Gi'
+                      limits:
+                          cpu: '250m'
+                          memory: '256Mi'
+                          ephemeral-storage: '1Gi'
+                  ports:
+                      - containerPort: 5432
+                        name: postgres
+                  envFrom:
+                      - secretRef:
+                            name: chatbot-backend-db-secret
+                      - configMapRef:
+                            name: chatbot-backend-db-config
+                  volumeMounts:
+                      - name: chatbot-pg-storage
+                        mountPath: /var/lib/postgresql/data
+                  startupProbe:
+                      exec:
+                          command:
+                              - /bin/sh
+                              - -c
+                              - pg_isready -U ${DB_USERNAME:-chatbot_user} -d ${DB_NAME:-chatbot_db}
+                      initialDelaySeconds: 10
+                      periodSeconds: 5
+                      timeoutSeconds: 5
+                      failureThreshold: 30
+                  livenessProbe:
+                      exec:
+                          command:
+                              - /bin/sh
+                              - -c
+                              - pg_isready -U ${DB_USERNAME:-chatbot_user} -d ${DB_NAME:-chatbot_db}
+                      initialDelaySeconds: 30
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  readinessProbe:
+                      exec:
+                          command:
+                              - /bin/sh
+                              - -c
+                              - pg_isready -U ${DB_USERNAME:-chatbot_user} -d ${DB_NAME:-chatbot_db}
+                      initialDelaySeconds: 5
+                      periodSeconds: 5
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                - name: chatbot-frontend
+                  image: euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  imagePullPolicy: Always
+                  resources:
+                      requests:
+                          cpu: '100m'
+                          memory: '128Mi'
+                          ephemeral-storage: '128Mi'
+                      limits:
+                          cpu: '250m'
+                          memory: '256Mi'
+                          ephemeral-storage: '256Mi'
+                  ports:
+                      - containerPort: 5001
+                        name: http
+                  volumeMounts:
+                      - name: chatbot-frontend-storage
+                        mountPath: /mnt/shared
+                        readOnly: false
+                  startupProbe:
+                      httpGet:
+                          path: /
+                          port: 5001
+                      initialDelaySeconds: 30
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 30
+                  livenessProbe:
+                      httpGet:
+                          path: /
+                          port: 5001
+                      initialDelaySeconds: 60
+                      periodSeconds: 30
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  readinessProbe:
+                      httpGet:
+                          path: /
+                          port: 5001
+                      initialDelaySeconds: 10
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  envFrom:
+                      - configMapRef:
+                            name: chatbot-frontend-config
+    volumeClaimTemplates:
+        - metadata:
+              name: chatbot-pg-storage
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 100Mi
+        - metadata:
+              name: chatbot-frontend-storage
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 100Mi
+        - metadata:
+              name: chatbot-backend-storage
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 100Mi

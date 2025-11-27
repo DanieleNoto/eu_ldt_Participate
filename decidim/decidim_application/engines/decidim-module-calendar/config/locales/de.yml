@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+---
+de:
+    activerecord:
+        models:
+            decidim/calendar/dummy_calendar:
+                one: Kalender
+                other: Kalender
+    decidim:
+        calendar:
+            admin:
+                actions:
+                    new_external_event: Neues externes Event
+                external_events:
+                    index:
+                        title: Externes Event
+                        no_records_html: <p>Keine externen Events erstellt</p><p> Fangen Sie zuerst, ein externes Event mit "<a href="%{new_set_link}">%{button_name}</a>zu erstellen</p>
+                    create:
+                        invalid: Ungültiges externes Event
+                        success: Externes Event wurde erfolgreich erstellt
+                    destroy:
+                        success: Externes Event erfolgreich gelöscht
+                    edit:
+                        save: Externes Event gespeichert
+                    form:
+                        title: Externes Event
+                        title_label: Titel
+                        start_at: Beginnt am
+                        end_at: Endet am
+                        url: URL
+                        url_help_text: Muss mit http:// oder https:// beginnen
+                    new:
+                        title: Neues externes Event
+                        create: Erstelle externes Event
+                    update:
+                        invalid: Fehler beim Aktualisieren des externen Events
+                        success: Externes Event erfolgreich aktualisiert
+            calendar:
+                calendar_modal:
+                    calendar_url: Kalender-URL
+                    copy_calendar_url: Kopieren
+                    copy_calendar_url_clarification: Kalender-URL in die Zwischenablage kopieren
+                    copy_calendar_url_copied: Kopiert!
+                    copy_calendar_url_description: Sie können alle diese Informationen in Ihrer Kalenderanwendung oder Ihrem Anbieter sehen. Kopieren Sie diese URL und fügen Sie sie in Ihren Kalender ein, indem Sie die Option "Neuen Kalender von einer URL hinzufügen" verwenden.
+                    copy_calendar_url_message: Die URL wurde erfolgreich in die Zwischenablage kopiert.
+                    export_calendar: Kalender exportieren
+            index:
+                title: Globaler Kalender
+                filters:
+                    consultation: Beratungen
+                    debate: Debatten
+                    external_event: Externe Ereignisse
+                    meeting: Meetings
+                    participatory_step: Beteiligungsprozess
+            menu:
+                calendar: Kalender
+                gantt: Gantt-Diagramm
+                ical: Kalenderdatei herunterladen

@@ -1,3 +1,8 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Gianfranco Cedro
+//   # Simone Bianchelli
 $(document).ready(function () {
 	const underageCheckbox = $('#registration_underage_checkbox');
 	const statutoryRepresentativeEmailField = $('#statutory_representative_email_field');

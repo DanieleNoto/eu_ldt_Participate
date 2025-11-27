@@ -1,3 +1,8 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+
 // Mock i18next and react-i18next before importing anything else
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
@@ -22,8 +27,8 @@ jest.mock('@src/i18n', () => ({
 	}
 }));
 
-import { render, screen, waitFor, act } from '@testing-library/react';
 import ChatbotWebComponent from '@app/shared/components/Chatbot/ChatbotWebComponent';
+import { act, render, screen, waitFor } from '@testing-library/react';
 
 // Mock dependencies
 jest.mock('@app/SimplifiedMainProvider', () => {
@@ -58,6 +63,7 @@ describe('ChatbotWebComponent', () => {
 		delete (window as { __CHATBOT_BASE_URL__?: string }).__CHATBOT_BASE_URL__;
 		delete (window as { __CHATBOT_CONFIG__?: unknown }).__CHATBOT_CONFIG__;
 		(global.fetch as jest.Mock).mockResolvedValue({
+			ok: true,
 			json: () => Promise.resolve({ some: 'config' })
 		});
 	});

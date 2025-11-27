@@ -1,15 +1,14 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Denis Vasilev Dimchev
+//   # Pierluigi Spedicato
 import { FastifyRequest } from 'fastify';
 import { execute } from '../handlers/chat.registry';
 import Conversation from '../models/entities/conversation.model';
-import { loadTree, QATree } from '../utils/qaTree';
+import { loadTree } from '../utils/qaTree';
 
 export class ChatService {
-	private readonly _tree: QATree;
-
-	constructor() {
-		this._tree = loadTree();
-	}
-
 	/**
 	 * Handle chat request: logs a new conversation entry and returns bot response
 	 */
@@ -19,8 +18,9 @@ export class ChatService {
 		request: FastifyRequest,
 		language: string = 'en'
 	) {
-		const root = this._tree['root'];
-		const node = nodeId && this._tree[nodeId] ? this._tree[nodeId] : root;
+		const tree = loadTree();
+		const root = tree['root'];
+		const node = nodeId && tree[nodeId] ? tree[nodeId] : root;
 
 		// Set the language for this request
 		if (request.i18n && typeof request.i18n.changeLanguage === 'function') {
@@ -48,7 +48,7 @@ export class ChatService {
 		const convId = entry.conversationId;
 
 		// Generate response
-		const answer = request.i18n.t(node.answerKey || node.questionKey);
+		const answer = request.i18n.t(node.answerKey ?? node.questionKey);
 
 		// Build suggestions from children or additionalSuggestions
 		let suggestions = node.children.map(({ id, labelKey }: { id: string; labelKey: string }) => ({

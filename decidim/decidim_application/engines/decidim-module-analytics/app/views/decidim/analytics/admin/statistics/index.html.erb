@@ -1,3 +1,10 @@
+<%#
+  SPDX-License-Identifier: AGPL-3.0
+  Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+  Authors:
+    Gianfranco Cedro
+%>
+
 <% add_decidim_page_title(t("decidim.admin.titles.statistics")) %>
 
 <style>
@@ -64,7 +71,7 @@
               class="statistics-iframe"
               loading="lazy">
       </iframe>
-      
+
       <div id="grafana-error" style="display: none;" class="callout alert">
         <p><strong><%= t("decidim.analytics.admin.statistics.unable_to_load") %></strong></p>
         <p><%= t("decidim.analytics.admin.statistics.check_configuration") %></p>
@@ -80,7 +87,7 @@
         </p>
       </div>
     </div>
-    
+
     <script>
       function refreshDashboard() {
         var iframe = document.getElementById('grafana-iframe');
@@ -90,26 +97,26 @@
           iframe.src = currentSrc;
         }, 100);
       }
-      
+
       document.getElementById('grafana-iframe').addEventListener('load', function() {
         console.log('Grafana dashboard loaded successfully');
-        
+
         // Hide error message if shown
         var errorDiv = document.getElementById('grafana-error');
         if (errorDiv) {
           errorDiv.style.display = 'none';
         }
       });
-      
+
       document.getElementById('grafana-iframe').addEventListener('error', function() {
         console.error('Failed to load Grafana dashboard');
-        
+
         var errorDiv = document.getElementById('grafana-error');
         if (errorDiv) {
           errorDiv.style.display = 'block';
         }
       });
-      
+
       // Handle iframe loading timeout
       setTimeout(function() {
         var iframe = document.getElementById('grafana-iframe');

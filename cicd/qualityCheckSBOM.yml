@@ -1,10 +1,15 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+#   Gianfranco Cedro
+#   Alfredo Santamaria Ruiz
 name: Tool3-SBOM-$(date:yyyyMMdd)$(rev:.r)
 
 trigger: none
 pr: none
 
 pool:
-  name: 'EU-LDT-DEVOPS-AGENT-01'
+    name: 'EU-LDT-DEVOPS-AGENT-01'
 
 jobs:
     - job: sBomGeneration

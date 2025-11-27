@@ -1,9 +1,14 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+
 # frozen_string_literal: true
 
 class JitsiUrlController < Decidim::Admin::ApplicationController
-  # Default constants for Jitsi
-  JITSI_DEFAULT_SERVER_URL = "https://meet.jit.si"
-  JITSI_DEFAULT_ROOM_PREFIX = "decidim-meeting-"
+  # Default constants for Jitsi (read from ENV)
+  JITSI_DEFAULT_SERVER_URL = ENV.fetch("DECIDIM_JITSI_URL", "https://jitsi-part-int.ldttoolbox.app/")
+  JITSI_DEFAULT_ROOM_PREFIX = ENV.fetch("DECIDIM_JITSI_ROOM_PREFIX", "decidim-meeting-")
 
   before_action :load_meeting
   before_action :set_component_context
@@ -20,11 +25,9 @@ class JitsiUrlController < Decidim::Admin::ApplicationController
 
     enforce_permission_to :update, :meeting, meeting: meeting
 
-  unless meeting_uses_jitsi_generator?(meeting)
-      return render json: error_payload("Jitsi generator not enabled for this meeting"), status: :unprocessable_entity
-    end
+    return render json: error_payload("Jitsi generator not enabled for this meeting"), status: :unprocessable_entity unless meeting_uses_jitsi_generator?(meeting)
 
-  new_url = build_jitsi_url_for(meeting)
+    new_url = build_jitsi_url_for(meeting)
     render json: { success: true, url: new_url, message: "Jitsi URL successfully generated" }
   rescue Decidim::ActionForbidden
     render json: error_payload("Not authorized"), status: :forbidden
@@ -44,6 +47,7 @@ class JitsiUrlController < Decidim::Admin::ApplicationController
 
   def set_component_context
     return unless @meeting&.component
+
     request.env["decidim.current_component"] = @meeting.component
   end
 

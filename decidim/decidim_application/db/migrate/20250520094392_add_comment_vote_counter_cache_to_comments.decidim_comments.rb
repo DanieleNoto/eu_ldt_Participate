@@ -1,11 +1,18 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim_comments (originally 20240304092558)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:35 UTC
 class AddCommentVoteCounterCacheToComments < ActiveRecord::Migration[6.1]
   def change
-    add_column :decidim_comments_comments, :up_votes_count, :integer, null: false, default: 0, index: true
-    add_column :decidim_comments_comments, :down_votes_count, :integer, null: false, default: 0, index: true
+    add_column :decidim_comments_comments, :up_votes_count, :integer, null: false, default: 0
+    add_index :decidim_comments_comments, :up_votes_count
+    add_column :decidim_comments_comments, :down_votes_count, :integer, null: false, default: 0
+    add_index :decidim_comments_comments, :down_votes_count
 
     # We cannot use the reset_counters as up_votes and down_votes are scoped associationws
     reversible do |dir|

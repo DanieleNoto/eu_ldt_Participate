@@ -1,11 +1,30 @@
+// # SPDX-License-Identifier: AGPL-3.0
+// # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+// # Authors:
+//   # Gianfranco Cedro
+//   # Marco Pinnella
+//   # Simone Bianchelli
 // This file is compiled inside Decidim core pack. Code can be added here and will be executed
 // as part of that pack
+
+// Disable PWA and unregister service worker in development
+localStorage.setItem('pwaInstallPromptSeen', true);
+if ('serviceWorker' in navigator && process.env.NODE_ENV !== 'production') {
+	navigator.serviceWorker.getRegistrations().then(function (registrations) {
+		for (let registration of registrations) {
+			registration.unregister();
+		}
+	});
+}
 
 // Load images
 require.context('../../images', true);
 
 // Import custom styles
 import '../../stylesheets/decidim/decidim_application.scss';
+
+// Import Keycloak auto-login functionality
+import './keycloak_auto_login';
 
 import * as ActiveStorage from '@rails/activestorage';
 

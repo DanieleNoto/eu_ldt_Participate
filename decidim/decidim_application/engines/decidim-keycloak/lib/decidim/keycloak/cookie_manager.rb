@@ -1,0 +1,245 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+# frozen_string_literal: true
+
+module Decidim
+  module Keycloak
+    # Centralized cookie management for Keycloak authentication
+    # This module handles all cookie operations to prevent duplication and inconsistencies
+    class CookieManager
+      # Calculate the correct cookie domain for cross-subdomain sharing
+      # @param request_host [String] The request host (e.g., "part-int.ldttoolbox.app")
+      # @return [String, nil] The cookie domain (e.g., ".ldttoolbox.app") or nil
+      def self.calculate_cookie_domain(request_host)
+        return nil if request_host.blank?
+
+        host = request_host.to_s
+
+        # In production/development with subdomains, use the second-level domain
+        # to allow cookie sharing across subdomains
+        if Rails.env.production? || Rails.env.development?
+          domain_parts = host.split(".")
+
+          # For domains like *.ldttoolbox.app, use .ldttoolbox.app
+          if domain_parts.length >= 3
+            # Return domain with leading dot for cross-subdomain cookies
+            return ".#{domain_parts[-2]}.#{domain_parts[-1]}"
+          end
+        end
+
+        # Fallback to current host or nil for localhost
+        host == "localhost" ? nil : host
+      end
+
+      # Calculate all possible cookie domains to clear cookies from
+      # @param request_host [String] The request host
+      # @return [Array<String, nil>] Array of domains to clear cookies from
+      def self.calculate_all_cookie_domains(request_host)
+        return [nil] if request_host.blank?
+
+        host = request_host.to_s
+        domain_parts = host.split(".")
+
+        domains = [
+          host, # Exact host (e.g., "part-int.ldttoolbox.app")
+          nil # Current domain only (no domain attribute)
+        ]
+
+        # Add cross-subdomain domain
+        domains << ".#{domain_parts[-2]}.#{domain_parts[-1]}" if (Rails.env.production? || Rails.env.development?) && domain_parts.length >= 3
+
+        # Add second-level domain (like request.domain)
+        domains << "#{domain_parts[-2]}.#{domain_parts[-1]}" if domain_parts.length >= 2
+
+        domains.uniq
+      end
+
+      # Clear all Keycloak cookies from all possible domains
+      # @param cookies_obj [ActionDispatch::Cookies::CookieJar] The cookies object
+      # @param request_host [String] The request host
+      # @param session_obj [ActionDispatch::Request::Session, nil] Optional session object to clean
+      def self.clear_all_cookies(cookies_obj, request_host, session_obj = nil)
+        cookie_names = %w(access_token refresh_token id_token _session_id manual_logout)
+        domains = calculate_all_cookie_domains(request_host)
+        primary_domain = calculate_cookie_domain(request_host)
+
+        log_clearing_start(cookie_names, primary_domain, cookies_obj)
+
+        # STEP 1: Clear with primary domain and exact attributes
+        clear_primary_domain_cookies(cookies_obj, cookie_names, primary_domain)
+
+        # STEP 2: Try all combinations for all domains
+        clear_all_domain_combinations(cookies_obj, cookie_names, domains)
+
+        # STEP 3: Additional safety measures
+        clear_without_domain(cookies_obj, cookie_names)
+
+        # Clean session data if provided
+        clear_session_data(session_obj)
+
+        log_clearing_completion(domains, cookies_obj)
+      end
+
+      def self.log_clearing_start(cookie_names, primary_domain, cookies_obj)
+        Rails.logger.info "[Keycloak CookieManager] Clearing cookies #{cookie_names.inspect}, primary domain: #{primary_domain.inspect}"
+        Rails.logger.debug do
+          "[Keycloak CookieManager] Current cookies before clearing: " \
+            "access_token=#{cookies_obj["access_token"]&.length}, " \
+            "refresh_token=#{cookies_obj["refresh_token"]&.length}, " \
+            "id_token=#{cookies_obj["id_token"]&.length}"
+        end
+      end
+
+      def self.clear_primary_domain_cookies(cookies_obj, cookie_names, primary_domain)
+        is_production = Rails.env.production?
+        cookie_names.each do |name|
+          Rails.logger.debug { "[Keycloak CookieManager] PRIMARY expiry: #{name} with domain: #{primary_domain.inspect}, secure: #{is_production}" }
+          cookies_obj[name] = {
+            value: "",
+            expires: 1.year.ago,
+            domain: primary_domain,
+            secure: is_production,
+            httponly: true,
+            same_site: :lax,
+            path: "/"
+          }
+        end
+      end
+
+      def self.clear_all_domain_combinations(cookies_obj, cookie_names, domains)
+        domains.each do |domain|
+          cookie_names.each do |name|
+            Rails.logger.debug { "[Keycloak CookieManager] Attempting to clear #{name} from domain: #{domain.inspect}" }
+            clear_cookie_combinations(cookies_obj, name, domain)
+          end
+        end
+      end
+
+      def self.clear_cookie_combinations(cookies_obj, name, domain)
+        [true, false].each do |secure_flag|
+          [:lax, :strict, :none, nil].each do |same_site_val|
+            cookies_obj.delete(name, domain: domain, secure: secure_flag, httponly: true, same_site: same_site_val, path: "/")
+            cookies_obj.delete(name, domain: domain, secure: secure_flag, httponly: false, same_site: same_site_val, path: "/")
+            cookies_obj.delete(name, domain: domain, secure: secure_flag, path: "/")
+          end
+          cookies_obj.delete(name, domain: domain, secure: secure_flag, path: "/")
+        end
+        cookies_obj.delete(name, domain: domain, path: "/")
+
+        [true, false].each do |secure_flag|
+          cookies_obj[name] = {
+            value: "",
+            expires: 1.year.ago,
+            domain: domain,
+            secure: secure_flag,
+            httponly: true,
+            same_site: :lax,
+            path: "/"
+          }
+        end
+      end
+
+      def self.clear_without_domain(cookies_obj, cookie_names)
+        cookie_names.each do |name|
+          Rails.logger.debug { "[Keycloak CookieManager] Additional clearing of #{name} without domain" }
+          cookies_obj.delete(name, path: "/")
+          cookies_obj.delete(name)
+          cookies_obj[name] = {
+            value: "",
+            expires: 1.year.ago,
+            secure: Rails.env.production?,
+            httponly: true,
+            same_site: :lax,
+            path: "/"
+          }
+          cookies_obj[name] = {
+            value: "",
+            expires: 1.year.ago,
+            secure: true,
+            httponly: true,
+            same_site: :none,
+            path: "/"
+          }
+        end
+      end
+
+      def self.clear_session_data(session_obj)
+        return unless session_obj
+
+        session_obj.delete(:keycloak_authenticated)
+        session_obj.delete(:keycloak_id_token)
+      end
+
+      def self.log_clearing_completion(domains, cookies_obj)
+        Rails.logger.info "[Keycloak CookieManager] Cleared all Keycloak cookies from #{domains.length} domain(s). " \
+                          "Final state: access_token=#{cookies_obj["access_token"]&.length}, " \
+                          "refresh_token=#{cookies_obj["refresh_token"]&.length}, " \
+                          "id_token=#{cookies_obj["id_token"]&.length}"
+      end
+
+      # Save tokens to cookies with proper domain and expiry
+      # @param cookies_obj [ActionDispatch::Cookies::CookieJar] The cookies object
+      # @param tokens [Hash] Hash containing :access_token, :refresh_token, :id_token, :expires_in
+      # @param request_host [String] The request host
+      def self.save_tokens(cookies_obj, tokens, request_host)
+        # First clear existing cookies to prevent duplication
+        clear_all_cookies(cookies_obj, request_host)
+
+        cookie_domain = calculate_cookie_domain(request_host)
+        expires_at = if tokens[:expires_in] && (tokens[:expires_in]).positive?
+                       Time.current + tokens[:expires_in].seconds
+                     else
+                       1.hour.from_now
+                     end
+
+        Rails.logger.debug { "[Keycloak CookieManager] Saving tokens with domain: #{cookie_domain.inspect}" }
+
+        # Save access token
+        if tokens[:access_token]
+          cookies_obj["access_token"] = {
+            value: tokens[:access_token],
+            expires: expires_at,
+            secure: Rails.env.production?,
+            httponly: true,
+            same_site: :lax,
+            domain: cookie_domain
+          }
+        end
+
+        # Save refresh token (longer expiry)
+        if tokens[:refresh_token]
+          refresh_expires_at = if tokens[:refresh_token_expires_in] && (tokens[:refresh_token_expires_in]).positive?
+                                 Time.current + tokens[:refresh_token_expires_in].seconds
+                               else
+                                 30.days.from_now
+                               end
+
+          cookies_obj["refresh_token"] = {
+            value: tokens[:refresh_token],
+            expires: refresh_expires_at,
+            secure: Rails.env.production?,
+            httponly: true,
+            same_site: :lax,
+            domain: cookie_domain
+          }
+        end
+
+        # Save ID token
+        if tokens[:id_token]
+          cookies_obj["id_token"] = {
+            value: tokens[:id_token],
+            expires: expires_at,
+            secure: Rails.env.production?,
+            httponly: true,
+            same_site: :lax,
+            domain: cookie_domain
+          }
+        end
+
+        Rails.logger.info "[Keycloak CookieManager] Saved tokens to cookies with domain: #{cookie_domain}"
+      end
+    end
+  end
+end

@@ -1,7 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Denis Vasilev Dimchev
+# Marco Pinnella
+# Pierluigi Spedicato
+
 # frozen_string_literal: true
 
-# This migration comes from decidim (originally 20181115102958)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-07-14 14:02:47 UTC
 class AddFollowingAndFollowersCountersToUsers < ActiveRecord::Migration[5.2]
   def up
     add_column :decidim_users, :following_count, :integer, null: false, default: 0
