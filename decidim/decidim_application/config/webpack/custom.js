@@ -8,6 +8,7 @@
 const { config } = require('shakapacker');
 const { InjectManifest } = require('workbox-webpack-plugin');
 const { EsbuildPlugin } = require('esbuild-loader');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
 	module: {
@@ -93,7 +94,32 @@ module.exports = {
 		]
 	},
 	entry: config.entrypoints,
+	// Suppress warnings, show only errors
+	stats: {
+		warnings: false,
+		errors: true,
+		errorDetails: true
+	},
+	// Disable webpack-dev-server overlay completely (errors still logged to console)
+	devServer: {
+		client: {
+			overlay: false
+		}
+	},
 	plugins: [
+		// Copy workbox-sw.js to decidim-packs/js/ so the Service Worker can import it
+		new CopyPlugin({
+			patterns: [
+				{
+					from: 'node_modules/workbox-sw/build/workbox-sw.js',
+					to: 'js/workbox-sw.js'
+				},
+				{
+					from: 'node_modules/workbox-sw/build/workbox-sw.js.map',
+					to: 'js/workbox-sw.js.map'
+				}
+			]
+		}),
 		new InjectManifest({
 			swSrc: 'src/decidim/sw/sw.js',
 
