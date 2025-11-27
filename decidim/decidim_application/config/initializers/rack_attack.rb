@@ -23,20 +23,20 @@ if defined?(Rack::Attack)
   end
 
   # === THROTTLING RULES ===
-  
+
   # General browsing: Only count dynamic HTML requests, not assets
   # Each page load = 1 HTML + ~10 assets (Active Storage, images, etc.)
   # Allow 150 HTML requests per 5 minutes = ~30 req/min = ~30 page loads/5min
   Rack::Attack.throttle("requests by ip", limit: 150, period: 5.minutes) do |req|
     # Exclude all asset and static file requests from throttling
     req.ip unless req.path.start_with?(
-      "/decidim-packs",           # Webpacker compiled assets
-      "/uploads",                 # User uploaded files
-      "/system",                  # System files
-      "/rails/active_storage",    # Active Storage files (images, attachments)
-      "/assets",                  # Legacy assets
-      "/favicon.ico",             # Favicon
-      "/.well-known"              # Well-known URIs (security.txt, etc.)
+      "/decidim-packs", # Webpacker compiled assets
+      "/uploads", # User uploaded files
+      "/system", # System files
+      "/rails/active_storage", # Active Storage files (images, attachments)
+      "/assets", # Legacy assets
+      "/favicon.ico", # Favicon
+      "/.well-known" # Well-known URIs (security.txt, etc.)
     ) || req.path.match?(/\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/i)
   end
 
@@ -61,28 +61,28 @@ if defined?(Rack::Attack)
   # Block suspicious requests
   Rack::Attack.blocklist("fail2ban pentesters") do |req|
     Rack::Attack::Fail2Ban.filter("pentest-#{req.ip}", maxretry: 3, findtime: 10.minutes, bantime: 1.hour) do
-      CGI.unescape(req.query_string) =~ %r{/etc/passwd|\.\.\/|<script|SELECT.*FROM|UNION.*SELECT}i ||
-      req.path =~ %r{\.php$|wp-admin|phpmyadmin}i
+      CGI.unescape(req.query_string) =~ %r{/etc/passwd|\.\./|<script|SELECT.*FROM|UNION.*SELECT}i ||
+        req.path =~ /\.php$|wp-admin|phpmyadmin/i
     end
   end
 
   # Block requests with suspicious User-Agents
   Rack::Attack.blocklist("bad user agents") do |req|
-    req.user_agent.present? && 
-    req.user_agent =~ /sqlmap|nikto|masscan|nmap|zgrab/i
+    req.user_agent.present? &&
+      req.user_agent =~ /sqlmap|nikto|masscan|nmap|zgrab/i
   end
 
   # === LOGGING & MONITORING ===
 
   # Log blocked requests
-  ActiveSupport::Notifications.subscribe("rack.attack") do |name, start, finish, request_id, payload|
+  ActiveSupport::Notifications.subscribe("rack.attack") do |_name, _start, _finish, _request_id, payload|
     req = payload[:request]
-    
+
     case req.env["rack.attack.match_type"]
     when :throttle
-      Rails.logger.warn "[Rack Attack] Throttled: #{req.ip} - #{req.request_method} #{req.path} (#{req.env['rack.attack.matched']})"
+      Rails.logger.warn "[Rack Attack] Throttled: #{req.ip} - #{req.request_method} #{req.path} (#{req.env["rack.attack.matched"]})"
     when :blocklist
-      Rails.logger.error "[Rack Attack] Blocked: #{req.ip} - #{req.request_method} #{req.path} (#{req.env['rack.attack.matched']})"
+      Rails.logger.error "[Rack Attack] Blocked: #{req.ip} - #{req.request_method} #{req.path} (#{req.env["rack.attack.matched"]})"
     end
   end
 
@@ -90,7 +90,7 @@ if defined?(Rack::Attack)
   Rack::Attack.throttled_responder = lambda do |env|
     match_data = env["rack.attack.match_data"]
     now = match_data[:epoch_time]
-    
+
     headers = {
       "Content-Type" => "text/html",
       "Retry-After" => (match_data[:period] - (now % match_data[:period])).to_s
@@ -102,7 +102,7 @@ if defined?(Rack::Attack)
       <head><title>Rate Limit Exceeded</title></head>
       <body>
         <h1>Too Many Requests</h1>
-        <p>You have exceeded the rate limit. Please try again in #{headers['Retry-After']} seconds.</p>
+        <p>You have exceeded the rate limit. Please try again in #{headers["Retry-After"]} seconds.</p>
       </body>
       </html>
     HTML

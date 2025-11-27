@@ -10,9 +10,8 @@ module Decidim
       def inform(user)
         return if user.email.blank?
         return if user.extended_data["statutory_representative_email"].blank?
-        
+
         with_user(user) do
-          
           @user = user
           @statutory_representative_email = user.extended_data["statutory_representative_email"]
           @organization = user.organization

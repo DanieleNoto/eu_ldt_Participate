@@ -17,5 +17,4 @@ Decidim.register_component(:ldt_map_visualization) do |component|
     # Available types: :integer, :boolean
     settings.attribute :title, type: :string, default: ""
   end
-
 end
