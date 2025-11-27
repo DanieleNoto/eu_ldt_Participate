@@ -13,7 +13,8 @@ module Decidim
       # Override destroy to implement Single Logout with Keycloak
       def destroy
         # Store logout info before super (which clears session)
-        should_logout_from_keycloak = session[:keycloak_authenticated].present?
+        # Only logout from Keycloak if user is actually signed in and session is still valid
+        should_logout_from_keycloak = session[:keycloak_authenticated].present? && current_user.present?
         keycloak_logout_url = build_keycloak_logout_url if should_logout_from_keycloak
 
         # Mark this as a manual logout using a cookie (survives sign_out which clears session)
@@ -127,11 +128,17 @@ module Decidim
         return nil unless keycloak_site.present? && realm.present?
 
         # Build the redirect URI (where to return after Keycloak logout)
+        # Use root_path without any query parameters to avoid "invalid redirect URI" errors
         redirect_uri = if request.present?
-                         "#{request.protocol}#{request.host_with_port}#{decidim.root_path}"
+                         base_url = "#{request.protocol}#{request.host_with_port}"
+                         # Always use clean root path without locale or other parameters
+                         "#{base_url}/"
                        else
-                         decidim.root_url
-        end
+                         # Fallback: construct from organization host
+                         org_host = current_organization&.host || request.host
+                         protocol = Rails.env.production? ? "https://" : "http://"
+                         "#{protocol}#{org_host}/"
+                       end
 
         # Get id_token from cookies (not session) for automatic logout
         id_token = cookies["id_token"]
@@ -145,9 +152,10 @@ module Decidim
           logout_url += "&id_token_hint=#{CGI.escape(id_token)}"
           Rails.logger.info "✓ Using id_token_hint for automatic Keycloak logout"
         else
-          Rails.logger.warn "✗ No id_token found in session, Keycloak will show confirmation page"
+          Rails.logger.warn "✗ No id_token found in cookies, Keycloak may show confirmation page"
         end
 
+        Rails.logger.info "[Keycloak Logout] Built logout URL with redirect_uri: #{redirect_uri}"
         logout_url
       rescue StandardError => e
         Rails.logger.error "Error building Keycloak logout URL: #{e.message}"
