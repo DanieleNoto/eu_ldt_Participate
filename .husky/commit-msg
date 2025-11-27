@@ -1,8 +1,10 @@
+#!/bin/sh
+
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
   # Pierluigi Spedicato
-#!/bin/sh
+
 . "$(dirname "$0")/_/husky.sh"
 
 npx --no-install commitlint --edit "$1"
