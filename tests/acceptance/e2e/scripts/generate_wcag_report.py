@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 """
+SPDX-License-Identifier: AGPL-3.0
+Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+Authors:
+Simone Bianchelli
+"""
+
+"""
 WCAG 2.0/2.1 AA Violations Report Generator
 Extracts and analyzes only CRITICAL violations from accessibility scan JSON files
 """
