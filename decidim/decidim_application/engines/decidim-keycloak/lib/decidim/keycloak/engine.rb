@@ -15,6 +15,20 @@ module Decidim
     class Engine < ::Rails::Engine
       isolate_namespace Decidim::Keycloak
 
+      # Configure Zeitwerk to ignore decorators directory completely
+      # Decorators use module_eval and don't define new constants
+      config.before_initialize do
+        Rails.autoloaders.main.ignore("#{root}/app/decorators")
+      end
+
+      # Load decorators when the app is prepared
+      config.to_prepare do
+        Dir.glob("#{Decidim::Keycloak::Engine.root}/app/decorators/**/*_decorator.rb").each do |decorator|
+          Rails.logger.info("[Keycloak] Loading decorator: #{decorator}")
+          load decorator
+        end
+      end
+
       initializer "decidim.keycloak.middleware" do |app|
         # Ensure OmniAuth uses Devise paths (/users/auth/...)
         OmniAuth.config.path_prefix = "/users/auth"
