@@ -1,9 +1,10 @@
 /** SPDX-License-Identifier: AGPL-3.0
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
- * Gianfranco Cedro
- * Simone Bianchelli
  * Denise Scarcelli
+ * Simone Bianchelli
+ * Denis Vasilev Dimchev
+ * Gianfranco Cedro
  */
 
 import path = require('path');
@@ -60,7 +61,22 @@ export const TEST_SELECTORS = {
 		MARKETING_TOGGLE: 'label[for="dc-marketing"]',
 		SAVE_BUTTON: '#dc-modal-save'
 	},
+	PROCESS: {
+		SCENARIO_LIST: 'section#use-case-scenarios a.card__list',
+		FIRST_SCENARIO: 'section#use-case-scenarios a.card__list:first-of-type',
+		USE_CASE_CONTENT: '#content .card__content',
+		SCENARIO_HEADING: '#content .section-heading.decorator',
+		AI_LABEL: '#content .callout.warning strong',
+		EXPERIMENT_ID_TITLE: '#content .definition-data__title',
+		EXPERIMENT_ID_TEXT: '#content .definition-data__text',
+		METRICS_IFRAME_CONTAINER: '.experiment-iframe-container iframe#experiment-iframe',
+		EXPERIMENT_DETAILS_HEADING: 'h3.card__title',
 
+		REALTIME_MONITORING_CONTAINER: '[data-testid="experiment-realtime-monitoring"]',
+		REALTIME_ACTIONS_CHART: '[data-testid="experiment-realtime-actions-chart"] div[role="combobox"]',
+		REALTIME_CHART_PLACEHOLDER: '[data-testid="experiment-chart-placeholder"]',
+		REALTIME_CHART: '[data-testid="experiment-chart"]'
+	},
 	SUCCESS_MESSAGE: '[data-testid="success-message"]',
 	ERROR_MESSAGE: '[data-testid="error-message"]',
 	ADMIN_BAR: '#admin-bar'
@@ -81,7 +97,9 @@ export const BASE_URLS = {
 
 export const EMAIL_URLS = {
 	LETTER_OPENER: `${process.env.FE_BASE_URL || 'http://localhost:3000'}/letter_opener/`,
-	OVH_MAIL: process.env.OVH_URL || 'https://www.ovhcloud.com/es-es/mail/'
+	OVH_MAIL: process.env.OVH_URL || 'https://www.ovhcloud.com/es-es/mail/',
+	MAILINATOR: 'https://www.mailinator.com',
+	MAILINATOR_INBOX: (emailPrefix: string) => `${EMAIL_URLS.MAILINATOR}/v4/public/inboxes.jsp?to=${emailPrefix}`
 } as const;
 
 export const GRAFANA_URLS = {

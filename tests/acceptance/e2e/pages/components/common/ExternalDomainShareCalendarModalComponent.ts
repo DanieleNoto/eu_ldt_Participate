@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: EUPL-1.2
+ * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { Locator, Page, expect } from '@playwright/test';
 
 export class ExternalDomainWarningModal {
@@ -8,8 +15,10 @@ export class ExternalDomainWarningModal {
 	readonly externalLink: Locator;
 	readonly cancelButton: Locator;
 	readonly proceedButton: Locator;
+	page: Page;
 
 	constructor(page: Page) {
+		this.page = page;
 		this.container = page.locator('#external-domain-warning-content');
 		this.closeButton = page.locator('[data-dialog-close="external-domain-warning"]');
 		this.title = page.locator('#dialog-title-external-domain-warning');
@@ -53,5 +62,35 @@ export class ExternalDomainWarningModal {
 
 	async clickProceedButton() {
 		await this.proceedButton.click();
+	}
+
+	/**
+	 * Verify that after clicking proceed, a new tab opens
+	 * and its URL contains "google" and "calendar".
+	 * @returns true if conditions are met, false otherwise
+	 */
+	async verifyCalendarRedirect(): Promise<boolean> {
+		try {
+			// Wait for the new page (tab) to open
+			const newPage = await this.page.context().waitForEvent('page');
+
+			// Wait until the new page is fully loaded
+			await newPage.waitForLoadState('domcontentloaded');
+
+			const url = newPage.url();
+			console.log('Redirected to URL:', url);
+
+			const containsGoogle = url.includes('google');
+			const containsCalendar = url.includes('calendar');
+
+			if (!containsGoogle || !containsCalendar) {
+				console.warn('Redirect URL does not contain expected keywords.');
+			}
+
+			return containsGoogle && containsCalendar;
+		} catch (error) {
+			console.warn('Calendar redirect verification failed:', error);
+			return false;
+		}
 	}
 }

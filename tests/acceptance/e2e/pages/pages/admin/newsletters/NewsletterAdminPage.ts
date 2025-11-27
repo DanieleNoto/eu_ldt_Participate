@@ -1,3 +1,9 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
 import { Page, expect, type Locator } from '@playwright/test';
 import { BaseAdminPage } from '../BaseAdminPage';
 
@@ -46,7 +52,7 @@ export class NewsletterAdminPage extends BaseAdminPage {
 		this.basicTemplateUseButton = page.locator('#basic_only_text').getByRole('link', { name: 'Use this template' });
 		this.newNewsletterHeading = page.getByRole('heading', { name: 'New newsletter' });
 		this.subjectTextbox = page.getByRole('textbox', { name: 'subject' });
-		this.bodyTextbox = page.getByRole('textbox', { name: 'Body' });
+		this.bodyTextbox = page.locator('.tiptap.ProseMirror:visible');
 		this.saveButton = page.getByRole('button', { name: 'Save' });
 		this.previewHeading = page.getByRole('heading', { name: 'Preview' });
 		this.subjectValue = page.locator('dl dt:has-text("Subject") + dd');
@@ -103,6 +109,12 @@ export class NewsletterAdminPage extends BaseAdminPage {
 
 	async fillNewsletterForm(subject: string, body: string) {
 		await this.subjectTextbox.fill(subject);
+
+		// Click on the contenteditable div to focus it
+		await this.bodyTextbox.click();
+		// Clear any existing content
+		await this.bodyTextbox.press('Control+A');
+		// Type the body content
 		await this.bodyTextbox.fill(body);
 	}
 
@@ -117,6 +129,11 @@ export class NewsletterAdminPage extends BaseAdminPage {
 	}
 
 	async editNewsletterBody(newBody: string) {
+		// Click on the contenteditable div to focus it
+		await this.bodyTextbox.click();
+		// Clear existing content
+		await this.bodyTextbox.press('Control+A');
+		// Type the new body content
 		await this.bodyTextbox.fill(newBody);
 	}
 
@@ -312,5 +329,31 @@ export class NewsletterAdminPage extends BaseAdminPage {
 		expect(await recipientRows.count()).toBeGreaterThan(0);
 
 		console.log('At least one recipient found in the confirmation table');
+	}
+
+	/**
+	 * Delete a newsletter by its subject
+	 * @param subject - The subject of the newsletter to delete
+	 */
+	async deleteNewsletterBySubject(subject: string) {
+		// Find the newsletter row by subject
+		const newsletterRow = this.newsletterRowBySubject(subject);
+		await expect(newsletterRow).toBeVisible();
+
+		// Find and click the delete button (last action icon in the row)
+		const deleteButton = newsletterRow.locator('a.action-icon--remove[title="Delete"]');
+		await deleteButton.click();
+
+		// Wait for the confirmation modal to appear
+		const confirmModal = this.page.locator('#confirm-modal-content');
+		await expect(confirmModal).toBeVisible();
+
+		// Click the OK button to confirm deletion
+		const okButton = confirmModal.locator('button[data-confirm-ok]');
+		await okButton.click();
+
+		// Wait for the page to reload after deletion
+		await this.page.waitForLoadState('networkidle');
+		console.log(`Newsletter "${subject}" deleted successfully`);
 	}
 }

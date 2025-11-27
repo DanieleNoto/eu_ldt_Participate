@@ -1,11 +1,16 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
 import test, { expect } from '@playwright/test';
-import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
-import { LetterOpenerPage } from '@pages/pages/admin/LetterOpenerPage';
+import { WebmailPage } from '@pages/base/WebmailPage';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
 
@@ -32,14 +37,13 @@ test.describe('[PAR-DE001] – Export survey answers', () => {
 	let updateProcessAdminPage: UpdateProcessAdminPage;
 	let componentsPage: ComponentsPage;
 	let surveysManagePage: SurveysManagePage;
-	let letterOpenerPage: LetterOpenerPage; //
-	let validProcessData: any;
-	let processEditUrl: string;
+	let webmailPage: WebmailPage;
 
-	// Variables for the setup
-	let processSlug: string;
-	let componentName: string;
-	let surveyName: string;
+	// Use existing process with survey and responses
+	const processTitle = 'Update Test0';
+	const processSlug = 'test';
+	const componentName = 'Single survey';
+	const surveyTitle = 'survey test';
 
 	// Common setup for both flows (only Page Objects)
 	test.beforeEach(async ({ page }) => {
@@ -48,111 +52,87 @@ test.describe('[PAR-DE001] – Export survey answers', () => {
 		updateProcessAdminPage = new UpdateProcessAdminPage(page);
 		componentsPage = new ComponentsPage(page);
 		surveysManagePage = new SurveysManagePage(page);
-		letterOpenerPage = new LetterOpenerPage(page);
-		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
+		webmailPage = new WebmailPage(page);
+		await adminHomePage.navigateToAdminHomePage();
 	});
 
-	/**
-	 * Setup test environment with responses (for Main Flow)
-	 */
-	async function setupTestProcessWithResponses(browser: any) {
-		await test.step('Setup: Create new test process as prerequisite', async () => {
-			const { processSlug: slug, processEditUrl: url } = await surveysManagePage.setupTestProcess(
-				validProcessData,
-				adminHomePage,
-				processAdminPage,
-				true // publish the process
-			);
-			processSlug = slug;
-			processEditUrl = url;
-			console.log('Test process setup completed');
-		});
-
-		await test.step('Setup: Create a published survey as prerequisite', async () => {
-			const surveySetup = await surveysManagePage.setupTestSurvey(
-				processSlug,
-				processEditUrl,
-				updateProcessAdminPage,
-				componentsPage
-			);
-
-			componentName = surveySetup.componentName;
-			surveyName = surveySetup.surveyName;
-		});
-
-		await test.step('Setup: Create survey responses as prerequisite', async () => {
-			const userContext = await browser.newContext({
-				storageState: STORAGE_STATE.USER
-			});
-			const userPage = await userContext.newPage();
-
-			// Handle USER context and login in the test
-			await ensureLoggedIn(userPage, 'USER');
-
-			// Create Page Object for USER actions
-			const userSurveysPage = new SurveysManagePage(userPage);
-
-			// Execute only the survey actions
-			await userSurveysPage.replytoSurvey(processSlug, componentName, surveyName, validProcessData);
-
-			await userPage.close();
-			await userContext.close();
-
-			console.log('Survey responses created successfully');
-		});
-	}
-
 	test.describe('Main Flow', () => {
-		test.beforeEach(async ({ browser }) => {
-			await setupTestProcessWithResponses(browser);
-		});
-
 		[{ fileFormat: 'CSV' }, { fileFormat: 'JSON' }, { fileFormat: 'Excel' }, { fileFormat: 'PDF' }].forEach(
 			({ fileFormat }) => {
 				test(`should export survey answers provided by users in ${fileFormat} format`, async ({ page }) => {
 					await test.step('1. User: Navigates to the "Processes" section.', async () => {
-						// Navigate to processes section using admin nav
-						await adminHomePage.navigateViaAdminNav('processes');
-						await processAdminPage.waitForLoadState('networkidle');
-
-						const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
-						expect(isOnProcessesPage).toBe(true);
-						console.log('Navigated to Processes section');
+						// Navigate to processes section
+						await processAdminPage.navigateToProcesses();
+						console.log('Successfully navigated to Processes section');
 					});
 
 					await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
-						await processAdminPage.expectToBeOnProcessesAdminPage();
-						// Verify processes table is visible and has content
-						const hasProcesses = await processAdminPage.processTable.hasProcesses();
-						expect(hasProcesses).toBe(true);
-						console.log('Processes list displayed with available processes');
+						await page.waitForLoadState('networkidle');
+
+						// Verify we're on the processes page, with fallback navigation
+						let isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+
+						if (!isOnProcessesPage) {
+							// Try direct navigation if component navigation failed
+							await page.goto('/admin/participatory_processes');
+							await page.waitForLoadState('networkidle');
+							isOnProcessesPage = await processAdminPage.isOnProcessesPage();
+						}
+
+						expect(isOnProcessesPage).toBe(true);
+						const processCount = await processAdminPage.getProcessCount();
+						expect(processCount).toBeGreaterThan(0);
+
+						// Get process titles for verification
+						const processTitles = await processAdminPage.processTable.getProcessTitles();
+						console.log('Available processes:', processTitles);
+						expect(processTitles.length).toBeGreaterThan(0);
 					});
 
 					await test.step('3. User: Selects the process that want to update', async () => {
-						// Search for the specific process created in setup using its exact title
-						await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
-						console.log(
-							`Selected the specific process created in setup: "${validProcessData.general.title}"`
-						);
+						// Select the process name that contains survey data
+						console.log(`Selecting process: ${processTitle}`);
+
+						// Click on the process to edit it
+						await processAdminPage.selectProcessForEdit(processTitle);
+						await page.waitForLoadState('networkidle');
 					});
 
-					await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
-						await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-						await page.waitForLoadState('networkidle');
+					await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
+						// Wait for edit form to load
+						await processAdminPage.waitForEditFormToLoad();
 
-						// Verify we're on the edit page with process information using Page Object
-						await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
+						// Verify we're on the edit page for the correct process
+						const isOnEditPage = await processAdminPage.isOnProcessEditPage();
+						expect(isOnEditPage).toBe(true);
+						expect(page.url()).toContain(`/admin/participatory_processes/${processSlug}/edit`);
+						console.log(`Process slug verified: ${processSlug}`);
+
+						// Check if the sidebar is visible and loaded
+						await expect(updateProcessAdminPage.sidebarProcessDetail.isSidebarVisible()).resolves.toBe(
+							true
+						);
+
+						// Get and display process title
+						const titleTextbox = await processAdminPage.getTitleTextbox();
+						await expect(titleTextbox).toBeVisible();
+
+						const currentProcessTitle = await titleTextbox.inputValue();
+						console.log(`Process loaded: ${currentProcessTitle}`);
+						expect(currentProcessTitle).not.toBe('');
 					});
 
 					await test.step('5. User: Navigates to the "Components" section in the admin panel.', async () => {
 						await updateProcessAdminPage.navigateToComponents();
+						console.log(`Accessing survey component: ${componentName}`);
+
 						await componentsPage.manageComponent(componentName);
 						console.log('Accessed survey component');
 					});
 
 					await test.step('6. User: Select specific Survey that want to export.', async () => {
-						await surveysManagePage.accessQuestionsManagement();
-						console.log('Navigated to Manage questions page for survey export');
+						await surveysManagePage.accessQuestionsManagementBySurveyTitle(surveyTitle);
+						console.log(`Navigated to Manage questions page for survey: "${surveyTitle}"`);
 					});
 
 					await test.step('7. System: Displays survey details, including an option to "Export all"', async () => {
@@ -160,7 +140,7 @@ test.describe('[PAR-DE001] – Export survey answers', () => {
 						expect(page.url()).toMatch(/\/edit_questions$/);
 
 						// Verify the "Export" button is visible
-						await expect(page.getByText('Export', { exact: true })).toBeVisible();
+						await componentsPage.expectExportButtonVisible();
 						console.log('Export button is visible');
 
 						// Verify the confirmation message is present
@@ -183,22 +163,29 @@ test.describe('[PAR-DE001] – Export survey answers', () => {
 					});
 
 					await test.step("10. System: Sends an email to the administrator's registered email address with the export file as an attachment or a secure download link", async () => {
-						// Navigate to Letter Opener and refresh to get latest emails
-						await letterOpenerPage.navigateToLetterOpener();
-						await letterOpenerPage.refreshEmails();
+						// Navigate to webmail
+						await webmailPage.navigateToWebmail();
+						console.log('Navigated to webmail');
 
-						console.log('Letter Opener opened and refreshed. Ready to search for export email.');
+						// Login to webmail with admin credentials
+						await webmailPage.login(process.env.OVH_ADMIN_EMAIL!, process.env.OVH_ADMIN_PASSWORD!);
+						console.log('Logged in to webmail');
 
-						// Find and click on the most recent export email (should be first after refresh)
-						await letterOpenerPage.clickMostRecentExportEmail();
+						// Check for new messages
+						await webmailPage.refreshInbox();
+						console.log('Checked for new messages in inbox');
 
-						// Verify the export email content
-						await letterOpenerPage.verifyExportEmail();
+						// Verify and open the survey export email
+						await webmailPage.verifyExportEmail('survey_user_answers');
+						console.log(`Export email with ${fileFormat} attachment verified successfully`);
 
-						// Download and verify the export file
-						await letterOpenerPage.downloadExportFile();
+						// Download export file
+						await webmailPage.downloadExportFile();
+						console.log('Export file downloaded successfully');
 
-						console.log('Export email content verified');
+						// Clean up: delete the email
+						await webmailPage.deleteCurrentEmail();
+						console.log('Export email deleted from inbox');
 					});
 				});
 			}

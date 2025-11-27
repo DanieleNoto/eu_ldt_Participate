@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denise Scarcelli
  * Simone Bianchelli
@@ -64,7 +64,6 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		this.navItems = page.locator('.participatory-space__nav-item');
 
 		// Help elements
-		//this.helpButton = page.locator('#floating-helper-tip button');
 		this.debatesLink = page.locator('a[href$="/debates"]:visible').first();
 		this.meetingsLink = page.locator('a[href$="/meetings"]:visible').first();
 
@@ -673,6 +672,24 @@ export class ProcessDetailPage extends AuthenticatedPage {
 			const text = await block.innerText();
 			expect(text.trim().length).toBeGreaterThan(0);
 		}
+	}
+
+	public async clickOnMenuItem(target: string): Promise<void> {
+		const items = this.navDropdownMenu.locator('li[role="menuitem"] a.participatory-space__nav-item');
+		const count = await items.count();
+
+		for (let i = 0; i < count; i++) {
+			const item = items.nth(i);
+			const text = (await item.innerText()).trim();
+			const href = await item.getAttribute('href');
+
+			if (text === target || href === target) {
+				await item.click();
+				return;
+			}
+		}
+
+		throw new Error(`Menu item "${target}" not found`);
 	}
 
 	public async openProcessSteps(timeout = 7000): Promise<boolean> {

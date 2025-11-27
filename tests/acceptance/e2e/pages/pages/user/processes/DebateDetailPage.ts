@@ -6,7 +6,6 @@ export class DebateDetailPage {
 
 	// Main debate content elements
 	private readonly debateTitle: Locator;
-	private readonly authorSection: Locator;
 	private readonly authorAvatar: Locator;
 	private readonly authorName: Locator;
 	private readonly debateDescription: Locator;
@@ -21,7 +20,6 @@ export class DebateDetailPage {
 	private readonly reportButton: Locator;
 
 	// Endorsement/Like system
-	private readonly endorsementBlock: Locator;
 	private readonly endorsementButton: Locator;
 	private readonly endorsersListDropdown: Locator;
 	private readonly endorsersListGrid: Locator;
@@ -34,10 +32,7 @@ export class DebateDetailPage {
 
 	// Comments section
 	private readonly commentsSection: Locator;
-	private readonly commentsHeader: Locator;
 	private readonly commentsCount: Locator;
-	private readonly commentsThreads: Locator;
-	private readonly addCommentSection: Locator;
 	private readonly loginLink: Locator;
 	private readonly signupLink: Locator;
 
@@ -57,16 +52,13 @@ export class DebateDetailPage {
 	private readonly inFavorButton: Locator;
 	private readonly neutralButton: Locator;
 	private readonly againstButton: Locator;
-	private readonly opinionLabel: Locator;
 
 	// Existing comments
 	private readonly existingComments: Locator;
-	private readonly commentThreads: Locator;
 
 	// Comment interactions
 	private readonly commentUpvoteButtons: Locator;
 	private readonly commentDownvoteButtons: Locator;
-	private readonly replyButtons: Locator;
 
 	// Comment ordering
 	private readonly orderByFavorites: Locator;
@@ -78,7 +70,6 @@ export class DebateDetailPage {
 	private readonly loadingComments: Locator;
 
 	// Metadata footer
-	private readonly metadataContainer: Locator;
 	private readonly referenceItem: Locator;
 	private readonly versionItem: Locator;
 
@@ -93,7 +84,6 @@ export class DebateDetailPage {
 
 		// Main debate content elements
 		this.debateTitle = this.page.locator('h1.h2.decorator');
-		this.authorSection = this.page.locator('.layout-author');
 		this.authorAvatar = this.page.locator('.author__avatar');
 		this.authorName = this.page.locator('.author__name');
 		this.debateDescription = this.page.locator('.editor-content div').first();
@@ -108,7 +98,6 @@ export class DebateDetailPage {
 		this.reportButton = this.page.locator('button[data-dialog-open="loginModal"]', { hasText: 'Rapporto' });
 
 		// Endorsement/Like system
-		this.endorsementBlock = this.page.locator('[id*="endorsement-block"]');
 		this.endorsementButton = this.page.locator('#endorsement-button').first();
 		this.endorsersListDropdown = this.page.locator('#dropdown-menu-endorsers-list');
 		this.endorsersListGrid = this.page.locator('.endorsers-list__grid');
@@ -121,10 +110,7 @@ export class DebateDetailPage {
 
 		// Comments section
 		this.commentsSection = this.page.locator('#comments');
-		this.commentsHeader = this.page.locator('.comments__header h2');
 		this.commentsCount = this.page.locator('.comments-count');
-		this.commentsThreads = this.page.locator('#comments-for-Debate-4-threads');
-		this.addCommentSection = this.page.locator('.add-comment');
 		this.loginLink = this.page.locator('.add-comment a[href="/users/sign_in"]');
 		this.signupLink = this.page.locator('.add-comment a[href="/users/sign_up"]');
 
@@ -144,16 +130,13 @@ export class DebateDetailPage {
 		this.inFavorButton = this.page.locator('button[data-toggle-ok="true"]');
 		this.neutralButton = this.page.locator('button[data-toggle-meh="true"]');
 		this.againstButton = this.page.locator('button[data-toggle-ko="true"]');
-		this.opinionLabel = this.page.locator('.comment__opinion-label');
 
 		// Existing comments
 		this.existingComments = this.page.locator('.comment-thread');
-		this.commentThreads = this.page.locator('[id*="comments-for-Debate"][id$="-threads"]');
 
 		// Comment interactions
 		this.commentUpvoteButtons = this.page.locator('.js-comment__votes--up');
 		this.commentDownvoteButtons = this.page.locator('.js-comment__votes--down');
-		this.replyButtons = this.page.locator('button[id*="reply-trigger"]');
 
 		// Comment ordering
 		this.orderByFavorites = this.page.locator('a[href*="order=best_rated"]');
@@ -165,7 +148,6 @@ export class DebateDetailPage {
 		this.loadingComments = this.page.locator('.loading-comments');
 
 		// Metadata footer
-		this.metadataContainer = this.page.locator('[data-metadata-footer]');
 		this.referenceItem = this.page.locator('.metadata__item', { hasText: 'Riferimento:' });
 		this.versionItem = this.page.locator('.metadata__item', { hasText: 'Versione' });
 
@@ -564,25 +546,6 @@ export class DebateDetailPage {
 		}
 	}
 
-	/**
-	 * Wait for mention suggestions to appear with timeout
-	 * @param timeout - Maximum time to wait in milliseconds
-	 * @returns True if suggestions appeared within timeout
-	 */
-	async waitForMentionSuggestions(timeout: number = 5000): Promise<boolean> {
-		const startTime = Date.now();
-
-		while (Date.now() - startTime < timeout) {
-			if (await this.areMentionSuggestionsVisible()) {
-				console.log('Mention suggestions appeared');
-				return true;
-			}
-			await this.page.waitForTimeout(100);
-		}
-
-		console.log('Mention suggestions did not appear within timeout');
-		return false;
-	}
 
 	/**
 	 * Check if Tribute.js is properly initialized on the textarea
@@ -778,15 +741,14 @@ export class DebateDetailPage {
 	 * Verify that mention suggestions are visible
 	 */
 	async expectMentionSuggestionsToBeVisible(): Promise<void> {
-		// Prova ad attendere che il container diventi visibile con un timeout più lungo
 		try {
 			await expect(this.tributeContainer).toBeVisible();
 		} catch (error) {
-			// Se fallisce, prova a vedere se il container ha contenuto anche se non "visibile"
+			// If it fails, try to see if the container has content even if not "visible"
 			const hasContent = (await this.tributeResults.locator('li').count()) > 0;
 			if (hasContent) {
 				console.log('Tribute container has content but is not marked as visible');
-				// In questo caso, consideriamo che funzioni
+				// In this case, let's consider that it works
 				return;
 			}
 			throw error;

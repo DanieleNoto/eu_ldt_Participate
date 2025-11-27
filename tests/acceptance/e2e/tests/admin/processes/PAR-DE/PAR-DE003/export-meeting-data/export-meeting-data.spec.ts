@@ -8,8 +8,8 @@
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { MeetingsPage } from '@pages/pages/admin/processes/detail/meetings/MeetingsPage';
-import { ExportType, LetterOpenerPage } from '@pages/pages/admin/LetterOpenerPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
+import { WebmailPage } from '@pages/base/WebmailPage';
 import test, { expect } from '@playwright/test';
 import { ensureLoggedIn } from '@utils/auth-helper';
 import { STORAGE_STATE } from '@utils/constants';
@@ -36,22 +36,38 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let meetingsPage: MeetingsPage;
-	let letterOpenerPage: LetterOpenerPage;
 	let componentsPage: ComponentsPage;
+	let webmailPage: WebmailPage;
 	let beforeMeetingCount: number;
+
+	// Use existing process with meetings
+	const processTitle = 'Update Test0';
+	const processSlug = 'test';
+	const componentName = 'Meetings';
 
 	test.beforeEach(async ({ page }) => {
 		adminHomePage = new AdminHomePage(page);
 		processAdminPage = new ProcessAdminPage(page);
 		meetingsPage = new MeetingsPage(page);
 		componentsPage = new ComponentsPage(page);
-		letterOpenerPage = new LetterOpenerPage(page);
+		webmailPage = new WebmailPage(page);
 		await adminHomePage.navigateToAdminHomePage();
 	});
 
 	test.describe('Main Flow', () => {
-		[{ fileFormat: 'CSV' }, { fileFormat: 'JSON' }, { fileFormat: 'Excel' }].forEach(({ fileFormat }) => {
-			test(`should export meeting data in ${fileFormat} format`, async ({ page }) => {
+		[
+			{ fileFormat: 'CSV', exportType: 'Meetings' },
+			{ fileFormat: 'JSON', exportType: 'Meetings' },
+			{ fileFormat: 'Excel', exportType: 'Meetings' },
+			{ fileFormat: 'CSV', exportType: 'Comments' },
+			{ fileFormat: 'JSON', exportType: 'Comments' },
+			{ fileFormat: 'Excel', exportType: 'Comments' },
+			{ fileFormat: 'CSV', exportType: 'Answers' },
+			{ fileFormat: 'JSON', exportType: 'Answers' },
+			{ fileFormat: 'Excel', exportType: 'Answers' },
+			{ fileFormat: 'PDF', exportType: 'Answers' }
+		].forEach(({ fileFormat, exportType }) => {
+			test(`should export ${exportType.toLowerCase()} data in ${fileFormat} format`, async ({ page }) => {
 				await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
 					await processAdminPage.navigateToProcesses();
 					await processAdminPage.getPage().waitForLoadState('networkidle');
@@ -64,15 +80,19 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 					expect(hasProcesses).toBe(true);
 				});
 				await test.step('3. Admin: selects the process that want to update', async () => {
-					// Click edit on the first process in the table
-					await processAdminPage.editFirstProcess();
+					// Select the process name that contains meeting data
+					console.log(`Selecting process: ${processTitle}`);
+
+					// Click on the process to edit it
+					await processAdminPage.selectProcessForEdit(processTitle);
 					await processAdminPage.getPage().waitForLoadState('networkidle');
 				});
 
 				await test.step('4. System: loads the selected process and displays the content in an editable form, including all existing information', async () => {
-					// Verify we're on the process edit/management page
+					// Verify we're on the edit page for the correct process
 					const currentUrl = processAdminPage.getPage().url();
-					expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/edit/);
+					expect(currentUrl).toContain(`/admin/participatory_processes/${processSlug}/edit`);
+					console.log(`Process slug verified: ${processSlug}`);
 				});
 				await test.step('5. Admin: Navigates to the "Components->Meetings” section in the admin panel.', async () => {
 					// Navigate to Components tab/section
@@ -82,11 +102,12 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 				});
 
 				await test.step('6. System: Displays a list of available meetings, including completed debates with user contributions and summaries.', async () => {
-					// Verify meetings page is loaded and visible
-					const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
-					expect(meetingsLink).not.toBeNull();
-					await meetingsLink.click();
+					// Access meetings component
+					console.log(`Accessing meetings component: ${componentName}`);
+					await componentsPage.manageComponent(componentName);
 					await componentsPage.getPage().waitForLoadState('networkidle');
+					console.log('Accessed meetings component');
+
 					await meetingsPage.verifyMeetingsPageVisible();
 					// Check if there are meetings available
 					beforeMeetingCount = await meetingsPage.getMeetingCount();
@@ -100,7 +121,8 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 						.screenshot({ path: 'test-results/screenshots/DE003/MeetingsList.png', fullPage: true });
 				});
 				await test.step('7. User: Clicks on the "Export" button and select format', async () => {
-					await componentsPage.exportComponentData(fileFormat);
+					await componentsPage.exportComponentData(fileFormat, exportType);
+					console.log(`Selected Export ${exportType} as ${fileFormat} format`);
 					await page.waitForLoadState('networkidle');
 				});
 
@@ -115,16 +137,29 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 				});
 
 				await test.step("9. System: Sends an email to the administrator's registered email address with the export file as an attachment or a secure download link", async () => {
-					// Navigate to Letter Opener and refresh to get latest emails
-					await letterOpenerPage.navigateToLetterOpener();
-					await letterOpenerPage.refreshEmails();
-					console.log('Letter Opener opened and refreshed. Ready to search for export email.');
-					// Find and click on the most recent export email (should be first after refresh)
-					await letterOpenerPage.clickMostRecentExportEmailByType('meetings');
-					// Verify the export email content
-					await letterOpenerPage.verifyExportEmail();
-					// Download and verify the export file
-					await letterOpenerPage.downloadExportFile();
+					// Navigate to webmail
+					await webmailPage.navigateToWebmail();
+					console.log('Navigated to webmail');
+
+					// Login to webmail with admin credentials
+					await webmailPage.login(process.env.OVH_ADMIN_EMAIL!, process.env.OVH_ADMIN_PASSWORD!);
+					console.log('Logged in to webmail');
+
+					// Check for new messages
+					await webmailPage.refreshInbox();
+					console.log('Checked for new messages in inbox');
+
+					// Verify and open the meetings export email
+					await webmailPage.verifyExportEmail('meetings');
+					console.log(`Export email for ${exportType} with ${fileFormat} format verified successfully`);
+
+					// Download the export file
+					await webmailPage.downloadExportFile();
+					console.log('Export file downloaded successfully');
+
+					// Clean up: delete the email
+					await webmailPage.deleteCurrentEmail();
+					console.log('Export email deleted from inbox');
 				});
 			});
 		});

@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ * Gianfranco Cedro
+ */
+
 import { TEST_USERS } from '@config/test-users';
 import { Locator, Page, expect } from '@playwright/test';
 import { TEST_SELECTORS } from '@utils/constants';
@@ -104,5 +111,13 @@ export class LoginPage extends BasePage {
 	async logout() {
 		await this.page.getByRole('button', { name: 'A', exact: true }).click();
 		await this.page.getByRole('link', { name: 'Log out' }).click();
+	}
+
+	async expectToBeOnLoginPage(): Promise<void> {
+		await expect(this.page).toHaveURL(/\/users\/sign_in/);
+	}
+
+	async expectToBeOnPasswordResetPage(): Promise<void> {
+		await expect(this.page).toHaveURL(/\/users\/password\/new/);
 	}
 }
