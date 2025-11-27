@@ -232,8 +232,8 @@ es:
         newsletter_mailer:
             newsletter:
                 no_reply_notice: |
-                    <strong>Notificación Automática:</strong> Este correo electrónico ha sido enviado desde una dirección de solo notificación que no acepta mensajes entrantes. Por favor, no responda a este correo electrónico.<br><br>
-                    <strong>Protección de Datos:</strong> Puede revisar cómo procesamos sus datos y cómo ejercer sus derechos en la <a href="%{privacy_policy_url}">Política de Privacidad</a>, así como gestionar la recepción de correos electrónicos en sus <a href="%{notification_preferences_url}">Preferencias de Notificación</a>.
+                    Este correo electrónico ha sido enviado desde una dirección de solo notificación que no acepta mensajes entrantes. Por favor, no responda a este correo electrónico.<br><br>
+                    Puede revisar cómo procesamos sus datos y cómo ejercer sus derechos en la <a href="%{privacy_policy_url}">Política de Privacidad</a>, así como gestionar la recepción de correos electrónicos en sus <a href="%{notification_preferences_url}">Preferencias de Notificación</a>.
     devise:
         omniauth_callbacks:
             add_tos_errors: Debes aceptar la política de privacidad para crear una cuenta.

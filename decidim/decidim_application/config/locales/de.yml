@@ -232,8 +232,8 @@ de:
         newsletter_mailer:
             newsletter:
                 no_reply_notice: |
-                    <strong>Automatische Benachrichtigung:</strong> Diese E-Mail wurde von einer Nur-Benachrichtigungs-Adresse gesendet, die keine eingehenden Nachrichten akzeptiert. Bitte antworten Sie nicht auf diese E-Mail.<br><br>
-                    <strong>Datenschutz:</strong> Sie können überprüfen, wie wir Ihre Daten verarbeiten und wie Sie Ihre Rechte ausüben können in der <a href="%{privacy_policy_url}">Datenschutzrichtlinie</a>, sowie den Empfang von E-Mails in Ihren <a href="%{notification_preferences_url}">Benachrichtigungseinstellungen</a> verwalten.
+                    Diese E-Mail wurde von einer Nur-Benachrichtigungs-Adresse gesendet, die keine eingehenden Nachrichten akzeptiert. Bitte antworten Sie nicht auf diese E-Mail.<br><br>
+                    Sie können überprüfen, wie wir Ihre Daten verarbeiten und wie Sie Ihre Rechte ausüben können in der <a href="%{privacy_policy_url}">Datenschutzrichtlinie</a>, sowie den Empfang von E-Mails in Ihren <a href="%{notification_preferences_url}">Benachrichtigungseinstellungen</a> verwalten.
     devise:
         omniauth_callbacks:
             add_tos_errors: Die Datenschutzrichtlinie muss akzeptiert werden, um ein Konto zu erstellen.

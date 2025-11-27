@@ -21,5 +21,5 @@
 	"restart": "Switch topic",
 	"support": "Further support",
 	"conversationId": "Conversation ID",
-	"legalNotice": "This email was sent from a notification email address that cannot accept incoming email. Please do not reply to this message."
+	"legalNotice": "This email has been sent from a notification-only address that does not accept incoming messages. Please do not reply to this email.<br><br>You can review how we process your data and how to exercise your rights in the <a href=\"{PRIVACY_POLICY_URL}\">Privacy Policy</a>, as well as manage the receipt of emails in your <a href=\"{NOTIFICATION_PREFERENCES_URL}\">Notification Preferences</a>."
 }

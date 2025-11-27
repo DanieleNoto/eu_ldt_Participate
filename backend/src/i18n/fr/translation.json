@@ -21,5 +21,5 @@
 	"restart": "Changer de sujet",
 	"support": "Support supplémentaire",
 	"conversationId": "ID de conversation",
-	"legalNotice": "Cet e-mail a été envoyé à partir d'une adresse e-mail de notification qui ne peut pas accepter les e-mails entrants. Veuillez ne pas répondre à ce message."
+	"legalNotice": "Cet e-mail a été envoyé depuis une adresse de notification uniquement qui n'accepte pas les messages entrants. Veuillez ne pas répondre à cet e-mail.<br><br>Vous pouvez consulter comment nous traitons vos données et comment exercer vos droits dans la <a href=\"{PRIVACY_POLICY_URL}\">Politique de Confidentialité</a>, ainsi que gérer la réception des e-mails dans vos <a href=\"{NOTIFICATION_PREFERENCES_URL}\">Préférences de Notification</a>."
 }

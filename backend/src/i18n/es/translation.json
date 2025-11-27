@@ -21,5 +21,5 @@
 	"restart": "Cambiar de tema",
 	"support": "Más soporte",
 	"conversationId": "ID de conversación",
-	"legalNotice": "Este correo electrónico se envió desde una dirección de correo electrónico de notificación que no puede aceptar correo electrónico entrante. No responda a este mensaje."
+	"legalNotice": "Este correo electrónico ha sido enviado desde una dirección de solo notificación que no acepta mensajes entrantes. Por favor, no responda a este correo electrónico.<br><br>Puede revisar cómo procesamos sus datos y cómo ejercer sus derechos en la <a href=\"{PRIVACY_POLICY_URL}\">Política de Privacidad</a>, así como gestionar la recepción de correos electrónicos en sus <a href=\"{NOTIFICATION_PREFERENCES_URL}\">Preferencias de Notificación</a>."
 }

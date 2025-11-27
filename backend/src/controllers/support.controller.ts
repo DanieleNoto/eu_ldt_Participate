@@ -150,7 +150,16 @@ class SupportController {
 	}
 
 	private _getLegalNotice(language: string, i18n: typeof import('i18next').default): string {
-		return i18n.t('legalNotice', { lng: language });
+		const privacyPolicyUrl =
+			process.env.PRIVACY_POLICY_URL || 'https://part-int.ldttoolbox.app/pages/terms-and-conditions';
+		const notificationPreferencesUrl =
+			process.env.NOTIFICATION_PREFERENCES_URL || 'https://part-int.ldttoolbox.app/notifications/settings';
+
+		return i18n.t('legalNotice', {
+			lng: language,
+			PRIVACY_POLICY_URL: privacyPolicyUrl,
+			NOTIFICATION_PREFERENCES_URL: notificationPreferencesUrl
+		});
 	}
 
 	private _buildHtmlContent(

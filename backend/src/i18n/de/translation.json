@@ -21,5 +21,5 @@
 	"restart": "Thema wechseln",
 	"support": "Weitere Unterstützung",
 	"conversationId": "Gesprächs-ID",
-	"legalNotice": "Diese E-Mail wurde von einer Benachrichtigungs-E-Mail-Adresse gesendet, die keine eingehenden E-Mails akzeptieren kann. Bitte antworten Sie nicht auf diese Nachricht."
+	"legalNotice": "Diese E-Mail wurde von einer Nur-Benachrichtigungs-Adresse gesendet, die keine eingehenden Nachrichten akzeptiert. Bitte antworten Sie nicht auf diese E-Mail.<br><br>Sie können überprüfen, wie wir Ihre Daten verarbeiten und wie Sie Ihre Rechte ausüben können in der <a href=\"{PRIVACY_POLICY_URL}\">Datenschutzrichtlinie</a>, sowie den Empfang von E-Mails in Ihren <a href=\"{NOTIFICATION_PREFERENCES_URL}\">Benachrichtigungseinstellungen</a> verwalten."
 }
