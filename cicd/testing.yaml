@@ -69,6 +69,8 @@ jobs:
                 CI: 'true'
             continueOnError: true
             displayName: 'Run Playwright / Axe (Frontend) - Keycloak tests only'
+
+          # Publish JUnit results (pass/fail)
           - task: PublishTestResults@2
             displayName: 'Publish Playwright / Axe Test Results (Frontend)'
             inputs:
@@ -76,19 +78,53 @@ jobs:
                 testResultsFiles: '**/*junit.xml'
                 testRunTitle: 'Playwright + Axe'
 
+          # Publish WCAG reports (JSON artifacts)
           - task: PublishBuildArtifacts@1
-            displayName: 'Publish Accessibility Reports (SARIF/JSON)'
+            displayName: 'Publish Accessibility Reports (WCAG Compliance)'
             inputs:
-                pathToPublish: 'tests/acceptance/e2e/a11y-reports'
-                artifactName: 'AccessibilityReports'
-                condition: always()
+                PathtoPublish: 'tests/acceptance/e2e/a11y-reports'
+                ArtifactName: 'WCAG-AccessibilityReports'
+                publishLocation: 'Container'
+            condition: succeededOrFailed()
 
+          # Convert JSON to SARIF format
           - script: |
-                echo "Publishing Playwright / Axe Test Results (Frontend)"
-                python3 azure_test_plan/automated_test_publisher.py
-            env:
-                AUTO_TEST_DEVOPS_PAT: $(AUTO_TEST_DEVOPS_PAT)
-            displayName: 'Publish Acceptance Results to Azure Test Plans'
+                cd tests/acceptance/e2e/a11y-reports
+                for file in *__latest.json; do
+                  if [ -f "$file" ]; then
+                    npx axe-sarif-converter "$file" "${file%.json}.sarif"
+                  fi
+                done
+                echo "JSON files converted to SARIF format"
+            displayName: 'Convert Accessibility Reports to SARIF format'
+            condition: succeededOrFailed()
+            continueOnError: true
+
+          # Publish SARIF for integrated visualization in Azure DevOps Scans tab
+          - task: PublishSARIF@1
+            displayName: 'Publish SARIF Accessibility Reports to Scans'
+            inputs:
+                SarifFiles: 'tests/acceptance/e2e/a11y-reports/*.sarif'
+            condition: succeededOrFailed()
+            continueOnError: true
+
+          # Generate WCAG 2.0/2.1 AA violations report
+          - script: |
+                cd tests/acceptance/e2e/scripts
+                python3 generate_wcag_report.py
+            displayName: 'Generate WCAG 2.0/2.1 AA Violations Report'
+            condition: succeededOrFailed()
+            continueOnError: true
+
+          # Publish WCAG violations report as artifact
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish WCAG Violations Report'
+            inputs:
+                PathtoPublish: 'tests/acceptance/e2e/a11y-reports/WCAG_2.0_2.1_AA_VIOLATIONS_REPORT.txt'
+                ArtifactName: 'WCAG-ViolationsReport'
+                publishLocation: 'Container'
+            condition: succeededOrFailed()
+            continueOnError: true
 
     - job: PerformanceTests
       displayName: Service Load Test

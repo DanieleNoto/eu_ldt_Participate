@@ -11,7 +11,6 @@ if [ "$RAILS_ENV" = "production" ]; then
   
   # Database setup (optimized)
   echo "--- Setting up database ---"
-  
   bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
   
   # Run migrations (always safe, idempotent)
@@ -54,7 +53,6 @@ elif [ "$RAILS_ENV" = "development" ]; then
   
   # Database setup (optimized)
   echo "--- Setting up database ---"
-  
   bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
   
   # Run migrations (always safe, idempotent)
@@ -91,7 +89,6 @@ else
   
   # Database setup (optimized)
   echo "--- Setting up database ---"
-  
   bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
   
   # Run migrations (always safe, idempotent)

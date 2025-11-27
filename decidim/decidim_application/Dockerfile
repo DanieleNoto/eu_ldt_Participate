@@ -2,6 +2,8 @@ FROM decidim/decidim-dev:0.30.2 AS builder
 
 # Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
+# Set build environment early for dependencies
+
 
 # Update system and install base dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -31,7 +33,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 
 # Set working directory
 WORKDIR /code
-
 RUN mkdir -p /code/storage
 RUN chown -R decidim:decidim /code/storage
 RUN chmod 775 /code/storage
@@ -48,7 +49,7 @@ RUN bundle config set --local path '/usr/local/bundle' && \
 COPY package.json yarn.lock* ./
 
 # Install Node.js dependencies (cached layer) - reduced concurrency
-RUN yarn install --network-timeout 100000 --include-dev 
+RUN yarn install --network-timeout 100000 --include-dev
 
 # NOW copy the full application code
 COPY . .
