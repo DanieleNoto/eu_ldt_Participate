@@ -11,6 +11,8 @@ FROM decidim/decidim-dev:0.30.4 AS builder
 
 # Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
+# Set build environment early for dependencies
+
 
 # Update system and install base dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \

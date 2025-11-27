@@ -1,7 +1,15 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Simone Bianchelli
+ */
+
 import { test } from '@playwright/test';
 import { GrafanaAuthHelper } from '../../../../../../utils/grafana-auth-helper';
 import { GrafanaDashboardPage } from '../../../../../../pages/pages/admin/reports/GrafanaDashboardPage';
 import { setupGrafanaDataSource } from '@utils/grafana-setup-helper';
+import { tryAnalyze, saveAccessibilityResults } from '@utils/helpers';
 
 /**
  * User Story: As a System Administrator, I want to aggregate feedback by demographics so that I can understand different community segments.
@@ -32,6 +40,10 @@ test.describe('[PAR-RG002] - Aggregate feedback by demographics', () => {
 		await grafanaAuth.dispose();
 	});
 
+	test.afterAll(async () => {
+		await saveAccessibilityResults();
+	});
+
 	test.describe('Main Flow', () => {
 		test('Admin can view and interact with reports', async ({ page }) => {
 			const dashboard = new GrafanaDashboardPage(page);
@@ -43,6 +55,7 @@ test.describe('[PAR-RG002] - Aggregate feedback by demographics', () => {
 						path: 'test-results/screenshots/PAR-RG002/step-1.1-dashboard-loaded.png',
 						fullPage: true
 					});
+					await tryAnalyze(page, 'grafanaDashboardLoaded');
 				});
 
 				await test.step('1.2 Open the "Decidim" section', async () => {
@@ -51,6 +64,7 @@ test.describe('[PAR-RG002] - Aggregate feedback by demographics', () => {
 						path: 'test-results/screenshots/PAR-RG002/step-1.2-decidim-section.png',
 						fullPage: true
 					});
+					await tryAnalyze(page, 'grafanaDecidimSectionOpened');
 				});
 
 				await test.step('1.3 Open the "Participation Demographics" report', async () => {
@@ -59,6 +73,7 @@ test.describe('[PAR-RG002] - Aggregate feedback by demographics', () => {
 						path: 'test-results/screenshots/PAR-RG002/step-1.3-participation-report.png',
 						fullPage: true
 					});
+					await tryAnalyze(page, 'grafanaParticipationDemographicsReport');
 				});
 			});
 
@@ -76,6 +91,7 @@ test.describe('[PAR-RG002] - Aggregate feedback by demographics', () => {
 					path: 'test-results/screenshots/PAR-RG002/step-3-time-filter-applied.png',
 					fullPage: true
 				});
+				await tryAnalyze(page, 'grafanaDemographicsReportFiltered');
 			});
 
 			await test.step('4. System: Processes the parameters and generates a demographic-specific feedback report', async () => {
@@ -88,6 +104,7 @@ test.describe('[PAR-RG002] - Aggregate feedback by demographics', () => {
 
 			await test.step('Result. Simulate the interaction with the time filter and verify the visual response of the report', async () => {
 				await dashboard.verifyMonthlyRegistrationTrendPanel();
+				await tryAnalyze(page, 'grafanaMonthlyRegistrationTrendPanel');
 			});
 		});
 	});
