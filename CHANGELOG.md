@@ -1,9 +1,338 @@
-<!-- SPDX-License-Identifier: AGPL-3.0
-Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-Authors:
-Denis Vasilev Dimchev
-Pierluigi Spedicato
--->
+# Changelog from D03.04.Nov to D03.04.Dec
+ 
+## feat
+- refactor license inb .erb files
+- update license
+- pAR-USA02] - accessibility - updated generate_wcag_report.py
+- add privacy policy and notification preferences links to email footer
+- [PAR-USA02] - added author comments in generate_wcag_report.py
+- enhance mails with HTML formatting
+- add license header
+- add license header
+- clean up license comments in README file
+- add license header
+- updated [PAR-USA02] Accessibility
+- remove azure repo
+- add license for package-lock
+- remove unused license
+- updated testing.yml - removed timeout
+- merge main into ISSUE-OCT99
+- updated MeetingDetailPage.ts - removed fixed timeout
+- add license header
+- update decidim to 0.30.4
+- add license to json files
+- merge branch main inside this branch
+- [PAR-USA02] removed unused types - PR 1756
+- added more pages and pages for process detail
+- [PAR-USA02] added missing admin accessibility tests - PR 1756
+- Add header  comments Alfredo
+- updated [PAR-USA02] Accessibility
+- add welcome notification messages in multiple languages
+- updated PAR-USA/PAR-USA02
+- update license and linting
+- pAR-MOD002 - inserted header author comments
+- pAR-MOD002 - inserted header author comments
+- pAR-MOD002 - updated comment id to
+- add metadata to fluent-configmap
+- update headers
+- update headers
+- update license headers
+- update license
+- add license header
+- remove outdated Playwright POM guidelines and prompt template
+- merge main into PAR-USA/PAR-USA02
+- merge main into FIX-PENDING-COMMENTS-PAR-MOD-002
+- merge main into ISSUE-OCT99
+- [ISSUE-OCT99] Update existing test
+- remove unused HealthId and HealthRequest schemas
+- change port loki for port alloy
+- refactor license comments in multiple views to HTML comment format
+- update contributors list format and add missing entries
+- updated [PAR-CA001] - Perfomance test
+- add license and contributors
+- updated [PAR-CA001] ��� Interact with chatbots for assistance
+- merge remote branch main in ISSUE-NOV/bug-fixes
+- [PAR-CA001] - Perfomance test
+- add JWT token generation for Jitsi live event URLs and implement decorator
+- deployment fluentbit agent
+- forked gem in order to fix a localization bug - 19222
+- implement JWT authentication for Jitsi meetings and update dependencies
+- fixed toolbox dropdown styling, fixed header bar responsivness, fixed icons
+- updated ISSUE-OCT88
+- [PAR-CA001] ��� Interact with chatbots for assistance
+- update dependencies in package.json to version 0.30.3 and add @decidim/webpacker
+- simplify expect statements in health service tests
+- enhance health service tests with additional checks and logging
+- updated PAR-USA02
+- remove deprecated Kubernetes health check configuration
+- improve lint
+- issue 19006 - added error message for personal url input field validation
+- implement password validation and account form enhancements 19004
+- [ISSUE-OCT88] Missing E2E Integration test
+- implement backend proxy and update API URL handling
+- chatbot tests errors
+- fixed file permissions errors, fixed shakapacker config, optimized images build time
+- implement rate limiting and IP whitelisting configuration
+- add throttling max requests setting for improved performance
+- increase rate limiting settings for improved performance under high traffic
+- enhance rate limiting and connection settings for improved performance
+- update database connection settings and add readiness probes for PostgreSQL
+- merge remote-tracking branch 'origin/main' into FIX-PENDING-COMMENTS-PAR-MOD-002
+- fixed merge conflict NotificationPage.ts
+- remove brakeman gem from development dependencies
+- pAR-MOD002 - fixed merge conflict NotificationPage.ts
+- updated PAR-MOD002 ��� Process Content Moderation
+- remove obsolete configuration and resource files for tool3
+- update Decidim version to 0.30.3 across Dockerfile, Gemfile, and related modules
+- add open data exporter container with scheduled export functionality
+- add init containers for PostgreSQL setup and readiness check
+- implement proxy controller and update chatbot injector for API integration
+- implement critical fix for Keycloak logout by clearing cookies before Devise logout
+- clean existing assets before compilation in initContainer
+- fix pending comments PAR-MOD002 ��� Process Content Moderation
+- simplify volume mounts in StatefulSet by removing subPath entries
+- update volume mounts and resource requests/limits in StatefulSet for improved storage management
+- implement initContainer for asset compilation with resource limits and error handling
+- increase Node.js heap memory for asset compilation in production
+- refine Dockerfile cleanup process to retain node_modules for runtime asset compilation
+- update Dockerfile and entrypoint script for asset precompilation handling and remove SECRET_KEY_BASE build-arg
+- enhance Keycloak auto-login logic to prevent loops on error pages
+- enhance Keycloak locale synchronization by prioritizing i18next cookie and refining token expiration handling
+- enhance Keycloak auto-login logic to handle manual and automatic logout scenarios
+- enhance Keycloak auto-login handling by adding CSRF error detection and retry logic
+- enhance Keycloak token validation with refresh logic and include id_token in response
+- enhance Keycloak auto-login flow with session management and meta tag insertion
+- implement Keycloak auto-login functionality and enhance content security policy handling
+- simplify content security policy nonce directives and enhance Keycloak auto-login session check script
+- add storage cleanup step during production startup
+- enhance content security policy handling for authentication pages and improve nonce configuration for auto-login session checks
+- enhance Keycloak auto-login logic with improved cookie validation logging and refined content security policy for authentication pages
+- improve content security policy handling for chatbot URLs and enhance logout link availability in header
+- update Keycloak auto-login redirect to use 302 status for CSRF protection feat: enhance Decidim configmap with chatbot settings for improved integration
+- refine Keycloak auto-login logic to check controller and action for better cookie validation
+- enhance Keycloak cookie handling and token validation logic for improved autologin and security
+- implement throttled token introspection to enhance performance and security
+- enhance Keycloak auto-login handling and cookie validation logic
+- implement token introspection and revoke logic in Keycloak TokenService
+- enhance Keycloak integration with token revocation and refresh logic
+- update Content Security Policy to include ms-browser-extension and improve development configurations
+- add locale synchronization for Keycloak users during session management
+- enhance Keycloak integration by adding domain extraction and improving cookie management
+- [PAR-USA02] Accessibility
+- merged from branch ISSUE-SEP/ISSUE-SEP08
+- added the health service to the main docker compose
+- implemented system health status system
+
+## PR Merge
+- Bug fixes- test: [PAR-USA02] Accessibility- Increase Cookie Buffer- FAKE_DATA_REFACTOR_comments- [PAR-CP003] ��� Display use Case information in process- EP006-pending-PR-comments Done- test: [ISSUE-OCT99] Update existing tests for email verification- EP003-pending-PR-comments Done- NOT004-pending-PR-comments Done- EP007-pending-PR-comments - Done- NOT005-pending-PR-comments Done- test: fix pending comments PAR-MOD002 ��� Process Content Moderation- test: [PAR-CA001] ��� Interact with chatbots for assistance- test: [PAR-CA001] - Perfomance test- Test-[PAR-RG002] ��� Aggregate feedback by demographics- EP001-pending-PR-comments Done.- EP002-pending-PR-comments Done- NOT001-pending-PR-comments Done- test: [ISSUE-OCT88] Missing E2E Integration test- Add SBOM and SonarQube- fix(tool 2 integration): fixed postMessage structure, page styling fixes
+
+## refactor
+- merge main into current branch
+- update with lint
+- remove unused file
+- merge main into current branch
+- translate comment in english
+- refactor and clean code
+- better modularization
+- remove unused comments
+- remove unused comments
+- remove unused comments
+- remove unused comments
+- add license header
+- update dependencies
+- update yarn lock file
+- add decidim internal logging and update k8s conf with probes
+- rename filterByDate to filterByStatus for clarity
+- remove unused locators from page object
+- remove unused locators from page object
+- code structure for improved readability and maintainability
+- reorder imports for better organization
+- remove export actions and exports from admin menu for cleaner configuration
+- remove health probes from backend container for cleaner configuration
+- remove PostgreSQL readiness script from backend container for simplified startup
+- remove outdated rate limiting and keep-alive settings for cleaner configuration
+- remove Sidekiq deployment and storage configuration; update Decidim StatefulSet for PVC usage
+- removed shakapacker checks
+- remove RedisTokenService class to streamline token management
+- optimize keycloack and cookie handling
+
+## fix
+- update with figma styles
+- enhance cookie banner handling and improve consent checks
+- ensure Keycloak logout and improve redirect URI handling
+- use nullish coalescing for default legal notice URLs
+- remove redundant API throttling rules for improved performance
+- enhance rate limiting and IP whitelisting rules
+- save user locale after Keycloak sign-in and log the update
+- remove hardcoded legal notices and add conversation ID label in email content
+- reduce cognitive complexity
+- add gender selection and improve date of birth field; update translations
+- correct formatting of legal notice translation
+- update test messages for clarity
+- add missing translations
+- add missing translations
+- pR comments
+- update Jitsi constants to read from environment variables
+- add legalNotice to i18n
+- add validation for support text input and improve error handling
+- replace protocol in decidim-configmap
+- conflict resolved, added authors
+- enhance email configuration and add legal notices
+- adjust footer image height for better display
+- replace old mailer layout with new design
+- logo is not showed
+- change protocol for chatbot be
+- remove sonarqube issue
+- update button disabled condition to use logical OR for clarity
+- replace logical OR with nullish coalescing operator for environment variables
+- add German translations for admin action messages
+- simplify action messages in German locale file
+- update experiment execution titles and add missing execution_id in locale files
+- update decidim'extra'fields locales
+- remove unused imports and improve health check handling
+- improve HTTP status handling and Decidim health check
+- fix on merge conflicts
+- snyk vulnerability
+- add missing labels
+- add custom routes for external login handling
+- add new route for auto-login
+- update cache with StaleWhileRevalidate strategies
+- update z-index
+- remove meta information from configuration
+- problem with license
+- move comment as first line
+- update health check paths in chatbot StatefulSet
+- remove brakeman from Gemfile and Gemfile.lock
+- update health check paths and adjust probe parameters
+- update Node.js installation method and verify version
+- verify webpack installation and adjust node_modules permissions in Dockerfile
+- update dependencies
+- update health probes configuration for chatbot service
+- update Dockerfile to reinstall node_modules for proper binary symlinks
+- remove unused HealthId and HealthRequest schemas
+- missing translations
+- change parameter allowPrivilegeEscalation to false
+- update logout button text and enhance dropdown styles for better usability
+- update privacy policy alert title and add public contact setting in notifications
+- remove unnecessary void operator in language change
+- issue 19220 - Added missing french translation for no initiative type
+- added validation for future birth date - issue 19000
+- implement middleware to hide cookie banner on login if cookies accepted
+- exclude live event pages from chatbot injection
+- improve styling for map visualization and use case scenario disclaimer
+- verify filter reduces or equals initial count
+- 19472 - fixed some parts not getting translated, fixed overlapping
+- update experiment_id to execution_id in use case scenario view
+- add execution_id translations for German, English, Spanish, and French locales
+- add chatbot_controller.rb to exclusion list
+- add German, Spanish, and French translations for Jitsi meeting features
+- update experiment details labels and add translations for experiment name
+- set ENABLE_WELCOME_PAGE to '0'
+- ensure cookies are cleared during logout
+- disable PWA installation prompt by setting localStorage flag
+- style fixes
+- tmp commented
+- update Zeitwerk configuration to ignore decorators directory completely
+- exclude decorators from Zeitwerk autoloading and log loading process
+- service connection updated
+- service connection endpoing changed
+- enforce HTTP connection blocking for external services in all environments
+- 19381 - updated chatbot tree, style changes 19381
+- remove database credentials and update JWT issuer/audience URLs
+- enforce HTTPS for external connections in production and validate URI components
+- update experiment and scenario ID labels in translations and U
+- fixed shakapacker HMR, added missing import
+- update SMTP address to use Gmail for email configuration
+- implement centralized session validation and cookie handling for Keycloak
+- enhance security checks for HTTP/HTTPS connections
+- keycloak check auth token and chatbot error
+- update proxy URLs to use internal K8s services in production and handle empty paths
+- remove redundant test for Redis connection with custom URL format
+- adjust file ownership handling in Dockerfiles to maintain immutability
+- remove redundant webpack executable check in asset compilation
+- adjust webpack executable checks and permissions handling
+- ensure yarn dependencies are reinstalled with correct permissions
+- update permissions for entrypoint scripts and binaries in runtime image
+- merge branch main into current branch
+- update chatbot email configuration and SMTP password
+- improve permissions checks in asset compilation
+- ensure /code directory and config files are writable for asset compilation
+- update permissions for /code directory and config files during asset compilation
+- removed node_modules persistance
+- add script to prepare and copy Keycloak logo during asset compilation
+- use nullish coalescing operator version fallback
+- improve path normalization proxy request handling
+- enhance URL handling and sanitization for proxy requests
+- replace logical OR with nullish coalescing operator
+- use nullish coalescing operator for default values
+- allow runtime override of VITE_API_URL via globalThis for better compatibility
+- fix order import
+- correct placeholder formatting in old password field for consistency
+- add change password header and old password field to account settings
+- update Jitsi server URL to the new instance for consistency across the application
+- enhance cookie management during logout to ensure proper cleanup
+- update event colors to use CSS variables for consistency
+- update SMTP settings for improved email delivery
+- improve backend proxy handling by adding trailing slash retry logic
+- enhance cookie clearing logic with comprehensive attribute combinations
+- update API URL handling in chatbot injector and runtime config
+- set production API URL and improve VITE_API_URL retrieval logic
+- update chatbot injector
+- update vite api uri
+- update vite_api_url
+- update vite api url
+- update new compiles path
+- improve assets compile
+- add tmp-volume mount for temporary file storage
+- update VITE_API_URL to use localhost inside same pod
+- health test is failed
+- integration with decidim
+- correct permissions setup for Apache and ensure tmp directory exists
+- fixed issues 19064, 19056, 19196
+- fixed configuration and service worker
+- update loader script reference to index.js and correct default path value in registerRoute
+- bundle wasnt being shared between decidim and shakapacker
+- update database connection variables for consistency
+- enhance PostgreSQL connection checks and startup logging
+- update PVC references and improve asset readiness checks
+- revert access mode of decidim-pvc from ReadWriteMany to ReadWriteOnce
+- enable authentication by setting ENABLE_AUTH to '1'
+- change access mode of decidim-pvc from ReadWriteOnce to ReadWriteMany
+- add PostgreSQL readiness checks and enhance health probes
+- enhance asset copying in initContainer and remove redundant checks
+- enhance setup-decidim target and add confirmation for rebuild-all
+- change access mode of decidim-pvc from ReadWriteOnce to ReadWriteMany
+- update DB_HOST to use localhost for database connections
+- update DB_NAME in configmap for consistency
+- update DATABASE_URL and database names for consistency in secrets and configmap
+- fixed tool5 not waiting for ready message from tool2
+- remove trailing backslash from active_storage_purge queue in Sidekiq deployment
+- update environment variable names in chatbot-db-secrets.yaml for consistency
+- refactor Jest configuration and improve health service tests with better mock handling
+- remove deprecated docker-compose.override.yml file
+- increase client max body size to allow large file uploads
+- update support and from email addresses to reflect correct contact information
+- update cache TTL from 5 minutes to 1 minute to reduce Keycloak API calls
+- update cache TTLs to improve performance and reduce Keycloak API calls
+- rename init container and enhance readiness checks for Redis and Decidim assets
+- update CORS origins and API URLs to use HTTP scheme
+- remove user authentication check from proxy action
+- correct variable names for HTTP response handling
+- update target files in buildAndDeploy_INT.yml and remove CHATBOT_ASSET_VERSION from configmap
+- update DB_SCHEMA to public in chatbot config maps
+- fixed failing backend tests for the health check service
+- add volume mounts for decidim assets in Sidekiq deployment
+- set imagePullPolicy to IfNotPresent for Jitsi and database StatefulSets
+- add PGDATA configuration to chatbot database config map
+- optimize Sidekiq queue configuration for improved performance
+- update volume names in chatbot StatefulSet for consistency
+- update file extension from .yml to .yaml for chatbot secrets configuration
+- update Azure subscription endpoint in Kubernetes tasks for chatbot deployment
+- update environment variable formats in chatbot config maps
+- fixed postMessage structure, page styling fixes
+
+## file_changes
+- Added previously removed headers- added user accessibility testing- added method to control the phases of a process- added method to control the phases of a process- Added decidim-storage.yml- Added setupGrafanaDataSource function
 
 # Changelog from D03.04.Oct to D03.04.Nov
 
@@ -708,3 +1037,4 @@ Pierluigi Spedicato
 ## PR Merge
 
 - [PAR-PPM001] - Create new process- [PAR-PIM003] - Update personal information- [PAR-PIM001] - Configure form for additional personal data on first login- Startup Participate project
+
