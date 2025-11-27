@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 SPDX-License-Identifier: AGPL-3.0
 Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
@@ -9,10 +8,18 @@ Simone Bianchelli
 """
 WCAG 2.0/2.1 AA Violations Report Generator
 Extracts and analyzes only CRITICAL violations from accessibility scan JSON files
+
+IMPORTANT: If you move this script to a different location, you MUST update the 
+'reports_dir' variable in main() function to point to the correct path where 
+the accessibility JSON report files (*__latest.json) are located.
+
+Current configuration:
+- Script location: tests/acceptance/e2e/scripts/generate_wcag_report.py
+- Reports directory: tests/acceptance/e2e/a11y-reports/
+- Path calculation: Path(__file__).parent.parent / 'a11y-reports'
 """
 
 import json
-import os
 from pathlib import Path
 from collections import defaultdict
 
