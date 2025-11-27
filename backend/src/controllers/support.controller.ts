@@ -151,9 +151,9 @@ class SupportController {
 
 	private _getLegalNotice(language: string, i18n: typeof import('i18next').default): string {
 		const privacyPolicyUrl =
-			process.env.PRIVACY_POLICY_URL || 'https://part-int.ldttoolbox.app/pages/terms-and-conditions';
+			process.env.PRIVACY_POLICY_URL ?? 'https://part-int.ldttoolbox.app/pages/terms-and-conditions';
 		const notificationPreferencesUrl =
-			process.env.NOTIFICATION_PREFERENCES_URL || 'https://part-int.ldttoolbox.app/notifications/settings';
+			process.env.NOTIFICATION_PREFERENCES_URL ?? 'https://part-int.ldttoolbox.app/notifications/settings';
 
 		return i18n.t('legalNotice', {
 			lng: language,
