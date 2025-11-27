@@ -9,11 +9,22 @@
   height: 56px;
   max-height: 56px;
   background-color: #FCFCFC;
+  padding: 8px 16px;
 }
 
 .ldt-admin-header #ldt-logo {
   max-height: 28px;
   max-width: 112px;
+  display: flex;
+  align-items: center;
+
+  img,
+  .ldt-logo {
+    width: 112px;
+    height: 28px;
+    object-fit: contain;
+    display: block;
+  }
 }
 
 .ldt-admin-breadcrumb {
@@ -23,47 +34,81 @@
   padding-left: 32px;
 }
 
-/* Tools Button Styles */
+/* Tools Button Styles - Updated to match Figma design */
 .tools-button {
   display: flex;
   align-items: center;
-  background: none;
-  border: 1px solid #004494;
+  background: transparent;
+  border: 1px solid #6F797A;
   border-radius: 8px;
   padding: 8px 16px;
+  height: 40px;
   cursor: pointer;
   gap: 8px;
   transition: all 0.2s ease;
   position: relative;
+
   &:hover {
-      background: #004494;
-      transform: translateY(-1px);
-      .tools-text {
-        color: #FFFFFF !important;
-      }
-      svg {
-        fill: #FFFFFF !important;
-      }
+    background: #004494;
+    border-color: #004494;
+    transform: translateY(-1px);
+    .tools-text {
+      color: #FFFFFF !important;
     }
+    svg path {
+      fill: #FFFFFF !important;
+    }
+  }
+  
   &:active {
-      transform: translateY(0);
-    }
+    transform: translateY(0);
+  }
     
   .tools-text {
-      color: #004494;
-      font-weight: 700;
-      font-size: 14px;
-      line-height: 20px;
-      letter-spacing: 0.1px;
-      text-align: center;
-      vertical-align: middle;
-    }
+    color: #004494;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+    text-align: center;
+    vertical-align: middle;
+  }
     
   .tools-icon {
-      width: 20px;
-      height: 20px;
-      fill: #004494;
-    }
+    width: 18px;
+    height: 18px;
+  }
+  
+  svg path {
+    fill: #004494;
+    transition: fill 0.2s ease;
+  }
+}
+
+/* Icon sizing to match Figma specs */
+.tools-button svg,
+.tools-button .tools-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.help-button img,
+.help-button svg,
+.help-button #help-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
+}
+
+.user-button img,
+.user-button svg,
+.user-button #user-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  display: block;
 }
 
 

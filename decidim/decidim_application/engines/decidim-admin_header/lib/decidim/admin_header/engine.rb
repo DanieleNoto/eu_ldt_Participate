@@ -13,6 +13,11 @@ module Decidim
         assets_path = File.expand_path("config/assets.rb", root)
         load assets_path if File.exist?(assets_path)
       end
+
+      initializer "decidim_admin_header.load_locales" do |_app|
+        locale_path = File.expand_path("config/locales", root)
+        I18n.load_path += Dir[File.join(locale_path, "*.yml")] if File.directory?(locale_path)
+      end
     end
   end
 end

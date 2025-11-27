@@ -9,51 +9,29 @@
 		display: inline-block;
 	}
 
-	#tools-dropdown-button {
-		background-color: #004494;
-		color: white;
-		border: none;
-		padding: 8px 16px;
+	/* #tools-dropdown-button styling is now in ldt-header.scss */
+
+	#tools-dropdown {
+		display: none;
+		position: absolute;
+		top: 100%;
+		right: 0;
+		background: white;
+		border: 1px solid #ddd;
 		border-radius: 4px;
-		cursor: pointer;
-		font-weight: 700;
-		font-size: 14px;
-		display: flex;
-		align-items: center;
-		gap: 24px;
-		text-decoration: none;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		min-width: 280px;
+		max-width: 400px;
+		z-index: 1000;
+		margin-top: 4px;
 
-		&:hover {
-			background-color: #003366;
+		hr {
+			margin: 8px 8px 0px;
+			flex-shrink: 0;
+			border-width: 0px 0px thin;
+			border-style: solid;
+			border-color: rgba(0, 0, 0, 0.12);
 		}
-
-		.dropdown-arrow {
-			font-size: 12px;
-			transition: transform 0.3s ease;
-		}
-	}
-
-		#tools-dropdown {
-			display: none;
-			position: absolute;
-			top: 100%;
-			right: 0;
-			background: white;
-			border: 1px solid #ddd;
-			border-radius: 4px;
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-			min-width: 280px;
-			max-width: 400px;
-			z-index: 1000;
-			margin-top: 4px;
-
-			hr {
-				margin: 8px 8px 0px;
-				flex-shrink: 0;
-				border-width: 0px 0px thin;
-				border-style: solid;
-				border-color: rgba(0, 0, 0, 0.12);
-			}
 
 		.loading-spinner,
 		.no-applications,

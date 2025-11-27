@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+#   Gianfranco Cedro
+
+de:
+    decidim:
+        admin_header:
+            tools: 'Werkzeuge'
+            help: 'Hilfe'
+            user_menu: 'Benutzermenü'
+            log_out: 'Abmelden'
