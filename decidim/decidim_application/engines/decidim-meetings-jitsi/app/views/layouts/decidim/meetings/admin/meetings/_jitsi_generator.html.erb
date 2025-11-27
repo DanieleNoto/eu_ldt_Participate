@@ -1,10 +1,9 @@
-<!--
+<%#
   SPDX-License-Identifier: AGPL-3.0
   Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
   Authors:
     Gianfranco Cedro
--->
-
+%>
 <% component = meeting.try(:component) || form.object.try(:component) %>
 <% if component&.settings&.enable_jitsi_generator %>
   <div class="row column jitsi-generator-section" id="jitsi-generator-section" style="display: none;">
