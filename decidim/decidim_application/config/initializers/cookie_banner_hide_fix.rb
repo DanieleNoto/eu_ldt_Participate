@@ -7,7 +7,7 @@
 # Cookie Banner Fix for Login Page
 #
 # This middleware injects a script that hides the cookie banner on the login page
-# if the user has already accepted cookies (decidim-consent cookie is set).
+# if the user has already accepted cookies (cookie_consent or decidim-consent cookie is set).
 #
 # This fixes a bug in Decidim where the banner shows on login even after acceptance.
 class CookieBannerHideFix
@@ -76,32 +76,70 @@ class CookieBannerHideFix
       <script>
         (function() {
           // Hide cookie banner if cookies already accepted
+          function getCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for(var i=0; i < ca.length; i++) {
+              var c = ca[i];
+              while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+              if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+          }
+
           function hideBannerIfAccepted() {
-            var cookieName = 'decidim-consent';
-            var cookie = document.cookie.split('; ').find(row => row.startsWith(cookieName + '='));
-      #{"      "}
-            if (cookie) {
+            // Check decidim-consent cookie
+            var consentCookie = getCookie('decidim-consent');
+            var hasAcceptedCookies = false;
+
+            if (consentCookie) {
               try {
-                var cookieValue = JSON.parse(decodeURIComponent(cookie.split('=')[1]));
-                // If any consent is accepted, hide the banner
-                if (cookieValue.essential || cookieValue.preferences || cookieValue.analytics || cookieValue.marketing) {
-                  // Find and hide the cookie banner
-                  var banner = document.querySelector('[data-consent-bar], .cookie-bar, [class*="cookie"], [id*="cookie"]');
-                  if (banner) {
-                    banner.style.display = 'none';
-                  }
+                var decoded = decodeURIComponent(consentCookie);
+                var cookieValue = JSON.parse(decoded);
+                // If essential consent is accepted, hide the banner
+                if (cookieValue.essential === true) {
+                  hasAcceptedCookies = true;
                 }
               } catch (e) {
-                console.debug('Failed to parse decidim-consent cookie:', e);
+                // If parsing fails, check if it's just 'true'
+                if (consentCookie === 'true' || decoded === 'true') {
+                  hasAcceptedCookies = true;
+                }
               }
+            }
+
+            if (hasAcceptedCookies) {
+              // Find and hide the cookie banner with multiple selectors
+              var selectors = [
+                '[data-consent]',
+                '[data-consent-bar]',#{" "}
+                '.cookie-bar',
+                '.cookie-banner',
+                '.cookies-eu',
+                '[class*="cookie"][class*="banner"]',
+                '[id*="cookie"][id*="banner"]',
+                '[data-cookies]'
+              ];
+      #{"        "}
+              selectors.forEach(function(selector) {
+                var elements = document.querySelectorAll(selector);
+                elements.forEach(function(element) {
+                  element.style.display = 'none';
+                  element.style.visibility = 'hidden';
+                  element.setAttribute('hidden', 'true');
+                });
+              });
+      #{"        "}
+              console.debug('Cookie banner hidden - consent already given');
             }
           }
       #{"    "}
-          // Run immediately and also wait for DOM to be ready
+          // Run immediately
+          hideBannerIfAccepted();
+      #{"    "}
+          // Run on DOM ready
           if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', hideBannerIfAccepted);
-          } else {
-            hideBannerIfAccepted();
           }
       #{"    "}
           // Also run as mutation observer in case banner is added dynamically
@@ -109,10 +147,20 @@ class CookieBannerHideFix
             hideBannerIfAccepted();
           });
       #{"    "}
-          observer.observe(document.body || document.documentElement, {
-            childList: true,
-            subtree: true
-          });
+          if (document.body) {
+            observer.observe(document.body, {
+              childList: true,
+              subtree: true
+            });
+          } else {
+            // Body not ready yet, wait for it
+            document.addEventListener('DOMContentLoaded', function() {
+              observer.observe(document.body, {
+                childList: true,
+                subtree: true
+              });
+            });
+          }
         })();
       </script>
     JAVASCRIPT
