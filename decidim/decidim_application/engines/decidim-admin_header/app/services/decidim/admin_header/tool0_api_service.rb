@@ -68,7 +68,7 @@ module Decidim
         # Try to get JWT token from current user's session or request
         if current_user
           # Try to get JWT token from session (if stored during OAuth login)
-          jwt_token = get_jwt_from_session
+          jwt_token = jwt_from_session
           return jwt_token if jwt_token
 
           # Try to get from user's OAuth data if available
@@ -98,7 +98,7 @@ module Decidim
         keycloak_token || tool0_token
       end
 
-      def get_jwt_from_session
+      def jwt_from_session
         # Try to get JWT token from current request/session
         # This might be available in different places depending on the OAuth setup
 

@@ -15,6 +15,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Tool0 LDT Header integration"
   spec.description = "Integration of Tool0 LDT Header into Decidim."
   spec.license = "AGPL-3.0-or-later"
+  spec.required_ruby_version = ">= 3.2"
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/decidim/decidim"
 
