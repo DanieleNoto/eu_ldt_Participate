@@ -8,7 +8,6 @@
 const { config } = require('shakapacker');
 const { InjectManifest } = require('workbox-webpack-plugin');
 const { EsbuildPlugin } = require('esbuild-loader');
-const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
 	module: {
@@ -107,21 +106,6 @@ module.exports = {
 		}
 	},
 	plugins: [
-		// Copy workbox-sw.js to decidim-packs/js/ so the Service Worker can import it
-		new CopyPlugin({
-			patterns: [
-				{
-					from: 'node_modules/workbox-sw/build/workbox-sw.js',
-					to: 'js/workbox-sw.js',
-					force: true
-				},
-				{
-					from: 'node_modules/workbox-sw/build/workbox-sw.js.map',
-					to: 'js/workbox-sw.js.map',
-					force: true
-				}
-			]
-		}),
 		new InjectManifest({
 			swSrc: 'src/decidim/sw/sw.js',
 

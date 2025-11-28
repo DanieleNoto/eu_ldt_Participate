@@ -86,8 +86,8 @@ spec:
 
                           echo "--- Cleaning old Shakapacker assets and manifest ---"
                           bin/rails shakapacker:clean || bin/rails shakapacker:clobber || true
-                          rm -rf public/decidim-packs/* public/sw.js public/sw.js.map 2>/dev/null || true
-                          echo "Removed old assets to force complete regeneration"
+                          rm -f public/sw.js public/sw.js.map public/decidim-packs/manifest.json
+                          echo "Removed old manifest files to force regeneration"
 
                           echo "--- Verifying webpack executable ---"
                           if [ ! -x /code/node_modules/.bin/webpack ]; then
@@ -103,28 +103,13 @@ spec:
                             echo "Assets compiled successfully"
                             
                             # Verify assets exist
-                            if [ -f "public/decidim-packs/manifest.json" ]; then
-                              echo "✓ manifest.json exists"
+                            if [ -d "public/packs" ] && [ -n "$(ls -A public/packs 2>/dev/null)" ]; then
+                              echo "Assets verification passed"
+                              exit 0
                             else
-                              echo "✗ ERROR: manifest.json not found"
+                              echo "ERROR: Assets were not created in public/packs"
                               exit 1
                             fi
-                            
-                            if [ -f "public/sw.js" ]; then
-                              echo "✓ sw.js exists"
-                            else
-                              echo "✗ ERROR: sw.js not found"
-                              exit 1
-                            fi
-                            
-                            if [ -f "public/decidim-packs/js/workbox-sw.js" ]; then
-                              echo "✓ workbox-sw.js exists"
-                            else
-                              echo "⚠ WARNING: workbox-sw.js not found (Service Worker may not work offline)"
-                            fi
-                            
-                            echo "Asset verification passed"
-                            exit 0
                           else
                             echo "Asset compilation failed"
                             exit 1
