@@ -86,8 +86,8 @@ spec:
 
                           echo "--- Cleaning old Shakapacker assets and manifest ---"
                           bin/rails shakapacker:clean || bin/rails shakapacker:clobber || true
-                          rm -f public/sw.js public/sw.js.map public/decidim-packs/manifest.json
-                          echo "Removed old manifest files to force regeneration"
+                          rm -rf public/decidim-packs/* public/sw.js public/sw.js.map 2>/dev/null || true
+                          echo "Removed old assets to force complete regeneration"
 
                           echo "--- Verifying webpack executable ---"
                           if [ ! -x /code/node_modules/.bin/webpack ]; then
@@ -103,13 +103,28 @@ spec:
                             echo "Assets compiled successfully"
                             
                             # Verify assets exist
-                            if [ -d "public/packs" ] && [ -n "$(ls -A public/packs 2>/dev/null)" ]; then
-                              echo "Assets verification passed"
-                              exit 0
+                            if [ -f "public/decidim-packs/manifest.json" ]; then
+                              echo "✓ manifest.json exists"
                             else
-                              echo "ERROR: Assets were not created in public/packs"
+                              echo "✗ ERROR: manifest.json not found"
                               exit 1
                             fi
+                            
+                            if [ -f "public/sw.js" ]; then
+                              echo "✓ sw.js exists"
+                            else
+                              echo "✗ ERROR: sw.js not found"
+                              exit 1
+                            fi
+                            
+                            if [ -f "public/decidim-packs/js/workbox-sw.js" ]; then
+                              echo "✓ workbox-sw.js exists"
+                            else
+                              echo "⚠ WARNING: workbox-sw.js not found (Service Worker may not work offline)"
+                            fi
+                            
+                            echo "Asset verification passed"
+                            exit 0
                           else
                             echo "Asset compilation failed"
                             exit 1
@@ -161,9 +176,9 @@ spec:
                         name: decidim-pvc
                       - mountPath: /code/tmp
                         name: tmp-volume
-                      - mountPath: /code/log 
+                      - mountPath: /code/log
                         name: tmp-volume
-                                         
+
                 - name: open-data-exporter
                   image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   envFrom:
@@ -312,22 +327,22 @@ spec:
                   image: cr.fluentbit.io/fluent/fluent-bit:2.2-debug
                   imagePullPolicy: IfNotPresent
                   securityContext:
-                    runAsUser: 0    # usuario no root
-                    runAsGroup: 0
-                    allowPrivilegeEscalation: false
+                      runAsUser: 0 # usuario no root
+                      runAsGroup: 0
+                      allowPrivilegeEscalation: false
                   resources:
-                    requests:
-                      cpu: "100m"
-                      memory: "100Mi"
-                    limits:
-                      cpu: "200m"
-                      memory: "200Mi"
+                      requests:
+                          cpu: '100m'
+                          memory: '100Mi'
+                      limits:
+                          cpu: '200m'
+                          memory: '200Mi'
                   volumeMounts:
-                   - name: tmp-volume
-                     mountPath: /code/log
-                   - name: config
-                     mountPath: /fluent-bit/etc/ 
- 
+                      - name: tmp-volume
+                        mountPath: /code/log
+                      - name: config
+                        mountPath: /fluent-bit/etc/
+
             volumes:
                 - name: tmp-volume
                   emptyDir: {}
@@ -335,8 +350,7 @@ spec:
                   emptyDir: {}
                 - name: config
                   configMap:
-                    name: fluent-configmap
-
+                      name: fluent-configmap
 
     volumeClaimTemplates:
         - metadata:

@@ -112,11 +112,13 @@ module.exports = {
 			patterns: [
 				{
 					from: 'node_modules/workbox-sw/build/workbox-sw.js',
-					to: 'js/workbox-sw.js'
+					to: 'js/workbox-sw.js',
+					force: true
 				},
 				{
 					from: 'node_modules/workbox-sw/build/workbox-sw.js.map',
-					to: 'js/workbox-sw.js.map'
+					to: 'js/workbox-sw.js.map',
+					force: true
 				}
 			]
 		}),
