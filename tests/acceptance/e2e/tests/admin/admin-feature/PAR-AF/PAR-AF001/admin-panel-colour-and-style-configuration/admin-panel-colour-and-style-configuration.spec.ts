@@ -1,8 +1,12 @@
-import test, { expect } from '@playwright/test';
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
+import { test, expect } from '@fixtures/parallel-test';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { DecidimAwesomeAdminPage } from '@pages/pages/admin/DecidimAwesomeAdminPage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 
 /**
  * Allows administrators to customize admin style CSS at runtime.
@@ -12,31 +16,23 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The administrator has an active account on the platform and is logged in.
  * - The admin panel has access to a CSS configuration module for style updates.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-	await page.close();
-	await context.close();
-});
 
 test.describe('[PAR-AF001] – Admin panel colour and style configuration', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let decidimAwesomeAdminPage: DecidimAwesomeAdminPage;
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		decidimAwesomeAdminPage = new DecidimAwesomeAdminPage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		decidimAwesomeAdminPage = new DecidimAwesomeAdminPage(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
 	});
 
 	test.describe('Main Flow', () => {
-		test('should configure the colour scheme and style of the admin panel', async ({ page }) => {
+		test('should configure the colour scheme and style of the admin panel', async ({ adminPage }) => {
 			await test.step('1. User: Navigates to the "Settings -> Custom style -> Admin Panel" section of the admin panel.', async () => {
 				await adminHomePage.navigateToDecidimAwesome();
 
-				await expect(page).toHaveURL(/.*\/admin\/decidim_awesome\/config\/editors/);
+				await expect(adminPage).toHaveURL(/.*\/admin\/decidim_awesome\/config\/editors/);
 
 				await decidimAwesomeAdminPage.navigateToCustomStyles();
 				await decidimAwesomeAdminPage.navigateToAdminPanelConfig();

@@ -1,3 +1,10 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ * Simone Bianchelli
+ */
+
 import { expect, Locator, Page } from '@playwright/test';
 import { LocalizationUtils } from '../../../../../../utils/localization.utils';
 import { SidebarProcessDetailComponent } from '../../../../../components/admin/process/detail/SidebarProcessDetailComponent';
@@ -137,7 +144,11 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 
 	// Step announcement methods using LocalizationUtils (English-only)
 	async fillStepAnnouncement(content: string): Promise<void> {
-		const editorLocator = this.page.locator('#panel-step_settings').getByLabel('Announcement');
+		const selector = await LocalizationUtils.getWorkingLocalizedSelector(
+			this.getPage(),
+			'component_step_settings_1_announcement'
+		);
+		const editorLocator = this.getPage().locator(`${selector} .tiptap`);
 		await editorLocator.scrollIntoViewIfNeeded();
 		// Wait for the rich text editor to be ready
 		await editorLocator.waitFor({ state: 'visible' });

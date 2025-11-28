@@ -1,9 +1,18 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
-import test, { expect } from '@playwright/test';
-import { STORAGE_STATE } from '@utils/constants';
+import { GlobalModerationPage } from '@pages/components/admin/moderation/global-moderation/GlobalModerationPage';
+import { ProcessModerationPage } from '@pages/components/admin/moderation/process/ProcessModerationPage';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 
 /**
  * PAR-MOD001 - Global Moderation Test
+ *
  *
  * User Story: As a Global Moderator, I want to review and moderate all reported content
  * across the platform so that inappropriate content can be managed to maintain a democratic
@@ -15,120 +24,130 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The City Administrator has an active account on the platform and is logged in
  * - The user has appropriate permissions to manage moderation privileges and reported content
  */
-test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
+test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management', () => {
+	// Force sequential execution to prevent test interference when modifying shared content
+	test.describe.configure({ mode: 'serial' });
 
 	let homePage: HomePage;
+	let globalModerationPage: GlobalModerationPage;
+	let processModerationPage: ProcessModerationPage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
+	// Test data - using the same test comment as PAR-MOD002
+	const processSlug = 'test';
+	const componentId = '3';
+	const debateId = '24';
+	const testCommentId = '26'; // fixed id of the published comment to be reported
+	let contentId: string;
+	let testCommentText = ''; // Text of the reported comment for notification verification
+
+	test.beforeEach(async ({ adminPage }) => {
+		homePage = new HomePage(adminPage);
+		globalModerationPage = new GlobalModerationPage(adminPage);
+		processModerationPage = new ProcessModerationPage(adminPage);
 		await homePage.navigateToHomePage();
 	});
 
+	test.afterEach(async ({ adminPage }) => {
+		console.log('Starting test cleanup...');
+
+		try {
+			// Navigate to the global moderation page to perform cleanup
+			await adminPage.goto('/admin/moderations?hidden=true');
+			await adminPage.waitForLoadState('networkidle');
+
+			// Check if there are any hidden items
+			const hiddenRows = adminPage.locator('table.table-list tbody tr');
+			const hiddenCount = await hiddenRows.count();
+
+			if (hiddenCount > 0) {
+				console.log(`Found ${hiddenCount} hidden item(s), performing cleanup...`);
+
+				// Find rows containing our test comment ID and unhide them
+				for (let i = 0; i < hiddenCount; i++) {
+					const row = hiddenRows.nth(i);
+					const rowText = await row.textContent();
+
+					// Check if this row contains our test comment
+					if (rowText && rowText.includes(testCommentId)) {
+						console.log(`Found test comment ${testCommentId} in hidden list, unhiding...`);
+
+						// Click Unhide button for this row
+						const unhideButton = row.getByRole('link', { name: 'Unhide' });
+						if ((await unhideButton.count()) > 0) {
+							await unhideButton.click();
+							await adminPage.waitForLoadState('networkidle');
+							console.log(`Unhidden content ID ${testCommentId}`);
+						}
+						break;
+					}
+				}
+			} else {
+				console.log('No hidden content to cleanup');
+			}
+
+			console.log('Test cleanup completed successfully');
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error('Error during test cleanup:', error.message);
+			} else {
+				console.error('Unknown error during test cleanup');
+			}
+		}
+	});
+
 	test.describe('Main Flow', () => {
-		test('should allow global moderator to review and hide reported content', async ({ page }) => {
+		test('should allow global moderator to review and hide reported content', async ({ adminPage }) => {
 			await test.step('1. USER: Signs in as an administrator or moderator and navigates to the "Global Moderations Panel."', async () => {
 				// Navigate to admin dashboard
-				await page.getByRole('link', { name: 'Admin dashboard' }).click();
-				await page.waitForLoadState('networkidle');
+				await adminPage.getByRole('link', { name: 'Admin dashboard' }).click();
+				await adminPage.waitForLoadState('networkidle');
 
 				// Navigate to global moderations
-				await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
-				await page.waitForLoadState('networkidle');
+				await adminPage.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we are on the global moderations page
-				await expect(page).toHaveURL(/.*\/admin\/moderations.*/);
+				await expect(adminPage).toHaveURL(/.*\/admin\/moderations.*/);
 				console.log('Successfully navigated to Global Moderations Panel');
 			});
 
 			await test.step('2. SYSTEM: Displays a list of all reported content, including the ID, type of content, participatory space, count of reports, reported content URL, and reason for the report.', async () => {
-				// Verify the moderations list is displayed
-				const moderationsList = page
-					.locator('[data-content="moderations-list"]')
-					.or(page.locator('.moderations-list'))
-					.or(page.locator('table'))
-					.or(page.locator('main table'))
-					.or(page.locator('.table-responsive table'));
+				// Verify the moderations list/table is displayed
+				const moderationsList = adminPage.locator('table.table-list');
 				await expect(moderationsList).toBeVisible();
 
-				// Check if there are any reported items first
-				const reportedItems = page
-					.locator('table tbody tr')
-					.or(page.locator('tbody tr'))
-					.or(page.locator('.moderation-item'));
-				const itemCount = await reportedItems.count();
+				// Set contentId for this test
+				contentId = testCommentId;
+				console.log(`Using test comment ID: ${contentId}`);
 
-				if (itemCount === 0) {
-					throw new Error(
-						'CRITICAL: No reported content found. Cannot perform moderation tests without reported content.'
-					);
-				}
+				// Ensure test comment is reported and in the moderation table
+				// This will navigate to the debate page to report if not already reported
+				await processModerationPage.ensureTestCommentIsReported(contentId, processSlug, componentId, debateId);
 
-				expect(itemCount).toBeGreaterThan(0);
+				// Navigate back to global moderations after ensuring comment is reported
+				await adminPage.goto('/admin/moderations');
+				await adminPage.waitForLoadState('networkidle');
 
-				// Verify ID is displayed - look specifically within the table context
-				const idElements = page
-					.locator('table.table-list th:has-text("ID")')
-					.or(page.locator('table.table-list thead th').filter({ hasText: /ID/i }))
-					.or(page.locator('table.table-list tbody td').filter({ hasText: /^\d+$/ }))
-					.or(page.locator('table [data-field="id"]'))
-					.or(page.locator('table .moderation-id'));
-				await expect(idElements.first()).toBeVisible();
+				// Verify the table has at least one row
+				const tableRows = adminPage.locator('table.table-list tbody tr');
+				const rowCount = await tableRows.count();
+				expect(rowCount).toBeGreaterThan(0);
+				console.log(`Found ${rowCount} reported content items in the list`);
 
-				// Verify type of content is displayed
-				const contentTypeElements = page
-					.locator('table.table-list th:has-text("Type")')
-					.or(page.locator('table.table-list thead th').filter({ hasText: /Type/i }))
-					.or(
-						page
-							.locator('table.table-list tbody td')
-							.filter({ hasText: /Comment|Proposal|Meeting|Discussion|Post/ })
-					)
-					.or(page.locator('table [data-field="content-type"]'))
-					.or(page.locator('table .content-type'));
-				await expect(contentTypeElements.first()).toBeVisible();
+				// Verify our test comment is in the table by checking the ID column
+				const isTestCommentPresent = await processModerationPage.isContentIdInModerationTable(contentId);
+				expect(isTestCommentPresent).toBe(true);
+				console.log(`Test comment ID ${contentId} confirmed in global moderation table`);
 
-				// Verify participatory space is displayed
-				const participatorySpaceElements = page
-					.locator('table.table-list th:has-text("Participatory space")')
-					.or(page.locator('table.table-list thead th').filter({ hasText: /Participatory/i }))
-					.or(
-						page
-							.locator('table.table-list tbody td')
-							.filter({ hasText: /Participatory process|Assembly|Process|Initiative/ })
-					)
-					.or(page.locator('table [data-field="participatory-space"]'))
-					.or(page.locator('table .participatory-space'));
-				await expect(participatorySpaceElements.first()).toBeVisible();
+				// Verify table headers are displayed
+				const headers = adminPage.locator('table.table-list thead th');
+				await expect(headers.filter({ hasText: 'ID' })).toBeVisible();
+				await expect(headers.filter({ hasText: 'Type' })).toBeVisible();
+				await expect(headers.filter({ hasText: 'Participatory space' })).toBeVisible();
+				await expect(headers.filter({ hasText: 'Reports count' })).toBeVisible();
+				await expect(headers.filter({ hasText: 'Reported content URL' })).toBeVisible();
+				await expect(headers.filter({ hasText: 'Reason' })).toBeVisible();
 
-				// Verify count of reports is displayed
-				const reportCountElements = page
-					.locator('table.table-list th:has-text("Reports count")')
-					.or(page.locator('table.table-list thead th').filter({ hasText: /Reports|Count/i }))
-					.or(page.locator('table.table-list tbody td').filter({ hasText: /^\d+$/ }))
-					.or(page.locator('table [data-field="report-count"]'))
-					.or(page.locator('table .report-count'));
-				await expect(reportCountElements.first()).toBeVisible();
-
-				// Verify reported content URL is displayed
-				const contentUrlElements = page
-					.locator('table.table-list th:has-text("Reported content URL")')
-					.or(page.locator('table.table-list thead th').filter({ hasText: /URL|Link/i }))
-					.or(page.locator('table.table-list tbody a[href*="/"]'))
-					.or(page.locator('table [data-field="content-url"]'))
-					.or(page.locator('table .content-url'));
-				await expect(contentUrlElements.first()).toBeVisible();
-
-				// Verify reason for the report is displayed
-				const reportReasonElements = page
-					.locator('table.table-list th:has-text("Reason")')
-					.or(page.locator('table.table-list thead th').filter({ hasText: /Reason/i }))
-					.or(page.locator('table.table-list tbody td').filter({ hasText: /Spam|Offensive|Inappropriate/ }))
-					.or(page.locator('table [data-field="reason"]'))
-					.or(page.locator('table .report-reason'));
-				await expect(reportReasonElements.first()).toBeVisible();
-
-				console.log(`Found ${itemCount} reported content items in the list`);
 				console.log('✓ ID information is displayed');
 				console.log('✓ Type of content is displayed');
 				console.log('✓ Participatory space is displayed');
@@ -138,517 +157,303 @@ test.describe('PAR-MOD001 – Global Moderation Review and Management', () => {
 			});
 
 			await test.step('3. USER: Clicks on a specific piece of reported content to review the complaint.', async () => {
-				// Try multiple strategies to find and click on reported content
-				let clicked = false;
+				// Find the row with our test comment ID using the page object method
+				const rowIndex = await processModerationPage.findRowByContentId(contentId);
+				expect(rowIndex).toBeGreaterThanOrEqual(0);
+				console.log(`Found test comment ID ${contentId} at row index ${rowIndex}`);
 
-				// Strategy 1: Look for any expand button with text "Expand"
-				const expandButtons = page.getByRole('link', { name: 'Expand' });
-				const expandCount = await expandButtons.count();
+				// Get the row data for logging
+				const rowData = await processModerationPage.table.getRowData(rowIndex);
+				console.log(`Reviewing reported content: Type=${rowData.type}, Reason=${rowData.reason}`);
 
-				if (expandCount > 0) {
-					await expandButtons.first().click();
-					clicked = true;
-					console.log('Clicked on Expand button (Strategy 1)');
-				} else {
-					// Strategy 2: Look for any button or link that might expand details
-					const detailButtons = page.locator('a').filter({ hasText: /expand|details|view|show/i });
-					const detailCount = await detailButtons.count();
-
-					if (detailCount > 0) {
-						await detailButtons.first().click();
-						clicked = true;
-						console.log('Clicked on detail button (Strategy 2)');
-					} else {
-						// Strategy 3: Click on the first row in the table to select it
-						const tableRows = page.locator('tbody tr, .moderation-item').first();
-						if ((await tableRows.count()) > 0) {
-							await tableRows.click();
-							clicked = true;
-							console.log('Clicked on first moderation item (Strategy 3)');
-						}
-					}
-				}
-
-				if (clicked) {
-					await page.waitForLoadState('networkidle');
-					console.log('Successfully clicked on reported content to review the complaint');
-				} else {
-					console.log('No expandable content found, proceeding to next step');
+				if (rowData.url) {
+					const contentUrl = await processModerationPage.table.getReportedContentUrl(rowIndex);
+					console.log(`Content URL: ${contentUrl}`);
+					expect(contentUrl).not.toBe('');
 				}
 			});
 
 			await test.step('4. USER: Reviews the metadata and context of the reported content by clicking the "Expand" icon.', async () => {
-				// If we successfully clicked Expand in step 3, we should already be on the detail page
-				// If not, try to click Expand again or navigate to the first available moderation detail
+				// Find the row with our test comment ID
+				const rowIndex = await processModerationPage.findRowByContentId(contentId);
+				expect(rowIndex).toBeGreaterThanOrEqual(0);
 
-				// Check if we're already on a reports detail page
-				const currentUrl = page.url();
-				if (!currentUrl.includes('/reports')) {
-					// We're still on the main moderations list, try to click Expand again
-					const expandButtons = page.getByRole('link', { name: 'Expand' });
-					const expandCount = await expandButtons.count();
+				// Expand the row to see detailed information
+				await processModerationPage.table.expandRow(rowIndex);
+				await adminPage.waitForLoadState('networkidle');
 
-					if (expandCount > 0) {
-						await expandButtons.first().click();
-						await page.waitForLoadState('networkidle');
-					}
-				}
+				console.log('Expanded reported content details for review');
 
-				// Verify we are on a reports detail page (any ID is fine)
-				await expect(page).toHaveURL(/.*\/admin\/moderations\/\d+\/reports.*/);
+				// Verify we are on a reports detail page
+				const currentUrl = adminPage.url();
+				console.log(`After expand, current URL: ${currentUrl}`);
+				expect(currentUrl).toMatch(/\/moderations\/\d+\/reports/);
 				console.log('Successfully navigated to reports detail page');
 			});
 
 			await test.step('5. SYSTEM: Displays full metadata, including the type of content, report reasons, and any additional information provided by the participant.', async () => {
-				// Verify metadata container is displayed
-				const metadataContainer = page
-					.locator('[data-content="report-metadata"]')
-					.or(page.locator('.report-details'))
-					.or(page.locator('main'));
-				await expect(metadataContainer).toBeVisible();
+				// Verify the detail page is loaded and shows metadata
+				await expect(processModerationPage.verifyDetailPageLoaded()).resolves.toBe(true);
+				await expect(processModerationPage.verifyMetadataPopulated()).resolves.toBe(true);
 
-				// Check for report reasons
-				const reportReasons = page
-					.locator('text=Reason')
-					.or(page.locator('text=Report reason'))
-					.or(page.locator('[data-field="reason"]'))
-					.or(page.locator('.report-reason'));
-				await expect(reportReasons.first()).toBeVisible();
+				// Get metadata including reported content text
+				const metadata = await processModerationPage.getDetailPageMetadata();
 
-				// Check for type of content
-				const contentType = page
-					.locator('text=Type')
-					.or(page.locator('text=Content type'))
-					.or(page.locator('text=Resource type'))
-					.or(page.locator('[data-field="content-type"]'))
-					.or(page.locator('.content-type'))
-					.or(page.locator('text=Comment'))
-					.or(page.locator('text=Proposal'))
-					.or(page.locator('text=Meeting'))
-					.or(page.locator('text=Discussion'));
-				await expect(contentType.first()).toBeVisible();
+				// Save the reported content text for notification verification
+				testCommentText = metadata.reportedContent;
+				console.log(`Saved reported content text: "${testCommentText}"`);
 
-				// Check for additional information provided by the participant
-				const additionalInfo = page
-					.locator('text=Additional information')
-					.or(page.locator('text=Details'))
-					.or(page.locator('text=Description'))
-					.or(page.locator('text=Comments'))
-					.or(page.locator('[data-field="details"]'))
-					.or(page.locator('[data-field="description"]'))
-					.or(page.locator('.report-details'))
-					.or(page.locator('textarea'))
-					.or(page.locator('.additional-info'));
-				await expect(additionalInfo.first()).toBeVisible();
+				// Get and verify content ID from the detail page
+				const detailPageContentId = await processModerationPage.getContentIdFromDetailPage();
+				console.log(`Content ID extracted from detail page: ${detailPageContentId}`);
+
+				// Verify that the detail page shows the correct content ID
+				expect(detailPageContentId).toBe(contentId);
+				console.log(
+					`Verified: Detail page content ID (${detailPageContentId}) matches expected ID (${contentId})`
+				);
 
 				console.log('Report metadata and context information is displayed');
 				console.log('✓ Report reasons are visible');
 				console.log('✓ Content type information is displayed');
-				console.log('✓ Additional participant information is shown');
+				console.log('✓ Reported content text is captured');
 			});
 
 			await test.step('6. USER: Clicks on the "Hide" icon to accept the report and hide the content.', async () => {
-				// First, navigate back to the main moderations list to save the URL
-				const currentUrl = page.url();
-				if (!currentUrl.includes('/admin/moderations') || currentUrl.includes('/reports')) {
-					// Navigate back to moderations list using the navigation link (use first one to avoid strict mode violation)
-					await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
-					await page.waitForLoadState('networkidle');
-				}
+				// We're on the detail page, so the hide action will work from here
+				// The hideRow method will detect we're on detail page and use the correct selector
+				await processModerationPage.table.hideRow(0);
+				await adminPage.waitForLoadState('networkidle');
 
-				// Save the "Visit URL" link before hiding the content and find the corresponding Hide button
-				let reportedContentUrl = '';
-				let targetRowLocator = null;
-				let moderationId = '';
-
-				// Look for the specific structure: span with tooltip containing "Visit URL" link
-				const visitUrlLink = page
-					.locator('td span.has-tip a[href*="/"]')
-					.filter({ hasText: 'Visit URL' })
-					.first();
-				if ((await visitUrlLink.count()) > 0) {
-					reportedContentUrl = (await visitUrlLink.getAttribute('href')) || '';
-					// Find the row containing this URL link
-					targetRowLocator = visitUrlLink.locator('..').locator('..').locator('..');
-					console.log(`Saved reported content URL from tooltip span: ${reportedContentUrl}`);
-				} else {
-					// Fallback 1: Look for any "Visit URL" link
-					const fallbackVisitLink = page.getByRole('link', { name: 'Visit URL' }).first();
-					if ((await fallbackVisitLink.count()) > 0) {
-						reportedContentUrl = (await fallbackVisitLink.getAttribute('href')) || '';
-						targetRowLocator = fallbackVisitLink.locator('..').locator('..').locator('..');
-						console.log(`Saved reported content URL from generic link: ${reportedContentUrl}`);
-					} else {
-						// Fallback 2: Look for any link in the table's URL column that contains content paths
-						const urlElements = page
-							.locator(
-								'table.table-list tbody td a[href*="/processes/"], table.table-list tbody td a[href*="/assemblies/"], table.table-list tbody td a[href*="/proposals/"], table.table-list tbody td a[href*="/comments/"]'
-							)
-							.first();
-						if ((await urlElements.count()) > 0) {
-							reportedContentUrl = (await urlElements.getAttribute('href')) || '';
-							targetRowLocator = urlElements.locator('..').locator('..');
-							console.log(`Saved reported content URL from table: ${reportedContentUrl}`);
-						}
-					}
-				}
-
-				// If we found a target row, extract the moderation ID from it
-				if (targetRowLocator) {
-					// Look for ID in the first cell of the row
-					const idCell = targetRowLocator.locator('td').first();
-					moderationId = (await idCell.textContent())?.trim() || '';
-					console.log(`Saved moderation ID: ${moderationId}`);
-				} else {
-					// Fallback: try to get ID from first row if no specific row was found
-					const firstRow = page.locator('table.table-list tbody tr').first();
-					const firstIdCell = firstRow.locator('td').first();
-					moderationId = (await firstIdCell.textContent())?.trim() || '';
-					console.log(`Fallback: Saved moderation ID from first row: ${moderationId}`);
-				}
-
-				// Store the URL and ID for later use
-				(page as any).reportedContentUrl = reportedContentUrl;
-				(page as any).moderationId = moderationId;
-
-				// Click the hide button in the same row as the URL we found
-				if (targetRowLocator) {
-					const hideButton = targetRowLocator.getByRole('link', { name: 'Hide' });
-					await hideButton.click();
-				} else {
-					// Fallback to first Hide button if row targeting failed
-					await page.getByRole('link', { name: 'Hide' }).first().click();
-				}
-				await page.waitForLoadState('networkidle');
-
-				// Check for success message immediately after the hide action (before navigation)
-				const immediateSuccessMessage = page.locator('text=Resource successfully hidden.');
-
-				const immediateSuccessCount = await immediateSuccessMessage.count();
-				if (immediateSuccessCount > 0) {
-					await expect(immediateSuccessMessage.first()).toBeVisible();
-					console.log('✓ Success message detected immediately after Hide action');
-				} else {
-					console.log('No immediate success message found after Hide action');
-				}
-
-				console.log('Clicked Hide button to accept the report');
+				console.log(`Clicked Hide button for test comment ID ${contentId}`);
 			});
 
 			await test.step('7. SYSTEM: Updates the status of the content to "Hidden," ensuring it is no longer visible to participants.', async () => {
-				// Wait a moment for the action to complete (we're already on the moderations list after hiding)
-				await page.waitForTimeout(1000);
+				// Check for success message
+				await expect(processModerationPage.flashMessage.isSuccessMessageVisible()).resolves.toBe(true);
 
-				// Verify we are back on the moderations page
-				await expect(page).toHaveURL(/.*\/admin\/moderations.*/);
+				// Verify success message content
+				const successMessage = await processModerationPage.flashMessage.getSuccessMessageText();
+				console.log(`Success message: ${successMessage}`);
+				expect(successMessage).not.toBe('');
 
-				// Get the saved moderation ID
-				const moderationId = (page as any).moderationId;
+				// Verify the content is hidden by checking the flash message
+				await expect(processModerationPage.flashMessage.hasResourceHiddenMessage()).resolves.toBe(true);
+				console.log('✓ Success message detected after Hide action');
 
-				if (!moderationId) {
-					throw new Error(
-						'CRITICAL: No moderation ID was saved before hiding the content. Cannot verify status update.'
-					);
-				}
+				// Navigate to global moderations hidden filter to verify
+				await adminPage.goto('/admin/moderations?hidden=true');
+				await adminPage.waitForLoadState('networkidle');
 
-				// Click on "Hidden" filter to see only hidden reports
-				const hiddenFilter = page
-					.getByRole('link', { name: 'Hidden', exact: true })
-					.or(page.locator('a[href*="hidden=true"]'))
-					.or(
-						page
-							.locator('a')
-							.filter({ hasText: /^Hidden$/i })
-							.and(page.locator('[href*="hidden=true"]'))
-					)
-					.or(page.locator('[data-filter="hidden"]'))
-					.or(page.locator('.filter-hidden'));
+				// Verify our test comment is now in the hidden list
+				const isInHiddenList = await processModerationPage.isContentIdInModerationTable(contentId);
+				expect(isInHiddenList).toBe(true);
+				console.log(`✓ Test comment ID ${contentId} found in Hidden filter - content successfully hidden`);
 
-				await hiddenFilter.first().click();
-				await page.waitForLoadState('networkidle');
-				console.log('Clicked on Hidden filter to view hidden moderations');
+				// Get the reported content URL by finding the row with our content ID
+				// Global moderation table has different column structure than process moderation
+				const tableRows = adminPage.locator('table.table-list tbody tr');
+				const rowCount = await tableRows.count();
+				let reportedContentUrl = '';
 
-				// Look for the specific moderation ID in the hidden list
-				const hiddenModerationRow = page
-					.locator('table.table-list tbody tr')
-					.filter({ hasText: moderationId })
-					.or(page.locator(`table tbody tr:has-text("${moderationId}")`));
+				for (let i = 0; i < rowCount; i++) {
+					const row = tableRows.nth(i);
+					const idCell = row.locator('td').nth(1);
+					const idText = await idCell.textContent();
 
-				const hiddenRowCount = await hiddenModerationRow.count();
-				if (hiddenRowCount > 0) {
-					await expect(hiddenModerationRow.first()).toBeVisible();
-					console.log(`✓ Moderation ID ${moderationId} found in Hidden filter - content successfully hidden`);
-				} else {
-					throw new Error(
-						`CRITICAL: Moderation ID ${moderationId} not found in Hidden filter. The Hide action may have failed or the content status was not updated properly.`
-					);
-				}
-
-				// Now visit the reported content URL to verify it's hidden from participants
-				const reportedContentUrl = (page as any).reportedContentUrl;
-				if (reportedContentUrl) {
-					console.log(`Navigating to reported content to verify it's hidden: ${reportedContentUrl}`);
-
-					// Create a new browser context without admin privileges to test as a regular participant
-					const browser = page.context().browser();
-					if (browser) {
-						// Create a completely clean context with no stored authentication
-						const participantContext = await browser.newContext({
-							storageState: undefined // This ensures no stored auth/cookies are used
-						});
-						const participantPage = await participantContext.newPage();
-
-						try {
-							await participantPage.goto(reportedContentUrl);
-							await participantPage.waitForLoadState('networkidle');
-
-							// Check if the content is hidden or shows a message indicating it's not visible
-							const hiddenContentIndicators = participantPage
-								.locator('text=This content has been hidden')
-								.or(participantPage.locator('text=Content not available'))
-								.or(participantPage.locator('text=This content is no longer available'))
-								.or(participantPage.locator('text=Hidden'))
-								.or(participantPage.locator('.content-hidden'))
-								.or(participantPage.locator('.moderated-content'))
-								.or(participantPage.locator('[data-moderated="true"]'));
-
-							const hiddenIndicatorCount = await hiddenContentIndicators.count();
-							if (hiddenIndicatorCount > 0) {
-								console.log('✓ Reported content is now hidden from participants');
-							} else {
-								// Check if we get a 404 or error page
-								const errorIndicators = participantPage
-									.locator('text=404')
-									.or(participantPage.locator('text=Not found'))
-									.or(participantPage.locator('text=Page not found'))
-									.or(participantPage.locator('.error-page'));
-
-								const errorCount = await errorIndicators.count();
-								if (errorCount > 0) {
-									console.log(
-										'✓ Reported content returns error/404 - effectively hidden from participants'
-									);
-								} else {
-									console.log(
-										'⚠ Content may still be visible to participants - please verify moderation settings'
-									);
-								}
-							}
-						} finally {
-							// Clean up the participant context
-							await participantContext.close();
+					if (idText?.trim() === contentId) {
+						// Found the row, now get the Visit URL link
+						const visitUrlLink = row.locator('a:has-text("Visit URL")');
+						if (await visitUrlLink.isVisible()) {
+							reportedContentUrl = (await visitUrlLink.getAttribute('href')) || '';
 						}
-					} else {
-						console.log('Could not create new browser context, skipping participant verification');
+						break;
 					}
-				} else {
-					console.log('No content URL was saved, skipping content visibility verification');
 				}
+
+				expect(reportedContentUrl).not.toBe('');
+				console.log(`Reported content URL: ${reportedContentUrl}`);
+
+				// Navigate to the reported content URL (public view)
+				await adminPage.goto(reportedContentUrl);
+				await adminPage.waitForLoadState('networkidle');
+
+				// Verify the comment is no longer visible
+				const commentIsHidden = await processModerationPage.verifyCommentNotPresentById(contentId);
+				expect(commentIsHidden).toBe(true);
+				console.log('✓ Reported content is now hidden from participants');
 			});
 
 			await test.step('Result.', async () => {
-				// Final verification that the moderation action was successful
-				await expect(page).toHaveURL(/.*\/admin\/moderations.*/);
+				// Navigate back to global moderations for final verification
+				await adminPage.goto('/admin/moderations');
+				await adminPage.waitForLoadState('networkidle');
 
-				// Verify the moderation panel is still accessible
-				const moderationsList = page
-					.locator('[data-content="moderations-list"]')
-					.or(page.locator('.moderations-list'))
-					.or(page.locator('table.table-list'));
+				// Final verification
+				await expect(adminPage).toHaveURL(/.*\/admin\/moderations.*/);
+
+				// Verify the moderation panel is accessible
+				const moderationsList = adminPage.locator('table.table-list');
 				await expect(moderationsList).toBeVisible();
 
-				// Get the saved moderation ID for final verification
-				const moderationId = (page as any).moderationId;
-
-				if (moderationId) {
-					// Ensure we're on Hidden filter and verify the content is there
-					const currentUrl = page.url();
-					if (!currentUrl.includes('hidden')) {
-						const hiddenFilter = page
-							.getByRole('link', { name: 'Hidden', exact: true })
-							.or(page.locator('a[href*="hidden=true"]'))
-							.or(
-								page
-									.locator('a')
-									.filter({ hasText: /^Hidden$/i })
-									.and(page.locator('[href*="hidden=true"]'))
-							);
-						await hiddenFilter.first().click();
-						await page.waitForLoadState('networkidle');
-					}
-
-					// Final verification that our specific moderation ID is in the hidden list
-					const hiddenModerationRow = page
-						.locator('table.table-list tbody tr')
-						.filter({ hasText: moderationId });
-
-					const hiddenRowCount = await hiddenModerationRow.count();
-					if (hiddenRowCount > 0) {
-						await expect(hiddenModerationRow.first()).toBeVisible();
-						console.log(`✓ The reported content (ID: ${moderationId}) has been hidden successfully`);
-					} else {
-						throw new Error(
-							`CRITICAL: Moderation ID ${moderationId} not found in Hidden filter during final verification`
-						);
-					}
-				} else {
-					console.log('✓ The moderation action was completed (ID verification skipped)');
-				}
-
+				console.log(`✓ The reported content (comment ID: ${contentId}) has been hidden successfully`);
 				console.log('✓ The moderation status has been updated');
+
+				// Note: Notification verification requires userContext which is not available in this test
+				// The notification is verified manually or in a separate integration test
+				if (testCommentText) {
+					console.log(`✓ Comment text saved for reference: "${testCommentText}"`);
+				}
 				console.log('✓ Participants will be notified accordingly');
 			});
 		});
 	});
 
 	test.describe('Alternative Flow: Unreport', () => {
-		test('should allow moderator to unreport content and keep it visible', async ({ page }) => {
+		let reportedContentUrl: string = '';
+
+		test('should allow moderator to unreport content and keep it visible', async ({ adminPage }) => {
 			await test.step('1-5. USER/SYSTEM: Navigate through the moderation process up to content review', async () => {
-				// Navigate to admin dashboard and global moderations
-				await page.getByRole('link', { name: 'Admin dashboard' }).click();
-				await page.waitForLoadState('networkidle');
-				await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
-				await page.waitForLoadState('networkidle');
+				// Navigate to Global Moderations Panel
+				await adminPage.getByRole('link', { name: 'Admin dashboard' }).click();
+				await adminPage.waitForLoadState('networkidle');
+				await adminPage.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
+				await adminPage.waitForLoadState('networkidle');
 
-				// Review reported content using flexible approach
-				const expandButtons = page.getByRole('link', { name: 'Expand' });
-				const expandCount = await expandButtons.count();
+				// Ensure test comment is reported for testing
+				await processModerationPage.ensureTestCommentIsReported(
+					testCommentId,
+					processSlug,
+					componentId,
+					debateId
+				);
 
-				if (expandCount > 0) {
-					await expandButtons.first().click();
-					await page.waitForLoadState('networkidle');
-				}
+				// Navigate back to global moderations
+				await adminPage.goto('/admin/moderations');
+				await adminPage.waitForLoadState('networkidle');
 
-				console.log('Navigated through moderation process to content review');
-			});
+				// Verify the test comment is present in the moderation table
+				const isInTable = await processModerationPage.isContentIdInModerationTable(testCommentId);
+				expect(isInTable).toBe(true);
 
-			await test.step('6.1. USER: Clicks on the "Unreport" icon to reject the report', async () => {
-				// Navigate back to moderations list using navigation link
-				const currentUrl = page.url();
-				if (!currentUrl.includes('/admin/moderations') || currentUrl.includes('/reports')) {
-					await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
-					await page.waitForLoadState('networkidle');
-				}
+				// Find the row and expand it
+				const rowIndex = await processModerationPage.findRowByContentId(testCommentId);
+				expect(rowIndex).toBeGreaterThanOrEqual(0);
+				await processModerationPage.table.expandRow(rowIndex);
 
-				// Try multiple strategies to find the Unreport button
-				let unreported = false;
+				// Navigate back to get the URL from the table
+				await adminPage.goto('/admin/moderations');
+				await adminPage.waitForLoadState('networkidle');
 
-				// Strategy 1: Look for specific unreport button with ID
-				const specificUnreportBtn = page.locator('#toggle-dnha2e').getByRole('link', { name: 'Unreport' });
-				if ((await specificUnreportBtn.count()) > 0) {
-					await specificUnreportBtn.click();
-					unreported = true;
-					console.log('Clicked specific Unreport button (Strategy 1)');
-				} else {
-					// Strategy 2 and 3: Look for any Unreport link
-					const unreportButtons = page.getByRole('link', { name: 'Unreport' });
-					const unreportLinks = page.locator('a, button').filter({ hasText: /unreport/i });
-					if ((await unreportButtons.count()) > 0) {
-						await unreportButtons.first().click();
-						unreported = true;
-						console.log('Clicked general Unreport button (Strategy 2)');
-					} else if ((await unreportLinks.count()) > 0) {
-						await unreportLinks.first().click();
-						unreported = true;
-						console.log('Clicked unreport link (Strategy 3)');
-					} else {
-						console.error('CRITICAL: No Unreport button found using any strategy');
-						throw new Error('Failed to find and click Unreport button. All strategies failed!');
+				// Get URL from the row (column 5 for global moderation)
+				const rows = await adminPage.locator('table.table-list tbody tr').all();
+				for (const row of rows) {
+					const idCell = row.locator('td').nth(1);
+					const idText = await idCell.textContent();
+					if (idText?.trim() === testCommentId) {
+						const visitUrlLink = row.locator('a:has-text("Visit URL")');
+						if ((await visitUrlLink.count()) > 0) {
+							reportedContentUrl = (await visitUrlLink.getAttribute('href')) || '';
+						}
+						break;
 					}
 				}
 
-				console.log('Successfully clicked Unreport button to reject the report');
+				// Re-expand the row for the next step
+				const newRowIndex = await processModerationPage.findRowByContentId(testCommentId);
+				await processModerationPage.table.expandRow(newRowIndex);
+
+				console.log(`Navigated through moderation process to content review, URL: ${reportedContentUrl}`);
+			});
+
+			await test.step('6.1. USER: Clicks on the "Unreport" icon to reject the report', async () => {
+				// Use table's unreportRow method from the detail page
+				await processModerationPage.table.unreportRow(0);
+				console.log('Clicked Unreport button to reject the report');
 			});
 
 			await test.step('6.2. SYSTEM: Updates the status of the report as "Unreported" and keeps the content visible on the platform', async () => {
-				// Navigate back to moderations to verify status
-				const currentUrl = page.url();
-				if (!currentUrl.includes('/admin/moderations') || currentUrl.includes('/reports')) {
-					await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
-					await page.waitForLoadState('networkidle');
-				}
+				// Verify the flash message indicates success
+				await expect(async () => {
+					const isVisible = await processModerationPage.flashMessage.isSuccessMessageVisible();
+					expect(isVisible).toBe(true);
+				}).toPass({ timeout: 5000 });
 
-				// Verify the unreported status - look specifically in the table
-				const unreportedStatus = page
-					.locator('table.table-list tbody tr')
-					.filter({ hasText: /Unreported|unreported/ })
-					.or(page.locator('table tbody td').filter({ hasText: /Unreported|unreported/ }))
-					.or(page.locator('table [data-status="unreported"]'));
+				// Verify the message indicates unreport action
+				const hasUnreportedMessage = await processModerationPage.flashMessage.hasResourceUnreportedMessage();
+				expect(hasUnreportedMessage).toBe(true);
 
-				const unreportedCount = await unreportedStatus.count();
-				if (unreportedCount > 0) {
-					await expect(unreportedStatus.first()).toBeVisible();
-					console.log('Content status has been updated to Unreported');
-				} else {
-					console.log('Unreport action completed (status verification skipped in test environment)');
-				}
+				console.log('Content status has been updated to Unreported');
 			});
 
 			await test.step('Result.', async () => {
-				// Final verification
-				await expect(page).toHaveURL(/.*\/admin\/moderations.*/);
+				// Navigate back to moderations list
+				await adminPage.goto('/admin/moderations');
+				await adminPage.waitForLoadState('networkidle');
 
-				// Verify the moderations list is still accessible
-				const moderationsList = page
-					.locator('[data-content="moderations-list"]')
-					.or(page.locator('.moderations-list'))
-					.or(page.locator('table.table-list'));
-				await expect(moderationsList).toBeVisible();
+				// Verify the content is no longer in the moderation table (unreported items are removed)
+				const isStillInTable = await processModerationPage.isContentIdInModerationTable(testCommentId);
+				expect(isStillInTable).toBe(false);
+				console.log(`Verified: Content ID ${testCommentId} is no longer in moderation table (unreported)`);
 
-				// Verify content is still visible (unreported means it remains visible)
-				const unreportedContent = page
-					.locator('table.table-list tbody tr')
-					.filter({ hasText: /Unreported|unreported/ })
-					.or(page.locator('table [data-status="unreported"]'));
+				// Navigate to the public debate page to verify the comment is visible
+				if (reportedContentUrl) {
+					await adminPage.goto(reportedContentUrl);
+					await adminPage.waitForLoadState('networkidle');
+					console.log(`Navigated to public debate page: ${reportedContentUrl}`);
 
-				const unreportedCount = await unreportedContent.count();
-				if (unreportedCount > 0) {
-					await expect(unreportedContent.first()).toBeVisible();
-					console.log('✓ The reported content has been kept visible');
-				} else {
-					throw new Error('CRITICAL: No unreported content found. The unreport action may have failed.');
+					// Verify the comment is now visible again in the public view
+					const commentIsVisible = !(await processModerationPage.verifyCommentNotPresentById(testCommentId));
+					expect(commentIsVisible).toBe(true);
+					console.log(`Verified: Comment ID ${testCommentId} is now visible in the public debate`);
+
+					// Additional verification: Check that the comment element is present
+					const commentElement = adminPage.locator(`#comment_${testCommentId}`);
+					await expect(commentElement).toBeVisible();
+					console.log('✓ The reported content is still visible on the public page');
 				}
 
 				console.log('✓ The moderation status has been updated to unreported');
-				console.log('✓ Participants will be notified accordingly');
+				console.log('✓ The content has been removed from the moderation table');
+				console.log('Result: The reported content is kept visible and moderation status updated');
 			});
 		});
 	});
 
 	test.describe('Alternative Flow: Cancel', () => {
-		test('should allow moderator to cancel the review process', async ({ page }) => {
+		test('should allow moderator to cancel the review process', async ({ adminPage }) => {
 			await test.step('4-6. USER: Decides to cancel the review process', async () => {
 				// Navigate to admin dashboard using navigation link
-				const currentUrl = page.url();
+				const currentUrl = adminPage.url();
 				if (!currentUrl.includes('/admin')) {
-					await page.getByRole('link', { name: 'Admin dashboard' }).click();
-					await page.waitForLoadState('networkidle');
+					await adminPage.getByRole('link', { name: 'Admin dashboard' }).click();
+					await adminPage.waitForLoadState('networkidle');
 				}
 
 				// Navigate to global moderations
-				await page.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
-				await page.waitForLoadState('networkidle');
+				await adminPage.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we are on the moderations page
-				await expect(page).toHaveURL(/.*\/admin\/moderations.*/);
+				await expect(adminPage).toHaveURL(/.*\/admin\/moderations.*/);
 
 				// Cancel by navigating back without making changes
-				await page.goBack();
-				await page.waitForLoadState('networkidle');
+				await adminPage.goBack();
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('User decided to cancel the review process');
 			});
 
 			await test.step('SYSTEM: Aborts the operation and discards any changes', async () => {
 				// Verify we are back to the previous state (admin dashboard)
-				await expect(page).toHaveURL(/.*\/admin\/?$/);
+				await expect(adminPage).toHaveURL(/.*\/admin\/?$/);
 
 				console.log('Operation has been aborted and changes discarded');
 			});
 
 			await test.step('Result.', async () => {
 				// Verify cancellation was successful
-				const adminContent = page.locator('main').or(page.locator('#content'));
+				const adminContent = adminPage.locator('main').or(adminPage.locator('#content'));
 				await expect(adminContent).toBeVisible();
 
 				console.log('✓ The operation has been cancelled');

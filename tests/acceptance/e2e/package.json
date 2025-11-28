@@ -1,12 +1,23 @@
 {
+	"_license": "SPDX-License-Identifier: AGPL-3.0",
+	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
+	"_authors": [
+		"Simone Bianchelli",
+		"Denis Vasilev Dimchev",
+		"Gianfranco Cedro",
+		"Pierluigi Spedicato"
+	],
 	"name": "e2e",
 	"version": "1.0.0",
 	"main": "index.js",
 	"scripts": {
-		"test:ci": "cross-env ENV=ci npx playwright test --grep-invert @useKeycloak  --project=admin-tests --project=user-tests --project=guest-tests",
-		"test:keycloak": "cross-env ENV=ci USE_KEYCLOAK=true npx playwright test -g @useKeycloak --project=admin-tests --project=user-tests",
+		"test:ci": "cross-env ENV=ci npx playwright test --grep-invert @useKeycloak  --project=admin-tests --project=user-tests --project=guest-tests --reporter=html,junit",
+		"test:keycloak": "cross-env ENV=ci USE_KEYCLOAK=true npx playwright test -g @useKeycloak --project=admin-tests --project=user-tests --reporter=html,junit",
 		"test:dev": "cross-env ENV=development npx playwright test",
 		"test:prod": "cross-env ENV=production npx playwright test",
+		"test:parallel": "cross-env ENV=ci TEST_PARALLEL=true TEST_WORKERS=3 npx playwright test --config=playwright.parallel-tests.config.ts --grep-invert=\"@reserved|@useKeycloak\" --workers=3 --reporter=html,junit",
+		"test:parallel:setup": "cross-env ENV=ci npx playwright test auth/parallel-admin-auth.setup.ts auth/parallel-user-auth.setup.ts auth/parallel-reserved-auth.setup.ts",
+		"test:reserved": "cross-env ENV=ci npx playwright test --config=playwright.parallel-tests.config.ts --grep=\"@reserved\" --workers=1 --reporter=html,junit",
 		"test-ui": "playwright test --ui",
 		"test-ui-port0:ci": "cross-env ENV=ci npx playwright test --ui-port=0",
 		"test-ui-port0:dev": "cross-env ENV=development npx playwright test --ui-port=0",

@@ -55,16 +55,37 @@ jobs:
                 rm -rf a11y-reports
                 echo "Old accessibility reports removed"
             displayName: 'Clean previous accessibility reports'
+
+          # Setup authentication for all parallel workers
           - script: |
                 cd tests/acceptance/e2e
-                npm run test:ci
+                npm run test:parallel:setup
             env:
                 CI: 'true'
             continueOnError: true
-            displayName: 'Run Playwright / Axe (Frontend) - All tests except Keycloak'
+            displayName: 'Setup Parallel Authentication (3 workers + reserved)'
+
+          # Run tests in parallel with 3 workers (excludes @reserved tests)
           - script: |
                 cd tests/acceptance/e2e
-                npm run test:keycloak
+                PLAYWRIGHT_HTML_REPORT=playwright-report-parallel npm run test:parallel
+            env:
+                CI: 'true'
+            continueOnError: true
+            displayName: 'Run Playwright / Axe (Frontend) - Parallel (3 workers)'
+
+          # Run @reserved tests with fixed users (sequential, after parallel tests)
+          - script: |
+                cd tests/acceptance/e2e
+                PLAYWRIGHT_HTML_REPORT=playwright-report-reserved npm run test:reserved
+            env:
+                CI: 'true'
+            continueOnError: true
+            displayName: 'Run Playwright / Axe (Frontend) - @reserved Tests (sequential)'
+
+          - script: |
+                cd tests/acceptance/e2e
+                PLAYWRIGHT_HTML_REPORT=playwright-report-keycloak npm run test:keycloak
             env:
                 CI: 'true'
             continueOnError: true
@@ -77,6 +98,18 @@ jobs:
                 testResultsFormat: 'JUnit'
                 testResultsFiles: '**/*junit.xml'
                 testRunTitle: 'Playwright + Axe'
+            condition: succeededOrFailed()
+
+          # Publish HTML reports as artifacts
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Playwright HTML Reports'
+            inputs:
+                PathtoPublish: 'tests/acceptance/e2e'
+                ArtifactName: 'Playwright-HTML-Reports'
+                publishLocation: 'Container'
+                # Include only the report folders
+            condition: succeededOrFailed()
+            continueOnError: true
 
           # Publish WCAG reports (JSON artifacts)
           - task: PublishBuildArtifacts@1
