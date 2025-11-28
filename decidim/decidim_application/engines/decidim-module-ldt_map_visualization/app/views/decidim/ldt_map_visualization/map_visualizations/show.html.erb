@@ -14,7 +14,15 @@
 ) %>
 
 <%= render layout: "layouts/decidim/shared/layout_center", locals: { columns: 8 } do %>
+  
   <section class="layout-main__section layout-main__heading">
+    <div class="row mt-4">
+      <div class="columns large-12">
+            <%= link_to map_visualizations_path, class: "button button--sc small hollow" do %>
+              ← <%= t("decidim.ldt_map_visualization.map_visualizations.show.back_to_list") %>
+            <% end %>
+      </div>
+    </div>
     <div class="flex justify-center">
       <h1 class="title-decorator my-12"><%= @map_visualization.name %></h1>
     </div>
@@ -28,8 +36,8 @@
     <% end %>
 
     <div class="layout-author">
-      <div class="relative flex items-center justify-center w-full">
-        <div class="w-10/12 flex items-center gap-4">
+      
+        <div class="flex items-center justify-between w-full">
           <% if @map_visualization.map_owner.present? %>
             <div class="flex flex-col">
               <div class="text-sm text-secondary">
@@ -50,13 +58,7 @@
             </div>
           </div>
         </div>
-
-        <div class="w-2/12 flex justify-end">
-          <%= link_to map_visualizations_path, class: "button button--sc small hollow" do %>
-            ← <%= t("decidim.ldt_map_visualization.map_visualizations.show.back_to_list") %>
-          <% end %>
-        </div>
-      </div>
+      
     </div>
   </section>
 
