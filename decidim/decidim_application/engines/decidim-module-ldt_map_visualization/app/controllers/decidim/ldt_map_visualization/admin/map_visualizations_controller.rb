@@ -213,7 +213,7 @@ module Decidim
           # Fetch maps from TOOL1 when rendering the form
 
           # Get token from cookies (this is the user's actual Keycloak token from browser login)
-          access_token = get_jwt_token
+          access_token = jwt_token
 
           if access_token.blank?
             Rails.logger.warn("No Keycloak access token in cookies for user #{current_user&.id}")
