@@ -36,13 +36,13 @@
       <!-- Help Button -->
       <% if ENV['HELP_URL'].present? %>
         <a href="<%= ENV['HELP_URL'] %>" id="help-link" target="_blank" rel="noopener noreferrer nofollow" class="help-button" title="<%= t("decidim.admin_header.help") %>">
-          <%= image_pack_tag('media/images/help.svg', alt: t("decidim.admin_header.help"), id: "help-icon", height: 24) %>
+          <%= image_pack_tag('media/images/help.svg', alt: t("decidim.admin_header.help"), id: "help-icon", height: 20) %>
         </a>
       <% end %>
       <!-- User Button with Dropdown -->
       <div class="relative flex">
         <button id="user-dropdown-button" class="user-button" type="button" title="<%= t("decidim.admin_header.user_menu") %>">
-          <%= image_pack_tag('media/images/user.svg', alt: t("decidim.admin_header.user_menu"), id: "user-icon", height: 24) %>
+          <%= image_pack_tag('media/images/user.svg', alt: t("decidim.admin_header.user_menu"), id: "user-icon", height: 20) %>
         </button>
         <div id="user-dropdown" class="user-dropdown hidden">
           <% if respond_to?(:decidim) && decidim.respond_to?(:destroy_user_session_path) %>
