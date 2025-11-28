@@ -61,20 +61,17 @@ module Decidim
       # @param request_host [String] The request host
       # @param session_obj [ActionDispatch::Request::Session, nil] Optional session object to clean
       def self.clear_all_cookies(cookies_obj, request_host, session_obj = nil)
-        cookie_names = %w(access_token refresh_token id_token _session_id manual_logout)
+        # NOTE: Do NOT include _session_id here - it's managed by Rails session store
+        # Only clear Keycloak-specific cookies
+        cookie_names = %w(access_token refresh_token id_token manual_logout)
         domains = calculate_all_cookie_domains(request_host)
         primary_domain = calculate_cookie_domain(request_host)
 
         log_clearing_start(cookie_names, primary_domain, cookies_obj)
 
-        # STEP 1: Clear with primary domain and exact attributes
-        clear_primary_domain_cookies(cookies_obj, cookie_names, primary_domain)
-
-        # STEP 2: Try all combinations for all domains
-        clear_all_domain_combinations(cookies_obj, cookie_names, domains)
-
-        # STEP 3: Additional safety measures
-        clear_without_domain(cookies_obj, cookie_names)
+        # Only delete cookies, don't create new ones with empty values
+        # Creating cookies with empty values can cause issues with cookie consent
+        clear_cookies_by_deletion(cookies_obj, cookie_names, domains)
 
         # Clean session data if provided
         clear_session_data(session_obj)
@@ -92,76 +89,26 @@ module Decidim
         end
       end
 
-      def self.clear_primary_domain_cookies(cookies_obj, cookie_names, primary_domain)
-        is_production = Rails.env.production?
+      # Simplified cookie clearing - only delete, never create empty cookies
+      # Creating cookies with empty values can interfere with cookie consent mechanisms
+      def self.clear_cookies_by_deletion(cookies_obj, cookie_names, domains)
         cookie_names.each do |name|
-          Rails.logger.debug { "[Keycloak CookieManager] PRIMARY expiry: #{name} with domain: #{primary_domain.inspect}, secure: #{is_production}" }
-          cookies_obj[name] = {
-            value: "",
-            expires: 1.year.ago,
-            domain: primary_domain,
-            secure: is_production,
-            httponly: true,
-            same_site: :lax,
-            path: "/"
-          }
-        end
-      end
+          next if name.blank?
 
-      def self.clear_all_domain_combinations(cookies_obj, cookie_names, domains)
-        domains.each do |domain|
-          cookie_names.each do |name|
-            Rails.logger.debug { "[Keycloak CookieManager] Attempting to clear #{name} from domain: #{domain.inspect}" }
-            clear_cookie_combinations(cookies_obj, name, domain)
+          # Try to delete from all possible domains
+          domains.each do |domain|
+            cookies_obj.delete(name, domain: domain, path: "/") if domain
+            cookies_obj.delete(name, path: "/")
+          rescue StandardError => e
+            Rails.logger.debug { "[Keycloak CookieManager] Error deleting #{name} from #{domain}: #{e.message}" }
           end
-        end
-      end
 
-      def self.clear_cookie_combinations(cookies_obj, name, domain)
-        [true, false].each do |secure_flag|
-          [:lax, :strict, :none, nil].each do |same_site_val|
-            cookies_obj.delete(name, domain: domain, secure: secure_flag, httponly: true, same_site: same_site_val, path: "/")
-            cookies_obj.delete(name, domain: domain, secure: secure_flag, httponly: false, same_site: same_site_val, path: "/")
-            cookies_obj.delete(name, domain: domain, secure: secure_flag, path: "/")
+          # Also try without domain specification
+          begin
+            cookies_obj.delete(name)
+          rescue StandardError => e
+            Rails.logger.debug { "[Keycloak CookieManager] Error deleting #{name}: #{e.message}" }
           end
-          cookies_obj.delete(name, domain: domain, secure: secure_flag, path: "/")
-        end
-        cookies_obj.delete(name, domain: domain, path: "/")
-
-        [true, false].each do |secure_flag|
-          cookies_obj[name] = {
-            value: "",
-            expires: 1.year.ago,
-            domain: domain,
-            secure: secure_flag,
-            httponly: true,
-            same_site: :lax,
-            path: "/"
-          }
-        end
-      end
-
-      def self.clear_without_domain(cookies_obj, cookie_names)
-        cookie_names.each do |name|
-          Rails.logger.debug { "[Keycloak CookieManager] Additional clearing of #{name} without domain" }
-          cookies_obj.delete(name, path: "/")
-          cookies_obj.delete(name)
-          cookies_obj[name] = {
-            value: "",
-            expires: 1.year.ago,
-            secure: Rails.env.production?,
-            httponly: true,
-            same_site: :lax,
-            path: "/"
-          }
-          cookies_obj[name] = {
-            value: "",
-            expires: 1.year.ago,
-            secure: true,
-            httponly: true,
-            same_site: :none,
-            path: "/"
-          }
         end
       end
 

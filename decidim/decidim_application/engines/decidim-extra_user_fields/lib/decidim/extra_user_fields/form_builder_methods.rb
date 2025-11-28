@@ -14,7 +14,11 @@ module Decidim
 
         template = ""
         template += (label_text + required_for_attribute(name)) if options.fetch(:label, true)
-        template += country_select(name, { selected: options.fetch(:default, "ES") })
+        template += country_select(
+          name,
+          { include_blank: I18n.t("decidim.extra_user_fields.select_country_placeholder", default: "Select a country") },
+          { selected: object.try(name) }
+        )
         template.html_safe
       end
     end

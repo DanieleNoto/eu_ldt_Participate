@@ -9,6 +9,7 @@ require_relative "lib/decidim/extra_user_fields/version"
 Gem::Specification.new do |spec|
   spec.name = "decidim-extra_user_fields"
   spec.version = Decidim::ExtraUserFields::VERSION
+  spec.required_ruby_version = ">= 3.3"
   spec.authors = ["Gianfranco Cedro"]
   spec.email = ["gianfranco.cedro@eng.it"]
   spec.homepage = "https://decidim.org"
