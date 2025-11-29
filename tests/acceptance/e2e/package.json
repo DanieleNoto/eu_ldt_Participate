@@ -12,7 +12,7 @@
 	"main": "index.js",
 	"scripts": {
 		"test:ci": "cross-env ENV=ci npx playwright test --grep-invert @useKeycloak  --project=admin-tests --project=user-tests --project=guest-tests --reporter=html,junit",
-		"test:keycloak": "cross-env ENV=ci USE_KEYCLOAK=true npx playwright test -g @useKeycloak --project=admin-tests --project=user-tests --reporter=html,junit",
+		"test:keycloak": "cross-env ENV=ci USE_KEYCLOAK=true npx playwright test -g @useKeycloak --project=admin-tests --project=user-tests --reporterlist,html,junit",
 		"test:dev": "cross-env ENV=development npx playwright test",
 		"test:prod": "cross-env ENV=production npx playwright test",
 		"test:parallel": "cross-env ENV=ci TEST_PARALLEL=true TEST_WORKERS=3 npx playwright test --config=playwright.parallel-tests.config.ts --grep-invert=\"@reserved|@useKeycloak\" --workers=3 --reporter=list,html,junit",
