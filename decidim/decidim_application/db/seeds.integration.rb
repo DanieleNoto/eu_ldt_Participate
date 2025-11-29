@@ -34,7 +34,7 @@ module IntegrationSeeder
     # ==========================================================================
     
     ORGANIZATION_CONFIG = {
-      host: ENV.fetch("INTEGRATION_ORG_HOST", "localhost"),
+      host: ENV.fetch("INTEGRATION_ORG_HOST", "part-int.ldttoolbox.app"),
       name: { "en" => "EU LDT Participate Tool", "fr" => "Outil EU LDT Participate", "es" => "Herramienta EU LDT Participate", "de" => "EU LDT Participate Werkzeug" },
       description: { "en" => "EU LDT Participate - Integration Testing Environment", "fr" => "EU LDT Participate - Environnement de test d'intégration", "es" => "EU LDT Participate - Entorno de pruebas de integración", "de" => "EU LDT Participate - Integrationstestumgebung" },
       reference_prefix: "EU-LDT",
@@ -250,29 +250,20 @@ module IntegrationSeeder
     # --------------------------------------------------------------------------
 
     def create_organization!
-      puts "\n>>> Creating Organization..."
+      puts "\n>>> Finding Organization..."
       
-      org = Decidim::Organization.find_or_initialize_by(host: ORGANIZATION_CONFIG[:host])
+      # Find existing organization - DO NOT MODIFY
+      # The organization should already exist in the database
+      org = Decidim::Organization.find_by(host: ORGANIZATION_CONFIG[:host])
       
-      org.assign_attributes(
-        name: ORGANIZATION_CONFIG[:name],
-        description: ORGANIZATION_CONFIG[:description],
-        reference_prefix: ORGANIZATION_CONFIG[:reference_prefix],
-        available_locales: ORGANIZATION_CONFIG[:available_locales],
-        default_locale: ORGANIZATION_CONFIG[:default_locale],
-        tos_version: Time.current,
-        force_users_to_authenticate_before_access_organization: false,
-        users_registration_mode: "enabled",
-        colors: {
-          "primary" => ORGANIZATION_CONFIG[:colors][:primary],
-          "secondary" => ORGANIZATION_CONFIG[:colors][:secondary],
-          "tertiary" => ORGANIZATION_CONFIG[:colors][:tertiary]
-        },
-        file_upload_settings: default_file_upload_settings
-      )
+      unless org
+        # Fallback: find any organization (for local development)
+        org = Decidim::Organization.first
+      end
       
-      org.save!
-      puts "    ✓ Organization '#{org.name}' (ID: #{org.id})"
+      raise "No organization found! Please ensure the organization exists before running this seed." unless org
+      
+      puts "    ✓ Organization '#{org.name}' (ID: #{org.id}) [unchanged]"
       org
     end
 
@@ -1003,8 +994,7 @@ module IntegrationSeeder
         ) do |p|
           p.title = page_config[:title]
           p.content = page_config[:content]
-          p.show_in_footer = true
-          p.allow_public_access = true
+          # Note: show_in_footer and allow_public_access removed in Decidim 0.30
         end
         puts "    ✓ Static Page: '#{page_config[:slug]}' (ID: #{page.id})"
       end
