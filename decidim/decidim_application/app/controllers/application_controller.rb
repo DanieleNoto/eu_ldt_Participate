@@ -8,6 +8,5 @@
 
 class ApplicationController < ActionController::Base
   include KeycloakCookieHandling
-  include KeycloakTokenManagement
   include KeycloakAuthentication
 end
