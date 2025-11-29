@@ -134,10 +134,12 @@ jobs:
             continueOnError: true
 
           # Publish SARIF for integrated visualization in Azure DevOps Scans tab
-          - task: PublishSARIF@1
+          - task: PublishBuildArtifacts@1
             displayName: 'Publish SARIF Accessibility Reports to Scans'
             inputs:
-                SarifFiles: 'tests/acceptance/e2e/a11y-reports/*.sarif'
+                PathtoPublish: 'tests/acceptance/e2e/a11y-reports'
+                ArtifactName: 'CodeAnalysisLogs'
+                publishLocation: 'Container'
             condition: succeededOrFailed()
             continueOnError: true
 
