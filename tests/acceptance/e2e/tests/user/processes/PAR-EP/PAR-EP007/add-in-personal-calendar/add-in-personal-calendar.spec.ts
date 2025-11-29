@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denise Scarcelli
  * Gianfranco Cedro
@@ -10,9 +10,7 @@ import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPa
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { MeetingDetailPage } from '@pages/pages/user/processes/MeetingDetailPage';
 import { MeetingsPage } from '@pages/pages/user/processes/MeetingsPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Enables user to add events inside a personal calendar (Google Calendar, Apple Calendar, Outlook Calendar).
@@ -27,25 +25,20 @@ import { STORAGE_STATE } from '@utils/constants';
  * - Events have been created and published by the City Administrator.
  *
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
+
 test.describe('[PAR-EP007] – Add in personal calendar', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let processesOverviewPage: ProcessesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
 	let meetingsPage: MeetingsPage;
 	let meetingDetailPage: MeetingDetailPage;
 	let homePage: HomePage;
 
-	test.beforeEach(async ({ page }) => {
-		processesOverviewPage = new ProcessesOverviewPage(page);
-		processDetailPage = new ProcessDetailPage(page);
-		meetingsPage = new MeetingsPage(page);
-		meetingDetailPage = new MeetingDetailPage(page);
-		homePage = new HomePage(page);
+	test.beforeEach(async ({ userPage }) => {
+		processesOverviewPage = new ProcessesOverviewPage(userPage);
+		processDetailPage = new ProcessDetailPage(userPage);
+		meetingsPage = new MeetingsPage(userPage);
+		meetingDetailPage = new MeetingDetailPage(userPage);
+		homePage = new HomePage(userPage);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {

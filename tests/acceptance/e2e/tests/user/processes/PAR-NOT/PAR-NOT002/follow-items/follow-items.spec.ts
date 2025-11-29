@@ -1,8 +1,12 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProfilePage } from '@pages/pages/user/ProfilePage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows citizens to follow content items, participatory spaces, enabling them to receive notifications of the activities of the things they follow.
@@ -16,20 +20,14 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The citizen has an active account on the platform and is logged in.
  *
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
-test.describe('[PAR-NOT002] – Follow items', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 
+test.describe('[PAR-NOT002] – Follow items', () => {
 	let homePage: HomePage;
 	let profilePage: ProfilePage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		profilePage = new ProfilePage(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		profilePage = new ProfilePage(userPage);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {

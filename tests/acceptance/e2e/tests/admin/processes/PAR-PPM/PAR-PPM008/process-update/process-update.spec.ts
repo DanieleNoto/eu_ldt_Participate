@@ -1,9 +1,14 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ * Denise Scarcelli
+ */
+
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { expect, test } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows City Administrators to update existing process.
@@ -16,21 +21,16 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The process to be updated exists on the platform and the City Administrator has the necessary permissions to edit it.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
+
 test.describe('[PAR-PPM008] – Update process', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateData: any;
 
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ adminPage }) => {
 		// Navigate directly to admin area and wait for it to load
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
 		updateData = ProcessTestDataGenerator.generateUpdateProcessData();
 		await adminHomePage.navigateToAdminHomePage();
 	});
@@ -125,7 +125,7 @@ test.describe('[PAR-PPM008] – Update process', () => {
 				await expect(page).toHaveURL(/\/admin\/participatory_processes/);
 				// Verify the updated data is reflected
 				if (updateData.general?.title) {
-				  // Check if the updated title appears somewhere in the table
+					// Check if the updated title appears somewhere in the table
 					const titleInput = page.locator('#participatory_process_title_en');
 					await expect(titleInput).toBeVisible();
 					await expect(titleInput).toHaveValue(updateData.general.title);
@@ -134,10 +134,10 @@ test.describe('[PAR-PPM008] – Update process', () => {
 			await test.step('Verify the process is updated and available', async () => {
 				// Result: The process is updated with new information and available for viewing
 				await processAdminPage.navigateToProcesses();
-				
+
 				// Always search for the updated process (title is mandatory)
 				await processAdminPage.searchProcesses(updateData.general.title);
-				
+
 				// Verify the updated process appears in search results
 				const searchResults = await processAdminPage.getProcessCount();
 				expect(searchResults).toBe(1);

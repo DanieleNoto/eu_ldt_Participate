@@ -4,15 +4,14 @@
  * Simone Bianchelli
  */
 
-import test, { expect } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { test } from '@fixtures/parallel-test-reserved';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
 import { WebmailPage } from '@pages/base/WebmailPage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 
 /**
  * Allows administrators to export survey answers provided by users, enabling data analysis and reporting on user feedback.
@@ -21,17 +20,14 @@ import { STORAGE_STATE } from '@utils/constants';
  * Prerequisites:
  * - The City Administrator has an active account on the platform and is logged in.
  * - The survey has been completed by users, and responses are available for export.
+ *
+ * @reserved - This test uses reserved/fixed admin account (TEST_ADMIN_EMAIL)
+ * and must be run sequentially with --workers=1 to avoid session conflicts.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-	await page.close();
-	await context.close();
-});
+test.describe('@reserved [PAR-DE001] – Export survey answers', () => {
+	// Force sequential execution to prevent test interference
+	test.describe.configure({ mode: 'serial' });
 
-test.describe('[PAR-DE001] – Export survey answers', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -40,26 +36,26 @@ test.describe('[PAR-DE001] – Export survey answers', () => {
 	let webmailPage: WebmailPage;
 
 	// Use existing process with survey and responses
-	const processTitle = 'Update Test0';
 	const processSlug = 'test';
 	const componentName = 'Single survey';
 	const surveyTitle = 'survey test';
 
-	// Common setup for both flows (only Page Objects)
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		surveysManagePage = new SurveysManagePage(page);
-		webmailPage = new WebmailPage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
+		surveysManagePage = new SurveysManagePage(adminPage);
+		webmailPage = new WebmailPage(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
 	});
 
 	test.describe('Main Flow', () => {
 		[{ fileFormat: 'CSV' }, { fileFormat: 'JSON' }, { fileFormat: 'Excel' }, { fileFormat: 'PDF' }].forEach(
 			({ fileFormat }) => {
-				test(`should export survey answers provided by users in ${fileFormat} format`, async ({ page }) => {
+				test(`should export survey answers provided by users in ${fileFormat} format`, async ({
+					adminPage
+				}) => {
 					await test.step('1. User: Navigates to the "Processes" section.', async () => {
 						// Navigate to processes section
 						await processAdminPage.navigateToProcesses();
@@ -67,15 +63,15 @@ test.describe('[PAR-DE001] – Export survey answers', () => {
 					});
 
 					await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
-						await page.waitForLoadState('networkidle');
+						await adminPage.waitForLoadState('networkidle');
 
 						// Verify we're on the processes page, with fallback navigation
 						let isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 
 						if (!isOnProcessesPage) {
 							// Try direct navigation if component navigation failed
-							await page.goto('/admin/participatory_processes');
-							await page.waitForLoadState('networkidle');
+							await adminPage.goto('/admin/participatory_processes');
+							await adminPage.waitForLoadState('networkidle');
 							isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 						}
 
@@ -90,12 +86,8 @@ test.describe('[PAR-DE001] – Export survey answers', () => {
 					});
 
 					await test.step('3. User: Selects the process that want to update', async () => {
-						// Select the process name that contains survey data
-						console.log(`Selecting process: ${processTitle}`);
-
-						// Click on the process to edit it
-						await processAdminPage.selectProcessForEdit(processTitle);
-						await page.waitForLoadState('networkidle');
+						await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+						await adminPage.waitForLoadState('networkidle');
 					});
 
 					await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -105,7 +97,7 @@ test.describe('[PAR-DE001] – Export survey answers', () => {
 						// Verify we're on the edit page for the correct process
 						const isOnEditPage = await processAdminPage.isOnProcessEditPage();
 						expect(isOnEditPage).toBe(true);
-						expect(page.url()).toContain(`/admin/participatory_processes/${processSlug}/edit`);
+						expect(adminPage.url()).toContain(`/admin/participatory_processes/${processSlug}/edit`);
 						console.log(`Process slug verified: ${processSlug}`);
 
 						// Check if the sidebar is visible and loaded
@@ -137,14 +129,14 @@ test.describe('[PAR-DE001] – Export survey answers', () => {
 
 					await test.step('7. System: Displays survey details, including an option to "Export all"', async () => {
 						// Verify we're on the survey details/manage questions page
-						expect(page.url()).toMatch(/\/edit_questions$/);
+						expect(adminPage.url()).toMatch(/\/edit_questions$/);
 
 						// Verify the "Export" button is visible
 						await componentsPage.expectExportButtonVisible();
 						console.log('Export button is visible');
 
 						// Verify the confirmation message is present
-						await expect(page.getByText('The form is already answered')).toBeVisible();
+						await expect(adminPage.getByText('The form is already answered')).toBeVisible();
 						console.log('Confirmation message is visible');
 					});
 
@@ -152,14 +144,14 @@ test.describe('[PAR-DE001] – Export survey answers', () => {
 						await componentsPage.exportComponentData(fileFormat);
 						console.log(`Selected Export ${fileFormat} format`);
 
-						await page.waitForLoadState('networkidle');
+						await adminPage.waitForLoadState('networkidle');
 					});
 
 					await test.step('9. System: Displays a confirmation message on the platform, indicating that the export process has been initiated and that the file will be sent via email', async () => {
 						await componentsPage.expectExportConfirmationMessage();
 						console.log('Export status message is visible');
 
-						await page.waitForLoadState('networkidle');
+						await adminPage.waitForLoadState('networkidle');
 					});
 
 					await test.step("10. System: Sends an email to the administrator's registered email address with the export file as an attachment or a secure download link", async () => {

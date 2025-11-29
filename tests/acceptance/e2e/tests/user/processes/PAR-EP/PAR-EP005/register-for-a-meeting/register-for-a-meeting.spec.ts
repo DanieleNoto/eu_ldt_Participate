@@ -10,12 +10,11 @@ import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPa
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { MeetingDetailPage } from '@pages/pages/user/processes/MeetingDetailPage';
 import { MeetingsPage } from '@pages/pages/user/processes/MeetingsPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 import { HeaderComponent } from '@pages/components/common/HeaderComponent';
 import NotificationPage from '@pages/pages/user/NotificationPage';
 import { WebmailPage } from '@pages/base/WebmailPage';
+import { ensureLoggedIn } from '@utils/auth-helper';
 
 /**
  * Test suite for Allows citizens to register for a meeting in advance.
@@ -29,13 +28,9 @@ import { WebmailPage } from '@pages/base/WebmailPage';
  * - Meetings are created and published by the City Administrator and are open for registration.
  */
 
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
-test.describe('[PAR-EP005] – Register for a meeting', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
+test.describe.configure({ mode: 'serial' });
+
+test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 	let processesOverviewPage: ProcessesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
 	let meetingsPage: MeetingsPage;
@@ -50,15 +45,15 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 	const processTitle = 'Update Test0';
 	const processSlug = 'test';
 
-	test.beforeEach(async ({ page }) => {
-		processesOverviewPage = new ProcessesOverviewPage(page);
-		processDetailPage = new ProcessDetailPage(page);
-		meetingsPage = new MeetingsPage(page);
-		meetingDetailPage = new MeetingDetailPage(page);
-		homePage = new HomePage(page);
-		headerComponent = new HeaderComponent(page);
-		notificationPage = new NotificationPage(page);
-		webmailPage = new WebmailPage(page);
+	test.beforeEach(async ({ userPage }) => {
+		processesOverviewPage = new ProcessesOverviewPage(userPage);
+		processDetailPage = new ProcessDetailPage(userPage);
+		meetingsPage = new MeetingsPage(userPage);
+		meetingDetailPage = new MeetingDetailPage(userPage);
+		homePage = new HomePage(userPage);
+		headerComponent = new HeaderComponent(userPage);
+		notificationPage = new NotificationPage(userPage);
+		webmailPage = new WebmailPage(userPage);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {
@@ -108,23 +103,19 @@ test.describe('[PAR-EP005] – Register for a meeting', () => {
 			});
 			await test.step('8. System: Displays a prompt to confirm registration.', async () => {
 				await meetingDetailPage.expectRegistrationPromptVisible();
-				await meetingDetailPage
-					.getPage()
-					.screenshot({
-						path: 'test-results/screenshots/OnMeetingDetailPageExpectRegistrationPromptVisible.png',
-						fullPage: true
-					});
+				await meetingDetailPage.getPage().screenshot({
+					path: 'test-results/screenshots/OnMeetingDetailPageExpectRegistrationPromptVisible.png',
+					fullPage: true
+				});
 			});
 			await test.step('9. User: Confirms the registration.', async () => {
 				await meetingDetailPage.confirmRegistration();
 				await meetingDetailPage.waitForLoadState('networkidle');
 				await meetingDetailPage.expectConfirmationMessageVisible();
-				await meetingDetailPage
-					.getPage()
-					.screenshot({
-						path: 'test-results/screenshots/OnMeetingDetailPageConfirmationMessageVisible.png',
-						fullPage: true
-					});
+				await meetingDetailPage.getPage().screenshot({
+					path: 'test-results/screenshots/OnMeetingDetailPageConfirmationMessageVisible.png',
+					fullPage: true
+				});
 			});
 			await test.step('10. System: Saves the registration information, adds the user to the attendee list, and provides a confirmation message.', async () => {
 				registrationCode = await meetingDetailPage.expectRegistrationCodeVisibleAndGet();

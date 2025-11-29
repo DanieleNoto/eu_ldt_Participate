@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denise Scarcelli
  * Gianfranco Cedro
@@ -9,9 +9,7 @@ import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { MeetingsPage } from '@pages/pages/user/processes/MeetingsPage';
-import test from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows citizens to view all events related to a specific process.
@@ -27,23 +25,17 @@ import { STORAGE_STATE } from '@utils/constants';
  *
  */
 
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
 test.describe('[PAR-EP001] – View all meetings related to specific process', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let processesOverviewPage: ProcessesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
 	let meetingsPage: MeetingsPage;
 	let homePage: HomePage;
 
-	test.beforeEach(async ({ page }) => {
-		processesOverviewPage = new ProcessesOverviewPage(page);
-		processDetailPage = new ProcessDetailPage(page);
-		meetingsPage = new MeetingsPage(page);
-		homePage = new HomePage(page);
+	test.beforeEach(async ({ userPage }) => {
+		processesOverviewPage = new ProcessesOverviewPage(userPage);
+		processDetailPage = new ProcessDetailPage(userPage);
+		meetingsPage = new MeetingsPage(userPage);
+		homePage = new HomePage(userPage);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {

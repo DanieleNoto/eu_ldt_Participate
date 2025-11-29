@@ -1,8 +1,13 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { CookieBarComponent } from '@pages/components/common/CookieBarComponent';
 import { FooterComponent } from '@pages/components/common/FooterComponent';
 import { HomePage } from '@pages/pages/public/HomePage';
-import { expect, test } from '@playwright/test';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * User Story: Privacy Settings Management
@@ -17,25 +22,23 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The citizen is logged into the platform
  */
 test.describe('[PAR-DPCAM001] – Privacy Settings and Cookie Management', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
-
 	let homePage: HomePage;
 	let cookieBar: CookieBarComponent;
 	let footerComponent: FooterComponent;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		cookieBar = new CookieBarComponent(page);
-		footerComponent = new FooterComponent(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		cookieBar = new CookieBarComponent(userPage);
+		footerComponent = new FooterComponent(userPage);
 		await homePage.navigateToHomePage();
 	});
 
 	test.describe('Main Flow', () => {
-		test('should allow citizen to manage privacy settings and data sharing preferences', async ({ page }) => {
+		test('should allow citizen to manage privacy settings and data sharing preferences', async ({ userPage }) => {
 			await test.step('1. USER: Navigates to their "Cookie Settings" section within their profile', async () => {
 				// Navigate to cookie settings through footer
 				await footerComponent.clickCookieSettings();
-				await page.waitForLoadState('networkidle');
+				await userPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('2. SYSTEM: Displays the Cookie settings dialog, showing current settings and options for data sharing preferences', async () => {
@@ -43,10 +46,10 @@ test.describe('[PAR-DPCAM001] – Privacy Settings and Cookie Management', () =>
 				await cookieBar.verifyCookieSettingsDialogVisible();
 
 				// Verify all preference categories are available
-				await expect(page.getByText('Toggle Preferences')).toBeVisible();
-				await expect(page.getByText('Toggle Analytics')).toBeVisible();
-				await expect(page.getByText('Toggle Marketing')).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Save settings' })).toBeVisible();
+				await expect(userPage.getByText('Toggle Preferences')).toBeVisible();
+				await expect(userPage.getByText('Toggle Analytics')).toBeVisible();
+				await expect(userPage.getByText('Toggle Marketing')).toBeVisible();
+				await expect(userPage.getByRole('button', { name: 'Save settings' })).toBeVisible();
 
 				console.log('Cookie settings dialog displayed with all preference options');
 			});
@@ -73,9 +76,9 @@ test.describe('[PAR-DPCAM001] – Privacy Settings and Cookie Management', () =>
 
 			await test.step('5. SYSTEM: Enables editing of privacy preferences showing field for managing data consent categories: essential, preferences, analytics, marketing', async () => {
 				// Verify all consent categories are editable
-				await expect(page.getByText('Toggle Preferences')).toBeVisible();
-				await expect(page.getByText('Toggle Analytics')).toBeVisible();
-				await expect(page.getByText('Toggle Marketing')).toBeVisible();
+				await expect(userPage.getByText('Toggle Preferences')).toBeVisible();
+				await expect(userPage.getByText('Toggle Analytics')).toBeVisible();
+				await expect(userPage.getByText('Toggle Marketing')).toBeVisible();
 
 				// Essential cookies should always be enabled (non-editable)
 				const currentPrefs = await cookieBar.getCookiePreferences();
@@ -110,7 +113,7 @@ test.describe('[PAR-DPCAM001] – Privacy Settings and Cookie Management', () =>
 			await test.step('7. USER: Clicks on the "Save" button to apply the changes', async () => {
 				// Save the privacy settings
 				await cookieBar.saveSettings();
-				await page.waitForLoadState('networkidle');
+				await userPage.waitForLoadState('networkidle');
 
 				console.log('User clicked Save button to apply changes');
 			});
@@ -125,7 +128,7 @@ test.describe('[PAR-DPCAM001] – Privacy Settings and Cookie Management', () =>
 				});
 
 				// Verify cookie is stored securely
-				const cookies = await page.context().cookies();
+				const cookies = await userPage.context().cookies();
 				const consentCookie = cookies.find(c => c.name.includes('consent'));
 
 				if (consentCookie) {
@@ -158,8 +161,8 @@ test.describe('[PAR-DPCAM001] – Privacy Settings and Cookie Management', () =>
 				});
 
 				// Verify settings persist across page reload
-				await page.reload();
-				await page.waitForLoadState('networkidle');
+				await userPage.reload();
+				await userPage.waitForLoadState('networkidle');
 
 				await footerComponent.clickCookieSettings();
 				await cookieBar.verifyPreferencesToggleState(false);
@@ -174,7 +177,7 @@ test.describe('[PAR-DPCAM001] – Privacy Settings and Cookie Management', () =>
 	});
 
 	test.describe('Alternative Flow: Cancel', () => {
-		test('should allow user to cancel privacy settings changes without saving', async ({ page }) => {
+		test('should allow user to cancel privacy settings changes without saving', async ({ userPage }) => {
 			// Start at point 4 of main flow
 			await test.step('Setup: Navigate to cookie settings', async () => {
 				await footerComponent.clickCookieSettings();
@@ -192,7 +195,7 @@ test.describe('[PAR-DPCAM001] – Privacy Settings and Cookie Management', () =>
 				await cookieBar.verifyAnalyticsToggleState(false);
 
 				// Navigate away without saving (press escape or click outside dialog)
-				await page.keyboard.press('Escape');
+				await userPage.keyboard.press('Escape');
 
 				console.log('User decided not to proceed and navigated away without saving');
 			});

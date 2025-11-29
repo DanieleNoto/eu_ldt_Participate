@@ -1,8 +1,12 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { PrivacyPolicyPage } from '@pages/pages/public/PrivacyPolicyPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Terms of Service Viewing Test
@@ -14,20 +18,14 @@ import { STORAGE_STATE } from '@utils/constants';
  *
  * Note: The Terms of Service page is currently in development and shows placeholder content.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
-test.describe('[PAR-DAAP001] – Access information on data collection and usage', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 
+test.describe('[PAR-DAAP001] – Access information on data collection and usage', () => {
 	let homePage: HomePage;
 	let privacyPolicyPage: PrivacyPolicyPage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		privacyPolicyPage = new PrivacyPolicyPage(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		privacyPolicyPage = new PrivacyPolicyPage(userPage);
 		await homePage.navigateToHomePage();
 	});
 

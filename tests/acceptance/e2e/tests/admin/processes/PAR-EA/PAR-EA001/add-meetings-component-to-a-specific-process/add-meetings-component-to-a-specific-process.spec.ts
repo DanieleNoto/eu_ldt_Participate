@@ -1,10 +1,16 @@
-import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ * Denise Scarcelli
+ * Simone Bianchelli
+ */
+
+import { expect } from '@playwright/test';
+import { test } from '@fixtures/parallel-test';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { AddMeetingsComponentPage } from '@pages/pages/admin/processes/detail/components/meetings/AddMeetingsComponentPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 
 /**
  * Test suite for Allows the City Administrator to add a Meetings component to a specific participatory process, enabling meetings to be organized and associated directly with the process, facilitating citizen engagement.
@@ -17,32 +23,31 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The City Administrator has permissions to edit participatory processes.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
 
 test.describe('[PAR-EA001] – Add meetings component to a specific process', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
-	let adminHomePage: AdminHomePage;
-	let processAdminPage: ProcessAdminPage;
 	let componentsPage: ComponentsPage;
 	let addMeetingsComponentPage: AddMeetingsComponentPage;
+	let processAdminPage: ProcessAdminPage;
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		addMeetingsComponentPage = new AddMeetingsComponentPage(page);
-		await adminHomePage.navigateToAdminHomePage();
+	// Use existing process with fixed slug for consistent testing
+	const processSlug = 'test';
+
+	test.beforeEach(async ({ adminPage }) => {
+		componentsPage = new ComponentsPage(adminPage);
+		addMeetingsComponentPage = new AddMeetingsComponentPage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
 	});
+
 	test.describe('Main Flow', () => {
-		test('should allow admin to add a Meetings component to a specific participatory process', async () => {
-			const newName = `Community Meetings - adding meetings component`;
+		test('should allow admin to add a Meetings component to a specific participatory process', async ({
+			adminPage
+		}) => {
+			const timestamp = Date.now();
+			const newName = `Community Meetings ${timestamp}`;
+
 			await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
 				await processAdminPage.navigateToProcesses();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 				// Verify we're on the processes page
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -55,38 +60,38 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 			});
 
 			await test.step('3. Admin: selects the process that want to update', async () => {
-				// Click edit on the first process in the table
-				await processAdminPage.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('4. System: loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				// Verify we're on the process edit/management page
-				const currentUrl = processAdminPage.getPage().url();
+				const currentUrl = adminPage.url();
 				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/edit/);
 			});
 
 			await test.step('5. Admin: Navigates to the "Components" section in the admin panel.', async () => {
 				// Navigate to Components tab/section
 				await componentsPage.sidebarProcessDetail.navigateToComponents();
-				const currentUrl = componentsPage.getPage().url();
+				const currentUrl = adminPage.url();
 				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components/);
 			});
 
 			await test.step('6. Admin: Clicks on "Add Component" and select Meetings', async () => {
 				// Click on "Add Component" button and select Meetings
 				await componentsPage.addMeetingsComponent();
-				await componentsPage
-					.getPage()
-					.screenshot({ path: 'test-results/screenshots/EA001/AddComponent.png', fullPage: true });
+				await adminPage.screenshot({
+					path: 'test-results/screenshots/EA001/AddComponent.png',
+					fullPage: true
+				});
 			});
 
 			await test.step('7. System: Displays the "Add Meetings Component" form, prompting the City Administrator to provide the component details.', async () => {
 				// Verify we're on the new meeting form page
-				const currentUrl = componentsPage.getPage().url();
+				const currentUrl = adminPage.url();
 				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/new\?type=meetings/);
 				await expect(
-					componentsPage.getPage().getByRole('heading', { name: 'Add component: Meetings', level: 1 })
+					adminPage.getByRole('heading', { name: 'Add component: Meetings', level: 1 })
 				).toBeVisible();
 			});
 
@@ -96,15 +101,16 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 				await addMeetingsComponentPage.fillAnnouncementEn(
 					'Announcement visible to participants on the meeting landing page.'
 				);
-				await addMeetingsComponentPage
-					.getPage()
-					.screenshot({ path: 'test-results/screenshots/EA001/FilledFields.png', fullPage: true });
+				await adminPage.screenshot({
+					path: 'test-results/screenshots/EA001/FilledFields.png',
+					fullPage: true
+				});
 			});
 
 			await test.step('9. Admin: Clicks on "Save Component" to add the Meetings component to the process.', async () => {
 				// Submit the form
 				await addMeetingsComponentPage.submitForm();
-				await addMeetingsComponentPage.getPage().waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('10. System: Validates the component details for completeness and correctness.', async () => {
@@ -121,92 +127,96 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 
 			await test.step('12. System: Notifies the City Administrator that the Meetings component has been successfully added to the process.', async () => {
 				// Check for success notification/message
-				const successMessage = componentsPage
-					.getPage()
-					.locator('.flash.success, .alert.success, [role="alert"]');
+				const successMessage = adminPage.locator('.flash.success, .alert.success, [role="alert"]');
 				await expect(successMessage).toBeVisible();
-				await componentsPage
-					.getPage()
-					.screenshot({ path: 'test-results/screenshots/EA001/MeetingComponentAdded.png', fullPage: true });
+				await adminPage.screenshot({
+					path: 'test-results/screenshots/EA001/MeetingComponentAdded.png',
+					fullPage: true
+				});
 			});
 
 			await test.step('Result.', async () => {
 				// Final verification: check the new component appears in the components list with correct type
-				const row = componentsPage
-					.getPage()
-					.getByRole('option', { name: /Community Meetings - adding meetings component/i })
-					.first();
+				const row = adminPage.getByRole('option', { name: new RegExp(newName, 'i') }).first();
 				await expect(row).toBeVisible();
 				const typeCell = row.locator('td').nth(2);
 				await expect(typeCell).toHaveText(/Meetings/i);
-				await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i);
+				await componentsPage.deleteComponentIfExists(new RegExp(newName, 'i'));
 			});
 		});
 	});
 
 	test.describe('Alternative Flow', () => {
 		test('should show validation error when mandatory fields are blank and allow successful update after correction', async ({
-			page
+			adminPage
 		}) => {
+			const timestamp = Date.now();
 			const newNameBlank = ``;
-			const newName = `Community Meetings - adding meetings component`;
-			await processAdminPage.navigateToProcesses();
-			await processAdminPage.getPage().waitForLoadState('load');
-			await processAdminPage.getPage().waitForLoadState('networkidle');
-			await processAdminPage.editFirstProcess();
-			await processAdminPage.getPage().waitForLoadState('load');
-			// Verify we're on the processes page
-			await componentsPage.sidebarProcessDetail.navigateToComponents();
-			// create the component Meetings first "blank name"
-			await componentsPage.getPage().waitForLoadState('networkidle');
+			const newName = `Community Meetings ${timestamp}`;
+
+			// Navigate directly to the process components page
+			await adminPage.goto(`/admin/participatory_processes/${processSlug}/components`);
+			await adminPage.waitForLoadState('networkidle');
+
+			// Create the component Meetings first with "blank name"
 			await componentsPage.addMeetingsComponent();
 			await addMeetingsComponentPage.fillNameEn(newNameBlank);
-			await addMeetingsComponentPage
-				.getPage()
-				.screenshot({ path: 'test-results/screenshots/EA001/MissingField.png', fullPage: true });
+			await adminPage.screenshot({
+				path: 'test-results/screenshots/EA001/MissingField.png',
+				fullPage: true
+			});
 			await addMeetingsComponentPage.fillAnnouncementEn('');
 			await addMeetingsComponentPage.submitForm();
-			await addMeetingsComponentPage.getPage().waitForLoadState('networkidle');
-			await addMeetingsComponentPage
-				.getPage()
-				.screenshot({ path: 'test-results/screenshots/EA001/ExpectedErrorMissingField.png', fullPage: true });
-			const flashIcon = page.locator('.flash__icon svg[aria-hidden="true"]');
+			await adminPage.waitForLoadState('networkidle');
+			await adminPage.screenshot({
+				path: 'test-results/screenshots/EA001/ExpectedErrorMissingField.png',
+				fullPage: true
+			});
+
+			const flashIcon = adminPage.locator('.flash__icon svg[aria-hidden="true"]');
 			await expect(flashIcon).toBeVisible();
-			const errorMessage = page.locator('small.form-error.is-visible[role="alert"]', {
+			const errorMessage = adminPage.locator('small.form-error.is-visible[role="alert"]', {
 				hasText: 'cannot be blank'
 			});
 			await expect(errorMessage).toBeVisible();
+
 			// Now fill in a lowercase name to test that validation
 			await addMeetingsComponentPage.fillNameEn('lowercase');
-			await addMeetingsComponentPage
-				.getPage()
-				.screenshot({ path: 'test-results/screenshots/EA001/LowercaseField.png', fullPage: true });
+			await adminPage.screenshot({
+				path: 'test-results/screenshots/EA001/LowercaseField.png',
+				fullPage: true
+			});
 			await addMeetingsComponentPage.submitForm();
-			await addMeetingsComponentPage.getPage().waitForLoadState('networkidle');
-			await addMeetingsComponentPage
-				.getPage()
-				.screenshot({ path: 'test-results/screenshots/EA001/ExpectedErrorLowercaseField.png', fullPage: true });
+			await adminPage.waitForLoadState('networkidle');
+			await adminPage.screenshot({
+				path: 'test-results/screenshots/EA001/ExpectedErrorLowercaseField.png',
+				fullPage: true
+			});
 			await expect(flashIcon).toBeVisible();
 			await expect(errorMessage).toBeVisible();
+
 			// Finally, fill in the correct name and submit
 			await addMeetingsComponentPage.fillNameEn(newName);
 			await addMeetingsComponentPage.fillAnnouncementEn(
 				'Announcement visible to participants on the meeting landing page.'
 			);
-			await addMeetingsComponentPage
-				.getPage()
-				.screenshot({ path: 'test-results/screenshots/EA001/ExpectedFieldFilled.png', fullPage: true });
+			await adminPage.screenshot({
+				path: 'test-results/screenshots/EA001/ExpectedFieldFilled.png',
+				fullPage: true
+			});
 			await addMeetingsComponentPage.submitForm();
-			await addMeetingsComponentPage.getPage().waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('networkidle');
+
 			// Verify the component was created
 			const currentUrl = await componentsPage.getCurrentUrl();
 			expect(currentUrl).toMatch(/\/admin.*\/components/);
-			const successMessage = componentsPage.getPage().locator('.flash.success, .alert.success, [role="alert"]');
+			const successMessage = adminPage.locator('.flash.success, .alert.success, [role="alert"]');
 			await expect(successMessage).toBeVisible();
-			await componentsPage
-				.getPage()
-				.screenshot({ path: 'test-results/screenshots/EA001/MeetingComponentAdded.png', fullPage: true });
-			await componentsPage.deleteComponentIfExists(/Community Meetings - adding meetings component/i);
+			await adminPage.screenshot({
+				path: 'test-results/screenshots/EA001/MeetingComponentAdded.png',
+				fullPage: true
+			});
+			await componentsPage.deleteComponentIfExists(new RegExp(newName, 'i'));
 		});
 	});
 });
