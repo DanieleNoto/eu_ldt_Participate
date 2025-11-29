@@ -16,7 +16,7 @@
 		"test:dev": "cross-env ENV=development npx playwright test",
 		"test:prod": "cross-env ENV=production npx playwright test",
 		"test:parallel": "cross-env ENV=ci TEST_PARALLEL=true TEST_WORKERS=3 npx playwright test --config=playwright.parallel-tests.config.ts --grep-invert=\"@reserved|@useKeycloak\" --workers=3 --reporter=html,junit",
-		"test:parallel:setup": "cross-env ENV=ci npx playwright test auth/parallel-admin-auth.setup.ts auth/parallel-user-auth.setup.ts auth/parallel-reserved-auth.setup.ts",
+		"test:parallel:setup": "cross-env ENV=ci npx playwright test --config=playwright.parallel-setup.config.ts",
 		"test:reserved": "cross-env ENV=ci npx playwright test --config=playwright.parallel-tests.config.ts --grep=\"@reserved\" --workers=1 --reporter=html,junit",
 		"test-ui": "playwright test --ui",
 		"test-ui-port0:ci": "cross-env ENV=ci npx playwright test --ui-port=0",

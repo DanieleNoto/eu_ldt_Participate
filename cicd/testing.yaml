@@ -62,7 +62,6 @@ jobs:
                 npm run test:parallel:setup
             env:
                 CI: 'true'
-            continueOnError: true
             displayName: 'Setup Parallel Authentication (3 workers + reserved)'
 
           # Run tests in parallel with 3 workers (excludes @reserved tests)
