@@ -7,8 +7,8 @@
 
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
-import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { test, expect } from '@fixtures/parallel-test';
+import { ProcessAdminPage, CompleteProcessData } from '@pages/pages/admin/processes/ProcessAdminPage';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 
 /**
  * Test suite for Allows City Administrators to update existing process.
@@ -20,36 +20,181 @@ import { test, expect } from '@fixtures/parallel-test';
  * Prerequisites:
  * - The City Administrator has an active account on the platform and is logged in.
  * - The process to be updated exists on the platform and the City Administrator has the necessary permissions to edit it.
+ *
+ * @reserved - This test creates and modifies a dedicated test process and must run sequentially.
  */
 
-test.describe('[PAR-PPM008] – Update process', () => {
+/**
+ * Generate process data for the dedicated test process
+ */
+function generateTestProcessData(testRunId: string): CompleteProcessData {
+	return {
+		general: {
+			title: `Test Process for Update ${testRunId}`,
+			subtitle: `Subtitle for update test ${testRunId}`,
+			orderPosition: 99,
+			urlSlug: `test-update-${testRunId}`,
+			shortDescription: `Short description for update test process`,
+			hashtag: `UpdateTest${testRunId.slice(-6)}`,
+			description: `This is a dedicated test process created for PAR-PPM008 update tests. ID: ${testRunId}`,
+			announcement: `Test announcement for update process`
+		},
+		duration: {
+			startDate: '01/01/2025',
+			endDate: '31/12/2025'
+		},
+		metadata: {
+			developerGroup: `Test Group ${testRunId}`,
+			localArea: `Test Area`,
+			metaScope: `Test Scope`,
+			target: `Test Target`,
+			participatoryScope: `Test Participatory Scope`,
+			participatoryStructure: `Test Structure`
+		},
+		visibility: 'public'
+	};
+}
+
+test.describe('@reserved [PAR-PPM008] – Update process', () => {
+	// Force sequential execution to prevent test interference
+	test.describe.configure({ mode: 'serial' });
+
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateData: any;
 
+	// Unique identifier for each test run
+	let testRunId: string;
+	let testProcessSlug: string;
+	let testProcessTitle: string;
+	let testProcessCreated = false;
+
 	test.beforeEach(async ({ adminPage }) => {
-		// Navigate directly to admin area and wait for it to load
+		// Generate unique ID for this test
+		testRunId = Date.now().toString();
+		testProcessSlug = `test-update-${testRunId}`;
+		testProcessTitle = `Test Process for Update ${testRunId}`;
+
+		// Initialize page objects
 		adminHomePage = new AdminHomePage(adminPage);
 		processAdminPage = new ProcessAdminPage(adminPage);
-		updateData = ProcessTestDataGenerator.generateUpdateProcessData();
+		updateData = ProcessTestDataGenerator.generateUpdateProcessData(testRunId);
+
+		// Navigate to admin home
 		await adminHomePage.navigateToAdminHomePage();
+
+		// Create a dedicated test process for this test
+		await processAdminPage.navigateToNewProcess();
+
+		const testProcessData = generateTestProcessData(testRunId);
+
+		// Fill general information
+		await processAdminPage.fillGeneralInfo(testProcessData.general);
+
+		// Fill duration information
+		await processAdminPage.fillDurationInfo(testProcessData.duration);
+
+		// Fill metadata information
+		await processAdminPage.fillMetadataInfo(testProcessData.metadata);
+
+		// Set public visibility
+		await processAdminPage.setVisibilityToPublic();
+
+		// Submit process
+		await processAdminPage.submitProcess();
+
+		// Verify success
+		await processAdminPage.expectSuccessMessage();
+		testProcessCreated = true;
+		console.log(`Created dedicated test process: slug=${testProcessSlug}`);
+
+		// Navigate back to processes list so test starts from correct state
+		await processAdminPage.navigateToProcesses();
+	});
+
+	test.afterEach(async ({ adminPage }) => {
+		if (!testProcessCreated) {
+			return;
+		}
+
+		try {
+			// Navigate to processes list page where delete action is available
+			await adminPage.goto('/admin/participatory_processes');
+			await adminPage.waitForLoadState('networkidle');
+
+			// Search for the process by updated title (more reliable than slug)
+			const updatedTitle = updateData.general.title;
+			await processAdminPage.searchProcesses(updatedTitle);
+
+			// Find the process row
+			const processRow = adminPage.locator('table.table-list tbody tr').first();
+
+			if (await processRow.isVisible()) {
+				// Click the Soft delete button in that row
+				const deleteButton = processRow.locator('a[title="Soft delete"]');
+
+				if (await deleteButton.isVisible()) {
+					await deleteButton.click();
+
+					// Wait for confirmation modal and click OK button
+					const confirmModal = adminPage.locator('#confirm-modal-content');
+					await confirmModal.waitFor({ state: 'visible' });
+					await confirmModal.locator('button[data-confirm-ok]').click();
+
+					await adminPage.waitForLoadState('networkidle');
+				} else {
+					// If delete is disabled (process is published), unpublish first
+					const configureLink = processRow.locator('a[title="Configure"]');
+					await configureLink.click();
+					await adminPage.waitForLoadState('networkidle');
+
+					// Try to unpublish
+					const unpublishButton = adminPage.getByRole('button', { name: /unpublish/i });
+					if (await unpublishButton.isVisible()) {
+						await unpublishButton.click();
+						await adminPage.waitForLoadState('networkidle');
+					}
+
+					// Go back to list and delete
+					await adminPage.goto('/admin/participatory_processes');
+					await adminPage.waitForLoadState('networkidle');
+					await processAdminPage.searchProcesses(updatedTitle);
+
+					const rowAfterUnpublish = adminPage.locator('table.table-list tbody tr').first();
+					const deleteBtn = rowAfterUnpublish.locator('a[title="Soft delete"]');
+					await deleteBtn.click();
+
+					// Wait for confirmation modal and click OK
+					const modal = adminPage.locator('#confirm-modal-content');
+					await modal.waitFor({ state: 'visible' });
+					await modal.locator('button[data-confirm-ok]').click();
+
+					await adminPage.waitForLoadState('networkidle');
+				}
+			}
+		} catch (error) {
+			// Don't throw - cleanup failure shouldn't fail the test
+		}
 	});
 
 	test.describe('Main Flow', () => {
-		test('should successfully update an existing participatory process with new information', async ({ page }) => {
+		test('should successfully update an existing participatory process with new information', async ({
+			adminPage
+		}) => {
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				await processAdminPage.navigateToProcesses();
 			});
+
 			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we're on the processes page, with fallback navigation
 				let isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 
 				if (!isOnProcessesPage) {
 					// Try direct navigation if component navigation failed
-					await page.goto('/admin/participatory_processes');
-					await page.waitForLoadState('networkidle');
+					await adminPage.goto('/admin/participatory_processes');
+					await adminPage.waitForLoadState('networkidle');
 					isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				}
 
@@ -57,13 +202,15 @@ test.describe('[PAR-PPM008] – Update process', () => {
 				const processCount = await processAdminPage.getProcessCount();
 				expect(processCount).toBeGreaterThan(0);
 			});
+
 			await test.step('3. User: Selects the process that needs updating', async () => {
-				const firstProcessName = await processAdminPage.getFirstProcessName();
-				await processAdminPage.selectProcessForEdit(firstProcessName);
+				// Use the dedicated test process created in beforeEach (search by title, not slug)
+				await processAdminPage.searchProcesses(testProcessTitle);
+				const processName = await processAdminPage.getFirstProcessName();
+				await processAdminPage.selectProcessForEdit(processName);
 			});
 
 			await test.step('4. System: Loads the selected process in editable form', async () => {
-				// Step 4: System loads the selected process and displays content in editable form
 				await processAdminPage.waitForEditFormToLoad();
 
 				// Verify we're on the edit page
@@ -82,7 +229,6 @@ test.describe('[PAR-PPM008] – Update process', () => {
 			});
 
 			await test.step('5. User: edits the desired fields of the process', async () => {
-				// Step 5: Edits the desired fields of the process
 				console.log('Updating process fields with new information...');
 				// Update General Info fields
 				await processAdminPage.updateGeneralInfo(updateData.general);
@@ -109,28 +255,24 @@ test.describe('[PAR-PPM008] – Update process', () => {
 			});
 
 			await test.step('6. User: saves the changes', async () => {
-				// Step 6: Clicks on "Save Changes" button to update the process
 				await processAdminPage.saveProcessChanges();
 			});
 
 			await test.step('7. System: validates, saves and confirms the update', async () => {
-				// Step 7: System validates the updated information for completeness and correctness
-				// Step 8: System saves the updated process to the database
-				// Step 9: System displays confirmation message indicating successful update
-
 				// Wait for and verify success message
 				await processAdminPage.expectUpdateSuccessMessage();
 
 				// Verify we're still on a valid admin page (could be process list or edit page)
-				await expect(page).toHaveURL(/\/admin\/participatory_processes/);
+				await expect(adminPage).toHaveURL(/\/admin\/participatory_processes/);
+
 				// Verify the updated data is reflected
 				if (updateData.general?.title) {
-					// Check if the updated title appears somewhere in the table
-					const titleInput = page.locator('#participatory_process_title_en');
+					const titleInput = adminPage.locator('#participatory_process_title_en');
 					await expect(titleInput).toBeVisible();
 					await expect(titleInput).toHaveValue(updateData.general.title);
 				}
 			});
+
 			await test.step('Verify the process is updated and available', async () => {
 				// Result: The process is updated with new information and available for viewing
 				await processAdminPage.navigateToProcesses();
@@ -146,16 +288,18 @@ test.describe('[PAR-PPM008] – Update process', () => {
 	});
 
 	test.describe('Process Selection and Navigation', () => {
-		test('should navigate to edit form for selected process', async ({ page }) => {
+		test('should navigate to edit form for selected process', async ({ adminPage }) => {
 			await test.step('Select a specific process for editing', async () => {
 				await processAdminPage.navigateToProcesses();
+
 				// Ensure we have processes to work with
 				const hasProcesses = await processAdminPage.hasProcesses();
 				expect(hasProcesses).toBe(true);
 
-				// Select the first available process
-				const firstProcessName = await processAdminPage.getFirstProcessName();
-				await processAdminPage.selectProcessForEdit(firstProcessName);
+				// Use the dedicated test process created in beforeEach (search by title, not slug)
+				await processAdminPage.searchProcesses(testProcessTitle);
+				const processName = await processAdminPage.getFirstProcessName();
+				await processAdminPage.selectProcessForEdit(processName);
 
 				// Verify navigation to edit page
 				const isOnEditPage = await processAdminPage.isOnProcessEditPage();
@@ -165,11 +309,13 @@ test.describe('[PAR-PPM008] – Update process', () => {
 	});
 
 	test.describe('Form Field Updates', () => {
-		test('should handle individual field updates correctly', async ({ page }) => {
+		test('should handle individual field updates correctly', async ({ adminPage }) => {
 			await test.step('Navigate to process edit form', async () => {
 				await processAdminPage.navigateToProcesses();
-				const firstProcessName = await processAdminPage.getFirstProcessName();
-				await processAdminPage.selectProcessForEdit(firstProcessName);
+				// Use the dedicated test process (search by title, not slug)
+				await processAdminPage.searchProcesses(testProcessTitle);
+				const processName = await processAdminPage.getFirstProcessName();
+				await processAdminPage.selectProcessForEdit(processName);
 				await processAdminPage.waitForEditFormToLoad();
 			});
 
@@ -186,13 +332,16 @@ test.describe('[PAR-PPM008] – Update process', () => {
 			});
 		});
 
-		test('should handle metadata field updates', async ({ page }) => {
+		test('should handle metadata field updates', async ({ adminPage }) => {
 			await test.step('Navigate to process edit form', async () => {
 				await processAdminPage.navigateToProcesses();
-				const firstProcessName = await processAdminPage.getFirstProcessName();
-				await processAdminPage.selectProcessForEdit(firstProcessName);
+				// Use the dedicated test process (search by title, not slug)
+				await processAdminPage.searchProcesses(testProcessTitle);
+				const processName = await processAdminPage.getFirstProcessName();
+				await processAdminPage.selectProcessForEdit(processName);
 				await processAdminPage.waitForEditFormToLoad();
 			});
+
 			await test.step('Update metadata fields', async () => {
 				const metadataUpdates = {
 					developerGroup: 'Updated Promoter Organization',
