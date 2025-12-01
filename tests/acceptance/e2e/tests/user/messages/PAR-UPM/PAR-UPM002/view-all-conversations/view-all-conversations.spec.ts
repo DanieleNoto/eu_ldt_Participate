@@ -1,9 +1,13 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ConversationDetailPage } from '@pages/pages/user/conversations/ConversationDetailPage';
 import { ConversationsPage } from '@pages/pages/user/conversations/ConversationsPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows citizens to view all their conversations within the system, providing an overview of past and ongoing private communications with other users.
@@ -17,21 +21,15 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The citizen has an active account on the platform and is logged in.
  *
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
 test.describe('[PAR-UPM002] – View all conversations', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let homePage: HomePage;
 	let conversationsPage: ConversationsPage;
 	let conversationDetailPage: ConversationDetailPage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		conversationsPage = new ConversationsPage(page);
-		conversationDetailPage = new ConversationDetailPage(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		conversationsPage = new ConversationsPage(userPage);
+		conversationDetailPage = new ConversationDetailPage(userPage);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {

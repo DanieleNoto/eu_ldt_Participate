@@ -9,13 +9,14 @@ import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessModerationPage } from '@pages/components/admin/moderation/process/ProcessModerationPage';
-import test, { expect } from '@playwright/test';
-import { STORAGE_STATE } from '@utils/constants';
-import { ensureLoggedIn } from '@utils/auth-helper';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 import NotificationPage from '@pages/pages/user/NotificationPage';
 
 /**
  * Test suite for Process Content Moderation functionality
+ *
+ * @reserved - This test uses reserved/fixed user accounts
+ * and must be run sequentially with --workers=1 to avoid session conflicts.
  *
  * User Story: As an administrator, I want to moderate reported content within a specific
  * participatory process so that the discussions are constructive and comply with community guidelines.
@@ -27,8 +28,10 @@ import NotificationPage from '@pages/pages/user/NotificationPage';
  * - The moderator has permissions to access and moderate content within the specific participatory process.
  * - There are reported content items available for moderation within the selected process.
  */
-test.describe('PAR-MOD002 – Process Content Moderation', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
+test.describe('@reserved PAR-MOD002 – Process Content Moderation', () => {
+	// Force sequential execution: Main Flow → Alternative Flows (in order)
+	// This prevents test interference when modifying the same content
+	test.describe.configure({ mode: 'serial' });
 
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
@@ -36,38 +39,28 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 	let processModerationPage: ProcessModerationPage;
 
 	let contentId: string;
-	let processSlug: string;
-	let componentId = '3';
-	let debateId = '24';
+	const processSlug = 'test'; // Fixed slug for "Update Test0" process (not "test-private" which is "Update Test0 private")
+	const componentId = '3';
+	const debateId = '24';
 	let reportedContentCount: number;
 	const targetProcessName = 'Update Test0';
 	const testCommentId = '26'; // fixed id of the published comment to be reported
 	let testCommentText = '';
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		processModerationPage = new ProcessModerationPage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		processModerationPage = new ProcessModerationPage(adminPage);
 
 		// Navigate to admin area
 		await adminHomePage.navigateToAdminHomePage();
-		await page.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('networkidle');
 
-		// Navigate to processes and select the target process to extract processSlug
-		await processAdminPage.navigateToProcesses();
-		await page.waitForLoadState('networkidle');
-
-		console.log(`Selecting process: ${targetProcessName}`);
-		await processAdminPage.selectProcessForEdit(targetProcessName);
-		await page.waitForLoadState('networkidle');
-
-		// Save process slug once for all tests
-		processSlug = await processModerationPage.getCurrentProcessSlug();
-		console.log(`Process slug initialized: ${processSlug}`);
+		console.log('Navigated to Admin Homepage');
 	});
 
-	test.afterEach(async ({ page }) => {
+	test.afterEach(async ({ adminPage }) => {
 		console.log('Starting test cleanup...');
 
 		try {
@@ -75,14 +68,14 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 				console.log(`Found process slug: ${processSlug}, performing cleanup...`);
 
 				// Navigate to the process moderation page to perform cleanup
-				await page.goto(`/admin/participatory_processes/${processSlug}/moderations`);
-				await page.waitForLoadState('networkidle');
+				await adminPage.goto(`/admin/participatory_processes/${processSlug}/moderations`);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Perform cleanup
 				await processModerationPage.cleanupHiddenContent();
 
 				// Wait for cleanup to complete
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Test cleanup completed successfully');
 			} else {
@@ -99,8 +92,10 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 	test.describe('Main Flow', () => {
 		test('should allow administrator to moderate reported content within a specific process', async ({
-			page,
-			browser
+			adminPage,
+			userContext,
+			fixedUser,
+			workerIndex
 		}) => {
 			await test.step('1. USER: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section
@@ -109,15 +104,15 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 			});
 
 			await test.step('2. SYSTEM: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we're on the processes page, with fallback navigation
 				let isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 
 				if (!isOnProcessesPage) {
 					// Try direct navigation if component navigation failed
-					await page.goto('/admin/participatory_processes');
-					await page.waitForLoadState('networkidle');
+					await adminPage.goto('/admin/participatory_processes');
+					await adminPage.waitForLoadState('networkidle');
 					isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				}
 
@@ -132,11 +127,12 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 			});
 
 			await test.step('3. USER: Selects the process that want to update', async () => {
-				console.log(`Selecting process: ${targetProcessName}`);
+				console.log(`Selecting process: ${targetProcessName} (slug: ${processSlug})`);
 
-				// Select the process name that contains the reported content
-				await processAdminPage.selectProcessForEdit(targetProcessName);
-				await page.waitForLoadState('networkidle');
+				// Navigate directly to the process edit page using the fixed slug
+				// This avoids ambiguity between "Update Test0" and "Update Test0 private"
+				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('4. SYSTEM: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -152,7 +148,7 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 				// Get and display process title
 				const titleTextbox = await processAdminPage.getTitleTextbox();
-				await expect(titleTextbox).toBeVisible({ timeout: 30000 });
+				await expect(titleTextbox).toBeVisible();
 
 				const processTitle = await titleTextbox.inputValue();
 				console.log(`Process loaded: ${processTitle}`);
@@ -161,12 +157,12 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 			await test.step('5. USER: Clicks on "Moderations" in the process administration section.', async () => {
 				// Navigate to moderations section using the sidebar
-				await updateProcessAdminPage.sidebarProcessDetail.navigateToModerations();
-				await page.waitForLoadState('networkidle');
+				await updateProcessAdminPage.sidebarProcessDetail.navigateToProcessModerations();
+				await adminPage.waitForLoadState('networkidle');
 
 				// Ensure we're on the main listing page, not a detail page
 				await processModerationPage.ensureOnMainListing();
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Navigated to Moderations section and ensured main listing view');
 			});
@@ -227,11 +223,11 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 				// Expand the row to see detailed information
 				await processModerationPage.table.expandRow(rowIndex);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Expanded reported content details for review');
 
-				const currentUrl = page.url();
+				const currentUrl = adminPage.url();
 				console.log(`After expand, current URL: ${currentUrl}`);
 				expect(currentUrl).toMatch(/\/moderations\/\d+\/reports/);
 			});
@@ -239,7 +235,7 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 			await test.step('9. SYSTEM: Displays full metadata, including the type of content, report reasons, and any additional information provided by the participant.', async () => {
 				// We're now on the detail page, which shows the full metadata
 				// We can verify the detail page is loaded and shows the metadata
-				const detailPageVisible = await page.locator('.moderation-details').isVisible();
+				const detailPageVisible = await adminPage.locator('.moderation-details').isVisible();
 				expect(detailPageVisible).toBe(true);
 
 				await expect(processModerationPage.verifyDetailPageLoaded()).resolves.toBe(true);
@@ -270,7 +266,7 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 				// We're on the detail page, so the hide action will work from here
 				// The hideRow method will detect we're on detail page and use the correct selector
 				await processModerationPage.table.hideRow(0);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Clicked Hide button to accept the report');
 			});
@@ -299,8 +295,8 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 				const reportedContentUrl = await processModerationPage.getReportedContentUrlByContentId(contentId);
 
 				// Navigate to the reported content URL (public view)
-				await page.goto(reportedContentUrl);
-				await page.waitForLoadState('networkidle');
+				await adminPage.goto(reportedContentUrl);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify the comment is no longer visible
 				const commentIsHidden = await processModerationPage.verifyCommentNotPresentById(contentId);
@@ -309,14 +305,29 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 			});
 
 			await test.step('Result.', async () => {
-				// Create a new browser context with user storage state
-				const userContext = await browser.newContext({
-					storageState: STORAGE_STATE.USER
-				});
+				// Create userPage ONLY when needed for notification verification
+				console.log(`[Worker ${workerIndex}] Creating userPage for notification verification...`);
 				const userPage = await userContext.newPage();
 
-				// Ensure user is logged in
-				await ensureLoggedIn(userPage, 'USER');
+				// Ensure user is authenticated
+				const baseURL = process.env.FE_BASE_URL || 'https://part-int.ldttoolbox.app';
+				await userPage.goto(baseURL);
+				await userPage.waitForLoadState('networkidle');
+
+				const isLoggedIn = await userPage
+					.locator('#trigger-dropdown-account')
+					.isVisible({ timeout: 10000 })
+					.catch(() => false);
+
+				if (!isLoggedIn) {
+					console.log(`[Worker ${workerIndex}] User session expired, re-authenticating...`);
+					await userPage.goto(`${baseURL}/users/sign_in`);
+					await userPage.locator('#session_user_email').fill(fixedUser.email);
+					await userPage.locator('#session_user_password').fill(fixedUser.password);
+					await userPage.getByRole('button', { name: 'Log in' }).click();
+					await userPage.locator('#trigger-dropdown-account').waitFor({ state: 'visible' });
+					console.log(`[Worker ${workerIndex}] User re-authenticated successfully`);
+				}
 
 				// Create NotificationPage instance
 				const notificationPage = new NotificationPage(userPage);
@@ -339,11 +350,8 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 				expect(notificationVerified).toBe(true);
 				console.log('Notification verified successfully');
 
-				// Close user context
+				// Close userPage after use
 				await userPage.close();
-				await userContext.close();
-
-				console.log('User context closed - verification complete');
 
 				console.log('Result: The reported content has been hidden and moderation status updated');
 			});
@@ -352,18 +360,18 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 	test.describe('Alternative Flow: Unreport', () => {
 		let reportedContentUrl: string = '';
-		test('should allow administrator to unreport content and keep it visible', async ({ page }) => {
+		test('should allow administrator to unreport content and keep it visible', async ({ adminPage }) => {
 			await test.step('Setup: Navigate to moderation page and select content', async () => {
 				// Navigate to moderations section
-				await updateProcessAdminPage.sidebarProcessDetail.navigateToModerations();
-				await page.waitForLoadState('networkidle');
+				await updateProcessAdminPage.sidebarProcessDetail.navigateToProcessModerations();
+				await adminPage.waitForLoadState('networkidle');
 
 				// Ensure we're on the correct process moderation page
-				await page.goto(`/admin/participatory_processes/${processSlug}/moderations`);
-				await page.waitForLoadState('networkidle');
+				await adminPage.goto(`/admin/participatory_processes/${processSlug}/moderations`);
+				await adminPage.waitForLoadState('networkidle');
 
 				await processModerationPage.ensureOnMainListing();
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				// Set contentId to our test comment ID
 				contentId = testCommentId;
@@ -397,11 +405,11 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 				// Expand the row to see detailed information
 				await processModerationPage.table.expandRow(rowIndex);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Expanded reported content details for unreport review');
 
-				const currentUrl = page.url();
+				const currentUrl = adminPage.url();
 				console.log(`After expand, current URL: ${currentUrl}`);
 				expect(currentUrl).toMatch(/\/moderations\/\d+\/reports/);
 
@@ -412,7 +420,7 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 				// We're already on the detail page from the expand action in setup
 				// The unreportRow method will detect we're on detail page and use the correct selector
 				await processModerationPage.table.unreportRow(0);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Clicked Unreport button to reject the report');
 			});
@@ -444,8 +452,8 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 				console.log(`Verified: Content ID ${contentId} is no longer in moderation table (unreported)`);
 
 				// Navigate to the public debate page to verify the comment is visible
-				await page.goto(reportedContentUrl);
-				await page.waitForLoadState('networkidle');
+				await adminPage.goto(reportedContentUrl);
+				await adminPage.waitForLoadState('networkidle');
 				console.log(`Navigated to public debate page: ${reportedContentUrl}`);
 
 				// Verify the comment is now visible again in the public view
@@ -454,7 +462,7 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 				console.log(`Verified: Comment ID ${contentId} is now visible in the public debate`);
 
 				// Additional verification: Check that the comment content is present
-				const commentElement = page.locator(`#comment_${contentId}`);
+				const commentElement = adminPage.locator(`#comment_${contentId}`);
 				await expect(commentElement).toBeVisible();
 
 				const commentText = await commentElement.textContent();
@@ -467,18 +475,18 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 	});
 
 	test.describe('Alternative Flow: Cancel', () => {
-		test('should allow administrator to cancel the review process', async ({ page }) => {
+		test('should allow administrator to cancel the review process', async ({ adminPage }) => {
 			await test.step('Setup: Navigate to moderation page and expand content', async () => {
 				// Navigate to moderations section
-				await updateProcessAdminPage.sidebarProcessDetail.navigateToModerations();
-				await page.waitForLoadState('networkidle');
+				await updateProcessAdminPage.sidebarProcessDetail.navigateToProcessModerations();
+				await adminPage.waitForLoadState('networkidle');
 
 				// Ensure we're on the correct process moderation page
-				await page.goto(`/admin/participatory_processes/${processSlug}/moderations`);
-				await page.waitForLoadState('networkidle');
+				await adminPage.goto(`/admin/participatory_processes/${processSlug}/moderations`);
+				await adminPage.waitForLoadState('networkidle');
 
 				await processModerationPage.ensureOnMainListing();
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				// Set contentId to our test comment ID
 				contentId = testCommentId;
@@ -508,15 +516,15 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 				// Expand the row to see detailed information
 				await processModerationPage.table.expandRow(rowIndex);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Setup completed - content expanded for review');
 			});
 
 			await test.step('USER: Decides to cancel the review process.', async () => {
 				// Click on the admin logo to navigate back to the admin dashboard
-				await page.locator('a.logo[href="/admin/"]').click();
-				await page.waitForLoadState('networkidle');
+				await adminPage.locator('a.logo[href="/admin/"]').click();
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('User cancelled the review process by navigating to admin dashboard');
 			});
@@ -526,7 +534,7 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 				await expect(processModerationPage.isOnModerationPage()).resolves.toBe(false);
 
 				// Verify that we're back on the admin dashboard
-				const currentUrl = page.url();
+				const currentUrl = adminPage.url();
 				expect(currentUrl).toMatch(/\/admin\/?$/);
 
 				console.log('Operation aborted and changes discarded');
@@ -538,18 +546,18 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 		});
 
 		test.describe('Alternative Flow: Submission error', () => {
-			test('should handle submission error and allow user to retry with valid data', async ({ page }) => {
+			test('should handle submission error and allow user to retry with valid data', async ({ adminPage }) => {
 				await test.step('Setup: Navigate to moderation page and verify content status', async () => {
 					// Navigate to moderations section
-					await updateProcessAdminPage.sidebarProcessDetail.navigateToModerations();
-					await page.waitForLoadState('networkidle');
+					await updateProcessAdminPage.sidebarProcessDetail.navigateToProcessModerations();
+					await adminPage.waitForLoadState('networkidle');
 
 					// Ensure we're on the correct process moderation page
-					await page.goto(`/admin/participatory_processes/${processSlug}/moderations`);
-					await page.waitForLoadState('networkidle');
+					await adminPage.goto(`/admin/participatory_processes/${processSlug}/moderations`);
+					await adminPage.waitForLoadState('networkidle');
 
 					await processModerationPage.ensureOnMainListing();
-					await page.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('networkidle');
 
 					// Set contentId to our test comment ID
 					contentId = testCommentId;
@@ -572,13 +580,13 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 						// Expand the row to see detailed information
 						await processModerationPage.table.expandRow(rowIndex);
-						await page.waitForLoadState('networkidle');
+						await adminPage.waitForLoadState('networkidle');
 
 						console.log('Expanded reported content details');
 
 						// Unreport the content to make it visible again
 						await processModerationPage.table.unreportRow(0);
-						await page.waitForLoadState('networkidle');
+						await adminPage.waitForLoadState('networkidle');
 
 						console.log('Unreported the content to make it visible again');
 
@@ -590,7 +598,7 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 					// Navigate to the public debate page
 					await processModerationPage.navigateToDebate(processSlug, componentId, debateId);
-					await page.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('networkidle');
 
 					console.log('Setup completed - navigated to public debate page');
 
@@ -599,7 +607,7 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 					// Report comment with oversized content
 					await processModerationPage.reportCommentById(contentId, longReportReason);
-					await page.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('networkidle');
 
 					console.log('Submitted report with oversized content');
 				});
@@ -612,10 +620,10 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 				await test.step('10.3. USER: Chooses to retry the operation', async () => {
 					// Simulate browser back button
-					await page.goBack();
-					await page.waitForLoadState('networkidle');
+					await adminPage.goBack();
+					await adminPage.waitForLoadState('networkidle');
 
-					const currentUrl = page.url();
+					const currentUrl = adminPage.url();
 					console.log(`Navigated back to: ${currentUrl}`);
 
 					// Verify we're back on the debate page
@@ -623,7 +631,7 @@ test.describe('PAR-MOD002 – Process Content Moderation', () => {
 
 					// Verify the comment is still visible
 					const commentSelector = `#comment_${contentId}`;
-					await expect(page.locator(commentSelector)).toBeVisible();
+					await expect(adminPage.locator(commentSelector)).toBeVisible();
 
 					console.log('User returned to debate page');
 

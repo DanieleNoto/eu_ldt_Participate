@@ -5,14 +5,12 @@
  * Gianfranco Cedro
  */
 
-import { expect, test } from '@playwright/test';
+import { test, expect } from '@fixtures/parallel-test';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { ManagePageComponentPage } from '@pages/pages/admin/processes/detail/components/ManagePageComponentPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 
 /**
  * Test suite for Allows the City Administrator to update information on the convocation page once a participatory process is completed.
@@ -26,14 +24,8 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The participatory process has been completed.
  * - The convocation page for the process is available for editing.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
+
 test.describe('[PAR-TRA001] – Update convocation page after process completion', () => {
-	// Use admin storage state for authentication
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let componentsPage: ComponentsPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -45,15 +37,15 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 		body: 'This section contains the results, decisions and next steps of the participatory process.'
 	};
 
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ adminPage }) => {
 		// Direct navigation to the admin area and wait for load
-		adminHomePage = new AdminHomePage(page);
+		adminHomePage = new AdminHomePage(adminPage);
 
 		// Page Objects initialization
-		processAdminPage = new ProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		managePageComponentPage = new ManagePageComponentPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
+		managePageComponentPage = new ManagePageComponentPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
 		// Initial setup: verify/create process and convocation page
 	});

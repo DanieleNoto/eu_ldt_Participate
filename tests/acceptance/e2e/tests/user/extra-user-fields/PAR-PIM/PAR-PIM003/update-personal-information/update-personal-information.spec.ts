@@ -1,11 +1,15 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { TEST_USERS } from '@config/test-users';
 import { ExtraUserFieldsTestDataGenerator } from '@fixtures/extra-user-fields-fixtures';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { AccountPage } from '@pages/pages/user/account/AccountPage';
 import { UserExtraFieldsPage, UserFieldsData } from '@pages/pages/user/account/UserExtraFieldsPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Allows citizens to update or correct their personal information to ensure accuracy.
@@ -19,21 +23,16 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The citizen has an active account on the platform
  * - The citizen is logged into the platform
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
+
 test.describe('[PAR-PIM003] – Update personal information', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let homePage: HomePage;
 	let accountPage: AccountPage;
 	let userExtraFieldsPage: UserExtraFieldsPage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		accountPage = new AccountPage(page);
-		userExtraFieldsPage = new UserExtraFieldsPage(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		accountPage = new AccountPage(userPage);
+		userExtraFieldsPage = new UserExtraFieldsPage(userPage);
 		await homePage.navigateToHomePage();
 	});
 

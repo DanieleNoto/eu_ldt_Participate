@@ -4,14 +4,13 @@
  * Simone Bianchelli
  */
 
-import test, { expect } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { test } from '@fixtures/parallel-test-reserved';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { WebmailPage } from '@pages/base/WebmailPage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 
 /**
  * Allows administrators to export data from debates, including user contributions and discussion summaries, which are then sent to their email address for easy access and analysis.
@@ -20,17 +19,13 @@ import { STORAGE_STATE } from '@utils/constants';
  * Prerequisites:
  * - The City Administrator has an active account on the platform and is logged in.
  * - The debates have been conducted, and user contributions are available for export.
+ *
+ * @reserved - This test uses reserved/fixed admin account (TEST_ADMIN_EMAIL)
+ * and must be run sequentially with --workers=1 to avoid session conflicts.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-	await page.close();
-	await context.close();
-});
-
-test.describe('[PAR-DE002] – Export debate data', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
+test.describe('@reserved [PAR-DE002] – Export debate data', () => {
+	// Force sequential execution to prevent test interference
+	test.describe.configure({ mode: 'serial' });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -38,17 +33,16 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 	let webmailPage: WebmailPage;
 
 	// Use existing process with debates and responses
-	const processTitle = 'Update Test0';
 	const processSlug = 'test';
 	const componentName = 'Test Debates';
 
 	// Common setup for both flows (only Page Objects)
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		webmailPage = new WebmailPage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
+		webmailPage = new WebmailPage(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
 	});
 
@@ -61,7 +55,7 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 			{ fileFormat: 'JSON', exportType: 'Comments' },
 			{ fileFormat: 'Excel', exportType: 'Comments' }
 		].forEach(({ fileFormat, exportType }) => {
-			test(`should export ${exportType.toLowerCase()} data in ${fileFormat} format`, async ({ page }) => {
+			test(`should export ${exportType.toLowerCase()} data in ${fileFormat} format`, async ({ adminPage }) => {
 				await test.step('1. User: Navigates to the "Processes" section.', async () => {
 					// Navigate to processes section
 					await processAdminPage.navigateToProcesses();
@@ -69,15 +63,15 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 				});
 
 				await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
-					await page.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('networkidle');
 
 					// Verify we're on the processes page, with fallback navigation
 					let isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 
 					if (!isOnProcessesPage) {
 						// Try direct navigation if component navigation failed
-						await page.goto('/admin/participatory_processes');
-						await page.waitForLoadState('networkidle');
+						await adminPage.goto('/admin/participatory_processes');
+						await adminPage.waitForLoadState('networkidle');
 						isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 					}
 
@@ -92,12 +86,8 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 				});
 
 				await test.step('3. User: Selects the process that want to update', async () => {
-					// Select the process name that contains debate data
-					console.log(`Selecting process: ${processTitle}`);
-
-					// Click on the process to edit it
-					await processAdminPage.selectProcessForEdit(processTitle);
-					await page.waitForLoadState('networkidle');
+					await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+					await adminPage.waitForLoadState('networkidle');
 				});
 
 				await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -107,7 +97,7 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 					// Verify we're on the edit page for the correct process
 					const isOnEditPage = await processAdminPage.isOnProcessEditPage();
 					expect(isOnEditPage).toBe(true);
-					expect(page.url()).toContain(`/admin/participatory_processes/${processSlug}/edit`);
+					expect(adminPage.url()).toContain(`/admin/participatory_processes/${processSlug}/edit`);
 					console.log(`Process slug verified: ${processSlug}`);
 
 					// Check if the sidebar is visible and loaded
@@ -132,13 +122,13 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 
 				await test.step('6. System: Displays a list of available debates, including completed debates with user contributions and summaries.', async () => {
 					// Verify debates table is visible and has content
-					const debatesTable = page.locator('table.table-list tbody tr');
+					const debatesTable = adminPage.locator('table.table-list tbody tr');
 					const debatesCount = await debatesTable.count();
 					expect(debatesCount).toBeGreaterThan(0);
 					console.log(`Found ${debatesCount} debates in the list`);
 
 					// Verify that the specific debate is present in the list
-					const testDebateRow = page
+					const testDebateRow = adminPage
 						.locator('table.table-list tbody tr')
 						.filter({ hasText: 'Test debate QA' });
 					await expect(testDebateRow).toBeVisible();
@@ -149,14 +139,14 @@ test.describe('[PAR-DE002] – Export debate data', () => {
 					await componentsPage.exportComponentData(fileFormat, exportType);
 					console.log(`Selected Export ${exportType} as ${fileFormat} format`);
 
-					await page.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('networkidle');
 				});
 
 				await test.step('8. System: Displays a confirmation message on the platform, indicating that the export process has been initiated and that the file will be sent via email', async () => {
 					await componentsPage.expectExportConfirmationMessage();
 					console.log('Export status message is visible');
 
-					await page.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('networkidle');
 				});
 
 				await test.step("9. System: Sends an email to the administrator's registered email address with the export file as an attachment or a secure download link", async () => {

@@ -1,4 +1,10 @@
-import test, { expect } from '@playwright/test';
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
+import { test, expect } from '@fixtures/parallel-test';
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
@@ -8,8 +14,6 @@ import { SurveysManagePage } from '@pages/pages/admin/processes/detail/component
 import { QuestionnaireTemplatesPage } from '@pages/pages/admin/templates/QuestionnaireTemplatesPage';
 import { NewTemplatePage } from '@pages/pages/admin/templates/NewTemplatePage';
 import { EditTemplatePage } from '@pages/pages/admin/templates/EditTemplatePage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 
 /**
  * Create quick polls for immediate feedback
@@ -19,16 +23,8 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The City Administrator has permissions to create polls.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-	await page.close();
-	await context.close();
-});
 
 test.describe('[PAR-PAS002] – Create single-question polls', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -42,15 +38,15 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 	let templateName: string;
 	let processEditUrl: string;
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		surveysManagePage = new SurveysManagePage(page);
-		templatesPage = new QuestionnaireTemplatesPage(page);
-		newTemplatePage = new NewTemplatePage(page);
-		editTemplatePage = new EditTemplatePage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
+		surveysManagePage = new SurveysManagePage(adminPage);
+		templatesPage = new QuestionnaireTemplatesPage(adminPage);
+		newTemplatePage = new NewTemplatePage(adminPage);
+		editTemplatePage = new EditTemplatePage(adminPage);
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 
 		// Setup test environment
@@ -74,9 +70,9 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 	}
 
 	test.describe('Main Flow', () => {
-		test('should create a single-question polls', async ({ page }) => {
+		test('should create a single-question polls', async ({ adminPage }) => {
 			// Get the current URL to extract process slug
-			const currentUrl = page.url();
+			const currentUrl = adminPage.url();
 			const processSlugMatch = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
 			const processSlug = processSlugMatch ? processSlugMatch[1] : '';
 
@@ -112,8 +108,8 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we're on the edit page with process information using Page Object
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -164,22 +160,22 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await surveysManagePage.accessQuestionsManagement();
 
 				// Add new question
-				await page.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
 			});
 
 			await test.step('14. System: Displays the "Add Question" form.', async () => {
 				// Verify questions management interface is available
-				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add title and description' })).toBeVisible();
 
 				console.log('Questions management interface displayed with add question options');
 			});
 
 			await test.step('15. User: Fills in the Question Form: Statement: Adds the main question, Type: select question types, Mandatory: check if must be answered before submitting', async () => {
 				// Question 1: Long Answer
-				await page.waitForSelector('.questionnaire-question:nth-child(1)');
-				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(1)');
+				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 
 				// Expand question form if collapsed
 				const question1AccordionButton = question1Container.locator('.question--collapse').first();
@@ -222,7 +218,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				console.log('single-question poll is successfully created and published');
 
 				// Verify we're back on the surveys management page
-				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
+				expect(adminPage.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 			});
 		});
 	});
@@ -230,10 +226,10 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 	test.describe('Alternative Flow: Select template', () => {
 		let templateQuestionsCount = 0;
 
-		test.beforeEach(async ({ page }) => {
+		test.beforeEach(async ({ adminPage }) => {
 			await test.step('Setup: Navigate to Templates section', async () => {
 				await templatesPage.navigateToPage();
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 				console.log('Navigated to Templates section for prerequisite setup');
 			});
 
@@ -246,10 +242,10 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				templateName = `Survey_Template_${templateTimestamp}`;
 
 				await newTemplatePage.createSimpleTemplate(templateName);
-				await page.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit/);
+				await adminPage.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit/);
 
 				// Extract template ID from URL
-				const templateUrl = page.url();
+				const templateUrl = adminPage.url();
 				const templateMatch = templateUrl.match(/\/questionnaire_templates\/(\d+)\/edit/);
 				templateId = templateMatch ? templateMatch[1] : '';
 
@@ -258,17 +254,17 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 			await test.step('Setup: Add question to template', async () => {
 				await editTemplatePage.manageQuestions();
-				await page.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit_questions/);
+				await adminPage.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit_questions/);
 
 				// Verify questions management interface is available
-				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add title and description' })).toBeVisible();
 
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(1)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(1)');
 
-				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 				const question1AccordionButton = question1Container.locator('.question--collapse').first();
 				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded1 === 'false') {
@@ -292,22 +288,22 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 			await test.step('Setup: Save template and return to process', async () => {
 				// Save template questions
-				await page.getByRole('button', { name: 'Save' }).click();
-				await page.waitForLoadState('networkidle');
+				await adminPage.getByRole('button', { name: 'Save' }).click();
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Template questions saved successfully');
 
 				// Navigate back to the process edit page using the stored URL
 				console.log('Navigating back to process edit page:', processEditUrl);
-				await page.goto(processEditUrl);
-				await page.waitForLoadState('networkidle');
+				await adminPage.goto(processEditUrl);
+				await adminPage.waitForLoadState('networkidle');
 				console.log('Template setup completed - ready for template selection test');
 			});
 		});
 
-		test('should create a single-question polls based on a selected template', async ({ page }) => {
+		test('should create a single-question polls based on a selected template', async ({ adminPage }) => {
 			// Get the current URL to extract process slug
-			const currentUrl = page.url();
+			const currentUrl = adminPage.url();
 			const processSlugMatch = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
 			const processSlug = processSlugMatch ? processSlugMatch[1] : '';
 
@@ -327,8 +323,8 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				// Search for our created process by title and select it
 				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
 
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Navigate to Components section and create Survey component
 				await updateProcessAdminPage.navigateToComponents();
@@ -340,7 +336,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				// Fulfil name and description input and click on "Add component" button
 				await surveysManagePage.fulfillSurveyFormAndCreateComponent(componentName, processSlug, false);
 
-				await expect(page.getByText('Component created successfully')).toBeVisible();
+				await expect(adminPage.getByText('Component created successfully')).toBeVisible();
 
 				await surveysManagePage.accessComponentAndCreateNewSurvey(componentsPage, componentName);
 				await surveysManagePage.verifyTemplateSelectionDisplayed();
@@ -352,16 +348,16 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 			await test.step('10.1. User: Select a specific template', async () => {
 				// Use the template created in beforeEach
-				await page.getByRole('combobox', { name: 'Choose template' }).click();
-				await page.getByRole('combobox', { name: 'Choose template' }).fill(templateName);
-				await page.getByRole('button', { name: 'Create from template' }).click();
+				await adminPage.getByRole('combobox', { name: 'Choose template' }).click();
+				await adminPage.getByRole('combobox', { name: 'Choose template' }).fill(templateName);
+				await adminPage.getByRole('button', { name: 'Create from template' }).click();
 
 				// Wait for redirect after template application
-				await page.waitForURL(
+				await adminPage.waitForURL(
 					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
 				);
-				await page.waitForLoadState('networkidle');
-				await expect(page.getByText('Template applied successfully.')).toBeVisible();
+				await adminPage.waitForLoadState('networkidle');
+				await expect(adminPage.getByText('Template applied successfully.')).toBeVisible();
 				console.log(`Template "${templateName}" applied successfully`);
 			});
 
@@ -375,10 +371,10 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await surveysManagePage.accessQuestionsManagement();
 
 				// Verify the imported question from template is present
-				await expect(page.locator('.questionnaire-question:nth-child(1)')).toBeVisible();
+				await expect(adminPage.locator('.questionnaire-question:nth-child(1)')).toBeVisible();
 
 				// Verify the question content matches what was configured in the template
-				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 				const question1AccordionButton = question1Container.locator('.question--collapse').first();
 				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded1 === 'false') {
@@ -412,7 +408,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await surveysManagePage.verifySurveyQuestionsSaved();
 
 				// Verify template questions are pre-populated and publish (Steps 17-18 equivalent)
-				await expect(page.getByRole('link', { name: 'Publish' })).toBeVisible();
+				await expect(adminPage.getByRole('link', { name: 'Publish' })).toBeVisible();
 
 				// Final step: Publish the survey poll
 				await surveysManagePage.publishSurvey();
@@ -426,15 +422,15 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				console.log(`Survey with template configured, saved and published successfully`);
 
 				// Final verification that we're on the management page confirming successful creation
-				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
+				expect(adminPage.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 			});
 		});
 	});
 
 	test.describe('Alternative Flow: Fields Validation Fail', () => {
-		test('should detect and handle validation errors during poll creation', async ({ page }) => {
+		test('should detect and handle validation errors during poll creation', async ({ adminPage }) => {
 			// Get the current URL to extract process slug
-			const currentUrl = page.url();
+			const currentUrl = adminPage.url();
 			const processSlugMatch = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
 			const processSlug = processSlugMatch ? processSlugMatch[1] : '';
 
@@ -456,8 +452,8 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				// Search for our created process by title and select it
 				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
 
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Navigate to Components section and create Survey component
 				await updateProcessAdminPage.navigateToComponents();
@@ -469,7 +465,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				// Fulfil name and description input and click on "Add component" button
 				await surveysManagePage.fulfillSurveyFormAndCreateComponent(componentName, processSlug, false);
 
-				await expect(page.getByText('Component created successfully')).toBeVisible();
+				await expect(adminPage.getByText('Component created successfully')).toBeVisible();
 
 				await surveysManagePage.accessComponentAndCreateNewSurvey(componentsPage, componentName);
 				await surveysManagePage.verifyTemplateSelectionDisplayed();
@@ -483,16 +479,16 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await surveysManagePage.accessQuestionsManagement();
 
 				// Verify questions management interface is available
-				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add title and description' })).toBeVisible();
 
 				// Add new question
-				await page.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
 
 				// Question 1: Single Option
-				await page.waitForSelector('.questionnaire-question:nth-child(1)');
-				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(1)');
+				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 
 				// Expand question form if collapsed
 				const question1AccordionButton = question1Container.locator('.question--collapse').first();
@@ -503,7 +499,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				}
 
 				// Change question type from default to single option
-				await page
+				await adminPage
 					.getByRole('option', { name: 'Question #1 Remove Statement' })
 					.getByLabel('TypeShort answer Long answer')
 					.selectOption('single_option');
@@ -513,7 +509,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 			await test.step('17.1. System: Validates the input fields for completeness', async () => {
 				// Verify that required fields are empty before attempting to save
-				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 
 				// Verify that the main question statement field is empty
 				const allStatementFields = question1Container.getByRole('textbox', { name: 'Statement' });
@@ -536,8 +532,8 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				console.log('Verified that required fields are empty before attempting validation');
 
 				// Test validation by trying to save empty form
-				await page.getByRole('button', { name: 'Save' }).click();
-				await page.waitForURL(
+				await adminPage.getByRole('button', { name: 'Save' }).click();
+				await adminPage.waitForURL(
 					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/update_questions/
 				);
 				console.log('System initiated validation check for form completeness');
@@ -545,12 +541,12 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 			await test.step('17.2. System: Detects missing or invalid fields', async () => {
 				// Verify validation error messages for required fields
-				await expect(page.getByText('There was a problem saving')).toBeVisible();
+				await expect(adminPage.getByText('There was a problem saving')).toBeVisible();
 
 				// Verify specific validation errors for the required Statement fields:
 				// 1. Question Statement field is required
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.first()
@@ -558,7 +554,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 				// 2. Option A Statement field is required
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(1)
@@ -566,7 +562,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 				// 3. Option B Statement field is required
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(2)
@@ -577,7 +573,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 			await test.step('17.3. User: Corrects the errors in the input fields', async () => {
 				// Fill question details properly to correct validation errors
-				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 
 				// Fill the main question statement field
 				const allStatementFields = question1Container.getByRole('textbox', { name: 'Statement' });
@@ -625,7 +621,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await surveysManagePage.verifyPublishedQuestionsCount(questionsCount, 'survey creation');
 
 				console.log('System revalidated corrected fields successfully and poll was saved and published');
-				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
+				expect(adminPage.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 			});
 		});
 	});

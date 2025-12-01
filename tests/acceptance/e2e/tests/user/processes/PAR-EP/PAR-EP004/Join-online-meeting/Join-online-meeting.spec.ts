@@ -1,11 +1,15 @@
-import { test } from '@playwright/test';
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Simone Bianchelli
+ */
+import { test } from '@fixtures/parallel-test-reserved';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { FormMeetingPage } from '@pages/pages/admin/processes/detail/meetings/FormMeetingPage';
 import { MeetingsPage } from '@pages/pages/admin/processes/detail/meetings/MeetingsPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { STORAGE_STATE } from '@utils/constants';
-import { ensureLoggedIn } from '@utils/auth-helper';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
@@ -23,9 +27,8 @@ import { MeetingDetailPage } from '@pages/pages/user/processes/MeetingDetailPage
  * - The meeting is scheduled and hosted online
  */
 
-test.describe('[PAR-EP004] – Flow meeting admin + user', () => {
-	// All tests run as USER
-	test.use({ storageState: STORAGE_STATE.USER });
+test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
+	test.describe.configure({ mode: 'serial' });
 
 	// Variables for USER-side objects
 	let homePage: HomePage;
@@ -33,13 +36,8 @@ test.describe('[PAR-EP004] – Flow meeting admin + user', () => {
 	let processDetailPage: ProcessDetailPage;
 	let meetingDetailPage: MeetingDetailPage;
 
-	test.beforeEach(async ({ page, browser }, testInfo) => {
+	test.beforeEach(async ({ adminPage, userPage }, testInfo) => {
 		// --- ADMIN PRE-REQUISITE ---
-		const adminContext = await browser.newContext({ storageState: STORAGE_STATE.ADMIN });
-		const adminPage = await adminContext.newPage();
-
-		await ensureLoggedIn(adminPage, 'ADMIN');
-
 		const adminHomePage = new AdminHomePage(adminPage);
 		const processAdminPage = new ProcessAdminPage(adminPage);
 		const updateProcessPage = new UpdateProcessAdminPage(adminPage);
@@ -86,15 +84,11 @@ test.describe('[PAR-EP004] – Flow meeting admin + user', () => {
 			await formMeetingPage.getPage().waitForLoadState('networkidle');
 		});
 
-		// Close context admin
-		await adminPage.close();
-		await adminContext.close();
-
 		// --- USER INIT ---
-		homePage = new HomePage(page);
-		processesOverviewPage = new ProcessesOverviewPage(page);
-		processDetailPage = new ProcessDetailPage(page);
-		meetingDetailPage = new MeetingDetailPage(page);
+		homePage = new HomePage(userPage);
+		processesOverviewPage = new ProcessesOverviewPage(userPage);
+		processDetailPage = new ProcessDetailPage(userPage);
+		meetingDetailPage = new MeetingDetailPage(userPage);
 		await homePage.navigateToHomePage();
 	});
 

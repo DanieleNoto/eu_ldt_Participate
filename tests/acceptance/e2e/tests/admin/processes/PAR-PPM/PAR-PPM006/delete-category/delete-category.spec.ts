@@ -1,12 +1,16 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { ConfirmDeleteModalComponent } from '@pages/components/common/ConfirmDeleteModalComponent';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { CategoriesPage } from '@pages/pages/admin/processes/detail/categories/CategoriesPage';
 import { NewCategoryPage } from '@pages/pages/admin/processes/detail/categories/NewCategoryPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows City Administrators to delete a category of the process.
@@ -19,13 +23,8 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The process has already been created.
  * - The category has already been created and linked to process.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
+
 test.describe('[PAR-PPM006] – Delete category in process', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -33,13 +32,13 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 	let confirmDeleteModalComponent: ConfirmDeleteModalComponent;
 	let newCategoryPage: NewCategoryPage;
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		categoriesPage = new CategoriesPage(page);
-		newCategoryPage = new NewCategoryPage(page);
-		confirmDeleteModalComponent = new ConfirmDeleteModalComponent(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		categoriesPage = new CategoriesPage(adminPage);
+		newCategoryPage = new NewCategoryPage(adminPage);
+		confirmDeleteModalComponent = new ConfirmDeleteModalComponent(adminPage);
 		await setupTestProcess();
 		await adminHomePage.navigateToAdminHomePage();
 	});

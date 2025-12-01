@@ -1,13 +1,19 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ * Simone Bianchelli
+ */
+
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { DebatesPage } from '@pages/pages/admin/processes/detail/debates/DebatesPage';
 import { NewDebatePage } from '@pages/pages/admin/processes/detail/debates/NewDebatePage';
-import { expect, test } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { test } from '@fixtures/parallel-test';
 
-import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
 
 /**
  * Test suite for creating a new debate topic in a participatory process
@@ -22,73 +28,109 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The authorized user has permissions to create debates
  * - The debate component is available and configured properly on Process
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
 test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
-	// Use admin storage state for authentication
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
+	let surveysManagePage: SurveysManagePage;
 	let componentsPage: ComponentsPage;
 	let debatesPage: DebatesPage;
 	let newDebatePage: NewDebatePage;
-	let validProcessData: any;
 
-	// Test data - English only
-	const testProcessData = {
-		slug: 'test-process-create-debate',
-		title: 'Test Process for Creating Debates'
-	};
+	// Use existing process with fixed slug for consistent testing
+	const processSlug = 'test';
+	const processTitle = 'Update Test0';
+	const debatesComponentId = '3'; // Existing Debates component ID
+
+	// Track created debate for cleanup
+	let createdDebateTitle: string | null = null;
+
+	// Generate unique debate title for each test run
+	let debateTitle: string;
 
 	const newDebateData = {
-		title: 'City Budget Discussion 2025',
 		description:
 			"Let's discuss the allocation of the city budget for the upcoming year. Your input is valuable to ensure our resources are used effectively.",
 		instructions:
 			'Please be respectful and constructive in your comments. Focus on specific budget items and provide reasoning for your suggestions.',
 		informationUpdates: 'Updates will be posted weekly regarding the budget process timeline.',
 		debateType: 'open' as const, // or 'finite'
-		category: 'Budget & Finance',
 		commentsEnabled: true
 	};
 
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ adminPage }) => {
+		// Generate unique title for this test run to avoid conflicts in parallel execution
+		const timestamp = Date.now();
+		debateTitle = `City_Budget_Discussion_${timestamp}`;
+
 		// Initialize Page Objects
-
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		debatesPage = new DebatesPage(page);
-		newDebatePage = new NewDebatePage(page);
-
-		// Generate valid test data
-		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
-
-		// Override with specific data for consistency
-		validProcessData.general.urlSlug = testProcessData.slug;
-		validProcessData.general.title = testProcessData.title;
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		surveysManagePage = new SurveysManagePage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
+		debatesPage = new DebatesPage(adminPage);
+		newDebatePage = new NewDebatePage(adminPage);
 
 		await adminHomePage.navigateToAdminHomePage();
-		await setupTestProcess();
+	});
+
+	test.afterEach(async ({ adminPage }) => {
+		// Cleanup: delete created debate if it exists
+		if (createdDebateTitle) {
+			try {
+				console.log(`[Cleanup] Attempting to delete debate: ${createdDebateTitle}`);
+
+				// Navigate directly to the debates management page
+				await adminPage.goto(
+					`/admin/participatory_processes/${processSlug}/components/${debatesComponentId}/manage/debates`
+				);
+				await adminPage.waitForLoadState('networkidle');
+
+				// Find the debate by title and delete it
+				const debateIndex = await debatesPage.findDebateIndexByTitle(createdDebateTitle);
+
+				if (debateIndex >= 0) {
+					console.log(`[Cleanup] Found debate at index ${debateIndex}, deleting...`);
+
+					// Click the soft delete button (uses .action-icon--delete class)
+					const row = adminPage.locator('table.table-list tbody tr').nth(debateIndex);
+					const deleteButton = row.locator('.action-icon--delete');
+					await deleteButton.click();
+
+					// Wait for confirm modal and click OK button
+					const confirmOkButton = adminPage.locator('[data-confirm-ok]');
+					await confirmOkButton.waitFor({ state: 'visible' });
+					await confirmOkButton.click();
+
+					await adminPage.waitForLoadState('networkidle');
+					console.log(`[Cleanup] Debate deleted successfully`);
+				} else {
+					console.log(`[Cleanup] Debate not found, may have been already deleted`);
+				}
+			} catch (error) {
+				console.error(`[Cleanup] Failed to delete debate:`, error);
+			} finally {
+				createdDebateTitle = null;
+			}
+		}
 	});
 
 	/**
-	 * Setup test environment by ensuring a test process with debates component exists
+	 * Navigate directly to the existing debates component management page
 	 */
-	async function setupTestProcess() {
-		await test.step('Setup: Create/verify test process with debates component exists', async () => {
-			await processAdminPage.createTestProcess(validProcessData);
-		});
+	async function navigateToDebatesManagement(adminPage: any) {
+		await adminPage.goto(
+			`/admin/participatory_processes/${processSlug}/components/${debatesComponentId}/manage/debates`
+		);
+		await adminPage.waitForLoadState('networkidle');
 	}
 
 	test.describe('Main Flow - Successfully create new debate topic', () => {
-		test('should allow City Administrator to create a new debate topic for citizen discussions', async () => {
+		test('should allow City Administrator to create a new debate topic for citizen discussions', async ({
+			adminPage
+		}) => {
 			await test.step('1. User navigates to the "Processes" section', async () => {
 				await processAdminPage.navigateToProcesses();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -101,31 +143,28 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 			});
 
 			await test.step('3. User selects the process that want to update', async () => {
-				// Click edit on the first process in the table
-				await processAdminPage.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				// Search and select the fixed test process
+				await surveysManagePage.searchAndSelectProcess(processTitle);
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('4. System loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				// Verify we're on the process edit/management page
-				const currentUrl = processAdminPage.getPage().url();
+				const currentUrl = adminPage.url();
 				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/edit/);
 			});
 
 			await test.step('5. User navigates to the "Create Debate" section on the platform', async () => {
-				// Navigate to components page to access debates component
-				await componentsPage.sidebarProcessDetail.navigateToComponents();
-				await componentsPage.waitForComponentsPageLoad();
+				// Navigate directly to the existing debates component
+				await navigateToDebatesManagement(adminPage);
 
-				// Verify we're on the components page
-				const isOnComponentsPage = await componentsPage.isOnComponentsPage();
-				expect(isOnComponentsPage).toBe(true);
+				// Verify we're on the debates management page
+				const currentUrl = adminPage.url();
+				expect(currentUrl).toContain(
+					`/admin/participatory_processes/${processSlug}/components/${debatesComponentId}/manage`
+				);
 
-				// Navigate to debates component management (simulating accessing "Create Debate" section)
-				await componentsPage.manageComponent('Debate');
-				const currentUrl = componentsPage.getPage().url();
-				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\//);
-				await debatesPage.getPage().waitForLoadState('networkidle');
+				// Click on New Debate button
 				await debatesPage.createNewDebate();
 			});
 
@@ -150,7 +189,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 
 			await test.step('7. User fills in the required fields', async () => {
 				// Fill in debate creation form fields using NewDebatePage
-				await newDebatePage.fillTitle(newDebateData.title);
+				await newDebatePage.fillTitle(debateTitle);
 				await newDebatePage.fillDescription(newDebateData.description);
 				await newDebatePage.fillInstructions(newDebateData.instructions);
 				await newDebatePage.fillInformationUpdates(newDebateData.informationUpdates);
@@ -162,17 +201,15 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 					await newDebatePage.setDebateTypeFinite();
 				}
 
-				// // Set category if available
-				// if (newDebateData.category) {
-				// 	await newDebatePage.selectCategory(newDebateData.category);
-				// }
-
 				// Enable comments
 				await newDebatePage.setCommentsEnabled(newDebateData.commentsEnabled);
 
 				// Verify form data has been filled correctly
 				const titleValue = await newDebatePage.getPage().locator('#debate_title_en').inputValue();
-				expect(titleValue).toBe(newDebateData.title);
+				expect(titleValue).toBe(debateTitle);
+
+				// Track created debate for cleanup
+				createdDebateTitle = debateTitle;
 			});
 
 			await test.step('8. User clicks on "Create Debate" to submit the form', async () => {
@@ -234,21 +271,17 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 	});
 
 	test.describe('Alternative Flow - Cancel operation', () => {
-		test('should allow user to cancel creating a new debate', async () => {
+		test('should allow user to cancel creating a new debate', async ({ adminPage }) => {
 			await test.step('Navigate to debate creation form', async () => {
-				await processAdminPage.navigateToProcesses();
-				await processAdminPage.editFirstProcess();
-				await componentsPage.sidebarProcessDetail.navigateToComponents();
-				await componentsPage.waitForComponentsPageLoad();
-				await componentsPage.manageComponent('Debate');
-				await debatesPage.getPage().waitForLoadState('networkidle');
+				await navigateToDebatesManagement(adminPage);
 				await debatesPage.createNewDebate();
 				await newDebatePage.waitForPageReady();
 			});
 
 			await test.step('User decides not to proceed with creating a new debate', async () => {
-				// Fill some data first
-				await newDebatePage.fillTitle('Cancel Test Debate');
+				// Fill some data first with unique name
+				const cancelTestTitle = `Cancel_Test_${Date.now()}`;
+				await newDebatePage.fillTitle(cancelTestTitle);
 
 				// Navigate away using sidebar (equivalent to canceling)
 				await newDebatePage.sidebar.navigateToComponents();
@@ -258,8 +291,8 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 				// Verify we're back on components page
 				await componentsPage.expectToBeOnComponentsPage();
 
-				// Verify the debate component still exists but no new debate was created
-				const componentExists = await componentsPage.findComponentByName('Debate');
+				// Verify the debate component still exists
+				const componentExists = await componentsPage.findComponentByName('Debates');
 				expect(componentExists).toBe(true);
 			});
 
@@ -272,14 +305,12 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 	});
 
 	test.describe('Alternative Flow - Field validation fail', () => {
-		test('should handle validation errors when required fields are missing', async () => {
+		test('should handle validation errors when required fields are missing', async ({ adminPage }) => {
+			// Generate unique title for retry
+			const correctedTitle = `Corrected_Debate_${Date.now()}`;
+
 			await test.step('Navigate to debate creation form', async () => {
-				await processAdminPage.navigateToProcesses();
-				await processAdminPage.editFirstProcess();
-				await componentsPage.sidebarProcessDetail.navigateToComponents();
-				await componentsPage.waitForComponentsPageLoad();
-				await componentsPage.manageComponent('Debate');
-				await debatesPage.getPage().waitForLoadState('networkidle');
+				await navigateToDebatesManagement(adminPage);
 				await debatesPage.createNewDebate();
 				await newDebatePage.waitForPageReady();
 			});
@@ -292,10 +323,10 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 
 			await test.step('System detects missing or incorrect fields and displays appropriate error messages', async () => {
 				// Wait for validation
-				await newDebatePage.getPage().waitForTimeout(1000);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we're still on the form page
-				const currentUrl = newDebatePage.getPage().url();
+				const currentUrl = adminPage.url();
 				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\/debates/);
 
 				// Check for validation errors
@@ -304,47 +335,51 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 
 			await test.step('User corrects the errors and resubmits the form', async () => {
 				// Fill the required field
-				await newDebatePage.fillTitle('Corrected Debate Title');
+				await newDebatePage.fillTitle(correctedTitle);
 				await newDebatePage.fillDescription('A proper description for the corrected debate.');
 				await newDebatePage.fillInstructions('Instructions for participation in this debate.');
+
+				// Track for cleanup
+				createdDebateTitle = correctedTitle;
 
 				// Submit again
 				await newDebatePage.clickCreateDebate();
 
 				// Wait for successful submission
-				await newDebatePage.getPage().waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify success (check that we're no longer on the new debate page)
-				const currentUrl = newDebatePage.getPage().url();
+				const currentUrl = adminPage.url();
 				expect(currentUrl).not.toMatch(/\/new$/);
 			});
 		});
 	});
 
 	test.describe('Alternative Flow - Submission error', () => {
-		test('should handle submission errors and allow retry', async () => {
+		test('should handle submission errors and allow retry', async ({ adminPage }) => {
+			// Generate unique title for this test
+			const submissionTestTitle = `Submission_Error_Test_${Date.now()}`;
+
 			await test.step('Navigate to debate creation form', async () => {
-				await processAdminPage.navigateToProcesses();
-				await processAdminPage.editFirstProcess();
-				await componentsPage.sidebarProcessDetail.navigateToComponents();
-				await componentsPage.waitForComponentsPageLoad();
-				await componentsPage.manageComponent('Debate');
-				await debatesPage.getPage().waitForLoadState('networkidle');
+				await navigateToDebatesManagement(adminPage);
 				await debatesPage.createNewDebate();
 				await newDebatePage.waitForPageReady();
 			});
 
 			await test.step('User fills form and submits', async () => {
 				// Fill the form with valid data
-				await newDebatePage.fillTitle('Submission Error Test');
+				await newDebatePage.fillTitle(submissionTestTitle);
 				await newDebatePage.fillDescription('This debate should test submission error handling');
 				await newDebatePage.fillInstructions('Instructions for testing submission errors');
+
+				// Track for cleanup
+				createdDebateTitle = submissionTestTitle;
 			});
 
 			await test.step('System encounters an error while saving the new debate', async () => {
 				// Submit the form
 				await newDebatePage.clickCreateDebate();
-				await newDebatePage.getPage().waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				// In a real scenario, this would be where a submission error occurs
 				// For testing purposes, we'll check if we can handle error states
@@ -353,13 +388,11 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 			await test.step('System displays an error message indicating the failure', async () => {
 				// Check for any error messages or failure indicators
 				// In case of success (no actual error in test), verify the normal flow
-				const hasErrorMessage = await newDebatePage
-					.getPage()
+				const hasErrorMessage = await adminPage
 					.locator('.alert.alert-danger')
 					.isVisible()
 					.catch(() => false);
-				const hasSuccessMessage = await newDebatePage
-					.getPage()
+				const hasSuccessMessage = await adminPage
 					.locator('.alert.alert-success, .flash.success')
 					.isVisible()
 					.catch(() => false);
@@ -371,22 +404,22 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 			await test.step('User chooses to retry the operation', async () => {
 				// If there was an error, user would retry
 				// For successful submission, verify the result
-				const currentUrl = newDebatePage.getPage().url();
+				const currentUrl = adminPage.url();
 
 				if (currentUrl.includes('/new')) {
 					// Still on new debate page, retry submission
 					await newDebatePage.clickCreateDebate();
-					await newDebatePage.getPage().waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('networkidle');
 				}
 
 				// Verify final state
-				const finalUrl = newDebatePage.getPage().url();
+				const finalUrl = adminPage.url();
 				expect(finalUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\/debates/);
 			});
 
 			await test.step('Result: The debate creation is handled appropriately, with proper error logging and retry capability', async () => {
 				// Verify the system state is consistent
-				const currentUrl = newDebatePage.getPage().url();
+				const currentUrl = adminPage.url();
 				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/manage\/debates/);
 			});
 		});

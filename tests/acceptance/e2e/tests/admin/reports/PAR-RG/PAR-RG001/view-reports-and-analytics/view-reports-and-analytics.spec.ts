@@ -1,3 +1,8 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
 import { test, expect } from '@playwright/test';
 import { GrafanaAuthHelper } from '../../../../../../utils/grafana-auth-helper';
 import { GrafanaDashboardPage } from '../../../../../../pages/pages/admin/reports/GrafanaDashboardPage';
@@ -10,12 +15,6 @@ import { setupGrafanaDataSource } from '@utils/grafana-setup-helper';
  * Prerequisites:
  * - The system administrator has an active account on the platform and is logged in.
  * - The platform has sufficient data on community engagement and communication activities
- */
-
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
- * Authors:
- * Simone Bianchelli
  */
 
 test.describe('[PAR-RG001] - View reports and analytics', () => {

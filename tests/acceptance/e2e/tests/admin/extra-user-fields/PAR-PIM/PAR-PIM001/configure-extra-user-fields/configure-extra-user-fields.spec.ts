@@ -1,21 +1,26 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ * Simone Bianchelli
+ */
+
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ExtraUserFieldsAdminPage } from '@pages/pages/admin/ExtraUserFieldsAdminPage';
-import { expect, test } from '@playwright/test';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 test.describe('[PAR-PIM001] Admin Extra User Fields Configuration', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let extraUserFieldsAdminPage: ExtraUserFieldsAdminPage;
 
-	test.beforeEach(async ({ page }) => {
-		extraUserFieldsAdminPage = new ExtraUserFieldsAdminPage(page);
-		adminHomePage = new AdminHomePage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		extraUserFieldsAdminPage = new ExtraUserFieldsAdminPage(adminPage);
+		adminHomePage = new AdminHomePage(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
 		await extraUserFieldsAdminPage.navigateToSettings();
 	});
 
-	test('should successfully configure extra user fields as admin', async ({ page }) => {
+	test('should successfully configure extra user fields as admin', async ({ adminPage }) => {
 		// Enable all extra user fields (already logged in via storage state)
 		await extraUserFieldsAdminPage.enableAllExtraUserFields();
 		await extraUserFieldsAdminPage.saveConfiguration();
@@ -23,16 +28,16 @@ test.describe('[PAR-PIM001] Admin Extra User Fields Configuration', () => {
 		// Verify success and that all checkboxes are checked
 		await extraUserFieldsAdminPage.expectConfigurationSaved();
 
-		await expect(page.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
-		await expect(page.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
-		await expect(page.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
-		await expect(page.getByRole('checkbox', { name: 'Enable postal code field' })).toBeChecked();
-		await expect(page.getByRole('checkbox', { name: 'Enable gender field' })).toBeChecked();
-		await expect(page.getByRole('checkbox', { name: 'Enable phone number field' })).toBeChecked();
-		await expect(page.getByRole('checkbox', { name: 'Enable location field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable postal code field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable gender field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable phone number field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable location field' })).toBeChecked();
 	});
 
-	test('should allow selective enabling of user fields', async ({ page }) => {
+	test('should allow selective enabling of user fields', async ({ adminPage }) => {
 		// Navigate to configuration page
 		await extraUserFieldsAdminPage.navigateToSettings();
 		await extraUserFieldsAdminPage.navigateToExtraUserFields();
@@ -47,12 +52,12 @@ test.describe('[PAR-PIM001] Admin Extra User Fields Configuration', () => {
 		await extraUserFieldsAdminPage.saveConfiguration();
 
 		// Verify only selected fields are enabled
-		await expect(page.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
-		await expect(page.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
-		await expect(page.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
 	});
 
-	test('should maintain configuration state after page reload', async ({ page }) => {
+	test('should maintain configuration state after page reload', async ({ adminPage }) => {
 		// Setup and configure fields
 		await extraUserFieldsAdminPage.navigateToSettings();
 		await extraUserFieldsAdminPage.navigateToExtraUserFields();
@@ -61,15 +66,15 @@ test.describe('[PAR-PIM001] Admin Extra User Fields Configuration', () => {
 		await extraUserFieldsAdminPage.expectConfigurationSaved();
 
 		// Reload the page
-		await page.reload();
+		await adminPage.reload();
 
 		// Verify configuration persisted
-		await expect(page.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
-		await expect(page.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
-		await expect(page.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
 	});
 
-	test('should validate form before submission to prevent errors', async ({ page }) => {
+	test('should validate form before submission to prevent errors', async ({ adminPage }) => {
 		// Navigate to configuration
 		await extraUserFieldsAdminPage.navigateToSettings();
 		await extraUserFieldsAdminPage.navigateToExtraUserFields();
@@ -78,7 +83,7 @@ test.describe('[PAR-PIM001] Admin Extra User Fields Configuration', () => {
 		await extraUserFieldsAdminPage.saveConfiguration();
 
 		// Check for validation messages
-		const validationMessage = await page.locator('.field-error, .validation-error').first();
+		const validationMessage = adminPage.locator('.field-error, .validation-error').first();
 		if (await validationMessage.isVisible()) {
 			expect(await validationMessage.textContent()).toContain('required');
 		}

@@ -1,3 +1,11 @@
+/**
+ * SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ * Simone Bianchelli
+ */
+
 import { Page, expect } from '@playwright/test';
 import { BaseAdminPage } from './BaseAdminPage';
 
@@ -13,16 +21,16 @@ export class ExtraUserFieldsAdminPage extends BaseAdminPage {
 
 	// Navigation specific to extra user fields
 	async navigateToExtraUserFields() {
-		await this.page.goto('http://localhost:3000/admin/organization/edit');
+		await this.page.goto('/admin/organization/edit');
 		await this.page.getByRole('link', { name: 'Manage extra user fields' }).click();
 	}
 
 	async navigateToExtraUserFieldsManagement() {
-		await this.page.goto('http://localhost:3000/admin/extra_user_fields/extra_user_fields');
+		await this.page.goto('/admin/extra_user_fields/extra_user_fields');
 	}
 
 	async navigateToExtraUserFieldsConfig() {
-		await this.page.goto('http://localhost:3000/admin/extra_user_fields/');
+		await this.page.goto('/admin/extra_user_fields/');
 	}
 
 	// Extra user fields configuration

@@ -1,9 +1,14 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Gianfranco Cedro
+ */
+
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { expect, test } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Enables City Administrators to create Process and distribute them through various feedback mechanisms to gather citizen input.
@@ -15,29 +20,24 @@ import { STORAGE_STATE } from '@utils/constants';
  * Prerequisites:
  * - The City Administrator has an active account on the platform and is logged in.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
+
 test.describe('[PAR-PPM001] – Create new process', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let validProcessData: any;
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 		await adminHomePage.navigateToAdminHomePage();
 		await processAdminPage.navigateToProcesses();
-		await page.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('networkidle');
 	});
 
 	test.describe('Main Flow - Create Process', () => {
 		test('should successfully create a public participatory process with all required information', async ({
-			page
+			adminPage
 		}) => {
 			await test.step('1. User: Logs into the platform and navigates to the "New Process" section.', async () => {
 				await processAdminPage.navigateToNewProcess();
@@ -67,12 +67,12 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 				console.log('Filling minimal required fields only...');
 
 				// Check page state before starting
-				if (page.isClosed()) {
+				if (adminPage.isClosed()) {
 					throw new Error('Page is closed at the start of form filling');
 				}
 
 				// Wait for page stability
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				await processAdminPage.fillGeneralInfo(validProcessData.general);
 			});
@@ -105,17 +105,17 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 				await processAdminPage.expectSuccessMessage();
 
 				// Verify navigation to process steps page indicates successful creation
-				await expect(page).toHaveURL(/\/admin\/participatory_processes\/.*\/steps/);
+				await expect(adminPage).toHaveURL(/\/admin\/participatory_processes\/.*\/steps/);
 
 				// Result: City Administrator can collect iterative and co-created feedback from citizens
 				// Verify process title is visible on the page
-				await expect(page.getByText(validProcessData.general.title)).toBeVisible();
+				await expect(adminPage.getByText(validProcessData.general.title)).toBeVisible();
 			});
 		});
 	});
 
 	test.describe.skip('Alternative Flow: Cancel Creation ', () => {
-		test('should allow cancellation of process creation and return to dashboard', async ({ page }) => {
+		test('should allow cancellation of process creation and return to dashboard', async ({ adminPage }) => {
 			await test.step('Start process creation and then cancel', async () => {
 				// Start at point 1-3: Navigate and begin filling form
 				await processAdminPage.navigateToNewProcess();
@@ -130,13 +130,13 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 			await test.step('Verify return to processes list', async () => {
 				// Verify user is back at the admin home page using the modular check
 
-				await expect(page).toHaveURL(/\/admin\//);
+				await expect(adminPage).toHaveURL(/\/admin\//);
 			});
 		});
 	});
 
 	test.describe('Alternative Flow: Field Validation Failures', () => {
-		test('should handle missing required fields and provide error guidance', async ({ page }) => {
+		test('should handle missing required fields and provide error guidance', async ({ adminPage }) => {
 			const invalidProcessData = ProcessTestDataGenerator.generateInvalidProcessData();
 
 			await test.step('Navigate to new process form', async () => {
@@ -158,7 +158,7 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 			});
 		});
 
-		test('should handle edge cases in process data input', async ({ page }) => {
+		test('should handle edge cases in process data input', async ({ adminPage }) => {
 			await test.step('Navigate to new process form', async () => {
 				await processAdminPage.navigateToNewProcess();
 			});
@@ -176,7 +176,7 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 
 			await test.step('Verify minimal data is accepted', async () => {
 				await processAdminPage.expectSuccessMessage();
-				await expect(page).toHaveURL(/\/admin\/participatory_processes\/.*\/steps/);
+				await expect(adminPage).toHaveURL(/\/admin\/participatory_processes\/.*\/steps/);
 			});
 		});
 	});

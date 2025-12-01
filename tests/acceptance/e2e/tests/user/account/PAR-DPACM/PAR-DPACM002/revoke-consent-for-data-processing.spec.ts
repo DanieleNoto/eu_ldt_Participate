@@ -1,10 +1,15 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { AccountPage } from '@pages/pages/user/account/AccountPage';
 
 import { NotificationSettingsPage } from '@pages/pages/user/NotificationSettingsPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Consent Management User Story - Notification Settings
@@ -15,21 +20,16 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The citizen is logged into the platform
  * - The citizen has access to the "My account" section
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
+
 test.describe('[PAR-DPACM002] – Revoke consent for data processing through notification settings', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let homePage: HomePage;
 	let accountPage: AccountPage;
 	let notificationSettingsPage: NotificationSettingsPage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		accountPage = new AccountPage(page);
-		notificationSettingsPage = new NotificationSettingsPage(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		accountPage = new AccountPage(userPage);
+		notificationSettingsPage = new NotificationSettingsPage(userPage);
 		await homePage.navigateToHomePage();
 	});
 
