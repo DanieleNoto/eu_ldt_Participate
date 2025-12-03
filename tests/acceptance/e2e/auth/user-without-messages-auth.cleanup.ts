@@ -1,3 +1,9 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { test as cleanup } from '@playwright/test';
 import * as fs from 'fs';
 import { STORAGE_STATE } from '../utils/constants';

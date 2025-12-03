@@ -1,3 +1,9 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 export const TEST_USERS = {
 	NORMAL_USER: {
 		email: process.env.TEST_USER_EMAIL || 'user@example.org',

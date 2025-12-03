@@ -1,3 +1,9 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { AuthenticatedPage } from '@pages/base/AuthenticatedPage';
 import { expect, Page } from '@playwright/test';
 

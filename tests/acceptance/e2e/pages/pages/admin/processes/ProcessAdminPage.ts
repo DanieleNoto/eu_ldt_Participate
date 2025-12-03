@@ -1,3 +1,11 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ * Denis Vasilev Dimchev
+ */
+
 import { Page, expect } from '@playwright/test';
 import { TEST_ASSETS } from '@utils/constants';
 import { LocalizationUtils } from '../../../../utils/localization.utils';

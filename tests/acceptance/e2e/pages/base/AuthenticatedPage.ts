@@ -1,3 +1,9 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { FooterComponent } from '@pages/components/common/FooterComponent';
 import { AdminHeaderComponent } from '../components/admin/AdminHeaderComponent';
 import { BasePage } from './BasePage';
