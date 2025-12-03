@@ -38,6 +38,15 @@ const isParallelMode = process.env.TEST_PARALLEL === 'true';
 const workerCount = isParallelMode ? parseInt(process.env.TEST_WORKERS || '4', 10) : 1;
 
 /**
+ * Browser configurations for cross-browser testing.
+ * Tests will run on all browsers defined here.
+ */
+const browsers = [
+	{ name: 'chromium', device: devices['Desktop Chrome'] },
+	{ name: 'firefox', device: devices['Desktop Firefox'] }
+];
+
+/**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
@@ -55,8 +64,8 @@ export default defineConfig({
 	fullyParallel: true,
 	/* Fail the build on CI if you accidentally left test.only in the source code. */
 	forbidOnly: !!process.env.CI,
-	/* Retry on CI only */
-	retries: process.env.CI ? 1 : 0,
+	/* No retries - trace is generated on failure */
+	retries: 0,
 
 	/* Opt out of parallel tests on CI. */
 	workers: workerCount,
@@ -67,8 +76,8 @@ export default defineConfig({
 		/* Base URL to use in actions like `await page.goto('/')`. */
 		baseURL: process.env.FE_BASE_URL || 'https://part-int.ldttoolbox.app',
 
-		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-		trace: 'on-first-retry',
+		/* Collect trace on test failure. See https://playwright.dev/docs/trace-viewer */
+		trace: 'retain-on-failure',
 
 		// Action timeout for click, fill, etc.
 		actionTimeout: 30000, // 30 seconds
@@ -108,123 +117,93 @@ export default defineConfig({
 			testMatch: 'tests/**/auth/user-without-messages-auth.cleanup.ts'
 		},
 
-		// User tests with authenticated state
-		{
-			name: 'user-tests',
-			use: {
-				...devices['Desktop Chrome'],
-				storageState: storageStateUser
+		// Generate browser-specific projects dynamically
+		...browsers.flatMap(({ name: browserName, device }) => [
+			// User tests with authenticated state
+			{
+				name: `user-tests-${browserName}`,
+				use: {
+					...device,
+					storageState: storageStateUser
+				},
+				dependencies: ['user-setup'],
+				testMatch: [
+					'../user/**/*.spec.ts',
+					'tests/user/**/*.spec.ts',
+					'**/tests/user/**/*.spec.ts',
+					'**/user/**/*.spec.ts'
+				]
 			},
-			dependencies: ['user-setup'],
-			testMatch: [
-				'../user/**/*.spec.ts',
-				'tests/user/**/*.spec.ts',
-				'**/tests/user/**/*.spec.ts',
-				'**/user/**/*.spec.ts'
-			]
-		},
 
-		// Admin tests with authenticated state
-		{
-			name: 'admin-tests',
-			use: {
-				...devices['Desktop Chrome'],
-				storageState: storageStateAdmin
+			// Admin tests with authenticated state
+			{
+				name: `admin-tests-${browserName}`,
+				use: {
+					...device,
+					storageState: storageStateAdmin
+				},
+				dependencies: ['admin-setup'],
+				testMatch: ['../admin/**/*.spec.ts', 'tests/admin/**/*.spec.ts', '**/tests/admin/**/*.spec.ts']
 			},
-			dependencies: ['admin-setup'],
-			testMatch: ['../admin/**/*.spec.ts', 'tests/admin/**/*.spec.ts', '**/tests/admin/**/*.spec.ts']
-		},
 
-		// User to delete tests
-		{
-			name: 'user-to-delete-tests',
-			use: {
-				...devices['Desktop Chrome']
-				// Note: These tests handle their own authentication setup
+			// User to delete tests
+			{
+				name: `user-to-delete-tests-${browserName}`,
+				use: {
+					...device
+				},
+				testMatch: [
+					'../user-to-delete/**/*.spec.ts',
+					'tests/user-to-delete/**/*.spec.ts',
+					'**/tests/user-to-delete/**/*.spec.ts'
+				]
 			},
-			testMatch: [
-				'../user-to-delete/**/*.spec.ts',
-				'tests/user-to-delete/**/*.spec.ts',
-				'**/tests/user-to-delete/**/*.spec.ts'
-			]
-		},
 
-		// Combined test project that ensures all setups run
-		{
-			name: 'all-authenticated-tests',
-			use: {
-				...devices['Desktop Chrome']
+			// Guest tests for unregistered users
+			{
+				name: `guest-tests-${browserName}`,
+				use: {
+					...device
+				},
+				dependencies: ['admin-setup'],
+				testMatch: ['tests/guest/**/*.spec.ts', '**/tests/guest/**/*.spec.ts']
 			},
-			dependencies: ['user-setup', 'admin-setup'],
-			testMatch: [
-				'../user/**/*.spec.ts',
-				'tests/user/**/*.spec.ts',
-				'**/tests/user/**/*.spec.ts',
-				'../admin/**/*.spec.ts',
-				'tests/admin/**/*.spec.ts',
-				'**/tests/admin/**/*.spec.ts',
-				'tests/user-to-delete/**/*.spec.ts'
-			]
-		},
-		// User without messages tests
-		{
-			name: 'user-without-messages-tests',
-			testMatch: 'tests/user-without-messages/**/*.spec.ts'
-		},
 
-		// Guest tests for unregistered users (no authentication required)
-		{
-			name: 'guest-tests',
-			use: {
-				...devices['Desktop Chrome']
+			// Grafana tests
+			{
+				name: `grafana-tests-${browserName}`,
+				use: {
+					...device
+				},
+				testMatch: ['tests/admin/reports/**/*.spec.ts']
 			},
-			dependencies: ['admin-setup'], // note: some guest tests might need admin setup (e.g. PAR-CP004)
-			testMatch: ['tests/guest/**/*.spec.ts', '**/tests/guest/**/*.spec.ts']
-		},
 
-		// Grafana tests
-		{
-			name: 'grafana-tests',
-			use: {
-				...devices['Desktop Chrome']
+			// User without messages tests
+			{
+				name: `user-without-messages-tests-${browserName}`,
+				use: {
+					...device
+				},
+				testMatch: 'tests/user-without-messages/**/*.spec.ts'
 			},
-			testMatch: ['tests/admin/reports/**/*.spec.ts']
-		}
-		// {
-		//   name: 'firefox',
-		//   use: { ...devices['Desktop Firefox'] },
-		// },
 
-		// {
-		//   name: 'webkit',
-		//   use: { ...devices['Desktop Safari'] },
-		// },
-
-		/* Test against mobile viewports. */
-		// {
-		//   name: 'Mobile Chrome',
-		//   use: { ...devices['Pixel 5'] },
-		// },
-		// {
-		//   name: 'Mobile Safari',
-		//   use: { ...devices['iPhone 12'] },
-		// },
-
-		/* Test against branded browsers. */
-		// {
-		//   name: 'Microsoft Edge',
-		//   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-		// },
-		// {
-		//   name: 'Google Chrome',
-		//   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-		// },
+			// Combined test project that ensures all setups run
+			{
+				name: `all-authenticated-tests-${browserName}`,
+				use: {
+					...device
+				},
+				dependencies: ['user-setup', 'admin-setup'],
+				testMatch: [
+					'../user/**/*.spec.ts',
+					'tests/user/**/*.spec.ts',
+					'**/tests/user/**/*.spec.ts',
+					'../admin/**/*.spec.ts',
+					'tests/admin/**/*.spec.ts',
+					'**/tests/admin/**/*.spec.ts',
+					'tests/user-to-delete/**/*.spec.ts'
+				]
+			}
+		])
 	]
-
-	/* Run your local dev server before starting the tests */
-	// webServer: {
-	//   command: 'npm run start',
-	//   url: 'http://localhost:3000',
-	//   reuseExistingServer: !process.env.CI,
-	// },
 });

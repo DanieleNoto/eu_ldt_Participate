@@ -28,14 +28,18 @@ export default defineConfig({
 	reporter: [['list', { printSteps: true }]],
 	use: {
 		baseURL: process.env.FE_BASE_URL || 'https://part-int.ldttoolbox.app',
-		trace: 'on-first-retry',
+		trace: 'retain-on-failure',
 		actionTimeout: 30000, // 30 seconds for click/fill actions
 		navigationTimeout: 60000 // 60 seconds for page navigation
 	},
 	projects: [
 		{
-			name: 'parallel-tests',
+			name: 'parallel-tests-chromium',
 			use: { ...devices['Desktop Chrome'] }
+		},
+		{
+			name: 'parallel-tests-firefox',
+			use: { ...devices['Desktop Firefox'] }
 		}
 	]
 });
