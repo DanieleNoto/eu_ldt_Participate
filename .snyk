@@ -7,3 +7,4 @@ exclude:
     global:
         - tests
         - decidim/decidim_application/app/controllers/api/chatbot_controller.rb
+        - decidim/decidim_application/engines/decidim-module-ldt_map_visualization/app/controllers/decidim/ldt_map_visualization/admin/map_visualizations_controller.rb
