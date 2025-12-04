@@ -1,8 +1,13 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import NotificationPage from '@pages/pages/user/NotificationPage';
-import test from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows citizens to mark individual or multiple notifications as read, ensuring they can effectively manage their notifications and track what they have already reviewed.
@@ -17,20 +22,15 @@ import { STORAGE_STATE } from '@utils/constants';
  * - Notifications are enabled, and activities have generated notifications for the citizen
  *
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
+
 test.describe('[PAR-NOT004] – Mark notifications as reads', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let notificationCount = -1;
 	let notificationPage: NotificationPage;
 	let homePage: HomePage;
 
-	test.beforeEach(async ({ page }) => {
-		notificationPage = new NotificationPage(page);
-		homePage = new HomePage(page);
+	test.beforeEach(async ({ userPage }) => {
+		notificationPage = new NotificationPage(userPage);
+		homePage = new HomePage(userPage);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {

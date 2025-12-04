@@ -1,11 +1,15 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { NewPhasePage } from '@pages/pages/admin/processes/detail/phases/NewPhasesPage';
 import { PhasesPage } from '@pages/pages/admin/processes/detail/phases/PhasesPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows City Administrators to manage phases of the process, including defining the name, description, start date, and end date of each phase.
@@ -18,25 +22,20 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The process has already been created.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
+
 test.describe('[PAR-PPM002] – Manage process phases', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
 	let phasePage: PhasesPage;
 	let newPhasePage: NewPhasePage;
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		phasePage = new PhasesPage(page);
-		newPhasePage = new NewPhasePage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		phasePage = new PhasesPage(adminPage);
+		newPhasePage = new NewPhasePage(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
 	});
 

@@ -257,15 +257,21 @@ export class NewsletterAdminPage extends BaseAdminPage {
 	}
 
 	async expectNewsletterSentToAllUsers(subject: string) {
-		const newsletterRow = this.newsletterRowBySubject(subject);
-		await expect(newsletterRow).toBeVisible();
+		// Poll with page reloads until newsletter status is updated
+		// SMTP delivery can be slow
+		await expect(async () => {
+			await this.page.reload();
+			await this.page.waitForLoadState('networkidle');
 
-		// Check the "Sent to" column (4th column) contains both required texts
-		const sentToCell = newsletterRow.locator('td').nth(3);
-		await expect(sentToCell).toBeVisible();
+			const newsletterRow = this.newsletterRowBySubject(subject);
+			const sentToCell = newsletterRow.locator('td').nth(3);
 
-		await expect(sentToCell).toContainText('Has been sent to:');
-		await expect(sentToCell).toContainText('All users');
+			await expect(sentToCell).toContainText('Has been sent to:');
+			await expect(sentToCell).toContainText('All users');
+		}).toPass({
+			timeout: 120000, // 2 minutes total timeout for slow SMTP
+			intervals: [3000, 5000, 10000] // Progressive wait intervals between retries
+		});
 	}
 
 	async expectNewsletterSentToProcessParticipants(subject: string, processName: string) {

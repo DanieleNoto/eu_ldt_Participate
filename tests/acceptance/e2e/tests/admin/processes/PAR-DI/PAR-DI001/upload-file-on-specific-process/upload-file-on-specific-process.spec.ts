@@ -1,4 +1,11 @@
-import test, { expect } from '@playwright/test';
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
+import { expect } from '@playwright/test';
+import { test } from '@fixtures/parallel-test';
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
@@ -8,8 +15,6 @@ import { NewAttachmentProcessPage } from '@pages/pages/admin/processes/detail/at
 import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
 import { LandingPageAdminPage } from '@pages/pages/admin/processes/detail/LandingPageAdminPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 import * as fs from 'fs';
 import * as path from 'path';
 import { tmpdir } from 'os';
@@ -22,16 +27,7 @@ import { tmpdir } from 'os';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The process to which the files will be uploaded is already created and published.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-	await page.close();
-	await context.close();
-});
-
 test.describe('[PAR-DI001] – Upload file on specific process', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -53,14 +49,14 @@ test.describe('[PAR-DI001] – Upload file on specific process', () => {
 		'https://interoperable-europe.ec.europa.eu/sites/default/files/2023-09/Decidim_0.png'
 	];
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		attachmentsProcessPage = new AttachmentsProcessPage(page);
-		newAttachmentProcessPage = new NewAttachmentProcessPage(page);
-		surveysManagePage = new SurveysManagePage(page);
-		landingPageAdminPage = new LandingPageAdminPage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		attachmentsProcessPage = new AttachmentsProcessPage(adminPage);
+		newAttachmentProcessPage = new NewAttachmentProcessPage(adminPage);
+		surveysManagePage = new SurveysManagePage(adminPage);
+		landingPageAdminPage = new LandingPageAdminPage(adminPage);
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 
 		// Setup test environment
@@ -118,7 +114,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 			}
 		});
 
-		test('should upload file on specific process', async ({ page }) => {
+		test('should upload file on specific process', async ({ adminPage, userPage }) => {
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -138,15 +134,11 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 			});
 
 			await test.step('3. User: Selects the process that want to update.', async () => {
-				// Search for our created process by title and select it
-				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
-				console.log('Selected process to update');
+				await adminPage.goto(processEditUrl);
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
-				await page.waitForURL(processEditUrl);
-				await page.waitForLoadState('networkidle');
-
 				// Verify we're on the edit page with process information using Page Object
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
 				console.log('Process loaded with editable form containing existing information');
@@ -163,8 +155,8 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 			});
 
 			await test.step('7. System: Displays new attachment page.', async () => {
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/attachments\/new/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/attachments\/new/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we're on the new attachment page with the form visible
 				await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();
@@ -215,8 +207,8 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 				console.log('Success message "Attachment created" is displayed');
 
 				// Wait for redirect to attachments list page
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/attachments$/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/attachments$/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify the attachment appears in the table
 				await attachmentsProcessPage.expectAttachmentWithTitleExists(attachmentTitle);
@@ -228,8 +220,8 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 				await updateProcessAdminPage.sidebarProcessDetail.navigateToLandingPage();
 
 				// Verify we're on the landing page edit URL
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/landing_page\/edit/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/landing_page\/edit/);
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Navigated to Landing page configuration');
 
@@ -254,18 +246,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 					throw new Error(`Failed to move "Related documents" to active content blocks: ${errorMessage}`);
 				}
 
-				// Load user authentication state
-				const userContext = await page.context().browser()?.newContext({
-					storageState: STORAGE_STATE.USER
-				});
-
-				if (!userContext) {
-					throw new Error('Failed to create user context');
-				}
-
-				const userPage = await userContext.newPage();
-
-				// Navigate to the public process page
+				// Use userPage from fixture to verify attachment as regular user
 				await userPage.goto(`/processes/${processSlug}`);
 				await userPage.waitForLoadState('networkidle');
 
@@ -282,9 +263,6 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 					throw new Error(`Failed to verify attachment on public page: ${errorMessage}`);
 				}
 
-				await userPage.close();
-				await userContext.close();
-
 				console.log(
 					'Verified attachment file visibility and download functionality on public process page as user'
 				);
@@ -300,7 +278,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 			attachmentLink = await NewAttachmentProcessPage.findAccessibleUrl(attachmentLinkOptions);
 		});
 
-		test('should add attachment with link to specific process', async ({ page }) => {
+		test('should add attachment with link to specific process', async ({ adminPage, userPage }) => {
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -320,15 +298,11 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 			});
 
 			await test.step('3. User: Selects the process that want to update.', async () => {
-				// Search for our created process by title and select it
-				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
-				console.log('Selected process to update');
+				await adminPage.goto(processEditUrl);
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
-				await page.waitForURL(processEditUrl);
-				await page.waitForLoadState('networkidle');
-
 				// Verify we're on the edit page with process information using Page Object
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
 				console.log('Process loaded with editable form containing existing information');
@@ -345,8 +319,8 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 			});
 
 			await test.step('7. System: Displays new attachment page.', async () => {
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/attachments\/new/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/attachments\/new/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we're on the new attachment page with the form visible
 				await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();
@@ -378,8 +352,8 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 				console.log('Success message "Attachment created" is displayed');
 
 				// Wait for redirect to attachments list page
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/attachments$/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/attachments$/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify the attachment appears in the table
 				await attachmentsProcessPage.expectAttachmentWithTitleExists(attachmentTitle);
@@ -391,8 +365,8 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 				await updateProcessAdminPage.sidebarProcessDetail.navigateToLandingPage();
 
 				// Verify we're on the landing page edit URL
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/landing_page\/edit/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/landing_page\/edit/);
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Navigated to Landing page configuration');
 
@@ -417,18 +391,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 					throw new Error(`Failed to move "Related documents" to active content blocks: ${errorMessage}`);
 				}
 
-				// Load user authentication state
-				const userContext = await page.context().browser()?.newContext({
-					storageState: STORAGE_STATE.USER
-				});
-
-				if (!userContext) {
-					throw new Error('Failed to create user context');
-				}
-
-				const userPage = await userContext.newPage();
-
-				// Navigate to the public process page
+				// Use userPage from fixture to verify attachment as regular user
 				await userPage.goto(`/processes/${processSlug}`);
 				await userPage.waitForLoadState('networkidle');
 
@@ -447,9 +410,6 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 					console.error(`Attachment link verification failed: ${errorMessage}`);
 					throw new Error(`Failed to verify attachment link on public page: ${errorMessage}`);
 				}
-
-				await userPage.close();
-				await userContext.close();
 
 				console.log('Verified attachment link visibility and functionality on public process page as user');
 			});
@@ -486,7 +446,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 		});
 
 		test('should upload file on specific process - invalid file extension or file size exceeded', async ({
-			page
+			adminPage
 		}) => {
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
@@ -507,15 +467,11 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 			});
 
 			await test.step('3. User: Selects the process that want to update.', async () => {
-				// Search for our created process by title and select it
-				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
-				console.log('Selected process to update');
+				await adminPage.goto(processEditUrl);
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
-				await page.waitForURL(processEditUrl);
-				await page.waitForLoadState('networkidle');
-
 				// Verify we're on the edit page with process information using Page Object
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
 				console.log('Process loaded with editable form containing existing information');
@@ -532,8 +488,8 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 			});
 
 			await test.step('7. System: Displays new attachment page.', async () => {
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/attachments\/new/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/attachments\/new/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we're on the new attachment page with the form visible
 				await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();

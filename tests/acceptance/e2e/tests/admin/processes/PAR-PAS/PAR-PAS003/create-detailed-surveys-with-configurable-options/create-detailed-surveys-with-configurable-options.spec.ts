@@ -1,4 +1,10 @@
-import test, { expect } from '@playwright/test';
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
+import { test, expect } from '@fixtures/parallel-test';
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
@@ -8,8 +14,6 @@ import { SurveysManagePage } from '@pages/pages/admin/processes/detail/component
 import { QuestionnaireTemplatesPage } from '@pages/pages/admin/templates/QuestionnaireTemplatesPage';
 import { NewTemplatePage } from '@pages/pages/admin/templates/NewTemplatePage';
 import { EditTemplatePage } from '@pages/pages/admin/templates/EditTemplatePage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 
 /**
  * Enables creation of comprehensive surveys with various question types and validations
@@ -19,16 +23,8 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The City Administrator has permissions to create surveys.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-	await page.close();
-	await context.close();
-});
 
 test.describe('[PAR-PAS003] – Create detailed surveys with configurable options', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -42,15 +38,15 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 	let templateName: string;
 	let processEditUrl: string;
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		surveysManagePage = new SurveysManagePage(page);
-		templatesPage = new QuestionnaireTemplatesPage(page);
-		newTemplatePage = new NewTemplatePage(page);
-		editTemplatePage = new EditTemplatePage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
+		surveysManagePage = new SurveysManagePage(adminPage);
+		templatesPage = new QuestionnaireTemplatesPage(adminPage);
+		newTemplatePage = new NewTemplatePage(adminPage);
+		editTemplatePage = new EditTemplatePage(adminPage);
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 
 		// Setup test environment
@@ -74,9 +70,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 	}
 
 	test.describe('Main Flow', () => {
-		test('should create a detailed survey with various question types', async ({ page }) => {
+		test('should create a detailed survey with various question types', async ({ adminPage }) => {
 			// Get the current URL to extract process slug
-			const currentUrl = page.url();
+			const currentUrl = adminPage.url();
 			const processSlugMatch = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
 			const processSlug = processSlugMatch ? processSlugMatch[1] : '';
 
@@ -112,8 +108,8 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we're on the edit page with process information using Page Object
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -164,22 +160,22 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.accessQuestionsManagement();
 
 				// Add new question
-				await page.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
 			});
 
 			await test.step('14. System: Displays the "Add Question" form.', async () => {
 				// Verify questions management interface is available
-				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add title and description' })).toBeVisible();
 
 				console.log('Questions management interface displayed with add question options');
 			});
 
 			await test.step('15. User: Fills in the Question Form: Statement: Adds the main question, Type: select question types, Mandatory: check if must be answered before submitting', async () => {
 				// Question 1: Long Answer
-				await page.waitForSelector('.questionnaire-question:nth-child(1)');
-				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(1)');
+				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 
 				// Expand question form if collapsed
 				const question1AccordionButton = question1Container.locator('.question--collapse').first();
@@ -202,9 +198,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 1: Long Answer');
 
 				// Question 2: Short Answer
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(2)');
-				const question2Container = page.locator('.questionnaire-question:nth-child(2)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(2)');
+				const question2Container = adminPage.locator('.questionnaire-question:nth-child(2)');
 
 				// Expand question form if collapsed
 				const question2AccordionButton = question2Container.locator('.question--collapse').first();
@@ -227,9 +223,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 2: Short Answer');
 
 				// Question 3: Single Option
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(3)');
-				const question3Container = page.locator('.questionnaire-question:nth-child(3)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(3)');
+				const question3Container = adminPage.locator('.questionnaire-question:nth-child(3)');
 
 				// Expand question form if collapsed
 				const question3AccordionButton = question3Container.locator('.question--collapse').first();
@@ -262,9 +258,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 3: Single Option');
 
 				// Question 4: Multiple Option
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(4)');
-				const question4Container = page.locator('.questionnaire-question:nth-child(4)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(4)');
+				const question4Container = adminPage.locator('.questionnaire-question:nth-child(4)');
 
 				// Expand question form if collapsed
 				const question4AccordionButton = question4Container.locator('.question--collapse').first();
@@ -317,9 +313,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 4: Multiple Option');
 
 				// Question 5: Sorting
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(5)');
-				const question5Container = page.locator('.questionnaire-question:nth-child(5)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(5)');
+				const question5Container = adminPage.locator('.questionnaire-question:nth-child(5)');
 
 				// Expand question form if collapsed
 				const question5AccordionButton = question5Container.locator('.question--collapse').first();
@@ -354,9 +350,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 5: Sorting');
 
 				// Question 6: Files
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(6)');
-				const question6Container = page.locator('.questionnaire-question:nth-child(6)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(6)');
+				const question6Container = adminPage.locator('.questionnaire-question:nth-child(6)');
 
 				// Expand question form if collapsed
 				const question6AccordionButton = question6Container.locator('.question--collapse').first();
@@ -382,9 +378,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 6: Files');
 
 				// Question 7: Matrix (single option)
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(7)');
-				const question7Container = page.locator('.questionnaire-question:nth-child(7)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(7)');
+				const question7Container = adminPage.locator('.questionnaire-question:nth-child(7)');
 
 				// Expand question form if collapsed
 				const question7AccordionButton = question7Container.locator('.question--collapse').first();
@@ -464,9 +460,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 7: Matrix (single option)');
 
 				// Question 8: Matrix (Multiple option)
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(8)');
-				const question8Container = page.locator('.questionnaire-question:nth-child(8)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(8)');
+				const question8Container = adminPage.locator('.questionnaire-question:nth-child(8)');
 
 				// Expand question form if collapsed
 				const question8AccordionButton = question8Container.locator('.question--collapse').first();
@@ -551,7 +547,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.verifyPublishedQuestionsCount(questionsCount, 'survey creation');
 
 				// Verify we're back on the surveys management page
-				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
+				expect(adminPage.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 			});
 		});
 	});
@@ -560,10 +556,10 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 		// Declare template questions counter
 		let templateQuestionsCount = 0;
 
-		test.beforeEach(async ({ page }) => {
+		test.beforeEach(async ({ adminPage }) => {
 			await test.step('Setup: Navigate to Templates section', async () => {
 				await templatesPage.navigateToPage();
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 				console.log('Navigated to Templates section for prerequisite setup');
 			});
 
@@ -576,10 +572,10 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				templateName = `Survey_Template_${templateTimestamp}`;
 
 				await newTemplatePage.createSimpleTemplate(templateName);
-				await page.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit/);
+				await adminPage.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit/);
 
 				// Extract template ID from URL
-				const templateUrl = page.url();
+				const templateUrl = adminPage.url();
 				const templateMatch = templateUrl.match(/\/questionnaire_templates\/(\d+)\/edit/);
 				templateId = templateMatch ? templateMatch[1] : '';
 
@@ -588,17 +584,17 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 			await test.step('Setup: Add questions to template', async () => {
 				await editTemplatePage.manageQuestions();
-				await page.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit_questions/);
+				await adminPage.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit_questions/);
 
 				// Verify questions management interface is available
-				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add title and description' })).toBeVisible();
 
 				// Question 1: Long Answer
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(1)');
-				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(1)');
+				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 
 				// Expand question form if collapsed
 				const question1AccordionButton = question1Container.locator('.question--collapse').first();
@@ -621,9 +617,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 1: Long Answer');
 
 				// Question 2: Short Answer
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(2)');
-				const question2Container = page.locator('.questionnaire-question:nth-child(2)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(2)');
+				const question2Container = adminPage.locator('.questionnaire-question:nth-child(2)');
 
 				// Expand question form if collapsed
 				const question2AccordionButton = question2Container.locator('.question--collapse').first();
@@ -646,9 +642,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 2: Short Answer');
 
 				// Question 3: Single Option
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(3)');
-				const question3Container = page.locator('.questionnaire-question:nth-child(3)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(3)');
+				const question3Container = adminPage.locator('.questionnaire-question:nth-child(3)');
 
 				// Expand question form if collapsed
 				const question3AccordionButton = question3Container.locator('.question--collapse').first();
@@ -681,9 +677,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 3: Single Option');
 
 				// Question 4: Multiple Option
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(4)');
-				const question4Container = page.locator('.questionnaire-question:nth-child(4)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(4)');
+				const question4Container = adminPage.locator('.questionnaire-question:nth-child(4)');
 
 				// Expand question form if collapsed
 				const question4AccordionButton = question4Container.locator('.question--collapse').first();
@@ -736,9 +732,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 4: Multiple Option');
 
 				// Question 5: Sorting
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(5)');
-				const question5Container = page.locator('.questionnaire-question:nth-child(5)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(5)');
+				const question5Container = adminPage.locator('.questionnaire-question:nth-child(5)');
 
 				// Expand question form if collapsed
 				const question5AccordionButton = question5Container.locator('.question--collapse').first();
@@ -773,9 +769,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 5: Sorting');
 
 				// Question 6: Files
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(6)');
-				const question6Container = page.locator('.questionnaire-question:nth-child(6)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(6)');
+				const question6Container = adminPage.locator('.questionnaire-question:nth-child(6)');
 
 				// Expand question form if collapsed
 				const question6AccordionButton = question6Container.locator('.question--collapse').first();
@@ -801,9 +797,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 6: Files');
 
 				// Question 7: Matrix (single option)
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(7)');
-				const question7Container = page.locator('.questionnaire-question:nth-child(7)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(7)');
+				const question7Container = adminPage.locator('.questionnaire-question:nth-child(7)');
 
 				// Expand question form if collapsed
 				const question7AccordionButton = question7Container.locator('.question--collapse').first();
@@ -883,9 +879,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 7: Matrix (single option)');
 
 				// Question 8: Matrix (Multiple option)
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(8)');
-				const question8Container = page.locator('.questionnaire-question:nth-child(8)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(8)');
+				const question8Container = adminPage.locator('.questionnaire-question:nth-child(8)');
 
 				// Expand question form if collapsed
 				const question8AccordionButton = question8Container.locator('.question--collapse').first();
@@ -958,24 +954,24 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 			await test.step('Setup: Save template and return to process', async () => {
 				// Save template questions
-				await page.getByRole('button', { name: 'Save' }).click();
-				await page.waitForLoadState('networkidle');
+				await adminPage.getByRole('button', { name: 'Save' }).click();
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Template questions saved successfully');
 
 				// Navigate back to the process edit page using the stored URL
 				console.log('Navigating back to process edit page:', processEditUrl);
-				await page.goto(processEditUrl);
-				await page.waitForLoadState('networkidle');
+				await adminPage.goto(processEditUrl);
+				await adminPage.waitForLoadState('networkidle');
 				console.log('Template setup completed - ready for template selection test');
 			});
 		});
 
 		test('should create a detailed survey with multiple question types based on a selected template', async ({
-			page
+			adminPage
 		}) => {
 			// Get the current URL to extract process slug
-			const currentUrl = page.url();
+			const currentUrl = adminPage.url();
 			const processSlugMatch = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
 			const processSlug = processSlugMatch ? processSlugMatch[1] : '';
 
@@ -998,8 +994,8 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Search for our created process by title and select it
 				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
 
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Navigate to Components section and create Survey component
 				await updateProcessAdminPage.navigateToComponents();
@@ -1011,7 +1007,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Fulfil name and description input and click on "Add component" button
 				await surveysManagePage.fulfillSurveyFormAndCreateComponent(componentName, processSlug, false);
 
-				await expect(page.getByText('Component created successfully')).toBeVisible();
+				await expect(adminPage.getByText('Component created successfully')).toBeVisible();
 
 				await surveysManagePage.accessComponentAndCreateNewSurvey(componentsPage, componentName);
 				await surveysManagePage.verifyTemplateSelectionDisplayed();
@@ -1023,16 +1019,16 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 			await test.step('10.1. User: Select a specific template', async () => {
 				// Use the template created in beforeEach
-				await page.getByRole('combobox', { name: 'Choose template' }).click();
-				await page.getByRole('combobox', { name: 'Choose template' }).fill(templateName);
-				await page.getByRole('button', { name: 'Create from template' }).click();
+				await adminPage.getByRole('combobox', { name: 'Choose template' }).click();
+				await adminPage.getByRole('combobox', { name: 'Choose template' }).fill(templateName);
+				await adminPage.getByRole('button', { name: 'Create from template' }).click();
 
 				// Wait for redirect after template application
-				await page.waitForURL(
+				await adminPage.waitForURL(
 					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
 				);
-				await page.waitForLoadState('networkidle');
-				await expect(page.getByText('Template applied successfully.')).toBeVisible();
+				await adminPage.waitForLoadState('networkidle');
+				await expect(adminPage.getByText('Template applied successfully.')).toBeVisible();
 				console.log(`Template "${templateName}" applied successfully`);
 			});
 
@@ -1046,17 +1042,17 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.accessQuestionsManagement();
 
 				// Verify the imported questions from template are present
-				await expect(page.locator('.questionnaire-question:nth-child(1)')).toBeVisible();
-				await expect(page.locator('.questionnaire-question:nth-child(2)')).toBeVisible();
-				await expect(page.locator('.questionnaire-question:nth-child(3)')).toBeVisible();
-				await expect(page.locator('.questionnaire-question:nth-child(4)')).toBeVisible();
-				await expect(page.locator('.questionnaire-question:nth-child(5)')).toBeVisible();
-				await expect(page.locator('.questionnaire-question:nth-child(6)')).toBeVisible();
-				await expect(page.locator('.questionnaire-question:nth-child(7)')).toBeVisible();
-				await expect(page.locator('.questionnaire-question:nth-child(8)')).toBeVisible();
+				await expect(adminPage.locator('.questionnaire-question:nth-child(1)')).toBeVisible();
+				await expect(adminPage.locator('.questionnaire-question:nth-child(2)')).toBeVisible();
+				await expect(adminPage.locator('.questionnaire-question:nth-child(3)')).toBeVisible();
+				await expect(adminPage.locator('.questionnaire-question:nth-child(4)')).toBeVisible();
+				await expect(adminPage.locator('.questionnaire-question:nth-child(5)')).toBeVisible();
+				await expect(adminPage.locator('.questionnaire-question:nth-child(6)')).toBeVisible();
+				await expect(adminPage.locator('.questionnaire-question:nth-child(7)')).toBeVisible();
+				await expect(adminPage.locator('.questionnaire-question:nth-child(8)')).toBeVisible();
 
 				// Verify Question 1: Long Answer
-				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 				const question1AccordionButton = question1Container.locator('.question--collapse').first();
 				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded1 === 'false') {
@@ -1076,7 +1072,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				).toHaveValue('500');
 
 				// Verify Question 2: Short Answer
-				const question2Container = page.locator('.questionnaire-question:nth-child(2)');
+				const question2Container = adminPage.locator('.questionnaire-question:nth-child(2)');
 				const question2AccordionButton = question2Container.locator('.question--collapse').first();
 				const isExpanded2 = await question2AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded2 === 'false') {
@@ -1096,7 +1092,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				).toHaveValue('250');
 
 				// Verify Question 3: Single Option
-				const question3Container = page.locator('.questionnaire-question:nth-child(3)');
+				const question3Container = adminPage.locator('.questionnaire-question:nth-child(3)');
 				const question3AccordionButton = question3Container.locator('.question--collapse').first();
 				const isExpanded3 = await question3AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded3 === 'false') {
@@ -1128,7 +1124,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				).toHaveValue('Green');
 
 				// Verify Question 4: Multiple Option
-				const question4Container = page.locator('.questionnaire-question:nth-child(4)');
+				const question4Container = adminPage.locator('.questionnaire-question:nth-child(4)');
 				const question4AccordionButton = question4Container.locator('.question--collapse').first();
 				const isExpanded4 = await question4AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded4 === 'false') {
@@ -1173,7 +1169,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				).toHaveValue('Fish');
 
 				// Verify Question 5: Sorting
-				const question5Container = page.locator('.questionnaire-question:nth-child(5)');
+				const question5Container = adminPage.locator('.questionnaire-question:nth-child(5)');
 				const question5AccordionButton = question5Container.locator('.question--collapse').first();
 				const isExpanded5 = await question5AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded5 === 'false') {
@@ -1203,7 +1199,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				).toHaveValue('Motorcycle');
 
 				// Verify Question 6: Files
-				const question6Container = page.locator('.questionnaire-question:nth-child(6)');
+				const question6Container = adminPage.locator('.questionnaire-question:nth-child(6)');
 				const question6AccordionButton = question6Container.locator('.question--collapse').first();
 				const isExpanded6 = await question6AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded6 === 'false') {
@@ -1222,7 +1218,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await expect(question6Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
 
 				// Verify Question 7: Matrix (single option)
-				const question7Container = page.locator('.questionnaire-question:nth-child(7)');
+				const question7Container = adminPage.locator('.questionnaire-question:nth-child(7)');
 				const question7AccordionButton = question7Container.locator('.question--collapse').first();
 				const isExpanded7 = await question7AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded7 === 'false') {
@@ -1281,7 +1277,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				).toHaveValue('Follow-up or implementation of decisions');
 
 				// Verify Question 8: Matrix (Multiple option)
-				const question8Container = page.locator('.questionnaire-question:nth-child(8)');
+				const question8Container = adminPage.locator('.questionnaire-question:nth-child(8)');
 				const question8AccordionButton = question8Container.locator('.question--collapse').first();
 				const isExpanded8 = await question8AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded8 === 'false') {
@@ -1338,7 +1334,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.verifySurveyQuestionsSaved();
 
 				// Verify template questions are pre-populated and publish (Steps 17-18 equivalent)
-				await expect(page.getByRole('link', { name: 'Publish' })).toBeVisible();
+				await expect(adminPage.getByRole('link', { name: 'Publish' })).toBeVisible();
 
 				// Final step: Publish the survey poll
 				await surveysManagePage.publishSurvey();
@@ -1352,7 +1348,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Detailed survey with template configured, saved and published successfully');
 
 				// Final verification that we're on the management page confirming successful creation
-				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
+				expect(adminPage.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 			});
 		});
 	});
@@ -1361,9 +1357,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 		// Track the number of questions added during the test
 		let questionsCount = 0;
 
-		test('should detect and handle validation errors during poll creation', async ({ page }) => {
+		test('should detect and handle validation errors during poll creation', async ({ adminPage }) => {
 			// Get the current URL to extract process slug
-			const currentUrl = page.url();
+			const currentUrl = adminPage.url();
 			const processSlugMatch = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
 			const processSlug = processSlugMatch ? processSlugMatch[1] : '';
 
@@ -1385,8 +1381,8 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Search for our created process by title and select it
 				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
 
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Navigate to Components section and create Survey component
 				await updateProcessAdminPage.navigateToComponents();
@@ -1398,7 +1394,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Fulfil name and description input and click on "Add component" button
 				await surveysManagePage.fulfillSurveyFormAndCreateComponent(componentName, processSlug, false);
 
-				await expect(page.getByText('Component created successfully')).toBeVisible();
+				await expect(adminPage.getByText('Component created successfully')).toBeVisible();
 
 				await surveysManagePage.accessComponentAndCreateNewSurvey(componentsPage, componentName);
 				await surveysManagePage.verifyTemplateSelectionDisplayed();
@@ -1412,14 +1408,14 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.accessQuestionsManagement();
 
 				// Verify questions management interface is available
-				await expect(page.getByRole('button', { name: 'Add question' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add separator' })).toBeVisible();
-				await expect(page.getByRole('button', { name: 'Add title and description' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add title and description' })).toBeVisible();
 
 				// Question 1: Long Answer
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(1)');
-				const question1Container = page.locator('.questionnaire-question:nth-child(1)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(1)');
+				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 
 				// Expand question form if collapsed
 				const question1AccordionButton = question1Container.locator('.question--collapse').first();
@@ -1441,9 +1437,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 1: Long Answer');
 
 				// Question 2: Short Answer (without mandatory check)
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(2)');
-				const question2Container = page.locator('.questionnaire-question:nth-child(2)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(2)');
+				const question2Container = adminPage.locator('.questionnaire-question:nth-child(2)');
 
 				// Expand question form if collapsed
 				const question2AccordionButton = question2Container.locator('.question--collapse').first();
@@ -1464,9 +1460,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 2: Short Answer');
 
 				// Question 3: Single Option (answers left empty intentionally)
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(3)');
-				const question3Container = page.locator('.questionnaire-question:nth-child(3)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(3)');
+				const question3Container = adminPage.locator('.questionnaire-question:nth-child(3)');
 
 				// Expand question form if collapsed
 				const question3AccordionButton = question3Container.locator('.question--collapse').first();
@@ -1491,9 +1487,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 3: Single Option');
 
 				// Question 4: Multiple Option (answers left empty intentionally)
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(4)');
-				const question4Container = page.locator('.questionnaire-question:nth-child(4)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(4)');
+				const question4Container = adminPage.locator('.questionnaire-question:nth-child(4)');
 
 				// Expand question form if collapsed
 				const question4AccordionButton = question4Container.locator('.question--collapse').first();
@@ -1525,9 +1521,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 4: Multiple Option');
 
 				// Question 5: Sorting (answers left empty intentionally)
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(5)');
-				const question5Container = page.locator('.questionnaire-question:nth-child(5)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(5)');
+				const question5Container = adminPage.locator('.questionnaire-question:nth-child(5)');
 
 				// Expand question form if collapsed
 				const question5AccordionButton = question5Container.locator('.question--collapse').first();
@@ -1552,9 +1548,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 5: Sorting');
 
 				// Question 6: Files
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(6)');
-				const question6Container = page.locator('.questionnaire-question:nth-child(6)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(6)');
+				const question6Container = adminPage.locator('.questionnaire-question:nth-child(6)');
 
 				// Expand question form if collapsed
 				const question6AccordionButton = question6Container.locator('.question--collapse').first();
@@ -1579,9 +1575,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 6: Files');
 
 				// Question 7: Matrix (single option) - rows and answers left empty intentionally
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(7)');
-				const question7Container = page.locator('.questionnaire-question:nth-child(7)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(7)');
+				const question7Container = adminPage.locator('.questionnaire-question:nth-child(7)');
 
 				// Expand question form if collapsed
 				const question7AccordionButton = question7Container.locator('.question--collapse').first();
@@ -1625,9 +1621,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Added question 7: Matrix (single option)');
 
 				// Question 8: Matrix (Multiple option) - rows and answers left empty intentionally
-				await page.getByRole('button', { name: 'Add question' }).click();
-				await page.waitForSelector('.questionnaire-question:nth-child(8)');
-				const question8Container = page.locator('.questionnaire-question:nth-child(8)');
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+				await adminPage.waitForSelector('.questionnaire-question:nth-child(8)');
+				const question8Container = adminPage.locator('.questionnaire-question:nth-child(8)');
 
 				// Expand question form if collapsed
 				const question8AccordionButton = question8Container.locator('.question--collapse').first();
@@ -1672,8 +1668,8 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 			await test.step('17.1. System: Validates the input fields for completeness', async () => {
 				// Test validation by trying to save empty form
-				await page.getByRole('button', { name: 'Save' }).click();
-				await page.waitForURL(
+				await adminPage.getByRole('button', { name: 'Save' }).click();
+				await adminPage.waitForURL(
 					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/update_questions/
 				);
 				console.log('System initiated validation check for form completeness');
@@ -1681,20 +1677,20 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 			await test.step('17.2. System: Detects missing or invalid fields', async () => {
 				// Verify validation error messages for required fields
-				await expect(page.getByText('There was a problem saving')).toBeVisible();
+				await expect(adminPage.getByText('There was a problem saving')).toBeVisible();
 
 				// Verify specific validation errors for the required Statement fields:
 
 				// Question 3: Single Option (2 answers fields blank)
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(0)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(1)
@@ -1702,28 +1698,28 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 				// Question 4: Multiple Option (4 answers fields blank)
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(2)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(3)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(4)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(5)
@@ -1731,14 +1727,14 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 				// Question 5: Sorting (2 answers fields blank)
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(6)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(7)
@@ -1746,70 +1742,70 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 				// Question 7: Matrix Single Option (5 rows fields blank, 5 answers fields blank)
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(8)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(9)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(10)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(11)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(12)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(13)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(14)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(15)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(16)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(17)
@@ -1817,56 +1813,56 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 				// Question 8: Matrix Multiple Option (4 rows fields blank, 4 answers fields blank)
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(18)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(19)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(20)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(21)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(22)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(23)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(24)
 				).toBeVisible();
 
 				await expect(
-					page
+					adminPage
 						.locator('div')
 						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
 						.nth(25)
@@ -1879,7 +1875,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Correct validation errors by filling all empty fields with proper values
 
 				// Question 3: Single Option - Fill the empty answer options
-				const question3Container = page.locator('.questionnaire-question:nth-child(3)');
+				const question3Container = adminPage.locator('.questionnaire-question:nth-child(3)');
 				await question3Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
@@ -1893,7 +1889,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Corrected Question 3: Single Option answers');
 
 				// Question 4: Multiple Option - Fill the empty answer options
-				const question4Container = page.locator('.questionnaire-question:nth-child(4)');
+				const question4Container = adminPage.locator('.questionnaire-question:nth-child(4)');
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(0)
@@ -1917,7 +1913,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Corrected Question 4: Multiple Option answers');
 
 				// Question 5: Sorting - Fill the empty answer options
-				const question5Container = page.locator('.questionnaire-question:nth-child(5)');
+				const question5Container = adminPage.locator('.questionnaire-question:nth-child(5)');
 				await question5Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
@@ -1931,7 +1927,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Corrected Question 5: Sorting answers');
 
 				// Question 7: Matrix Single - Fill the empty matrix rows and answer options
-				const question7Container = page.locator('.questionnaire-question:nth-child(7)');
+				const question7Container = adminPage.locator('.questionnaire-question:nth-child(7)');
 				const allMatrixRows7 = question7Container.locator(
 					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
@@ -1969,7 +1965,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log('Corrected Question 7: Matrix Single Option rows and answers');
 
 				// Question 8: Matrix Multiple - Fill the empty matrix rows and answer options
-				const question8Container = page.locator('.questionnaire-question:nth-child(8)');
+				const question8Container = adminPage.locator('.questionnaire-question:nth-child(8)');
 				const allMatrixRows8 = question8Container.locator(
 					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
@@ -2022,7 +2018,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.verifyPublishedQuestionsCount(questionsCount, 'survey creation');
 
 				console.log('System revalidated corrected fields successfully and poll was saved and published');
-				expect(page.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
+				expect(adminPage.url()).toMatch(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
 			});
 		});
 	});

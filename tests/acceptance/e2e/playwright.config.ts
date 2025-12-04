@@ -21,17 +21,34 @@ const storageStateAdmin = process.env.USE_KEYCLOAK === 'true' ? STORAGE_STATE.KE
 const storageStateUser = process.env.USE_KEYCLOAK === 'true' ? STORAGE_STATE.KEYCLOAK_USER : STORAGE_STATE.USER;
 
 /**
+ * Parallel execution configuration.
+ *
+ * Set TEST_PARALLEL=true and TEST_WORKERS=3 to enable parallel execution
+ * with multiple user accounts to avoid Decidim session conflicts.
+ *
+ * Worker assignment (when parallel):
+ * - Worker 0: TEST_ADMIN1_EMAIL / TEST_USER1_EMAIL
+ * - Worker 1: TEST_ADMIN2_EMAIL / TEST_USER2_EMAIL
+ * - Worker 2: TEST_ADMIN3_EMAIL / TEST_USER3_EMAIL
+ *
+ * Note: TEST_ADMIN_EMAIL / TEST_USER_EMAIL (worker 0 without suffix) are reserved
+ * for sequential tests and should not be used in parallel mode.
+ */
+const isParallelMode = process.env.TEST_PARALLEL === 'true';
+const workerCount = isParallelMode ? parseInt(process.env.TEST_WORKERS || '4', 10) : 1;
+
+/**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
 	testDir: './', // Look for tests starting from the current directory
 
-	// Global test timeout (default is 30 seconds)
-	timeout: 3000000, // 300 seconds for each test 5 minutes
+	// Global test timeout
+	timeout: 180000, // 180 seconds = 3 minutes per test
 
-	// Timeout for expect() assertions (default is 5 seconds)
+	// Timeout for expect() assertions
 	expect: {
-		timeout: 120000 // 120 seconds for assertions
+		timeout: 30000 // 30 seconds for assertions
 	},
 
 	/* Run tests in files in parallel */
@@ -42,7 +59,7 @@ export default defineConfig({
 	retries: process.env.CI ? 1 : 0,
 
 	/* Opt out of parallel tests on CI. */
-	workers: 1,
+	workers: workerCount,
 	/* Reporter to use. See https://playwright.dev/docs/test-reporters */
 	reporter: [['html'], ['list', { printSteps: true }]],
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -53,11 +70,11 @@ export default defineConfig({
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: 'on-first-retry',
 
-		// Action timeout (default is 0 - no timeout)
-		actionTimeout: 120000, // 120 seconds for actions like click, fill, etc.
+		// Action timeout for click, fill, etc.
+		actionTimeout: 30000, // 30 seconds
 
-		// Navigation timeout (default is 30 seconds)
-		navigationTimeout: 120000 // 120 seconds for page navigation
+		// Navigation timeout for page navigation
+		navigationTimeout: 60000 // 60 seconds
 	},
 
 	/* Configure projects for major browsers */

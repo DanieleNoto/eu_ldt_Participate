@@ -1,12 +1,17 @@
-import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Simone Bianchelli
+ */
+
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
-import { MeetingsManagePage } from '@pages/pages/admin/processes/detail/components/meetings/MeetingsManagePage';
 import { MeetingAgendaPage } from '@pages/pages/admin/processes/detail/components/meetings/MeetingAgendaPage';
+import { FormMeetingPage } from '@pages/pages/admin/processes/detail/meetings/FormMeetingPage';
+import { MeetingsPage } from '@pages/pages/admin/processes/detail/meetings/MeetingsPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import test, { expect } from '@playwright/test';
-import { STORAGE_STATE } from '@utils/constants';
-import { findProcessWithMeetings } from '../../../helpers/process-helpers';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for managing meeting agendas to inform participants about discussion topics.
@@ -22,110 +27,178 @@ import { findProcessWithMeetings } from '../../../helpers/process-helpers';
  */
 
 test.describe('[PAR-EA006] – Manage meeting agenda', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
-	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
-	let updateProcessAdminPage: UpdateProcessAdminPage;
+	let updateProcessPage: UpdateProcessAdminPage;
+	let meetingsPage: MeetingsPage;
+	let formMeetingPage: FormMeetingPage;
 	let componentsPage: ComponentsPage;
-	let meetingsManagePage: MeetingsManagePage;
 	let meetingAgendaPage: MeetingAgendaPage;
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		meetingsManagePage = new MeetingsManagePage(page);
-		meetingAgendaPage = new MeetingAgendaPage(page);
-		await adminHomePage.navigateToAdminHomePage();
+	// Use existing process with fixed slug for consistent testing
+	const processSlug = 'test';
+
+	// Generate unique timestamp for this test run to avoid parallel conflicts
+	const timestamp = Date.now();
+
+	// Track created meeting title for cleanup
+	let createdMeetingTitle: string;
+
+	test.beforeEach(async ({ adminPage }) => {
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessPage = new UpdateProcessAdminPage(adminPage);
+		meetingsPage = new MeetingsPage(adminPage);
+		formMeetingPage = new FormMeetingPage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
+		meetingAgendaPage = new MeetingAgendaPage(adminPage);
+
+		// Create a unique PUBLISHED meeting for this test run
+		createdMeetingTitle = `Agenda Test Meeting ${timestamp}`;
+
+		// Navigate to meetings section
+		await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+		await adminPage.waitForLoadState('networkidle');
+		await componentsPage.sidebarProcessDetail.navigateToComponents();
+		const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
+		await meetingsLink.click();
+		await adminPage.waitForLoadState('networkidle');
+
+		// Create the meeting
+		await meetingsPage.clickNewMeeting();
+		await adminPage.waitForLoadState('networkidle');
+
+		// Fill meeting details
+		await formMeetingPage.fillTitle(createdMeetingTitle);
+		await formMeetingPage.fillDescriptionField(`Test meeting for agenda management - ${timestamp}`, 'en');
+		await formMeetingPage.selectMeetingType('in_person');
+		await formMeetingPage.fillAddress('Test Address');
+		await formMeetingPage.fillLocation('Test Location');
+
+		// Set dates
+		const startDate = new Date();
+		startDate.setDate(startDate.getDate() + 1);
+		await formMeetingPage.selectCustomDate(startDate, 0, 0);
+		const hour = startDate.getHours();
+		const minute = startDate.getMinutes();
+		await formMeetingPage.selectCustomTime(0, hour, minute);
+
+		// End date: same day, 2 hours later
+		const endDate = new Date();
+		endDate.setDate(endDate.getDate() + 1);
+		const endHour = hour + 2;
+		await formMeetingPage.selectCustomDate(endDate, 1, 1);
+		await formMeetingPage.selectCustomTime(1, endHour, minute);
+
+		// Set registration type
+		await formMeetingPage.selectRegistrationType('registration_disabled');
+
+		// Submit the form - meeting is created as UNPUBLISHED by default
+		await formMeetingPage.createMeeting();
+		await adminPage.waitForLoadState('networkidle');
+
+		// Verify meeting was created
+		await meetingsPage.verifyMeetingsPageVisible();
+
+		// PUBLISH the meeting so it has agenda management access
+		const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
+		await expect(meetingRow).toBeVisible();
+		const publishButton = meetingRow.locator('a[title="Publish"]');
+		await publishButton.click();
+		await adminPage.waitForLoadState('networkidle');
+
+		// Verify meeting is now published
+		const unpublishButton = meetingRow.locator('a[title="Unpublish"]');
+		await expect(unpublishButton).toBeVisible();
 	});
 
-	async function findMeetingWithAgendaAccess(): Promise<string | null> {
-		const allMeetings = await meetingsManagePage.getAllMeetingsData();
+	test.afterEach(async ({ adminPage }) => {
+		// Cleanup: delete the created meeting
+		try {
+			// Navigate to meetings list inside the Meetings component
+			await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+			await adminPage.waitForLoadState('networkidle');
+			await componentsPage.sidebarProcessDetail.navigateToComponents();
+			const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
+			await meetingsLink.click();
+			await adminPage.waitForLoadState('networkidle');
 
-		for (const meeting of allMeetings) {
-			const hasAgendaPermission = await meetingsManagePage.hasActionPermission(meeting.id, 'agenda');
-			if (hasAgendaPermission) {
-				return meeting.id;
-			}
+			// Find and delete meeting by title pattern
+			const deleteMeetingByPattern = async (pattern: RegExp) => {
+				const row = adminPage.locator('table tbody tr', { hasText: pattern });
+				if ((await row.count()) > 0) {
+					const deleteLink = row
+						.first()
+						.locator('a.action-icon--remove, a[title="Delete"], a.action-icon--delete');
+					if ((await deleteLink.count()) > 0) {
+						await deleteLink.first().click();
+						// Confirm deletion
+						const okButton = adminPage.getByRole('button', { name: 'OK' });
+						if ((await okButton.count()) > 0) {
+							await okButton.click();
+							await adminPage.waitForLoadState('networkidle');
+						}
+						console.log(`Deleted meeting matching: ${pattern}`);
+					}
+				}
+			};
+
+			await deleteMeetingByPattern(new RegExp(`Agenda Test Meeting ${timestamp}`, 'i'));
+		} catch (error) {
+			console.log(`Cleanup warning: Could not delete meeting:`, error);
 		}
-		return null;
-	}
+	});
 
 	test.describe('Main Flow', () => {
 		test('should allow admin to manage meeting agenda with topic title, duration, and description', async ({
-			page
+			adminPage
 		}) => {
 			await test.step('1. User: Navigates to the "Processes" section', async () => {
-				// Navigate to processes section
-				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.navigateToProcesses();
+				await adminPage.waitForLoadState('networkidle');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
 			});
 
 			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update', async () => {
-				await processAdminPage.expectToBeOnProcessesAdminPage();
 				// Verify processes table is visible and has content
 				const hasProcesses = await processAdminPage.processTable.hasProcesses();
 				expect(hasProcesses).toBe(true);
 			});
 
 			await test.step('3. User: Selects the process that want to update', async () => {
-				const foundProcessWithMeetings = await findProcessWithMeetings(
-					adminHomePage,
-					processAdminPage,
-					updateProcessAdminPage,
-					componentsPage
-				);
-				expect(foundProcessWithMeetings).toBe(true);
+				// Navigate directly to the specific process edit page
+				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
-				// The process is already loaded from the findProcessWithMeetings() function
-				// We're now on the components page, so we'll verify that in the next step
+				// Verify we're on the process edit/management page
+				const currentUrl = adminPage.url();
+				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/test\/edit/);
 			});
 
 			await test.step('5. User: Navigates to the "Components->Meetings" section in the admin panel', async () => {
-				// Already navigated to components during process selection
-				await componentsPage.waitForComponentsPageLoad();
-				await componentsPage.expectToBeOnComponentsPage();
-
-				// Verify that meetings component exists
-				const meetingComponents = await componentsPage.findComponentsByType('meetings');
-				expect(meetingComponents.length).toBeGreaterThan(0);
+				await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
 			});
 
 			await test.step('6. System: Displays the "Meetings" section in the admin panel', async () => {
-				// Click on the Meetings component to manage it
-				const meetingComponents = await componentsPage.findComponentsByType('meetings');
-				const firstMeetingComponent = meetingComponents[0];
+				// Verify meetings page is loaded and visible
+				await meetingsPage.verifyMeetingsPageVisible();
 
-				// Navigate to manage the meetings component to see individual meetings
-				await componentsPage.manageComponent(firstMeetingComponent);
-				await meetingsManagePage.waitForMeetingsPageLoad();
-
-				// Verify we're now on the meetings management page
-				await meetingsManagePage.expectToBeOnMeetingsPage();
-
-				// Verify the page shows meetings
-				const meetingsCount = await meetingsManagePage.getMeetingsCount();
-				expect(meetingsCount).toBeGreaterThan(0);
+				// Check if our created meeting exists
+				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
+				await expect(meetingRow).toBeVisible();
 			});
 
 			await test.step('7. User: Clicks on "Manage Agenda"', async () => {
-				// Find a meeting that has agenda management capability
-				const meetingWithAgenda = await findMeetingWithAgendaAccess();
+				// Find our specific meeting and click on Manage Agenda
+				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
+				await expect(meetingRow).toBeVisible();
 
-				if (!meetingWithAgenda) {
-					throw new Error(
-						'No meetings found that support agenda management. Make sure there are meetings in this component.'
-					);
-				}
-
-				// Navigate to manage agenda for the found meeting
-				await meetingsManagePage.manageAgenda(meetingWithAgenda);
+				// Click the agenda link for our specific meeting (use only title attribute to avoid matching meeting title link)
+				const agendaLink = meetingRow.locator('a[title="Agenda"]');
+				await agendaLink.click();
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('8. System: Displays the "Agenda" section in the admin panel for the specific meeting', async () => {
@@ -145,7 +218,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 
 			await test.step('9. User: Adds or edits agenda items: Topic Title, Duration, Description', async () => {
 				// Set agenda title first
-				await meetingAgendaPage.fillAgendaTitle('Meeting Agenda - Discussion Topics');
+				await meetingAgendaPage.fillAgendaTitle(`Agenda for ${createdMeetingTitle}`);
 
 				// Set agenda visibility
 				await meetingAgendaPage.setVisibility(true);
@@ -157,19 +230,12 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				// Clear existing items if any (remove them one by one from the end)
 				for (let i = initialItemsCount - 1; i >= 0; i--) {
 					await meetingAgendaPage.removeAgendaItem(i);
-					// Wait for the item count to decrease
-					await page.waitForTimeout(100);
-				}
-
-				// Verify all items are removed
-				const remainingItems = await meetingAgendaPage.getAgendaItemsCount();
-				if (remainingItems > 0) {
-					console.log(`Warning: ${remainingItems} items still remain after cleanup`);
+					await adminPage.waitForTimeout(100);
 				}
 
 				// Wait for page to stabilize after all removals
-				await page.waitForLoadState('networkidle');
-				await page.waitForTimeout(1000);
+				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForTimeout(500);
 
 				// Add first agenda item
 				await meetingAgendaPage.addAgendaItem();
@@ -212,12 +278,11 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 			await test.step('11. System: Validates the agenda details for completeness and correctness', async () => {
 				// The system validates the form on submission
 				// If validation fails, we would see error messages or remain on the same page
-				// We'll verify in the next step that we moved away from the form page
 			});
 
 			await test.step('12. System: Saves the agenda and updates the meeting details', async () => {
 				// Wait for navigation after successful submission
-				await meetingAgendaPage.getPage().waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we're no longer on the agenda creation/edit form
 				const isStillOnNewAgenda = await meetingAgendaPage.isOnNewAgendaPage();
@@ -227,8 +292,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 
 			await test.step('13. System: Notifies the City Administrator that the agenda has been successfully updated', async () => {
 				// Check for success notification (flash message or similar)
-				// The agenda creation/update should redirect back to a success page or show confirmation
-				const currentUrl = meetingAgendaPage.getPage().url();
+				const currentUrl = adminPage.url();
 				console.log('Current URL after agenda save:', currentUrl);
 
 				// Verify we're back on a meetings-related page
@@ -236,115 +300,91 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 			});
 
 			await test.step('Result: The meeting agenda is successfully managed and available for participants to view, ensuring they are informed of the discussion topics', async () => {
-				// Navigate back to meetings management to verify the agenda was saved
-				const currentUrl = meetingAgendaPage.getPage().url();
-				if (!currentUrl.includes('/manage/meetings')) {
-					// If not already on meetings page, navigate back to it
-					await meetingsManagePage.getPage().goBack();
-					await meetingsManagePage.waitForMeetingsPageLoad();
-				}
+				// Verify we're on a meetings page
+				await meetingsPage.verifyMeetingsPageVisible();
 
-				// Verify we can still see the meetings
-				const finalMeetingsCount = await meetingsManagePage.getMeetingsCount();
-				expect(finalMeetingsCount).toBeGreaterThan(0);
+				// Verify our meeting still exists
+				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
+				await expect(meetingRow).toBeVisible();
 
-				console.log('Meeting agenda has been successfully managed and is available for participants');
+				console.log('✅ Meeting agenda has been successfully managed and is available for participants');
 			});
 		});
 	});
 
 	test.describe('Alternative Flow: Cancel', () => {
-		test('should allow user to cancel agenda management without saving changes', async () => {
-			let initialMeetingsCount: number;
-
+		test('should allow user to cancel agenda management without saving changes', async ({ adminPage }) => {
 			await test.step('Start at point 1-10', async () => {
-				// Navigate to agenda management
-				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				// Navigate to meetings section
+				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+				await adminPage.waitForLoadState('networkidle');
+				await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
+				await meetingsPage.verifyMeetingsPageVisible();
 
-				const foundProcessWithMeetings = await findProcessWithMeetings(
-					adminHomePage,
-					processAdminPage,
-					updateProcessAdminPage,
-					componentsPage
-				);
-				expect(foundProcessWithMeetings).toBe(true);
+				// Find our specific meeting and click on Manage Agenda
+				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
+				await expect(meetingRow).toBeVisible();
 
-				const meetingComponents = await componentsPage.findComponentsByType('meetings');
-				await componentsPage.manageComponent(meetingComponents[0]);
-				await meetingsManagePage.waitForMeetingsPageLoad();
+				// Use only title attribute to avoid matching meeting title link
+				const agendaLink = meetingRow.locator('a[title="Agenda"]');
+				await agendaLink.click();
+				await adminPage.waitForLoadState('networkidle');
+				await meetingAgendaPage.waitForAgendaPageLoad();
 
-				// Store initial meetings count before making any changes
-				initialMeetingsCount = await meetingsManagePage.getMeetingsCount();
-
-				const meetingWithAgenda = await findMeetingWithAgendaAccess();
-				if (meetingWithAgenda) {
-					await meetingsManagePage.manageAgenda(meetingWithAgenda);
-					await meetingAgendaPage.waitForAgendaPageLoad();
-
-					// Fill some data that we will later cancel
-					await meetingAgendaPage.fillAgendaTitle('Cancelled Agenda');
-					await meetingAgendaPage.addAgendaItem();
-					await meetingAgendaPage.fillAgendaItemTitle(0, 'Cancelled Item');
-				}
+				// Fill some data that we will later cancel
+				await meetingAgendaPage.fillAgendaTitle('Cancelled Agenda');
+				await meetingAgendaPage.addAgendaItem();
+				await meetingAgendaPage.fillAgendaItemTitle(0, 'Cancelled Item');
 			});
 
 			await test.step('User: Decides to cancel the edit meeting agenda flow', async () => {
 				// Navigate away without saving (simulating cancel action)
-				await meetingAgendaPage.getPage().goBack();
+				await adminPage.goBack();
 			});
 
 			await test.step('System: Prompts the user to confirm the cancellation', async () => {
 				// Some systems show a confirmation dialog when leaving unsaved changes
-				// Handle potential browser confirmation dialog
-				await meetingAgendaPage.getPage().waitForTimeout(1000);
+				await adminPage.waitForTimeout(1000);
 			});
 
 			await test.step('User: Confirms cancellation', async () => {
-				// If there was a confirmation dialog, it would be handled here
-				// For now, we just wait for the navigation to complete
-				await meetingAgendaPage.getPage().waitForLoadState('networkidle');
+				// Wait for the navigation to complete
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('System: Exits without saving changes', async () => {
 				// Verify we're back on the meetings management page
-				await meetingsManagePage.waitForMeetingsPageLoad();
-				await meetingsManagePage.expectToBeOnMeetingsPage();
+				await meetingsPage.verifyMeetingsPageVisible();
 			});
 
 			await test.step('Result: The user cancels the action, and no data is saved. The system returns to the previous page', async () => {
-				// Verify we're back on the meetings page and the agenda was not saved
-				const meetingsCount = await meetingsManagePage.getMeetingsCount();
-				expect(meetingsCount).toBe(initialMeetingsCount);
-				console.log('Successfully cancelled agenda management and returned to meetings page');
+				// Verify our meeting still exists
+				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
+				await expect(meetingRow).toBeVisible();
+
+				console.log('✅ Successfully cancelled agenda management and returned to meetings page');
 			});
 		});
 	});
 
 	test.describe('Alternative Flow: Field/s Validation Fail', () => {
-		test('should handle field validation errors and allow correction', async () => {
+		test('should handle field validation errors and allow correction', async ({ adminPage }) => {
 			await test.step('Start at point 11', async () => {
-				// Navigate to agenda management first
-				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				// Navigate to meetings section
+				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+				await adminPage.waitForLoadState('networkidle');
+				await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
+				await meetingsPage.verifyMeetingsPageVisible();
 
-				const foundProcessWithMeetings = await findProcessWithMeetings(
-					adminHomePage,
-					processAdminPage,
-					updateProcessAdminPage,
-					componentsPage
-				);
-				expect(foundProcessWithMeetings).toBe(true);
+				// Find our specific meeting and click on Manage Agenda
+				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
+				await expect(meetingRow).toBeVisible();
 
-				const meetingComponents = await componentsPage.findComponentsByType('meetings');
-				await componentsPage.manageComponent(meetingComponents[0]);
-				await meetingsManagePage.waitForMeetingsPageLoad();
-
-				const meetingWithAgenda = await findMeetingWithAgendaAccess();
-				if (meetingWithAgenda) {
-					await meetingsManagePage.manageAgenda(meetingWithAgenda);
-					await meetingAgendaPage.waitForAgendaPageLoad();
-				}
+				// Use only title attribute to avoid matching meeting title link
+				const agendaLink = meetingRow.locator('a[title="Agenda"]');
+				await agendaLink.click();
+				await adminPage.waitForLoadState('networkidle');
+				await meetingAgendaPage.waitForAgendaPageLoad();
 			});
 
 			await test.step('11.1. System: Validates the input fields for completeness', async () => {
@@ -361,11 +401,10 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				await meetingAgendaPage.addAgendaItem();
 				await meetingAgendaPage.fillAgendaItemTitle(1, 'Valid Title'); // Valid title
 				await meetingAgendaPage.fillAgendaItemDuration(1, -5); // Negative duration (invalid)
-				// Leave description empty for this item
 
 				// Try to submit form with missing/invalid required fields
 				await meetingAgendaPage.createAgenda();
-				await meetingAgendaPage.getPage().waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('11.2. System: Detects missing or invalid fields', async () => {
@@ -376,7 +415,6 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 					console.log('Validation failed as expected - remaining on agenda page');
 				} else {
 					console.log('Form was submitted successfully - no validation errors occurred');
-					// If the form was submitted successfully, we can skip the correction steps
 					return;
 				}
 			});
@@ -391,7 +429,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				}
 
 				// Fix the main agenda title
-				await meetingAgendaPage.fillAgendaTitle('Corrected Agenda Title');
+				await meetingAgendaPage.fillAgendaTitle(`Corrected Agenda for ${createdMeetingTitle}`);
 				await meetingAgendaPage.setVisibility(true);
 
 				// Correct the first agenda item
@@ -430,7 +468,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 
 			await test.step('11.5. System: Revalidates the corrected fields', async () => {
 				// Wait for the form submission to complete
-				await meetingAgendaPage.getPage().waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('Result: The system highlights invalid or incomplete fields with appropriate error messages. Upon correction, the component can be saved successfully', async () => {
@@ -439,13 +477,13 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				const isStillOnEditAgenda = await meetingAgendaPage.isOnEditAgendaPage();
 
 				if (!isStillOnNewAgenda && !isStillOnEditAgenda) {
-					console.log('Agenda was successfully saved (either initially or after corrections)');
+					console.log('✅ Agenda was successfully saved (either initially or after corrections)');
 				} else {
 					console.log('Still on agenda page - may need additional corrections');
 				}
 
-				// Check for success message if available
-				const currentUrl = meetingAgendaPage.getPage().url();
+				// Verify we're back on a meetings-related page
+				const currentUrl = adminPage.url();
 				console.log('Final URL:', currentUrl);
 				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/manage/);
 			});

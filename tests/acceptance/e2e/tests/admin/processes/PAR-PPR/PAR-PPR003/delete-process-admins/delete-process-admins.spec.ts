@@ -1,12 +1,16 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { ConfirmDeleteModalComponent } from '@pages/components/common/ConfirmDeleteModalComponent';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ParticipatoryProcessAdminsPage } from '@pages/pages/admin/processes/detail/admins/ParticipatoryProcessAdminsPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows City Administrators to delete an Existing Process Administrators of the process.
@@ -20,13 +24,8 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The process has already been created.
  * - The Process Administrator has already been linked to the process.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
+
 test.describe('[PAR-PPR003] – Delete an existing process administrator', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -36,14 +35,14 @@ test.describe('[PAR-PPR003] – Delete an existing process administrator', () =>
 
 	let validProcessData: any;
 
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ adminPage }) => {
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		participatoryProcessAdminsPage = new ParticipatoryProcessAdminsPage(page);
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		participatoryProcessAdminsPage = new ParticipatoryProcessAdminsPage(adminPage);
 
-		confirmDeleteModalComponent = new ConfirmDeleteModalComponent(page);
+		confirmDeleteModalComponent = new ConfirmDeleteModalComponent(adminPage);
 
 		await adminHomePage.navigateToAdminHomePage();
 		await setupTestProcess();

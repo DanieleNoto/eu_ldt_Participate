@@ -1,11 +1,15 @@
-import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Simone Bianchelli
+ */
+
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { FormMeetingPage } from '@pages/pages/admin/processes/detail/meetings/FormMeetingPage';
 import { MeetingsPage } from '@pages/pages/admin/processes/detail/meetings/MeetingsPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows City Administrator to create new official events with specific details including time, duration, location, attendee access, and calendar association.
@@ -21,30 +25,26 @@ import { STORAGE_STATE } from '@utils/constants';
  * - If The storage system for Docker images is available and configured
  * - For Jitsi Videoconference the city must install
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
-
 test.describe('[PAR-EA002] – Create an official event', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
-	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let meetingsPage: MeetingsPage;
 	let formMeetingPage: FormMeetingPage;
 	let componentsPage: ComponentsPage;
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		meetingsPage = new MeetingsPage(page);
-		formMeetingPage = new FormMeetingPage(page);
-		componentsPage = new ComponentsPage(page);
-		await adminHomePage.navigateToAdminHomePage();
+	// Use existing process with fixed slug for consistent testing
+	const processSlug = 'test';
+
+	// Generate unique timestamp for this test run to avoid parallel conflicts
+	const timestamp = Date.now();
+
+	test.beforeEach(async ({ adminPage }) => {
+		processAdminPage = new ProcessAdminPage(adminPage);
+		meetingsPage = new MeetingsPage(adminPage);
+		formMeetingPage = new FormMeetingPage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
 	});
 	test.describe('Main Flow', () => {
-		test('should allow admin to create an official event', async () => {
+		test('should allow admin to create an official event', async ({ adminPage }) => {
 			// Variables to store updated values for verification
 			let newTitle: string;
 			let newDescription: string;
@@ -56,7 +56,7 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 
 			await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
 				await processAdminPage.navigateToProcesses();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -69,15 +69,15 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 			});
 
 			await test.step('3. Admin: selects the process that want to update', async () => {
-				// Click edit on the first process in the table
-				await processAdminPage.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				// Navigate directly to the specific process edit page
+				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('4. System: loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				// Verify we're on the process edit/management page
-				const currentUrl = processAdminPage.getPage().url();
-				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/edit/);
+				const currentUrl = adminPage.url();
+				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/test\/edit/);
 			});
 
 			await test.step('5. Admin: Navigates to the "Components->Meetings” section in the admin panel.', async () => {
@@ -107,13 +107,13 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 			for (const { type } of meetingTypes) {
 				await test.step(`7. Admin: Clicks on "New Meeting" to start the process of creating a ${type} meeting`, async () => {
 					await meetingsPage.clickNewMeeting();
-					await meetingsPage.getPage().waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('networkidle');
 				});
 				await test.step('8. System: Displays the "New Meeting" form, prompting the user to fill in the meeting details.', async () => {
 					// Verify we're on the new meeting form page
-					const currentUrl = meetingsPage.getPage().url();
+					const currentUrl = adminPage.url();
 					expect(currentUrl).toMatch(/\/admin.*\/meetings\/new/);
-					await expect(meetingsPage.getPage().locator('text=Create meeting')).toBeVisible();
+					await expect(adminPage.getByRole('heading', { name: 'Create meeting' })).toBeVisible();
 				});
 
 				await test.step('9. Admin: Create meeting details: Title, Description, Type (in person or online), Start Time, Duration, Location, Registration type, Online Meeting URL (only for online meeting)', async () => {
@@ -121,13 +121,13 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 
 					if (type === 'online') {
 						await formMeetingPage.selectMeetingType('online');
-						newTitle = `New Meeting Title - Type: ${type}`;
+						newTitle = `New Meeting Title ${timestamp} - Type: ${type}`;
 						await formMeetingPage.fillTitle(newTitle);
 						newOnlineMeetingUrl = 'https://jitsi-part-int.ldttoolbox.app/updated-meeting-room';
 						await formMeetingPage.fillOnlineMeetingUrl(newOnlineMeetingUrl);
 					} else if (type === 'in person') {
 						await formMeetingPage.selectMeetingType('in_person');
-						newTitle = `New Meeting Title - Type: ${type}`;
+						newTitle = `New Meeting Title ${timestamp} - Type: ${type}`;
 						await formMeetingPage.fillTitle(newTitle);
 						newLocationHints = 'Meeting password: 123456';
 						await formMeetingPage.fillLocationHints(newLocationHints);
@@ -161,7 +161,7 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 				await test.step('10. Admin: Clicks on "Create Event" to create the event.', async () => {
 					// Click the Update button to save changes
 					await formMeetingPage.createMeeting();
-					await formMeetingPage.getPage().screenshot({
+					await adminPage.screenshot({
 						path: `test-results/screenshots/EA002/CreatedNewMeetingFormMF-${type}.png`,
 						fullPage: true
 					});
@@ -181,9 +181,7 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 
 				await test.step('13. System: Notifies the City Administrator that the event has been successfully created.', async () => {
 					// Check for success notification/message
-					const successMessage = formMeetingPage
-						.getPage()
-						.locator('.flash.success, .alert.success, [role="alert"]');
+					const successMessage = adminPage.locator('.flash.success, .alert.success, [role="alert"]');
 					await expect(successMessage).toBeVisible();
 				});
 
@@ -204,13 +202,17 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 			// Verify the total number of meetings has increased by 2, then clean up
 			const afterMeetingCount = await meetingsPage.getMeetingCount();
 			expect(afterMeetingCount).toBe(beforeMeetingCount + 2);
-			await componentsPage.deleteComponentIfExists(/New Meeting Title - Type: online/i);
-			await componentsPage.deleteComponentIfExists(/New Meeting Title - Type: in person/i);
+			await componentsPage.deleteComponentIfExists(
+				new RegExp(`New Meeting Title ${timestamp} - Type: online`, 'i')
+			);
+			await componentsPage.deleteComponentIfExists(
+				new RegExp(`New Meeting Title ${timestamp} - Type: in person`, 'i')
+			);
 		});
 	});
 
 	test.describe('Alternative Flows', () => {
-		test('should show validation errors when required fields are missing', async () => {
+		test('should show validation errors when required fields are missing', async ({ adminPage }) => {
 			const commonExpectedErrors = [
 				{ fieldName: 'meeting[type_of_meeting]', message: 'There is an error in this field.' },
 				{ fieldName: 'meeting[start_time]', message: 'There is an error in this field.' },
@@ -218,14 +220,10 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 				{ fieldName: 'meeting[registration_type]', message: 'There is an error in this field.' }
 			];
 			let beforeMeetingCount: number;
-			await processAdminPage.navigateToProcesses();
-			await processAdminPage.getPage().waitForLoadState('networkidle');
-			const hasProcesses = await processAdminPage.processTable.hasProcesses();
-			expect(hasProcesses).toBe(true);
 
-			// Click edit on the first process in the table
-			await processAdminPage.editFirstProcess();
-			await processAdminPage.getPage().waitForLoadState('networkidle');
+			// Navigate directly to the specific process
+			await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+			await adminPage.waitForLoadState('networkidle');
 
 			// Navigate to Components tab/section
 			await componentsPage.sidebarProcessDetail.navigateToComponents();
@@ -234,36 +232,49 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 			const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
 			expect(meetingsLink).not.toBeNull();
 			await meetingsLink.click();
-			await componentsPage.getPage().waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('networkidle');
 			await meetingsPage.verifyMeetingsPageVisible();
 			beforeMeetingCount = await meetingsPage.getMeetingCount();
 			expect(beforeMeetingCount).toBeGreaterThan(0);
 
-			await checkErrors(meetingsPage, formMeetingPage, commonExpectedErrors);
+			await checkErrors(adminPage, meetingsPage, formMeetingPage, commonExpectedErrors, timestamp);
 			const afterMeetingCount = await meetingsPage.getMeetingCount();
 			expect(afterMeetingCount).toBe(beforeMeetingCount + 3);
-			await componentsPage
-				.getPage()
-				.screenshot({ path: 'test-results/screenshots/EA002/MeetingsListBeforeDeleteAF.png', fullPage: true });
-			await componentsPage.deleteComponentIfExists(/New Meeting Title - Type: online/i);
-			await componentsPage.deleteComponentIfExists(/New Meeting Title - Type: in person/i);
-			await componentsPage.deleteComponentIfExists(/New Meeting Title - Type: hybrid/i);
-			await componentsPage
-				.getPage()
-				.screenshot({ path: 'test-results/screenshots/EA002/MeetingsListAfterDeleteAF.png', fullPage: true });
+			await adminPage.screenshot({
+				path: 'test-results/screenshots/EA002/MeetingsListBeforeDeleteAF.png',
+				fullPage: true
+			});
+			await componentsPage.deleteComponentIfExists(
+				new RegExp(`New Meeting Title ${timestamp} - Type: online`, 'i')
+			);
+			await componentsPage.deleteComponentIfExists(
+				new RegExp(`New Meeting Title ${timestamp} - Type: in person`, 'i')
+			);
+			await componentsPage.deleteComponentIfExists(
+				new RegExp(`New Meeting Title ${timestamp} - Type: hybrid`, 'i')
+			);
+			await adminPage.screenshot({
+				path: 'test-results/screenshots/EA002/MeetingsListAfterDeleteAF.png',
+				fullPage: true
+			});
 		});
 	});
 });
+
+import { Page } from '@playwright/test';
+
 async function checkErrors(
+	adminPage: Page,
 	meetingsPage: MeetingsPage,
 	formMeetingPage: FormMeetingPage,
-	expectedErrors: { fieldName: string; message: string }[]
+	expectedErrors: { fieldName: string; message: string }[],
+	timestamp: number
 ) {
 	const meetingTypes = [{ type: 'online' }, { type: 'in person' }, { type: 'hybrid' }];
 
 	for (const { type } of meetingTypes) {
 		await meetingsPage.clickNewMeeting();
-		await meetingsPage.getPage().waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('networkidle');
 		await formMeetingPage.createMeeting();
 		expect(await formMeetingPage.hasValidationErrors()).toBe(true);
 		const actualErrors = await formMeetingPage.getValidationErrorsDetailed();
@@ -274,7 +285,7 @@ async function checkErrors(
 			);
 			expect(match).toBeTruthy();
 		}
-		await formMeetingPage.getPage().screenshot({
+		await adminPage.screenshot({
 			path: `test-results/screenshots/EA002/CreatedNewMeetingFormCommonErrorsAF - ${type}.png`,
 			fullPage: true
 		});
@@ -300,12 +311,12 @@ async function checkErrors(
 			// catch all "cannot be blank" errors
 			await formMeetingPage.createMeeting();
 			expect(await formMeetingPage.hasValidationErrors()).toBe(true);
-			await formMeetingPage.getPage().screenshot({
+			await adminPage.screenshot({
 				path: `test-results/screenshots/EA002/CreatedNewMeetingForm-AllCannotBeBlankErrorsAF - ${type}.png`,
 				fullPage: true
 			});
-			await expect(formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
-			await meetingsPage.getPage().waitForLoadState('networkidle');
+			await expect(adminPage.locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
+			await adminPage.waitForLoadState('networkidle');
 			await formMeetingPage.checkTitleFieldErrors();
 			await formMeetingPage.checkDescriptionFieldErrors();
 			// 🔹 Catch Description lowercase → "must start with a capital letter"
@@ -315,8 +326,8 @@ async function checkErrors(
 			await formMeetingPage.createMeeting();
 
 			expect(await formMeetingPage.hasValidationErrors()).toBe(true);
-			await expect(formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
-			await formMeetingPage.getPage().screenshot({
+			await expect(adminPage.locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
+			await adminPage.screenshot({
 				path: `test-results/screenshots/EA002/CreatedNewMeeting4DescriptionLowerCaseAF-${type}.png`,
 				fullPage: true
 			});
@@ -331,14 +342,14 @@ async function checkErrors(
 			await formMeetingPage.createMeeting();
 
 			expect(await formMeetingPage.hasValidationErrors()).toBe(true);
-			await expect(formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
-			await formMeetingPage.getPage().screenshot({
+			await expect(adminPage.locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
+			await adminPage.screenshot({
 				path: `test-results/screenshots/EA002/CreatedNewMeeting4TitleLowerCaseAF-${type}.png`,
 				fullPage: true
 			});
 
 			await formMeetingPage.checkTitleFieldErrors();
-			const newTitleAF = `New Meeting Title - Type: ${type}`;
+			const newTitleAF = `New Meeting Title ${timestamp} - Type: ${type}`;
 			await formMeetingPage.fillTitle(newTitleAF);
 
 			// 🔹 Invalid URL → "Must be valid URL"
@@ -347,8 +358,8 @@ async function checkErrors(
 			await formMeetingPage.createMeeting();
 
 			expect(await formMeetingPage.hasValidationErrors()).toBe(true);
-			await expect(formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
-			await formMeetingPage.getPage().screenshot({
+			await expect(adminPage.locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
+			await adminPage.screenshot({
 				path: `test-results/screenshots/EA002/CreatedNewMeeting4InvalidUrlAF-${type}.png`,
 				fullPage: true
 			});
@@ -368,12 +379,12 @@ async function checkErrors(
 			// catch all "cannot be blank" errors
 			await formMeetingPage.createMeeting();
 			expect(await formMeetingPage.hasValidationErrors()).toBe(true);
-			await formMeetingPage.getPage().screenshot({
+			await adminPage.screenshot({
 				path: `test-results/screenshots/EA002/CreatedNewMeetingForm-AllCannotBeBlankErrorsAF - ${type}.png`,
 				fullPage: true
 			});
-			await expect(formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
-			await meetingsPage.getPage().waitForLoadState('networkidle');
+			await expect(adminPage.locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
+			await adminPage.waitForLoadState('networkidle');
 			await formMeetingPage.checkTitleFieldErrors();
 			await formMeetingPage.checkDescriptionFieldErrors();
 			await formMeetingPage.checkAddressFieldErrors();
@@ -391,8 +402,8 @@ async function checkErrors(
 			await formMeetingPage.createMeeting();
 
 			expect(await formMeetingPage.hasValidationErrors()).toBe(true);
-			await expect(formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
-			await formMeetingPage.getPage().screenshot({
+			await expect(adminPage.locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
+			await adminPage.screenshot({
 				path: `test-results/screenshots/EA002/CreatedNewMeeting4DescriptionLowerCaseAF-${type}.png`,
 				fullPage: true
 			});
@@ -407,8 +418,8 @@ async function checkErrors(
 			await formMeetingPage.createMeeting();
 
 			expect(await formMeetingPage.hasValidationErrors()).toBe(true);
-			await expect(formMeetingPage.getPage().locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
-			await formMeetingPage.getPage().screenshot({
+			await expect(adminPage.locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
+			await adminPage.screenshot({
 				path: `test-results/screenshots/EA002/CreatedNewMeeting4TitleLowerCaseAF-${type}.png`,
 				fullPage: true
 			});
@@ -416,17 +427,17 @@ async function checkErrors(
 			await formMeetingPage.checkTitleFieldErrors();
 
 			// 🔹  set a valid title
-			const newTitleAF = `New Meeting Title - Type: ${type}`;
+			const newTitleAF = `New Meeting Title ${timestamp} - Type: ${type}`;
 			await formMeetingPage.fillTitle(newTitleAF);
 		}
 		await formMeetingPage.createMeeting();
 		expect(await formMeetingPage.hasValidationErrors()).toBe(false);
-		await formMeetingPage.getPage().screenshot({
+		await adminPage.screenshot({
 			path: `test-results/screenshots/EA002/CreatedNewMeetingFormAF - ${type}.png`,
 			fullPage: true
 		});
-		const successMessage = formMeetingPage.getPage().locator('.flash.success, .alert.success, [role="alert"]');
+		const successMessage = adminPage.locator('.flash.success, .alert.success, [role="alert"]');
 		await expect(successMessage).toBeVisible();
-		await meetingsPage.getPage().waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('networkidle');
 	}
 }

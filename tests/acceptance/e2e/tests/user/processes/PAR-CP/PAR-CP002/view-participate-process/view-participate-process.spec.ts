@@ -1,9 +1,13 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for citizens to view the details of a specific process and participate by reviewing, commenting, and providing feedback.
@@ -16,21 +20,16 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The citizen has an active account on the platform and is logged in (optional for public processes).
  * - The process is published and accessible to citizens.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
+
 test.describe('[PAR-CP002] – View and participate in a specific process', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let processesOverviewPage: ProcessesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
 	let homePage: HomePage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		processesOverviewPage = new ProcessesOverviewPage(page);
-		processDetailPage = new ProcessDetailPage(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		processesOverviewPage = new ProcessesOverviewPage(userPage);
+		processDetailPage = new ProcessDetailPage(userPage);
 
 		await homePage.navigateToHomePage();
 	});

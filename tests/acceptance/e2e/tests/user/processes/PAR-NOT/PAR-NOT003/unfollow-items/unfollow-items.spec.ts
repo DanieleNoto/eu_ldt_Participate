@@ -1,8 +1,12 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProfilePage } from '@pages/pages/user/ProfilePage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows citizens to unfollow content items, participatory spaces, stopping notifications related to the unfollowed items.
@@ -17,20 +21,14 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The citizen is following the content item, participatory space.
  *
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
-test.describe('[PAR-NOT003] – Unfollow items', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 
+test.describe('[PAR-NOT003] – Unfollow items', () => {
 	let homePage: HomePage;
 	let profilePage: ProfilePage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		profilePage = new ProfilePage(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		profilePage = new ProfilePage(userPage);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {

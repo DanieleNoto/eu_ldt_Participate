@@ -8,6 +8,11 @@
 	"KEYCLOAK_CALLBACK_PATH": "_%KEYCLOAK_CALLBACK_PATH%_",
 	"KEYCLOAK_CLIENT_ID": "_%KEYCLOAK_CLIENT_ID%_",
 	"KEYCLOAK_CLIENT_SECRET": "_%KEYCLOAK_CLIENT_SECRET%_",
-	"AUTH_USERNAME": "_%AUTH_USERNAME%_",
-	"AUTH_PASSWORD": "_%AUTH_PASSWORD%_"
+	"AUTH_USERS": [
+		{ "username": "_%AUTH_USERNAME%_", "password": "_%AUTH_PASSWORD%_" },
+		{ "username": "_%AUTH_USER2_USERNAME%_", "password": "_%AUTH_USER2_PASSWORD%_" },
+		{ "username": "_%AUTH_USER3_USERNAME%_", "password": "_%AUTH_USER3_PASSWORD%_" },
+		{ "username": "_%AUTH_USER4_USERNAME%_", "password": "_%AUTH_USER4_PASSWORD%_" },
+		{ "username": "_%AUTH_USER5_USERNAME%_", "password": "_%AUTH_USER5_PASSWORD%_" }
+	]
 }

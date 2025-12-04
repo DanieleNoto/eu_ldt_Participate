@@ -7,9 +7,7 @@
 
 import { HomePage } from '@pages/pages/public/HomePage';
 import { CalendarPage } from '@pages/pages/user/CalendarPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Enables user to view events inside a calendar.
@@ -24,20 +22,13 @@ import { STORAGE_STATE } from '@utils/constants';
  *
  */
 
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
 test.describe('[PAR-EP006] – View calendar', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
-
 	let calendarPage: CalendarPage;
 	let homePage: HomePage;
 
-	test.beforeEach(async ({ page }) => {
-		calendarPage = new CalendarPage(page);
-		homePage = new HomePage(page);
+	test.beforeEach(async ({ userPage }) => {
+		calendarPage = new CalendarPage(userPage);
+		homePage = new HomePage(userPage);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {

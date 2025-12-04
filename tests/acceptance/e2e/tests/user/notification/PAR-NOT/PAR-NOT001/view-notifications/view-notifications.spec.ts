@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denise Scarcelli
  * Gianfranco Cedro
@@ -7,9 +7,7 @@
 
 import { HomePage } from '@pages/pages/public/HomePage';
 import NotificationPage from '@pages/pages/user/NotificationPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows citizens to view notifications related to platform activities.
@@ -24,20 +22,14 @@ import { STORAGE_STATE } from '@utils/constants';
  * - Notifications are enabled, and activities have generated notifications for the citizen
  *
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
-test.describe('[PAR-NOT001] – View notifications', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 
+test.describe('[PAR-NOT001] – View notifications', () => {
 	let notificationPage: NotificationPage;
 	let homePage: HomePage;
 
-	test.beforeEach(async ({ page }) => {
-		notificationPage = new NotificationPage(page);
-		homePage = new HomePage(page);
+	test.beforeEach(async ({ userPage }) => {
+		notificationPage = new NotificationPage(userPage);
+		homePage = new HomePage(userPage);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {
