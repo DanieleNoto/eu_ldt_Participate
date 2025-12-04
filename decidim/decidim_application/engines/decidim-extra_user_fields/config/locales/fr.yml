@@ -132,6 +132,7 @@ fr:
                     legend: Plus d'informations
                     select_gender: Sélectionnez votre genre
                     underage: J'ai moins de %{limit} ans et j'accepte d'obtenir une autorisation parentale
+                    underage_warning: "Avertissement : Fournir de fausses informations pour contourner la vérification de l'âge constitue une violation des Conditions d'utilisation et entraînera la suppression du compte."
         statutory_representative:
             inform:
                 body: |

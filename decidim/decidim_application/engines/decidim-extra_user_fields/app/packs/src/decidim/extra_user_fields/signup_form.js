@@ -6,6 +6,7 @@
 $(document).ready(function () {
 	const underageCheckbox = $('#registration_underage_checkbox');
 	const statutoryRepresentativeEmailField = $('#statutory_representative_email_field');
+	const underageWarning = $('#underage_warning');
 	const dateOfBirthField = $('#registration_user_date_of_birth');
 	const underageFieldSet = $('#underage_fieldset');
 	let underageLimit = 18;
@@ -24,11 +25,13 @@ $(document).ready(function () {
 			underageFieldSet.removeClass('hidden');
 			underageCheckbox.prop('checked', true);
 			statutoryRepresentativeEmailField.removeClass('hidden');
+			underageWarning.removeClass('hidden');
 		} else {
 			statutoryRepresentativeEmailField.find('input').val('');
 			underageFieldSet.addClass('hidden');
 			underageCheckbox.prop('checked', false);
 			statutoryRepresentativeEmailField.addClass('hidden');
+			underageWarning.addClass('hidden');
 		}
 	}
 
@@ -36,9 +39,11 @@ $(document).ready(function () {
 		underageCheckbox.on('change', function () {
 			if (underageCheckbox.prop('checked')) {
 				statutoryRepresentativeEmailField.removeClass('hidden');
+				underageWarning.removeClass('hidden');
 			} else {
 				statutoryRepresentativeEmailField.find('input').val('');
 				statutoryRepresentativeEmailField.addClass('hidden');
+				underageWarning.addClass('hidden');
 			}
 		});
 	}

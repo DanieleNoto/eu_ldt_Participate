@@ -49,12 +49,18 @@
           <div class="field <%= f.object.date_of_birth.present? ? '' : 'hidden' %>" id="statutory_representative_email_field">
             <%= f.text_field :statutory_representative_email %>
           </div>
+          <div class="field <%= f.object.date_of_birth.present? ? '' : 'hidden' %> callout warning" id="underage_warning">
+            <p><%= t(".signup.underage_warning") %></p>
+          </div>
         </div>
       <% else %>
         <div class="fieldset">
           <%= f.check_box :underage, id: "underage_checkbox", label:  t(".signup.underage", limit: current_organization.age_limit?) %>
           <div class="field hidden" id="statutory_representative_email_field">
             <%= f.text_field :statutory_representative_email %>
+          </div>
+          <div class="field hidden callout warning mt-5" id="underage_warning">
+            <p><%= t(".signup.underage_warning") %></p>
           </div>
         </div>
       <% end %>

@@ -132,6 +132,7 @@ en:
                     legend: More information
                     select_gender: Select your gender
                     underage: I am under %{limit} years old and I agree to get a parental authorization
+                    underage_warning: 'Warning: Providing false information to bypass age verification constitutes a violation of the Terms of Use and will result in account deletion.'
         statutory_representative:
             inform:
                 body: |
