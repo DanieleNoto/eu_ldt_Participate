@@ -79,10 +79,12 @@ module Decidim
         Rails.logger.info "[Keycloak Logout] Overwriting cookies after Devise sign_out (before redirect)"
 
         # Overwrite with empty values again using exact attributes
+        # NOTE: Do NOT clear _session_id - it's managed by Rails/Devise and contains
+        # important state like cookie consent. Clearing it causes the consent banner to reappear.
         cookie_domain = Decidim::Keycloak::CookieManager.calculate_cookie_domain(request.host)
         is_production = Rails.env.production?
 
-        %w(access_token refresh_token id_token _session_id).each do |cookie_name|
+        %w(access_token refresh_token id_token).each do |cookie_name|
           cookies[cookie_name] = {
             value: "",
             expires: 1.year.ago,
