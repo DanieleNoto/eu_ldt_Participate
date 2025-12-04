@@ -1,11 +1,15 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { ConfirmDeleteModalComponent } from '@pages/components/common/ConfirmDeleteModalComponent';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { AttachmentsProcessPage } from '@pages/pages/admin/processes/detail/attachments/AttachmentsProcessPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows City Administrators to delete an Existing Attachment of the process.
@@ -20,20 +24,18 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The attachment has already been uploaded into the process.
  */
 test.describe('[PAR-PPA003] – Delete an existing attachment', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
 	let attachmentsProcessPage: AttachmentsProcessPage;
 	let confirmDeleteModalComponent: ConfirmDeleteModalComponent;
 
-	test.beforeEach(async ({ page }) => {
-		await ensureLoggedIn(page, 'ADMIN');
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		attachmentsProcessPage = new AttachmentsProcessPage(page);
-		confirmDeleteModalComponent = new ConfirmDeleteModalComponent(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		attachmentsProcessPage = new AttachmentsProcessPage(adminPage);
+		confirmDeleteModalComponent = new ConfirmDeleteModalComponent(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
 	});
 

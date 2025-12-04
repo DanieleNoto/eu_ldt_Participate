@@ -1,3 +1,9 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { UploadFileModalComponent } from '@pages/components/admin/process/detail/UploadFileModalComponent';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
@@ -6,9 +12,7 @@ import { NewPrivateParticipantFormPage } from '@pages/pages/admin/processes/deta
 import { PrivateParticipantsPage } from '@pages/pages/admin/processes/detail/private-participants/PrivateParticipantsPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows City Administrators to manage participants for a private process by specifying who can participate through a form or CSV import, ensuring that only authorized individuals have access to the process and its activities.
@@ -21,13 +25,8 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The process has already been created.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
+
 test.describe('[PAR-PPP001] – Manage private participants (Only If the process is private)', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -37,15 +36,15 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 	let uploadFileModalComponent: UploadFileModalComponent;
 	let validProcessData: any;
 
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ adminPage }) => {
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		privateParticipantsPage = new PrivateParticipantsPage(page);
-		newPrivateParticipantFormPage = new NewPrivateParticipantFormPage(page);
-		importCsvPage = new ImportCsvPage(page);
-		uploadFileModalComponent = new UploadFileModalComponent(page);
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		privateParticipantsPage = new PrivateParticipantsPage(adminPage);
+		newPrivateParticipantFormPage = new NewPrivateParticipantFormPage(adminPage);
+		importCsvPage = new ImportCsvPage(adminPage);
+		uploadFileModalComponent = new UploadFileModalComponent(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
 		await setupTestProcess();
 	});

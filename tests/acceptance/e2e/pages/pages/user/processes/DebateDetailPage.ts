@@ -1,3 +1,12 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denis Vasilev Dimchev
+ * Gianfranco Cedro
+ * Denise Scarcelli
+ * Simone Bianchelli
+ */
+
 import { expect, Locator, Page } from '@playwright/test';
 import { ShareModalComponent } from '../../../components/common/ShareModalComponent';
 
@@ -255,9 +264,15 @@ export class DebateDetailPage {
 		await this.likeButton.click();
 	}
 	/**
-	 * Click the like button
+	 * Click the close debate link from the dropdown menu
+	 * First opens the dropdown trigger, then clicks the close link
 	 */
 	async clickCloseDebateLink(): Promise<void> {
+		// Find and click the dropdown trigger button (Resource controls)
+		const dropdownTrigger = this.page.locator('button[aria-label="Resource controls"]');
+		await dropdownTrigger.click();
+
+		// Wait for dropdown menu to be visible and click the close link
 		await this.closeDebateLink.click();
 	}
 
@@ -545,7 +560,6 @@ export class DebateDetailPage {
 			return false;
 		}
 	}
-
 
 	/**
 	 * Check if Tribute.js is properly initialized on the textarea
@@ -920,6 +934,20 @@ export class DebateDetailPage {
 	}
 
 	/**
+	 * Upvote a comment by its ID
+	 * @param commentId - The ID of the comment to upvote
+	 */
+	async upvoteCommentById(commentId: string): Promise<void> {
+		const commentSelector = `#comment_${commentId}`;
+		await this.page.locator(commentSelector).waitFor({ state: 'visible' });
+
+		// Find the upvote button within the specific comment
+		const upvoteButton = this.page.locator(`${commentSelector} .js-comment__votes--up`);
+		await upvoteButton.click();
+		await this.page.waitForLoadState('networkidle');
+	}
+
+	/**
 	 * Downvote a comment by index
 	 * @param index - The index of the comment to downvote (0-based)
 	 */
@@ -1273,5 +1301,75 @@ export class DebateDetailPage {
 		await this.clickShareButton();
 		await this.shareModal.verifyShareUrlsContent(debateTitle, currentUrl);
 		await this.shareModal.closeModal();
+	}
+
+	/**
+	 * Delete a comment by its ID
+	 * Opens the comment dropdown menu, clicks Delete, and confirms the action
+	 * @param commentId - The ID of the comment to delete
+	 */
+	async deleteCommentById(commentId: string): Promise<void> {
+		try {
+			const commentSelector = `#comment_${commentId}`;
+
+			// Wait for comment to be visible
+			await this.page.locator(commentSelector).waitFor({ state: 'visible' });
+
+			// Click the three dots button to open dropdown
+			const controlsButton = this.page.locator(`#dropdown-trigger-toggle-context-menu-${commentId}`);
+			await controlsButton.click();
+
+			// Click the Delete link
+			const deleteButton = this.page.locator(`a[href="/comments/${commentId}"][data-method="delete"]`);
+			await deleteButton.waitFor({ state: 'visible' });
+			await deleteButton.click();
+
+			// Wait for confirm modal and click OK button
+			const confirmOkButton = this.page.locator('[data-confirm-ok]');
+			await confirmOkButton.waitFor({ state: 'visible' });
+			await confirmOkButton.click();
+
+			// Wait for action to complete
+			await this.page.waitForLoadState('networkidle');
+
+			console.log(`Successfully deleted comment ${commentId}`);
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error(`Error deleting comment ${commentId}:`, error.message);
+				throw error;
+			}
+			throw new Error('Unknown error occurred while deleting comment');
+		}
+	}
+
+	/**
+	 * Get the ID of a comment by its text content
+	 * @param commentText - The text of the comment to find
+	 * @returns The comment ID or null if not found
+	 */
+	async getCommentIdByText(commentText: string): Promise<string | null> {
+		try {
+			// Find the comment that contains the specific text
+			const commentWithText = this.page.locator('.comment[id^="comment_"]', {
+				has: this.page.locator('.comment__content', { hasText: commentText })
+			});
+
+			await commentWithText.waitFor({ state: 'visible', timeout: 10000 });
+			const commentId = await commentWithText.getAttribute('id');
+
+			if (commentId) {
+				// Extract the numeric ID from "comment_123"
+				const numericId = commentId.replace('comment_', '');
+				console.log(`Found comment with text "${commentText}" - ID: ${numericId}`);
+				return numericId;
+			}
+
+			return null;
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error(`Error finding comment with text "${commentText}":`, error.message);
+			}
+			return null;
+		}
 	}
 }

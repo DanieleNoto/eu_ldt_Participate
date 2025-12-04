@@ -4,31 +4,23 @@
  * Simone Bianchelli
  */
 
-import { test } from '@playwright/test';
+import { test } from '@fixtures/parallel-test';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { NewsletterAdminPage } from '@pages/pages/admin/newsletters/NewsletterAdminPage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 
 /**
+ * Test suite for Send Mass Email Communications functionality
+ *
  * Enables integration with an SMTP server to send mass emails with various features.
  * User Story: As a City Communications Officer, I want to send mass email campaigns with personalised content so that I can effectively engage citizens.
  * Requirements: PAR R22
  * Prerequisites:
  * - The City Communications Officer has an active account on the platform and is logged in.
  * - The SMTP server is integrated and configured properly to support mass email delivery.
- * -  The recipient participants have opted in to receive newsletters.
+ * - The recipient participants have opted in to receive newsletters.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-	await page.close();
-	await context.close();
-});
 
 test.describe('[PAR-MACT001] – Send mass email communications', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let newsletterAdminPage: NewsletterAdminPage;
 
@@ -36,9 +28,9 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 	const processTitle = 'Update Test0';
 
 	// Common setup for both flows (only Page Objects)
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		newsletterAdminPage = new NewsletterAdminPage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		newsletterAdminPage = new NewsletterAdminPage(adminPage);
 
 		await adminHomePage.navigateToAdminHomePage();
 	});
@@ -53,7 +45,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 			}
 		});
 
-		test('should send mass email campaigns', async ({ page }) => {
+		test('should send mass email campaigns', async ({ adminPage }) => {
 			let timestamp: string;
 			let body: string;
 
@@ -63,7 +55,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				// Verify that the user is now on the newsletters page
 				await newsletterAdminPage.expectToBeOnNewslettersPage();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('2. User: Clicks on the "New Newsletter" button to create a new email campaign.', async () => {
@@ -73,21 +65,21 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				// Click on the New Newsletter button
 				await newsletterAdminPage.clickNewNewsletter();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('3. System: Displays available templates for the newsletter.', async () => {
 				// Verify that the newsletter templates are displayed
 				await newsletterAdminPage.expectNewsletterTemplatesDisplayed();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('4. User: Selects a template for the newsletter: Basic / Text, Image, and CTA', async () => {
 				// Select the Basic template
 				await newsletterAdminPage.selectBasicTemplate();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('5. User: Fills in the required fields based on the chosen template', async () => {
@@ -104,14 +96,14 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 
 				console.log(`Creating newsletter: "${subject}"`);
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('6. User: Clicks Save button to confirm the template selection', async () => {
 				// Click Save to confirm the newsletter creation
 				await newsletterAdminPage.saveNewsletter();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('7. System: Displays a preview of the newsletter to the user, allowing them to check layout and overall content', async () => {
@@ -123,11 +115,11 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 
 				// Verify the content shows message with original content
 				await newsletterAdminPage.expectPreviewContentToMatchPattern(
-					'[A-Za-z\\s]+',
+					'[A-Za-z0-9\\s]+',
 					'this is a test newsletter!'
 				);
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('8. User: Makes any necessary edits and clicks on "Save" to confirm the newsletter contents', async () => {
@@ -147,11 +139,11 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 
 				// Verify the content shows message with modified content
 				await newsletterAdminPage.expectPreviewContentToMatchPattern(
-					'[A-Za-z\\s]+',
+					'[A-Za-z0-9\\s]+',
 					'this is a test newsletter with modified content\\.'
 				);
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('10. System: Displays options for selecting targeted recipients', async () => {
@@ -161,14 +153,14 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				// Verify all recipient selection options are displayed
 				await newsletterAdminPage.expectRecipientOptionsToBeDisplayed();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('11. User: Selects recipients for the newsletter delivery', async () => {
 				// Select "Send to all users" option
 				await newsletterAdminPage.selectSendToAllUsers();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('12. User: Clicks on "Deliver Newsletter" to start sending emails', async () => {
@@ -178,7 +170,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				// Confirm the delivery
 				await newsletterAdminPage.confirmDelivery();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('13. System: Notifies the City Communications Officer that the newsletter has been successfully delivered', async () => {
@@ -191,7 +183,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				// Wait for delivery count starting
 				await newsletterAdminPage.expectNewsletterDeliveryStarted(subject);
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 		});
 	});
@@ -206,7 +198,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 			}
 		});
 
-		test('should send mass email campaigns with another recipients selection option', async ({ page }) => {
+		test('should send mass email campaigns with another recipients selection option', async ({ adminPage }) => {
 			let timestamp: string;
 			let body: string;
 
@@ -216,7 +208,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				// Verify that the user is now on the newsletters page
 				await newsletterAdminPage.expectToBeOnNewslettersPage();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('2. User: Clicks on the "New Newsletter" button to create a new email campaign.', async () => {
@@ -226,21 +218,21 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				// Click on the New Newsletter button
 				await newsletterAdminPage.clickNewNewsletter();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('3. System: Displays available templates for the newsletter.', async () => {
 				// Verify that the newsletter templates are displayed
 				await newsletterAdminPage.expectNewsletterTemplatesDisplayed();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('4. User: Selects a template for the newsletter: Basic / Text, Image, and CTA', async () => {
 				// Select the Basic template
 				await newsletterAdminPage.selectBasicTemplate();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('5. User: Fills in the required fields based on the chosen template', async () => {
@@ -257,14 +249,14 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 
 				console.log(`Creating newsletter: "${subject}"`);
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('6. User: Clicks Save button to confirm the template selection', async () => {
 				// Click Save to confirm the newsletter creation
 				await newsletterAdminPage.saveNewsletter();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('7. System: Displays a preview of the newsletter to the user, allowing them to check layout and overall content', async () => {
@@ -276,11 +268,11 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 
 				// Verify the content shows message with original content
 				await newsletterAdminPage.expectPreviewContentToMatchPattern(
-					'[A-Za-z\\s]+',
+					'[A-Za-z0-9\\s]+',
 					'this is a test newsletter!'
 				);
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('8. User: Makes any necessary edits and clicks on "Save" to confirm the newsletter contents', async () => {
@@ -300,11 +292,11 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 
 				// Verify the content shows message with modified content
 				await newsletterAdminPage.expectPreviewContentToMatchPattern(
-					'[A-Za-z\\s]+',
+					'[A-Za-z0-9\\s]+',
 					'this is a test newsletter with modified content\\.'
 				);
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('10. System: Displays options for selecting targeted recipients', async () => {
@@ -314,7 +306,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				// Verify all recipient selection options are displayed
 				await newsletterAdminPage.expectRecipientOptionsToBeDisplayed();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('11. User: Selects recipients for the newsletter delivery', async () => {
@@ -333,7 +325,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 
 				console.log('Recipients confirmed successfully');
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('12. User: Clicks on "Deliver Newsletter" to start sending emails', async () => {
@@ -343,7 +335,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				// Confirm the delivery
 				await newsletterAdminPage.confirmDelivery();
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('13. System: Notifies the City Communications Officer that the newsletter has been successfully delivered', async () => {
@@ -356,7 +348,7 @@ test.describe('[PAR-MACT001] – Send mass email communications', () => {
 				// Wait for delivery count starting
 				await newsletterAdminPage.expectNewsletterDeliveryStarted(subject);
 
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 			});
 		});
 	});

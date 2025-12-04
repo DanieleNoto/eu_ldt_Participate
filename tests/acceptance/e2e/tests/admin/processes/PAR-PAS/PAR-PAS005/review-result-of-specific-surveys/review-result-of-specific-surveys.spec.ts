@@ -1,12 +1,16 @@
-import test, { expect } from '@playwright/test';
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
+import { test, expect } from '@fixtures/parallel-test-reserved';
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { SurveysManagePage } from '@pages/pages/admin/processes/detail/components/surveys/SurveysManagePage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 
 /**
  * Enables City administrators to see result of specific survey
@@ -15,17 +19,14 @@ import { STORAGE_STATE } from '@utils/constants';
  * Prerequisites:
  * - The City Administrator has an active account on the platform and is logged in.
  * - The City Administrator has permissions to create surveys.
+ *
+ * @reserved - This test requires both ADMIN and USER accounts and must run sequentially.
+ * Uses parallel-test-reserved fixture which provides adminPage and userPage.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-	await page.close();
-	await context.close();
-});
 
-test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
+test.describe('[PAR-PAS005] – Review result of specific surveys @reserved', () => {
+	// Force sequential execution for tests requiring multiple user interactions
+	test.describe.configure({ mode: 'serial' });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -40,19 +41,20 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 	let surveyName: string;
 
 	// Common setup for both flows (only Page Objects)
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		surveysManagePage = new SurveysManagePage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
+		surveysManagePage = new SurveysManagePage(adminPage);
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 	});
 
 	/**
 	 * Setup test environment with responses (for Main Flow)
+	 * @param userPage - The user page fixture provided by parallel-test-reserved
 	 */
-	async function setupTestProcessWithResponses(browser: any) {
+	async function setupTestProcessWithResponses(userPage: any) {
 		await test.step('Setup: Create new test process as prerequisite', async () => {
 			const { processSlug: slug, processEditUrl: url } = await surveysManagePage.setupTestProcess(
 				validProcessData,
@@ -78,22 +80,11 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 		});
 
 		await test.step('Setup: Create survey responses as prerequisite', async () => {
-			const userContext = await browser.newContext({
-				storageState: STORAGE_STATE.USER
-			});
-			const userPage = await userContext.newPage();
-
-			// Handle USER context and login in the test
-			await ensureLoggedIn(userPage, 'USER');
-
-			// Create Page Object for USER actions
+			// Use the userPage fixture from parallel-test-reserved (already authenticated)
 			const userSurveysPage = new SurveysManagePage(userPage);
 
 			// Execute only the survey actions
 			await userSurveysPage.replytoSurvey(processSlug, componentName, surveyName, validProcessData);
-
-			await userPage.close();
-			await userContext.close();
 
 			console.log('Survey responses created successfully');
 		});
@@ -132,11 +123,11 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 
 	test.describe('Main Flow', () => {
 		// Specific setup for Main Flow (with responses)
-		test.beforeEach(async ({ browser }) => {
-			await setupTestProcessWithResponses(browser);
+		test.beforeEach(async ({ userPage }) => {
+			await setupTestProcessWithResponses(userPage);
 		});
 
-		test('should review results of specific surveys', async ({ page }) => {
+		test('should review results of specific surveys', async ({ adminPage }) => {
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -162,8 +153,8 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we're on the edit page with process information using Page Object
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -180,14 +171,14 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 
 			await test.step('6. System: Displays the survey details page, including a "Show responses" button.', async () => {
 				// Verify we're on the survey details/manage questions page
-				expect(page.url()).toMatch(/\/edit_questions$/);
+				expect(adminPage.url()).toMatch(/\/edit_questions$/);
 
 				// Verify the "Show responses" button is visible
-				await expect(page.getByRole('link', { name: 'Show responses' })).toBeVisible();
+				await expect(adminPage.getByRole('link', { name: 'Show responses' })).toBeVisible();
 				console.log('Show responses button is visible');
 
 				// Verify the confirmation message is present
-				await expect(page.getByText('The form is already answered')).toBeVisible();
+				await expect(adminPage.getByText('The form is already answered')).toBeVisible();
 				console.log('Confirmation message is visible');
 
 				console.log('Survey details page displayed with all required elements for results review');
@@ -195,17 +186,17 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 
 			await test.step('7. User: Clicks on the "Show responses" button', async () => {
 				// Click on the "Show responses" button
-				await page.getByRole('link', { name: 'Show responses' }).click();
+				await adminPage.getByRole('link', { name: 'Show responses' }).click();
 
 				// Wait for the responses page to load
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('networkidle');
 
 				console.log('Clicked on Show responses button');
 			});
 
 			await test.step('8. System: Loads the results page for the selected survey, showing individual responses', async () => {
 				// Verify the header shows total responses with a number
-				const header = page.getByRole('heading');
+				const header = adminPage.getByRole('heading');
 				await expect(header).toContainText('total responses');
 
 				// Extract and verify the dynamic number
@@ -218,19 +209,19 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 				console.log(`Header shows ${totalResponsesFromHeader} total responses`);
 
 				// Verify at least one response row is present by checking for row number
-				await expect(page.getByRole('cell', { name: '1', exact: true })).toBeVisible();
+				await expect(adminPage.getByRole('cell', { name: '1', exact: true })).toBeVisible();
 				console.log('First response row (#1) is displayed');
 
 				// Verify that "Registered" user status is present in the response
-				await expect(page.getByRole('cell', { name: 'Registered' })).toBeVisible();
+				await expect(adminPage.getByRole('cell', { name: 'Registered' })).toBeVisible();
 				console.log('User status "Registered" found in response');
 
 				// Verify completion percentage format is present (any percentage)
-				await expect(page.locator('td:has-text("%")')).toBeVisible();
+				await expect(adminPage.locator('td:has-text("%")')).toBeVisible();
 				console.log('Completion percentage is displayed');
 
 				// Verify that response data is present without checking specific values
-				const responseRows = page.locator('tbody tr');
+				const responseRows = adminPage.locator('tbody tr');
 				const totalResponses = await responseRows.count();
 				expect(totalResponses).toBeGreaterThan(0);
 				console.log(`Survey results page loaded with ${totalResponses} individual response(s) displayed`);
@@ -238,10 +229,10 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 
 			await test.step('9. User: Reviews the survey results', async () => {
 				// Click on the first "Show answers" icon to view detailed responses
-				const page1Promise = page.waitForEvent('popup');
+				const page1Promise = adminPage.waitForEvent('popup');
 
 				// Select the first "Show answers" link in the first row of the table
-				await page.locator('tbody tr').first().getByRole('link', { name: 'Show answers' }).click();
+				await adminPage.locator('tbody tr').first().getByRole('link', { name: 'Show answers' }).click();
 
 				// Wait for the new tab to open
 				const page1 = await page1Promise;
@@ -284,11 +275,11 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 
 	test.describe('Alternative Flow: No Responses Available', () => {
 		// Specific Setup for Alternative Flow (without responses)
-		test.beforeEach(async ({ browser }) => {
+		test.beforeEach(async () => {
 			await setupTestProcessWithoutResponses();
 		});
 
-		test('should display appropriate message when no responses are available', async ({ page }) => {
+		test('should display appropriate message when no responses are available', async ({ adminPage }) => {
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -314,8 +305,8 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await page.waitForLoadState('networkidle');
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
+				await adminPage.waitForLoadState('networkidle');
 
 				// Verify we're on the edit page with process information using Page Object
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -332,13 +323,13 @@ test.describe('[PAR-PAS005] – Review result of specific surveys', () => {
 
 			await test.step('6. System: Displays the survey details page.', async () => {
 				// Verify we're on the survey details/manage questions page
-				expect(page.url()).toMatch(/\/edit_questions$/);
+				expect(adminPage.url()).toMatch(/\/edit_questions$/);
 
 				console.log('Survey details page displayed');
 			});
 			await test.step('7.1. System: Detects that no responses have been submitted yet.', async () => {
 				// Verify that the system shows "No answers yet" button indicating no responses
-				await expect(page.getByRole('button', { name: 'No answers yet' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'No answers yet' })).toBeVisible();
 				console.log('System correctly detects and displays "No answers yet" state');
 			});
 		});

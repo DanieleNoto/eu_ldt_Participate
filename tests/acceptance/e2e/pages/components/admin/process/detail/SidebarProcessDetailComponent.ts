@@ -1,3 +1,11 @@
+/**
+ * SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ * Simone Bianchelli
+ */
+
 import { Locator, Page, expect } from '@playwright/test';
 
 /**
@@ -134,6 +142,19 @@ export class SidebarProcessDetailComponent {
 		await this.moderationsLink.first().click();
 		await this.page.waitForLoadState('networkidle');
 	}
+
+	/**
+	 * Navigate specifically to process-level moderations (not global moderations).
+	 */
+	async navigateToProcessModerations(): Promise<void> {
+		// Filter for process-specific moderation links only
+		const processModerationLink = this.page.locator(
+			'a[href*="/participatory_processes/"][href*="/moderations"]:has-text("Moderations")'
+		);
+		await processModerationLink.first().click();
+		await this.page.waitForLoadState('networkidle');
+	}
+
 	async navigateToPrivateParticipants(): Promise<void> {
 		await this.privateParticipantsLink.first().click();
 		await this.page.waitForLoadState('networkidle');

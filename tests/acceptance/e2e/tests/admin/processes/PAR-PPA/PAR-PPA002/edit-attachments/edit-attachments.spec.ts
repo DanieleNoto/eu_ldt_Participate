@@ -1,11 +1,15 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { AttachmentsProcessPage } from '@pages/pages/admin/processes/detail/attachments/AttachmentsProcessPage';
 import { NewAttachmentProcessPage } from '@pages/pages/admin/processes/detail/attachments/NewAttachmentProcessPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows City Administrators to edit an attachment of the process.
@@ -19,25 +23,20 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The process has already been created.
  * - The attachment has already been uploaded into the process.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
+
 test.describe('[PAR-PPA002] – Edit attachment in a process', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
 	let attachmentsProcessPage: AttachmentsProcessPage;
 	let newAttachmentProcessPage: NewAttachmentProcessPage;
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		attachmentsProcessPage = new AttachmentsProcessPage(page);
-		newAttachmentProcessPage = new NewAttachmentProcessPage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		attachmentsProcessPage = new AttachmentsProcessPage(adminPage);
+		newAttachmentProcessPage = new NewAttachmentProcessPage(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
 	});
 

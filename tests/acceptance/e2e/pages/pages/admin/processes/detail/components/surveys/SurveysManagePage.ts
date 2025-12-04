@@ -34,7 +34,8 @@ export class SurveysManagePage extends BaseAdminPage {
 		// Click on the created process to open edit page
 		await this.page
 			.getByRole('link', {
-				name: processTitle.split(' ')[0] + ' ' + processTitle.split(' ')[1]
+				name: processTitle.split(' ')[0] + ' ' + processTitle.split(' ')[1],
+				exact: true
 			})
 			.click();
 	}

@@ -10,6 +10,7 @@ import os
 import json
 import re
 import secrets
+import threading
 from datetime import datetime, timedelta
 from urllib.parse import parse_qs, urlparse
 from locust import HttpUser
@@ -18,6 +19,18 @@ import requests
 
 # Cache for parsed JSON config to avoid re-reading on every call
 _json_config_cache = None
+
+# Thread-safe counter for user pool assignment
+_user_counter = 0
+_user_counter_lock = threading.Lock()
+
+def get_next_user_index():
+    """Get the next user index in a thread-safe manner."""
+    global _user_counter
+    with _user_counter_lock:
+        index = _user_counter
+        _user_counter += 1
+        return index
 
 def load_json_config(path: str):
     global _json_config_cache
@@ -37,6 +50,10 @@ class AuthenticatedUser(HttpUser):
     Base user that handles OAuth2 authentication via Keycloak with PKCE flow.
     Session-based authentication using cookies.
     
+    Supports multi-user pool for realistic load testing:
+    - If AUTH_USERS array is defined in config, users are distributed from the pool
+    - Otherwise falls back to single AUTH_USERNAME/AUTH_PASSWORD
+    
     All settings (KEYCLOAK_HOST, CLIENT_ID/SECRET, credentials, etc.) are loaded from
     the JSON configuration file specified by LOCUST_CONFIG_FILE environment variable,
     or defaults to 'locust_config.json'.
@@ -50,14 +67,33 @@ class AuthenticatedUser(HttpUser):
         return json_conf.get(name, default)
 
     def on_start(self):
-        # Load credentials and client info from config (defaults are fallbacks if JSON is incomplete)
+        # Load client info from config
         self.client_id = self.get_setting("KEYCLOAK_CLIENT_ID")
         self.client_secret = self.get_setting("KEYCLOAK_CLIENT_SECRET")
-        self.username = self.get_setting("AUTH_USERNAME")
-        self.password = self.get_setting("AUTH_PASSWORD")
         self.auth_host = self.get_setting("KEYCLOAK_HOST")
         self.auth_redirect_uri = self.get_setting("KEYCLOAK_REDIRECT_URI", self.host)
         self.auth_callback_path = self.get_setting("KEYCLOAK_CALLBACK_PATH", "/users/auth/keycloakopenid/callback")
+        
+        # Get user credentials from pool or fallback to single user
+        auth_users = self.get_setting("AUTH_USERS", [])
+        
+        if auth_users and len(auth_users) > 0:
+            # Multi-user pool: assign user based on counter (round-robin)
+            user_index = get_next_user_index()
+            pool_index = user_index % len(auth_users)
+            user_config = auth_users[pool_index]
+            self.username = user_config.get("username")
+            self.password = user_config.get("password")
+            self.user_index = user_index
+            self.pool_index = pool_index
+            print(f"[locust][INFO] User #{user_index} assigned to pool user #{pool_index}: {self.username}")
+        else:
+            # Fallback to single user (backward compatibility)
+            self.username = self.get_setting("AUTH_USERNAME")
+            self.password = self.get_setting("AUTH_PASSWORD")
+            self.user_index = 0
+            self.pool_index = 0
+            print(f"[locust][INFO] Using single user: {self.username}")
         
         # Authenticate to obtain access and refresh tokens
         self.set_token_via_authorization_code()

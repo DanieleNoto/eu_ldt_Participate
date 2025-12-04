@@ -1,9 +1,15 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ * Simone Bianchelli
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { AccountPage } from '@pages/pages/user/account/AccountPage';
 import { NotificationFrequency, NotificationSettingsPage } from '@pages/pages/user/account/NotificationSettingsPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows citizens to customize their notification settings to control which types of notifications they receive.
@@ -17,13 +23,8 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The citizen has an active account on the platform and is logged in.
  *
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
+
 test.describe('[PAR-NOT005] – Manage notification settings', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let notificationSettings = {
 		ownActivityToggle: true,
 		followedToggle: true,
@@ -38,10 +39,10 @@ test.describe('[PAR-NOT005] – Manage notification settings', () => {
 	let homePage: HomePage;
 	let accountPage: AccountPage;
 
-	test.beforeEach(async ({ page }) => {
-		notificationSettingsPage = new NotificationSettingsPage(page);
-		homePage = new HomePage(page);
-		accountPage = new AccountPage(page);
+	test.beforeEach(async ({ userPage }) => {
+		notificationSettingsPage = new NotificationSettingsPage(userPage);
+		homePage = new HomePage(userPage);
+		accountPage = new AccountPage(userPage);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {

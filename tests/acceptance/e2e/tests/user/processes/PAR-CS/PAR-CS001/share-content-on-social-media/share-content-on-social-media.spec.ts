@@ -1,10 +1,15 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denis Vasilev Dimchev
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { DebatesOverviewPage } from '@pages/pages/public/processes/DebatesOverviewPage';
 import { DebateDetailPage } from '@pages/pages/user/processes/DebateDetailPage';
-import test, { expect } from '@playwright/test';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for sharing content on social media platforms
@@ -18,19 +23,18 @@ import { STORAGE_STATE } from '@utils/constants';
  */
 
 test.describe('[PAR-CS001] – Share content on social media', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let homePage: HomePage;
 	let processesOverviewPage: ProcessesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
 	let debatesOverviewPage: DebatesOverviewPage;
 	let debateDetailPage: DebateDetailPage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		processesOverviewPage = new ProcessesOverviewPage(page);
-		processDetailPage = new ProcessDetailPage(page);
-		debatesOverviewPage = new DebatesOverviewPage(page);
-		debateDetailPage = new DebateDetailPage(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		processesOverviewPage = new ProcessesOverviewPage(userPage);
+		processDetailPage = new ProcessDetailPage(userPage);
+		debatesOverviewPage = new DebatesOverviewPage(userPage);
+		debateDetailPage = new DebateDetailPage(userPage);
 		await homePage.navigateToHomePage();
 	});
 

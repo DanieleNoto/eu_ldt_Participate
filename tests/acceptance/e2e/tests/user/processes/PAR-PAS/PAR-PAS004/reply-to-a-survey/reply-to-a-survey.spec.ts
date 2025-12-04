@@ -1,4 +1,10 @@
-import test, { expect } from '@playwright/test';
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Simone Bianchelli
+ */
+
+import { test, expect } from '@fixtures/parallel-test-reserved';
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 
 // ADMIN Page Objects (only for the setup in beforeEach)
@@ -13,9 +19,6 @@ import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
-
 /**
  * Allows citizens to provide their responses to a survey, enabling participation in decision-making processes and contributing feedback on diverse topics.
  * User Story: As a Citizen, I want to reply to a survey so that I can share my opinions and contribute to the community's decision-making process.
@@ -24,17 +27,10 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The citizen has an active account on the platform and is logged in.
  * - The survey is open for responses and visible to the citizen.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-	await page.close();
-	await context.close();
-});
 
-test.describe('[PAR-PAS004] – Reply to a survey', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
+test.describe.configure({ mode: 'serial' });
 
+test.describe('[PAR-PAS004] – Reply to a survey @reserved', () => {
 	// Variables for the setup
 	let processSlug: string;
 	let componentName: string;
@@ -48,15 +44,8 @@ test.describe('[PAR-PAS004] – Reply to a survey', () => {
 	let processDetailPage: ProcessDetailPage;
 	let publicSurveysPage: SurveysManagePage;
 
-	test.beforeEach(async ({ page, browser }) => {
-		const adminContext = await browser.newContext({
-			storageState: STORAGE_STATE.ADMIN
-		});
-		const adminPage = await adminContext.newPage();
-
-		// Verify is logged in as admin
-		await ensureLoggedIn(adminPage, 'ADMIN');
-
+	test.beforeEach(async ({ userPage, adminPage }) => {
+		// Use adminPage from reserved fixture for setup
 		const adminHomePage = new AdminHomePage(adminPage);
 		const processAdminPage = new ProcessAdminPage(adminPage);
 		const updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
@@ -92,23 +81,17 @@ test.describe('[PAR-PAS004] – Reply to a survey', () => {
 
 		await setupTestProcess();
 
-		// Close ADMIN context
-		await adminPage.close();
-		await adminContext.close();
+		// Initialize USER Page Objects (using userPage from reserved fixture)
+		homePage = new HomePage(userPage);
+		processesOverviewPage = new ProcessesOverviewPage(userPage);
+		processDetailPage = new ProcessDetailPage(userPage);
+		publicSurveysPage = new SurveysManagePage(userPage);
 
-		// Initialize USER Page Objects
-		homePage = new HomePage(page);
-		processesOverviewPage = new ProcessesOverviewPage(page);
-		processDetailPage = new ProcessDetailPage(page);
-		publicSurveysPage = new SurveysManagePage(page);
-
-		// Ensure the page is USER
-		await ensureLoggedIn(page, 'USER');
 		await homePage.navigateToHomePage();
 	});
 
 	test.describe('Main Flow', () => {
-		test('Reply to a survey', async ({ page }) => {
+		test('Reply to a survey', async ({ userPage }) => {
 			await test.step('1. User: Navigates to the "Processes" section on the platform', async () => {
 				await homePage.goToProcessesFromHomeMenu();
 			});
@@ -118,7 +101,7 @@ test.describe('[PAR-PAS004] – Reply to a survey', () => {
 			});
 
 			await test.step('3. User: Select a process that has published surveys', async () => {
-				await page.goto(`/processes/${processSlug}`);
+				await userPage.goto(`/processes/${processSlug}`);
 				await processDetailPage.waitForPageLoad();
 			});
 
@@ -153,7 +136,7 @@ test.describe('[PAR-PAS004] – Reply to a survey', () => {
 	});
 
 	test.describe('Alternative Flow: Field/s Validation Fail', () => {
-		test('should handle validation errors when submitting empty survey', async ({ page }) => {
+		test('should handle validation errors when submitting empty survey', async ({ userPage }) => {
 			await test.step('1. User: Navigates to the "Processes" section on the platform', async () => {
 				await homePage.goToProcessesFromHomeMenu();
 			});
@@ -163,7 +146,7 @@ test.describe('[PAR-PAS004] – Reply to a survey', () => {
 			});
 
 			await test.step('3. User: Select a process that has published surveys', async () => {
-				await page.goto(`/processes/${processSlug}`);
+				await userPage.goto(`/processes/${processSlug}`);
 				await processDetailPage.waitForPageLoad();
 			});
 

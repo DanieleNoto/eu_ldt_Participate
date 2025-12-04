@@ -3,7 +3,7 @@
  * Authors:
  * Simone Bianchelli
  */
-import test, { expect } from '@playwright/test';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 import { NewPrivateParticipantFormPage } from '@pages/pages/admin/processes/detail/private-participants/NewParticipantsPage';
 import { SidebarProcessDetailComponent } from '@pages/components/admin/process/detail/SidebarProcessDetailComponent';
 import { PrivateParticipantsPage } from '@pages/pages/admin/processes/detail/private-participants/PrivateParticipantsPage';
@@ -12,8 +12,7 @@ import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { AcceptInvitationPage } from '@pages/pages/auth/AcceptInvitationPage';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE, BASE_URLS } from '@utils/constants';
+import { BASE_URLS } from '@utils/constants';
 
 /**
  * Allows citizens to receive an invitation to participate in a private process via email, requiring them to accept the invitation to access the process.
@@ -23,7 +22,9 @@ import { STORAGE_STATE, BASE_URLS } from '@utils/constants';
  * - The City Administrator has invited the citizen to the private process.
  */
 
-test.describe('[PAR-CP004] – Citizen invitation to participate in a private process', () => {
+test.describe.configure({ mode: 'serial' });
+
+test.describe('[PAR-CP004] – Citizen invitation to participate in a private process @reserved', () => {
 	// Don't use storageState here because we need to simulate a new unregistered user
 	// The user will be authenticated only after completing the registration in step 4
 
@@ -43,16 +44,8 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 	let tempwebmailPage: TempWebmailPage;
 	let acceptInvitationPage: AcceptInvitationPage;
 
-	test.beforeEach(async ({ page, browser }) => {
-		// Create admin context using existing storage state if available
-		const adminContext = await browser.newContext({
-			storageState: STORAGE_STATE.ADMIN
-		});
-		const adminPage = await adminContext.newPage();
-
-		// Ensure admin is logged in
-		await ensureLoggedIn(adminPage, 'ADMIN');
-
+	test.beforeEach(async ({ page, adminPage }) => {
+		// Use adminPage from reserved fixture for setup
 		const newPrivateParticipantFormPage = new NewPrivateParticipantFormPage(adminPage);
 		const sidebarProcessDetailComponent = new SidebarProcessDetailComponent(adminPage);
 		const privateParticipantsPage = new PrivateParticipantsPage(adminPage);
@@ -92,11 +85,7 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 			console.log('Citizen invitation sent successfully');
 		});
 
-		// Close ADMIN context
-		await adminPage.close();
-		await adminContext.close();
-
-		// Initialize Page Objects for a NEW unregistered user
+		// Initialize Page Objects for a NEW unregistered user (using page without auth)
 		homePage = new HomePage(page);
 		processesOverviewPage = new ProcessesOverviewPage(page);
 		processDetailPage = new ProcessDetailPage(page);

@@ -1,3 +1,11 @@
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ * Denise Scarcelli
+ * Simone Bianchelli
+ */
+
 import { SidebarProcessDetailComponent } from '@pages/components/admin/process/detail/SidebarProcessDetailComponent';
 import { Locator, Page } from '@playwright/test';
 import { BaseAdminPage } from '../../../BaseAdminPage';
@@ -208,7 +216,7 @@ export class DebatesPage extends BaseAdminPage {
 	 */
 	async clickDeleteButtonByIndex(index: number): Promise<void> {
 		const row = this.tableRows.nth(index);
-		const deleteButton = row.locator('.action-icon--remove');
+		const deleteButton = row.locator('.action-icon--delete');
 		await deleteButton.click();
 	}
 

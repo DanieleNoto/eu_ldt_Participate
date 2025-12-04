@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Simone Bianchelli
+ */
+
 import { Locator, Page, expect } from '@playwright/test';
 import { BaseAdminPage } from '../../../BaseAdminPage';
 
@@ -183,6 +190,11 @@ export class FormMeetingPage extends BaseAdminPage {
 
 	async getDescription(): Promise<string> {
 		return (await this.descriptionEditor.textContent()) || '';
+	}
+
+	async getDescriptionField(lang: 'en' | 'fr' | 'es' | 'de' = 'en'): Promise<string> {
+		const editor = this.page.locator(`#meeting_description_${lang} .tiptap`);
+		return (await editor.textContent()) || '';
 	}
 
 	async selectMeetingType(type: 'in_person' | 'online' | 'hybrid') {
