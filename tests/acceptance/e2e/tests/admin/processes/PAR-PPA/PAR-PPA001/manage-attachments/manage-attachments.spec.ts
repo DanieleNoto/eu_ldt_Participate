@@ -1,12 +1,16 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { UploadFileModalComponent } from '@pages/components/admin/process/detail/UploadFileModalComponent';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { AttachmentsProcessPage } from '@pages/pages/admin/processes/detail/attachments/AttachmentsProcessPage';
 import { NewAttachmentProcessPage } from '@pages/pages/admin/processes/detail/attachments/NewAttachmentProcessPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows City Administrators to manage attachments for the process, including adding, updating, and deleting supporting documents and relevant materials to provide context for participants.
@@ -19,13 +23,8 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The process has already been created.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-});
+
 test.describe('[PAR-PPA001] – Manage attachments in process', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -33,13 +32,13 @@ test.describe('[PAR-PPA001] – Manage attachments in process', () => {
 	let newAttachmentProcessPage: NewAttachmentProcessPage;
 	let uploadFileModal: UploadFileModalComponent;
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		attachmentsProcessPage = new AttachmentsProcessPage(page);
-		newAttachmentProcessPage = new NewAttachmentProcessPage(page);
-		uploadFileModal = new UploadFileModalComponent(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		attachmentsProcessPage = new AttachmentsProcessPage(adminPage);
+		newAttachmentProcessPage = new NewAttachmentProcessPage(adminPage);
+		uploadFileModal = new UploadFileModalComponent(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
 	});
 

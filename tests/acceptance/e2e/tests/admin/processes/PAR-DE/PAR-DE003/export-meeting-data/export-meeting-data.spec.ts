@@ -5,14 +5,13 @@
  * Simone Bianchelli
  */
 
+import { expect } from '@playwright/test';
+import { test } from '@fixtures/parallel-test-reserved';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';
 import { MeetingsPage } from '@pages/pages/admin/processes/detail/meetings/MeetingsPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { WebmailPage } from '@pages/base/WebmailPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
 
 /**
  * Allows administrators to export data from meetings, including participant lists, and meeting notes, which are then sent to their email address for easy access and analysis.
@@ -21,18 +20,13 @@ import { STORAGE_STATE } from '@utils/constants';
  * Prerequisites:
  * - The City Administrator has an active account on the platform and is logged in.
  * - Meetings have been conducted, and attendance data or meeting notes are available for export
+ *
+ * @reserved - This test uses reserved/fixed admin account (TEST_ADMIN_EMAIL)
+ * and must be run sequentially with --workers=1 to avoid session conflicts.
  */
-
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'ADMIN');
-	await page.close();
-	await context.close();
-});
-
-test.describe('[PAR-DE003] – Export meeting data', () => {
-	test.use({ storageState: STORAGE_STATE.ADMIN });
+test.describe('@reserved [PAR-DE003] – Export meeting data', () => {
+	// Force sequential execution to prevent test interference
+	test.describe.configure({ mode: 'serial' });
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let meetingsPage: MeetingsPage;
@@ -41,16 +35,15 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 	let beforeMeetingCount: number;
 
 	// Use existing process with meetings
-	const processTitle = 'Update Test0';
 	const processSlug = 'test';
 	const componentName = 'Meetings';
 
-	test.beforeEach(async ({ page }) => {
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		meetingsPage = new MeetingsPage(page);
-		componentsPage = new ComponentsPage(page);
-		webmailPage = new WebmailPage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		meetingsPage = new MeetingsPage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
+		webmailPage = new WebmailPage(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
 	});
 
@@ -67,7 +60,7 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 			{ fileFormat: 'Excel', exportType: 'Answers' },
 			{ fileFormat: 'PDF', exportType: 'Answers' }
 		].forEach(({ fileFormat, exportType }) => {
-			test(`should export ${exportType.toLowerCase()} data in ${fileFormat} format`, async ({ page }) => {
+			test(`should export ${exportType.toLowerCase()} data in ${fileFormat} format`, async ({ adminPage }) => {
 				await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
 					await processAdminPage.navigateToProcesses();
 					await processAdminPage.getPage().waitForLoadState('networkidle');
@@ -80,12 +73,8 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 					expect(hasProcesses).toBe(true);
 				});
 				await test.step('3. Admin: selects the process that want to update', async () => {
-					// Select the process name that contains meeting data
-					console.log(`Selecting process: ${processTitle}`);
-
-					// Click on the process to edit it
-					await processAdminPage.selectProcessForEdit(processTitle);
-					await processAdminPage.getPage().waitForLoadState('networkidle');
+					await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
+					await adminPage.waitForLoadState('networkidle');
 				});
 
 				await test.step('4. System: loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -123,7 +112,7 @@ test.describe('[PAR-DE003] – Export meeting data', () => {
 				await test.step('7. User: Clicks on the "Export" button and select format', async () => {
 					await componentsPage.exportComponentData(fileFormat, exportType);
 					console.log(`Selected Export ${exportType} as ${fileFormat} format`);
-					await page.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('networkidle');
 				});
 
 				await test.step('8. System: Displays a confirmation message on the platform, indicating that the export process has been initiated and that the file will be sent via email', async () => {

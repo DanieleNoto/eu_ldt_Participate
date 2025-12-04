@@ -1,11 +1,15 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
 import { DebatesOverviewPage } from '@pages/pages/public/processes/DebatesOverviewPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { DebateDetailPage } from '@pages/pages/user/processes/DebateDetailPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Allows citizens to mention or tag other users in debate messages
@@ -19,25 +23,19 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The debate allows participation and tagging of other users.
  */
 
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
 test.describe('[PAR-DAD006] – Mention users in messages', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let processesOverviewPage: ProcessesOverviewPage;
 	let debatesOverviewPage: DebatesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
 	let debateDetailPage: DebateDetailPage;
 	let homePage: HomePage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		processesOverviewPage = new ProcessesOverviewPage(page);
-		processDetailPage = new ProcessDetailPage(page);
-		debatesOverviewPage = new DebatesOverviewPage(page);
-		debateDetailPage = new DebateDetailPage(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		processesOverviewPage = new ProcessesOverviewPage(userPage);
+		processDetailPage = new ProcessDetailPage(userPage);
+		debatesOverviewPage = new DebatesOverviewPage(userPage);
+		debateDetailPage = new DebateDetailPage(userPage);
 		await homePage.navigateToHomePage();
 	});
 

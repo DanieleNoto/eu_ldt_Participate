@@ -1,10 +1,15 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Gianfranco Cedro
+ */
+
 import { HomePage } from '@pages/pages/public/HomePage';
-import { test } from '@playwright/test';
+import { test } from '@fixtures/parallel-test';
 
 import { ConvocationPage } from '@pages/pages/public/processes/ConvocationPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
-import { STORAGE_STATE } from '@utils/constants';
 
 /**
  * Test suite for Allows citizens to access updated information on the convocation page once a participatory process is completed.
@@ -18,17 +23,16 @@ import { STORAGE_STATE } from '@utils/constants';
  * - The participatory process has been completed, and the convocation page has been updated by the City Administrator
  */
 test.describe('[PAR-TRA002] – Access updated convocation page after process completion', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let homePage: HomePage;
 	let processesOverviewPage: ProcessesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
 	let convocationPage: ConvocationPage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		processesOverviewPage = new ProcessesOverviewPage(page);
-		processDetailPage = new ProcessDetailPage(page);
-		convocationPage = new ConvocationPage(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		processesOverviewPage = new ProcessesOverviewPage(userPage);
+		processDetailPage = new ProcessDetailPage(userPage);
+		convocationPage = new ConvocationPage(userPage);
 		await homePage.navigateToHomePage();
 	});
 	test.describe('Main Flow', () => {

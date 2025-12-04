@@ -1,5 +1,5 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Simone Bianchelli
  */
@@ -40,7 +40,7 @@ export class ChatbotPage extends BasePage {
 	}
 
 	private get chatbotGreeting() {
-		return this.page.getByText("Hello, I'm the virtual").first();
+		return this.page.locator('div.rounded-lg').filter({ hasText: "Hello, I'm the virtual assistant" }).first();
 	}
 
 	private get suggestedQuestionParticipateTool() {
@@ -165,6 +165,7 @@ export class ChatbotPage extends BasePage {
 	 * Checks if the chatbot greeting message is visible
 	 */
 	async isGreetingMessageVisible(): Promise<boolean> {
+		await this.chatbotGreeting.waitFor({ state: 'visible', timeout: 5000 });
 		return await this.chatbotGreeting.isVisible();
 	}
 

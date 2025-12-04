@@ -1,14 +1,12 @@
-/** SPDX-License-Identifier: EUPL-1.2
- * Copyright (c) 2025, European Commission. Licensed under the EUPL-1.2
+/** SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Simone Bianchelli
  */
 
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ChatbotPage } from '@pages/pages/user/chatbot/ChatbotPage';
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Allows citizens to interact with standard chatbots for immediate help.
@@ -19,19 +17,14 @@ import { STORAGE_STATE } from '@utils/constants';
  * - he database of FAQs and LDT-related questions is configured and accessible by the chatbot.
  * - A dedicated support email address is configured to receive manual inquiries
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
+
 test.describe('[PAR-CA001] – Interact with chatbots for assistance', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let homePage: HomePage;
 	let chatbotPage: ChatbotPage;
 
-	test.beforeEach(async ({ page }) => {
-		homePage = new HomePage(page);
-		chatbotPage = new ChatbotPage(page);
+	test.beforeEach(async ({ userPage }) => {
+		homePage = new HomePage(userPage);
+		chatbotPage = new ChatbotPage(userPage);
 		await homePage.navigateToHomePage();
 	});
 

@@ -1,9 +1,14 @@
+/* SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors:
+ * Denise Scarcelli
+ * Gianfranco Cedro
+ */
+
 import { HeaderComponent } from '@pages/components/common/HeaderComponent';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { AccountDeletionPage } from '@pages/pages/user/account/AccountDeletionPage';
-import { expect, test } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 
 /**
  * Test suite for Enables citizens to request the deletion of their personal account.
@@ -17,21 +22,16 @@ As a Citizen, I want to request the deletion of my personal data so that I can e
  * - The citizen has an active account on the platform.
  * - The citizen is logged into the platform.
  */
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-});
+
 test.describe('[PAR-DAAP003] – Request deletion of personal account', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
 	let homePage: HomePage;
 	let accountDeletionPage: AccountDeletionPage;
 	let headerComponent: HeaderComponent;
 
-	test.beforeEach(async ({ page }) => {
-		accountDeletionPage = new AccountDeletionPage(page);
-		headerComponent = new HeaderComponent(page);
-		homePage = new HomePage(page);
+	test.beforeEach(async ({ userPage }) => {
+		accountDeletionPage = new AccountDeletionPage(userPage);
+		headerComponent = new HeaderComponent(userPage);
+		homePage = new HomePage(userPage);
 		// Navigate to the application
 		await homePage.navigateToHomePage();
 		// Navigate to account deletion page
