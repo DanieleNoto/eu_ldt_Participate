@@ -161,9 +161,9 @@ spec:
                         name: decidim-pvc
                       - mountPath: /code/tmp
                         name: tmp-volume
-                      - mountPath: /code/log 
+                      - mountPath: /code/log
                         name: tmp-volume
-                                         
+
                 - name: open-data-exporter
                   image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   envFrom:
@@ -312,22 +312,22 @@ spec:
                   image: cr.fluentbit.io/fluent/fluent-bit:2.2-debug
                   imagePullPolicy: IfNotPresent
                   securityContext:
-                    runAsUser: 0    # usuario no root
-                    runAsGroup: 0
-                    allowPrivilegeEscalation: false
+                      runAsUser: 0 # usuario no root
+                      runAsGroup: 0
+                      allowPrivilegeEscalation: false
                   resources:
-                    requests:
-                      cpu: "100m"
-                      memory: "100Mi"
-                    limits:
-                      cpu: "200m"
-                      memory: "200Mi"
+                      requests:
+                          cpu: '100m'
+                          memory: '100Mi'
+                      limits:
+                          cpu: '200m'
+                          memory: '200Mi'
                   volumeMounts:
-                   - name: tmp-volume
-                     mountPath: /code/log
-                   - name: config
-                     mountPath: /fluent-bit/etc/ 
- 
+                      - name: tmp-volume
+                        mountPath: /code/log
+                      - name: config
+                        mountPath: /fluent-bit/etc/
+
             volumes:
                 - name: tmp-volume
                   emptyDir: {}
@@ -335,8 +335,7 @@ spec:
                   emptyDir: {}
                 - name: config
                   configMap:
-                    name: fluent-configmap
-
+                      name: fluent-configmap
 
     volumeClaimTemplates:
         - metadata:

@@ -93,6 +93,18 @@ module.exports = {
 		]
 	},
 	entry: config.entrypoints,
+	// Suppress warnings, show only errors
+	stats: {
+		warnings: false,
+		errors: true,
+		errorDetails: true
+	},
+	// Disable webpack-dev-server overlay completely (errors still logged to console)
+	devServer: {
+		client: {
+			overlay: false
+		}
+	},
 	plugins: [
 		new InjectManifest({
 			swSrc: 'src/decidim/sw/sw.js',
