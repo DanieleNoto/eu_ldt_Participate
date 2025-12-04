@@ -38,7 +38,7 @@ jobs:
                 command: build
                 repository: eu-ldt-part-int
                 dockerfile: decidim/decidim_application/Dockerfile
-                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                containerRegistry: EU-LDT-Toolbox-ACR-Shared
                 buildContext: decidim/decidim_application
                 addPipelineData: false
                 addBaseImageData: false
