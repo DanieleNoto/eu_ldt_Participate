@@ -65,7 +65,7 @@ jobs:
                 command: build
                 repository: grafana-custom
                 dockerfile: analytics/grafana/Dockerfile
-                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                containerRegistry: EU-LDT-Toolbox-ACR
                 buildContext: analytics/grafana
                 addPipelineData: false
                 addBaseImageData: false
@@ -77,7 +77,7 @@ jobs:
             inputs:
                 command: push
                 repository: grafana-custom
-                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                containerRegistry: EU-LDT-Toolbox-ACR
                 addPipelineData: false
                 addBaseImageData: false
                 tags: |
@@ -89,7 +89,7 @@ jobs:
                 command: build
                 repository: matomo-custom
                 dockerfile: analytics/matomo/Dockerfile
-                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                containerRegistry: EU-LDT-Toolbox-ACR
                 buildContext: analytics/matomo
                 addPipelineData: false
                 addBaseImageData: false
@@ -101,7 +101,7 @@ jobs:
             inputs:
                 command: push
                 repository: matomo-custom
-                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                containerRegistry: EU-LDT-Toolbox-ACR
                 addPipelineData: false
                 addBaseImageData: false
                 tags: |
@@ -113,7 +113,7 @@ jobs:
                 command: buildAndPush
                 repository: eu-ldt-chatbot-be-int
                 dockerfile: backend/Dockerfile
-                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                containerRegistry: EU-LDT-Toolbox-ACR
                 tags: |
                     $(tag)
 
@@ -123,7 +123,7 @@ jobs:
                 command: buildAndPush
                 repository: eu-ldt-chatbot-fe-int
                 dockerfile: frontend/Dockerfile
-                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                containerRegistry: EU-LDT-Toolbox-ACR
                 tags: |
                     $(tag)
 
