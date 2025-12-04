@@ -1,8 +1,10 @@
 /** SPDX-License-Identifier: AGPL-3.0
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
- * Denise Scarcelli
  * Simone Bianchelli
+ * Simone Bianchelli
+ * Gianfranco Cedro
+ * Denise Scarcelli
  */
 
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';

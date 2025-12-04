@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  */
+
 import test, { expect } from '@playwright/test';
 import { ExtraUserFieldsTestDataGenerator } from '@fixtures/extra-user-fields-fixtures';
 import { TempWebmailPage } from '@pages/base/TempWebmailPage';

@@ -1,7 +1,7 @@
-/**
- * SPDX-License-Identifier: AGPL-3.0
+/** SPDX-License-Identifier: AGPL-3.0
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
+ * Denise Scarcelli
  * Simone Bianchelli
  */
 
@@ -32,14 +32,18 @@ export default defineConfig({
 	reporter: [['list', { printSteps: true }]],
 	use: {
 		baseURL: process.env.FE_BASE_URL || 'https://part-int.ldttoolbox.app',
-		trace: 'on-first-retry',
+		trace: 'retain-on-failure',
 		actionTimeout: 60000,
 		navigationTimeout: 60000
 	},
 	projects: [
 		{
-			name: 'parallel-setup',
+			name: 'parallel-setup-chromium',
 			use: { ...devices['Desktop Chrome'] }
+		},
+		{
+			name: 'parallel-setup-firefox',
+			use: { ...devices['Desktop Firefox'] }
 		}
 	]
 });

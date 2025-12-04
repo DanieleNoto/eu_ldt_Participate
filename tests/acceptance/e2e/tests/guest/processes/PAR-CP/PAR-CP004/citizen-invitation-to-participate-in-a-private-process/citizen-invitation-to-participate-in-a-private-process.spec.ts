@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  */
+
 import { test, expect } from '@fixtures/parallel-test-reserved';
 import { NewPrivateParticipantFormPage } from '@pages/pages/admin/processes/detail/private-participants/NewParticipantsPage';
 import { SidebarProcessDetailComponent } from '@pages/components/admin/process/detail/SidebarProcessDetailComponent';
