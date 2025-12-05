@@ -7,6 +7,24 @@
 // This file is compiled inside Decidim core pack. Code can be added here and will be executed
 // as part of that pack
 
+// Initialize Decidim.config early to prevent undefined values when assets are precompiled
+window.Decidim = window.Decidim || {};
+window.Decidim.config = window.Decidim.config || {
+	_data: {},
+	get: function (key) {
+		return this._data[key];
+	},
+	set: function (config) {
+		Object.assign(this._data, config);
+	}
+};
+
+// Set critical default values that must exist before any Decidim code runs
+// These will be overridden by server-side config loaded from the layout
+if (!window.Decidim.config.get('consent_cookie_name')) {
+	window.Decidim.config.set({ consent_cookie_name: 'decidim-consent' });
+}
+
 // Disable PWA and unregister service worker in development
 localStorage.setItem('pwaInstallPromptSeen', true);
 if ('serviceWorker' in navigator && process.env.NODE_ENV !== 'production') {
@@ -51,6 +69,16 @@ const rootScope = typeof globalThis === 'undefined' ? undefined : globalThis;
 if (rootScope) {
 	rootScope.Decidim = rootScope.Decidim || {};
 	rootScope.Decidim.currentDialogs = rootScope.Decidim.currentDialogs || {};
+
+	// Fix cookie domain for consent cookies in compiled assets mode
+	// Ensure cookies are saved with proper domain instead of "undefined"
+	if (typeof document !== 'undefined' && typeof globalThis.window !== 'undefined') {
+		const hostname = globalThis.window.location.hostname;
+		// For localhost or IP addresses, don't set domain (use default)
+		// For actual domains, use the hostname
+		const cookieDomain = hostname === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(hostname) ? '' : hostname;
+		rootScope.Decidim.cookieDomain = cookieDomain;
+	}
 }
 
 // Skip the newsletter modal gate when the dialog cannot be initialized
