@@ -31,10 +31,10 @@
     <% if current_organization.activated_extra_field?(:phone_number) %>
       <div class="field">
         <%= f.label :phone_number %>
-        <%= f.telephone_field :phone_number, placeholder: translated_attribute(f.object.phone_number_extra_user_field_placeholder), pattern: f.object.phone_number_extra_user_field_pattern, class: "#{f.object.errors[:phone_number].any? ? 'is-invalid-input' : ''}" %>
         <% if f.object.errors[:phone_number].any? %>
           <small class="form-error is-visible"><%= f.object.errors[:phone_number].first %></small>
         <% end %>
+        <%= f.telephone_field :phone_number, placeholder: translated_attribute(f.object.phone_number_extra_user_field_placeholder), pattern: f.object.phone_number_extra_user_field_pattern, class: "#{f.object.errors[:phone_number].any? ? 'is-invalid-input' : ''}" %>
       </div>
     <% end %>
 

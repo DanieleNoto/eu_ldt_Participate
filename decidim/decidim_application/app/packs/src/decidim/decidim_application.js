@@ -45,3 +45,52 @@ XMLHttpRequest.prototype.send = function (...args) {
 	}
 	return originalXHRSend.apply(this, args);
 };
+
+const rootScope = typeof globalThis === 'undefined' ? undefined : globalThis;
+
+if (rootScope) {
+	rootScope.Decidim = rootScope.Decidim || {};
+	rootScope.Decidim.currentDialogs = rootScope.Decidim.currentDialogs || {};
+}
+
+// Skip the newsletter modal gate when the dialog cannot be initialized
+const ensureNewsletterModalFallback = () => {
+	if (typeof document === 'undefined') {
+		return;
+	}
+
+	const modalId = 'sign-up-newsletter-modal';
+	const registerForm = document.getElementById('register-form');
+	const omniauthForm = document.getElementById('omniauth-register-form');
+	if (!registerForm && !omniauthForm) {
+		return;
+	}
+
+	let modal = document.getElementById(modalId);
+	const dialogs = rootScope?.Decidim?.currentDialogs;
+	const shouldBypassModal = !modal || !dialogs?.[modalId];
+	if (!shouldBypassModal) {
+		return;
+	}
+
+	if (!modal) {
+		modal = document.createElement('div');
+		modal.id = modalId;
+		modal.hidden = true;
+		if (document.body) {
+			document.body.appendChild(modal);
+		}
+	}
+
+	if (modal) {
+		modal.dataset.continue = 'true';
+	}
+};
+
+if (typeof document !== 'undefined') {
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', ensureNewsletterModalFallback, { once: true });
+	} else {
+		ensureNewsletterModalFallback();
+	}
+}
