@@ -25,7 +25,10 @@ module Decidim
         cookies["manual_logout"] = {
           value: "true",
           expires: 30.minutes.from_now,
-          domain: calculate_cookie_domain
+          domain: calculate_cookie_domain,
+          secure: Rails.env.production?,
+          httponly: true,
+          same_site: :lax
         }
 
         # Clear Keycloak tokens
