@@ -21,9 +21,10 @@ module Decidim
 
         # Set flag to prevent background auto-login after logout
         # This flag is checked by check_keycloak_background_auto_login
+        # Duration: 30 minutes to cover async Keycloak SLO and cookie cleanup
         cookies["manual_logout"] = {
           value: "true",
-          expires: 2.hours.from_now,
+          expires: 30.minutes.from_now,
           domain: calculate_cookie_domain
         }
 
