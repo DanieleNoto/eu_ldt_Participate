@@ -95,16 +95,37 @@ module Decidim
         cookie_names.each do |name|
           next if name.blank?
 
-          # Try to delete from all possible domains
+          # Try to delete from all possible domains with all cookie attributes
+          # Rails requires matching the same attributes used during cookie creation
           domains.each do |domain|
-            cookies_obj.delete(name, domain: domain, path: "/") if domain
-            cookies_obj.delete(name, path: "/")
-          rescue StandardError => e
-            Rails.logger.debug { "[Keycloak CookieManager] Error deleting #{name} from #{domain}: #{e.message}" }
+            next unless domain
+
+            # Delete with all possible attribute combinations
+            begin
+              cookies_obj.delete(name, domain: domain, path: "/", secure: Rails.env.production?, httponly: true, same_site: :lax)
+              Rails.logger.debug { "[Keycloak CookieManager] Deleted #{name} from domain: #{domain}" }
+            rescue StandardError => e
+              Rails.logger.debug { "[Keycloak CookieManager] Error deleting #{name} from #{domain} with attributes: #{e.message}" }
+            end
+
+            # Also try simpler deletion
+            begin
+              cookies_obj.delete(name, domain: domain, path: "/")
+            rescue StandardError => e
+              Rails.logger.debug { "[Keycloak CookieManager] Error deleting #{name} from #{domain}: #{e.message}" }
+            end
           end
 
-          # Also try without domain specification
+          # Try without domain specification but with other attributes
           begin
+            cookies_obj.delete(name, path: "/", secure: Rails.env.production?, httponly: true, same_site: :lax)
+          rescue StandardError => e
+            Rails.logger.debug { "[Keycloak CookieManager] Error deleting #{name} with attributes: #{e.message}" }
+          end
+
+          # Also try simplest deletion
+          begin
+            cookies_obj.delete(name, path: "/")
             cookies_obj.delete(name)
           rescue StandardError => e
             Rails.logger.debug { "[Keycloak CookieManager] Error deleting #{name}: #{e.message}" }
