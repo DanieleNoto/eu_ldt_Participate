@@ -19,6 +19,14 @@ module Decidim
         # Save cookie consent state before session is destroyed
         consent_state = session["cookie_consent"] || session["decidim_cookie_consent"]
 
+        # Set flag to prevent background auto-login after logout
+        # This flag is checked by check_keycloak_background_auto_login
+        cookies["manual_logout"] = {
+          value: "true",
+          expires: 2.hours.from_now,
+          domain: calculate_cookie_domain
+        }
+
         # Clear Keycloak tokens
         Decidim::Keycloak::CookieManager.clear_all_cookies(cookies, request.host, session)
 
@@ -43,6 +51,13 @@ module Decidim
       end
 
       private
+
+      def calculate_cookie_domain
+        # Calculate the domain for the manual_logout cookie
+        Decidim::Keycloak::CookieManager.calculate_cookie_domain(request.host)
+      rescue StandardError
+        nil
+      end
 
       def build_keycloak_logout_url
         keycloak_site = ENV.fetch("OMNIAUTH_KEYCLOAK_SITE", nil)

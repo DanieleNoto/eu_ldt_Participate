@@ -11,17 +11,28 @@ class ApplicationController < ActionController::Base
   include KeycloakAuthentication
 
   before_action :check_keycloak_background_auto_login
-  
+
   private
 
   # Background auto-login check: If user has valid Keycloak cookies but isn't logged in,
   # silently authenticate them without showing redirect/flicker.
   # This runs on EVERY page before rendering.
   def check_keycloak_background_auto_login
+    # Skip for API controllers (no current_organization)
+    return if self.class.module_parent == Api
+
     # Don't check if user already authenticated
     return if current_user.present?
 
-    # Don't check if Keycloak not enabled
+    # Don't check if user just manually logged out (within 2 hours)
+    # This flag prevents auto-login loop after logout
+    if cookies["manual_logout"].present? && cookies["manual_logout"] == "true"
+      Rails.logger.info "[Keycloak BG Auto-Login] Manual logout flag detected, skipping auto-login"
+      return
+    end
+
+    # Don't check if Keycloak not enabled (current_organization might be nil)
+    return if current_organization.blank?
     return unless keycloak_enabled_for_organization?
 
     # Don't check if no Keycloak cookies
@@ -38,21 +49,21 @@ class ApplicationController < ActionController::Base
     end
 
     Rails.logger.info "[Keycloak BG Auto-Login] Valid Keycloak session detected, initiating auto-login..."
-    
+
     # Generate CSRF state for OmniAuth
     state = SecureRandom.hex(32)
     session["omniauth.state"] = state
-    
+
     # Build callback URL
     protocol = request.ssl? ? "https" : "http"
     callback_url = "#{protocol}://#{request.host_with_port}/users/auth/keycloakopenid/callback"
-    
+
     # Get Keycloak authorization endpoint
     auth_url = Decidim::Keycloak::Configuration.authorization_url(
       redirect_uri: callback_url,
       state: state
     )
-    
+
     Rails.logger.info "[Keycloak BG Auto-Login] Redirecting to Keycloak for SSO login"
     redirect_to auth_url, allow_other_host: true
   end
