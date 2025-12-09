@@ -21,10 +21,6 @@ module Api
     rescue_from StandardError, with: :handle_internal_error
 
     # Override Keycloak callbacks to prevent them from running on API proxy
-    def check_keycloak_auto_login
-      # No-op for API proxy controller
-    end
-
     def check_keycloak_auto_logout
       # No-op for API proxy controller
     end

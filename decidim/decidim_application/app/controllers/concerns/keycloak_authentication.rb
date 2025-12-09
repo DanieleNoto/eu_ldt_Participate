@@ -22,7 +22,6 @@ module KeycloakAuthentication
   KEYCLOAK_PROVIDER = "keycloakopenid"
 
   included do
-    before_action :check_keycloak_auto_login
     before_action :check_keycloak_auto_logout
     before_action :check_keycloak_locale_sync
   end
@@ -109,10 +108,9 @@ module KeycloakAuthentication
   end
 
   # ============================================================================
-  # Auto-Login Logic
+  # Paths to skip for checks
   # ============================================================================
 
-  # Paths to skip for auto-login/logout checks
   SKIP_PATH_PREFIXES = %w(/api/ /assets/ /users/auth/).freeze
   SKIP_ADMIN_PATH = "/admin/"
   SKIP_FILE_EXTENSIONS = /\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/
@@ -122,28 +120,6 @@ module KeycloakAuthentication
       request.path.match?(SKIP_FILE_EXTENSIONS) ||
       request.xhr? ||
       request.format.json?
-  end
-
-  def check_keycloak_auto_login
-    return if should_skip_keycloak_checks?
-    return if request.path.start_with?(SKIP_ADMIN_PATH)
-    return if error_page?
-    return if current_user.present?
-    return if manual_logout_flag_set?
-    return if automatic_logout_flag_set?
-    return unless keycloak_enabled_for_organization?
-    return unless keycloak_cookies_present?
-
-    log_auto_login_detection
-
-    return unless keycloak_session_valid?
-
-    Rails.logger.info "[Keycloak AutoLogin] Session valid, redirecting for auto-login"
-
-    # Skip if already on login page to avoid redirect loops
-    return if login_page?
-
-    redirect_to "/users/sign_in?keycloak_auto_login=1", status: :found
   end
 
   # ============================================================================
@@ -197,41 +173,6 @@ module KeycloakAuthentication
     controller_name == "errors" ||
       action_name == "not_found" ||
       action_name == "internal_server_error"
-  end
-
-  def login_page?
-    controller_name == "sessions" && action_name == "new"
-  end
-
-  def manual_logout_flag_set?
-    return false unless cookies["manual_logout"] == "true"
-
-    Rails.logger.info "[Keycloak AutoLogin] Skipping - user manually logged out"
-    clear_manual_logout_cookie
-    true
-  end
-
-  def automatic_logout_flag_set?
-    return false unless session[:automatic_logout_no_autologin]
-
-    Rails.logger.info "[Keycloak AutoLogin] Skipping - automatic logout occurred"
-    session.delete(:automatic_logout_no_autologin)
-    true
-  end
-
-  def clear_manual_logout_cookie
-    domain = Decidim::Keycloak::CookieManager.calculate_cookie_domain(request.host)
-    cookies.delete("manual_logout", domain: domain)
-    cookies.delete("manual_logout")
-  end
-
-  def log_auto_login_detection
-    if keycloak_auth_tokens_present?
-      Rails.logger.info "[Keycloak AutoLogin] Found auth tokens, validating session..."
-    elsif cookies["i18next"].present?
-      context = coming_from_same_domain_tool? ? "Cross-tool SSO" : "i18next cookie"
-      Rails.logger.info "[Keycloak AutoLogin] #{context} detected, checking Keycloak session..."
-    end
   end
 
   def perform_automatic_logout
