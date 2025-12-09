@@ -5,10 +5,11 @@
 
 # frozen_string_literal: true
 
+# This migration comes from decidim_conferences (originally 20210310134942)
+# This file has been modified by `decidim upgrade:migrations` task on 2025-12-09 10:59:48 UTC
 class AddFollowableCounterCacheToConferences < ActiveRecord::Migration[5.2]
   def change
-    add_column :decidim_conferences, :follows_count, :integer, null: false, default: 0
-    add_index :decidim_conferences, :follows_count
+    add_column :decidim_conferences, :follows_count, :integer, null: false, default: 0, index: true
 
     reversible do |dir|
       dir.up do
