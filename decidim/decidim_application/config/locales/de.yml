@@ -227,6 +227,8 @@ de:
                 questionnaire_templates:
                     preview:
                         tos_agreement: Durch die Teilnahme akzeptieren Sie die Datenschutzrichtlinie
+        mailer:
+            cta_open_toolbox: 'EU LDT Toolbox Participate öffnen'
         welcome_notification:
             default_body: <br><p>Guten Tag {{name}},</p><p>Vielen Dank dafür, dass Sie {{organization}} beigetreten sind und herzlich willkommen!</p><ul><li>Wenn Sie einen kurzen Überblick darüber bekommen möchten, was Sie hier tun können, schauen Sie sich den <a href="{{help_url}}">Hilfe-Abschnitt </a> an.</li><br><li>Sobald Sie ihn gelesen haben, bekommen Sie Ihr erstes Abzeichen. Hier finden Sie eine<a href="{{badges_url}}">Liste aller Abzeichen</a>, die Sie bei der Teilnahme auf {{organization}} erhalten können</li><br><li>Folgen Sie anderen Menschen, teilen Sie die Erfahrung der Zusammenarbeit und Teilnahme auf {{organization}} mit ihnen. Machen Sie Vorschläge und Kommentare, nehmen Sie an Debatten teil, denken Sie darüber nach, wie Sie zum Gemeinwohl beitragen können, liefern Sie Argumente zum Überzeugen, hören und lesen Sie, um sich überzeugen zu lassen, drücken Sie Ihre Ideen auf konkrete und direkte Weise aus, reagieren Sie mit Geduld und Entschlossenheit, verteidigen Sie Ihre Ideen und bleiben Sie offen für die Zusammenarbeit und die Ideen anderer Menschen.</li></ul>
         newsletter_mailer:
