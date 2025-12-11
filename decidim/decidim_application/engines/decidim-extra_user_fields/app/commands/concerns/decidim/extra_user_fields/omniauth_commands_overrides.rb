@@ -27,6 +27,8 @@ module Decidim
 
             return broadcast(:ok, user)
           end
+          
+          # Validate TOS agreement before proceeding
           return broadcast(:invalid) if form.invalid?
 
           transaction do
@@ -73,7 +75,8 @@ module Decidim
           @user.skip_confirmation! if verified_email
         end
 
-        @user.tos_agreement = "1"
+        @user.tos_agreement = form.tos_agreement
+        @user.accepted_tos_version = form.current_organization.tos_version if form.tos_agreement
         @user.extended_data = merge_extended_data
         @user.save!
       end

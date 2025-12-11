@@ -73,6 +73,11 @@ module Decidim
           mount Decidim::ExtraUserFields::Engine, at: "/extra_user_fields", as: "decidim_extra_user_fields_engine"
         end
       end
+
+      initializer "decidim_extra_user_fields.add_cells_view_paths" do
+        Cell::ViewModel.view_paths << File.expand_path("#{Decidim::ExtraUserFields::Engine.root}/app/cells")
+        Cell::ViewModel.view_paths << File.expand_path("#{Decidim::ExtraUserFields::Engine.root}/app/views")
+      end
     end
   end
 end

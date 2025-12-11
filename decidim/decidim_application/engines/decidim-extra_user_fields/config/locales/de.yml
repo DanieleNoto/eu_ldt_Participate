@@ -79,6 +79,8 @@ de:
             extra_user_fields:
                 name: Benutzerdefinierte Anmeldefelder
         extra_user_fields:
+            select_country_placeholder: 'Wählen Sie Ihr Land'
+            date_of_birth_help: 'Verwenden Sie den Datumsauswahl, um Ihr Geburtsdatum auszuwählen'
             admin:
                 exports:
                     users: Teilnehmer

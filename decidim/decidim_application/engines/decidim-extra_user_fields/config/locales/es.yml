@@ -79,6 +79,8 @@ es:
             extra_user_fields:
                 name: ExtraUserFields
         extra_user_fields:
+            select_country_placeholder: 'SSeleccione su país'
+            date_of_birth_help: 'Utilice el selector de fecha para elegir su fecha de nacimiento'
             admin:
                 exports:
                     users: Participantes

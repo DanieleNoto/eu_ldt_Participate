@@ -79,6 +79,8 @@ fr:
             extra_user_fields:
                 name: Champs d'inscription personnalisés
         extra_user_fields:
+            select_country_placeholder: 'Sélectionnez votre pays'
+            date_of_birth_help: 'Utilisez le sélecteur de date pour choisir votre date de naissance'
             admin:
                 exports:
                     users: Participants

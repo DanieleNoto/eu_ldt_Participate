@@ -21,8 +21,9 @@ PATH
   specs:
     decidim-extra_user_fields (0.30.4)
       country_select (~> 4.0)
-      decidim-core (= 0.30.4)
-      deface (~> 1.5)
+      decidim-admin (~> 0.30.0)
+      decidim-core (~> 0.30.0)
+      deface (~> 1.9)
 
 PATH
   remote: engines/decidim-keycloak

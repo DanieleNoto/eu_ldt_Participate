@@ -25,9 +25,29 @@ module Decidim
       # @param form [Object] The form object containing extended data fields
       # @return [Hash] Hash of field names to values for present fields
       def build_extended_data_from_form(form)
+        return {} unless form
+
         EXTENDED_DATA_FIELDS.each_with_object({}) do |field, data|
+          next unless form.respond_to?(field)
+          
           value = form.public_send(field)
-          data[field] = value if value.present?
+          
+          # Handle different types of values
+          case value
+          when String
+            data[field] = value unless value.blank?
+          when Date, Time, DateTime
+            data[field] = value.to_s
+          when TrueClass, FalseClass
+            data[field] = value.to_s
+          when Numeric
+            data[field] = value.to_s
+          else
+            data[field] = value if value.present?
+          end
+        rescue => e
+          Rails.logger.warn "Error processing field #{field}: #{e.message}"
+          # Skip this field and continue
         end
       end
 

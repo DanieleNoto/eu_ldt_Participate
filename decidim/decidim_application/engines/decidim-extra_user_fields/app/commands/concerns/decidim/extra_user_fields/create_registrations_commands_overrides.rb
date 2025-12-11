@@ -51,12 +51,8 @@ module Decidim
           newsletter_notifications_at: form.newsletter_at,
           accepted_tos_version: form.current_organization.tos_version,
           locale: form.current_locale,
-          extended_data: merge_extended_data
+          extended_data: build_extended_data_from_form(form)
         )
-      end
-
-      def merge_extended_data
-        merge_form_extended_data(@user&.extended_data, form)
       end
 
       def send_email_to_statutory_representative
