@@ -13,22 +13,22 @@ data:
     NODE_ENV: 'production'
     CONTEXT_URL: '/api/v1'
     # CORS
-    CORS_ORIGINS: https://chatbot-frontend-svc:80,https://part-int.ldttoolbox.app/
+    CORS_ORIGINS: _%CORS-ORIGINS%_
     SWAGGER_GEN_DOC_FILE: 'false'
     # Security
     DISABLE_HELMET: 'false'
     JWT_ENABLE_CHECK: 'false'
     DATABASE_SYNC: 'false'
     LOGGER_LEVEL: 'info'
-    RATE_LIMIT_TIME_WINDOW: '1 minute'
-    RATE_LIMIT_MAX: '100'
+    RATE_LIMIT_TIME_WINDOW: _%RATE-LIMIT-TIME-WINDOW%_
+    RATE_LIMIT_MAX: _%RATE-LIMIT-MAX%_
     EVENT_LOOP_DELAY: '900000'
     MAX_HEAP_USED_BYTES: '90000000000'
     MAX_RSS_BYTES: '90000000000'
-    MAX_EVENT_LOOP_USE: '0.98'
+    MAX_EVENT_LOOP_USE: _%MAX-EVENT-LOOP-USE%_
     # Chatbot Configuration
-    CHATBOT_SUPPORT_EMAIL: 'ldt.test.smtp@gmail.com'
-    CHATBOT_FROM_EMAIL: 'ldt.test.smtp@gmail.com'
+    CHATBOT_SUPPORT_EMAIL: _%CHATBOT-SUPPORT-EMAIL%_
+    CHATBOT_FROM_EMAIL: _%CHATBOT-FROM-EMAIL%_
     # Database
     DB_NAME: chatbot_db
     DB_HOST: 127.0.0.1

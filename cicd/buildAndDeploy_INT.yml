@@ -135,7 +135,55 @@ jobs:
             displayName: 'Replace tokens decidim'
             inputs:
                 rootDirectory: infrastructure/int/decidim
-                targetFiles: 'decidim-statefulset.yaml,decidim-configmap.yml'
+                targetFiles: 'decidim-statefulset.yaml,decidim-configmap.yml,decidim-secret.yml'
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+
+          - task: replacetokens@5
+            displayName: 'Replace tokens decidim db'
+            inputs:
+                rootDirectory: infrastructure/int/decidim/db
+                targetFiles: 'db-configmap.yml,db-secret.yml'
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+
+          - task: replacetokens@5
+            displayName: 'Replace tokens chatbot BE'
+            inputs:
+                rootDirectory: infrastructure/int/backend
+                targetFiles: 'chatbot-be-configmap.yml,chatbot-be-secrets.yml,chatbot-db-configmap.yml,chatbot-db-secrets.yml'
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+
+          - task: replacetokens@5
+            displayName: 'Replace tokens chatbot FE'
+            inputs:
+                rootDirectory: infrastructure/int/frontend
+                targetFiles: 'chatbot-fe-configmap.yml'
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+
+          - task: replacetokens@5
+            displayName: 'Replace tokens jitsi'
+            inputs:
+                rootDirectory: infrastructure/int/jitsi
+                targetFiles: 'jitsi-configmap.yml, jitsi-secret.yml'
                 tokenPattern: custom
                 tokenPrefix: _%
                 tokenSuffix: '%_'
@@ -159,7 +207,7 @@ jobs:
             displayName: 'Replace tokens GRAFANA'
             inputs:
                 rootDirectory: infrastructure/int/analytics/grafana
-                targetFiles: 'grafana-statefulset.yaml'
+                targetFiles: 'grafana-statefulset.yaml,grafana-configmap.yml,grafana-secret.yml'
                 tokenPattern: custom
                 tokenPrefix: _%
                 tokenSuffix: '%_'
@@ -171,7 +219,7 @@ jobs:
             displayName: 'Replace tokens MATOMO'
             inputs:
                 rootDirectory: infrastructure/int/analytics/matomo
-                targetFiles: 'matomo-statefulset.yaml'
+                targetFiles: 'matomo-statefulset.yaml,matomo-configmap.yml,matomo-secret.yml'
                 tokenPattern: custom
                 tokenPrefix: _%
                 tokenSuffix: '%_'

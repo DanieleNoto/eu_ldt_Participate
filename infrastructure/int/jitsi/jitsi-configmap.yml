@@ -23,12 +23,12 @@ data:
     JVB_BREWERY_MUC: jvbbrewery
     JVB_ENABLE_APIS: rest,colibri
     JVB_PORT: '10000'
-    JVB_STUN_SERVERS: stun.l.google.com:19302,stun1.l.google.com:19302
-    JWT_APP_ID: tool3
-    JWT_ACCEPTED_ISSUERS: https://im-int.ldttoolbox.app/realms/LDT
-    JWT_ACCEPTED_AUDIENCES: tool3
-    PUBLIC_URL: https://jitsi-part-int.ldttoolbox.app/
-    RESTART_POLICY: unless-stopped
+    JVB_STUN_SERVERS: _%JVB-STUN-SERVERS%_
+    JWT_APP_ID: _%JWT-APP-ID%_
+    JWT_ACCEPTED_ISSUERS: _%JWT-ACCEPTED-ISSUERS%_
+    JWT_ACCEPTED_AUDIENCES: _%JWT-ACCEPTED-AUDIENCES%_
+    PUBLIC_URL: _%PUBLIC-URL%_
+    RESTART_POLICY: _%RESTART-POLICY%_
     TZ: Europe/Rome
     XMPP_AUTH_DOMAIN: auth.meet.jitsi
     XMPP_BOSH_URL_BASE: https://jitsi-prosody:5280/http-bind
