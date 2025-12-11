@@ -30,7 +30,7 @@ data:
     CHATBOT_SUPPORT_EMAIL: _%CHATBOT-SUPPORT-EMAIL%_
     CHATBOT_FROM_EMAIL: _%CHATBOT-FROM-EMAIL%_
     # Database
-    DB_NAME: chatbot_db
+    DB_NAME: _%DB-NAME%_
     DB_HOST: 127.0.0.1
     DB_PORT: '5432'
     DB_DIALECT: postgres
@@ -44,20 +44,20 @@ data:
     SEQUELIZE_MIGRATION_STORAGE: sequelize
     SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME: SequelizeData
     # SMTP/Email Configuration
-    SMTP_ADDRESS: smtp.gmail.com
-    SMTP_PORT: '587'
-    SMTP_DOMAIN: part-int.ldttoolbox.app
-    SMTP_AUTHENTICATION: plain
-    SMTP_ENABLE_STARTTLS_AUTO: 'true'
-    SMTP_USER_NAME: ldt.test.smtp@gmail.com
+    SMTP_ADDRESS: _%SMTP-ADDRESS%_
+    SMTP_PORT: _%SMTP-PORT%_
+    SMTP_DOMAIN: _%SMTP-DOMAIN%_
+    SMTP_AUTHENTICATION: _%SMTP-AUTHENTICATION%_
+    SMTP_ENABLE_STARTTLS_AUTO: _%SMTP-ENABLE-STARTTLS-AUTO%_
+    SMTP_USER_NAME: _%SMTP-USER-NAME%_
     # Service URLs
     GRAFANA_URL: https://grafana
     DECIDIM_URL: https://decidim
     MATOMO_URL: https://matomo
     JITSI_WEB_URL: https://jitsi-web
-    DECIDIM_PRIMARY_COLOR: '#004494'
-    DECIDIM_ORGANIZATION_NAME: 'EU LDT Participate Tool'
-    DECIDIM_LOGO_URL: 'https://part-int.ldttoolbox.app/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBVQT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--b7d0d089d19110c050f1898625f25f369aac73d6/image.png'
+    DECIDIM_PRIMARY_COLOR: _%DECIDIM-PRIMARY-COLOR%_
+    DECIDIM_ORGANIZATION_NAME: _%DECIDIM-ORGANIZATION-NAME%_
+    DECIDIM_LOGO_URL: _%DECIDIM-LOGO-URL%_
     # Email Footer Links
-    PRIVACY_POLICY_URL: 'https://part-int.ldttoolbox.app/pages/terms-and-conditions'
-    NOTIFICATION_PREFERENCES_URL: 'https://part-int.ldttoolbox.app/notifications/settings'
+    PRIVACY_POLICY_URL: _%PRIVACY-POLICY-URL%_
+    NOTIFICATION_PREFERENCES_URL: _%NOTIFICATION-PREFERENCES-URL%_

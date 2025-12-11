@@ -416,7 +416,7 @@ jobs:
           # JITSI - Configmap
 
           - task: Kubernetes@1
-            displayName: 'DB - Apply ConfigMap'
+            displayName: 'Jitsi - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -429,7 +429,7 @@ jobs:
           # JITSI - Secrets
 
           - task: Kubernetes@1
-            displayName: 'DB - Apply ConfigMap'
+            displayName: 'Jitsi - Apply secrets'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -546,7 +546,7 @@ jobs:
           # MATOMO - Configmap
 
           - task: Kubernetes@1
-            displayName: 'DB - Apply ConfigMap'
+            displayName: 'Matomo - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -559,7 +559,7 @@ jobs:
           # MATOMO - Secrets
 
           - task: Kubernetes@1
-            displayName: 'DB - Apply ConfigMap'
+            displayName: 'Matomo - Apply Secrets'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -571,7 +571,7 @@ jobs:
 
           ## Statefulset MATOMO DB
           - task: Kubernetes@1
-            displayName: 'MATOMO DB - - Apply Statefulset'
+            displayName: 'MATOMO DB - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -583,7 +583,7 @@ jobs:
 
                 ## Statefulset MATOMO
           - task: Kubernetes@1
-            displayName: 'MATOMO - - Apply Statefulset'
+            displayName: 'MATOMO - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -635,7 +635,7 @@ jobs:
           # FLUENTBIT - Configmap
 
           - task: Kubernetes@1
-            displayName: 'Decidim - Apply ConfigMap'
+            displayName: 'Fluent - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -715,7 +715,7 @@ jobs:
           ## Statefulset - GRAFANA
 
           - task: Kubernetes@1
-            displayName: 'GRAFANA - - Apply Statefulset'
+            displayName: 'GRAFANA - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
