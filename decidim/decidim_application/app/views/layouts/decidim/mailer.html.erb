@@ -90,9 +90,9 @@
                       <th class="small-12 first columns cityhall-bar" style="background-color: <%= @organization.colors["primary"] || '#004494' %>; color: #ffffff;">
                         <div class="decidim-logo" style="float: right; text-align: right; padding-right: 16px">
                           <% if @custom_url_for_mail_root.present? %>
-                            <%= link_to "#{organization_name(@organization)} #{t('decidim.mailer.cta_open_toolbox')}".html_safe, @custom_url_for_mail_root, style: "text-decoration: underline; color: #ffffff !important;" %>
+                            <%= link_to "#{t('decidim.mailer.cta_open_toolbox')}".html_safe, @custom_url_for_mail_root, style: "text-decoration: underline; color: #ffffff !important;" %>
                           <% else %>
-                            <%= link_to "#{organization_name(@organization)} #{t('decidim.mailer.cta_open_toolbox')}".html_safe, decidim.root_url(host: @organization.host), style: "text-decoration: underline; color: #ffffff !important;" %>
+                            <%= link_to "#{t('decidim.mailer.cta_open_toolbox')}".html_safe, decidim.root_url(host: @organization.host), style: "text-decoration: underline; color: #ffffff !important;" %>
                           <% end %>
                         </div>
                       </th>
