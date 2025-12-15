@@ -10,16 +10,18 @@ if defined?(Rack::Attack)
   Rack::Attack.cache.store = Rails.cache
 
   # Helper method to get real client IP through proxies/ingress
-  # Uses ActionDispatch::RemoteIp which respects trusted_proxies configuration
+  # Uses X-Forwarded-For header if present and from trusted proxy
   class << Rack::Attack
     def client_ip(req)
-      # Use ActionDispatch::RemoteIp to get the real client IP
-      # This properly handles X-Forwarded-For headers when trusted_proxies are configured
-      remote_ip = ActionDispatch::RemoteIp.new(
-        Rails.application.config.action_dispatch.ip_spoofing_check,
-        Rails.application.config.action_dispatch.trusted_proxies
-      )
-      remote_ip.call(req.env)["action_dispatch.remote_ip"] || req.ip
+      # Check for X-Forwarded-For header first (common in reverse proxy setups)
+      forwarded_ips = req.env['HTTP_X_FORWARDED_FOR']
+      if forwarded_ips.present?
+        # Take the first IP in the chain (original client)
+        forwarded_ips.split(',').first.strip
+      else
+        # Fall back to direct IP
+        req.ip
+      end
     rescue StandardError => e
       Rails.logger.warn "[Rack Attack] Error getting client IP: #{e.message}, falling back to req.ip"
       req.ip
@@ -33,6 +35,13 @@ if defined?(Rack::Attack)
     ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1"].any? do |range|
       IPAddr.new(range).include?(client_ip)
     end
+  end
+
+  # Safelist known legitimate traffic IPs
+  # These are the expected source IPs for legitimate traffic
+  Rack::Attack.safelist("legitimate traffic IPs") do |req|
+    client_ip = Rack::Attack.client_ip(req)
+    ["193.178.234.20", "93.62.66.243", "77.95.139.91", "4.180.152.187"].include?(client_ip)
   end
 
   # Safelist healthcheck endpoints
