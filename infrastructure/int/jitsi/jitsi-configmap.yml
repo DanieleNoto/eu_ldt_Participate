@@ -43,6 +43,7 @@ data:
     ENABLE_XMPP_WEBSOCKET: '1'
     SUBDIR: ''
     ENABLE_SUBDOMAINS: 'true'
+    TOOLBAR_BUTTONS: 'camera,chat,closedcaptions,desktop,download,embedmeeting,etherpad,feedback,filmstrip,fullscreen,hangup,help,highlight,invite,linktosalesforce,livestreaming,microphone,participants-pane,profile,raisehand,recording,security,select-background,settings,shortcuts,tileview,toggle-camera,videoquality'
 
     # No embedded config.js here — rely on the image default config.js or mount a separate file
     # If you need custom JS, mount a file at /config/web/config.js via a ConfigMap or a volume.
