@@ -9,21 +9,22 @@ GIT
       deface (>= 1.5)
       sassc (~> 2.3)
 
+GIT
+  remote: https://github.com/openpoke/decidim-module-extra_user_fields.git
+  revision: 34ed318ea1fc61b9be8591aa6af4a33870c7a3bf
+  branch: release/0.30-stable
+  specs:
+    decidim-extra_user_fields (0.30.0)
+      country_select (~> 4.0)
+      decidim-core (>= 0.30)
+      deface (~> 1.5)
+
 PATH
   remote: engines/decidim-admin_header
   specs:
     decidim-admin_header (0.1.0)
       deface (>= 1.0)
       rails (>= 7.0.8.7)
-
-PATH
-  remote: engines/decidim-extra_user_fields
-  specs:
-    decidim-extra_user_fields (0.30.4)
-      country_select (~> 4.0)
-      decidim-admin (~> 0.30.0)
-      decidim-core (~> 0.30.0)
-      deface (~> 1.9)
 
 PATH
   remote: engines/decidim-keycloak
