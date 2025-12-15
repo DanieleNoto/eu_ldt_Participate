@@ -9,17 +9,39 @@ if defined?(Rack::Attack)
   # Configure cache store (using Rails cache)
   Rack::Attack.cache.store = Rails.cache
 
+  # Helper method to get real client IP through proxies/ingress
+  # Uses ActionDispatch::RemoteIp which respects trusted_proxies configuration
+  def self.client_ip(req)
+    # Use ActionDispatch::RemoteIp to get the real client IP
+    # This properly handles X-Forwarded-For headers when trusted_proxies are configured
+    ActionDispatch::RemoteIp.new(Rails.application.config.action_dispatch.ip_spoofing_check, Rails.application.config.action_dispatch.trusted_proxies).calculate_ip(req)
+  rescue StandardError => e
+    Rails.logger.warn "[Rack Attack] Error getting client IP: #{e.message}, falling back to req.ip"
+    req.ip
+  end
+
   # Safelist internal IPs to avoid rate limiting from internal services
   # This includes private IP ranges commonly used in Kubernetes clusters
   Rack::Attack.safelist("internal IPs") do |req|
+    client_ip = Rack::Attack.client_ip(req)
     ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1"].any? do |range|
-      IPAddr.new(range).include?(req.ip)
+      IPAddr.new(range).include?(client_ip)
     end
   end
 
   # Safelist healthcheck endpoints
   Rack::Attack.safelist("healthcheck") do |req|
     req.path == "/health" || req.path == "/up"
+  end
+
+  # Safelist authenticated users to avoid rate limiting for logged-in users
+  # This allows authenticated users to have higher limits or bypass certain restrictions
+  Rack::Attack.safelist("authenticated users") do |req|
+    # Check if user is authenticated by looking for session or authentication headers
+    # This works with Decidim's authentication system
+    req.env['warden']&.authenticated? || 
+    req.cookies['_decidim_application_session'].present? ||
+    req.headers['Authorization'].present?
   end
 
   # === THROTTLING RULES ===
@@ -29,7 +51,7 @@ if defined?(Rack::Attack)
   # Allow 150 HTML requests per 5 minutes = ~30 req/min = ~30 page loads/5min
   Rack::Attack.throttle("requests by ip", limit: 150, period: 5.minutes) do |req|
     # Exclude all asset and static file requests from throttling
-    req.ip unless req.path.start_with?(
+    Rack::Attack.client_ip(req) unless req.path.start_with?(
       "/decidim-packs", # Webpacker compiled assets
       "/uploads", # User uploaded files
       "/system", # System files
@@ -43,25 +65,26 @@ if defined?(Rack::Attack)
   # Login attempts: very restrictive to prevent brute force
   # 5 attempts per 20 seconds, then 15 per hour
   Rack::Attack.throttle("logins/ip", limit: 5, period: 20.seconds) do |req|
-    req.ip if req.path == "/users/sign_in" && req.post?
+    Rack::Attack.client_ip(req) if req.path == "/users/sign_in" && req.post?
   end
 
   # Registration: prevent mass account creation
   Rack::Attack.throttle("registrations/ip", limit: 3, period: 1.hour) do |req|
-    req.ip if req.path == "/users" && req.post?
+    Rack::Attack.client_ip(req) if req.path == "/users" && req.post?
   end
 
   # Search: can be resource-intensive
   Rack::Attack.throttle("search/ip", limit: 20, period: 1.minute) do |req|
-    req.ip if req.path.include?("/search")
+    Rack::Attack.client_ip(req) if req.path.include?("/search")
   end
 
   # === BLOCKING RULES ===
 
   # Block suspicious requests
   Rack::Attack.blocklist("fail2ban pentesters") do |req|
-    Rack::Attack::Fail2Ban.filter("pentest-#{req.ip}", maxretry: 3, findtime: 10.minutes, bantime: 1.hour) do
-      CGI.unescape(req.query_string) =~ %r{/etc/passwd|\.\./|<script|SELECT.*FROM|UNION.*SELECT}i ||
+    client_ip = Rack::Attack.client_ip(req)
+    Rack::Attack::Fail2Ban.filter("pentest-#{client_ip}", maxretry: 3, findtime: 10.minutes, bantime: 1.hour) do
+      CGI.unescape(req.query_string) =~ %r{/etc/passwd|\.\.\./|<script|SELECT.*FROM|UNION.*SELECT}i ||
         req.path =~ /\.php$|wp-admin|phpmyadmin/i
     end
   end
@@ -80,9 +103,11 @@ if defined?(Rack::Attack)
 
     case req.env["rack.attack.match_type"]
     when :throttle
-      Rails.logger.warn "[Rack Attack] Throttled: #{req.ip} - #{req.request_method} #{req.path} (#{req.env["rack.attack.matched"]})"
+      client_ip = Rack::Attack.client_ip(req)
+      Rails.logger.warn "[Rack Attack] Throttled: #{client_ip} (proxy: #{req.ip}) - #{req.request_method} #{req.path} (#{req.env["rack.attack.matched"]})"
     when :blocklist
-      Rails.logger.error "[Rack Attack] Blocked: #{req.ip} - #{req.request_method} #{req.path} (#{req.env["rack.attack.matched"]})"
+      client_ip = Rack::Attack.client_ip(req)
+      Rails.logger.error "[Rack Attack] Blocked: #{client_ip} (proxy: #{req.ip}) - #{req.request_method} #{req.path} (#{req.env["rack.attack.matched"]})"
     end
   end
 
