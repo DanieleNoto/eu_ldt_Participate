@@ -15,7 +15,11 @@ if defined?(Rack::Attack)
     def client_ip(req)
       # Use ActionDispatch::RemoteIp to get the real client IP
       # This properly handles X-Forwarded-For headers when trusted_proxies are configured
-      ActionDispatch::RemoteIp.new(Rails.application.config.action_dispatch.ip_spoofing_check, Rails.application.config.action_dispatch.trusted_proxies).calculate_ip(req)
+      remote_ip = ActionDispatch::RemoteIp.new(
+        Rails.application.config.action_dispatch.ip_spoofing_check,
+        Rails.application.config.action_dispatch.trusted_proxies
+      )
+      remote_ip.call(req.env)["action_dispatch.remote_ip"] || req.ip
     rescue StandardError => e
       Rails.logger.warn "[Rack Attack] Error getting client IP: #{e.message}, falling back to req.ip"
       req.ip
@@ -39,11 +43,10 @@ if defined?(Rack::Attack)
   # Safelist authenticated users to avoid rate limiting for logged-in users
   # This allows authenticated users to have higher limits or bypass certain restrictions
   Rack::Attack.safelist("authenticated users") do |req|
-    # Check if user is authenticated by looking for session or authentication headers
-    # This works with Decidim's authentication system
+    # Check if user is authenticated by looking for session cookies
+    # This works with Decidim's Keycloak authentication system
     req.env['warden']&.authenticated? || 
-    req.cookies['_decidim_application_session'].present? ||
-    req.headers['Authorization'].present?
+    req.cookies['_decidim_application_session'].present?
   end
 
   # === THROTTLING RULES ===
