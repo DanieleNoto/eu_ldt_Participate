@@ -11,13 +11,15 @@ if defined?(Rack::Attack)
 
   # Helper method to get real client IP through proxies/ingress
   # Uses ActionDispatch::RemoteIp which respects trusted_proxies configuration
-  def self.client_ip(req)
-    # Use ActionDispatch::RemoteIp to get the real client IP
-    # This properly handles X-Forwarded-For headers when trusted_proxies are configured
-    ActionDispatch::RemoteIp.new(Rails.application.config.action_dispatch.ip_spoofing_check, Rails.application.config.action_dispatch.trusted_proxies).calculate_ip(req)
-  rescue StandardError => e
-    Rails.logger.warn "[Rack Attack] Error getting client IP: #{e.message}, falling back to req.ip"
-    req.ip
+  class << Rack::Attack
+    def client_ip(req)
+      # Use ActionDispatch::RemoteIp to get the real client IP
+      # This properly handles X-Forwarded-For headers when trusted_proxies are configured
+      ActionDispatch::RemoteIp.new(Rails.application.config.action_dispatch.ip_spoofing_check, Rails.application.config.action_dispatch.trusted_proxies).calculate_ip(req)
+    rescue StandardError => e
+      Rails.logger.warn "[Rack Attack] Error getting client IP: #{e.message}, falling back to req.ip"
+      req.ip
+    end
   end
 
   # Safelist internal IPs to avoid rate limiting from internal services
