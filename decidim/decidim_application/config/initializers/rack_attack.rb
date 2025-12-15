@@ -17,14 +17,26 @@ if defined?(Rack::Attack)
       forwarded_ips = req.env['HTTP_X_FORWARDED_FOR']
       if forwarded_ips.present?
         # Take the first IP in the chain (original client)
-        forwarded_ips.split(',').first.strip
-      else
-        # Fall back to direct IP
-        req.ip
+        candidate_ip = forwarded_ips.split(',').first.strip
+        # Validate that it's a proper IP address
+        return candidate_ip if valid_ip?(candidate_ip)
       end
+      
+      # Fall back to direct IP
+      req.ip
     rescue StandardError => e
       Rails.logger.warn "[Rack Attack] Error getting client IP: #{e.message}, falling back to req.ip"
       req.ip
+    end
+
+    private
+
+    def valid_ip?(ip_string)
+      return false if ip_string.blank?
+      IPAddr.new(ip_string)
+      true
+    rescue IPAddr::InvalidAddressError
+      false
     end
   end
 
@@ -32,8 +44,14 @@ if defined?(Rack::Attack)
   # This includes private IP ranges commonly used in Kubernetes clusters
   Rack::Attack.safelist("internal IPs") do |req|
     client_ip = Rack::Attack.client_ip(req)
+    next false if client_ip.blank?
+    
     ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1"].any? do |range|
-      IPAddr.new(range).include?(client_ip)
+      begin
+        IPAddr.new(range).include?(client_ip)
+      rescue IPAddr::InvalidAddressError
+        false
+      end
     end
   end
 
