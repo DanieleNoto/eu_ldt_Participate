@@ -1,0 +1,146 @@
+<% if organization_primary_color %>
+<style>
+table.button table td {
+  background: <%= organization_primary_color %> !important
+}
+</style>
+<% end %>
+
+<table class="main container">
+  <tr>
+    <td class="decidim-bar" style="background-color: <%= organization.colors["primary"] || '#004494' %>; color: #ffffff;">
+      <table class="row collapse">
+        <tr>
+          <th class="small-3 large-3 first columns decidim-bar" style="background-color: <%= organization.colors["primary"] || '#004494' %>; color: #ffffff;">
+            <table>
+              <tr>
+                <th>
+                </th>
+              </tr>
+            </table>
+          </th>
+          <th class="small-6 large-6 columns decidim-bar" style="background-color: <%= organization.colors["primary"] || '#004494' %>; color: #ffffff;">
+            <table>
+              <tr>
+                <th>
+                  <center>
+                    <% if organization.official_img_footer.present? %>
+                      <% if custom_url_for_mail_root.present? %>
+                        <%= link_to custom_url_for_mail_root do %>
+                          <%= image_tag organization.attached_uploader(:official_img_footer).path, alt: organization_name(organization), height: "32", style: "max-height: 32px; height: 32px; width: auto; display: block; margin: 0 auto;" %>
+                        <% end %>
+                      <% else %>
+                        <%= link_to decidim.root_url(host: organization.host) do %>
+                          <%= image_tag organization.attached_uploader(:official_img_footer).path, alt: organization_name(organization), height: "32", style: "max-height: 32px; height: 32px; width: auto; display: block; margin: 0 auto;" %>
+                        <% end %>
+                      <% end %>
+                    <% else %>
+                      <% if custom_url_for_mail_root.present? %>
+                        <%= link_to organization_name(organization).html_safe, custom_url_for_mail_root, style: "color: #ffffff !important; text-decoration: none;" %>
+                      <% else %>
+                        <%= link_to organization_name(organization).html_safe, decidim.root_url(host: organization.host), style: "color: #ffffff !important; text-decoration: none;" %>
+                      <% end %>
+                    <% end %>
+                  </center>
+                </th>
+              </tr>
+            </table>
+          </th>
+          <th class="small-3 large-3 last columns decidim-bar" style="background-color: <%= organization.colors["primary"] || '#004494' %>; color: #ffffff;">
+          </th>
+          <th class="expander"></th>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <table class="spacer">
+        <tbody>
+          <tr>
+            <td height="40px" style="font-size:40px;line-height:40px;"> </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <% if has_main_image? %>
+        <table class="row content image">
+          <tr>
+            <th class="small-12 first columns">
+              <%= main_image %>
+            </th>
+            <th class="expander"></th>
+          </tr>
+        </table>
+      <% end %>
+
+      <% if introduction.present? %>
+        <table class="row content">
+          <tr>
+            <th class="small-12 first columns">
+              <%= introduction %>
+            </th>
+            <th class="expander"></th>
+          </tr>
+        </table>
+      <% end %>
+
+      <% if body.present? %>
+        <table class="row content">
+          <tr>
+            <th class="small-12 first columns">
+              <%= body %>
+            </th>
+            <th class="expander"></th>
+          </tr>
+        </table>
+      <% end %>
+
+      <% if has_cta? %>
+        <table class="row content">
+          <tr>
+            <th class="small-12 first columns">
+              <center>
+                <table class="button large rounded" style="background-color: <%= organization.colors["primary"] || '#004494' %>;">
+                  <tr>
+                    <td style="background-color: <%= organization.colors["primary"] || '#004494' %>;">
+                      <table>
+                        <tr>
+                          <td style="background-color: <%= organization.colors["primary"] || '#004494' %> !important; border: none;">
+                            <%= link_to cta_text, cta_url, style: "color: #ffffff !important; text-decoration: none; background-color: transparent !important; display: block; padding: 12px 24px;" %>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </center>
+            </th>
+            <th class="expander"></th>
+          </tr>
+        </table>
+      <% end %>
+
+      <table class="spacer">
+        <tbody>
+          <tr>
+            <td height="40px" style="font-size:40px;line-height:40px;"> </td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="row">
+        <tr>
+          <th class="small-12 first columns cityhall-bar" style="background-color: <%= organization.colors["primary"] || '#004494' %>; color: #ffffff;">
+            <div class="decidim-logo" style="float: right; text-align: right; padding-right: 16px">
+              <% if custom_url_for_mail_root.present? %>
+                <%= link_to organization_name(organization).html_safe, custom_url_for_mail_root, style: "text-decoration: underline; color: #ffffff !important;" %>
+              <% else %>
+                <%= link_to organization_name(organization).html_safe, decidim.root_url(host: organization.host), style: "text-decoration: underline; color: #ffffff !important;" %>
+              <% end %>
+            </div>
+          </th>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
