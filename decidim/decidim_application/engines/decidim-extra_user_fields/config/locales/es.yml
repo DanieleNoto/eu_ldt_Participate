@@ -79,6 +79,8 @@ es:
             extra_user_fields:
                 name: ExtraUserFields
         extra_user_fields:
+            select_country_placeholder: 'SSeleccione su país'
+            date_of_birth_help: 'Utilice el selector de fecha para elegir su fecha de nacimiento'
             admin:
                 exports:
                     users: Participantes
@@ -132,6 +134,7 @@ es:
                     legend: Más información
                     select_gender: Selecciona tu género
                     underage: Soy menor de %{limit} años y acepto obtener una autorización parental
+                    underage_warning: 'Advertencia: Proporcionar información falsa para eludir la verificación de edad constituye una violación de los Términos de Uso y resultará en la eliminación de la cuenta.'
         statutory_representative:
             inform:
                 body: |

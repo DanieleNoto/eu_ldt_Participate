@@ -11,9 +11,28 @@ require "jwt"
 
 module Decidim
   module Keycloak
+    # Service for managing Keycloak tokens: validation, refresh, revocation.
+    #
+    # @example Validate and refresh token
+    #   TokenService.ensure_valid_token(user, cookies.to_h, cookies, request.host, self)
+    #
+    # @example Using options hash
+    #   TokenService.ensure_valid_token(user, cookies_hash: cookies.to_h, cookies_obj: cookies)
+    #
     class TokenService
-      def self.ensure_valid_token(user, cookies_hash = nil, cookies_obj = nil, request_host = nil, controller = nil)
-        new.ensure_valid_token(user, cookies_hash, cookies_obj, request_host, controller)
+      # Options hash for ensure_valid_token to reduce parameter count
+      # @param user [Decidim::User] The user to validate token for
+      # @param options [Hash] Options hash with :cookies_hash, :cookies_obj, :request_host, :controller
+      def self.ensure_valid_token(user, options = {})
+        # Support legacy positional arguments for backward compatibility
+        if options.is_a?(Hash)
+          new.ensure_valid_token(user, **options)
+        else
+          # Legacy: ensure_valid_token(user, cookies_hash, cookies_obj, request_host, controller)
+          cookies_hash, cookies_obj, request_host, controller = options, *Array.new(3)
+          new.ensure_valid_token(user, cookies_hash: cookies_hash, cookies_obj: cookies_obj,
+                                       request_host: request_host, controller: controller)
+        end
       end
 
       def self.revoke_tokens(access_token, refresh_token = nil)
@@ -24,18 +43,33 @@ module Decidim
         new.introspect_token(access_token)
       end
 
-      def ensure_valid_token(_user, cookies_hash = nil, cookies_obj = nil, request_host = nil, controller = nil) # rubocop:disable Metrics/ParameterLists
+      # Exchange a token for a specific audience (public API)
+      # @param subject_token [String] The token to exchange
+      # @param audience [String] The target audience/client ID
+      # @return [String, nil] The exchanged access token or nil on failure
+      def self.exchange_token_for_audience(subject_token, audience)
+        new.send(:exchange_token_for_audience, subject_token, audience)
+      end
+
+      # Ensure the user has a valid token, refreshing if needed
+      # @param _user [Decidim::User] The user (unused but kept for API compatibility)
+      # @param cookies_hash [Hash, nil] Hash of cookies
+      # @param cookies_obj [ActionDispatch::Cookies, nil] Cookies object for writing
+      # @param request_host [String, nil] Request host for cookie domain
+      # @param controller [ActionController::Base, nil] Controller for callbacks
+      def ensure_valid_token(_user, cookies_hash: nil, cookies_obj: nil, request_host: nil, controller: nil)
         access_token = reconstruct_token_from_cookies(cookies_hash, "access_token")
         refresh_token = reconstruct_token_from_cookies(cookies_hash, "refresh_token")
 
         # If we have access_token, validate it
         if access_token
-          result = validate_existing_token(access_token, refresh_token, cookies_obj, request_host, controller)
+          result = validate_existing_token(access_token, refresh_token,
+                                           cookies_obj: cookies_obj, request_host: request_host, controller: controller)
           return result if result
         end
 
         # Token is expired or missing, try to refresh if we have refresh_token
-        handle_token_refresh(refresh_token, cookies_obj, request_host, controller)
+        handle_token_refresh(refresh_token, cookies_obj: cookies_obj, request_host: request_host, controller: controller)
       end
 
       def save_tokens_to_cookies(cookies_obj, tokens, request_host = nil)
@@ -286,7 +320,7 @@ module Decidim
         end
       end
 
-      def validate_existing_token(access_token, refresh_token, cookies_obj, request_host, controller)
+      def validate_existing_token(access_token, refresh_token, cookies_obj: nil, request_host: nil, controller: nil)
         expires_at = extract_token_expiration(access_token)
         return access_token unless expires_at
 
@@ -295,13 +329,14 @@ module Decidim
           return access_token if introspect_token(access_token)
 
           Rails.logger.info "[Keycloak Token Validation] Token revoked or invalid, attempting refresh"
-          return handle_token_refresh_attempt(refresh_token, cookies_obj, request_host, controller, "after introspection failure")
+          return handle_token_refresh_attempt(refresh_token, cookies_obj: cookies_obj, request_host: request_host,
+                                                             controller: controller, context: "after introspection failure")
         end
 
         nil
       end
 
-      def handle_token_refresh_attempt(refresh_token, cookies_obj, request_host, controller, context)
+      def handle_token_refresh_attempt(refresh_token, cookies_obj: nil, request_host: nil, controller: nil, context: nil)
         return nil unless refresh_token && cookies_obj
 
         new_tokens = refresh_access_token(refresh_token)
@@ -313,7 +348,7 @@ module Decidim
         new_tokens[:access_token]
       end
 
-      def handle_token_refresh(refresh_token, cookies_obj, request_host, controller)
+      def handle_token_refresh(refresh_token, cookies_obj: nil, request_host: nil, controller: nil)
         return nil unless refresh_token && cookies_obj
 
         Rails.logger.debug "[Keycloak Token Validation] No valid access_token, attempting refresh with refresh_token"
@@ -321,11 +356,11 @@ module Decidim
         if new_tokens
           clear_cookies_if_controller(controller)
           save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
-          return new_tokens[:access_token]
+          new_tokens[:access_token]
         else
           Rails.logger.info "[Keycloak Token Validation] Refresh token invalid, clearing cookies"
           clear_cookies_if_controller(controller)
-          return nil
+          nil
         end
       end
 

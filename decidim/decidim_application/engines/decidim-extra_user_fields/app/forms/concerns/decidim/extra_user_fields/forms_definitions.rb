@@ -21,12 +21,13 @@ module Decidim
 
         attribute :country, String
         attribute :postal_code, String
-        attribute :date_of_birth, Decidim::Attributes::LocalizedDate
+        attribute :date_of_birth, Date
         attribute :gender, String
         attribute :phone_number, String
         attribute :location, String
         attribute :underage, ActiveRecord::Type::Boolean
         attribute :statutory_representative_email, String
+        attribute :tos_agreement, ActiveModel::Type::Boolean
 
         # Account profile attributes
         attribute :about, String
@@ -37,11 +38,12 @@ module Decidim
         # Block ExtraUserFields Validations
 
         validates :country, presence: true, if: :country_required?
+        validate :validate_country_not_blank, if: :country_required?
         validates :postal_code, presence: true, if: :postal_code_required?
         validates :postal_code, length: { maximum: 50 }, if: :postal_code?
         validates :date_of_birth, presence: true, if: :date_of_birth_required?
         validates :gender, presence: true, if: :gender_required?
-        validates :gender, inclusion: { in: Decidim::ExtraUserFields::Engine::DEFAULT_GENDER_OPTIONS.map(&:to_s) }, if: :gender?
+        validates :gender, inclusion: { in: Decidim::ExtraUserFields::Engine::DEFAULT_GENDER_OPTIONS.map(&:to_s) }, if: :gender_present_and_activated?
         validates :phone_number, presence: true, if: :phone_number_required?
         validates :phone_number, length: { maximum: 100 }, if: :phone_number?
         validates(
@@ -69,6 +71,7 @@ module Decidim
         validates :statutory_representative_email, length: { maximum: 100 }, if: :underage_accepted?
         validate :birth_date_under_limit, if: :should_validate_birth_date?
         validate :birth_date_not_in_future, if: :date_of_birth?
+        validates :tos_agreement, acceptance: true, if: :registration_form?
 
         # EndBlock
       end
@@ -78,12 +81,13 @@ module Decidim
 
         self.country = extended_data[:country]
         self.postal_code = extended_data[:postal_code]
-        self.date_of_birth = Date.parse(extended_data[:date_of_birth]) if extended_data[:date_of_birth].present?
+        self.date_of_birth = extended_data[:date_of_birth]
         self.gender = extended_data[:gender]
         self.phone_number = extended_data[:phone_number]
         self.location = extended_data[:location]
         self.underage = extended_data[:underage]
         self.statutory_representative_email = extended_data[:statutory_representative_email]
+        self.tos_agreement = model.tos_agreement.present?
 
         # Block ExtraUserFields MapModel
 
@@ -115,6 +119,10 @@ module Decidim
 
       def gender_required?
         gender? && registration_form?
+      end
+
+      def gender_present_and_activated?
+        gender? && gender.present?
       end
 
       def postal_code?
@@ -174,6 +182,13 @@ module Decidim
         return if date_of_birth.blank?
 
         errors.add(:date_of_birth, :future_date) if date_of_birth > Time.zone.today
+      end
+
+      def validate_country_not_blank
+        return if country.blank?
+
+        # Reject empty string or placeholder values
+        errors.add(:country, :blank) if country.strip.empty? || country == "" || country.downcase.include?("select")
       end
 
       def birth_date_under_limit

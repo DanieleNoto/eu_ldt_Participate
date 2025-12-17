@@ -7,5 +7,5 @@ kind: ConfigMap
 metadata:
     name: db-config
 data:
-    POSTGRES_DATABASE: decidim_application_development
+    POSTGRES_DATABASE: _%POSTGRES-DATABASE%_
     PGDATA: /var/lib/postgresql/data/pgdata

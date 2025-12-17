@@ -33,6 +33,15 @@ module DecidimApplication
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # Configure trusted proxies for Kubernetes/Docker environments
+    # This ensures Rails can correctly identify the real client IP from X-Forwarded-For headers
+    config.action_dispatch.trusted_proxies = [
+      "10.0.0.0/8",     # Private networks (Kubernetes pods)
+      "172.16.0.0/12",  # Private networks (Docker networks)
+      "192.168.0.0/16", # Private networks
+      "127.0.0.0/8"     # Localhost
+    ].map { |proxy| IPAddr.new(proxy) }
+
     # JSON Logging for ELK Stack
     if ENV["ENABLE_JSON_LOGS"].present? && ENV["ENABLE_JSON_LOGS"] != "false"
       # Load custom JSON formatter

@@ -4,95 +4,102 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
+# Main Keycloak authentication concern for Decidim controllers.
+# Handles auto-login, auto-logout, and locale synchronization.
+#
+# Dependencies (from decidim-keycloak engine):
+# - Decidim::Keycloak::Configuration - Centralized config
+# - Decidim::Keycloak::SessionValidator - Token/session validation
+# - Decidim::Keycloak::TokenService - Token refresh/revocation
+# - Decidim::Keycloak::CookieManager - Cookie operations
+# - Decidim::Keycloak::LocaleSynchronizer - Locale sync from tokens
+#
+# @see KeycloakCookieHandling for cookie management utilities
 module KeycloakAuthentication
   extend ActiveSupport::Concern
 
+  # Provider identifier used in Decidim identities table
+  KEYCLOAK_PROVIDER = "keycloakopenid"
+
   included do
-    before_action :check_keycloak_auto_login
     before_action :check_keycloak_auto_logout
     before_action :check_keycloak_locale_sync
   end
 
   private
 
-  # Centralized Keycloak configuration
-  def keycloak_config
-    Decidim::Keycloak::Configuration.config
-  end
+  # ============================================================================
+  # Configuration Delegation (Single Source of Truth)
+  # ============================================================================
 
-  def keycloak_config_valid?
-    Decidim::Keycloak::Configuration.valid?
-  end
+  delegate :config, :valid?, to: "Decidim::Keycloak::Configuration", prefix: :keycloak_config
 
-  # Check if user logged in with Keycloak
+  # ============================================================================
+  # User & Organization Checks
+  # ============================================================================
+
+  # Check if user authenticated via Keycloak
+  # @param user [Decidim::User] The user to check
+  # @return [Boolean] true if user has Keycloak identity
   def user_logged_in_with_keycloak?(user)
-    # Check if user has a Keycloak identity
-    user.identities.exists?(provider: "keycloakopenid")
+    return false unless user
+
+    user.identities.exists?(provider: KEYCLOAK_PROVIDER)
   end
 
-  # Check if Keycloak authentication tokens are present (not just configuration cookies like i18next)
-  def keycloak_auth_tokens_present?
-    access_token = cookies["access_token"]
-    refresh_token = cookies["refresh_token"]
-    id_token = cookies["id_token"]
+  # Check if Keycloak provider is enabled for current organization
+  # @return [Boolean] true if enabled
+  def keycloak_enabled_for_organization?
+    current_organization&.enabled_omniauth_providers&.dig(:keycloakopenid).present?
+  end
 
-    # Return true only if actual authentication tokens are present
-    access_token.present? || refresh_token.present? || id_token.present?
+  # ============================================================================
+  # Token & Cookie Detection
+  # ============================================================================
+
+  # Check if Keycloak authentication tokens are present
+  # @return [Boolean] true if any auth token exists
+  def keycloak_auth_tokens_present?
+    %w(access_token refresh_token id_token).any? { |name| cookies[name].present? }
   end
 
   # Check if any Keycloak-related cookies are present (including i18next for cross-tool SSO)
+  # @return [Boolean] true if any Keycloak cookie exists
   def keycloak_cookies_present?
     keycloak_auth_tokens_present? || cookies["i18next"].present?
   end
 
-  # Check if we're coming from another tool in the same domain (cross-tool navigation)
+  # ============================================================================
+  # Cross-Tool SSO Detection
+  # ============================================================================
+
+  # Check if we're coming from another tool in the same domain
+  # @return [Boolean] true if cross-tool navigation detected
   def coming_from_same_domain_tool?
     referer = request.referer
     return false if referer.blank?
 
-    begin
-      referer_uri = URI.parse(referer)
-      current_host = request.host
-
-      # Get the Decidim host from environment variable
-      decidim_host = ENV["DECIDIM_HOST"] || current_host
-
-      # Avoid loops: skip if referer is from the same Decidim instance
-      if referer_uri.host == decidim_host || referer_uri.host == current_host
-        Rails.logger.debug "[Keycloak AutoLogin] Referer is same Decidim host, avoiding loop"
-        return false
-      end
-
-      # Extract domain from Decidim host for same-domain check
-      # E.g., part-int.ldttoolbox.app → .ldttoolbox.app
-      decidim_host_parts = decidim_host.split(".")
-      if decidim_host_parts.length >= 2
-        base_domain = ".#{decidim_host_parts[-2]}.#{decidim_host_parts[-1]}"
-
-        # Check if referer is from same base domain but different subdomain
-        if referer_uri.host != current_host && referer_uri.host&.end_with?(base_domain)
-          Rails.logger.info "[Keycloak AutoLogin] Cross-tool navigation detected: #{referer_uri.host} → #{current_host} (domain: #{base_domain})"
-          return true
-        end
-      end
-    rescue URI::InvalidURIError => e
-      Rails.logger.debug { "[Keycloak AutoLogin] Invalid referer URI: #{e.message}" }
-    end
-
+    Decidim::Keycloak::CrossToolDetector.from_same_domain?(
+      referer: referer,
+      current_host: request.host,
+      decidim_host: ENV.fetch("DECIDIM_HOST", nil)
+    )
+  rescue URI::InvalidURIError => e
+    Rails.logger.debug { "[Keycloak AutoLogin] Invalid referer URI: #{e.message}" }
     false
   end
 
-  # Validate Keycloak session using the centralized SessionValidator
-  def keycloak_session_valid?
-    access_token = cookies["access_token"]
-    id_token = cookies["id_token"]
-    refresh_token = cookies["refresh_token"]
+  # ============================================================================
+  # Session Validation (Delegated to Engine)
+  # ============================================================================
 
-    # Use the SessionValidator from the Keycloak engine
+  # Validate Keycloak session using the centralized SessionValidator
+  # @return [Boolean] true if session is valid
+  def keycloak_session_valid?
     Decidim::Keycloak::SessionValidator.validate_tokens_and_session(
-      access_token,
-      id_token,
-      refresh_token,
+      cookies["access_token"],
+      cookies["id_token"],
+      cookies["refresh_token"],
       cookies
     )
   rescue StandardError => e
@@ -100,176 +107,112 @@ module KeycloakAuthentication
     false
   end
 
-  def check_keycloak_auto_login
-    # Skip for API requests, assets, admin paths, auth callbacks, and AJAX requests
-    return if request.path.start_with?("/api/")
-    return if request.path.start_with?("/assets/")
-    return if request.path.start_with?("/admin/")
-    return if request.path.start_with?("/users/auth/")
-    return if request.path.match?(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)
-    return if request.xhr?
-    return if request.format.json?
+  # ============================================================================
+  # Paths to skip for checks
+  # ============================================================================
 
-    # Skip for error pages (404, 500, etc.) to avoid auto-login loops
-    return if controller_name == "errors" || action_name == "not_found" || action_name == "internal_server_error"
+  SKIP_PATH_PREFIXES = %w(/api/ /assets/ /users/auth/).freeze
+  SKIP_ADMIN_PATH = "/admin/"
+  SKIP_FILE_EXTENSIONS = /\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/
 
-    # Skip if user is already authenticated
-    return if current_user.present?
-
-    # Skip if user manually logged out (check cookie instead of session)
-    if cookies["manual_logout"] == "true"
-      Rails.logger.info "[Keycloak AutoLogin] Skipping auto-login - user manually logged out"
-      # Clear the cookie for next time
-      cookies.delete("manual_logout", domain: Decidim::Keycloak::CookieManager.calculate_cookie_domain(request.host))
-      cookies.delete("manual_logout") # Also without domain
-      return
-    end
-
-    # Skip if automatic logout occurred due to expired/invalid token
-    if session[:automatic_logout_no_autologin]
-      Rails.logger.info "[Keycloak AutoLogin] Skipping auto-login - automatic logout due to expired/invalid token"
-      session.delete(:automatic_logout_no_autologin)
-      return
-    end
-
-    # Check if Keycloak provider is enabled for this organization
-    organization = current_organization
-    return if organization&.enabled_omniauth_providers&.dig(:keycloakopenid).blank?
-
-    # First check: do we have any Keycloak-related cookies (including i18next for cross-tool SSO)?
-    return unless keycloak_cookies_present?
-
-    has_auth_tokens = keycloak_auth_tokens_present?
-    has_i18next = cookies["i18next"].present?
-    from_same_domain = coming_from_same_domain_tool?
-
-    if has_auth_tokens
-      Rails.logger.info "[Keycloak AutoLogin] Found Keycloak auth tokens, validating session..."
-    elsif has_i18next
-      if from_same_domain
-        Rails.logger.info "[Keycloak AutoLogin] Cross-tool SSO detected (i18next + same domain referer), checking Keycloak session..."
-      else
-        Rails.logger.info "[Keycloak AutoLogin] Found i18next cookie, checking for active Keycloak session..."
-      end
-    end
-
-    # Second check: validate if Keycloak session is actually active
-    if keycloak_session_valid?
-      Rails.logger.info "[Keycloak AutoLogin] Session valid, redirecting for auto-login"
-
-      # Skip if we're already on the login page to avoid redirect loops
-      if controller_name == "sessions" && action_name == "new"
-        Rails.logger.info "[Keycloak AutoLogin] Already on login page, auto-login will be handled by frontend"
-        return
-      end
-
-      # Direct redirect to login with auto-login parameter
-      redirect_to "/users/sign_in?keycloak_auto_login=1", status: :found
-    else
-      Rails.logger.info "[Keycloak AutoLogin] Session invalid, cookies already cleared by SessionValidator"
-    end
+  def should_skip_keycloak_checks?
+    SKIP_PATH_PREFIXES.any? { |prefix| request.path.start_with?(prefix) } ||
+      request.path.match?(SKIP_FILE_EXTENSIONS) ||
+      request.xhr? ||
+      request.format.json?
   end
 
+  # ============================================================================
+  # Auto-Logout Logic
+  # ============================================================================
+
   def check_keycloak_auto_logout
-    # Skip for API requests, assets, admin paths, auth callbacks, and AJAX requests
-    # Admin paths are now included to ensure logout synchronization across all areas
-    return if request.path.start_with?("/api/")
-    return if request.path.start_with?("/assets/")
-    return if request.path.start_with?("/users/auth/")
-    return if request.path.match?(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)
-    return if request.xhr?
-    return if request.format.json?
-
-    # Skip if user is not authenticated
+    return if should_skip_keycloak_checks?
     return if current_user.blank?
-
-    # CRITICAL FIX: Only apply Keycloak logic to users who actually logged in with Keycloak
     return unless user_logged_in_with_keycloak?(current_user)
+    return unless keycloak_enabled_for_organization?
 
-    # Check if Keycloak provider is enabled for this organization
-    organization = current_organization
-    return if organization&.enabled_omniauth_providers&.dig(:keycloakopenid).blank?
-
-    # Try to validate and refresh token if needed
+    # Delegate token validation and refresh to TokenService
     valid_token = Decidim::Keycloak::TokenService.ensure_valid_token(
       current_user,
-      cookies.to_h,
-      cookies,
-      request.host,
-      self
+      cookies_hash: cookies.to_h,
+      cookies_obj: cookies,
+      request_host: request.host,
+      controller: self
     )
 
-    # If token is valid or was successfully refreshed, keep the session active
     if valid_token
-      Rails.logger.debug { "[Keycloak AutoLogout] Token valid or refreshed successfully, keeping session active for user #{current_user.id}" }
+      Rails.logger.debug { "[Keycloak AutoLogout] Token valid for user #{current_user.id}" }
       return
     end
 
-    # Token is invalid and refresh failed - perform automatic logout without auto-login
-    Rails.logger.info "[Keycloak AutoLogout] Keycloak session invalid and refresh failed, performing automatic logout for user #{current_user.id}"
+    perform_automatic_logout
+  end
 
-    # Set flag to prevent auto-login after automatic logout (session expired, not manual logout)
+  # ============================================================================
+  # Locale Synchronization
+  # ============================================================================
+
+  def check_keycloak_locale_sync
+    return if should_skip_keycloak_checks?
+    return if request.path.start_with?(SKIP_ADMIN_PATH)
+    return unless current_user.present? && user_logged_in_with_keycloak?(current_user)
+    return unless keycloak_enabled_for_organization?
+
+    current_session_locale = session["decidim-locale"] || I18n.locale.to_s
+    new_locale = detect_keycloak_locale(current_session_locale)
+
+    apply_locale_if_changed(new_locale, current_session_locale)
+  end
+
+  # ============================================================================
+  # Helper Methods
+  # ============================================================================
+
+  def error_page?
+    controller_name == "errors" ||
+      action_name == "not_found" ||
+      action_name == "internal_server_error"
+  end
+
+  def perform_automatic_logout
+    Rails.logger.info "[Keycloak AutoLogout] Session invalid, logging out user #{current_user.id}"
+
     session[:automatic_logout_no_autologin] = true
-
-    # Clear all Keycloak-related cookies from all possible domains
     clear_keycloak_cookies
-
-    # Sign out the user and redirect immediately to prevent further processing
     sign_out current_user
 
-    # Redirect to login page using string path to avoid route helper issues in admin controllers
     redirect_to("/users/sign_in") && return
   end
 
-  def check_keycloak_locale_sync
-    # Skip for API requests, assets, admin paths, auth callbacks, and AJAX requests
-    return if request.path.start_with?("/api/")
-    return if request.path.start_with?("/assets/")
-    return if request.path.start_with?("/admin/")
-    return if request.path.start_with?("/users/auth/")
-    return if request.path.match?(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)
-    return if request.xhr?
-    return if request.format.json?
-
-    # Only check for authenticated users who logged in with Keycloak
-    return unless current_user.present? && user_logged_in_with_keycloak?(current_user)
-
-    # Check if Keycloak provider is enabled for this organization
-    organization = current_organization
-    return if organization&.enabled_omniauth_providers&.dig(:keycloakopenid).blank?
-
-    current_session_locale = session["decidim-locale"] || I18n.locale.to_s
-    new_locale = nil
-
-    # First priority: Check for i18next cookie from Keycloak
-    i18next_cookie = cookies["i18next"]
-    if i18next_cookie.present?
-      # Keycloak i18next cookie format is typically just the locale code (e.g., "en", "it", "pt-BR")
-      keycloak_locale = i18next_cookie.strip
-
-      # Map Keycloak locale to Decidim available locales
-      if current_organization.available_locales.include?(keycloak_locale)
-        new_locale = keycloak_locale
-        Rails.logger.info "[Keycloak Locale Sync] Using locale from i18next cookie: #{keycloak_locale} for user #{current_user.id}"
-      else
-        Rails.logger.debug { "[Keycloak Locale Sync] i18next cookie locale '#{keycloak_locale}' not available in organization locales" }
+  def detect_keycloak_locale(current_session_locale)
+    # Priority 1: i18next cookie from Keycloak
+    if cookies["i18next"].present?
+      locale = cookies["i18next"].strip
+      if current_organization.available_locales.include?(locale)
+        Rails.logger.info "[Keycloak Locale] Using i18next cookie: #{locale}"
+        return locale
       end
     end
 
-    # Second priority: Extract locale from id_token if i18next cookie not present or invalid
-    if new_locale.nil?
-      id_token = cookies["id_token"]
-      if id_token.present?
-        new_locale = Decidim::Keycloak::LocaleSynchronizer.sync_from_token(id_token, current_session_locale)
-        Rails.logger.info "[Keycloak Locale Sync] Using locale from id_token claim: #{new_locale} for user #{current_user.id}" if new_locale.present?
+    # Priority 2: id_token locale claim
+    id_token = cookies["id_token"]
+    if id_token.present?
+      locale = Decidim::Keycloak::LocaleSynchronizer.sync_from_token(id_token, current_session_locale)
+      if locale.present?
+        Rails.logger.info "[Keycloak Locale] Using id_token claim: #{locale}"
+        return locale
       end
     end
 
-    # Apply the new locale if found and different from current
-    if new_locale.present? && new_locale != current_session_locale
-      I18n.locale = new_locale
-      session["decidim-locale"] = new_locale
-      Rails.logger.info "[Keycloak Locale Sync] Updated locale from #{current_session_locale} to #{new_locale} for user #{current_user.id}"
-    end
+    nil
+  end
+
+  def apply_locale_if_changed(new_locale, current_session_locale)
+    return if new_locale.blank? || new_locale == current_session_locale
+
+    I18n.locale = new_locale
+    session["decidim-locale"] = new_locale
+    Rails.logger.info "[Keycloak Locale] Updated: #{current_session_locale} → #{new_locale} for user #{current_user.id}"
   end
 end
