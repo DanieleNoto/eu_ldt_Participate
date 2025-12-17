@@ -160,6 +160,13 @@ jobs:
             condition: succeededOrFailed()
             continueOnError: true
 
+          # Install Python dependencies for test publisher
+          - script: |
+                pip install -r azure-test-plan/requirements.txt
+            displayName: 'Install Python dependencies for test publisher'
+            condition: succeededOrFailed()
+            continueOnError: true
+
           # Publish Playwright results to Azure Test Plans
           - script: |
                 python3 azure-test-plan/playwright_test_publisher.py

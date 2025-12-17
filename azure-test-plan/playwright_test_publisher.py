@@ -21,7 +21,7 @@ The script automatically:
 import os
 import re
 import sys
-import xml.etree.ElementTree as ET
+from defusedxml import ElementTree as ET
 from datetime import datetime
 from typing import Dict, List, Tuple
 import requests
