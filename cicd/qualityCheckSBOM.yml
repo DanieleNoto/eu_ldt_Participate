@@ -8,11 +8,8 @@ name: Tool3-SBOM-$(date:yyyyMMdd)$(rev:.r)
 trigger: none
 pr: none
 
-# pool:
-#     name: 'EU-LDT-DEVOPS-AGENT-01'
-
-pool:
-    vmImage: 'ubuntu-latest'
+ pool:
+     name: 'EU-LDT-DEVOPS-AGENT-01'
 
 jobs:
     - job: sBomGeneration
