@@ -8,7 +8,7 @@ name: Tool3-SBOM-$(date:yyyyMMdd)$(rev:.r)
 trigger: none
 pr: none
 
- pool:
+pool:
     name: 'EU-LDT-DEVOPS-AGENT-01'
 
 jobs:
