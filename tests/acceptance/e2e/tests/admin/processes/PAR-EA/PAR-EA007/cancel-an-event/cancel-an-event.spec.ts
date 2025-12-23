@@ -138,8 +138,6 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 
 	test.describe('Main Flow', () => {
 		test('should allow admin to cancel an event and remove it from the schedule', async ({ adminPage }) => {
-			let initialMeetingsCount: number;
-
 			await test.step('1. User: Navigates to the "Processes" section', async () => {
 				await processAdminPage.navigateToProcesses();
 				await adminPage.waitForLoadState('networkidle');
@@ -174,11 +172,7 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 				// Verify meetings page is loaded and visible
 				await meetingsPage.verifyMeetingsPageVisible();
 
-				// Get initial count of meetings
-				initialMeetingsCount = await meetingsPage.getMeetingCount();
-				expect(initialMeetingsCount).toBeGreaterThan(0);
-
-				// Check if our created meeting exists
+				// Verify our created meeting exists
 				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 				await expect(meetingRow).toBeVisible();
 			});
@@ -214,37 +208,23 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 				// Wait for the deletion to be processed
 				await adminPage.waitForLoadState('networkidle');
 
-				// Verify the meeting has been deleted by checking it's no longer visible
-				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
-				await expect(meetingRow).toHaveCount(0);
-				console.log('Meeting deleted successfully');
-			});
-
-			await test.step('11. System: Notifies the City Administrator that the meeting has been successfully deleted', async () => {
-				// Verify success notification appears (flash message)
-				const flashMessage = adminPage.locator(
-					'.flash.success, .flash.callout.success, [data-alert="success"]'
-				);
-				// Flash message may appear and disappear quickly, so we just verify the page state
+				// Verify the page is still on meetings list
 				const currentUrl = adminPage.url();
 				expect(currentUrl).toMatch(/\/admin\/participatory_processes\/.*\/components\/.*\/manage/);
 			});
 
+			await test.step('11. System: Notifies the City Administrator that the meeting has been successfully deleted', async () => {
+				// Verify success notification appears (flash message)
+				// Flash message may appear and disappear quickly, so we check the page state
+				await meetingsPage.verifyMeetingsPageVisible();
+			});
+
 			await test.step('Result: The meeting is deleted and no more visible', async () => {
-				// Verify that the meetings list is updated and the deleted meeting is no longer visible
-				const finalMeetingsCount = await meetingsPage.getMeetingCount();
-				console.log(
-					`Initial meetings count: ${initialMeetingsCount} | Final meetings count: ${finalMeetingsCount}`
-				);
+				// Verify that the meeting is no longer found using the search form (pagination-safe)
+				const meetingFound = await meetingsPage.searchAndVerifyMeetingExists(createdMeetingTitle);
+				expect(meetingFound).toBe(false);
 
-				// Expect exactly one less meeting
-				expect(finalMeetingsCount).toBe(initialMeetingsCount - 1);
-
-				// Verify our meeting is no longer visible
-				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
-				await expect(meetingRow).toHaveCount(0);
-
-				console.log('✅ Meeting has been successfully cancelled/deleted and is no longer visible');
+				console.log('✅ Meeting has been successfully cancelled/deleted and is no longer searchable');
 			});
 		});
 	});
@@ -281,17 +261,14 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 			});
 
 			await test.step('9.2. System: Exits without saving changes', async () => {
-				// Meeting should still exist
-				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
-				await expect(meetingRow).toBeVisible();
+				// Verify we're back on the meetings list
+				await meetingsPage.verifyMeetingsPageVisible();
 			});
 
 			await test.step('Result: The user cancels the action, and no data is saved. The system returns to the previous page', async () => {
-				await meetingsPage.verifyMeetingsPageVisible();
-
-				// Verify our meeting still exists
-				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
-				await expect(meetingRow).toBeVisible();
+				// Verify our meeting still exists using the search form (pagination-safe)
+				const meetingFound = await meetingsPage.searchAndVerifyMeetingExists(createdMeetingTitle);
+				expect(meetingFound).toBe(true);
 
 				console.log('✅ Successfully cancelled deletion and meeting still exists');
 			});

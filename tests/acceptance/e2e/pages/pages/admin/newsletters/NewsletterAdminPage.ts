@@ -228,7 +228,7 @@ export class NewsletterAdminPage extends BaseAdminPage {
 		contentPattern: string = 'this is a test newsletter!'
 	) {
 		const frame = await this.getPreviewFrame();
-		const container = frame.locator('table.content th.small-12.first.columns').first();
+		const container = frame.locator('td[style*="padding: 40px 80px"] > div').first();
 
 		await expect(container).toBeVisible();
 

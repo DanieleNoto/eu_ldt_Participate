@@ -257,6 +257,33 @@ export class MeetingsPage extends BaseAdminPage {
 		}
 	}
 
+	/**
+	 * Search for a meeting by title using the search form and verify it exists in the filtered results.
+	 * This is pagination-safe as the search is done server-side.
+	 * Returns true if the meeting is found in the filtered results.
+	 */
+	async searchAndVerifyMeetingExists(title: string): Promise<boolean> {
+		// Fill the search input
+		const searchInput = this.page.locator('input[id="q_id_string_or_title_cont"]');
+		await searchInput.fill(title);
+
+		// Click the search button (the icon next to the input)
+		const searchButton = searchInput.locator('..').locator('button[type="submit"]');
+		await searchButton.click();
+
+		// Wait for the table to update with filtered results
+		await this.waitForMeetingsLoad();
+
+		// Check if any meeting with the title is visible in the results
+		const matchingRows = this.page.locator('table.table-list tbody tr', { has: this.page.getByText(title) });
+		const count = await matchingRows.count();
+
+		// Clear the search for next searches
+		await searchInput.clear();
+
+		return count > 0;
+	}
+
 	// Action button verification methods
 	async verifyEditButtonVisible(meetingIndex: number = 0) {
 		await expect(this.editButtons.nth(meetingIndex)).toBeVisible();
