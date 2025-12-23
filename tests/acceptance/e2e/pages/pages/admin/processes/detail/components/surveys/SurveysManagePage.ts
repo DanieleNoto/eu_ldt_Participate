@@ -45,8 +45,10 @@ export class SurveysManagePage extends BaseAdminPage {
 	 * Used in: create-single-question-polls.spec.ts, create-detailed-surveys-with-configurable-options.spec.ts, reply_to_a_survey.spec.ts
 	 */
 	async configureStepAnnouncement(announcementText: string): Promise<void> {
-		await this.page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
-		await this.page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').fill(announcementText);
+		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').nth(4).click();
+		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').nth(4).fill(announcementText);
+		// await this.page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
+		// await this.page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').fill(announcementText);
 	}
 
 	/**
@@ -228,11 +230,13 @@ export class SurveysManagePage extends BaseAdminPage {
 			this.page,
 			'component_settings_announcement'
 		);
-		await this.page.locator(globalAnnouncementSelector).getByRole('textbox', { name: 'Announcement' }).click();
-		await this.page
-			.locator(globalAnnouncementSelector)
-			.getByRole('textbox', { name: 'Announcement' })
-			.fill('Global settings description');
+		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first().click();
+		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first().fill('Global settings description');
+		//await this.page.locator(globalAnnouncementSelector).getByRole('textbox', { name: 'Announcement' }).click();
+		// await this.page
+		// 	.locator(globalAnnouncementSelector)
+		// 	.getByRole('textbox', { name: 'Announcement' })
+		// 	.fill('Global settings description');
 
 		// Fill step settings announcement
 		await this.configureStepAnnouncement('Step settings description');
@@ -320,12 +324,13 @@ export class SurveysManagePage extends BaseAdminPage {
 	async verifyEmptyQuestionnaireDisplayed(): Promise<void> {
 		// Verify the empty questionnaire form is displayed
 		await expect(this.page.getByRole('textbox', { name: 'title' })).toBeVisible();
-		await expect(this.page.getByRole('textbox', { name: 'Description' })).toBeVisible();
+		// await expect(this.page.getByRole('textbox', { name: 'Description' })).toBeVisible();
+		await expect (this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first()).toBeVisible()
 
 		// Verify that the fields are empty as expected for a new questionnaire
 		await expect(this.page.getByRole('textbox', { name: 'title' })).toHaveValue('');
 
-		const descriptionField = this.page.getByRole('textbox', { name: 'Description' }).first();
+		const descriptionField = this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first();
 		await expect(descriptionField).toHaveText('');
 
 		console.log('Empty questionnaire form displayed with survey configuration options');
@@ -339,11 +344,11 @@ export class SurveysManagePage extends BaseAdminPage {
 		await this.page.getByRole('textbox', { name: 'title' }).click();
 		await this.page.getByRole('textbox', { name: 'title' }).fill(surveyName);
 
-		await this.page.getByRole('textbox', { name: 'Description' }).click();
-		await this.page.getByRole('textbox', { name: 'Description' }).fill(description);
+		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first().click();
+		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first().fill(description);
 
-		await this.page.getByRole('textbox', { name: 'Terms of service' }).click();
-		await this.page.getByRole('textbox', { name: 'Terms of service' }).fill('TOS');
+		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').nth(4).click();
+		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').nth(4).fill('TOS');
 
 		// Save survey
 		await this.page.getByRole('button', { name: 'Save' }).click();
@@ -419,13 +424,12 @@ export class SurveysManagePage extends BaseAdminPage {
 		const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 		if (isExpanded1 === 'false') {
 			await question1AccordionButton.click();
-			await question1Container.locator('.editor-input').waitFor();
+			await question1Container.locator('.editor-input').first().waitFor();
 		}
 
-		await question1Container
-			.getByRole('textbox', { name: 'Statement' })
-			.fill('What is your opinion on this topic?');
-		await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
+		// await question1Container.getByRole('textbox', { name: 'Statement' }).fill('What is your opinion on this topic?');
+		await question1Container.locator('.tabs-panel.is-active').getByRole('textbox').first().fill('What is your opinion on this topic?');
+		await question1Container.locator('.editor-input .tiptap').first().fill('Please share your thoughts');
 		await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 		await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
 		await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
@@ -443,15 +447,15 @@ export class SurveysManagePage extends BaseAdminPage {
 		const isExpanded2 = await question2AccordionButton.getAttribute('aria-expanded');
 		if (isExpanded2 === 'false') {
 			await question2AccordionButton.click();
-			await question2Container.locator('.editor-input').waitFor();
+			await question2Container.locator('.editor-input').first().waitFor();
 		}
 
-		await question2Container.getByRole('textbox', { name: 'Statement' }).fill('What color do you prefer?');
-		await question2Container.locator('.editor-input .tiptap').fill('select one of the available options');
-		await question2Container.getByLabel('TypeShort answer Long answer').selectOption('single_option');
+		await question2Container.locator('.tabs-panel.is-active').getByRole('textbox').nth(3).fill('What color do you prefer?');
+		await question2Container.locator('.editor-input .tiptap').nth(3).fill('select one of the available options');
+		await question2Container.getByLabel('TypeShort answer Long answer').nth(3).selectOption('single_option');
 
 		// Fill the default two answer options that are automatically created
-		await question2Container.locator('.questionnaire-question-answer-option').first().waitFor();
+		await question2Container.locator('.questionnaire-question-answer-option').nth(3).waitFor();
 		await question2Container
 			.locator('.questionnaire-question-answer-option')
 			.first()
