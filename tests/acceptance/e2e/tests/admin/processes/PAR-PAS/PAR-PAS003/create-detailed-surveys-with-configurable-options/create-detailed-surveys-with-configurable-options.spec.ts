@@ -182,16 +182,17 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded1 === 'false') {
 					await question1AccordionButton.click();
-					await question1Container.locator('.editor-input').waitFor();
+					await question1Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question1Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('What is your opinion on this topic?');
-				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
-				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
-				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+				await surveysManagePage.fillQuestionStatement(
+					question1Container,
+					'What is your opinion on this topic?'
+				);
+				await surveysManagePage.fillQuestionDescription(question1Container, 'Please share your thoughts');
+				await surveysManagePage.checkMandatory(question1Container);
+				await surveysManagePage.fillCharacterLimit(question1Container, '500');
+				await surveysManagePage.selectQuestionType(question1Container, 'long_answer');
 
 				// Increment questions counter
 				questionsCount++;
@@ -207,16 +208,17 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded2 = await question2AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded2 === 'false') {
 					await question2AccordionButton.click();
-					await question2Container.locator('.editor-input').waitFor();
+					await question2Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question2Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('What is your opinion on this other topic?');
-				await question2Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
-				await question2Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question2Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('250');
-				await question2Container.getByLabel('TypeShort answer Long answer').selectOption('short_answer');
+				await surveysManagePage.fillQuestionStatement(
+					question2Container,
+					'What is your opinion on this other topic?'
+				);
+				await surveysManagePage.fillQuestionDescription(question2Container, 'Please share your thoughts');
+				await surveysManagePage.checkMandatory(question2Container);
+				await surveysManagePage.fillCharacterLimit(question2Container, '250');
+				await surveysManagePage.selectQuestionType(question2Container, 'short_answer');
 
 				// Increment questions counter
 				questionsCount++;
@@ -232,25 +234,28 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded3 = await question3AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded3 === 'false') {
 					await question3AccordionButton.click();
-					await question3Container.locator('.editor-input').waitFor();
+					await question3Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question3Container.getByRole('textbox', { name: 'Statement' }).fill('What color do you prefer?');
-				await question3Container.locator('.editor-input .tiptap').fill('select one of the available options');
-				await question3Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question3Container.getByLabel('TypeShort answer Long answer').selectOption('single_option');
+				await surveysManagePage.fillQuestionStatement(question3Container, 'What color do you prefer?');
+				await surveysManagePage.fillQuestionDescription(
+					question3Container,
+					'select one of the available options'
+				);
+				await surveysManagePage.checkMandatory(question3Container);
+				await surveysManagePage.selectQuestionType(question3Container, 'single_option');
 
 				// Fill the default two answer options that are automatically created
 				await question3Container.locator('.questionnaire-question-answer-option').first().waitFor();
 				await question3Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Blue');
 				await question3Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Green');
 
 				// Increment questions counter
@@ -267,25 +272,28 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded4 = await question4AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded4 === 'false') {
 					await question4AccordionButton.click();
-					await question4Container.locator('.editor-input').waitFor();
+					await question4Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question4Container.getByRole('textbox', { name: 'Statement' }).fill('Which pets do you prefer?');
-				await question4Container.locator('.editor-input .tiptap').fill('select two of the available options');
-				await question4Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question4Container.getByLabel('TypeShort answer Long answer').selectOption('multiple_option');
+				await surveysManagePage.fillQuestionStatement(question4Container, 'Which pets do you prefer?');
+				await surveysManagePage.fillQuestionDescription(
+					question4Container,
+					'select two of the available options'
+				);
+				await surveysManagePage.checkMandatory(question4Container);
+				await surveysManagePage.selectQuestionType(question4Container, 'multiple_option');
 
 				// Fill the default two answer options that are automatically created
 				await question4Container.locator('.questionnaire-question-answer-option').first().waitFor();
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Cat');
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Dog');
 
 				// Add the additional two options
@@ -294,7 +302,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Parrot');
 
 				await question4Container.getByRole('button', { name: 'Add answer option' }).click();
@@ -302,7 +310,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Fish');
 
 				// Set maximum choices to 2
@@ -322,27 +330,28 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded5 = await question5AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded5 === 'false') {
 					await question5AccordionButton.click();
-					await question5Container.locator('.editor-input').waitFor();
+					await question5Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question5Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('What kind of vehicle do you prefer?');
-				await question5Container.locator('.editor-input .tiptap').fill('select an option');
-				await question5Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question5Container.getByLabel('TypeShort answer Long answer').selectOption('sorting');
+				await surveysManagePage.fillQuestionStatement(
+					question5Container,
+					'What kind of vehicle do you prefer?'
+				);
+				await surveysManagePage.fillQuestionDescription(question5Container, 'select an option');
+				await surveysManagePage.checkMandatory(question5Container);
+				await surveysManagePage.selectQuestionType(question5Container, 'sorting');
 
 				// Fill the default two answer options that are automatically created for sorting
 				await question5Container.locator('.questionnaire-question-answer-option').first().waitFor();
 				await question5Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Car');
 				await question5Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Motorcycle');
 
 				// Increment questions counter
@@ -359,19 +368,16 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded6 = await question6AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded6 === 'false') {
 					await question6AccordionButton.click();
-					await question6Container.locator('.editor-input').waitFor();
+					await question6Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question6Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('You have a file to share with us?');
-				await question6Container
-					.locator('.editor-input .tiptap')
-					.fill(
-						'Share with us a file, notes, document, photos, that might be relevant for the next assemblies!'
-					);
-				await question6Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question6Container.getByLabel('TypeShort answer Long answer').selectOption('files');
+				await surveysManagePage.fillQuestionStatement(question6Container, 'You have a file to share with us?');
+				await surveysManagePage.fillQuestionDescription(
+					question6Container,
+					'Share with us a file, notes, document, photos, that might be relevant for the next assemblies!'
+				);
+				await surveysManagePage.checkMandatory(question6Container);
+				await surveysManagePage.selectQuestionType(question6Container, 'files');
 
 				// Increment questions counter
 				questionsCount++;
@@ -387,21 +393,23 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded7 = await question7AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded7 === 'false') {
 					await question7AccordionButton.click();
-					await question7Container.locator('.editor-input').waitFor();
+					await question7Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question7Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('How would you rate your overall experience with the local assemblies?');
-				await question7Container
-					.locator('.editor-input .tiptap')
-					.fill('Rate your experience regarding different aspects!');
-				await question7Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question7Container.getByLabel('TypeShort answer Long answer').selectOption('matrix_single');
+				await surveysManagePage.fillQuestionStatement(
+					question7Container,
+					'How would you rate your overall experience with the local assemblies?'
+				);
+				await surveysManagePage.fillQuestionDescription(
+					question7Container,
+					'Rate your experience regarding different aspects!'
+				);
+				await surveysManagePage.checkMandatory(question7Container);
+				await surveysManagePage.selectQuestionType(question7Container, 'matrix_single');
 
 				// Fill the default two matrix rows that are automatically created
 				const allMatrixRows7 = question7Container.locator(
-					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+					'.tabs-panel.is-active input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
 				await allMatrixRows7.first().waitFor();
 				await allMatrixRows7.nth(0).fill('Very Positive');
@@ -422,12 +430,12 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on how decisions are made');
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Time for everyone to speak');
 
 				// Add only 3 additional answer options (total 5 columns)
@@ -436,7 +444,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on complex issues');
 
 				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
@@ -444,7 +452,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Meetings frequency');
 
 				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
@@ -452,7 +460,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Follow-up or implementation of decisions');
 
 				// Increment questions counter
@@ -469,19 +477,23 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded8 = await question8AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded8 === 'false') {
 					await question8AccordionButton.click();
-					await question8Container.locator('.editor-input').waitFor();
+					await question8Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question8Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('Which of the following aspects did you find valuable during the community event?');
-				await question8Container.locator('.editor-input .tiptap').fill('Select all that apply for each area');
-				await question8Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question8Container.getByLabel('TypeShort answer Long answer').selectOption('matrix_multiple');
+				await surveysManagePage.fillQuestionStatement(
+					question8Container,
+					'Which of the following aspects did you find valuable during the community event?'
+				);
+				await surveysManagePage.fillQuestionDescription(
+					question8Container,
+					'Select all that apply for each area'
+				);
+				await surveysManagePage.checkMandatory(question8Container);
+				await surveysManagePage.selectQuestionType(question8Container, 'matrix_multiple');
 
 				// Fill the default two matrix rows that are automatically created
 				const allMatrixRows8 = question8Container.locator(
-					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+					'.tabs-panel.is-active input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
 				await allMatrixRows8.first().waitFor();
 				await allMatrixRows8.nth(0).fill('Networking opportunities');
@@ -499,12 +511,12 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Useful contacts');
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Practical knowledge gained');
 
 				// Add only 2 additional answer options (total 4 columns)
@@ -513,7 +525,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Enjoyable atmosphere');
 
 				await question8Container.getByRole('button', { name: 'Add answer option' }).click();
@@ -521,7 +533,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Well-structured sessions');
 
 				// Increment questions counter
@@ -601,16 +613,17 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded1 === 'false') {
 					await question1AccordionButton.click();
-					await question1Container.locator('.editor-input').waitFor();
+					await question1Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question1Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('What is your opinion on this topic?');
-				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
-				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
-				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+				await surveysManagePage.fillQuestionStatement(
+					question1Container,
+					'What is your opinion on this topic?'
+				);
+				await surveysManagePage.fillQuestionDescription(question1Container, 'Please share your thoughts');
+				await surveysManagePage.checkMandatory(question1Container);
+				await surveysManagePage.fillCharacterLimit(question1Container, '500');
+				await surveysManagePage.selectQuestionType(question1Container, 'long_answer');
 
 				// Increment template questions counter
 				templateQuestionsCount++;
@@ -626,16 +639,17 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded2 = await question2AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded2 === 'false') {
 					await question2AccordionButton.click();
-					await question2Container.locator('.editor-input').waitFor();
+					await question2Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question2Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('What is your opinion on this other topic?');
-				await question2Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
-				await question2Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question2Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('250');
-				await question2Container.getByLabel('TypeShort answer Long answer').selectOption('short_answer');
+				await surveysManagePage.fillQuestionStatement(
+					question2Container,
+					'What is your opinion on this other topic?'
+				);
+				await surveysManagePage.fillQuestionDescription(question2Container, 'Please share your thoughts');
+				await surveysManagePage.checkMandatory(question2Container);
+				await surveysManagePage.fillCharacterLimit(question2Container, '250');
+				await surveysManagePage.selectQuestionType(question2Container, 'short_answer');
 
 				// Increment template questions counter
 				templateQuestionsCount++;
@@ -651,25 +665,28 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded3 = await question3AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded3 === 'false') {
 					await question3AccordionButton.click();
-					await question3Container.locator('.editor-input').waitFor();
+					await question3Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question3Container.getByRole('textbox', { name: 'Statement' }).fill('What color do you prefer?');
-				await question3Container.locator('.editor-input .tiptap').fill('select one of the available options');
-				await question3Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question3Container.getByLabel('TypeShort answer Long answer').selectOption('single_option');
+				await surveysManagePage.fillQuestionStatement(question3Container, 'What color do you prefer?');
+				await surveysManagePage.fillQuestionDescription(
+					question3Container,
+					'select one of the available options'
+				);
+				await surveysManagePage.checkMandatory(question3Container);
+				await surveysManagePage.selectQuestionType(question3Container, 'single_option');
 
 				// Fill the default two answer options that are automatically created
 				await question3Container.locator('.questionnaire-question-answer-option').first().waitFor();
 				await question3Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Blue');
 				await question3Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Green');
 
 				// Increment template questions counter
@@ -686,25 +703,28 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded4 = await question4AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded4 === 'false') {
 					await question4AccordionButton.click();
-					await question4Container.locator('.editor-input').waitFor();
+					await question4Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question4Container.getByRole('textbox', { name: 'Statement' }).fill('Which pets do you prefer?');
-				await question4Container.locator('.editor-input .tiptap').fill('select two of the available options');
-				await question4Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question4Container.getByLabel('TypeShort answer Long answer').selectOption('multiple_option');
+				await surveysManagePage.fillQuestionStatement(question4Container, 'Which pets do you prefer?');
+				await surveysManagePage.fillQuestionDescription(
+					question4Container,
+					'select two of the available options'
+				);
+				await surveysManagePage.checkMandatory(question4Container);
+				await surveysManagePage.selectQuestionType(question4Container, 'multiple_option');
 
 				// Fill the default two answer options that are automatically created
 				await question4Container.locator('.questionnaire-question-answer-option').first().waitFor();
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Cat');
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Dog');
 
 				// Add the additional two options
@@ -713,7 +733,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Parrot');
 
 				await question4Container.getByRole('button', { name: 'Add answer option' }).click();
@@ -721,7 +741,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Fish');
 
 				// Set maximum choices to 2
@@ -741,27 +761,28 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded5 = await question5AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded5 === 'false') {
 					await question5AccordionButton.click();
-					await question5Container.locator('.editor-input').waitFor();
+					await question5Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question5Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('What kind of vehicle do you prefer?');
-				await question5Container.locator('.editor-input .tiptap').fill('select an option');
-				await question5Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question5Container.getByLabel('TypeShort answer Long answer').selectOption('sorting');
+				await surveysManagePage.fillQuestionStatement(
+					question5Container,
+					'What kind of vehicle do you prefer?'
+				);
+				await surveysManagePage.fillQuestionDescription(question5Container, 'select an option');
+				await surveysManagePage.checkMandatory(question5Container);
+				await surveysManagePage.selectQuestionType(question5Container, 'sorting');
 
 				// Fill the default two answer options that are automatically created for sorting
 				await question5Container.locator('.questionnaire-question-answer-option').first().waitFor();
 				await question5Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Car');
 				await question5Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Motorcycle');
 
 				// Increment template questions counter
@@ -778,19 +799,16 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded6 = await question6AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded6 === 'false') {
 					await question6AccordionButton.click();
-					await question6Container.locator('.editor-input').waitFor();
+					await question6Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question6Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('You have a file to share with us?');
-				await question6Container
-					.locator('.editor-input .tiptap')
-					.fill(
-						'Share with us a file, notes, document, photos, that might be relevant for the next assemblies!'
-					);
-				await question6Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question6Container.getByLabel('TypeShort answer Long answer').selectOption('files');
+				await surveysManagePage.fillQuestionStatement(question6Container, 'You have a file to share with us?');
+				await surveysManagePage.fillQuestionDescription(
+					question6Container,
+					'Share with us a file, notes, document, photos, that might be relevant for the next assemblies!'
+				);
+				await surveysManagePage.checkMandatory(question6Container);
+				await surveysManagePage.selectQuestionType(question6Container, 'files');
 
 				// Increment template questions counter
 				templateQuestionsCount++;
@@ -806,21 +824,23 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded7 = await question7AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded7 === 'false') {
 					await question7AccordionButton.click();
-					await question7Container.locator('.editor-input').waitFor();
+					await question7Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question7Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('How would you rate your overall experience with the local assemblies?');
-				await question7Container
-					.locator('.editor-input .tiptap')
-					.fill('Rate your experience regarding different aspects!');
-				await question7Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question7Container.getByLabel('TypeShort answer Long answer').selectOption('matrix_single');
+				await surveysManagePage.fillQuestionStatement(
+					question7Container,
+					'How would you rate your overall experience with the local assemblies?'
+				);
+				await surveysManagePage.fillQuestionDescription(
+					question7Container,
+					'Rate your experience regarding different aspects!'
+				);
+				await surveysManagePage.checkMandatory(question7Container);
+				await surveysManagePage.selectQuestionType(question7Container, 'matrix_single');
 
 				// Fill the default two matrix rows that are automatically created
 				const allMatrixRows7 = question7Container.locator(
-					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+					'.tabs-panel.is-active input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
 				await allMatrixRows7.first().waitFor();
 				await allMatrixRows7.nth(0).fill('Very Positive');
@@ -841,12 +861,12 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on how decisions are made');
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Time for everyone to speak');
 
 				// Add only 3 additional answer options (total 5 columns)
@@ -855,7 +875,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on complex issues');
 
 				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
@@ -863,7 +883,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Meetings frequency');
 
 				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
@@ -871,7 +891,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Follow-up or implementation of decisions');
 
 				// Increment template questions counter
@@ -888,19 +908,23 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded8 = await question8AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded8 === 'false') {
 					await question8AccordionButton.click();
-					await question8Container.locator('.editor-input').waitFor();
+					await question8Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question8Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('Which of the following aspects did you find valuable during the community event?');
-				await question8Container.locator('.editor-input .tiptap').fill('Select all that apply for each area');
-				await question8Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question8Container.getByLabel('TypeShort answer Long answer').selectOption('matrix_multiple');
+				await surveysManagePage.fillQuestionStatement(
+					question8Container,
+					'Which of the following aspects did you find valuable during the community event?'
+				);
+				await surveysManagePage.fillQuestionDescription(
+					question8Container,
+					'Select all that apply for each area'
+				);
+				await surveysManagePage.checkMandatory(question8Container);
+				await surveysManagePage.selectQuestionType(question8Container, 'matrix_multiple');
 
 				// Fill the default two matrix rows that are automatically created
 				const allMatrixRows8 = question8Container.locator(
-					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+					'.tabs-panel.is-active input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
 				await allMatrixRows8.first().waitFor();
 				await allMatrixRows8.nth(0).fill('Networking opportunities');
@@ -918,12 +942,12 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Useful contacts');
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Practical knowledge gained');
 
 				// Add only 2 additional answer options (total 4 columns)
@@ -932,7 +956,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Enjoyable atmosphere');
 
 				await question8Container.getByRole('button', { name: 'Add answer option' }).click();
@@ -940,7 +964,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Well-structured sessions');
 
 				// Increment template questions counter
@@ -1057,13 +1081,15 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded1 === 'false') {
 					await question1AccordionButton.click();
-					await question1Container.locator('.editor-input').waitFor();
+					await question1Container.locator('.editor-input').first().waitFor();
 				}
 
-				await expect(question1Container.getByRole('textbox', { name: 'Statement' })).toHaveValue(
+				await expect(question1Container.locator('.tabs-panel.is-active input[type="text"]')).toHaveValue(
 					'What is your opinion on this topic?'
 				);
-				const descriptionText1 = await question1Container.locator('.editor-input .tiptap').innerText();
+				const descriptionText1 = await question1Container
+					.locator('.tabs-panel.is-active .editor-input .tiptap')
+					.innerText();
 				expect(descriptionText1.trim()).toBe('Please share your thoughts');
 				await expect(question1Container.getByLabel('TypeShort answer Long answer')).toHaveValue('long_answer');
 				await expect(question1Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
@@ -1077,13 +1103,15 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded2 = await question2AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded2 === 'false') {
 					await question2AccordionButton.click();
-					await question2Container.locator('.editor-input').waitFor();
+					await question2Container.locator('.editor-input').first().waitFor();
 				}
 
-				await expect(question2Container.getByRole('textbox', { name: 'Statement' })).toHaveValue(
+				await expect(question2Container.locator('.tabs-panel.is-active input[type="text"]')).toHaveValue(
 					'What is your opinion on this other topic?'
 				);
-				const descriptionText2 = await question2Container.locator('.editor-input .tiptap').innerText();
+				const descriptionText2 = await question2Container
+					.locator('.tabs-panel.is-active .editor-input .tiptap')
+					.innerText();
 				expect(descriptionText2.trim()).toBe('Please share your thoughts');
 				await expect(question2Container.getByLabel('TypeShort answer Long answer')).toHaveValue('short_answer');
 				await expect(question2Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
@@ -1097,13 +1125,15 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded3 = await question3AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded3 === 'false') {
 					await question3AccordionButton.click();
-					await question3Container.locator('.editor-input').waitFor();
+					await question3Container.locator('.editor-input').first().waitFor();
 				}
 
-				await expect(question3Container.getByRole('textbox', { name: 'Statement' }).first()).toHaveValue(
-					'What color do you prefer?'
-				);
-				const descriptionText3 = await question3Container.locator('.editor-input .tiptap').innerText();
+				await expect(
+					question3Container.locator('.tabs-panel.is-active input[type="text"]').first()
+				).toHaveValue('What color do you prefer?');
+				const descriptionText3 = await question3Container
+					.locator('.tabs-panel.is-active .editor-input .tiptap')
+					.innerText();
 				expect(descriptionText3.trim()).toBe('select one of the available options');
 				await expect(question3Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
 					'single_option'
@@ -1114,13 +1144,13 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					question3Container
 						.locator('.questionnaire-question-answer-option')
 						.first()
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Blue');
 				await expect(
 					question3Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(1)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Green');
 
 				// Verify Question 4: Multiple Option
@@ -1129,13 +1159,15 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded4 = await question4AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded4 === 'false') {
 					await question4AccordionButton.click();
-					await question4Container.locator('.editor-input').waitFor();
+					await question4Container.locator('.editor-input').first().waitFor();
 				}
 
-				await expect(question4Container.getByRole('textbox', { name: 'Statement' }).first()).toHaveValue(
-					'Which pets do you prefer?'
-				);
-				const descriptionText4 = await question4Container.locator('.editor-input .tiptap').innerText();
+				await expect(
+					question4Container.locator('.tabs-panel.is-active input[type="text"]').first()
+				).toHaveValue('Which pets do you prefer?');
+				const descriptionText4 = await question4Container
+					.locator('.tabs-panel.is-active .editor-input .tiptap')
+					.innerText();
 				expect(descriptionText4.trim()).toBe('select two of the available options');
 				await expect(question4Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
 					'multiple_option'
@@ -1147,25 +1179,25 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					question4Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(0)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Cat');
 				await expect(
 					question4Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(1)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Dog');
 				await expect(
 					question4Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(2)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Parrot');
 				await expect(
 					question4Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(3)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Fish');
 
 				// Verify Question 5: Sorting
@@ -1174,13 +1206,15 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded5 = await question5AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded5 === 'false') {
 					await question5AccordionButton.click();
-					await question5Container.locator('.editor-input').waitFor();
+					await question5Container.locator('.editor-input').first().waitFor();
 				}
 
-				await expect(question5Container.getByRole('textbox', { name: 'Statement' }).first()).toHaveValue(
-					'What kind of vehicle do you prefer?'
-				);
-				const descriptionText5 = await question5Container.locator('.editor-input .tiptap').innerText();
+				await expect(
+					question5Container.locator('.tabs-panel.is-active input[type="text"]').first()
+				).toHaveValue('What kind of vehicle do you prefer?');
+				const descriptionText5 = await question5Container
+					.locator('.tabs-panel.is-active .editor-input .tiptap')
+					.innerText();
 				expect(descriptionText5.trim()).toBe('select an option');
 				await expect(question5Container.getByLabel('TypeShort answer Long answer')).toHaveValue('sorting');
 				await expect(question5Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
@@ -1189,13 +1223,13 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					question5Container
 						.locator('.questionnaire-question-answer-option')
 						.first()
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Car');
 				await expect(
 					question5Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(1)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Motorcycle');
 
 				// Verify Question 6: Files
@@ -1204,13 +1238,15 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded6 = await question6AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded6 === 'false') {
 					await question6AccordionButton.click();
-					await question6Container.locator('.editor-input').waitFor();
+					await question6Container.locator('.editor-input').first().waitFor();
 				}
 
-				await expect(question6Container.getByRole('textbox', { name: 'Statement' })).toHaveValue(
+				await expect(question6Container.locator('.tabs-panel.is-active input[type="text"]')).toHaveValue(
 					'You have a file to share with us?'
 				);
-				const descriptionText6 = await question6Container.locator('.editor-input .tiptap').innerText();
+				const descriptionText6 = await question6Container
+					.locator('.tabs-panel.is-active .editor-input .tiptap')
+					.innerText();
 				expect(descriptionText6.trim()).toBe(
 					'Share with us a file, notes, document, photos, that might be relevant for the next assemblies!'
 				);
@@ -1223,13 +1259,15 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded7 = await question7AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded7 === 'false') {
 					await question7AccordionButton.click();
-					await question7Container.locator('.editor-input').waitFor();
+					await question7Container.locator('.editor-input').first().waitFor();
 				}
 
-				await expect(question7Container.getByRole('textbox', { name: 'Statement' }).first()).toHaveValue(
-					'How would you rate your overall experience with the local assemblies?'
-				);
-				const descriptionText7 = await question7Container.locator('.editor-input .tiptap').innerText();
+				await expect(
+					question7Container.locator('.tabs-panel.is-active input[type="text"]').first()
+				).toHaveValue('How would you rate your overall experience with the local assemblies?');
+				const descriptionText7 = await question7Container
+					.locator('.tabs-panel.is-active .editor-input .tiptap')
+					.innerText();
 				expect(descriptionText7.trim()).toBe('Rate your experience regarding different aspects!');
 				await expect(question7Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
 					'matrix_single'
@@ -1237,7 +1275,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await expect(question7Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
 				// Verify matrix rows
 				const allMatrixRows7 = question7Container.locator(
-					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+					'.tabs-panel.is-active input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
 				await expect(allMatrixRows7.nth(0)).toHaveValue('Very Positive');
 				await expect(allMatrixRows7.nth(1)).toHaveValue('Positive');
@@ -1249,31 +1287,31 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					question7Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(0)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Clarity on how decisions are made');
 				await expect(
 					question7Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(1)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Time for everyone to speak');
 				await expect(
 					question7Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(2)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Clarity on complex issues');
 				await expect(
 					question7Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(3)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Meetings frequency');
 				await expect(
 					question7Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(4)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Follow-up or implementation of decisions');
 
 				// Verify Question 8: Matrix (Multiple option)
@@ -1282,13 +1320,15 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded8 = await question8AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded8 === 'false') {
 					await question8AccordionButton.click();
-					await question8Container.locator('.editor-input').waitFor();
+					await question8Container.locator('.editor-input').first().waitFor();
 				}
 
-				await expect(question8Container.getByRole('textbox', { name: 'Statement' }).first()).toHaveValue(
-					'Which of the following aspects did you find valuable during the community event?'
-				);
-				const descriptionText8 = await question8Container.locator('.editor-input .tiptap').innerText();
+				await expect(
+					question8Container.locator('.tabs-panel.is-active input[type="text"]').first()
+				).toHaveValue('Which of the following aspects did you find valuable during the community event?');
+				const descriptionText8 = await question8Container
+					.locator('.tabs-panel.is-active .editor-input .tiptap')
+					.innerText();
 				expect(descriptionText8.trim()).toBe('Select all that apply for each area');
 				await expect(question8Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
 					'matrix_multiple'
@@ -1296,7 +1336,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await expect(question8Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
 				// Verify matrix rows
 				const allMatrixRows8 = question8Container.locator(
-					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+					'.tabs-panel.is-active input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
 				await expect(allMatrixRows8.nth(0)).toHaveValue('Networking opportunities');
 				await expect(allMatrixRows8.nth(1)).toHaveValue('Information provided');
@@ -1307,25 +1347,25 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					question8Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(0)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Useful contacts');
 				await expect(
 					question8Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(1)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Practical knowledge gained');
 				await expect(
 					question8Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(2)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Enjoyable atmosphere');
 				await expect(
 					question8Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(3)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Well-structured sessions');
 
 				console.log('Verified template question imported correctly');
@@ -1422,13 +1462,13 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded1 === 'false') {
 					await question1AccordionButton.click();
-					await question1Container.locator('.editor-input').waitFor();
+					await question1Container.locator('.editor-input').first().waitFor();
 				}
 
 				await question1Container
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('What is your opinion on this topic?');
-				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
+				await question1Container.locator('.editor-input .tiptap').first().fill('Please share your thoughts');
 				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
 				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
@@ -1446,13 +1486,13 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded2 = await question2AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded2 === 'false') {
 					await question2AccordionButton.click();
-					await question2Container.locator('.editor-input').waitFor();
+					await question2Container.locator('.editor-input').first().waitFor();
 				}
 
 				await question2Container
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('What is your opinion on this other topic?');
-				await question2Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
+				await question2Container.locator('.editor-input .tiptap').first().fill('Please share your thoughts');
 				await question2Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('250');
 				await question2Container.getByLabel('TypeShort answer Long answer').selectOption('short_answer');
 
@@ -1469,14 +1509,17 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded3 = await question3AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded3 === 'false') {
 					await question3AccordionButton.click();
-					await question3Container.locator('.editor-input').waitFor();
+					await question3Container.locator('.editor-input').first().waitFor();
 				}
 
 				await question3Container
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.first()
 					.fill('What color do you prefer?');
-				await question3Container.locator('.editor-input .tiptap').fill('select one of the available options');
+				await question3Container
+					.locator('.editor-input .tiptap')
+					.first()
+					.fill('select one of the available options');
 				await question3Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question3Container.getByLabel('TypeShort answer Long answer').selectOption('single_option');
 
@@ -1496,14 +1539,17 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded4 = await question4AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded4 === 'false') {
 					await question4AccordionButton.click();
-					await question4Container.locator('.editor-input').waitFor();
+					await question4Container.locator('.editor-input').first().waitFor();
 				}
 
 				await question4Container
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.first()
 					.fill('Which pets do you prefer?');
-				await question4Container.locator('.editor-input .tiptap').fill('select two of the available options');
+				await question4Container
+					.locator('.editor-input .tiptap')
+					.first()
+					.fill('select two of the available options');
 				await question4Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question4Container.getByLabel('TypeShort answer Long answer').selectOption('multiple_option');
 
@@ -1530,14 +1576,14 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded5 = await question5AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded5 === 'false') {
 					await question5AccordionButton.click();
-					await question5Container.locator('.editor-input').waitFor();
+					await question5Container.locator('.editor-input').first().waitFor();
 				}
 
 				await question5Container
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.first()
 					.fill('What kind of vehicle do you prefer?');
-				await question5Container.locator('.editor-input .tiptap').fill('select an option');
+				await question5Container.locator('.editor-input .tiptap').first().fill('select an option');
 				await question5Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question5Container.getByLabel('TypeShort answer Long answer').selectOption('sorting');
 
@@ -1557,14 +1603,15 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded6 = await question6AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded6 === 'false') {
 					await question6AccordionButton.click();
-					await question6Container.locator('.editor-input').waitFor();
+					await question6Container.locator('.editor-input').first().waitFor();
 				}
 
 				await question6Container
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('You have a file to share with us?');
 				await question6Container
 					.locator('.editor-input .tiptap')
+					.first()
 					.fill(
 						'Share with us a file, notes, document, photos, that might be relevant for the next assemblies!'
 					);
@@ -1584,22 +1631,23 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded7 = await question7AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded7 === 'false') {
 					await question7AccordionButton.click();
-					await question7Container.locator('.editor-input').waitFor();
+					await question7Container.locator('.editor-input').first().waitFor();
 				}
 
 				await question7Container
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.first()
 					.fill('How would you rate your overall experience with the local assemblies?');
 				await question7Container
 					.locator('.editor-input .tiptap')
+					.first()
 					.fill('Rate your experience regarding different aspects!');
 				await question7Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question7Container.getByLabel('TypeShort answer Long answer').selectOption('matrix_single');
 
 				// Add matrix rows (leave empty for validation testing) - total 5 rows
 				const allMatrixRows7 = question7Container.locator(
-					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+					'.tabs-panel.is-active input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
 				await allMatrixRows7.first().waitFor();
 
@@ -1630,20 +1678,23 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				const isExpanded8 = await question8AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded8 === 'false') {
 					await question8AccordionButton.click();
-					await question8Container.locator('.editor-input').waitFor();
+					await question8Container.locator('.editor-input').first().waitFor();
 				}
 
 				await question8Container
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.first()
 					.fill('Which of the following aspects did you find valuable during the community event?');
-				await question8Container.locator('.editor-input .tiptap').fill('Select all that apply for each area');
+				await question8Container
+					.locator('.editor-input .tiptap')
+					.first()
+					.fill('Select all that apply for each area');
 				await question8Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question8Container.getByLabel('TypeShort answer Long answer').selectOption('matrix_multiple');
 
 				// Add matrix rows (leave empty for validation testing) - total 4 rows
 				const allMatrixRows8 = question8Container.locator(
-					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+					'.tabs-panel.is-active input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
 				await allMatrixRows8.first().waitFor();
 
@@ -1879,12 +1930,12 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question3Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Blue');
 				await question3Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Green');
 				console.log('Corrected Question 3: Single Option answers');
 
@@ -1893,22 +1944,22 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(0)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Cat');
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Dog');
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(2)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Parrot');
 				await question4Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(3)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Fish');
 				console.log('Corrected Question 4: Multiple Option answers');
 
@@ -1917,19 +1968,19 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question5Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Car');
 				await question5Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Motorcycle');
 				console.log('Corrected Question 5: Sorting answers');
 
 				// Question 7: Matrix Single - Fill the empty matrix rows and answer options
 				const question7Container = adminPage.locator('.questionnaire-question:nth-child(7)');
 				const allMatrixRows7 = question7Container.locator(
-					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+					'.tabs-panel.is-active input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
 				await allMatrixRows7.nth(0).fill('Very Positive');
 				await allMatrixRows7.nth(1).fill('Positive');
@@ -1940,34 +1991,34 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(0)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on how decisions are made');
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Time for everyone to speak');
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(2)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on complex issues');
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(3)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Meetings frequency');
 				await question7Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(4)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Follow-up or implementation of decisions');
 				console.log('Corrected Question 7: Matrix Single Option rows and answers');
 
 				// Question 8: Matrix Multiple - Fill the empty matrix rows and answer options
 				const question8Container = adminPage.locator('.questionnaire-question:nth-child(8)');
 				const allMatrixRows8 = question8Container.locator(
-					'input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
+					'.tabs-panel.is-active input[id*="matrix_rows"]:not([type="hidden"]):not([id*="_deleted"])'
 				);
 				await allMatrixRows8.nth(0).fill('Networking opportunities');
 				await allMatrixRows8.nth(1).fill('Information provided');
@@ -1977,22 +2028,22 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(0)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Useful contacts');
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Practical knowledge gained');
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(2)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Enjoyable atmosphere');
 				await question8Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(3)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Well-structured sessions');
 				console.log('Corrected Question 8: Matrix Multiple Option rows and answers');
 

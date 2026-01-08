@@ -182,16 +182,18 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded1 === 'false') {
 					await question1AccordionButton.click();
-					await question1Container.locator('.editor-input').waitFor();
+					await question1Container.locator('.editor-input').first().waitFor();
 				}
 
-				await question1Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('What is your opinion on this topic?');
-				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
-				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
-				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+				// Fill question details
+				await surveysManagePage.fillQuestionStatement(
+					question1Container,
+					'What is your opinion on this topic?'
+				);
+				await surveysManagePage.fillQuestionDescription(question1Container, 'Please share your thoughts');
+				await surveysManagePage.checkMandatory(question1Container);
+				await surveysManagePage.fillCharacterLimit(question1Container, '500');
+				await surveysManagePage.selectQuestionType(question1Container, 'long_answer');
 
 				// Increment questions counter
 				questionsCount++;
@@ -269,17 +271,18 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded1 === 'false') {
 					await question1AccordionButton.click();
-					await question1Container.locator('.editor-input').waitFor();
+					await question1Container.locator('.editor-input').first().waitFor();
 				}
 
-				// Fill question details using the working selectors
-				await question1Container
-					.getByRole('textbox', { name: 'Statement' })
-					.fill('What is your opinion on this topic?');
-				await question1Container.locator('.editor-input .tiptap').fill('Please share your thoughts');
-				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
-				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+				// Fill question details
+				await surveysManagePage.fillQuestionStatement(
+					question1Container,
+					'What is your opinion on this topic?'
+				);
+				await surveysManagePage.fillQuestionDescription(question1Container, 'Please share your thoughts');
+				await surveysManagePage.checkMandatory(question1Container);
+				await surveysManagePage.fillCharacterLimit(question1Container, '500');
+				await surveysManagePage.selectQuestionType(question1Container, 'long_answer');
 
 				templateQuestionsCount++;
 
@@ -379,28 +382,40 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded1 === 'false') {
 					await question1AccordionButton.click();
-					await question1Container.locator('.editor-input').waitFor();
+					await question1Container.locator('.editor-input').first().waitFor();
 				}
 
 				// Verify the question statement matches the template
-				await expect(question1Container.getByRole('textbox', { name: 'Statement' })).toHaveValue(
-					'What is your opinion on this topic?'
-				);
+				const statementInput = question1Container
+					.locator('[role="tabpanel"][aria-hidden="false"]')
+					.locator('input[type="text"]')
+					.first();
+				await statementInput.waitFor({ state: 'visible' });
+				await expect(statementInput).toHaveValue('What is your opinion on this topic?');
 
 				// Verify the question description matches the template
-				const descriptionText = await question1Container.locator('.editor-input .tiptap').innerText();
+				const descriptionEditor = question1Container
+					.locator('[role="tabpanel"][aria-hidden="false"]')
+					.locator('.editor-input .tiptap')
+					.first();
+				await descriptionEditor.waitFor({ state: 'visible' });
+				const descriptionText = await descriptionEditor.innerText();
 				expect(descriptionText.trim()).toBe('Please share your thoughts');
 
 				// Verify question type is Long Answer as configured in template
-				await expect(question1Container.getByLabel('TypeShort answer Long answer')).toHaveValue('long_answer');
+				const questionTypeSelect = question1Container.locator('select:not([data-editor-type])').first();
+				await questionTypeSelect.waitFor({ state: 'visible' });
+				await expect(questionTypeSelect).toHaveValue('long_answer');
 
 				// Verify mandatory checkbox is checked as configured in template
-				await expect(question1Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
+				const mandatoryCheckbox = question1Container.locator('input[type="checkbox"]').first();
+				await mandatoryCheckbox.waitFor({ state: 'visible' });
+				await expect(mandatoryCheckbox).toBeChecked();
 
 				// Verify character limit is set to 500 as configured in template
-				await expect(
-					question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' })
-				).toHaveValue('500');
+				const characterLimitInput = question1Container.locator('input[type="number"]').first();
+				await characterLimitInput.waitFor({ state: 'visible' });
+				await expect(characterLimitInput).toHaveValue('500');
 
 				console.log('Verified template question imported correctly');
 
@@ -418,7 +433,6 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 					templateQuestionsCount,
 					'template survey creation'
 				);
-
 				console.log(`Survey with template configured, saved and published successfully`);
 
 				// Final verification that we're on the management page confirming successful creation
@@ -495,13 +509,17 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				const isExpanded1 = await question1AccordionButton.getAttribute('aria-expanded');
 				if (isExpanded1 === 'false') {
 					await question1AccordionButton.click();
-					await question1Container.locator('.editor-input').waitFor();
+					await question1Container
+						.locator('[role="tabpanel"][aria-hidden="false"]')
+						.locator('.editor-input')
+						.first()
+						.waitFor();
 				}
 
 				// Change question type from default to single option
-				await adminPage
-					.getByRole('option', { name: 'Question #1 Remove Statement' })
-					.getByLabel('TypeShort answer Long answer')
+				await question1Container
+					.locator('select:not([data-editor-type])')
+					.first()
 					.selectOption('single_option');
 
 				console.log(`Completed steps 1-16: Survey "${surveyName}" ready for question validation testing`);
@@ -512,21 +530,28 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 
 				// Verify that the main question statement field is empty
-				const allStatementFields = question1Container.getByRole('textbox', { name: 'Statement' });
-				await expect(allStatementFields.first()).toHaveValue('');
+				const statementInput = question1Container
+					.locator('[role="tabpanel"][aria-hidden="false"]')
+					.locator('input[type="text"]')
+					.first();
+				await expect(statementInput).toHaveValue('');
 
 				// Verify that the two option fields are empty
 				await expect(
 					question1Container
 						.locator('.questionnaire-question-answer-option')
 						.first()
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('[role="tabpanel"][aria-hidden="false"]')
+						.locator('input[type="text"]')
+						.first()
 				).toHaveValue('');
 				await expect(
 					question1Container
 						.locator('.questionnaire-question-answer-option')
 						.nth(1)
-						.getByRole('textbox', { name: 'Statement' })
+						.locator('[role="tabpanel"][aria-hidden="false"]')
+						.locator('input[type="text"]')
+						.first()
 				).toHaveValue('');
 
 				console.log('Verified that required fields are empty before attempting validation');
@@ -575,26 +600,31 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				// Fill question details properly to correct validation errors
 				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 
-				// Fill the main question statement field
-				const allStatementFields = question1Container.getByRole('textbox', { name: 'Statement' });
-				await allStatementFields.first().fill('Which option do you prefer?');
-
-				await question1Container.locator('.editor-input .tiptap').fill('Select one of the available options');
+				// Fill the main question statement and description using Page Object methods
+				await surveysManagePage.fillQuestionStatement(question1Container, 'Which option do you prefer?');
+				await surveysManagePage.fillQuestionDescription(
+					question1Container,
+					'Select one of the available options'
+				);
 
 				// Set question type to single option
-				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('single_option');
+				await surveysManagePage.selectQuestionType(question1Container, 'single_option');
 
 				// Fill the default two answer options that are automatically created
 				await question1Container.locator('.questionnaire-question-answer-option').first().waitFor();
 				await question1Container
 					.locator('.questionnaire-question-answer-option')
 					.first()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('[role="tabpanel"][aria-hidden="false"]')
+					.locator('input[type="text"]')
+					.first()
 					.fill('Option A');
 				await question1Container
 					.locator('.questionnaire-question-answer-option')
 					.nth(1)
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('[role="tabpanel"][aria-hidden="false"]')
+					.locator('input[type="text"]')
+					.first()
 					.fill('Option B');
 
 				// Increment questions counter
