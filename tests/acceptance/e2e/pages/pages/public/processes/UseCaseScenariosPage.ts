@@ -40,8 +40,17 @@ export class UseCaseScenariosPage extends BasePage {
 		await locator.click();
 	}
 
-	async verifyExperimentIdDetailVisible(experimentId: string): Promise<void> {
-		await expect(this.page.getByText(`Experiment ID ${experimentId}`)).toBeVisible();
+	async verifyExperimentIdDetailVisible(experimentId: string): Promise<'Experiment' | 'Execution'> {
+		const experimentText = `Experiment ID ${experimentId}`;
+		const executionText = `Execution ID ${experimentId}`;
+
+		const experimentLocator = this.page.getByText(experimentText);
+		const executionLocator = this.page.getByText(executionText);
+
+		await expect(experimentLocator.or(executionLocator)).toBeVisible();
+
+		if (await experimentLocator.isVisible()) return 'Experiment';
+		return 'Execution';
 	}
 
 	async verifyScenariosDisplayed(): Promise<void> {
