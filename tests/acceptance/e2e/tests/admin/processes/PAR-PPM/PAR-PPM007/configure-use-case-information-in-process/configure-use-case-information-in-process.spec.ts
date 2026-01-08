@@ -287,8 +287,8 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				await useCaseScenariosPage.clickAssociationLink(selectedExperimentId);
 
 				// Verify experiment details are visible
-				await useCaseScenariosPage.verifyExperimentIdDetailVisible(selectedExperimentId);
-				console.log(`"Experiment ID ${selectedExperimentId}" is visible on the detail page`);
+				const labelType = await useCaseScenariosPage.verifyExperimentIdDetailVisible(selectedExperimentId);
+				console.log(`"${labelType} ID ${selectedExperimentId}" is visible on the detail page`);
 			});
 		});
 	});
@@ -476,8 +476,8 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				await useCaseScenariosPage.clickAssociationLink(selectedExperimentId);
 
 				// Verify that the experiment details are visible
-				await useCaseScenariosPage.verifyExperimentIdDetailVisible(selectedExperimentId);
-				console.log(`"Experiment ID ${selectedExperimentId}" is visible on the detail page`);
+				const labelType = await useCaseScenariosPage.verifyExperimentIdDetailVisible(selectedExperimentId);
+				console.log(`"${labelType} ID ${selectedExperimentId}" is visible on the detail page`);
 			});
 		});
 	});
