@@ -629,6 +629,6 @@ Decidim.register_assets_path File.expand_path("app/packs", Rails.application.roo
 # Load security decorator to fix XSS vulnerability in CTA button
 # Using to_prepare ensures Decidim modules are loaded before applying the decorator
 Rails.application.config.to_prepare do
-  require Rails.root.join("app", "decorators", "helpers", "decidim", "cta_button_helper_decorator")
+  require Rails.root.join("lib", "decidim", "decorators", "cta_button_helper_decorator")
   Decidim::CtaButtonHelper.prepend(Decidim::CtaButtonHelperDecorator)
 end
