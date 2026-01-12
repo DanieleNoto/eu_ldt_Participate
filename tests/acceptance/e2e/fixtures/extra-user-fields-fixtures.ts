@@ -15,7 +15,7 @@ export class ExtraUserFieldsTestDataGenerator {
 			gender: 'male',
 			country: 'IT',
 			postalCode: `001${uniqueId.slice(-2)}`,
-			phoneNumber: `32580239${uniqueId.slice(-2)}`,
+			phoneNumber: `003932580239${uniqueId.slice(-2)}`,
 			location: `Test City ${uniqueId}`
 		};
 	}

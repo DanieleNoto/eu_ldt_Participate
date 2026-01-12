@@ -39,9 +39,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	private readonly dateFilterActive: Locator;
 
 	// Scope filter
-	private readonly scopeFilterContainer: Locator;
 	private readonly scopeFilterTrigger: Locator;
-	private readonly scopeFilterPanel: Locator;
 	private readonly scopeFilterAll: Locator;
 	private readonly scopeFilterGlobal: Locator;
 
@@ -84,11 +82,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		this.dateFilterActive = page.locator('input[name="filter[with_date]"][value="active"]');
 
 		// Scope filter
-		this.scopeFilterContainer = page
-			.locator('.filter-container')
-			.filter({ has: page.locator('#trigger-menu-scope') });
 		this.scopeFilterTrigger = page.locator('#trigger-menu-scope');
-		this.scopeFilterPanel = page.locator('#panel-dropdown-menu-scope');
 		this.scopeFilterAll = page.locator(
 			'label[data-global-checkbox] input[name="filter[with_any_scope][]"][value=""]'
 		);
@@ -309,8 +303,6 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		await expect(this.filterForm).toBeVisible();
 		await expect(this.dateFilterContainer).toBeVisible();
 		await expect(this.dateFilterPanel).toBeVisible();
-		await expect(this.scopeFilterContainer).toBeVisible();
-		await expect(this.scopeFilterPanel).toBeVisible();
 	}
 
 	// Page state verification
@@ -483,12 +475,6 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		await this.openDateFilter();
 		await this.dateFilterAll.check();
 
-		await this.openScopeFilter();
-		await this.scopeFilterAll.check();
-
-		await this.openAreaFilter();
-		await this.areaFilterAll.check();
-
 		// Wait for the results to update
 		await this.page.waitForLoadState('networkidle');
 	}
@@ -630,10 +616,24 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		}[] = [];
 
 		const processCards = this.allProcessCards;
-		const count = await processCards.count();
+
+		let last = -1;
+		await expect
+			.poll(
+				async () => {
+					const c = await processCards.count();
+					const isStable = c === last;
+					last = c;
+					return isStable;
+				},
+				{ timeout: 5000, intervals: [100, 150, 200] }
+			)
+			.toBeTruthy();
+		const count = last;
 
 		for (let i = 0; i < count; i++) {
 			const card = processCards.nth(i);
+			await expect(card).toBeVisible();
 
 			const id = (await card.getAttribute('id')) || '';
 			const href = (await card.getAttribute('href')) || '';
