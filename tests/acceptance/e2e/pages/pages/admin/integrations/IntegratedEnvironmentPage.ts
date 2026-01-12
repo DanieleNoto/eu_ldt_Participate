@@ -305,7 +305,7 @@ export class IntegratedEnvironmentPage extends AuthenticatedPage {
 	 */
 	async logout(): Promise<void> {
 		await this.userButton.click();
-		const logoutLink = this.page.getByRole('link', { name: 'Logout' });
+		const logoutLink = this.page.getByRole('link', { name: 'Log out' });
 		await logoutLink.waitFor({ state: 'visible' });
 		await logoutLink.click();
 	}
