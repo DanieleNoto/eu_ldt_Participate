@@ -6,11 +6,10 @@
  */
 
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
-import { CategoriesPage } from '@pages/pages/admin/processes/detail/categories/CategoriesPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { test, expect } from '@fixtures/parallel-test';
-import { NewCategoryPage } from '../../../../../../pages/pages/admin/processes/detail/categories/NewCategoryPage';
+import { NewTaxonomyPage } from '../../../../../../pages/pages/admin/taxonomies/NewTaxonomyPage';
 
 /**
  * Test suite for Allows City Administrators to manage the categories of the process, which helps in organizing information and activities effectively.
@@ -28,17 +27,29 @@ test.describe('[PAR-PPM004] – Manage categories in process', () => {
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
-	let categoriesPage: CategoriesPage;
-	let newCategoryPage: NewCategoryPage;
+	let newTaxonomyPage: NewTaxonomyPage;
+	let timestamp: string;
 
 	test.beforeEach(async ({ adminPage }) => {
 		adminHomePage = new AdminHomePage(adminPage);
 		processAdminPage = new ProcessAdminPage(adminPage);
 		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
-		categoriesPage = new CategoriesPage(adminPage);
-		newCategoryPage = new NewCategoryPage(adminPage);
+		newTaxonomyPage = new NewTaxonomyPage(adminPage);
+
+		// Generate timestamp for unique taxonomy names
+		timestamp = Date.now().toString();
 
 		await adminHomePage.navigateToAdminHomePage();
+	});
+
+	test.afterEach(async ({ adminPage }) => {
+		// Clean up taxonomies created during tests
+		await adminPage.goto('/admin/taxonomies');
+		await newTaxonomyPage.waitForLoadState('networkidle');
+
+		// Try to delete both taxonomies
+		await newTaxonomyPage.deleteTaxonomyByName(`New Beautiful Taxonomy ${timestamp}`);
+		await newTaxonomyPage.deleteTaxonomyByName(`New Updated Beautiful Taxonomy ${timestamp}`);
 	});
 
 	test.describe('Main Flow', () => {
@@ -66,32 +77,32 @@ test.describe('[PAR-PPM004] – Manage categories in process', () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
 			});
 			await test.step('5. User: Navigates to the "Manage categories" section within the process management interface.', async () => {
-				await updateProcessAdminPage.navigateToCategories();
+				await updateProcessAdminPage.navigateToTaxonomies();
 			});
 			await test.step('6. System: Displays a list of existing categories (if any) and provides options to add, edit, or remove categories.', async () => {
-				await categoriesPage.expectToBeOnCategoriesPage();
+				await newTaxonomyPage.expectToBeOnTaxonomiesPage();
 			});
 			await test.step('7. User: Clicks on "Add New Category" button.', async () => {
-				await categoriesPage.createNewCategory();
+				await newTaxonomyPage.createNewTaxonomy();
 			});
 			await test.step('8. User: Fills in the category details: 1. Name', async () => {
-				await newCategoryPage.fillName('New Beautiful Category');
+				await newTaxonomyPage.fillName(`New Beautiful Taxonomy ${timestamp}`);
 			});
 			await test.step('9. User: Clicks on "Save Category" to add the new category.', async () => {
-				await newCategoryPage.submitForm();
+				await newTaxonomyPage.submitForm();
 			});
 			await test.step('10. System: Validates the category information for completeness and correctness.', async () => {
-				await categoriesPage.waitForLoadState('networkidle');
-				await categoriesPage.expectToBeOnCategoriesPage();
+				await newTaxonomyPage.waitForLoadState('networkidle');
+				await newTaxonomyPage.expectToBeOnTaxonomiesPage();
 			});
 			await test.step('11. System: Saves the category details and updates the list of categories for the process.', async () => {
-				await categoriesPage.expectCategoryIsInTable('New Beautiful Category');
+				await newTaxonomyPage.expectTaxonomyIsInTable(`New Beautiful Taxonomy ${timestamp}`);
 			});
 			await test.step('12. System: Notifies the City Administrator that the category has been successfully added.', async () => {
-				await categoriesPage.expectSuccessFlashMessage('Category created successfully.');
+				await newTaxonomyPage.expectSuccessFlashMessage('Taxonomy created successfully.');
 			});
 			await test.step('Result.', async () => {
-				await categoriesPage.expectCategoryIsInTable('New Beautiful Category');
+				await newTaxonomyPage.expectTaxonomyIsInTable(`New Beautiful Taxonomy ${timestamp}`);
 			});
 		});
 	});
@@ -121,36 +132,36 @@ test.describe('[PAR-PPM004] – Manage categories in process', () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
 			});
 			await test.step('5. User: Navigates to the "Manage categories" section within the process management interface.', async () => {
-				await updateProcessAdminPage.navigateToCategories();
+				await updateProcessAdminPage.navigateToTaxonomies();
 			});
 			await test.step('6. System: Displays a list of existing categories (if any) and provides options to add, edit, or remove categories.', async () => {
-				await categoriesPage.expectToBeOnCategoriesPage();
+				await newTaxonomyPage.expectToBeOnTaxonomiesPage();
 			});
 			await test.step('7. User: Clicks on "Add New Category" button.', async () => {
-				await categoriesPage.createNewCategory();
+				await newTaxonomyPage.createNewTaxonomy();
 			});
 			await test.step('8. User: Fills in the category details: 1. Name', async () => {
-				await newCategoryPage.fillName('');
+				await newTaxonomyPage.fillName('');
 			});
 			await test.step('9. User: Clicks on "Save Category" to add the new category.', async () => {
-				await newCategoryPage.submitForm();
+				await newTaxonomyPage.submitForm();
 			});
 			await test.step('10.1. System: Detects that the category details are incomplete or incorrect.', async () => {
-				await newCategoryPage.waitForLoadState('networkidle');
-				await newCategoryPage.expectToBeOnNewCategoryPage();
-				await newCategoryPage.expectErrorFlashMessage('There was a problem creating this category.');
+				await newTaxonomyPage.waitForLoadState('networkidle');
+				await newTaxonomyPage.expectToBeOnTaxonomiesPageWithValidationError();
+				await newTaxonomyPage.expectErrorFlashMessage('There was a problem creating this taxonomy.');
 			});
 			await test.step('10.2. System: Highlights the fields with errors and displays appropriate error messages.', async () => {
-				await newCategoryPage.expectFormValidationError();
+				await newTaxonomyPage.expectFormValidationError();
 			});
 			await test.step('10.3. User: Corrects the invalid category details.', async () => {
-				await newCategoryPage.fillName('New Updated Beautiful Category');
+				await newTaxonomyPage.fillName(`New Updated Beautiful Taxonomy ${timestamp}`);
 			});
 			await test.step('10.4. User: Clicks "Save Category" again.', async () => {
-				await newCategoryPage.submitForm();
+				await newTaxonomyPage.submitForm();
 			});
 			await test.step('Result.', async () => {
-				await categoriesPage.expectCategoryIsInTable('New Updated Beautiful Category');
+				await newTaxonomyPage.expectTaxonomyIsInTable(`New Updated Beautiful Taxonomy ${timestamp}`);
 			});
 		});
 	});
