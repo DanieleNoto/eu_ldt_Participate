@@ -294,7 +294,7 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 				}
 			});
 
-			await test.step('Verify the process is updated and available', async () => {
+			await test.step('8. System: Verify the process is updated and available', async () => {
 				await processAdminPage.navigateToProcesses();
 				await processAdminPage.searchProcesses(updateData.general.title);
 				const searchResults = await processAdminPage.getProcessCount();
@@ -408,7 +408,6 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 				await processAdminPage.saveProcessChanges();
 
 				await processAdminPage.expectMultilangFieldError('participatory_process_title');
-				await adminPage.pause();
 
 				await processAdminPage.expectMultilangFieldError('participatory_process_subtitle');
 			});
