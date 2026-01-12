@@ -36,3 +36,13 @@
 [data-dialog]>* {
     --tw-translate-x: -50% !important;
 }
+
+@media (max-width: 768px) {
+    .main-bar__links-mobile__item {
+        display: none !important;
+    }
+
+    header .main-bar__links-mobile__dropdown-before::before {
+        display: none !important;
+    }
+}
