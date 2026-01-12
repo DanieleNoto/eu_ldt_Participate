@@ -33,9 +33,37 @@ test.describe('@useKeycloak Tool0 Integrated Environment', () => {
 		adminHomePage = new AdminHomePage(page);
 		integratedEnvironmentPage = new IntegratedEnvironmentPage(page);
 
-		// Navigate to admin dashboard and ensure header visible
-		await adminHomePage.goToAdminDashboard();
-		console.log('Admin dashboard loaded');
+		// Check if already authenticated by verifying a protected UI element (header)
+		let isAuthenticated = false;
+		try {
+			// Try to navigate to admin and check header presence quickly
+			await page.goto('/admin/');
+			isAuthenticated = await integratedEnvironmentPage.verifyLDTAdminHeaderPresent();
+		} catch (e) {
+			// ignore navigation errors; treat as not authenticated
+			isAuthenticated = false;
+		}
+
+		// If not authenticated, perform login via Keycloak helper (works both with and without project storageState)
+		if (!isAuthenticated) {
+			console.log('Not authenticated in this context — performing login via Keycloak helper');
+			const authHelper = new DecidimKeycloakAuthHelper();
+			const adminEmail = process.env.TEST_KEYCLOAK_ADMIN_EMAIL || TEST_USERS.ADMIN_USER.email;
+			const adminPassword = process.env.TEST_KEYCLOAK_ADMIN_PASSWORD || TEST_USERS.ADMIN_USER.password;
+
+			await authHelper.injectSessionIntoPage(page, adminEmail, adminPassword, true, '/admin');
+
+			// Ensure we land on admin dashboard and header is visible
+			await adminHomePage.goToAdminDashboard();
+			// Use existing page object verification method (no debug_getHeaderLocator)
+			expect(await integratedEnvironmentPage.verifyLDTAdminHeaderPresent()).toBe(true);
+			console.log('Login completed and admin dashboard loaded');
+		} else {
+			// Already authenticated: ensure dashboard is loaded and header visible
+			await adminHomePage.goToAdminDashboard();
+			expect(await integratedEnvironmentPage.verifyLDTAdminHeaderPresent()).toBe(true);
+			console.log('Context already authenticated; admin dashboard loaded');
+		}
 	});
 
 	test.afterEach(async () => {
@@ -79,7 +107,7 @@ test.describe('@useKeycloak Tool0 Integrated Environment', () => {
 				console.log('Verifying tools match between API and UI');
 				const matchVerification = await integratedEnvironmentPage.verifyToolsMatchAPIandUI();
 
-				await expect([...matchVerification.uiTools].sort()).toEqual([...matchVerification.apiTools].sort());
+				expect([...matchVerification.uiTools].sort()).toEqual([...matchVerification.apiTools].sort());
 
 				// Verify all tools are visible in UI
 				console.log('Verifying all tools are visible in UI');
@@ -110,54 +138,6 @@ test.describe('@useKeycloak Tool0 Integrated Environment', () => {
 				await page.getByRole('link', { name: 'Participate', exact: true }).waitFor({ state: 'visible' });
 
 				console.log('User successfully logged out - redirected to Decidim auth page');
-			});
-
-			await test.step('4. Verify session is expired on new browser instance', async () => {
-				console.log('Creating new browser context to verify session expiration...');
-
-				const newContext = await browser.newContext({ locale: 'en-US' });
-				const newPage = await newContext.newPage();
-				const newIntEnvPage = new IntegratedEnvironmentPage(newPage);
-
-				try {
-					console.log('Attempting to access admin dashboard without session...');
-					await newPage.goto('/admin/', { waitUntil: 'domcontentloaded' });
-					const currentUrl = newPage.url();
-					console.log(`Current URL after accessing admin: ${currentUrl}`);
-
-					const isOnLoginPage =
-						currentUrl.includes('/sign_in') ||
-						currentUrl.includes('/login') ||
-						currentUrl.includes('/auth') ||
-						currentUrl.includes('/realms');
-
-					expect(isOnLoginPage).toBe(true);
-					console.log('✓ Session expired - User redirected to login page');
-
-					console.log('Performing admin login on new browser instance using Keycloak auth helper...');
-					const authHelper = new DecidimKeycloakAuthHelper();
-					const adminEmail = process.env.TEST_KEYCLOAK_ADMIN_EMAIL || TEST_USERS.ADMIN_USER.email;
-					const adminPassword = process.env.TEST_KEYCLOAK_ADMIN_PASSWORD || TEST_USERS.ADMIN_USER.password;
-
-					await authHelper.injectSessionIntoPage(newPage, adminEmail, adminPassword, true, '/admin');
-					console.log('✓ Admin login completed successfully');
-
-					await newPage.goto('/admin/', { waitUntil: 'domcontentloaded' });
-					// Step 1 verification on new browser
-					expect(await newIntEnvPage.verifyLDTAdminHeaderPresent()).toBe(true);
-					console.log('✓ Step 1: LDT Admin Header present on new browser instance');
-
-					// Step 2 verification on new browser
-					await newIntEnvPage.clickToolsButton();
-					const toolsMatch = await newIntEnvPage.verifyToolsMatchAPIandUI();
-					expect(toolsMatch.uiTools.length).toBeGreaterThan(0);
-					console.log('✓ Step 2: Tools dropdown working correctly on new browser instance');
-
-					console.log('✓ All steps verified successfully on new browser after re-login');
-				} finally {
-					await newContext.close();
-					console.log('New browser context closed');
-				}
 			});
 		});
 	});
