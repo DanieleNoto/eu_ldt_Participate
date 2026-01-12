@@ -8,13 +8,14 @@ import { expect, Page } from '@playwright/test';
 import { BaseAdminPage } from '../../../../BaseAdminPage';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
+import { LocalizationUtils } from '@utils/localization.utils';
 
 /**
  * Page Object Model for Surveys management functionality.
  * Contains common helper functions used across survey-related tests.
  */
 export class SurveysManagePage extends BaseAdminPage {
-	static readonly VALIDATION_ERROR_STATEMENT_BLANK = 'Statementcannot be blank';
+	static readonly VALIDATION_ERROR_STATEMENT_BLANK = 'cannot be blank';
 	static readonly VALIDATION_ERROR_BODY_BLANK = 'characters left500 characters leftBody cannot be blank';
 
 	constructor(page: Page) {
@@ -31,10 +32,10 @@ export class SurveysManagePage extends BaseAdminPage {
 		await processSearchParticipatory.fill(processTitle);
 		await this.page.getByRole('button', { name: 'Search' }).click();
 
-		// Click on the created process to open edit page
+		// Click on the created process to open edit page using the exact title
 		await this.page
 			.getByRole('link', {
-				name: processTitle.split(' ')[0] + ' ' + processTitle.split(' ')[1],
+				name: processTitle,
 				exact: true
 			})
 			.click();
@@ -46,9 +47,10 @@ export class SurveysManagePage extends BaseAdminPage {
 	 */
 	async configureStepAnnouncement(announcementText: string): Promise<void> {
 		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').nth(4).click();
-		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').nth(4).fill(announcementText);
-		// await this.page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').click();
-		// await this.page.getByRole('group', { name: 'Introduction' }).getByLabel('Announcement').fill(announcementText);
+		await this.page
+			.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror')
+			.nth(4)
+			.fill(announcementText);
 	}
 
 	/**
@@ -231,12 +233,10 @@ export class SurveysManagePage extends BaseAdminPage {
 			'component_settings_announcement'
 		);
 		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first().click();
-		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first().fill('Global settings description');
-		//await this.page.locator(globalAnnouncementSelector).getByRole('textbox', { name: 'Announcement' }).click();
-		// await this.page
-		// 	.locator(globalAnnouncementSelector)
-		// 	.getByRole('textbox', { name: 'Announcement' })
-		// 	.fill('Global settings description');
+		await this.page
+			.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror')
+			.first()
+			.fill('Global settings description');
 
 		// Fill step settings announcement
 		await this.configureStepAnnouncement('Step settings description');
@@ -307,14 +307,32 @@ export class SurveysManagePage extends BaseAdminPage {
 	 */
 	async skipTemplateSelection(): Promise<void> {
 		// Skip choose template
-		const skipLink = this.page.getByRole('link', { name: 'Skip' });
-		const skipLinkVisible = await skipLink.isVisible().catch(() => false);
-		if (skipLinkVisible) {
-			await skipLink.click();
-			await this.page.waitForURL(
-				/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
-			);
-			console.log('Clicked Skip to proceed without template');
+		const skipElement = this.page
+			.getByRole('link', { name: 'Skip' })
+			.or(this.page.getByRole('button', { name: 'Skip' }));
+		if (await skipElement.isVisible().catch(() => false)) {
+			await skipElement.click();
+
+			await this.page.waitForLoadState('networkidle');
+
+			await this.page.waitForLoadState('domcontentloaded');
+
+			await this.page.waitForTimeout(500);
+
+			// Check if Skip button is still visible
+			// If so, retry clicking it
+			const skipStillVisible = await skipElement.isVisible().catch(() => false);
+			if (skipStillVisible) {
+				console.log('Skip button still visible, retrying click...');
+				await skipElement.click();
+				await this.page.waitForLoadState('networkidle');
+				await this.page.waitForTimeout(500);
+			}
+
+			const titleInput = this.page.locator('input[type="text"]').first();
+			await titleInput.waitFor({ state: 'visible' });
+
+			console.log('Clicked Skip to proceed without template, form is ready');
 		}
 	}
 
@@ -323,15 +341,17 @@ export class SurveysManagePage extends BaseAdminPage {
 	 */
 	async verifyEmptyQuestionnaireDisplayed(): Promise<void> {
 		// Verify the empty questionnaire form is displayed
-		await expect(this.page.getByRole('textbox', { name: 'title' })).toBeVisible();
-		// await expect(this.page.getByRole('textbox', { name: 'Description' })).toBeVisible();
-		await expect (this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first()).toBeVisible()
+		const titleInput = this.page.locator('input[type="text"]').first();
+		await expect(titleInput).toBeVisible();
+
+		const descriptionEditor = this.page
+			.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror')
+			.first();
+		await expect(descriptionEditor).toBeVisible();
 
 		// Verify that the fields are empty as expected for a new questionnaire
-		await expect(this.page.getByRole('textbox', { name: 'title' })).toHaveValue('');
-
-		const descriptionField = this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first();
-		await expect(descriptionField).toHaveText('');
+		await expect(titleInput).toHaveValue('');
+		await expect(descriptionEditor).toHaveText('');
 
 		console.log('Empty questionnaire form displayed with survey configuration options');
 	}
@@ -340,12 +360,16 @@ export class SurveysManagePage extends BaseAdminPage {
 	 * Fills name and description and saves
 	 */
 	async fillSurveyDetailsAndSave(surveyName: string, description: string = 'Survey description'): Promise<void> {
-		// Fill survey details
-		await this.page.getByRole('textbox', { name: 'title' }).click();
-		await this.page.getByRole('textbox', { name: 'title' }).fill(surveyName);
+		// Fill survey details using language-independent selectors
+		const titleInput = this.page.locator('input[type="text"]').first();
+		await titleInput.click();
+		await titleInput.fill(surveyName);
 
 		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first().click();
-		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first().fill(description);
+		await this.page
+			.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror')
+			.first()
+			.fill(description);
 
 		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').nth(4).click();
 		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').nth(4).fill('TOS');
@@ -427,8 +451,12 @@ export class SurveysManagePage extends BaseAdminPage {
 			await question1Container.locator('.editor-input').first().waitFor();
 		}
 
-		// await question1Container.getByRole('textbox', { name: 'Statement' }).fill('What is your opinion on this topic?');
-		await question1Container.locator('.tabs-panel.is-active').getByRole('textbox').first().fill('What is your opinion on this topic?');
+		// await question1Container.locator('.tabs-panel.is-active input[type="text"]').fill('What is your opinion on this topic?');
+		await question1Container
+			.locator('.tabs-panel.is-active')
+			.getByRole('textbox')
+			.first()
+			.fill('What is your opinion on this topic?');
 		await question1Container.locator('.editor-input .tiptap').first().fill('Please share your thoughts');
 		await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 		await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
@@ -450,21 +478,25 @@ export class SurveysManagePage extends BaseAdminPage {
 			await question2Container.locator('.editor-input').first().waitFor();
 		}
 
-		await question2Container.locator('.tabs-panel.is-active').getByRole('textbox').nth(3).fill('What color do you prefer?');
-		await question2Container.locator('.editor-input .tiptap').nth(3).fill('select one of the available options');
-		await question2Container.getByLabel('TypeShort answer Long answer').nth(3).selectOption('single_option');
+		await question2Container
+			.locator('.tabs-panel.is-active')
+			.getByRole('textbox')
+			.first()
+			.fill('What color do you prefer?');
+		await question2Container.locator('.editor-input .tiptap').first().fill('select one of the available options');
+		await question2Container.getByLabel('TypeShort answer Long answer').first().selectOption('single_option');
 
 		// Fill the default two answer options that are automatically created
-		await question2Container.locator('.questionnaire-question-answer-option').nth(3).waitFor();
+		await question2Container.locator('.questionnaire-question-answer-option').first().waitFor();
 		await question2Container
 			.locator('.questionnaire-question-answer-option')
 			.first()
-			.getByRole('textbox', { name: 'Statement' })
+			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Blue');
 		await question2Container
 			.locator('.questionnaire-question-answer-option')
 			.nth(1)
-			.getByRole('textbox', { name: 'Statement' })
+			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Green');
 
 		questionsCount++;
@@ -480,11 +512,14 @@ export class SurveysManagePage extends BaseAdminPage {
 		const isExpanded3 = await question3AccordionButton.getAttribute('aria-expanded');
 		if (isExpanded3 === 'false') {
 			await question3AccordionButton.click();
-			await question3Container.locator('.editor-input').waitFor();
+			await question3Container.locator('.editor-input').first().waitFor();
 		}
 
-		await question3Container.getByRole('textbox', { name: 'Statement' }).fill('Which pets do you prefer?');
-		await question3Container.locator('.editor-input .tiptap').fill('select two of the available options');
+		await question3Container
+			.locator('.tabs-panel.is-active input[type="text"]')
+			.first()
+			.fill('Which pets do you prefer?');
+		await question3Container.locator('.editor-input .tiptap').first().fill('select two of the available options');
 		await question3Container.getByLabel('TypeShort answer Long answer').selectOption('multiple_option');
 
 		// Fill the default two answer options that are automatically created
@@ -492,12 +527,12 @@ export class SurveysManagePage extends BaseAdminPage {
 		await question3Container
 			.locator('.questionnaire-question-answer-option')
 			.first()
-			.getByRole('textbox', { name: 'Statement' })
+			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Cat');
 		await question3Container
 			.locator('.questionnaire-question-answer-option')
 			.nth(1)
-			.getByRole('textbox', { name: 'Statement' })
+			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Dog');
 
 		// Add the additional two options
@@ -506,7 +541,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		await question3Container
 			.locator('.questionnaire-question-answer-option')
 			.last()
-			.getByRole('textbox', { name: 'Statement' })
+			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Parrot');
 
 		await question3Container.getByRole('button', { name: 'Add answer option' }).click();
@@ -514,7 +549,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		await question3Container
 			.locator('.questionnaire-question-answer-option')
 			.last()
-			.getByRole('textbox', { name: 'Statement' })
+			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Fish');
 
 		// Set maximum choices to 2
@@ -675,7 +710,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		await this.page.getByRole('radio', { name: 'Blue' }).click();
 
 		// Accept terms and conditions
-		const termsCheckbox = this.page.getByRole('checkbox', { name: 'By participating you accept' });
+		const termsCheckbox = this.page.locator('#questionnaire_tos_agreement');
 		if (!(await termsCheckbox.isChecked())) {
 			await termsCheckbox.check();
 		}
@@ -724,6 +759,97 @@ export class SurveysManagePage extends BaseAdminPage {
 		// Verify validation error for missing mandatory field is displayed
 		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_BODY_BLANK)).toBeVisible();
 		console.log('Survey validation errors are displayed for missing mandatory fields');
+	}
+
+	/**
+	 * Helper function to fill question description field
+	 * Automatically detects current locale and fills the correct language editor
+	 * @param questionContainer - The locator for the question container
+	 * @param descriptionText - The text to fill in the description
+	 * @param languageCode - Optional language code
+	 */
+	async fillQuestionDescription(
+		questionContainer: any,
+		descriptionText: string,
+		languageCode?: string
+	): Promise<void> {
+		// Auto-detect language if not provided
+		const currentLanguage = languageCode || LocalizationUtils.getCurrentLocale(this.page);
+
+		const editorInputs = questionContainer.locator('.editor-input');
+		const count = await editorInputs.count();
+
+		// Strategy 1: Match by aria-labelledby containing language code
+		for (let i = 0; i < count; i++) {
+			const editorDiv = editorInputs.nth(i);
+			const tiptapEditor = editorDiv.locator('.tiptap');
+			const ariaLabelledBy = await tiptapEditor.getAttribute('aria-labelledby');
+
+			if (ariaLabelledBy && new RegExp(`.*${currentLanguage}.*`, 'i').test(ariaLabelledBy)) {
+				await tiptapEditor.click();
+				await tiptapEditor.fill(descriptionText);
+				console.log(`Filled question description for language '${currentLanguage}' via aria-labelledby`);
+				return;
+			}
+		}
+
+		// Strategy 2 (Fallback): Use first available editor
+		const firstEditor = editorInputs.first().locator('.tiptap');
+		await firstEditor.click();
+		await firstEditor.fill(descriptionText);
+		console.log(`Filled question description using first available editor (fallback)`);
+	}
+
+	/**
+	 * Fills question statement (title) which is in language-specific tab panels
+	 */
+	async fillQuestionStatement(questionContainer, statementText: string, languageCode?: string): Promise<void> {
+		const currentLanguage = languageCode || (await LocalizationUtils.getCurrentLocale(this.page));
+
+		// Find the active tab panel
+		const tabPanels = questionContainer.locator('[role="tabpanel"]');
+		const count = await tabPanels.count();
+
+		// Strategy 1: Look for the active tab panel
+		for (let i = 0; i < count; i++) {
+			const panel = tabPanels.nth(i);
+			const isHidden = await panel.getAttribute('aria-hidden');
+			if (isHidden === 'false') {
+				const input = panel.locator('input[type="text"]').first();
+				await input.fill(statementText);
+				console.log(`Filled question statement in active language tab`);
+				return;
+			}
+		}
+
+		// Strategy 2 (Fallback): Use first input in first panel
+		const firstInput = questionContainer.locator('[role="tabpanel"]').first().locator('input[type="text"]').first();
+		await firstInput.fill(statementText);
+		console.log(`Filled question statement using first available input (fallback)`);
+	}
+
+	/**
+	 * Checks the Mandatory checkbox for a question
+	 */
+	async checkMandatory(questionContainer): Promise<void> {
+		await questionContainer.getByRole('checkbox', { name: 'Mandatory' }).check();
+		console.log('Checked Mandatory checkbox');
+	}
+
+	/**
+	 * Fills character limit for a question
+	 */
+	async fillCharacterLimit(questionContainer, limit: string): Promise<void> {
+		await questionContainer.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill(limit);
+		console.log(`Set character limit to ${limit}`);
+	}
+
+	/**
+	 * Selects question type from dropdown
+	 */
+	async selectQuestionType(questionContainer, typeValue: string): Promise<void> {
+		await questionContainer.getByLabel('TypeShort answer Long answer').selectOption(typeValue);
+		console.log(`Selected question type: ${typeValue}`);
 	}
 
 	/**

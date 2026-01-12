@@ -105,9 +105,10 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 
 	/**
 	 * Verifies that the user is on the Participatory Process Admins page.
+	 * Accepts both the list view (/user_roles) and detail view (/user_roles/id)
 	 */
 	async expectToBeOnParticipatoryProcessAdminsPage(): Promise<void> {
-		await expect(this.page).toHaveURL(/user_roles$/);
+		await expect(this.page).toHaveURL(/user_roles/);
 		await expect(this.newAdminButton).toBeVisible();
 	}
 
