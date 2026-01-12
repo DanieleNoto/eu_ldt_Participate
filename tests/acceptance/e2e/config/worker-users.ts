@@ -25,7 +25,7 @@ export interface WorkerUser {
 
 /**
  * Pool of admin users for parallel execution
- * Worker 0-2 use these accounts (admin1, admin2, admin3)
+ * Worker 0-4 use these accounts (admin1, admin2, admin3, admin4, admin5)
  *
  * NOTE: TEST_ADMIN_EMAIL is RESERVED for @reserved tests
  * that use the parallel-test-reserved fixture.
@@ -48,12 +48,22 @@ const ADMIN_USER_POOL: Omit<WorkerUser, 'workerIndex'>[] = [
 		email: process.env.TEST_ADMIN3_EMAIL || '',
 		password: process.env.TEST_ADMIN3_PASSWORD || '',
 		role: 'admin'
+	},
+	{
+		email: process.env.TEST_ADMIN4_EMAIL || '',
+		password: process.env.TEST_ADMIN4_PASSWORD || '',
+		role: 'admin'
+	},
+	{
+		email: process.env.TEST_ADMIN5_EMAIL || '',
+		password: process.env.TEST_ADMIN5_PASSWORD || '',
+		role: 'admin'
 	}
 ];
 
 /**
  * Pool of regular users for parallel execution
- * Worker 0-2 use these accounts (user1, user2, user3)
+ * Worker 0-4 use these accounts (user1, user2, user3, user4, user5)
  *
  * NOTE: TEST_USER_EMAIL is RESERVED for @reserved tests
  * that use the parallel-test-reserved fixture.
@@ -75,6 +85,16 @@ const USER_POOL: Omit<WorkerUser, 'workerIndex'>[] = [
 	{
 		email: process.env.TEST_USER3_EMAIL || '',
 		password: process.env.TEST_USER3_PASSWORD || '',
+		role: 'user'
+	},
+	{
+		email: process.env.TEST_USER4_EMAIL || '',
+		password: process.env.TEST_USER4_PASSWORD || '',
+		role: 'user'
+	},
+	{
+		email: process.env.TEST_USER5_EMAIL || '',
+		password: process.env.TEST_USER5_PASSWORD || '',
 		role: 'user'
 	}
 ];

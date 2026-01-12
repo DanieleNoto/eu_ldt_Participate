@@ -24,7 +24,7 @@ export default defineConfig({
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
 	retries: 0,
-	workers: 3, // Number of parallel workers
+	workers: 5, // Number of parallel workers
 	reporter: [['list', { printSteps: true }]],
 	use: {
 		baseURL: process.env.FE_BASE_URL || 'https://part-int.ldttoolbox.app',

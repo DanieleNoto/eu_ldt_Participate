@@ -14,8 +14,8 @@ dotenv.config({ path: path.resolve(__dirname, '.env.ci') });
 /**
  * Configuration specifically for running parallel authentication setup.
  * This creates storage states for:
- * - 3 admin accounts (admin1, admin2, admin3) for parallel pool
- * - 3 user accounts (user1, user2, user3) for parallel pool
+ * - 5 admin accounts (admin1, admin2, admin3, admin4, admin5) for parallel pool
+ * - 5 user accounts (user1, user2, user3, user4, user5) for parallel pool
  * - 2 reserved accounts (TEST_ADMIN_EMAIL, TEST_USER_EMAIL) for fixed fixtures
  */
 export default defineConfig({
