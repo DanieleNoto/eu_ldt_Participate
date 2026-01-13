@@ -183,7 +183,8 @@ class ChatbotInjector
   end
 
   def extract_locale(env)
-    query_locale(env) || path_locale(env) || env["decidim.current_locale"] || default_locale
+    # Priority: user's current locale > query param > path > default
+    env["decidim.current_locale"] || query_locale(env) || path_locale(env) || default_locale
   end
 
   def query_locale(env)
