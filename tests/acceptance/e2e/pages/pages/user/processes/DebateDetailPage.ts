@@ -70,10 +70,7 @@ export class DebateDetailPage {
 	private readonly commentDownvoteButtons: Locator;
 
 	// Comment ordering
-	private readonly orderByFavorites: Locator;
-	private readonly orderByRecent: Locator;
-	private readonly orderByOlder: Locator;
-	private readonly orderByMostDiscussed: Locator;
+	private readonly orderBy: Locator;
 
 	// Loading states
 	private readonly loadingComments: Locator;
@@ -148,10 +145,7 @@ export class DebateDetailPage {
 		this.commentDownvoteButtons = this.page.locator('.js-comment__votes--down');
 
 		// Comment ordering
-		this.orderByFavorites = this.page.locator('a[href*="order=best_rated"]');
-		this.orderByRecent = this.page.locator('a[href*="order=recent"]');
-		this.orderByOlder = this.page.locator('a[href*="order=older"]');
-		this.orderByMostDiscussed = this.page.locator('a[href*="order=most_discussed"]');
+		this.orderBy = this.page.locator('#order');
 
 		// Loading states
 		this.loadingComments = this.page.locator('.loading-comments');
@@ -642,7 +636,7 @@ export class DebateDetailPage {
 	 * @param index - The index of the suggestion to select (0-based)
 	 */
 	async selectMentionSuggestionByIndex(index: number): Promise<void> {
-		await this.tributeOptions.waitFor({ state: 'visible' });
+		for (const suggestion of await this.tributeOptions.all()) await suggestion.waitFor({ state: 'visible' });
 		const option = this.tributeOptions.nth(index);
 		await option.click();
 
@@ -790,7 +784,7 @@ export class DebateDetailPage {
 	 * Order comments by favorites
 	 */
 	async orderCommentsByFavorites(): Promise<void> {
-		await this.orderByFavorites.click();
+		await this.orderBy.selectOption('best_rated');
 		await this.waitForCommentsToLoad();
 	}
 
@@ -798,7 +792,7 @@ export class DebateDetailPage {
 	 * Order comments by most recent
 	 */
 	async orderCommentsByRecent(): Promise<void> {
-		await this.orderByRecent.click();
+		await this.orderBy.selectOption('recent');
 		await this.waitForCommentsToLoad();
 	}
 
@@ -806,7 +800,7 @@ export class DebateDetailPage {
 	 * Order comments by oldest
 	 */
 	async orderCommentsByOlder(): Promise<void> {
-		await this.orderByOlder.click();
+		await this.orderBy.selectOption('older');
 		await this.waitForCommentsToLoad();
 	}
 
@@ -814,7 +808,7 @@ export class DebateDetailPage {
 	 * Order comments by most discussed
 	 */
 	async orderCommentsByMostDiscussed(): Promise<void> {
-		await this.orderByMostDiscussed.click();
+		await this.orderBy.selectOption('most_discussed');
 		await this.waitForCommentsToLoad();
 	}
 
@@ -1371,5 +1365,27 @@ export class DebateDetailPage {
 			}
 			return null;
 		}
+	}
+
+	/**
+	 * Get a stable count of the container's elements
+	 * @param container - The container of suggested mentions to count
+	 * @returns The number of container's elements
+	 */
+	async countSuggestedMentions(container: Locator): Promise<number> {
+		let last = -1;
+		await expect
+			.poll(
+				async () => {
+					const c = await container.count();
+					const isStable = c === last;
+					last = c;
+					return isStable;
+				},
+				{ timeout: 6000, intervals: [2000] }
+			)
+			.toBeTruthy();
+		const count = last;
+		return count;
 	}
 }
