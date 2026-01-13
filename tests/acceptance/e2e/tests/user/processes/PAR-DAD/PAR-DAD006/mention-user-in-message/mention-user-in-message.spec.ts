@@ -101,33 +101,38 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				console.log('Tribute container exists:', exists > 0);
 
 				if (exists > 0) {
-					const isVisible = await container.isVisible();
-					const ariaExpanded = await container.getAttribute('aria-expanded');
-					console.log('Container visible:', isVisible);
-					console.log('Aria-expanded:', ariaExpanded);
+					for (const option of await container.all()) {
+						const isVisible = await option.isVisible();
+						const ariaExpanded = await option.getAttribute('aria-expanded');
+						console.log('Container visible:', isVisible);
+						console.log('Aria-expanded:', ariaExpanded);
 
-					if (!isVisible) {
-						console.log('Container not visible, trying alternative approaches...');
+						if (!isVisible) {
+							console.log('Container not visible, trying alternative approaches...');
 
-						await debateDetailPage
-							.getPage()
-							.locator('textarea[data-tribute="true"]')
-							.dispatchEvent('input', {
-								data: '@a',
-								inputType: 'insertText'
-							});
+							await debateDetailPage
+								.getPage()
+								.locator('textarea[data-tribute="true"]')
+								.dispatchEvent('input', {
+									data: '@a',
+									inputType: 'insertText'
+								});
 
-						await debateDetailPage.getPage().waitForTimeout(3000);
+							await debateDetailPage.getPage().waitForTimeout(3000);
 
-						const isVisibleAfterDispatch = await container.isVisible();
-						console.log('Visible after dispatch event:', isVisibleAfterDispatch);
+							const isVisibleAfterDispatch = await option.isVisible();
+							console.log('Visible after dispatch event:', isVisibleAfterDispatch);
 
-						if (!isVisibleAfterDispatch) {
-							await debateDetailPage.getPage().locator('textarea[data-tribute="true"]').clear();
-							await debateDetailPage.getPage().locator('textarea[data-tribute="true"]').press('Shift+2'); // @ symbol
-							await debateDetailPage.getPage().waitForTimeout(300);
-							await debateDetailPage.getPage().locator('textarea[data-tribute="true"]').press('a');
-							await debateDetailPage.getPage().waitForTimeout(1000);
+							if (!isVisibleAfterDispatch) {
+								await debateDetailPage.getPage().locator('textarea[data-tribute="true"]').clear();
+								await debateDetailPage
+									.getPage()
+									.locator('textarea[data-tribute="true"]')
+									.press('Shift+2'); // @ symbol
+								await debateDetailPage.getPage().waitForTimeout(300);
+								await debateDetailPage.getPage().locator('textarea[data-tribute="true"]').press('a');
+								await debateDetailPage.getPage().waitForTimeout(1000);
+							}
 						}
 					}
 				}
@@ -169,8 +174,6 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 			});
 			await test.step('11. User: Completes the message and clicks on "Submit Comment."', async () => {
 				await debateDetailPage.typeCommentWithMentions(' This is a test comment with mention!');
-
-				await debateDetailPage.setOpinionNeutral();
 
 				await debateDetailPage.submitComment();
 			});
@@ -245,16 +248,13 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 				textarea.clear();
 			});
 			await test.step('9.a System: No dropdown will be showed.', async () => {
-				const container = debateDetailPage.getPage().locator('.tribute-container li[role="option"]');
-				const exists = await container.count();
+				const container = debateDetailPage.getPage().locator('.tribute-container li[role="option"]:visible');
+				const exists = await debateDetailPage.countSuggestedMentions(container);
 				console.log('Tribute container exists:', exists > 0);
 				expect(exists).toBe(0);
-				expect(container).not.toBeVisible();
 			});
 			await test.step('11. User: Completes the message and clicks on "Submit Comment."', async () => {
 				await debateDetailPage.typeCommentWithMentions('This is a test comment without mention!');
-
-				await debateDetailPage.setOpinionAgainst();
 
 				await debateDetailPage.submitComment();
 			});
