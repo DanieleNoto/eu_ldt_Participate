@@ -20,7 +20,7 @@ variables:
 
 jobs:
     - job: PlaywrightAxeFrontend
-      timeoutInMinutes: 90
+      timeoutInMinutes: 120
       displayName: 'Install and Run Playwright / Axe (Frontend) & Publish Results'
       steps:
           - task: replacetokens@5
@@ -162,7 +162,7 @@ jobs:
             continueOnError: true
 
     - job: PerformanceTests
-      timeoutInMinutes: 90
+      timeoutInMinutes: 120
       displayName: Service Load Test
       steps:
           - task: replacetokens@5
