@@ -70,11 +70,12 @@ class ChatbotInjector
     injected_body = inject_chatbot_snippet(body, env)
 
     if injected_body
-      headers = headers.dup
+      headers = Rack::Utils::HeaderHash.new(headers.to_h)
       headers["Content-Length"] = injected_body.bytesize.to_s if headers["Content-Length"]
       Rails.logger.info("Chatbot: Injecting widget for path #{request.path}")
       [status, headers, [injected_body]]
     else
+      headers = Rack::Utils::HeaderHash.new(headers.to_h) if headers.respond_to?(:to_h)
       [status, headers, [body]]
     end
   rescue StandardError => e
