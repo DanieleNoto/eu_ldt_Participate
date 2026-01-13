@@ -49,7 +49,7 @@ export class GrafanaDashboardPage {
 	 */
 	get timeRangeDropdown(): Locator {
 		return this.page.locator(
-			'[data-testid*="Dashboard template variables Variable Value DropDown value link text"]'
+			'div[data-testid*="Dashboard template variables Variable Value DropDown value link text"]'
 		);
 	}
 
@@ -57,14 +57,14 @@ export class GrafanaDashboardPage {
 	 * Variable options in dropdown
 	 */
 	get variableOptions(): Locator {
-		return this.page.locator('[data-testid="data-testid variable-option"]');
+		return this.page.locator('[data-testid="data-testid Select option"]');
 	}
 
 	/**
-	 * Dashboard panels (any panel with data-panelid)
+	 * Dashboard panels (any panel with data-viz-panel-key)
 	 */
 	get dashboardPanels(): Locator {
-		return this.page.locator('[data-panelid]');
+		return this.page.locator('[data-viz-panel-key]');
 	}
 
 	/**
@@ -94,6 +94,13 @@ export class GrafanaDashboardPage {
 	 */
 	get panelDropdown(): Locator {
 		return this.page.locator('[data-testid="panel-dropdown"]');
+	}
+
+	/**
+	 * Get Data tab in inspect drawer
+	 */
+	get inspectDataTab(): Locator {
+		return this.page.getByRole('tab', { name: 'Data' });
 	}
 
 	/**
@@ -312,6 +319,15 @@ export class GrafanaDashboardPage {
 		try {
 			await expect(this.timeRangeDropdown).toBeVisible();
 
+			// Get the text content directly from the dropdown container
+			// The value is displayed as visible text in the container
+			const valueText = await this.timeRangeDropdown.textContent();
+
+			if (valueText && valueText.trim()) {
+				return valueText.trim();
+			}
+
+			// Fallback: parse from data-testid
 			const testId = await this.timeRangeDropdown.getAttribute('data-testid');
 			const match = testId?.match(/text (\d+)$/);
 
@@ -333,20 +349,22 @@ export class GrafanaDashboardPage {
 	 * @param days - Number of days (e.g., "7", "14", "30", "60", "90", "180", "365")
 	 */
 	async changeTimeRange(days: string): Promise<void> {
-		const currentValue = await this.getCurrentTimeRange();
-		const dropdown = this.page.getByTestId(
-			`data-testid Dashboard template variables Variable Value DropDown value link text ${currentValue}`
-		);
+		// Click on the dropdown container to open it
+		await this.timeRangeDropdown.click();
 
-		await expect(dropdown).toBeVisible();
-		await dropdown.click();
+		// Wait for the options menu to appear
+		await this.page.waitForTimeout(500);
 
-		const option = this.page.getByRole('checkbox', { name: days });
+		// Click on the matching option by text
+		const option = this.page
+			.locator('[data-testid="data-testid Select option"]')
+			.filter({ hasText: new RegExp(`^${days}$`) });
 		await expect(option).toBeVisible();
 		await option.click();
 
 		await this.page.waitForLoadState('networkidle');
 
+		// Verify the change
 		const newValue = await this.getCurrentTimeRange();
 		if (newValue !== days) {
 			throw new Error(`Time range not changed. Expected: ${days}, Got: ${newValue}`);
@@ -358,13 +376,15 @@ export class GrafanaDashboardPage {
 	 * @returns Array of available time range values
 	 */
 	async getAvailableTimeRanges(): Promise<string[]> {
-		const currentValue = await this.getCurrentTimeRange();
-		const dropdown = this.page.getByTestId(
-			`data-testid Dashboard template variables Variable Value DropDown value link text ${currentValue}`
+		// Find the input field for the dropdown
+		const inputField = this.page.locator(
+			'input[data-testid*="Dashboard template variables Variable Value DropDown value link text"][role="combobox"]'
 		);
 
-		await expect(dropdown).toBeVisible();
-		await dropdown.click();
+		await expect(inputField).toBeVisible();
+
+		// Click on input to open dropdown
+		await inputField.click();
 
 		await expect(this.variableOptions.first()).toBeVisible();
 
@@ -464,14 +484,28 @@ export class GrafanaDashboardPage {
 		// Force click even if Playwright thinks it's hidden
 		await panelMenu.click({ force: true });
 
-		// Wait for panel dropdown to appear in portal
-		await expect(this.panelDropdown).toBeVisible();
+		// Wait for Inspect menu item to be visible and actionable
+		await this.inspectMenuItem.waitFor({ state: 'visible' });
 
-		// Click Inspect in the menu
-		await expect(this.inspectMenuItem).toBeVisible();
+		// Verify we're clicking the right element by checking text
+		const inspectText = await this.inspectMenuItem.textContent();
+		if (!inspectText?.includes('Inspect')) {
+			throw new Error(`Expected "Inspect" menu item but found: "${inspectText}"`);
+		}
+
+		// Click Inspect to open submenu
 		await this.inspectMenuItem.click();
 
-		// Wait for drawer to open and Download CSV button to be visible
+		// Wait for Inspect submenu and click on "Data"
+		const dataMenuItem = this.page.locator('[data-testid="data-testid Panel menu item Data"]');
+		await dataMenuItem.waitFor({ state: 'visible' });
+		await dataMenuItem.click();
+
+		// Wait for drawer to open with explicit check
+		const drawer = this.page.locator('[aria-label*="Drawer title Inspect"]');
+		await drawer.waitFor({ state: 'visible' });
+
+		// Wait for Download CSV button to be visible in the drawer
 		await expect(this.downloadCSVButton).toBeVisible();
 
 		// Start waiting for download before clicking
