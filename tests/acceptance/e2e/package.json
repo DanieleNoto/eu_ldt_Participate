@@ -15,7 +15,7 @@
 		"test:keycloak": "cross-env ENV=ci USE_KEYCLOAK=true npx playwright test -g @useKeycloak --project=admin-tests-chromium --project=admin-tests-firefox --project=user-tests-chromium --project=user-tests-firefox --reporter=list,html,junit",
 		"test:dev": "cross-env ENV=development npx playwright test",
 		"test:prod": "cross-env ENV=production npx playwright test",
-		"test:parallel": "cross-env ENV=ci TEST_PARALLEL=true TEST_WORKERS=5 npx playwright test --config=playwright.parallel-tests.config.ts --grep-invert=\"@reserved|@useKeycloak\" --workers=5 --reporter=list,html,junit",
+		"test:parallel": "cross-env ENV=ci TEST_PARALLEL=true TEST_WORKERS=10 npx playwright test --config=playwright.parallel-tests.config.ts --grep-invert=\"@reserved|@useKeycloak\" --workers=5 --reporter=list,html,junit",
 		"test:parallel:setup": "cross-env ENV=ci npx playwright test --config=playwright.parallel-setup.config.ts",
 		"test:reserved": "cross-env ENV=ci npx playwright test --config=playwright.parallel-tests.config.ts --grep=\"@reserved\" --workers=1 --reporter=list,html,junit",
 		"test-ui": "playwright test --ui",

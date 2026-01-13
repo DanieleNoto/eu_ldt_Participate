@@ -63,16 +63,16 @@ jobs:
                 npm run test:parallel:setup
             env:
                 CI: 'true'
-            displayName: 'Setup Parallel Authentication (5 workers + reserved)'
+            displayName: 'Setup Parallel Authentication (10 workers + reserved)'
 
-          # Run tests in parallel with 5 workers (excludes @reserved tests)
+          # Run tests in parallel with 10 workers (excludes @reserved tests)
           - script: |
                 cd tests/acceptance/e2e
                 PLAYWRIGHT_HTML_REPORT=playwright-report-parallel npm run test:parallel
             env:
                 CI: 'true'
             continueOnError: true
-            displayName: 'Run Playwright / Axe (Frontend) - Parallel (5 workers)'
+            displayName: 'Run Playwright / Axe (Frontend) - Parallel (10 workers)'
 
           # Run @reserved tests with fixed users (sequential, after parallel tests)
           - script: |

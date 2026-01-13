@@ -25,7 +25,7 @@ export interface WorkerUser {
 
 /**
  * Pool of admin users for parallel execution
- * Worker 0-4 use these accounts (admin1, admin2, admin3, admin4, admin5)
+ * Worker 0-9 use these accounts (admin1-10)
  *
  * NOTE: TEST_ADMIN_EMAIL is RESERVED for @reserved tests
  * that use the parallel-test-reserved fixture.
@@ -58,12 +58,37 @@ const ADMIN_USER_POOL: Omit<WorkerUser, 'workerIndex'>[] = [
 		email: process.env.TEST_ADMIN5_EMAIL || '',
 		password: process.env.TEST_ADMIN5_PASSWORD || '',
 		role: 'admin'
+	},
+	{
+		email: process.env.TEST_ADMIN6_EMAIL || '',
+		password: process.env.TEST_ADMIN6_PASSWORD || '',
+		role: 'admin'
+	},
+	{
+		email: process.env.TEST_ADMIN7_EMAIL || '',
+		password: process.env.TEST_ADMIN7_PASSWORD || '',
+		role: 'admin'
+	},
+	{
+		email: process.env.TEST_ADMIN8_EMAIL || '',
+		password: process.env.TEST_ADMIN8_PASSWORD || '',
+		role: 'admin'
+	},
+	{
+		email: process.env.TEST_ADMIN9_EMAIL || '',
+		password: process.env.TEST_ADMIN9_PASSWORD || '',
+		role: 'admin'
+	},
+	{
+		email: process.env.TEST_ADMIN10_EMAIL || '',
+		password: process.env.TEST_ADMIN10_PASSWORD || '',
+		role: 'admin'
 	}
 ];
 
 /**
  * Pool of regular users for parallel execution
- * Worker 0-4 use these accounts (user1, user2, user3, user4, user5)
+ * Worker 0-9 use these accounts (user1-10)
  *
  * NOTE: TEST_USER_EMAIL is RESERVED for @reserved tests
  * that use the parallel-test-reserved fixture.
@@ -95,6 +120,31 @@ const USER_POOL: Omit<WorkerUser, 'workerIndex'>[] = [
 	{
 		email: process.env.TEST_USER5_EMAIL || '',
 		password: process.env.TEST_USER5_PASSWORD || '',
+		role: 'user'
+	},
+	{
+		email: process.env.TEST_USER6_EMAIL || '',
+		password: process.env.TEST_USER6_PASSWORD || '',
+		role: 'user'
+	},
+	{
+		email: process.env.TEST_USER7_EMAIL || '',
+		password: process.env.TEST_USER7_PASSWORD || '',
+		role: 'user'
+	},
+	{
+		email: process.env.TEST_USER8_EMAIL || '',
+		password: process.env.TEST_USER8_PASSWORD || '',
+		role: 'user'
+	},
+	{
+		email: process.env.TEST_USER9_EMAIL || '',
+		password: process.env.TEST_USER9_PASSWORD || '',
+		role: 'user'
+	},
+	{
+		email: process.env.TEST_USER10_EMAIL || '',
+		password: process.env.TEST_USER10_PASSWORD || '',
 		role: 'user'
 	}
 ];
