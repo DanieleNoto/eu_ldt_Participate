@@ -38,14 +38,17 @@ async function ensureAuthenticated(
 	workerIndex: number
 ): Promise<void> {
 	const baseURL = process.env.FE_BASE_URL || 'https://part-int.ldttoolbox.app';
+	const isCI = process.env.CI === 'true';
+	const sessionCheckTimeout = isCI ? 20000 : 10000; // 20s on CI, 10s local
+	const navigationTimeout = isCI ? 60000 : 60000; // 60s both CI and local
 
-	await page.goto(baseURL);
-	await page.waitForLoadState('networkidle');
+	await page.goto(baseURL, { timeout: navigationTimeout });
+	await page.waitForLoadState('networkidle', { timeout: navigationTimeout });
 
-	// Check if user is still logged in (10 seconds to allow Decidim session validation)
+	// Check if user is still logged in
 	const isLoggedIn = await page
 		.locator('#trigger-dropdown-account')
-		.isVisible({ timeout: 10000 })
+		.isVisible({ timeout: sessionCheckTimeout })
 		.catch(() => false);
 
 	if (isLoggedIn) {
@@ -57,15 +60,15 @@ async function ensureAuthenticated(
 
 	// Navigate directly to login page
 	const loginUrl = `${baseURL}/users/sign_in`;
-	await page.goto(loginUrl);
-	await page.waitForLoadState('networkidle');
+	await page.goto(loginUrl, { timeout: navigationTimeout });
+	await page.waitForLoadState('networkidle', { timeout: navigationTimeout });
 
 	// Wait for login form to be visible
 	const emailField = page.locator('#session_user_email');
 	const passwordField = page.locator('#session_user_password');
 
-	await emailField.waitFor({ state: 'visible' });
-	await passwordField.waitFor({ state: 'visible' });
+	await emailField.waitFor({ state: 'visible', timeout: sessionCheckTimeout });
+	await passwordField.waitFor({ state: 'visible', timeout: sessionCheckTimeout });
 
 	// Fill and submit login form
 	await emailField.fill(user.email);
@@ -73,12 +76,12 @@ async function ensureAuthenticated(
 	await page.getByRole('button', { name: 'Log in' }).click();
 
 	// Wait for login to complete
-	await page.locator('#trigger-dropdown-account').waitFor({ state: 'visible' });
+	await page.locator('#trigger-dropdown-account').waitFor({ state: 'visible', timeout: navigationTimeout });
 
 	// After re-authentication, navigate admin to admin homepage
 	if (role === 'admin') {
-		await page.goto(`${baseURL}/admin/`);
-		await page.waitForLoadState('networkidle');
+		await page.goto(`${baseURL}/admin/`, { timeout: navigationTimeout });
+		await page.waitForLoadState('networkidle', { timeout: navigationTimeout });
 	}
 
 	console.log(`[Worker ${workerIndex}] Re-authentication successful for reserved ${role}`);
