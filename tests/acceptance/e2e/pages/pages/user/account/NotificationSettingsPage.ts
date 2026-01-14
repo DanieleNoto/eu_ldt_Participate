@@ -87,6 +87,12 @@ export class NotificationSettingsPage extends AuthenticatedPage {
 		}
 	}
 
+	async setEvaluators(enabled: boolean): Promise<void> {
+		if ((await this.evaluetorsEmailToggle.isChecked()) !== enabled) {
+			await this.evaluetorsEmailToggle.click();
+		}
+	}
+
 	// Frequency methods
 	async setFrequency(frequency: NotificationFrequency): Promise<void> {
 		switch (frequency) {
