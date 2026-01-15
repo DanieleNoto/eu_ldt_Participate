@@ -132,22 +132,21 @@ class ChatbotInjector
   end
 
   def inject_chatbot_snippet(html, env)
-    snippet = build_snippet(env)
+    snippet = build_snippet(html, env)
     return unless snippet
 
     html.sub(BODY_CLOSING_TAG, "#{snippet}\n#{BODY_CLOSING_TAG}")
   end
 
-  def build_snippet(env)
+  def build_snippet(html, env)
     # Use Decidim's API proxy instead of direct service URL
     base_url = "/chatbot-api"
     cache_token = cache_buster_value
     loader_src = "#{base_url}/index.js"
     loader_src = "#{loader_src}?v=#{cache_token}" if cache_token
 
-    # Detect language for the chatbot (priority: query param > path > session > default)
-    language = Rack::Utils.escape_html(extract_locale(env))
-    Rack::Utils.escape_html(loader_src)
+    # Detect language from HTML lang attribute (most reliable)
+    language = Rack::Utils.escape_html(extract_locale_from_html(html) || extract_locale(env))
 
     # Use relative URL for API - will work in both HTTP and HTTPS
     # The proxy controller will forward to the actual backend service
@@ -182,9 +181,42 @@ class ChatbotInjector
     (Time.now.to_f * 1000).to_i.to_s
   end
 
+  def extract_locale_from_html(html)
+    # Extract locale from <html lang="xx"> attribute
+    match = html.match(/<html[^>]+lang=["']([a-z]{2}(?:-[A-Z]{2})?)["']/i)
+    match ? match[1].split('-').first : nil
+  rescue StandardError
+    nil
+  end
+
   def extract_locale(env)
-    # Priority: user's current locale > query param > path > default
-    env["decidim.current_locale"] || query_locale(env) || path_locale(env) || default_locale
+    # Priority: cookie > session > I18n.locale > decidim.current_locale > query param > path > default
+    cookie_locale(env) ||
+      session_locale(env) ||
+      (I18n.locale.to_s if I18n.locale.to_s != "en") ||
+      env["decidim.current_locale"].presence || 
+      query_locale(env) || 
+      path_locale(env) || 
+      default_locale
+  end
+  
+  def cookie_locale(env)
+    return nil unless env["HTTP_COOKIE"]
+    
+    cookies = Rack::Utils.parse_query(env["HTTP_COOKIE"], ";,")
+    decidim_locale = cookies["decidim-locale"] || cookies["locale"]
+    decidim_locale&.strip&.presence
+  rescue StandardError
+    nil
+  end
+  
+  def session_locale(env)
+    return nil unless env["rack.session"]
+    
+    session = env["rack.session"]
+    session["locale"] || session[:locale]
+  rescue StandardError
+    nil
   end
 
   def query_locale(env)
