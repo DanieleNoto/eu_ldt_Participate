@@ -236,6 +236,16 @@ fr:
                 no_reply_notice: |
                     Cet e-mail a été envoyé depuis une adresse de notification uniquement qui n'accepte pas les messages entrants. Veuillez ne pas répondre à cet e-mail.<br><br>
                     Vous pouvez consulter comment nous traitons vos données et comment exercer vos droits dans la <a href="%{privacy_policy_url}">Politique de Confidentialité</a>, ainsi que gérer la réception des e-mails dans vos <a href="%{notification_preferences_url}">Préférences de Notification</a>.
+        decidim_awesome:
+            admin:
+                admin_accountability:
+                    index:
+                        description: Vous trouverez ici la liste de tous les utilisateurs ayant un rôle dans l'administration d'un espace participatif. Les administrateurs "normaux" ne sont pas listés.
+                        global_description: Vous trouverez ici la liste de tous les utilisateurs ayant un rôle global dans l'administration de cette organisation. Les administrateurs d'espaces participatifs ne sont pas listés.
+                        missing_users: 'NOTE : Cette liste peut ne pas inclure les utilisateurs créés/supprimés avant le %{date}. En effet, la "traçabilité des utilisateurs" a été introduite dans Decidim v0.24 et cette installation est probablement plus ancienne.'
+                        see_global: Lister les administrateurs
+                        see_spaces: Lister les administrateurs d'espace participatif
+                        title: Suivi administrateur
     devise:
         omniauth_callbacks:
             add_tos_errors: La politique de confidentialité doit être acceptée pour créer un compte.

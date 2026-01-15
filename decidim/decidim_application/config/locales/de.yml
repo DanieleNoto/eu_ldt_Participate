@@ -236,6 +236,16 @@ de:
                 no_reply_notice: |
                     Diese E-Mail wurde von einer Nur-Benachrichtigungs-Adresse gesendet, die keine eingehenden Nachrichten akzeptiert. Bitte antworten Sie nicht auf diese E-Mail.<br><br>
                     Sie können überprüfen, wie wir Ihre Daten verarbeiten und wie Sie Ihre Rechte ausüben können in der <a href="%{privacy_policy_url}">Datenschutzrichtlinie</a>, sowie den Empfang von E-Mails in Ihren <a href="%{notification_preferences_url}">Benachrichtigungseinstellungen</a> verwalten.
+        decidim_awesome:
+            admin:
+                admin_accountability:
+                    index:
+                        description: Hier finden Sie alle Benutzer, die eine administrator-Rolle in der Verwaltung eines partizipatorischen Raumes gespielt haben. Superadministratoren sind nicht aufgeführt.
+                        global_description: Hier finden Sie alle Benutzer, die eine superadministratoren-Rolle in der Verwaltung eines partizipatorischen Raumes gespielt haben. Normalen administrator-Rolle sind nicht aufgeführt.
+                        missing_users: 'HINWEIS: Diese Liste enthält möglicherweise keine vor %{date} erstellten/entfernten Benutzer. Dies liegt daran, dass die "Benutzerverfolgbarkeit" in Decidim v0.24 eingeführt wurde und diese Installation wahrscheinlich älter ist.'
+                        see_global: Globale Admins auflisten
+                        see_spaces: Admins von partizipativen Räumen auflisten
+                        title: Admin-Verantwortung
     devise:
         omniauth_callbacks:
             add_tos_errors: Die Datenschutzrichtlinie muss akzeptiert werden, um ein Konto zu erstellen.

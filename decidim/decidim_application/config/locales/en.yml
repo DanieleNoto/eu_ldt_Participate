@@ -236,6 +236,16 @@ en:
                 no_reply_notice: |
                     This email has been sent from a notification-only address that does not accept incoming messages. Please do not reply to this email.<br><br>
                     You can review how we process your data and how to exercise your rights in the <a href="%{privacy_policy_url}">Privacy Policy</a>, as well as manage the receipt of emails in your <a href="%{notification_preferences_url}">Notification Preferences</a>.
+        decidim_awesome:
+            admin:
+                admin_accountability:
+                    index:
+                        description: Listed here you'll find all users that have had some role in the administration of a participatory space. Normal admins are not listed.
+                        global_description: Listed here you'll find all users that have had some global role in administrating this organization. Participatory space admins are not listed.
+                        missing_users: 'NOTE: This list might not include users created/removed before %{date}. This is because "user traceability" was introduced in Decidim v0.24 and this installation is probably older.'
+                        see_global: List global admins
+                        see_spaces: List participatory space admins
+                        title: Admin accountability
     devise:
         omniauth_callbacks:
             add_tos_errors: Privacy policy must be accepted in order to create an account.
@@ -245,3 +255,6 @@ en:
                 edit: Edit
             footer:
                 terms_of_service: Privacy Policy
+---
+en:
+    decidim:

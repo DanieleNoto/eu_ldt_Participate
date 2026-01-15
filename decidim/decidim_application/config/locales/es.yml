@@ -236,6 +236,16 @@ es:
                 no_reply_notice: |
                     Este correo electrónico ha sido enviado desde una dirección de solo notificación que no acepta mensajes entrantes. Por favor, no responda a este correo electrónico.<br><br>
                     Puede revisar cómo procesamos sus datos y cómo ejercer sus derechos en la <a href="%{privacy_policy_url}">Política de Privacidad</a>, así como gestionar la recepción de correos electrónicos en sus <a href="%{notification_preferences_url}">Preferencias de Notificación</a>.
+        decidim_awesome:
+            admin:
+                admin_accountability:
+                    index:
+                        description: Listado aquí encontrarás todas las participantes que han tenido algún papel en la administración de un espacio participativo. Las administradoras de plataforma no aparecen en la lista.
+                        global_description: Listado aquí encontrarás todos los usuarios que han tenido un papel en la administración de la plataforma. Las administradoras de espacio participativo no están listadas.
+                        missing_users: 'NOTA: Esta lista podría no incluir usuarios creados/eliminados antes de %{date}. Esto se debe a que la "trazabilidad del usuario" fue introducida en Decidim v0.24 y esta instalación probablemente sea más antigua.'
+                        see_global: Lista de administradores
+                        see_spaces: Lista de administradoras de espacio participativo
+                        title: Histórico de administradoras
     devise:
         omniauth_callbacks:
             add_tos_errors: Debes aceptar la política de privacidad para crear una cuenta.
