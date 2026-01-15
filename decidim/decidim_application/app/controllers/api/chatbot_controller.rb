@@ -20,6 +20,8 @@ module Api
     # Fallback handler to ensure API clients always receive JSON (not HTML error pages)
     rescue_from StandardError, with: :handle_internal_error
 
+    ALLOWED_CORS_ORIGINS = ENV['RAILS_ASSET_HOST'].present? ? [ENV['RAILS_ASSET_HOST']] : ['https://part-int.ldttoolbox.app']
+
     # Override Keycloak callbacks to prevent them from running on API proxy
     def check_keycloak_auto_logout
       # No-op for API proxy controller
@@ -180,7 +182,8 @@ module Api
 
         # Handle CORS headers
         forwarded_headers[key] = if key.downcase == "access-control-allow-origin"
-                                   "*" # Allow from any origin since we're proxying
+                                   request_origin = request.headers['Origin']
+                                   ALLOWED_CORS_ORIGINS.include?(request_origin) ? request_origin : nil
                                  else
                                    value
                                  end
@@ -223,7 +226,10 @@ module Api
       end
 
       # Enable CORS
-      response.headers["Access-Control-Allow-Origin"] = "*"
+      request_origin = request.headers['Origin']
+      if ALLOWED_CORS_ORIGINS.include?(request_origin)
+        response.headers["Access-Control-Allow-Origin"] = request_origin
+      end
       response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
       response.headers["Access-Control-Allow-Headers"] = "*"
 
@@ -400,5 +406,16 @@ module Api
 
       Rails.logger.debug { "SSL verification enabled for #{uri.hostname}" }
     end
+  end
+
+  # Handle CORS preflight OPTIONS requests
+  def options
+    request_origin = request.headers['Origin']
+    if ALLOWED_CORS_ORIGINS.include?(request_origin)
+      response.headers["Access-Control-Allow-Origin"] = request_origin
+    end
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    head :ok
   end
 end
