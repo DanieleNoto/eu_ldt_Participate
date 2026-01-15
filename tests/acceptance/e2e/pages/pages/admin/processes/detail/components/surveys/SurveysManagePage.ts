@@ -16,7 +16,8 @@ import { LocalizationUtils } from '@utils/localization.utils';
  */
 export class SurveysManagePage extends BaseAdminPage {
 	static readonly VALIDATION_ERROR_STATEMENT_BLANK = 'cannot be blank';
-	static readonly VALIDATION_ERROR_BODY_BLANK = 'characters left500 characters leftBody cannot be blank';
+	static readonly VALIDATION_ERROR_BODY_BLANK = 'cannot be blank';
+	static readonly VALIDATION_ERROR_PRIVACY_POLICY_UNCHECKED = 'must be accepted';
 
 	constructor(page: Page) {
 		super(page);
@@ -758,6 +759,7 @@ export class SurveysManagePage extends BaseAdminPage {
 	async verifySurveyValidationErrors(): Promise<void> {
 		// Verify validation error for missing mandatory field is displayed
 		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_BODY_BLANK)).toBeVisible();
+		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_PRIVACY_POLICY_UNCHECKED)).toBeVisible();
 		console.log('Survey validation errors are displayed for missing mandatory fields');
 	}
 

@@ -128,8 +128,8 @@ export class MeetingsPage extends BaseAdminPage {
 	}
 
 	async verifyMeetingsPageVisible() {
-		await expect(this.meetingsTable).toBeVisible();
-		await expect(this.newMeetingButton).toBeVisible();
+		await expect(this.meetingsTable).toBeVisible({ timeout: 2000 });
+		await expect(this.newMeetingButton).toBeVisible({ timeout: 2000 });
 	}
 
 	async hasMeetingToPublish(): Promise<boolean> {

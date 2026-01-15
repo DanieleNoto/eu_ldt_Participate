@@ -66,7 +66,7 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 		if (name && email) {
 			// Look for a row that contains both name and email using hasText for partial matching
 			const row = table.locator('tr').filter({ hasText: name }).filter({ hasText: email });
-			await expect(row.first()).toBeVisible();
+			await expect(row.first()).toBeVisible({ timeout: 2000 });
 		} else if (name) {
 			// Look for a row containing the name
 			const row = table.locator('tr', { hasText: name });

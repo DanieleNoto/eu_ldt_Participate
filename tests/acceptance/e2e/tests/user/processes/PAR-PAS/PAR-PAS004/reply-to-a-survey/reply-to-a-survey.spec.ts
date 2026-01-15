@@ -180,6 +180,7 @@ test.describe('[PAR-PAS004] – Reply to a survey @reserved', () => {
 
 			await test.step('8.4 User: Attempts to save the survey again', async () => {
 				await publicSurveysPage.submitSurvey();
+				await publicSurveysPage.validateAndConfirmSubmission();
 			});
 
 			await test.step('8.5 System: Revalidates the corrected fields', async () => {
