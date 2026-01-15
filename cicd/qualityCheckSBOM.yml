@@ -17,16 +17,23 @@ jobs:
       steps:
           - task: UseNode@1
             inputs:
-                version: '22.14'
+                version: '20.x'
             displayName: 'Install Node.js'
 
           - script: |
-                npm install -g @cyclonedx/cdxgen
-                FETCH_LICENSE=true cdxgen -r -o SBOM_Tool_3_EU_LDT_Participate.json
+                node -v
+                npm -v
+                npm cache clean --force
+                npm install -g @cyclonedx/cdxgen@latest
+
+                export CDXGEN_NO_CACHE=true
+                export NO_PROXY="*"
+
+                FETCH_LICENSE=true cdxgen -r -o SBOM_Tool_4_EU_LDT_City_Innovation_Planner.json
             displayName: 'Generate SBOM'
 
           - task: PublishPipelineArtifact@1
             displayName: Publish SBOM
             inputs:
-                targetPath: $(System.DefaultWorkingDirectory)/SBOM_Tool_3_EU_LDT_Participate.json
+                targetPath: $(System.DefaultWorkingDirectory)/SBOM_Tool_4_EU_LDT_City_Innovation_Planner.json
                 artifactName: sbom
