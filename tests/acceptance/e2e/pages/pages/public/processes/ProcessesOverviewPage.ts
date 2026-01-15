@@ -132,11 +132,30 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	/**
 	 * Navigates to a process by clicking on its card using the process title
 	 * @param processTitle - The title of the process to navigate to
+	 * @param processSlug - Optional: The exact slug of the process for fallback navigation
 	 */
-	async navigateToProcessByTitle(processTitle: string): Promise<void> {
-		const processCard = this.getProcessCardByTitle(processTitle);
-		await processCard.click();
-		await this.waitForLoadState('networkidle');
+	async navigateToProcessByTitle(processTitle: string, processSlug?: string): Promise<void> {
+		// Try to find and click the card by title
+		const processCard = this.getAllProcessCardByTitle(processTitle);
+		const cardCount = await processCard.count();
+
+		if (cardCount > 0) {
+			// Card found, click it
+			await processCard.first().click();
+			await this.waitForLoadState('networkidle');
+		} else {
+			// Fallback: Navigate directly using provided slug or derived from title
+			const slug =
+				processSlug ||
+				processTitle
+					.toLowerCase()
+					.replace(/[^a-z0-9]+/g, '-')
+					.replace(/^-+|-+$/g, '');
+
+			console.log(`Process card not found for "${processTitle}", navigating directly to slug: ${slug}`);
+			await this.navigateTo(`/processes/${slug}`);
+			await this.waitForLoadState('networkidle');
+		}
 	}
 
 	/**

@@ -42,18 +42,20 @@ for (let userIndex = 0; userIndex < adminUsers.length; userIndex++) {
 			// Perform login
 			await loginPage.login(user.email, user.password);
 
-			// Verify admin access
+			// Verify login successful
 			await page.waitForSelector('#trigger-dropdown-account');
 
-			// Verify admin permissions
+			// Verify admin permissions by checking for admin-bar
 			const adminBar = page.locator('#admin-bar');
-			if (await adminBar.isVisible()) {
-				console.log(`[Setup] Admin ${userIndex} verified with admin permissions`);
-			} else {
-				console.warn(`[Setup] Admin ${userIndex} may not have admin permissions`);
+			const isAdminBarVisible = await adminBar.isVisible().catch(() => false);
+
+			if (!isAdminBarVisible) {
+				console.error(`[Setup] Admin ${userIndex} does NOT have admin permissions - admin-bar not found`);
+				throw new Error(`User ${user.email} (index ${userIndex}) is not an admin - cannot create admin state`);
 			}
 
-			// Save storage state for this user
+			console.log(`[Setup] Admin ${userIndex} verified with admin permissions`);
+			// Save storage state
 			await context.storageState({ path: storagePath });
 			console.log(`[Setup] Admin ${userIndex} state saved to: ${storagePath}`);
 		} finally {

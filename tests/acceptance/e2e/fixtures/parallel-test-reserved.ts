@@ -40,35 +40,57 @@ async function ensureAuthenticated(
 	const baseURL = process.env.FE_BASE_URL || 'https://part-int.ldttoolbox.app';
 	const isCI = process.env.CI === 'true';
 	const sessionCheckTimeout = isCI ? 20000 : 10000; // 20s on CI, 10s local
-	const navigationTimeout = isCI ? 60000 : 60000; // 60s both CI and local
+	const authTimeout = isCI ? 90000 : 60000; // 90s on CI for authentication, 60s local
 
-	await page.goto(baseURL, { timeout: navigationTimeout });
-	await page.waitForLoadState('networkidle', { timeout: navigationTimeout });
+	// Navigate to home page to check session status
+	await page.goto(baseURL, { timeout: authTimeout, waitUntil: 'domcontentloaded' });
 
-	// Check if user is still logged in
+	// Wait for page body to be loaded before checking login status
+	await page.locator('body').waitFor({ state: 'attached', timeout: sessionCheckTimeout });
+
+	// First check if we're already logged in by looking for the account dropdown
+	// This is a positive indicator that the session is valid
 	const isLoggedIn = await page
 		.locator('#trigger-dropdown-account')
 		.isVisible({ timeout: sessionCheckTimeout })
 		.catch(() => false);
 
 	if (isLoggedIn) {
-		console.log(`[Worker ${workerIndex}] Session still valid for reserved ${role}`);
+		console.log(`[Worker ${workerIndex}] Already logged in as reserved ${role} (account dropdown visible)`);
+
+		// Navigate to appropriate page based on role
+		if (role === 'admin') {
+			await page.goto(`${baseURL}/admin/`, { timeout: authTimeout, waitUntil: 'domcontentloaded' });
+			await page.locator('body').waitFor({ state: 'attached', timeout: sessionCheckTimeout });
+		}
+
 		return;
 	}
 
-	console.log(`[Worker ${workerIndex}] Session expired for reserved ${role} - Re-authenticating...`);
+	// If not logged in, check if we see the login link
+	const needsLogin = await page
+		.getByRole('link', { name: 'Log in' })
+		.isVisible({ timeout: sessionCheckTimeout })
+		.catch(() => false);
+
+	if (!needsLogin) {
+		// Neither account dropdown nor login link visible - session might be in invalid state
+		console.log(`[Worker ${workerIndex}] Session state unclear for reserved ${role} - forcing re-authentication`);
+	} else {
+		console.log(`[Worker ${workerIndex}] Not logged in as reserved ${role} - Login link visible`);
+	}
 
 	// Navigate directly to login page
 	const loginUrl = `${baseURL}/users/sign_in`;
-	await page.goto(loginUrl, { timeout: navigationTimeout });
-	await page.waitForLoadState('networkidle', { timeout: navigationTimeout });
+	await page.goto(loginUrl, { timeout: authTimeout });
+	await page.waitForLoadState('networkidle', { timeout: authTimeout });
 
 	// Wait for login form to be visible
 	const emailField = page.locator('#session_user_email');
 	const passwordField = page.locator('#session_user_password');
 
-	await emailField.waitFor({ state: 'visible', timeout: sessionCheckTimeout });
-	await passwordField.waitFor({ state: 'visible', timeout: sessionCheckTimeout });
+	await emailField.waitFor({ state: 'visible', timeout: authTimeout });
+	await passwordField.waitFor({ state: 'visible', timeout: authTimeout });
 
 	// Fill and submit login form
 	await emailField.fill(user.email);
@@ -76,15 +98,15 @@ async function ensureAuthenticated(
 	await page.getByRole('button', { name: 'Log in' }).click();
 
 	// Wait for login to complete
-	await page.locator('#trigger-dropdown-account').waitFor({ state: 'visible', timeout: navigationTimeout });
+	await page.locator('#trigger-dropdown-account').waitFor({ state: 'visible', timeout: authTimeout });
 
-	// After re-authentication, navigate admin to admin homepage
+	// After authentication, navigate admin to admin homepage
 	if (role === 'admin') {
-		await page.goto(`${baseURL}/admin/`, { timeout: navigationTimeout });
-		await page.waitForLoadState('networkidle', { timeout: navigationTimeout });
+		await page.goto(`${baseURL}/admin/`, { timeout: authTimeout });
+		await page.waitForLoadState('networkidle', { timeout: authTimeout });
 	}
 
-	console.log(`[Worker ${workerIndex}] Re-authentication successful for reserved ${role}`);
+	console.log(`[Worker ${workerIndex}] Authentication successful for reserved ${role}`);
 }
 
 export type ParallelTestReservedFixtures = {

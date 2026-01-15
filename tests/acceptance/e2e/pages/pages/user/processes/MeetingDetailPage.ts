@@ -233,23 +233,28 @@ export class MeetingDetailPage extends AuthenticatedPage {
 
 	async expectLinkToJoinMeetingNotYetAvailable() {
 		await expect(this.page.locator('.meeting__online')).toBeVisible();
-		await expect(this.page.locator('.meeting__online p')).toHaveText(
+		await expect(this.page.locator('.meeting__online p').last()).toHaveText(
 			'The link to join the meeting will be available a few minutes before it starts'
 		);
 	}
 
 	// /**
 	//  * Check which scenario you landed in after join
+	//  * @param openedPage - Optional page that was already opened (if the test already captured the new tab)
 	//  */
-	async verifyJoinMeetingResult(): Promise<{
+	async verifyJoinMeetingResult(openedPage?: Page): Promise<{
 		success: boolean;
 		outcome: 'embed' | 'liveEvent' | 'newTab' | 'unknown';
 	}> {
-		let newPage: Page | null = null;
-		try {
-			newPage = await this.page.context().waitForEvent('page');
-		} catch {
-			newPage = null;
+		let newPage: Page | null = openedPage ?? null;
+
+		// Only try to wait for new page if not already provided
+		if (!newPage) {
+			try {
+				newPage = await this.page.context().waitForEvent('page', { timeout: 5000 });
+			} catch {
+				newPage = null;
+			}
 		}
 
 		const targetPage = newPage ?? this.page;
@@ -262,7 +267,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 
 		// Case 1: Live Event
 		if (url.includes('/meetings/') && url.includes('/live_event')) {
-			await expect(targetPage).toHaveURL(/\/meetings\/\d+\/live_event/);
+			await expect(targetPage).toHaveURL(/\/processes\/[^\/]+\/f\/\d+\/meetings\/\d+\/live_event/);
 			return { success: true, outcome: 'liveEvent' };
 		}
 

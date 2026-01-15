@@ -4,7 +4,7 @@
  * Simone Bianchelli
  */
 
-import { test, expect, BrowserContext, Page } from '@playwright/test';
+import { test, expect } from '@fixtures/keycloak-test';
 import { AdminHomePage } from '../../../../../../pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '../../../../../../pages/pages/admin/processes/ProcessAdminPage';
 import { UpdateProcessAdminPage } from '../../../../../../pages/pages/admin/processes/detail/UpdateProcessAdminPage';
@@ -25,8 +25,6 @@ import { UseCaseScenariosPage } from '../../../../../../pages/pages/public/proce
  */
 
 test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in process', () => {
-	let context: BrowserContext;
-	let page: Page;
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -45,27 +43,22 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 	let componentId: string | null = null;
 	let componentName: string | null = null;
 
-	test.beforeEach(async ({ browser }) => {
-		// create a new browser context and page
-		context = await browser.newContext({ locale: 'en-US' });
-		page = await context.newPage();
+	test.beforeEach(async ({ adminPage }) => {
+		// Initialize page objects with adminPage from fixture (already authenticated)
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
+		surveysManagePage = new SurveysManagePage(adminPage);
+		ldtUseCaseScenariosPage = new LDTUseCaseScenariosComponentPage(adminPage);
+		processDetailPage = new ProcessDetailPage(adminPage);
+		useCaseScenariosPage = new UseCaseScenariosPage(adminPage);
 
 		// Navigate to admin dashboard
-		adminHomePage = new AdminHomePage(page);
 		await adminHomePage.goToAdminDashboard();
-
-		// Initialize admin page objects
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		surveysManagePage = new SurveysManagePage(page);
-		ldtUseCaseScenariosPage = new LDTUseCaseScenariosComponentPage(page);
-		processDetailPage = new ProcessDetailPage(page);
-		useCaseScenariosPage = new UseCaseScenariosPage(page);
 	});
 
-	test.afterEach(async () => {
+	test.afterEach(async ({ adminPage }) => {
 		if (selectedExperimentId && componentId) {
 			try {
 				console.log('Starting cleanup: Deleting association...');
@@ -85,15 +78,17 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				await componentsPage.hideComponentByName(componentName);
 
 				// Wait for success message
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
-				await expect(page.getByText('The component has been successfully hidden from the menu')).toBeVisible();
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
+				await expect(
+					adminPage.getByText('The component has been successfully hidden from the menu')
+				).toBeVisible();
 
 				// Unpublish component
 				await componentsPage.unpublishComponentByName(componentName);
 
 				// Wait for success message
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
-				await expect(page.getByText('The component has been successfully unpublished')).toBeVisible();
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
+				await expect(adminPage.getByText('The component has been successfully unpublished')).toBeVisible();
 
 				// Delete component
 				await componentsPage.deleteComponentIfExists(componentName);
@@ -104,17 +99,6 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				} else {
 					console.error('Cleanup failed with unknown error:', String(error));
 				}
-			}
-		}
-
-		// Close browser context
-		try {
-			await context.close();
-		} catch (error) {
-			if (error instanceof Error) {
-				console.log('Admin session already disposed:', error.message);
-			} else {
-				console.log('Admin session disposal issue:', String(error));
 			}
 		}
 
@@ -154,6 +138,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
+				const page = updateProcessAdminPage['page'];
 				await page.waitForURL(new RegExp(`/admin/participatory_processes/${processSlug}/edit`));
 				await page.waitForLoadState('networkidle');
 
@@ -180,6 +165,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				await ldtUseCaseScenariosPage.saveComponent();
 				console.log('Component saved successfully');
 
+				const page = componentsPage['page'];
 				await page.waitForLoadState('networkidle');
 
 				// Verify redirect to components page
@@ -243,6 +229,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				console.log('Clicked Save to confirm association configuration');
 
 				// Verify redirect back to component manage page
+				const page = componentsPage['page'];
 				await page.waitForURL(
 					new RegExp(
 						`/admin/participatory_processes/${processSlug}/components/\\d+/manage/ldt_use_case_scenarios`
@@ -324,6 +311,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
+				const page = updateProcessAdminPage['page'];
 				await page.waitForURL(new RegExp(`/admin/participatory_processes/${processSlug}/edit`));
 				await page.waitForLoadState('networkidle');
 
@@ -350,11 +338,8 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				await ldtUseCaseScenariosPage.saveComponent();
 				console.log('Component saved successfully');
 
-				// await page.waitForLoadState('networkidle');
-
-				// Verify redirect to components page
-				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
-				console.log('Redirected to components page');
+				const page = componentsPage['page'];
+				await page.waitForLoadState('networkidle');
 
 				// Verify success message is displayed
 				await componentsPage.verifyComponentCreatedSuccessfully();
@@ -397,6 +382,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 			});
 
 			await test.step('7. User: Clicks on "Save Configuration" to confirm the selection', async () => {
+				const page = ldtUseCaseScenariosPage['page'];
 				// Save the association configuration without selecting anything
 				await ldtUseCaseScenariosPage.saveAssociationConfiguration();
 				console.log('Clicked Save without selecting experiment');
@@ -427,6 +413,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 			});
 
 			await test.step('10. User: Clicks "Save Configuration" again.', async () => {
+				const page = ldtUseCaseScenariosPage['page'];
 				// Save the association configuration
 				await ldtUseCaseScenariosPage.saveAssociationConfiguration();
 				console.log('Clicked Save to confirm association configuration');

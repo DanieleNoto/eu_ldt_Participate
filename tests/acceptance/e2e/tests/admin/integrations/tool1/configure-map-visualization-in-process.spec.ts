@@ -4,7 +4,7 @@
  * Simone Bianchelli
  */
 
-import { test, expect, BrowserContext, Page } from '@playwright/test';
+import { test, expect } from '@fixtures/keycloak-test';
 import { AdminHomePage } from '../../../../pages/pages/admin/AdminHomePage';
 import { ProcessAdminPage } from '../../../../pages/pages/admin/processes/ProcessAdminPage';
 import { UpdateProcessAdminPage } from '../../../../pages/pages/admin/processes/detail/UpdateProcessAdminPage';
@@ -24,8 +24,6 @@ import { MapVisualizationPage } from '../../../../pages/pages/public/processes/M
  */
 
 test.describe('@useKeycloak Configure Map Visualization in process', () => {
-	let context: BrowserContext;
-	let page: Page;
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -45,27 +43,21 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 	let componentName: string | null = null;
 	let associationName: string | null = null;
 
-	test.beforeEach(async ({ browser }) => {
-		// create a new browser context and page
-		context = await browser.newContext({ locale: 'en-US' });
-		page = await context.newPage();
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		processAdminPage = new ProcessAdminPage(adminPage);
+		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
+		componentsPage = new ComponentsPage(adminPage);
+		surveysManagePage = new SurveysManagePage(adminPage);
+		ldtMapVisualizationPage = new LDTMapVisualizationComponentPage(adminPage);
+		processDetailPage = new ProcessDetailPage(adminPage);
+		mapVisualizationPage = new MapVisualizationPage(adminPage);
 
 		// Navigate to admin dashboard
-		adminHomePage = new AdminHomePage(page);
 		await adminHomePage.goToAdminDashboard();
-
-		// Initialize admin page objects
-		adminHomePage = new AdminHomePage(page);
-		processAdminPage = new ProcessAdminPage(page);
-		updateProcessAdminPage = new UpdateProcessAdminPage(page);
-		componentsPage = new ComponentsPage(page);
-		surveysManagePage = new SurveysManagePage(page);
-		ldtMapVisualizationPage = new LDTMapVisualizationComponentPage(page);
-		processDetailPage = new ProcessDetailPage(page);
-		mapVisualizationPage = new MapVisualizationPage(page);
 	});
 
-	test.afterEach(async () => {
+	test.afterEach(async ({ adminPage }) => {
 		if (selectedMapId && componentId) {
 			try {
 				console.log('Starting cleanup: Deleting association...');
@@ -85,15 +77,17 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				await componentsPage.hideComponentByName(componentName);
 
 				// Wait for success message
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
-				await expect(page.getByText('The component has been successfully hidden from the menu')).toBeVisible();
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
+				await expect(
+					adminPage.getByText('The component has been successfully hidden from the menu')
+				).toBeVisible();
 
 				// Unpublish component
 				await componentsPage.unpublishComponentByName(componentName);
 
 				// Wait for success message
-				await page.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
-				await expect(page.getByText('The component has been successfully unpublished')).toBeVisible();
+				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
+				await expect(adminPage.getByText('The component has been successfully unpublished')).toBeVisible();
 
 				// Delete component
 				await componentsPage.deleteComponentIfExists(componentName);
@@ -104,17 +98,6 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				} else {
 					console.error('Cleanup failed with unknown error:', String(error));
 				}
-			}
-		}
-
-		// Close browser context
-		try {
-			await context.close();
-		} catch (error) {
-			if (error instanceof Error) {
-				console.log('Admin session already disposed:', error.message);
-			} else {
-				console.log('Admin session disposal issue:', String(error));
 			}
 		}
 
@@ -156,6 +139,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
+				const page = updateProcessAdminPage['page'];
 				await page.waitForURL(new RegExp(`/admin/participatory_processes/${processSlug}/edit`));
 				await page.waitForLoadState('networkidle');
 
@@ -170,6 +154,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 			});
 
 			await test.step('6. User: Clicks on "Add Component" and select LDT Map Visualization', async () => {
+				const page = componentsPage['page'];
 				// Select LDT Map Visualization component type
 				await ldtMapVisualizationPage.addComponentAndSelectLDTMapVisualization(componentsPage, processSlug);
 				console.log('Selected LDT Map Visualization component type');
@@ -183,7 +168,6 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				console.log('Component saved successfully');
 
 				await page.waitForLoadState('networkidle');
-
 				// Verify redirect to components page
 				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
 				console.log('Redirected to components page');
@@ -240,6 +224,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 			});
 
 			await test.step('8. User: Clicks on "Create" to confirm the selection', async () => {
+				const page = ldtMapVisualizationPage['page'];
 				await ldtMapVisualizationPage.saveAssociationConfiguration();
 				console.log('Clicked Create to confirm association configuration');
 
@@ -323,6 +308,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
+				const page = updateProcessAdminPage['page'];
 				await page.waitForURL(new RegExp(`/admin/participatory_processes/${processSlug}/edit`));
 				await page.waitForLoadState('networkidle');
 
@@ -337,6 +323,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 			});
 
 			await test.step('6. User: Clicks on "Add Component" and select LDT Map Visualization', async () => {
+				const page = componentsPage['page'];
 				// Select LDT Map Visualization component type
 				await ldtMapVisualizationPage.addComponentAndSelectLDTMapVisualization(componentsPage, processSlug);
 				console.log('Selected LDT Map Visualization component type');
@@ -350,7 +337,6 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				console.log('Component saved successfully');
 
 				await page.waitForLoadState('networkidle');
-
 				// Verify redirect to components page
 				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
 				console.log('Redirected to components page');
@@ -396,6 +382,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 			});
 
 			await test.step('7. User: Clicks on "Create" to confirm the selection', async () => {
+				const page = ldtMapVisualizationPage['page'];
 				await ldtMapVisualizationPage.saveAssociationConfiguration();
 				console.log('Clicked Create without selecting map');
 
@@ -425,6 +412,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 			});
 
 			await test.step('10. User: Clicks "Create" again.', async () => {
+				const page = ldtMapVisualizationPage['page'];
 				await ldtMapVisualizationPage.saveAssociationConfiguration();
 				console.log('Clicked Create to confirm association configuration');
 
