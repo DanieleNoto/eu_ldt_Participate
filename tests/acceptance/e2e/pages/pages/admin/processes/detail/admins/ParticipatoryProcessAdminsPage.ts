@@ -109,7 +109,7 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 	 */
 	async expectToBeOnParticipatoryProcessAdminsPage(): Promise<void> {
 		await expect(this.page).toHaveURL(/user_roles/);
-		await expect(this.newAdminButton).toBeVisible();
+		await expect(this.newAdminButton).toBeVisible({ timeout: 2000 });
 	}
 
 	/**
