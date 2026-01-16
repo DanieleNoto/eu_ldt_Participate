@@ -12,8 +12,8 @@
 # 2. to_prepare: ensures it's applied when classes are reloaded
 
 # Load the decorator modules
-require_relative '../../../lib/decidim/services/notification_generator_decorator'
-require_relative '../../../lib/decidim/services/email_notification_generator_decorator'
+require_relative '../../lib/decidim/services/notification_generator_decorator'
+require_relative '../../lib/decidim/services/email_notification_generator_decorator'
 
 # Apply decorators at boot time and on class reloads
 Rails.application.config.to_prepare do
