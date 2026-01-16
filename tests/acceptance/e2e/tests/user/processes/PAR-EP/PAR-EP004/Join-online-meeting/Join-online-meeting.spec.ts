@@ -141,6 +141,7 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 				const originalEndDate = new Date('2040-11-27T00:00:00');
 
 				await formMeetingPage.selectCustomDate(originalStartDate, 0, 0);
+				await formMeetingPage.selectCustomTime(0, 0, 0, 0); // Restore original start time (00:00)
 				await formMeetingPage.selectCustomDate(originalEndDate, 1, 1);
 
 				await formMeetingPage.submitForm();
@@ -155,6 +156,7 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 				await meetingsPageAdmin.getPage().waitForLoadState('networkidle');
 
 				await formMeetingPage.selectCustomDate(originalStartDate, 0, 0);
+				await formMeetingPage.selectCustomTime(0, 0, 0, 0); // Restore original start time (00:00)
 				await formMeetingPage.selectCustomDate(originalEndDate, 1, 1);
 
 				await formMeetingPage.submitForm();

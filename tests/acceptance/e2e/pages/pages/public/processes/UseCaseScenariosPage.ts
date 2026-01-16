@@ -85,6 +85,49 @@ export class UseCaseScenariosPage extends BasePage {
 		await this.page.waitForLoadState('networkidle');
 	}
 
+	/**
+	 * Selects a specific scenario by its title
+	 * @param scenarioTitle - The title of the scenario to select
+	 */
+	async selectScenarioByTitle(scenarioTitle: string): Promise<void> {
+		const scenarios = this.page.locator(TEST_SELECTORS.PROCESS.SCENARIO_LIST);
+		const scenarioCount = await scenarios.count();
+
+		let foundScenario = false;
+		for (let i = 0; i < scenarioCount; i++) {
+			const scenario = scenarios.nth(i);
+			const titleLocator = scenario.locator('.card__list-title');
+			let title = (await titleLocator.innerText()).trim();
+			// Normalize whitespace
+			title = title.replace(/\s+/g, ' ').trim();
+
+			if (title === scenarioTitle) {
+				(this.page as any).__selectedScenarioTitle = title;
+
+				const metadataLocator = scenario.locator('.card__list-metadata > div').first();
+				if ((await metadataLocator.count()) > 0) {
+					let metadataText = (await metadataLocator.innerText()).trim();
+					metadataText = metadataText
+						.replace(/\s+/g, ' ')
+						.replace(/\u2026/g, '')
+						.replace(/\.{3,}/g, '')
+						.replace(/[\u200B-\u200D\uFEFF]/g, '')
+						.trim();
+					(this.page as any).__selectedScenarioMetadata = metadataText;
+				}
+
+				await scenario.click();
+				await this.page.waitForLoadState('networkidle');
+				foundScenario = true;
+				break;
+			}
+		}
+
+		if (!foundScenario) {
+			throw new Error(`Scenario with title "${scenarioTitle}" not found`);
+		}
+	}
+
 	async verifyUseCaseContentEmbedded(): Promise<void> {
 		const useCaseContent = this.page.locator(TEST_SELECTORS.PROCESS.USE_CASE_CONTENT);
 		const countContent = await useCaseContent.count();
@@ -114,7 +157,7 @@ export class UseCaseScenariosPage extends BasePage {
 		expect(displayedID).toContain(savedMetadataID);
 
 		const detailsHeading = this.page.locator(TEST_SELECTORS.PROCESS.EXPERIMENT_DETAILS_HEADING);
-		await expect(detailsHeading).toHaveText(/Experiment Details/i);
+		await expect(detailsHeading).toHaveText(/Details of the Experiment Execution/i);
 	}
 
 	async verifyAdditionalUseCaseInfo(): Promise<void> {

@@ -359,6 +359,44 @@ export class MeetingsPage extends BaseAdminPage {
 	}
 
 	/**
+	 * Get meeting ID by title
+	 * @param title - Meeting title to search for
+	 * @returns Meeting ID or -1 if not found
+	 */
+	async getMeetingIdByTitle(title: string): Promise<number> {
+		const meetingCount = await this.getMeetingCount();
+
+		for (let i = 0; i < meetingCount; i++) {
+			const row = this.tableRows.nth(i);
+			const titleCell = row.locator('td').nth(1);
+			const titleLink = titleCell.locator('a');
+			const hasLink = (await titleLink.count()) > 0;
+
+			if (hasLink) {
+				const linkText = await titleLink.textContent();
+				if (linkText && linkText.includes(title)) {
+					// Extract ID from data-id attribute or href
+					const dataId = await row.getAttribute('data-id');
+					if (dataId) {
+						return parseInt(dataId, 10);
+					}
+
+					// Fallback: extract from edit link href
+					const editLink = row.locator('a[title="Edit"]');
+					const href = await editLink.getAttribute('href');
+					if (href) {
+						const match = href.match(/meetings\/(\d+)\/edit/);
+						if (match) {
+							return parseInt(match[1], 10);
+						}
+					}
+				}
+			}
+		}
+		return -1; // Not found
+	}
+
+	/**
 	 * Helper: find the correct cell in a row by header text.
 	 * This makes the method robust against column reordering.
 	 */
