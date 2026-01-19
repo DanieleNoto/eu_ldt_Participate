@@ -159,7 +159,7 @@ jobs:
             displayName: 'Replace tokens chatbot BE'
             inputs:
                 rootDirectory: infrastructure/int/backend
-                targetFiles: 'chatbot-be-configmap.yml,chatbot-be-secrets.yml,chatbot-db-configmap.yml,chatbot-db-secrets.yaml'
+                targetFiles: 'chatbot-be-configmap.yml,chatbot-be-secrets.yaml,chatbot-db-configmap.yml,chatbot-db-secrets.yaml'
                 tokenPattern: custom
                 tokenPrefix: _%
                 tokenSuffix: '%_'

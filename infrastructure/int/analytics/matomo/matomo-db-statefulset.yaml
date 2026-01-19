@@ -38,7 +38,7 @@ spec:
                         protocol: TCP
                   envFrom:
                       - configMapRef:
-                            name: matomo-config
+                            name: matomo-configmap
                       - secretRef:
                             name: matomo-secrets
                   volumeMounts:

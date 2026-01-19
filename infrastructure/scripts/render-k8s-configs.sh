@@ -175,9 +175,6 @@ replace_placeholders() {
       die "Missing value for '$var' (found in: $src_file). Provide it in $ENV_FILE or set ALLOW_UNSET=true."
     fi
 
-    if [[ "$secret_mode" == "true" && -n "${val}" ]]; then
-      val="$(printf '%s' "$val" | b64_one_line)"
-    fi
 
     local val_escaped
     val_escaped="$(printf '%s' "$val" | escape_perl_replacement)"
