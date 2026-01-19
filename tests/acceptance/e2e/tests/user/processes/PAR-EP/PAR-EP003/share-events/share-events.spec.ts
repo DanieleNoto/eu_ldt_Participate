@@ -67,6 +67,7 @@ test.describe('[PAR-EP003] – Share events', () => {
 				await processDetailPage.enhancedVerifyMeetingsCardListVisible();
 			});
 			await test.step('5. User: Selects a specific meeting to view more details.', async () => {
+				await meetingsPage.searchAndVerifyMeetingExists('New meeting test');
 				await meetingsPage.clickMeetingCardByIndex(0);
 			});
 			await test.step('6. System: Displays the meeting details, including the agenda, location, date, time, and access settings.', async () => {

@@ -363,13 +363,21 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		// Verify location and address are visible and contain text
 		const location = this.page.locator('li .address__location').first();
 		const address = this.page.locator('.address__address');
-		await expect(location).toBeVisible();
-		await expect(address).toBeVisible();
+		const onlineLink = this.page.locator('a.address__hints').first();
 
+		await expect(location).toBeVisible();
 		const locationText = (await location.innerText()).trim();
-		const addressText = (await address.innerText()).trim();
 		expect(locationText.length).toBeGreaterThan(0);
-		expect(addressText.length).toBeGreaterThan(0);
+
+		if ((await address.count()) > 0) {
+			await expect(address).toBeVisible();
+			const addressText = (await address.innerText()).trim();
+			expect(addressText.length).toBeGreaterThan(0);
+		} else {
+			await expect(onlineLink).toBeVisible();
+			const linkText = (await onlineLink.innerText()).trim();
+			expect(linkText.length).toBeGreaterThan(0);
+		}
 
 		// Locate the address container that contains the time icon
 		const containers = this.page.locator('.address__container');

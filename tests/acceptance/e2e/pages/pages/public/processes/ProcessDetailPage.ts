@@ -814,16 +814,16 @@ export class ProcessDetailPage extends AuthenticatedPage {
 
 		// Extract the phase name, removing "Current phase" if present
 		const phaseTitleLocator = modal.locator('.participatory-space__metadata-modal__step-title');
-		const rawPhaseText = await phaseTitleLocator.innerText();
+		const rawPhaseText = await phaseTitleLocator.first().innerText();
 		const phaseName = rawPhaseText.replace('Current phase', '').trim();
 
 		// Extract the date range of the phase
 		const dateLocator = modal.locator('.participatory-space__metadata-modal__step-dates');
-		const dateRange = await dateLocator.innerText();
+		const dateRange = await dateLocator.first().innerText();
 
 		// Extract the phase description text
 		const descriptionLocator = modal.locator('.rich-text-display');
-		const description = await descriptionLocator.innerText();
+		const description = await descriptionLocator.first().innerText();
 
 		// Click the close button to dismiss the modal
 		const closeButton = modal.locator('button[data-dialog-close="process-steps-modal"]');
