@@ -35,5 +35,5 @@ jobs:
           - task: PublishPipelineArtifact@1
             displayName: Publish SBOM
             inputs:
-                targetPath: $(System.DefaultWorkingDirectory)/SBOM_Tool_4_EU_LDT_City_Innovation_Planner.json
+                targetPath: $(System.DefaultWorkingDirectory)/SBOM_Tool_3_EU_LDT_Participate.json
                 artifactName: sbom
