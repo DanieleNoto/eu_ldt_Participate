@@ -19,9 +19,10 @@ variables:
       value: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
 jobs:
-    - job: PlaywrightAxeFrontend
+    # Job 1: Parallel Tests (10 workers)
+    - job: PlaywrightParallelTests
       timeoutInMinutes: 120
-      displayName: 'Install and Run Playwright / Axe (Frontend) & Publish Results'
+      displayName: 'Playwright Parallel Tests (10 workers)'
       steps:
           - task: replacetokens@5
             displayName: 'Replace tokens Playwright'
@@ -50,22 +51,148 @@ jobs:
                 npm ci
                 npx playwright install --with-deps
                 npm install @axe-core/playwright axe-sarif-converter
-            displayName: 'Install Playwright / Axe (Frontend)'
-          - script: |
-                cd tests/acceptance/e2e
-                rm -rf a11y-reports
-                echo "Old accessibility reports removed"
-            displayName: 'Clean previous accessibility reports'
+            displayName: 'Install Playwright Dependencies'
 
-          # Setup authentication for all parallel workers
           - script: |
                 cd tests/acceptance/e2e
                 npm run test:parallel:setup
             env:
                 CI: 'true'
-            displayName: 'Setup Parallel Authentication (10 workers + reserved)'
+            displayName: 'Setup Parallel Authentication (10 workers)'
+          - script: |
+                cd tests/acceptance/e2e
+                PLAYWRIGHT_HTML_REPORT=playwright-report-parallel PLAYWRIGHT_JUNIT_OUTPUT_NAME=results-parallel-junit.xml npm run test:parallel
+            env:
+                CI: 'true'
+            continueOnError: true
+            displayName: 'Run Parallel Tests (10 workers)'
+          - task: PublishTestResults@2
+            displayName: 'Publish Parallel Test Results'
+            inputs:
+                testResultsFormat: 'JUnit'
+                testResultsFiles: '**/results-parallel-junit.xml'
+                testRunTitle: 'Playwright Parallel Tests'
+            condition: succeededOrFailed()
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Parallel HTML Report'
+            inputs:
+                PathtoPublish: 'tests/acceptance/e2e/playwright-report-parallel'
+                ArtifactName: 'Playwright-Parallel-Report'
+                publishLocation: 'Container'
+            condition: succeededOrFailed()
+            continueOnError: true
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Parallel Accessibility Reports'
+            inputs:
+                PathtoPublish: 'tests/acceptance/e2e/a11y-reports'
+                ArtifactName: 'Parallel-WCAG-Reports'
+                publishLocation: 'Container'
+            condition: succeededOrFailed()
+            continueOnError: true
 
-          # Setup Keycloak authentication
+    # Job 2: Reserved Tests (1 worker)
+    - job: PlaywrightReservedTests
+      timeoutInMinutes: 120
+      displayName: 'Playwright Reserved Tests (@reserved)'
+      steps:
+          - task: replacetokens@5
+            displayName: 'Replace tokens Playwright'
+            inputs:
+                rootDirectory: tests/acceptance/e2e
+                targetFiles: .env.ci
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+          - task: NodeTool@0
+            inputs:
+                versionSource: 'fromFile'
+                versionFilePath: '.nvmrc'
+          - task: Cache@2
+            inputs:
+                key: 'npm-pw | "$(Agent.OS)" | tests/acceptance/e2e/package-lock.json'
+                restoreKeys: |
+                    npm-pw | "$(Agent.OS)"
+                path: tests/acceptance/e2e/node_modules
+            displayName: 'Cache npm modules (Playwright)'
+          - script: |
+                cd tests/acceptance/e2e
+                npm ci
+                npx playwright install --with-deps
+                npm install @axe-core/playwright axe-sarif-converter
+            displayName: 'Install Playwright Dependencies'
+          - script: |
+                cd tests/acceptance/e2e
+                npm run test:reserved:setup
+            env:
+                CI: 'true'
+            displayName: 'Setup Reserved Authentication (reserved users only)'
+          - script: |
+                cd tests/acceptance/e2e
+                PLAYWRIGHT_HTML_REPORT=playwright-report-reserved PLAYWRIGHT_JUNIT_OUTPUT_NAME=results-reserved-junit.xml npm run test:reserved
+            env:
+                CI: 'true'
+            continueOnError: true
+            displayName: 'Run Reserved Tests (1 worker)'
+          - task: PublishTestResults@2
+            displayName: 'Publish Reserved Test Results'
+            inputs:
+                testResultsFormat: 'JUnit'
+                testResultsFiles: '**/results-reserved-junit.xml'
+                testRunTitle: 'Playwright Reserved Tests'
+            condition: succeededOrFailed()
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Reserved HTML Report'
+            inputs:
+                PathtoPublish: 'tests/acceptance/e2e/playwright-report-reserved'
+                ArtifactName: 'Playwright-Reserved-Report'
+                publishLocation: 'Container'
+            condition: succeededOrFailed()
+            continueOnError: true
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Reserved Accessibility Reports'
+            inputs:
+                PathtoPublish: 'tests/acceptance/e2e/a11y-reports'
+                ArtifactName: 'Reserved-WCAG-Reports'
+                publishLocation: 'Container'
+            condition: succeededOrFailed()
+            continueOnError: true
+
+    # Job 3: Keycloak Tests
+    - job: PlaywrightKeycloakTests
+      timeoutInMinutes: 120
+      displayName: 'Playwright Keycloak Tests (@useKeycloak)'
+      steps:
+          - task: replacetokens@5
+            displayName: 'Replace tokens Playwright'
+            inputs:
+                rootDirectory: tests/acceptance/e2e
+                targetFiles: .env.ci
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+          - task: NodeTool@0
+            inputs:
+                versionSource: 'fromFile'
+                versionFilePath: '.nvmrc'
+          - task: Cache@2
+            inputs:
+                key: 'npm-pw | "$(Agent.OS)" | tests/acceptance/e2e/package-lock.json'
+                restoreKeys: |
+                    npm-pw | "$(Agent.OS)"
+                path: tests/acceptance/e2e/node_modules
+            displayName: 'Cache npm modules (Playwright)'
+          - script: |
+                cd tests/acceptance/e2e
+                npm ci
+                npx playwright install --with-deps
+                npm install @axe-core/playwright axe-sarif-converter
+            displayName: 'Install Playwright Dependencies'
           - script: |
                 cd tests/acceptance/e2e
                 USE_KEYCLOAK=true npx playwright test --project user-setup --project admin-setup
@@ -73,79 +200,97 @@ jobs:
                 CI: 'true'
                 USE_KEYCLOAK: 'true'
             displayName: 'Setup Keycloak Authentication'
-
-          # Run all test suites in parallel: parallel (10 workers), @reserved, and keycloak tests simultaneously
           - script: |
                 cd tests/acceptance/e2e
-                
-                # Run parallel tests in background
-                PLAYWRIGHT_HTML_REPORT=playwright-report-parallel PLAYWRIGHT_JUNIT_OUTPUT_NAME=results-parallel-junit.xml npm run test:parallel &
-                PARALLEL_PID=$!
-                
-                sleep 60
-                
-                # Run @reserved tests in background
-                PLAYWRIGHT_HTML_REPORT=playwright-report-reserved PLAYWRIGHT_JUNIT_OUTPUT_NAME=results-reserved-junit.xml npm run test:reserved &
-                RESERVED_PID=$!
-                
-                sleep 60
-                
-                # Run keycloak tests in background
-                PLAYWRIGHT_HTML_REPORT=playwright-report-keycloak PLAYWRIGHT_JUNIT_OUTPUT_NAME=results-keycloak-junit.xml npm run test:keycloak &
-                KEYCLOAK_PID=$!
-                
-                # Wait for all to complete
-                wait $PARALLEL_PID
-                PARALLEL_EXIT=$?
-                
-                wait $RESERVED_PID
-                RESERVED_EXIT=$?
-                
-                wait $KEYCLOAK_PID
-                KEYCLOAK_EXIT=$?
-                
-                # Exit with error if any test suite failed
-                if [ $PARALLEL_EXIT -ne 0 ] || [ $RESERVED_EXIT -ne 0 ] || [ $KEYCLOAK_EXIT -ne 0 ]; then
-                  echo "Parallel tests exit code: $PARALLEL_EXIT"
-                  echo "Reserved tests exit code: $RESERVED_EXIT"
-                  echo "Keycloak tests exit code: $KEYCLOAK_EXIT"
-                  exit 1
-                fi
+                PLAYWRIGHT_HTML_REPORT=playwright-report-keycloak PLAYWRIGHT_JUNIT_OUTPUT_NAME=results-keycloak-junit.xml npm run test:keycloak
             env:
                 CI: 'true'
             continueOnError: true
-            displayName: 'Run Playwright / Axe (Frontend) - All Tests (Parallel + Reserved + Keycloak)'
-
-          # Publish JUnit results (pass/fail)
+            displayName: 'Run Keycloak Tests'
           - task: PublishTestResults@2
-            displayName: 'Publish Playwright / Axe Test Results (Frontend)'
+            displayName: 'Publish Keycloak Test Results'
             inputs:
                 testResultsFormat: 'JUnit'
-                testResultsFiles: '**/*junit.xml'
-                testRunTitle: 'Playwright + Axe'
+                testResultsFiles: '**/results-keycloak-junit.xml'
+                testRunTitle: 'Playwright Keycloak Tests'
             condition: succeededOrFailed()
-
-          # Publish HTML reports as artifacts
           - task: PublishBuildArtifacts@1
-            displayName: 'Publish Playwright HTML Reports'
+            displayName: 'Publish Keycloak HTML Report'
             inputs:
-                PathtoPublish: 'tests/acceptance/e2e'
-                ArtifactName: 'Playwright-HTML-Reports'
+                PathtoPublish: 'tests/acceptance/e2e/playwright-report-keycloak'
+                ArtifactName: 'Playwright-Keycloak-Report'
                 publishLocation: 'Container'
-                # Include only the report folders
+            condition: succeededOrFailed()
+            continueOnError: true
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Keycloak Accessibility Reports'
+            inputs:
+                PathtoPublish: 'tests/acceptance/e2e/a11y-reports'
+                ArtifactName: 'Keycloak-WCAG-Reports'
+                publishLocation: 'Container'
             condition: succeededOrFailed()
             continueOnError: true
 
-          # Publish WCAG reports (JSON artifacts)
-          - task: PublishBuildArtifacts@1
-            displayName: 'Publish Accessibility Reports (WCAG Compliance)'
+    # Job 4: Aggregate Accessibility Reports
+    - job: AccessibilityReports
+      displayName: 'Aggregate Accessibility & WCAG Reports'
+      dependsOn:
+          - PlaywrightParallelTests
+          - PlaywrightReservedTests
+          - PlaywrightKeycloakTests
+      condition: succeededOrFailed()
+      steps:
+          - task: NodeTool@0
             inputs:
-                PathtoPublish: 'tests/acceptance/e2e/a11y-reports'
-                ArtifactName: 'WCAG-AccessibilityReports'
-                publishLocation: 'Container'
-            condition: succeededOrFailed()
-
-          # Convert JSON to SARIF format
+                versionSource: 'fromFile'
+                versionFilePath: '.nvmrc'
+          - script: |
+                cd tests/acceptance/e2e
+                npm ci
+                npm install axe-sarif-converter
+            displayName: 'Install Dependencies'
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Parallel WCAG Reports'
+            inputs:
+                buildType: 'current'
+                downloadType: 'single'
+                artifactName: 'Parallel-WCAG-Reports'
+                downloadPath: '$(System.ArtifactsDirectory)'
+            continueOnError: true
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Reserved WCAG Reports'
+            inputs:
+                buildType: 'current'
+                downloadType: 'single'
+                artifactName: 'Reserved-WCAG-Reports'
+                downloadPath: '$(System.ArtifactsDirectory)'
+            continueOnError: true
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Keycloak WCAG Reports'
+            inputs:
+                buildType: 'current'
+                downloadType: 'single'
+                artifactName: 'Keycloak-WCAG-Reports'
+                downloadPath: '$(System.ArtifactsDirectory)'
+            continueOnError: true
+          - script: |
+                mkdir -p tests/acceptance/e2e/a11y-reports
+                echo "Merging accessibility reports from all test suites..."
+                if [ -d "$(System.ArtifactsDirectory)/Parallel-WCAG-Reports" ]; then
+                  cp -r $(System.ArtifactsDirectory)/Parallel-WCAG-Reports/* tests/acceptance/e2e/a11y-reports/ || true
+                  echo "Merged Parallel reports"
+                fi
+                if [ -d "$(System.ArtifactsDirectory)/Reserved-WCAG-Reports" ]; then
+                  cp -r $(System.ArtifactsDirectory)/Reserved-WCAG-Reports/* tests/acceptance/e2e/a11y-reports/ || true
+                  echo "Merged Reserved reports"
+                fi
+                if [ -d "$(System.ArtifactsDirectory)/Keycloak-WCAG-Reports" ]; then
+                  cp -r $(System.ArtifactsDirectory)/Keycloak-WCAG-Reports/* tests/acceptance/e2e/a11y-reports/ || true
+                  echo "Merged Keycloak reports"
+                fi
+                ls -la tests/acceptance/e2e/a11y-reports/
+            displayName: 'Merge All Accessibility Reports'
+            continueOnError: true
           - script: |
                 cd tests/acceptance/e2e/a11y-reports
                 for file in *__latest.json; do
@@ -154,29 +299,23 @@ jobs:
                   fi
                 done
                 echo "JSON files converted to SARIF format"
-            displayName: 'Convert Accessibility Reports to SARIF format'
+            displayName: 'Convert to SARIF format'
             condition: succeededOrFailed()
             continueOnError: true
-
-          # Publish SARIF for integrated visualization in Azure DevOps Scans tab
           - task: PublishBuildArtifacts@1
-            displayName: 'Publish SARIF Accessibility Reports to Scans'
+            displayName: 'Publish SARIF Reports to Scans'
             inputs:
                 PathtoPublish: 'tests/acceptance/e2e/a11y-reports'
                 ArtifactName: 'CodeAnalysisLogs'
                 publishLocation: 'Container'
             condition: succeededOrFailed()
             continueOnError: true
-
-          # Generate WCAG 2.0/2.1 AA violations report
           - script: |
                 cd tests/acceptance/e2e/scripts
                 python3 generate_wcag_report.py
-            displayName: 'Generate WCAG 2.0/2.1 AA Violations Report'
+            displayName: 'Generate WCAG Violations Report'
             condition: succeededOrFailed()
             continueOnError: true
-
-          # Publish WCAG violations report as artifact
           - task: PublishBuildArtifacts@1
             displayName: 'Publish WCAG Violations Report'
             inputs:
