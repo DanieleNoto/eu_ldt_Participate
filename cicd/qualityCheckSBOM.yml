@@ -24,7 +24,7 @@ jobs:
                 node -v
                 npm -v
                 npm cache clean --force
-                npm install -g @cyclonedx/cdxgen
+                npm install -g @cyclonedx/cdxgen@12.0.0
 
                 export CDXGEN_NO_CACHE=true
                 export NO_PROXY="*"
