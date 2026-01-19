@@ -8,7 +8,7 @@
 
 import { HomePage } from '@pages/pages/public/HomePage';
 import NotificationPage from '@pages/pages/user/NotificationPage';
-import { test, expect } from '@fixtures/parallel-test';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 
 /**
  * Test suite for Allows citizens to view notifications related to platform activities.
@@ -24,7 +24,9 @@ import { test, expect } from '@fixtures/parallel-test';
  *
  */
 
-test.describe('[PAR-NOT001] – View notifications', () => {
+test.describe('@reserved [PAR-NOT001] – View notifications', () => {
+	test.describe.configure({ mode: 'serial' });
+
 	let notificationPage: NotificationPage;
 	let homePage: HomePage;
 
