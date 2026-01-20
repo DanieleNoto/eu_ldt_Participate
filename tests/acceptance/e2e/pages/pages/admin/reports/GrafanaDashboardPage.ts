@@ -10,6 +10,7 @@ import { GRAFANA_URLS } from '../../../../utils/constants';
 import { existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { threadId } from 'worker_threads';
 
 const EXECUTIVE_SUMMARY_METRICS = [
 	'Total Registered Users',
@@ -498,7 +499,8 @@ export class GrafanaDashboardPage {
 
 		// Wait for Inspect submenu and click on "Data"
 		const dataMenuItem = this.page.locator('[data-testid="data-testid Panel menu item Data"]');
-		await dataMenuItem.waitFor({ state: 'visible' });
+		await this.page.waitForTimeout(1000);
+		await expect(dataMenuItem).toBeVisible();
 		await dataMenuItem.click();
 
 		// Wait for drawer to open with explicit check
@@ -506,6 +508,7 @@ export class GrafanaDashboardPage {
 		await drawer.waitFor({ state: 'visible' });
 
 		// Wait for Download CSV button to be visible in the drawer
+		await this.page.waitForTimeout(1000);
 		await expect(this.downloadCSVButton).toBeVisible();
 
 		// Start waiting for download before clicking
@@ -528,6 +531,8 @@ export class GrafanaDashboardPage {
 		await download.saveAs(filePath);
 
 		// Close drawer
+		await this.page.waitForTimeout(1000);
+		await expect(this.drawerCloseButton).toBeVisible();
 		await this.drawerCloseButton.click();
 
 		// Wait for drawer to close

@@ -608,6 +608,7 @@ export class FormMeetingPage extends BaseAdminPage {
 		await this.page.waitForTimeout(300);
 
 		// Click the "Select" button to confirm the date selection
+		await expect(this.selectButtoncalendar(selectIndex)).toBeVisible();
 		await this.selectButtoncalendar(selectIndex).click();
 		await this.page.waitForTimeout(500);
 	}

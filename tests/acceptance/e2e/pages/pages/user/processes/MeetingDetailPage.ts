@@ -62,6 +62,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	 */
 
 	async expectOnMeetingDetailPage(): Promise<void> {
+		await this.page.waitForLoadState('load');
 		await expect(this.meetingTitle).toBeVisible();
 		await expect(this.meetingCalendarContainer).toBeVisible();
 	}

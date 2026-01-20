@@ -92,7 +92,7 @@ export class ComponentsPage extends BaseAdminPage {
 	async waitForComponentsPageLoad() {
 		await this.page.waitForSelector('.item_show__wrapper');
 		await this.page.waitForSelector('.table-list');
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async isOnComponentsPage(): Promise<boolean> {

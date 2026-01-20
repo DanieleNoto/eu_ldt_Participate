@@ -5,7 +5,7 @@
  */
 
 import { BasePage } from '@pages/base/BasePage';
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 
 /**
  * ChatbotPage - Page Object Model for the chatbot assistance feature.
@@ -130,6 +130,7 @@ export class ChatbotPage extends BasePage {
 	 * Clicks the "Close help assistant" button to close the chatbot
 	 */
 	async closeHelpAssistant(): Promise<void> {
+		await expect(this.closeHelpAssistantButton).toBeVisible();
 		await this.closeHelpAssistantButton.click();
 	}
 

@@ -22,7 +22,7 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 	constructor(page: Page) {
 		super(page);
 
-		this.newAdminButton = page.locator('a.button.button__sm.button__secondary.new');
+		this.newAdminButton = page.getByRole('link', { name: 'New process admin' });
 		this.filterDropdown = page.locator('ul.dropdown.menu');
 		this.searchInput = page.locator('input.input-group-field');
 		this.searchButton = page.locator('button.text-secondary');
@@ -109,7 +109,7 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 	 */
 	async expectToBeOnParticipatoryProcessAdminsPage(): Promise<void> {
 		await expect(this.page).toHaveURL(/user_roles/);
-		await expect(this.newAdminButton).toBeVisible({ timeout: 2000 });
+		await expect(this.newAdminButton).toBeVisible();
 	}
 
 	/**

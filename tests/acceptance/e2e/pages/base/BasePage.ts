@@ -108,7 +108,7 @@ export abstract class BasePage {
 	 */
 	async navigateToAndHandleCookies(acceptType: 'all' | 'essential' = 'all'): Promise<void> {
 		await this.navigateTo('/');
-		await this.waitForLoadState();
+		await this.page.waitForLoadState('load');
 		await this.handleCookieBar(acceptType);
 	}
 

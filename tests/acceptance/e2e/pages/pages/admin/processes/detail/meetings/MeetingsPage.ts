@@ -77,6 +77,7 @@ export class MeetingsPage extends BaseAdminPage {
 	// Action methods for meeting management
 	async clickEdit(meetingIndex: number = 0) {
 		const editButton = this.editButtons.nth(meetingIndex);
+		await expect(editButton).toBeVisible();
 		await editButton.click();
 		await this.expectUrl(/\/admin.*\/meetings\/\d+\/edit/);
 	}

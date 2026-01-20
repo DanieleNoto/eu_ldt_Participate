@@ -106,7 +106,7 @@ export class AcceptInvitationPage extends BasePage {
 	 * Click the save button to complete registration
 	 */
 	async clickSave(): Promise<void> {
-		await this.saveButton.waitFor({ state: 'visible' });
+		await expect(this.saveButton).toBeVisible();
 		await this.saveButton.click();
 	}
 

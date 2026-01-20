@@ -164,8 +164,9 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	 */
 	async navigateToProcessByIndex(index: number): Promise<void> {
 		const processCard = this.processCards.nth(index);
+		await expect(processCard).toBeVisible();
 		await processCard.click();
-		await this.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Process card locator methods
@@ -597,7 +598,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 			// Check if the process is visible and clickable
 			await expect(processCard).toBeVisible();
 			await processCard.click();
-			await this.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 			console.log(`Successfully clicked on process "${processTitle}" from the grid`);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error);
@@ -605,7 +606,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 			console.log(`Error: ${errorMessage}`);
 			const processUrl = `/processes/${processSlug}`;
 			await this.page.goto(processUrl);
-			await this.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 			console.log(`Successfully navigated to process URL: ${processUrl}`);
 		}
 	}

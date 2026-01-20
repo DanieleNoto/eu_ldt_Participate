@@ -14,6 +14,7 @@ import { SurveysManagePage } from '@pages/pages/admin/processes/detail/component
 import { QuestionnaireTemplatesPage } from '@pages/pages/admin/templates/QuestionnaireTemplatesPage';
 import { NewTemplatePage } from '@pages/pages/admin/templates/NewTemplatePage';
 import { EditTemplatePage } from '@pages/pages/admin/templates/EditTemplatePage';
+import { error } from 'console';
 
 /**
  * Create quick polls for immediate feedback
@@ -561,37 +562,17 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await adminPage.waitForURL(
 					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/update_questions/
 				);
+				await adminPage.waitForLoadState('load');
 				console.log('System initiated validation check for form completeness');
 			});
 
 			await test.step('17.2. System: Detects missing or invalid fields', async () => {
 				// Verify validation error messages for required fields
 				await expect(adminPage.getByText('There was a problem saving')).toBeVisible();
+				await adminPage.waitForTimeout(1000);
 
 				// Verify specific validation errors for the required Statement fields:
-				// 1. Question Statement field is required
-				await expect(
-					adminPage
-						.locator('div')
-						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
-						.first()
-				).toBeVisible();
-
-				// 2. Option A Statement field is required
-				await expect(
-					adminPage
-						.locator('div')
-						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
-						.nth(1)
-				).toBeVisible();
-
-				// 3. Option B Statement field is required
-				await expect(
-					adminPage
-						.locator('div')
-						.filter({ hasText: new RegExp(`^${SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK}$`) })
-						.nth(2)
-				).toBeVisible();
+				await expect(adminPage.getByText(SurveysManagePage.VALIDATION_ERROR_STATEMENT_BLANK)).toHaveCount(3);
 
 				console.log('System detected missing required Statement fields');
 			});
