@@ -13,6 +13,7 @@ data:
     AUTH_TYPE: jwt
     CONFIG: ./jitsi-meet-cfg
     DISABLE_GRANT_MODERATOR: 'true'
+    DISABLE_LOCAL_RECORDING: 'true'
     ENABLE_AUTH: '1'
     ENABLE_GUESTS: '1'
     ENABLE_WELCOME_PAGE: '0'
