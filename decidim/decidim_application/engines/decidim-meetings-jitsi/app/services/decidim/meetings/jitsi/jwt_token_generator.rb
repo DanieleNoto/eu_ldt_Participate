@@ -46,7 +46,8 @@ module Decidim
                 avatar: avatar_url,
                 moderator: "true"
               },
-              group: @meeting.component.participatory_space.title[@meeting.organization.default_locale] || @meeting.component.participatory_space.title.values.first
+              group: @meeting.component.participatory_space.title[@meeting.organization.default_locale] || @meeting.component.participatory_space.title.values.first,
+              features: ["recording"]
             },
 
             # Moderator flag (critical for admin privileges)
