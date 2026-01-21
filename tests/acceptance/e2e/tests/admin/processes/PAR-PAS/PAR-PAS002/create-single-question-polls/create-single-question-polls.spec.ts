@@ -579,6 +579,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 			await test.step('17.3. User: Corrects the errors in the input fields', async () => {
 				// Fill question details properly to correct validation errors
+				await adminPage.getByRole('button', { name: 'Expand all questions' }).click();
 				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
 
 				// Fill the main question statement and description using Page Object methods

@@ -83,7 +83,7 @@ async function ensureAuthenticated(
 	// Navigate directly to login page
 	const loginUrl = `${baseURL}/users/sign_in`;
 	await page.goto(loginUrl, { timeout: authTimeout });
-	await page.waitForLoadState('networkidle', { timeout: authTimeout });
+	await page.waitForLoadState('load', { timeout: authTimeout });
 
 	// Wait for login form to be visible
 	const emailField = page.locator('#session_user_email');
@@ -103,7 +103,7 @@ async function ensureAuthenticated(
 	// After authentication, navigate admin to admin homepage
 	if (role === 'admin') {
 		await page.goto(`${baseURL}/admin/`, { timeout: authTimeout });
-		await page.waitForLoadState('networkidle', { timeout: authTimeout });
+		await page.waitForLoadState('load', { timeout: authTimeout });
 	}
 
 	console.log(`[Worker ${workerIndex}] Authentication successful for reserved ${role}`);
