@@ -1740,7 +1740,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 			await test.step('17.3. User: Corrects the errors in the input fields', async () => {
 				// Correct validation errors by filling all empty fields with proper values
-
+				await adminPage.getByRole('button', { name: 'Expand all questions' }).click();
 				// Question 3: Single Option - Fill the empty answer options
 				const question3Container = adminPage.locator('.questionnaire-question:nth-child(3)');
 				await question3Container

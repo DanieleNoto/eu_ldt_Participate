@@ -332,7 +332,7 @@ export class BaseAdminPage extends AuthenticatedPage {
 	 * @param expectedMessage - The expected message in the success notification
 	 */
 	async expectSuccessFlashMessage(expectedMessage: string): Promise<void> {
-		await expect(this.successFlashNotification).toBeVisible({ timeout: 2000 });
+		await expect(this.successFlashNotification).toBeVisible();
 		await expect(this.successFlashNotification.locator('.flash__message')).toHaveText(expectedMessage);
 	}
 
@@ -341,7 +341,7 @@ export class BaseAdminPage extends AuthenticatedPage {
 	 * @param expectedMessage - The expected message in the error notification
 	 */
 	async expectErrorFlashMessage(expectedMessage: string): Promise<void> {
-		await expect(this.errorFlashNotification).toBeVisible({ timeout: 2000 });
+		await expect(this.errorFlashNotification).toBeVisible();
 		await expect(this.errorFlashNotification.locator('.flash__message')).toHaveText(expectedMessage);
 	}
 

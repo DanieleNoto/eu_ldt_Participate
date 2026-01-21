@@ -58,7 +58,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 		await adminPage.goto(
 			`/admin/participatory_processes/${processSlug}/components/${debatesComponentId}/manage/debates`
 		);
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Click New Debate button
 		await debatesPage.createNewDebate();
@@ -73,7 +73,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 
 		// Submit the form
 		await newDebatePage.clickCreateDebate();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Extract the debate ID from the URL or find it in the list
 		const currentUrl = adminPage.url();
@@ -88,7 +88,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 		await adminPage.goto(
 			`/admin/participatory_processes/${processSlug}/components/${debatesComponentId}/manage/debates`
 		);
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		const debateIndex = await debatesPage.findDebateIndexByTitle(debateTitle);
 		if (debateIndex >= 0) {
@@ -118,7 +118,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 			await adminPage.goto(
 				`/admin/participatory_processes/${processSlug}/components/${debatesComponentId}/manage/debates`
 			);
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 
 			// Find the debate by title
 			const debateIndex = await debatesPage.findDebateIndexByTitle(debateTitle);
@@ -136,7 +136,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 				await confirmOkButton.waitFor({ state: 'visible' });
 				await confirmOkButton.click();
 
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				console.log(`[Cleanup] Debate deleted successfully`);
 			} else {
 				console.log(`[Cleanup] Debate not found, may have been already deleted`);
@@ -179,7 +179,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate directly to the fixed process with debates
 				await adminPage.goto(`/processes/${processSlug}`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 			await test.step('2. System: Displays the details of the selected process', async () => {
 				await processDetailPage.expectToBeOnProcessDetailPage();
@@ -187,7 +187,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 			await test.step('3. User: Navigate to the "Debates" section of the process', async () => {
 				// Navigate directly to the debates section of the process
 				await adminPage.goto(`/processes/${processSlug}/f/${debatesComponentId}/debates`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 			await test.step('4. System: Loads all the debates related to the navigated process', async () => {
 				await debatesOverviewPage.expectToBeOnDebatesOverviewPage();
@@ -196,7 +196,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 				// Navigate to the debate we just created using its ID
 				expect(createdDebateId).not.toBeNull();
 				await adminPage.goto(`/processes/${processSlug}/f/${debatesComponentId}/debates/${createdDebateId}`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 			await test.step('6. System: Displays the selected debate, including the title, description, instructions, and current comments or posts.', async () => {
 				await debateDetailPage.expectToBeOnDebateDetailPage();
@@ -232,7 +232,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 				]);
 
 				// Wait for the new page to be fully loaded
-				await newPage.waitForLoadState('networkidle');
+				await newPage.waitForLoadState('load');
 
 				// Verify closure announcement and conclusions in the preview tab
 				const successFlashSection = newPage.locator('.flash.success[data-announcement]');
@@ -260,7 +260,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate directly to the fixed process with debates
 				await adminPage.goto(`/processes/${processSlug}`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 			await test.step('2. System: Displays the details of the selected process', async () => {
 				await processDetailPage.expectToBeOnProcessDetailPage();
@@ -268,7 +268,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 			await test.step('3. User: Navigate to the "Debates" section of the process', async () => {
 				// Navigate directly to the debates section of the process
 				await adminPage.goto(`/processes/${processSlug}/f/${debatesComponentId}/debates`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 			await test.step('4. System: Loads all the debates related to the navigated process', async () => {
 				await debatesOverviewPage.expectToBeOnDebatesOverviewPage();
@@ -277,7 +277,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 				// Navigate to the debate we just created using its ID
 				expect(createdDebateId).not.toBeNull();
 				await adminPage.goto(`/processes/${processSlug}/f/${debatesComponentId}/debates/${createdDebateId}`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 			await test.step('6. System: Displays the selected debate, including the title, description, instructions, and current comments or posts.', async () => {
 				await debateDetailPage.expectToBeOnDebateDetailPage();
@@ -295,7 +295,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 			await test.step('10. User: Clicks on "Close Debate" to submit the form. ', async () => {
 				await closeDebatePage.clickCloseDebate();
 				// Wait for validation response
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 			await test.step('11. System: Detects missing or incorrect data in the Conclusions field.', async () => {
 				expect(await closeDebatePage.isConclusionValidationVisible()).toBeTruthy();
@@ -307,7 +307,7 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 				await closeDebatePage.fillConclusion('This is a valid conclusion.');
 				await closeDebatePage.clickCloseDebate();
 				// After successful submit, should redirect to debates list
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				// Verify the success message and that debate is closed
 				await debatesPage.expectSuccessFlashMessage('Debate successfully closed.');
 				expect(await debatesPage.isDebateClosedByTitle(createdDebateTitle)).toBeTruthy();

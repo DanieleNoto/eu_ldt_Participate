@@ -139,7 +139,7 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 			await test.step('3. User selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 
 				// Extract process slug from URL
 				const currentUrl = adminPage.url();
@@ -190,7 +190,7 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 					previewLink.click()
 				]);
 
-				await previewPage.waitForLoadState('networkidle');
+				await previewPage.waitForLoadState('load');
 				const paragraph = previewPage.locator('div.rich-text-display p');
 				await expect(paragraph).toContainText(bodyContent);
 			});
@@ -212,7 +212,7 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 			await test.step('3. User selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 
 				// Extract process slug from URL
 				const currentUrl = adminPage.url();

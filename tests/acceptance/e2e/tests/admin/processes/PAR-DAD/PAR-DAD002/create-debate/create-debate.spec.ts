@@ -83,7 +83,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 				await adminPage.goto(
 					`/admin/participatory_processes/${processSlug}/components/${debatesComponentId}/manage/debates`
 				);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Find the debate by title and delete it
 				const debateIndex = await debatesPage.findDebateIndexByTitle(createdDebateTitle);
@@ -101,7 +101,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 					await confirmOkButton.waitFor({ state: 'visible' });
 					await confirmOkButton.click();
 
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 					console.log(`[Cleanup] Debate deleted successfully`);
 				} else {
 					console.log(`[Cleanup] Debate not found, may have been already deleted`);
@@ -121,7 +121,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 		await adminPage.goto(
 			`/admin/participatory_processes/${processSlug}/components/${debatesComponentId}/manage/debates`
 		);
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 	}
 
 	test.describe('Main Flow - Successfully create new debate topic', () => {
@@ -130,7 +130,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 		}) => {
 			await test.step('1. User navigates to the "Processes" section', async () => {
 				await processAdminPage.navigateToProcesses();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -145,7 +145,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 			await test.step('3. User selects the process that want to update', async () => {
 				// Search and select the fixed test process
 				await surveysManagePage.searchAndSelectProcess(processTitle);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -223,7 +223,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 
 			await test.step('9. System validates the form input for completeness, correctness, and permission checks', async () => {
 				// Wait for form submission to complete
-				await newDebatePage.getPage().waitForLoadState('networkidle');
+				await newDebatePage.getPage().waitForLoadState('load');
 
 				// Check if we're redirected or if there are validation errors
 				const currentUrl = newDebatePage.getPage().url();
@@ -244,7 +244,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 				// After creating a debate, we should be redirected to the debates list or management page
 
 				// Wait for any redirect or success indication
-				await newDebatePage.getPage().waitForLoadState('networkidle');
+				await newDebatePage.getPage().waitForLoadState('load');
 
 				// Verify we're no longer on the new debate creation page
 				const currentUrl = newDebatePage.getPage().url();
@@ -323,7 +323,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 
 			await test.step('System detects missing or incorrect fields and displays appropriate error messages', async () => {
 				// Wait for validation
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we're still on the form page
 				const currentUrl = adminPage.url();
@@ -346,7 +346,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 				await newDebatePage.clickCreateDebate();
 
 				// Wait for successful submission
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify success (check that we're no longer on the new debate page)
 				const currentUrl = adminPage.url();
@@ -379,7 +379,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 			await test.step('System encounters an error while saving the new debate', async () => {
 				// Submit the form
 				await newDebatePage.clickCreateDebate();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// In a real scenario, this would be where a submission error occurs
 				// For testing purposes, we'll check if we can handle error states
@@ -409,7 +409,7 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 				if (currentUrl.includes('/new')) {
 					// Still on new debate page, retry submission
 					await newDebatePage.clickCreateDebate();
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				}
 
 				// Verify final state
