@@ -151,14 +151,6 @@ jobs:
                 publishLocation: 'Container'
             condition: succeededOrFailed()
             continueOnError: true
-          - task: PublishBuildArtifacts@1
-            displayName: 'Publish Reserved Accessibility Reports'
-            inputs:
-                PathtoPublish: 'tests/acceptance/e2e/a11y-reports'
-                ArtifactName: 'Reserved-WCAG-Reports'
-                publishLocation: 'Container'
-            condition: succeededOrFailed()
-            continueOnError: true
 
     # Job 3: Keycloak Tests
     - job: PlaywrightKeycloakTests
@@ -258,14 +250,6 @@ jobs:
                 downloadPath: '$(System.ArtifactsDirectory)'
             continueOnError: true
           - task: DownloadBuildArtifacts@0
-            displayName: 'Download Reserved WCAG Reports'
-            inputs:
-                buildType: 'current'
-                downloadType: 'single'
-                artifactName: 'Reserved-WCAG-Reports'
-                downloadPath: '$(System.ArtifactsDirectory)'
-            continueOnError: true
-          - task: DownloadBuildArtifacts@0
             displayName: 'Download Keycloak WCAG Reports'
             inputs:
                 buildType: 'current'
@@ -275,21 +259,17 @@ jobs:
             continueOnError: true
           - script: |
                 mkdir -p tests/acceptance/e2e/a11y-reports
-                echo "Merging accessibility reports from all test suites..."
+                echo "Copying accessibility reports from all test jobs..."
                 if [ -d "$(System.ArtifactsDirectory)/Parallel-WCAG-Reports" ]; then
                   cp -r $(System.ArtifactsDirectory)/Parallel-WCAG-Reports/* tests/acceptance/e2e/a11y-reports/ || true
-                  echo "Merged Parallel reports"
-                fi
-                if [ -d "$(System.ArtifactsDirectory)/Reserved-WCAG-Reports" ]; then
-                  cp -r $(System.ArtifactsDirectory)/Reserved-WCAG-Reports/* tests/acceptance/e2e/a11y-reports/ || true
-                  echo "Merged Reserved reports"
+                  echo "Copied Parallel reports"
                 fi
                 if [ -d "$(System.ArtifactsDirectory)/Keycloak-WCAG-Reports" ]; then
                   cp -r $(System.ArtifactsDirectory)/Keycloak-WCAG-Reports/* tests/acceptance/e2e/a11y-reports/ || true
-                  echo "Merged Keycloak reports"
+                  echo "Copied Keycloak reports"
                 fi
                 ls -la tests/acceptance/e2e/a11y-reports/
-            displayName: 'Merge All Accessibility Reports'
+            displayName: 'Copy All Accessibility Reports'
             continueOnError: true
           - script: |
                 cd tests/acceptance/e2e/a11y-reports
