@@ -47,7 +47,6 @@ module Decidim
                 moderator: true
               },
               group: @meeting.component.participatory_space.title[@meeting.organization.default_locale] || @meeting.component.participatory_space.title.values.first,
-              features: {recording: true}
             },
 
             # Moderator flag (critical for admin privileges)
