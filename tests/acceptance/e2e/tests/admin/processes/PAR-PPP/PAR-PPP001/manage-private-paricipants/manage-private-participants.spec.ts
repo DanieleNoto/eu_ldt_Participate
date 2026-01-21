@@ -174,6 +174,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 				);
 			});
 			await test.step('Result.', async () => {
+				await privateParticipantsPage.expectTableIsVisible();
 				await privateParticipantsPage.expectParticipantIsInTable('John Doe', 'john.doe@example.org');
 				await privateParticipantsPage.expectParticipantIsInTable('Jane Doe', 'jane.doe@example.org');
 				await privateParticipantsPage.expectParticipantIsInTable('Mario Rossi', 'mario.rossi@example.org');

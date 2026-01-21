@@ -276,7 +276,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 
 				// Navigate to the reported content URL (public view)
 				await adminPage.goto(reportedContentUrl);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify the comment is no longer visible
 				const commentIsHidden = await processModerationPage.verifyCommentNotPresentById(contentId);

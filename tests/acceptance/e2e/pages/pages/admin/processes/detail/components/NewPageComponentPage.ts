@@ -45,7 +45,7 @@ export class NewPageComponentPage extends BaseAdminPage {
 	async waitForNewPageComponentPageLoad() {
 		await this.waitForElement('.item_show__wrapper');
 		await this.waitForElement('form.new_component');
-		await this.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async isOnNewPageComponentPage(): Promise<boolean> {
