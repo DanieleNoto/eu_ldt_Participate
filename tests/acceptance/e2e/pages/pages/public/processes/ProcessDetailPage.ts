@@ -729,12 +729,12 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	public async openProcessSteps(timeout = 7000): Promise<boolean> {
 		const modalSel = '#process-steps-modal-content';
 		const userMenuBtn = this.page.getByRole('button', { name: 'User menu' }).first();
+		const menuDropdown = this.page.locator('.menu-bar__secondary-dropdown__left').first();
 
 		if ((await userMenuBtn.count()) === 0) throw new Error('User menu button not found');
 
 		await userMenuBtn.hover();
-		await this.page.waitForTimeout(200);
-		await userMenuBtn.click().catch(() => {});
+		await expect(menuDropdown).toBeVisible();
 
 		// try to find a link near "Current phase"
 		const currentPhase = this.page.getByLabel('User menu').getByText('Current phase').first();

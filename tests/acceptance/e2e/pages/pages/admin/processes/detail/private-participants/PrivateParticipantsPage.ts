@@ -61,22 +61,39 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 	}
 
 	async expectParticipantIsInTable(name?: string, email?: string): Promise<void> {
+		const searchField = this.page.getByRole('searchbox', { name: 'Search by user name, email' });
+		const searchButton = this.page.getByRole('button', { name: 'Search' });
 		const table = this.page.locator('table.table-list tbody');
+		await expect(searchField).toBeVisible();
+		await expect(table).toBeVisible();
 
 		if (name && email) {
 			// Look for a row that contains both name and email using hasText for partial matching
+			await searchField.click();
+			await searchField.fill(name);
+			await searchButton.click();
 			const row = table.locator('tr').filter({ hasText: name }).filter({ hasText: email });
 			await expect(row.first()).toBeVisible();
 		} else if (name) {
 			// Look for a row containing the name
+			await searchField.click();
+			await searchField.fill(name);
+			await searchButton.click();
 			const row = table.locator('tr', { hasText: name });
 			await expect(row.first()).toBeVisible();
 		} else if (email) {
 			// Look for a row containing the email
+			await searchField.click();
+			await searchField.fill(email);
+			await searchButton.click();
 			const row = table.locator('tr', { hasText: email });
 			await expect(row.first()).toBeVisible();
 		} else {
 			throw new Error('Either name or email must be provided');
 		}
+
+		await searchField.click();
+		await searchField.fill('');
+		await searchButton.click();
 	}
 }

@@ -69,7 +69,7 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 			await test.step('1. User: Navigates to the "Processes" section on the platform', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
 
 				// Apply "All" filter and ensure grid is fully loaded (with refresh)
@@ -115,7 +115,7 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 			});
 			await test.step('9. User: Confirms the registration.', async () => {
 				await meetingDetailPage.confirmRegistration();
-				await meetingDetailPage.waitForLoadState('networkidle');
+				await meetingDetailPage.waitForLoadState('load');
 				await meetingDetailPage.expectConfirmationMessageVisible();
 				await meetingDetailPage.getPage().screenshot({
 					path: 'test-results/screenshots/OnMeetingDetailPageConfirmationMessageVisible.png',
@@ -179,9 +179,9 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 		test.afterEach(async () => {
 			await test.step('Deregister the user from the meeting', async () => {
 				await meetingDetailPage.getPage().goto(meetingDetailUrl);
-				await meetingDetailPage.getPage().waitForLoadState('networkidle');
+				await meetingDetailPage.getPage().waitForLoadState('load');
 				await meetingDetailPage.expectOnMeetingDetailPage();
-				await meetingDetailPage.getPage().waitForLoadState('networkidle');
+				await meetingDetailPage.getPage().waitForLoadState('load');
 				await meetingDetailPage.CancelRegistration();
 				await meetingDetailPage.getPage().reload();
 				await meetingDetailPage.getPage().waitForLoadState('domcontentloaded');
@@ -194,7 +194,7 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 		test('Alternative flow: Cancel registration', async () => {
 			await test.step('1.8 Open register dialog', async () => {
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
 				await processesOverviewPage.navigateToProcess(processTitle, processSlug);
 				await processDetailPage.navigateToMeetingsPage();
@@ -227,10 +227,10 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 				await test.step('Setup: Admin sets available slots to 1', async () => {
 					await adminHomePage.navigateToAdminHomePage();
 					await processAdminPage.navigateToProcesses();
-					await processAdminPage.getPage().waitForLoadState('networkidle');
+					await processAdminPage.getPage().waitForLoadState('load');
 
 					await processAdminPage.editProcess(processTitle);
-					await processAdminPage.getPage().waitForLoadState('networkidle');
+					await processAdminPage.getPage().waitForLoadState('load');
 
 					await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
 					await meetingsPageAdmin.verifyMeetingsPageVisible();
@@ -259,10 +259,10 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 				await test.step('Cleanup: Admin resets available slots to 0', async () => {
 					await adminHomePage.navigateToAdminHomePage();
 					await processAdminPage.navigateToProcesses();
-					await processAdminPage.getPage().waitForLoadState('networkidle');
+					await processAdminPage.getPage().waitForLoadState('load');
 
 					await processAdminPage.editProcess(processTitle);
-					await processAdminPage.getPage().waitForLoadState('networkidle');
+					await processAdminPage.getPage().waitForLoadState('load');
 
 					await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
 					await meetingsPageAdmin.verifyMeetingsPageVisible();
@@ -280,7 +280,7 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 			test('Meeting Full', async () => {
 				await test.step('1.10 USER: registers for a meeting', async () => {
 					await homePage.goToProcessesFromHomeMenu();
-					await processesOverviewPage.getPage().waitForLoadState('networkidle');
+					await processesOverviewPage.getPage().waitForLoadState('load');
 					await processesOverviewPage.expectToBeOnProcessesOverviewPage();
 					await processesOverviewPage.navigateToProcess(processTitle, processSlug);
 					await processDetailPage.navigateToMeetingsPage();
@@ -316,7 +316,7 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 			const cleanupPage = await cleanupContext.newPage();
 			await ensureLoggedIn(cleanupPage, 'USER');
 			const cleanupMeetingDetailPage = new MeetingDetailPage(cleanupPage);
-			await cleanupPage.goto(meetingDetailUrl, { waitUntil: 'networkidle' });
+			await cleanupPage.goto(meetingDetailUrl, { waitUntil: 'load' });
 			await cleanupMeetingDetailPage.expectOnMeetingDetailPage();
 			await cleanupMeetingDetailPage.CancelRegistration();
 			await meetingDetailPage.getPage().reload();

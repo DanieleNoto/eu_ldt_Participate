@@ -44,7 +44,7 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 		await test.step('Public homepage (guest) accessibility check', async () => {
 			await homePage.navigateToHomePage();
 
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await homePage.expectToBeOnHomePage();
 
@@ -54,7 +54,7 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 		await test.step('Login page accessibility check', async () => {
 			await page.goto(ROUTES.loginPage.pattern);
 
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await loginPage.expectToBeOnLoginPage();
 
@@ -64,7 +64,7 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 		await test.step('Registration page accessibility check', async () => {
 			await page.goto(ROUTES.signupPage.pattern);
 
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await signUpPage.expectToBeOnSignupPage();
 
@@ -74,7 +74,7 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 		await test.step('Password reset page accessibility check', async () => {
 			await page.goto(ROUTES.passwordNewPage.pattern);
 
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await loginPage.expectToBeOnPasswordResetPage();
 
@@ -84,7 +84,7 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 		await test.step('Processes overview page accessibility check', async () => {
 			await processesOverviewPage.navigateToProcessesOverview();
 
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(processesOverviewPage.getPage(), 'processesOverview_public');
 		});
@@ -92,7 +92,7 @@ test.describe('[PAR-USA02] Accessibility - Public Section (Guest)', () => {
 		await test.step('Process detail page accessibility check', async () => {
 			await processDetailPage.navigateToProcess('test');
 
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(processDetailPage.getPage(), 'processDetail_public');
 		});

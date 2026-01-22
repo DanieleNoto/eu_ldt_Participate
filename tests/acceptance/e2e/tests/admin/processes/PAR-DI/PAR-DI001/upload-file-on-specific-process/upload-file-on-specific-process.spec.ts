@@ -118,7 +118,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -135,7 +135,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 			await test.step('3. User: Selects the process that want to update.', async () => {
 				await adminPage.goto(processEditUrl);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
@@ -156,7 +156,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 			await test.step('7. System: Displays new attachment page.', async () => {
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/attachments\/new/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we're on the new attachment page with the form visible
 				await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();
@@ -208,7 +208,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 				// Wait for redirect to attachments list page
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/attachments$/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify the attachment appears in the table
 				await attachmentsProcessPage.expectAttachmentWithTitleExists(attachmentTitle);
@@ -221,7 +221,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 				// Verify we're on the landing page edit URL
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/landing_page\/edit/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				console.log('Navigated to Landing page configuration');
 
@@ -248,7 +248,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 				// Use userPage from fixture to verify attachment as regular user
 				await userPage.goto(`/processes/${processSlug}`);
-				await userPage.waitForLoadState('networkidle');
+				await userPage.waitForLoadState('load');
 
 				console.log(`Navigated to public process page: /processes/${processSlug}`);
 
@@ -282,7 +282,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -299,7 +299,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 			await test.step('3. User: Selects the process that want to update.', async () => {
 				await adminPage.goto(processEditUrl);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
@@ -320,7 +320,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 			await test.step('7. System: Displays new attachment page.', async () => {
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/attachments\/new/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we're on the new attachment page with the form visible
 				await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();
@@ -353,7 +353,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 				// Wait for redirect to attachments list page
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/attachments$/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify the attachment appears in the table
 				await attachmentsProcessPage.expectAttachmentWithTitleExists(attachmentTitle);
@@ -366,7 +366,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 				// Verify we're on the landing page edit URL
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/landing_page\/edit/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				console.log('Navigated to Landing page configuration');
 
@@ -393,7 +393,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 				// Use userPage from fixture to verify attachment as regular user
 				await userPage.goto(`/processes/${processSlug}`);
-				await userPage.waitForLoadState('networkidle');
+				await userPage.waitForLoadState('load');
 
 				console.log(`Navigated to public process page: /processes/${processSlug}`);
 
@@ -451,7 +451,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -468,7 +468,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 			await test.step('3. User: Selects the process that want to update.', async () => {
 				await adminPage.goto(processEditUrl);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
@@ -489,7 +489,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 
 			await test.step('7. System: Displays new attachment page.', async () => {
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/attachments\/new/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we're on the new attachment page with the form visible
 				await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();
