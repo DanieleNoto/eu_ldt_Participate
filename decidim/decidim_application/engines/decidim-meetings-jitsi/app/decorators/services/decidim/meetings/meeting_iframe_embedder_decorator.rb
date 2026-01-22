@@ -26,19 +26,24 @@ Decidim::Meetings::MeetingIframeEmbedder.class_eval do
   # Store the original embed_transformed_url method
   alias_method :original_embed_transformed_url, :embed_transformed_url
 
-  # Override embed_transformed_url to add JWT token for Jitsi admin users
+  # Override embed_transformed_url to add JWT token and toolbar config for Jitsi
   def embed_transformed_url(request_host)
     # First, get the transformed URL from the original method
     transformed_url = original_embed_transformed_url(request_host)
 
-    # If we have user, meeting, and it's a Jitsi URL with admin user, add JWT token
-    if transformed_url.present? && @user && @meeting && jitsi_url? && user_is_admin?
+    return transformed_url unless transformed_url.present? && @meeting && jitsi_url?
+
+    # Step 1: Add JWT token if user is admin
+    if @user && user_is_admin?
       Rails.logger.info("Adding JWT token to URL")
-      add_jwt_to_jitsi_url(transformed_url)
-    else
-      Rails.logger.info("Not adding JWT token")
-      transformed_url
+      transformed_url = add_jwt_to_jitsi_url(transformed_url)
     end
+
+    # Step 2: ALWAYS add toolbar configuration based on moderator status
+    # This applies to all users (logged in, non-logged in, moderators, non-moderators)
+    is_moderator = @user && user_is_admin?
+    Rails.logger.info("Adding toolbar config - is_moderator: #{is_moderator}")
+    add_toolbar_config(transformed_url, is_moderator)
   end
 
   private
@@ -100,6 +105,55 @@ Decidim::Meetings::MeetingIframeEmbedder.class_eval do
       # Fallback to original URL if JWT generation fails
       url_to_transform
     end
+  end
+
+  # Add toolbar configuration to Jitsi URL via hash fragment
+  # This is applied to ALL users (logged in or not, moderator or not)
+  def add_toolbar_config(url_to_transform, is_moderator)
+    begin
+      uri = URI.parse(url_to_transform)
+      
+      # For non-moderators, restrict toolbar buttons and disable local recording
+      unless is_moderator
+        toolbar_buttons = build_toolbar_buttons_without_recording
+        buttons_json = toolbar_buttons.to_json
+        
+        config_params = []
+        config_params << "config.toolbarButtons=#{CGI.escape(buttons_json)}"
+        config_params << "config.localRecording.disable=true"
+        
+        # Preserve existing fragment if any, or set new one
+        existing_fragment = uri.fragment.presence
+        uri.fragment = if existing_fragment
+                        "#{existing_fragment}&#{config_params.join('&')}"
+                      else
+                        config_params.join('&')
+                      end
+        
+        Rails.logger.info("Added toolbar restrictions for non-moderator")
+      else
+        Rails.logger.info("Moderator: no toolbar restrictions applied")
+      end
+
+      uri.to_s
+    rescue StandardError => e
+      Rails.logger.error("Failed to add toolbar config: #{e.message}")
+      Rails.logger.error(e.backtrace.join("\n"))
+      # Fallback to original URL if config addition fails
+      url_to_transform
+    end
+  end
+
+  # Build toolbar buttons list without 'recording' button
+  def build_toolbar_buttons_without_recording
+    # Default buttons based on your ConfigMap, excluding 'recording'
+    %w[
+      camera chat closedcaptions desktop download embedmeeting
+      etherpad feedback filmstrip fullscreen hangup help highlight
+      invite linktosalesforce livestreaming microphone participants-pane
+      profile raisehand security select-background settings shortcuts
+      tileview toggle-camera videoquality
+    ]
   end
 
   # Extract the Jitsi room name from the URL
