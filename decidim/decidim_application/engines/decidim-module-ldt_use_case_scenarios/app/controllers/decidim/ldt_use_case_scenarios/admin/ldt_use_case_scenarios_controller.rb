@@ -22,7 +22,7 @@ module Decidim
         # Requires CSRF token handshake before fetching experiments.
         def external_experiments
           # Ensure token is valid (refresh if expired)
-          jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies)
+          jwt = fetch_valid_jwt_token
 
           unless jwt
             Rails.logger.warn("No valid Keycloak JWT token available for user #{current_user&.id}")
@@ -56,7 +56,7 @@ module Decidim
         # GET /experiment-executions/:experiment_id
         def experiment_detail
           # Ensure token is valid
-          jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies)
+          jwt = fetch_valid_jwt_token
 
           unless jwt
             Rails.logger.warn("No valid Keycloak JWT token available")
@@ -89,7 +89,7 @@ module Decidim
           return render json: { error: "Component ID not found" }, status: :bad_request if comp_id.blank?
 
           # Step 1: Get JWT token
-          jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies)
+          jwt = fetch_valid_jwt_token
 
           unless jwt
             Rails.logger.warn("No valid Keycloak JWT token available")
@@ -163,7 +163,7 @@ module Decidim
             end
 
             # Get JWT token for API access
-            jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies)
+            jwt = fetch_valid_jwt_token
 
             unless jwt
               flash[:alert] = I18n.t("create.no_valid_token", scope: "decidim.ldt_use_case_scenarios.admin")
@@ -227,6 +227,18 @@ module Decidim
 
         private
 
+        # Centralized method to fetch valid JWT token using Keycloak TokenService
+        # @return [String, nil] The valid JWT token or nil
+        def fetch_valid_jwt_token
+          Decidim::Keycloak::TokenService.ensure_valid_token(
+            current_user,
+            cookies_hash: request.cookies,
+            cookies_obj: cookies,
+            request_host: request.host,
+            controller: self
+          )
+        end
+
         def collection
           UseCaseScenario.where(decidim_component_id: current_component.id)
         end
@@ -243,7 +255,7 @@ module Decidim
           # Fetch experiments from TOOL2 when rendering the form
 
           # Ensure token is valid
-          jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies)
+          jwt = fetch_valid_jwt_token
 
           unless jwt
             Rails.logger.warn("No valid Keycloak JWT token available for user #{current_user&.id}")
@@ -363,21 +375,19 @@ module Decidim
         def handle_unauthorized_retry(data_request, data_http, _original_response)
           Rails.logger.warn("TOOL2 API returned 401 - attempting token refresh and retry")
 
-          refresh_token = reconstruct_token_from_cookies(request.cookies, "refresh_token")
-          if refresh_token.blank?
-            Rails.logger.error("No refresh token available")
-            raise "Authentication expired - please log in again"
-          end
+          # Use TokenService to refresh token with proper keyword arguments
+          jwt = Decidim::Keycloak::TokenService.ensure_valid_token(
+            current_user,
+            cookies_hash: request.cookies,
+            cookies_obj: cookies,
+            request_host: request.host,
+            controller: self
+          )
 
-          new_tokens = Decidim::Keycloak::TokenService.new.send(:refresh_access_token, refresh_token)
-          unless new_tokens
+          unless jwt
             Rails.logger.error("Token refresh failed")
             raise "Authentication failed - please log in again"
           end
-
-          # Save new tokens
-          Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, new_tokens)
-          jwt = new_tokens[:access_token]
 
           # Retry with new token
           base_url = normalize_base_url(ENV["TOOL2_EXPERIMENTS_URL"] || "https://ucs-int.ldttoolbox.app/api/v1/experiment-executions")
@@ -390,7 +400,7 @@ module Decidim
           data_response = data_http.request(data_request)
 
           unless data_response.code == "200"
-            Rails.logger.error("TOOL2 API error after token refresh - Status: #{data_response.code}, Body: #{data_response.body[0..500]}")
+            Rails.logger.error("TOOL2 API error after token refresh - Status: #{data_response.code}")
             raise "TOOL2 returned status #{data_response.code}"
           end
 

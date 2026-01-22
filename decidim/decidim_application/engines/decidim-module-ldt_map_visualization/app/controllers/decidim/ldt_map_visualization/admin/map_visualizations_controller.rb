@@ -138,7 +138,13 @@ module Decidim
 
         def jwt_token
           # Use Keycloak TokenService to get a fresh token, with automatic refresh if needed
-          jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies, cookies)
+          jwt = Decidim::Keycloak::TokenService.ensure_valid_token(
+            current_user,
+            cookies_hash: request.cookies,
+            cookies_obj: cookies,
+            request_host: request.host,
+            controller: self
+          )
           return jwt if jwt.present?
 
           # Fallback: try to get JWT token from cookies directly
@@ -194,7 +200,10 @@ module Decidim
 
           Rails.logger.info("TOOL1 response status: #{response.code}")
 
-          return response if response.code == "200"
+          if response.code == "200"
+            # Parse and return data
+            return JSON.parse(response.body)
+          end
 
           # If unauthorized (401), try refreshing token and retry once
           if response.code == "401"
@@ -204,16 +213,50 @@ module Decidim
             Rails.logger.error("TOOL1 API error - Status: #{response.code}")
             raise "TOOL1 returned status #{response.code}: #{error_body}"
           end
+        end
 
-          # Parse and return data
-          JSON.parse(response.body)
+        def handle_token_refresh_and_retry(http, original_request, original_response)
+          Rails.logger.warn("TOOL1 returned 401 - attempting token refresh")
+
+          # Try to refresh the token using Keycloak TokenService
+          new_token = Decidim::Keycloak::TokenService.ensure_valid_token(
+            current_user,
+            cookies_hash: request.cookies,
+            cookies_obj: cookies,
+            request_host: request.host,
+            controller: self
+          )
+
+          if new_token.blank?
+            Rails.logger.error("Token refresh failed - no new token obtained")
+            raise "Authentication failed: #{original_response.body.to_s[0..200]}"
+          end
+
+          Rails.logger.info("Token refreshed successfully, retrying TOOL1 request")
+
+          # Retry the request with the new token
+          retry_request = Net::HTTP::Get.new(original_request.uri)
+          retry_request["Accept"] = "*/*"
+          retry_request["Authorization"] = "Bearer #{new_token}"
+          retry_request["Cookie"] = "access_token=#{new_token}"
+          retry_request["User-Agent"] = "curl/8.5.0"
+          retry_request["Host"] = original_request.uri.host
+
+          retry_response = http.request(retry_request)
+
+          if retry_response.code == "200"
+            JSON.parse(retry_response.body)
+          else
+            Rails.logger.error("TOOL1 retry failed - Status: #{retry_response.code}")
+            raise "TOOL1 returned status #{retry_response.code} after token refresh: #{retry_response.body.to_s[0..200]}"
+          end
         end
 
         def fetch_maps_for_form
           # Fetch maps from TOOL1 when rendering the form
 
           # Get token from cookies (this is the user's actual Keycloak token from browser login)
-          access_token = get_jwt_token
+          access_token = jwt_token
 
           if access_token.blank?
             Rails.logger.warn("No Keycloak access token in cookies for user #{current_user&.id}")
@@ -229,7 +272,7 @@ module Decidim
 
           # Try to exchange the token for TOOL1 audience/client if possible
           begin
-            exchanged = Decidim::Keycloak::TokenService.new.exchange_token_for_audience(access_token, ENV["TOOL1_CLIENT_ID"] || "tool1")
+            exchanged = Decidim::Keycloak::TokenService.exchange_token_for_audience(access_token, ENV["TOOL1_CLIENT_ID"] || "tool1")
             token_to_use = exchanged.presence || access_token
           rescue StandardError => e
             Rails.logger.warn("Token exchange attempt raised: #{e.class} - #{e.message}; falling back to original token")

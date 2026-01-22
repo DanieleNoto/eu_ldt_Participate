@@ -1,0 +1,89 @@
+<%#
+  SPDX-License-Identifier: AGPL-3.0
+  Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+  Authors:
+    Gianfranco Cedro
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <%= tag :meta, "http-equiv": "Content-Type", content: "text/html; charset=utf-8" %>
+    <%= tag :meta, name: "viewport", content: "width=device-width" %>
+    <%= stylesheet_pack_tag "decidim_email" %>
+    <style type="text/css">
+      a {
+        color: <%= @organization.colors["primary"] || '#004494' %> !important;
+      }
+      a:hover {
+        color: <%= @organization.colors["primary"] || '#004494' %> !important;
+        background-color: transparent !important;
+      }
+      /* Override newsletter header/footer black backgrounds */
+      .header, .footer, [style*="background-color: #212529"], [style*="background-color:#212529"] {
+        background-color: <%= @organization.colors["primary"] || '#004494' %> !important;
+      }
+      /* Override any black/dark gray backgrounds in newsletter templates */
+      [style*="background-color: #000"], [style*="background-color:#000"],
+      [style*="background-color: black"], [style*="background-color:black"],
+      [style*="background-color: #333"], [style*="background-color:#333"],
+      [style*="background-color: #212529"], [style*="background-color:#212529"] {
+        background-color: <%= @organization.colors["primary"] || '#004494' %> !important;
+      }
+      /* Ensure CTA buttons use correct colors */
+      .button, .btn, [style*="background-color: #dc3545"] {
+        background-color: <%= @organization.colors["primary"] || '#004494' %> !important;
+      }
+      .button:hover, .btn:hover {
+        background-color: <%= @organization.colors["primary"] || '#004494' %> !important;
+        opacity: 0.8;
+      }
+      /* CTA button specific styling */
+      table.button td, table.button a {
+        background-color: <%= @organization.colors["primary"] || '#004494' %> !important;
+        color: #ffffff !important;
+      }
+      table.button td:hover, table.button a:hover {
+        background-color: <%= @organization.colors["primary"] || '#004494' %> !important;
+        opacity: 0.8 !important;
+        color: #ffffff !important;
+      }
+    </style>
+  </head>
+
+  <body <%= @preview ? "class=preview" : nil %>>
+    <!-- <style> -->
+    <table class="body">
+      <% if content_for?(:see_on_website) %>
+        <table class="container">
+          <th class="small-12 first columns headnote float-right">
+            <%= yield(:see_on_website) %>
+          </th>
+        </table>
+      <% end %>
+      <tr>
+        <td class="float-center" align="center" valign="top">
+          <center>
+            <%= yield %>
+            <% if content_for?(:note) or content_for?(:unsubscribe) %>
+              <table class="container">
+                <tr>
+                  <td>
+                    <table class="row">
+                      <th class="expander"></th>
+                      <th class="small-12 first last columns footnote">
+                        <center>
+                          <%= yield(:note) if content_for?(:note) %>
+                          <%= yield(:unsubscribe) if content_for?(:unsubscribe) %>
+                        </center>
+                      </th>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            <% end %>
+          </center>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

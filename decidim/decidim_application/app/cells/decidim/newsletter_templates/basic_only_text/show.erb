@@ -1,0 +1,62 @@
+<%#
+  SPDX-License-Identifier: AGPL-3.0
+  Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+  Authors:
+    Gianfranco Cedro
+%>
+<table width="832" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin: 0 auto; max-width: 832px;">
+  <!-- Header -->
+  <tr>
+    <td style="background-color: #004494; height: 100px; padding: 0;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding: 27px 80px; text-align: left;">
+            <% if organization.official_img_footer.present? %>
+              <% if custom_url_for_mail_root.present? %>
+                <%= link_to custom_url_for_mail_root do %>
+                  <%= image_tag organization.attached_uploader(:official_img_footer).path, alt: organization_name(organization), height: "45", style: "height: 45px; width: auto; display: block;" %>
+                <% end %>
+              <% else %>
+                <%= link_to decidim.root_url(host: organization.host) do %>
+                  <%= image_tag organization.attached_uploader(:official_img_footer).path, alt: organization_name(organization), height: "45", style: "height: 45px; width: auto; display: block;" %>
+                <% end %>
+              <% end %>
+            <% else %>
+              <% if custom_url_for_mail_root.present? %>
+                <%= link_to organization_name(organization).html_safe, custom_url_for_mail_root, style: "color: #ffffff; text-decoration: none; font-size: 24px; font-weight: bold;" %>
+              <% else %>
+                <%= link_to organization_name(organization).html_safe, decidim.root_url(host: organization.host), style: "color: #ffffff; text-decoration: none; font-size: 24px; font-weight: bold;" %>
+              <% end %>
+            <% end %>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  
+  <!-- Content -->
+  <tr>
+    <td style="background-color: #ffffff; padding: 40px 80px;">
+      <div style="font-family: 'Open Sans', Arial, sans-serif; font-size: 18px; line-height: 1.4; color: #000000;">
+        <%= body %>
+      </div>
+    </td>
+  </tr>
+  
+  <!-- Footer -->
+  <tr>
+    <td style="background-color: #004494; height: 63px; padding: 0;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="text-align: center; vertical-align: middle; height: 63px;">
+            <% if custom_url_for_mail_root.present? %>
+              <%= link_to "Go to #{organization_name(organization)}", custom_url_for_mail_root, style: "color: #ffffff !important; text-decoration: underline; font-family: 'Open Sans', Arial, sans-serif; font-size: 20px; font-weight: bold;" %>
+            <% else %>
+              <%= link_to "Go to #{organization_name(organization)}", decidim.root_url(host: organization.host), style: "color: #ffffff !important; text-decoration: underline; font-family: 'Open Sans', Arial, sans-serif; font-size: 20px; font-weight: bold;" %>
+            <% end %>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

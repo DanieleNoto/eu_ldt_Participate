@@ -7,9 +7,10 @@
 require.context('../images', true);
 
 import { Application } from '@hotwired/stimulus';
-import 'src/decidim/extra_user_fields/signup_form';
 import PasswordValidatorController from 'src/decidim/extra_user_fields/password_validator';
+import UnderageController from 'src/decidim/extra_user_fields/underage_controller';
 
-// Register the password validator controller with Stimulus
+// Register controllers with Stimulus
 const application = Application.start();
 application.register('password-validator', PasswordValidatorController);
+application.register('underage', UnderageController);

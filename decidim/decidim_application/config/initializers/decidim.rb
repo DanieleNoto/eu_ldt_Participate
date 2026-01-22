@@ -625,3 +625,10 @@ Rails.application.config.i18n.default_locale = Decidim.default_locale
 
 # Inform Decidim about the assets folder
 Decidim.register_assets_path File.expand_path("app/packs", Rails.application.root)
+
+# Load security decorator to fix XSS vulnerability in CTA button
+# Using to_prepare ensures Decidim modules are loaded before applying the decorator
+Rails.application.config.to_prepare do
+  require Rails.root.join("lib", "decidim", "decorators", "cta_button_helper_decorator")
+  Decidim::CtaButtonHelper.prepend(Decidim::CtaButtonHelperDecorator)
+end

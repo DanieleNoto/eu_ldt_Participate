@@ -6,7 +6,7 @@
 
 require "i18n/tasks"
 
-describe "Decidim::Keycloak I18n" do
+RSpec.describe "Decidim::Keycloak I18n", type: :i18n do # rubocop:disable RSpec/DescribeClass
   let(:locales) do
     ENV["ENFORCED_LOCALES"].presence || "en"
   end

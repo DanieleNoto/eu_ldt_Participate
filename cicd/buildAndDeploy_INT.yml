@@ -135,7 +135,55 @@ jobs:
             displayName: 'Replace tokens decidim'
             inputs:
                 rootDirectory: infrastructure/int/decidim
-                targetFiles: 'decidim-statefulset.yaml,decidim-configmap.yml'
+                targetFiles: 'decidim-statefulset.yaml,decidim-configmap.yml,decidim-secret.yml'
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+
+          - task: replacetokens@5
+            displayName: 'Replace tokens decidim db'
+            inputs:
+                rootDirectory: infrastructure/int/decidim/db
+                targetFiles: 'db-configmap.yml,db-secret.yml'
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+
+          - task: replacetokens@5
+            displayName: 'Replace tokens chatbot BE'
+            inputs:
+                rootDirectory: infrastructure/int/backend
+                targetFiles: 'chatbot-be-configmap.yml,chatbot-be-secrets.yaml,chatbot-db-configmap.yml,chatbot-db-secrets.yaml'
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+
+          - task: replacetokens@5
+            displayName: 'Replace tokens chatbot FE'
+            inputs:
+                rootDirectory: infrastructure/int/frontend
+                targetFiles: 'chatbot-fe-configmap.yml'
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+
+          - task: replacetokens@5
+            displayName: 'Replace tokens jitsi'
+            inputs:
+                rootDirectory: infrastructure/int/jitsi
+                targetFiles: 'jitsi-configmap.yml, jitsi-secret.yml'
                 tokenPattern: custom
                 tokenPrefix: _%
                 tokenSuffix: '%_'
@@ -159,7 +207,7 @@ jobs:
             displayName: 'Replace tokens GRAFANA'
             inputs:
                 rootDirectory: infrastructure/int/analytics/grafana
-                targetFiles: 'grafana-statefulset.yaml'
+                targetFiles: 'grafana-statefulset.yaml,grafana-configmap.yml,grafana-secret.yml'
                 tokenPattern: custom
                 tokenPrefix: _%
                 tokenSuffix: '%_'
@@ -171,7 +219,7 @@ jobs:
             displayName: 'Replace tokens MATOMO'
             inputs:
                 rootDirectory: infrastructure/int/analytics/matomo
-                targetFiles: 'matomo-statefulset.yaml'
+                targetFiles: 'matomo-statefulset.yaml,matomo-configmap.yml,matomo-secret.yml'
                 tokenPattern: custom
                 tokenPrefix: _%
                 tokenSuffix: '%_'
@@ -368,7 +416,7 @@ jobs:
           # JITSI - Configmap
 
           - task: Kubernetes@1
-            displayName: 'DB - Apply ConfigMap'
+            displayName: 'Jitsi - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -381,7 +429,7 @@ jobs:
           # JITSI - Secrets
 
           - task: Kubernetes@1
-            displayName: 'DB - Apply ConfigMap'
+            displayName: 'Jitsi - Apply secrets'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -498,7 +546,7 @@ jobs:
           # MATOMO - Configmap
 
           - task: Kubernetes@1
-            displayName: 'DB - Apply ConfigMap'
+            displayName: 'Matomo - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -511,7 +559,7 @@ jobs:
           # MATOMO - Secrets
 
           - task: Kubernetes@1
-            displayName: 'DB - Apply ConfigMap'
+            displayName: 'Matomo - Apply Secrets'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -523,7 +571,7 @@ jobs:
 
           ## Statefulset MATOMO DB
           - task: Kubernetes@1
-            displayName: 'MATOMO DB - - Apply Statefulset'
+            displayName: 'MATOMO DB - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -535,7 +583,7 @@ jobs:
 
                 ## Statefulset MATOMO
           - task: Kubernetes@1
-            displayName: 'MATOMO - - Apply Statefulset'
+            displayName: 'MATOMO - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -587,7 +635,7 @@ jobs:
           # FLUENTBIT - Configmap
 
           - task: Kubernetes@1
-            displayName: 'Decidim - Apply ConfigMap'
+            displayName: 'Fluent - Apply ConfigMap'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
@@ -667,7 +715,7 @@ jobs:
           ## Statefulset - GRAFANA
 
           - task: Kubernetes@1
-            displayName: 'GRAFANA - - Apply Statefulset'
+            displayName: 'GRAFANA - Apply Statefulset'
             inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'

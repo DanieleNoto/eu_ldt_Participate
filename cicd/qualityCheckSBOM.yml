@@ -17,11 +17,18 @@ jobs:
       steps:
           - task: UseNode@1
             inputs:
-                version: '22.14'
+                version: '20.x'
             displayName: 'Install Node.js'
 
           - script: |
-                npm install -g @cyclonedx/cdxgen
+                node -v
+                npm -v
+                npm cache clean --force
+                npm install -g @cyclonedx/cdxgen@12.0.0
+
+                export CDXGEN_NO_CACHE=true
+                export NO_PROXY="*"
+
                 FETCH_LICENSE=true cdxgen -r -o SBOM_Tool_3_EU_LDT_Participate.json
             displayName: 'Generate SBOM'
 

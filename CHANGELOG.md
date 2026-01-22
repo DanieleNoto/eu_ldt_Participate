@@ -5,6 +5,106 @@ Denis Vasilev Dimchev
 Pierluigi Spedicato
 -->
 
+# Changelog from D03.04.Dec to D03.04.Jan
+ 
+## fix
+- enhance client IP retrieval and validation for improved accuracy
+- update client IP retrieval method to use X-Forwarded-For header
+- improve client IP retrieval and update authentication check for safelisting
+- refactor client_ip method to use class-level definition in Rack::Attack
+- enhance Rack::Attack configuration for trusted proxies and authenticated user safelisting
+- add missing toolbar buttons configuration in Jitsi ConfigMap
+- update gem source for extra user fields and adjust asset verification path in StatefulSet
+- remove HTML line breaks from welcome notification messages for consistency
+- remove organization name from mailer call-to-action links for consistency
+- update mailer links and add translations for toolbox call-to-action
+- enhance extra user fields with underage handling and validations
+- disable PWA manifest link and clean up head tag configuration
+- update manual logout cookie settings for enhanced security and expiration
+- enhance cookie deletion process with attribute handling and error logging
+- update manual logout cookie expiration to 30 minutes for Keycloak SLO
+- ensure service worker is disabled in the configuration
+- update migrations in order to make work in local env
+- initialize Decidim.config and set cookie domain for consent cookies
+- streamline Keycloak logout process and restore cookie consent state
+- update content security policy for development and production environments
+- prevent clearing session_id
+- fix push to acr task 3
+- fix push to acr task2
+- fix push to acr
+- update dashboard path to use OAuth login for seamless Keycloak authentication
+- update organization host and improve organization retrieval logic
+- fix jwt token for maps
+- refactor extended data handling in user profile commands
+- revert changes
+- pre-initialize consent_cookie_name to prevent "undefined" cookie issue
+- update shakapacker and webpack configurations for improved asset handling
+- enhance layout and structure of map visualizations page for better usability
+- update OAuth login attribute and enhance security settings in Grafana config
+- adjust layout of tools button for improved alignment
+- update button styles for consistency and improve hover effects
+- rename method for clarity and update gemspec to specify required Ruby version
+- enhance JWT token handling and error responses in applications controller
+- adjust icon sizes for help and user buttons to match design specifications
+- update help button icon size to match design specifications
+- update webpack compiler
+- update icon sizes for help and user buttons to match design specifications
+- update help button icon size to match design specifications
+- update link_to helper to use decidim.root_path for logo
+
+## refactor
+- remove Keycloak auto-login functionality and streamline authentication checks
+- enchache cookie handling
+- remove commented lines in assets.rb
+- remove unused CopyPlugin and streamline asset cleanup in statefulset
+
+## feat
+- add Python dependency installation for test publisher
+- update email templates for improved layout and styling
+- enable local recording notification for all participants
+- add new email templates for basic and image text CTA layouts
+- variable description
+- add scripts for generating environment example and rendering Kubernetes configurations
+- add Playwright test results publishing to Azure Test Plans
+- correct environment variable names in secrets and update file extension for consistency
+- change secret type from data to stringData for consistency
+- remove quotes from OAuth attribute paths for consistency
+- wrap database and OAuth configuration values in quotes for consistency
+- wrap sensitive data placeholders in quotes for consistency
+- update configuration and secret files to use stringData for sensitive data
+- update configuration files to use environment variable placeholders for sensitive data
+- revert container registry references
+- update contributors
+- add SBOM and update LICENSE and NOTICE
+- implement manual logout flag to prevent background auto-login after logout
+- enhance signup form with underage handling and error message management
+- add exclusion for map visualizations controller in Snyk configuration
+- add underage warning message and visibility toggle in signup form
+- remove commented-out job configurations for clarity
+- update SVG icons color
+- author description
+- parallel test execution in pipeline + align with main before author description
+- pAR-DEV06 - updated files for multi worker execution
+- updated package.json for pipeline
+- updated package.json for pipeline
+- fixed testing.yml script
+- fixed testing.yml script
+- refactor - Playwright multi worker
+- add fake data seed for integration environment
+- refactor - Playwright multi worker
+- add CopyPlugin to manage workbox-sw.js and suppress local webpack warnings
+- add layout helper decorator to fix asset path handling
+- implement admin header asset management and update image imports
+- pAR-DEV06 - updated pipeline testing script
+- updated testing.yml script
+- pAR-DEV/PAR-DEV06 commented SARIF publication
+- updated [PAR-DEV06] - Link automated tests with Azure DevOps Test Plans
+- pAR-DEV/PAR-DEV06 Link automated tests with Azure DevOps Test Plans
+
+## PR Merge
+- Mobile responsive/ux issues- Grafana Autologin Try two-  task-18856-insert-author-Test- Login img button disappear again- feat: implement admin header asset management and update image imports- test: PAR-DEV06 Automated testing setup
+
+
 # Changelog from D03.04.Nov to D03.04.Dec
  
 ## feat
@@ -1044,4 +1144,5 @@ Pierluigi Spedicato
 ## PR Merge
 
 - [PAR-PPM001] - Create new process- [PAR-PIM003] - Update personal information- [PAR-PIM001] - Configure form for additional personal data on first login- Startup Participate project
+
 

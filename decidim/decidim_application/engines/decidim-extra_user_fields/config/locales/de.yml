@@ -79,6 +79,8 @@ de:
             extra_user_fields:
                 name: Benutzerdefinierte Anmeldefelder
         extra_user_fields:
+            select_country_placeholder: 'Wählen Sie Ihr Land'
+            date_of_birth_help: 'Verwenden Sie den Datumsauswahl, um Ihr Geburtsdatum auszuwählen'
             admin:
                 exports:
                     users: Teilnehmer
@@ -132,6 +134,7 @@ de:
                     legend: Weitere Informationen
                     select_gender: Wählen Sie Ihr Geschlecht
                     underage: Ich bin unter %{limit} Jahre alt und stimme zu, eine elterliche Genehmigung zu erhalten
+                    underage_warning: 'Warnung: Die Angabe falscher Informationen zur Umgehung der Altersverifizierung stellt einen Verstoß gegen die Nutzungsbedingungen dar und führt zur Löschung des Kontos.'
         statutory_representative:
             inform:
                 body: |

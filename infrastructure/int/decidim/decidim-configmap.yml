@@ -13,53 +13,55 @@ metadata:
     name: decidim-configmap
 data:
     CHATBOT_ENABLED: 'true'
-    CHATBOT_URL: http://chatbot-frontend-svc:80
-    CHATBOT_BACKEND_URL: http://chatbot-backend-svc:3002
-    DATABASE_HOST: db
-    DATABASE_NAME: decidim_application_development
+    CHATBOT_URL: _%CHATBOT-URL%_
+    CHATBOT_BACKEND_URL: _%CHATBOT-BACKEND-URL%_
+    DATABASE_HOST: _%DATABASE-HOST%_
+    DATABASE_NAME: _%DATABASE-NAME%_
     # DATABASE_USERNAME: postgres
-    DECIDIM_AVAILABLE_LOCALES: en,es,fr,de
-    DECIDIM_DEFAULT_LOCALE: en
+    DECIDIM_AVAILABLE_LOCALES: _%DECIDIM-AVAILABLE-LOCALES%_
+    DECIDIM_DEFAULT_LOCALE: _%DECIDIM-DEFAULT-LOCALE%_
     DECIDIM_FORCE_SSL: 'true'
     DECIDIM_FOLLOW_HTTP_X_FORWARDED_HOST: 'true'
-    DECIDIM_HOST: part-int.ldttoolbox.app
-    DECIDIM_JITSI_URL: https://jitsi-part-int.ldttoolbox.app/
+    DECIDIM_HOST: _%DECIDIM-HOST%_
+    DECIDIM_JITSI_URL: _%DECIDIM-JITSI-URL%_
     DECIDIM_JITSI_ROOM_PREFIX: decidim-meeting-
-    DECIDIM_MAILER_SENDER: info@ldttoolbox.eu
+    DECIDIM_MAILER_SENDER: _%DECIDIM-MAILER-SENDER%_
     DECIDIM_PROTOCOL: https
     DECIDIM_ENABLE_HTML_HEADER_SNIPPETS: 'true'
-    DECIDIM_THROTTLING_MAX_REQUESTS: '500'
+    DECIDIM_SERVICE_WORKER_ENABLED: 'false'
+    DECIDIM_THROTTLING_MAX_REQUESTS: '_%DECIDIM-THROTTLING-MAX-REQUESTS%_'
     DOCKER_HOST_ADDRESS: 127.0.0.1
-    ENABLE_JSON_LOGS: 'true'
-    GF_SERVER_DOMAIN: part-int.ldttoolbox.app/analytics/grafana
-    HELP_URL: https://interoperable-europe.ec.europa.eu/collection/ldttoolbox
-    KEYCLOAK_DISABLE_SSL_VERIFY: 'false'
-    MATOMO_SITE_ID: '1'
-    MATOMO_SERVER_ADDRESS: https://part-int.ldttoolbox.app/analytics/matomo/
-    MEETINGS_EMBEDDABLE_SERVICES: jitsi-part-int.ldttoolbox.app www.youtube.com www.twitch.tv meet.jit.si
+    ENABLE_JSON_LOGS: '_%ENABLE-JSON-LOGS%_'
+    GF_SERVER_DOMAIN: _%GF-SERVER-DOMAIN%_
+    GF_SERVER_ROOT_URL: '_%GF-SERVER-ROOT-URL%_'
+    HELP_URL: _%HELP-URL%_
+    KEYCLOAK_DISABLE_SSL_VERIFY: '_%KEYCLOAK-DISABLE-SSL-VERIFY%_'
+    MATOMO_SITE_ID: '_%MATOMO-SITE-ID%_'
+    MATOMO_SERVER_ADDRESS: _%MATOMO-SERVER-ADDRESS%_
+    MEETINGS_EMBEDDABLE_SERVICES: _%MEETINGS-EMBEDDABLE-SERVICES%_
     NODE_ENV: production
-    OMNIAUTH_KEYCLOAK_CLIENT_ID: tool3
-    OMNIAUTH_KEYCLOAK_REALM: LDT
-    OMNIAUTH_KEYCLOAK_SITE: https://im-int.ldttoolbox.app/
-    QUEUE_ADAPTER: sidekiq
-    RAILS_LOG_LEVEL: info
+    OMNIAUTH_KEYCLOAK_CLIENT_ID: _%OMNIAUTH-KEYCLOAK-CLIENT-ID%_
+    OMNIAUTH_KEYCLOAK_REALM: _%OMNIAUTH-KEYCLOAK-REALM%_
+    OMNIAUTH_KEYCLOAK_SITE: _%OMNIAUTH-KEYCLOAK-SITE%_
+    QUEUE_ADAPTER: _%QUEUE-ADAPTER%_
+    RAILS_LOG_LEVEL: _%RAILS-LOG-LEVEL%_
     RAILS_LOG_TO_STDOUT: 'true'
     RAILS_ENV: production
-    RAILS_ASSET_HOST: https://part-int.ldttoolbox.app
-    REDIS_URL: redis://redis:6379/0
-    RESTART_POLICY: unless-stopped
-    SMTP_ADDRESS: smtp.gmail.com
-    SMTP_AUTHENTICATION: plain
-    SMTP_DOMAIN: gmail.com
-    SMTP_ENABLE_STARTTLS_AUTO: 'true'
-    SMTP_PORT: '587'
-    SMTP_TLS: 'false'
-    SMTP_USERNAME: ldt.test.smtp@gmail.com
-    SMTP_OPEN_TIMEOUT: '120'
-    SMTP_READ_TIMEOUT: '120'
-    TOOL0_API_TOOLBAR_APPLICATIONS: /api/dashboard/applications/external-tools
-    TOOL0_FULL_URL: https://ie-int.ldttoolbox.app/api/dashboard/applications/external-tools
-    TOOL0_DOMAIN: https://ie-int.ldttoolbox.app
-    TOOL2_EXPERIMENTS_URL: https://ucs-int.ldttoolbox.app/api/v1/experiments
-    TOOL2_IFRAME_URL: https://ucs-int.ldttoolbox.app/embed/experiment-execution
-    TOOL1_MAPS_URL: https://pv-int.ldttoolbox.app/api/maps
+    RAILS_ASSET_HOST: _%RAILS-ASSET-HOST%_
+    REDIS_URL: _%REDIS-URL%_
+    RESTART_POLICY: _%RESTART-POLICY%_
+    SMTP_ADDRESS: _%SMTP-ADDRESS%_
+    SMTP_AUTHENTICATION: _%SMTP-AUTHENTICATION%_
+    SMTP_DOMAIN: _%SMTP-DOMAIN%_
+    SMTP_ENABLE_STARTTLS_AUTO: '_%SMTP-ENABLE-STARTTLS-AUTO%_'
+    SMTP_PORT: '_%SMTP-PORT%_'
+    SMTP_TLS: '_%SMTP-TLS%_'
+    SMTP_USERNAME: _%SMTP-USERNAME%_
+    SMTP_OPEN_TIMEOUT: '_%SMTP-OPEN-TIMEOUT%_'
+    SMTP_READ_TIMEOUT: '_%SMTP-READ-TIMEOUT%_'
+    TOOL0_API_TOOLBAR_APPLICATIONS: _%TOOL0-API-TOOLBAR-APPLICATIONS%_
+    TOOL0_FULL_URL: _%TOOL0-FULL-URL%_
+    TOOL0_DOMAIN: _%TOOL0-DOMAIN%_
+    TOOL2_EXPERIMENTS_URL: _%TOOL2-EXPERIMENTS-URL%_
+    TOOL2_IFRAME_URL: _%TOOL2-IFRAME-URL%_
+    TOOL1_MAPS_URL: _%TOOL1-MAPS-URL%_

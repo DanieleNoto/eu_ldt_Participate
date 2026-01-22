@@ -103,11 +103,11 @@ spec:
                             echo "Assets compiled successfully"
                             
                             # Verify assets exist
-                            if [ -d "public/packs" ] && [ -n "$(ls -A public/packs 2>/dev/null)" ]; then
+                            if [ -d "public/decidim-packs" ] && [ -n "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
                               echo "Assets verification passed"
                               exit 0
                             else
-                              echo "ERROR: Assets were not created in public/packs"
+                              echo "ERROR: Assets were not created in public/decidim-packs"
                               exit 1
                             fi
                           else

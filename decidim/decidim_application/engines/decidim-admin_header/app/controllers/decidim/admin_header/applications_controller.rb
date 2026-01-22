@@ -29,11 +29,17 @@ module Decidim
       private
 
       def fetch_valid_jwt_token
-        jwt = Decidim::Keycloak::TokenService.ensure_valid_token(current_user, request.cookies, cookies)
+        jwt = Decidim::Keycloak::TokenService.ensure_valid_token(
+          current_user,
+          cookies_hash: request.cookies,
+          cookies_obj: cookies,
+          request_host: request.host,
+          controller: self
+        )
         return jwt if jwt
 
         Rails.logger.warn("No valid Keycloak JWT token available for user #{current_user&.id}")
-        Rails.logger.warn("Available cookies: #{request.cookies.keys.grep(/keycloak/).inspect}")
+        Rails.logger.debug { "Available token cookies: #{request.cookies.keys.grep(/token/).inspect}" }
         nil
       end
 
@@ -78,24 +84,25 @@ module Decidim
       def handle_unauthorized_response(_original_jwt)
         Rails.logger.warn("Tool0 API returned 401 - attempting token refresh and retry")
 
-        refresh_token = reconstruct_token_from_cookies(request.cookies, "refresh_token")
-        return render_auth_expired_error("No refresh token available") if refresh_token.blank?
+        # Use TokenService to refresh token with proper keyword arguments
+        new_token = Decidim::Keycloak::TokenService.ensure_valid_token(
+          current_user,
+          cookies_hash: request.cookies,
+          cookies_obj: cookies,
+          request_host: request.host,
+          controller: self
+        )
+        return render_auth_expired_error("Token refresh failed") unless new_token
 
-        new_tokens = Decidim::Keycloak::TokenService.new.send(:refresh_access_token, refresh_token)
-        return render_auth_expired_error("Token refresh failed") unless new_tokens
-
-        retry_with_new_token(new_tokens)
+        retry_with_new_token_value(new_token)
       end
 
-      def retry_with_new_token(new_tokens)
-        Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, new_tokens)
-        jwt = new_tokens[:access_token]
-
+      def retry_with_new_token_value(jwt)
         tool0_response = make_tool0_request(jwt)
 
         unless tool0_response.code == "200"
-          Rails.logger.error("Tool0 API error after token refresh - Status: #{tool0_response.code}, Body: #{tool0_response.body[0..500]}")
-          render json: { error: "Tool0 returned status #{tool0_response.code}: #{tool0_response.body[0..200]}" }, status: :bad_gateway
+          Rails.logger.error("Tool0 API error after token refresh - Status: #{tool0_response.code}")
+          render json: { error: "Tool0 returned status #{tool0_response.code}" }, status: :bad_gateway
           return nil
         end
 
@@ -106,12 +113,6 @@ module Decidim
         Rails.logger.error(log_message)
         render json: { error: "Authentication expired - please log in again" }, status: :unauthorized
         nil
-      end
-
-      def reconstruct_token_from_cookies(cookies_hash, token_key)
-        return nil unless cookies_hash
-
-        cookies_hash[token_key]
       end
     end
   end

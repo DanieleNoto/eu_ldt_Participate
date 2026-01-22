@@ -16,9 +16,9 @@ default: &default
     public_root_path: public
     public_output_path: decidim-packs
     cache_path: tmp/shakapacker
-    webpack_compile_output: false
+    webpack_compile_output: true
     extract_css: true
-    shakapacker_precompile: false
+    shakapacker_precompile: true
 
     additional_paths:
         - node_modules
@@ -48,39 +48,38 @@ default: &default
 
 development:
     <<: *default
-    compile: false
+    compile: true
     compiler_strategy: mtime
 
     # Reference: https://webpack.js.org/configuration/dev-server/
     dev_server:
         https: false
-        hmr: false
-        live_reload: false
-        client: false
         host: 0.0.0.0
+        # Notice that we use a different port (to prevent blocking the default one) as
+        # there will be at least two webpack servers running
         port: 3035
-        # Tell webpack where the assets will be accessed from (through Rails proxy)
-        public: http://localhost:3000/decidim-packs/
-
-        # CSS is extracted inline for faster feedback
+        # Hot Module Replacement updates modules while the application is running without a full reload
+        hmr: false
+        # mini-css-extract-plugin is a required dependency in both cases.
         inline_css: true
-
-        # Allow all hosts to prevent DNS rebinding issues
-        allowed_hosts: all
-
-        # Watch configuration for file changes
+        client:
+        # Should we show a full-screen overlay in the browser when there are compiler errors or warnings?
+        overlay: false
+        # May also be a string
+        # webSocketURL:
+        #  hostname: "0.0.0.0"
+        #  pathname: "/ws"
+        #  port: 8080
+        # Should we use gzip compression?
+        compress: true
+        # Note that apps that do not check the host are vulnerable to DNS rebinding attacks
+        allowed_hosts: 'all'
+        pretty: true
+        headers:
+            Access-Control-Allow-Origin: '*'
         static:
             watch:
-                ignored:
-                    - '**/node_modules/**'
-                    - '**/tmp/**'
-                    - '**/log/**'
-                    - '**/public/assets/**'
-                    - '**/public/decidim-packs/**'
-                    - '**/storage/**'
-                # Polling for change detection
-                poll: 1000
-                aggregateTimeout: 300
+                ignored: '**/node_modules/**'
 
 test:
     <<: *default
