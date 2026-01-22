@@ -113,14 +113,15 @@ Decidim::Meetings::MeetingIframeEmbedder.class_eval do
     begin
       uri = URI.parse(url_to_transform)
       
-      # For non-moderators, restrict toolbar buttons and disable local recording
+      # For non-moderators, restrict toolbar buttons and disable local recording and screen sharing
       unless is_moderator
-        toolbar_buttons = build_toolbar_buttons_without_recording
+        toolbar_buttons = build_toolbar_buttons_for_non_moderators
         buttons_json = toolbar_buttons.to_json
         
         config_params = []
         config_params << "config.toolbarButtons=#{CGI.escape(buttons_json)}"
         config_params << "config.localRecording.disable=true"
+        config_params << "config.disableDesktopSharing=true"
         
         # Preserve existing fragment if any, or set new one
         existing_fragment = uri.fragment.presence
@@ -130,7 +131,7 @@ Decidim::Meetings::MeetingIframeEmbedder.class_eval do
                         config_params.join('&')
                       end
         
-        Rails.logger.info("Added toolbar restrictions for non-moderator")
+        Rails.logger.info("Added toolbar restrictions for non-moderator (recording and screen sharing disabled)")
       else
         Rails.logger.info("Moderator: no toolbar restrictions applied")
       end
@@ -144,11 +145,11 @@ Decidim::Meetings::MeetingIframeEmbedder.class_eval do
     end
   end
 
-  # Build toolbar buttons list without 'recording' button
-  def build_toolbar_buttons_without_recording
-    # Default buttons based on your ConfigMap, excluding 'recording'
+  # Build toolbar buttons list for non-moderators (without 'recording' and 'desktop' buttons)
+  def build_toolbar_buttons_for_non_moderators
+    # Default buttons based on your ConfigMap, excluding 'recording' and 'desktop' (screen sharing)
     %w[
-      camera chat closedcaptions desktop download embedmeeting
+      camera chat closedcaptions download embedmeeting
       etherpad feedback filmstrip fullscreen hangup help highlight
       invite linktosalesforce livestreaming microphone participants-pane
       profile raisehand security select-background settings shortcuts
