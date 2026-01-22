@@ -26,16 +26,45 @@ variables:
     - group: 'TOOL3 - PT'
     - group: 'TOOL3 - PT - KV'
 
+parameters:
+    - name: tokenReplacements
+      type: object
+      default:
+          - name: 'decidim'
+            rootDirectory: 'infrastructure/int/decidim'
+            targetFiles: 'decidim-statefulset.yaml,decidim-configmap.yml,decidim-secret.yml'
+          - name: 'decidim db'
+            rootDirectory: 'infrastructure/int/decidim/db'
+            targetFiles: 'db-configmap.yml,db-secret.yml'
+          - name: 'chatbot BE'
+            rootDirectory: 'infrastructure/int/backend'
+            targetFiles: 'chatbot-be-configmap.yml,chatbot-be-secrets.yaml,chatbot-db-configmap.yml,chatbot-db-secrets.yaml'
+          - name: 'chatbot FE'
+            rootDirectory: 'infrastructure/int/frontend'
+            targetFiles: 'chatbot-fe-configmap.yml'
+          - name: 'jitsi'
+            rootDirectory: 'infrastructure/int/jitsi'
+            targetFiles: 'jitsi-configmap.yml,jitsi-secret.yml'
+          - name: 'chatbot webapp'
+            rootDirectory: 'infrastructure/int/webapp'
+            targetFiles: 'chatbot-statefulset.yml'
+          - name: 'grafana'
+            rootDirectory: 'infrastructure/int/analytics/grafana'
+            targetFiles: 'grafana-statefulset.yaml,grafana-configmap.yml,grafana-secret.yml'
+          - name: 'matomo'
+            rootDirectory: 'infrastructure/int/analytics/matomo'
+            targetFiles: 'matomo-statefulset.yaml,matomo-configmap.yml,matomo-secret.yml'
+
 jobs:
-    - job: buildAndPushDockerfile
-      displayName: 'Build Tool Images; Push to ACR; Deploy Tool - INTEGRATION'
+    - job: buildDecidim
+      displayName: 'Build and Push Decidim Image'
       variables:
           tag: '$(Build.BuildId)'
       steps:
           - task: Docker@2
-            displayName: Build decidim
+            displayName: Build and Push decidim
             inputs:
-                command: build
+                command: buildAndPush
                 repository: eu-ldt-part-int
                 dockerfile: decidim/decidim_application/Dockerfile
                 containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
@@ -46,23 +75,15 @@ jobs:
                 tags: |
                     $(tag)
 
+    - job: buildGrafana
+      displayName: 'Build and Push Grafana Image'
+      variables:
+          tag: '$(Build.BuildId)'
+      steps:
           - task: Docker@2
-            displayName: Push decidim
+            displayName: Build and Push Grafana
             inputs:
-                command: push
-                repository: eu-ldt-part-int
-                dockerfile: decidim/decidim_application/Dockerfile
-                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
-                buildContext: decidim/decidim_application
-                addPipelineData: false
-                addBaseImageData: false
-                tags: |
-                    $(tag)
-
-          - task: Docker@2
-            displayName: Build Grafana custom image
-            inputs:
-                command: build
+                command: buildAndPush
                 repository: grafana-custom
                 dockerfile: analytics/grafana/Dockerfile
                 containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
@@ -72,21 +93,15 @@ jobs:
                 tags: |
                     $(tag)
 
+    - job: buildMatomo
+      displayName: 'Build and Push Matomo Image'
+      variables:
+          tag: '$(Build.BuildId)'
+      steps:
           - task: Docker@2
-            displayName: Push Grafana custom image
+            displayName: Build and Push Matomo
             inputs:
-                command: push
-                repository: grafana-custom
-                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
-                addPipelineData: false
-                addBaseImageData: false
-                tags: |
-                    $(tag)
-
-          - task: Docker@2
-            displayName: Build Matomo custom image
-            inputs:
-                command: build
+                command: buildAndPush
                 repository: matomo-custom
                 dockerfile: analytics/matomo/Dockerfile
                 containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
@@ -96,11 +111,17 @@ jobs:
                 tags: |
                     $(tag)
 
+    - job: buildChatbot
+      displayName: 'Build and Push Chatbot Images'
+      variables:
+          tag: '$(Build.BuildId)'
+      steps:
           - task: Docker@2
-            displayName: Push Matomo custom image
+            displayName: Build and Push Chatbot Backend
             inputs:
-                command: push
-                repository: matomo-custom
+                command: buildAndPush
+                repository: eu-ldt-chatbot-be-int
+                dockerfile: backend/Dockerfile
                 containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
                 addPipelineData: false
                 addBaseImageData: false
@@ -108,124 +129,38 @@ jobs:
                     $(tag)
 
           - task: Docker@2
-            displayName: Build Chatbot backend custom image
-            inputs:
-                command: buildAndPush
-                repository: eu-ldt-chatbot-be-int
-                dockerfile: backend/Dockerfile
-                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
-                tags: |
-                    $(tag)
-
-          - task: Docker@2
-            displayName: Build Chatbot frontend custom image
+            displayName: Build and Push Chatbot Frontend
             inputs:
                 command: buildAndPush
                 repository: eu-ldt-chatbot-fe-int
                 dockerfile: frontend/Dockerfile
                 containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
+                addPipelineData: false
+                addBaseImageData: false
                 tags: |
                     $(tag)
 
     - job: deployment
-      dependsOn: buildAndPushDockerfile
+      dependsOn:
+          - buildDecidim
+          - buildGrafana
+          - buildMatomo
+          - buildChatbot
       displayName: Kubectl Tool3 deployment
       steps:
-          - task: replacetokens@5
-            displayName: 'Replace tokens decidim'
-            inputs:
-                rootDirectory: infrastructure/int/decidim
-                targetFiles: 'decidim-statefulset.yaml,decidim-configmap.yml,decidim-secret.yml'
-                tokenPattern: custom
-                tokenPrefix: _%
-                tokenSuffix: '%_'
-                writeBOM: false
-                verbosity: detailed
-                actionOnNoFiles: warn
-
-          - task: replacetokens@5
-            displayName: 'Replace tokens decidim db'
-            inputs:
-                rootDirectory: infrastructure/int/decidim/db
-                targetFiles: 'db-configmap.yml,db-secret.yml'
-                tokenPattern: custom
-                tokenPrefix: _%
-                tokenSuffix: '%_'
-                writeBOM: false
-                verbosity: detailed
-                actionOnNoFiles: warn
-
-          - task: replacetokens@5
-            displayName: 'Replace tokens chatbot BE'
-            inputs:
-                rootDirectory: infrastructure/int/backend
-                targetFiles: 'chatbot-be-configmap.yml,chatbot-be-secrets.yaml,chatbot-db-configmap.yml,chatbot-db-secrets.yaml'
-                tokenPattern: custom
-                tokenPrefix: _%
-                tokenSuffix: '%_'
-                writeBOM: false
-                verbosity: detailed
-                actionOnNoFiles: warn
-
-          - task: replacetokens@5
-            displayName: 'Replace tokens chatbot FE'
-            inputs:
-                rootDirectory: infrastructure/int/frontend
-                targetFiles: 'chatbot-fe-configmap.yml'
-                tokenPattern: custom
-                tokenPrefix: _%
-                tokenSuffix: '%_'
-                writeBOM: false
-                verbosity: detailed
-                actionOnNoFiles: warn
-
-          - task: replacetokens@5
-            displayName: 'Replace tokens jitsi'
-            inputs:
-                rootDirectory: infrastructure/int/jitsi
-                targetFiles: 'jitsi-configmap.yml, jitsi-secret.yml'
-                tokenPattern: custom
-                tokenPrefix: _%
-                tokenSuffix: '%_'
-                writeBOM: false
-                verbosity: detailed
-                actionOnNoFiles: warn
-
-          - task: replacetokens@5
-            displayName: 'Replace tokens Chatbot webapp'
-            inputs:
-                rootDirectory: infrastructure/int/webapp
-                targetFiles: 'chatbot-statefulset.yml'
-                tokenPattern: custom
-                tokenPrefix: _%
-                tokenSuffix: '%_'
-                writeBOM: false
-                verbosity: detailed
-                actionOnNoFiles: warn
-
-          - task: replacetokens@5
-            displayName: 'Replace tokens GRAFANA'
-            inputs:
-                rootDirectory: infrastructure/int/analytics/grafana
-                targetFiles: 'grafana-statefulset.yaml,grafana-configmap.yml,grafana-secret.yml'
-                tokenPattern: custom
-                tokenPrefix: _%
-                tokenSuffix: '%_'
-                writeBOM: false
-                verbosity: detailed
-                actionOnNoFiles: warn
-
-          - task: replacetokens@5
-            displayName: 'Replace tokens MATOMO'
-            inputs:
-                rootDirectory: infrastructure/int/analytics/matomo
-                targetFiles: 'matomo-statefulset.yaml,matomo-configmap.yml,matomo-secret.yml'
-                tokenPattern: custom
-                tokenPrefix: _%
-                tokenSuffix: '%_'
-                writeBOM: false
-                verbosity: detailed
-                actionOnNoFiles: warn
+          # Replace tokens for all components
+          - ${{ each component in parameters.tokenReplacements }}:
+              - task: replacetokens@5
+                displayName: 'Replace tokens ${{ component.name }}'
+                inputs:
+                    rootDirectory: ${{ component.rootDirectory }}
+                    targetFiles: ${{ component.targetFiles }}
+                    tokenPattern: custom
+                    tokenPrefix: _%
+                    tokenSuffix: '%_'
+                    writeBOM: false
+                    verbosity: detailed
+                    actionOnNoFiles: warn
 
           - task: KubectlInstaller@0
             displayName: 'Kubectl Install'
@@ -682,10 +617,6 @@ jobs:
                 command: 'apply'
                 arguments: '-f infrastructure/int/decidim/decidim-service.yaml'
 
-          #-------------------------------------------------------------------------------------------
-          #CONFIGURACION JITSI
-          #--------------------------------------------------------------------------
-
           # GRAFANA - Configmap
 
           - task: Kubernetes@1
@@ -699,7 +630,7 @@ jobs:
                 command: 'apply'
                 arguments: '-f infrastructure/int/analytics/grafana/grafana-configmap.yml'
 
-          # MATOMO - Secrets
+          # Grafana - Secrets
 
           - task: Kubernetes@1
             displayName: 'Grafana - Apply Secrets'
