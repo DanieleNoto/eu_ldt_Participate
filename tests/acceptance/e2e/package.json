@@ -34,6 +34,7 @@
 		"@axe-core/playwright": "^4.10.1",
 		"@playwright/test": "^1.52.0",
 		"@types/node": "^22.15.21",
+		"axe-sarif-converter": "^1.2.1",
 		"cross-env": "^7.0.3",
 		"dotenv": "^16.4.7"
 	}
