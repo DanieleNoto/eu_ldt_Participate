@@ -27,40 +27,14 @@ variables:
     - group: 'TOOL3 - PT - KV'
 
 parameters:
-    - name: tokenReplacements
-      type: object
-      default:
-          - name: 'decidim'
-            rootDirectory: 'infrastructure/int/decidim'
-            targetFiles: 'decidim-statefulset.yaml,decidim-configmap.yml,decidim-secret.yml'
-          - name: 'decidim db'
-            rootDirectory: 'infrastructure/int/decidim/db'
-            targetFiles: 'db-configmap.yml,db-secret.yml'
-          - name: 'chatbot BE'
-            rootDirectory: 'infrastructure/int/backend'
-            targetFiles: 'chatbot-be-configmap.yml,chatbot-be-secrets.yaml,chatbot-db-configmap.yml,chatbot-db-secrets.yaml'
-          - name: 'chatbot FE'
-            rootDirectory: 'infrastructure/int/frontend'
-            targetFiles: 'chatbot-fe-configmap.yml'
-          - name: 'jitsi'
-            rootDirectory: 'infrastructure/int/jitsi'
-            targetFiles: 'jitsi-configmap.yml,jitsi-secret.yml'
-          - name: 'Chatbot webapp'
-            rootDirectory: 'infrastructure/int/webapp'
-            targetFiles: 'chatbot-statefulset.yml'
-          - name: 'GRAFANA'
-            rootDirectory: 'infrastructure/int/analytics/grafana'
-            targetFiles: 'grafana-statefulset.yaml,grafana-configmap.yml,grafana-secret.yml'
-          - name: 'MATOMO'
-            rootDirectory: 'infrastructure/int/analytics/matomo'
-            targetFiles: 'matomo-statefulset.yaml,matomo-configmap.yml,matomo-secret.yml'
-
     - name: k8sManifests
       type: object
       default:
           - name: 'Decidim DB'
             jobId: 'deployDecidimDB'
             buildDependency: ''
+            tokenReplacements:
+                - { rootDirectory: 'infrastructure/int/decidim/db', targetFiles: 'db-configmap.yml,db-secret.yml' }
             manifests:
                 - { display: 'DB - Apply Services', file: 'infrastructure/int/decidim/db/db-service.yaml' }
                 - { display: 'DB - Apply ConfigMap', file: 'infrastructure/int/decidim/db/db-configmap.yml' }
@@ -69,6 +43,7 @@ parameters:
           - name: 'Redis'
             jobId: 'deployRedis'
             buildDependency: ''
+            tokenReplacements: []
             manifests:
                 - { display: 'REDIS - Apply Service', file: 'infrastructure/int/decidim/redis/redis-service.yaml' }
                 - {
@@ -78,6 +53,8 @@ parameters:
           - name: 'Jitsi'
             jobId: 'deployJitsi'
             buildDependency: ''
+            tokenReplacements:
+                - { rootDirectory: 'infrastructure/int/jitsi', targetFiles: 'jitsi-configmap.yml,jitsi-secret.yml' }
             manifests:
                 - { display: 'Jitsi - Apply ConfigMap', file: 'infrastructure/int/jitsi/jitsi-configmap.yml' }
                 - { display: 'Jitsi - Apply secrets', file: 'infrastructure/int/jitsi/jitsi-secret.yml' }
@@ -110,6 +87,11 @@ parameters:
           - name: 'Matomo'
             jobId: 'deployMatomo'
             buildDependency: 'buildMatomo'
+            tokenReplacements:
+                - {
+                      rootDirectory: 'infrastructure/int/analytics/matomo',
+                      targetFiles: 'matomo-statefulset.yaml,matomo-configmap.yml,matomo-secret.yml'
+                  }
             manifests:
                 - {
                       display: 'Matomo - Apply ConfigMap',
@@ -136,6 +118,11 @@ parameters:
             jobId: 'deployDecidim'
             buildDependency: 'buildDecidim'
             otherDependencies: ['deployDecidimDB', 'deployRedis']
+            tokenReplacements:
+                - {
+                      rootDirectory: 'infrastructure/int/decidim',
+                      targetFiles: 'decidim-statefulset.yaml,decidim-configmap.yml,decidim-secret.yml'
+                  }
             manifests:
                 - { display: 'Decidim - Apply ConfigMap', file: 'infrastructure/int/decidim/decidim-configmap.yml' }
                 - { display: 'Fluent - Apply ConfigMap', file: 'infrastructure/int/decidim/fluent-configMap.yml' }
@@ -148,6 +135,11 @@ parameters:
           - name: 'Grafana'
             jobId: 'deployGrafana'
             buildDependency: 'buildGrafana'
+            tokenReplacements:
+                - {
+                      rootDirectory: 'infrastructure/int/analytics/grafana',
+                      targetFiles: 'grafana-statefulset.yaml,grafana-configmap.yml,grafana-secret.yml'
+                  }
             manifests:
                 - {
                       display: 'Grafana - Apply ConfigMap',
@@ -172,6 +164,13 @@ parameters:
           - name: 'Chatbot'
             jobId: 'deployChatbot'
             buildDependency: 'buildChatbot'
+            tokenReplacements:
+                - {
+                      rootDirectory: 'infrastructure/int/backend',
+                      targetFiles: 'chatbot-be-configmap.yml,chatbot-be-secrets.yaml,chatbot-db-configmap.yml,chatbot-db-secrets.yaml'
+                  }
+                - { rootDirectory: 'infrastructure/int/frontend', targetFiles: 'chatbot-fe-configmap.yml' }
+                - { rootDirectory: 'infrastructure/int/webapp', targetFiles: 'chatbot-statefulset.yml' }
             manifests:
                 - {
                       display: 'Apply ConfigMap - BE (Chatbot)',
@@ -291,31 +290,8 @@ jobs:
                 tags: |
                     $(tag)
 
-    - job: replaceTokens
-      displayName: 'Replace Tokens'
-      dependsOn:
-          - buildDecidim
-          - buildGrafana
-          - buildMatomo
-          - buildChatbot
-      steps:
-          - ${{ each component in parameters.tokenReplacements }}:
-                - task: replacetokens@5
-                  displayName: 'Replace tokens ${{ component.name }}'
-                  inputs:
-                      rootDirectory: ${{ component.rootDirectory }}
-                      targetFiles: ${{ component.targetFiles }}
-                      tokenPattern: custom
-                      tokenPrefix: _%
-                      tokenSuffix: '%_'
-                      writeBOM: false
-                      verbosity: detailed
-                      actionOnNoFiles: warn
-
     - job: prepareInfrastructure
       displayName: 'Prepare K8s Infrastructure'
-      dependsOn:
-          - replaceTokens
       steps:
           - task: KubectlInstaller@0
             displayName: 'Kubectl Install'
@@ -406,7 +382,6 @@ jobs:
     - ${{ each app in parameters.k8sManifests }}:
           - job: ${{ app.jobId }}
             dependsOn:
-                - replaceTokens
                 - ${{ if ne(app.buildDependency, '') }}:
                       - ${{ app.buildDependency }}
                 - ${{ if app.otherDependencies }}:
@@ -415,6 +390,21 @@ jobs:
                 - prepareInfrastructure
             displayName: 'Deploy ${{ app.name }}'
             steps:
+                # Replace tokens before applying manifests
+                - ${{ each tokenReplacement in app.tokenReplacements }}:
+                      - task: replacetokens@5
+                        displayName: 'Replace tokens in ${{ tokenReplacement.rootDirectory }}'
+                        inputs:
+                            rootDirectory: ${{ tokenReplacement.rootDirectory }}
+                            targetFiles: ${{ tokenReplacement.targetFiles }}
+                            tokenPattern: custom
+                            tokenPrefix: _%
+                            tokenSuffix: '%_'
+                            writeBOM: false
+                            verbosity: detailed
+                            actionOnNoFiles: warn
+
+                # Apply manifests
                 - ${{ each manifest in app.manifests }}:
                       - task: Kubernetes@1
                         displayName: ${{ manifest.display }}
