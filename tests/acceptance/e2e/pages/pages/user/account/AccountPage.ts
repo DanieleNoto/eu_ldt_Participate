@@ -19,6 +19,7 @@ export class AccountPage {
 	private nicknameField: Locator;
 	private emailField: Locator;
 	private dateOfBirthField: Locator;
+	private calendarButton: Locator;
 	private genderSelect: Locator;
 	private countrySelect: Locator;
 	private postalCodeField: Locator;
@@ -55,16 +56,17 @@ export class AccountPage {
 		this.nameField = page.locator('input[name="user[name]"]');
 		this.nicknameField = page.locator('input[name="user[nickname]"]');
 		this.emailField = page.locator('input[name="user[email]"]');
-		this.dateOfBirthField = page.locator('input[name="user[extended_data][date_of_birth]"]');
-		this.genderSelect = page.locator('select[name="user[extended_data][gender]"]');
-		this.countrySelect = page.locator('select[name="user[extended_data][country]"]');
-		this.postalCodeField = page.locator('input[name="user[extended_data][postal_code]"]');
-		this.phoneField = page.locator('input[name="user[extended_data][phone_number]"]');
-		this.locationField = page.locator('input[name="user[extended_data][location]"]');
+		this.dateOfBirthField = page.locator('input[id="user_date_of_birth_date"]');
+		this.calendarButton = page.locator('button.datepicker__calendar-button');
+		this.genderSelect = page.locator('select[id="user_gender"]');
+		this.countrySelect = page.locator('select[id="user_country"]');
+		this.postalCodeField = page.locator('input[id="user_postal_code"]');
+		this.phoneField = page.locator('input[id="user_phone_number"]');
+		this.locationField = page.locator('input[id="user_location"]');
 		this.personalUrlField = page.locator('input[name="user[personal_url]"]');
 		this.aboutTextarea = page.locator('textarea[name="user[about]"]');
 		this.localeSelect = page.locator('select[name="user[locale]"]');
-		this.updateButton = page.locator('input[type="submit"][value="Update"]');
+		this.updateButton = page.getByRole('button', { name: 'Update account' });
 
 		// Initialize avatar upload locators
 		this.avatarUploadButton = page.locator('label[for="user_avatar"]');
@@ -143,19 +145,39 @@ export class AccountPage {
 		locale?: string;
 	}): Promise<void> {
 		if (accountData.name) {
+			await this.nameField.clear();
 			await this.nameField.fill(accountData.name);
 		}
 
 		if (accountData.nickname) {
+			await this.nicknameField.clear();
 			await this.nicknameField.fill(accountData.nickname);
 		}
 
 		if (accountData.email) {
+			await this.emailField.clear();
 			await this.emailField.fill(accountData.email);
 		}
 
 		if (accountData.dateOfBirth) {
-			await this.dateOfBirthField.fill(accountData.dateOfBirth);
+			const [dayString, monthString, yearString] = accountData.dateOfBirth.split('/');
+			const day = parseInt(dayString, 10);
+			const month = parseInt(monthString, 10);
+			const year = parseInt(yearString, 10);
+
+			// Open date picker
+			await this.calendarButton.click();
+			// Select month
+			await this.page.getByLabel('Select month').selectOption(month.toString());
+			// Select year
+			const yearInput = this.page.getByRole('spinbutton', { name: 'Select year' });
+			await yearInput.clear();
+			await yearInput.fill(year.toString());
+			await yearInput.blur();
+			// Select day
+			await this.page.getByText(day.toString(), { exact: true }).first().click();
+			// Set selected date
+			await this.page.getByRole('button', { name: 'Select' }).click();
 		}
 
 		if (accountData.gender) {
@@ -163,10 +185,12 @@ export class AccountPage {
 		}
 
 		if (accountData.personalUrl) {
+			await this.personalUrlField.clear();
 			await this.personalUrlField.fill(accountData.personalUrl);
 		}
 
 		if (accountData.about) {
+			await this.aboutTextarea.clear();
 			await this.aboutTextarea.fill(accountData.about);
 		}
 
@@ -189,14 +213,17 @@ export class AccountPage {
 		}
 
 		if (extendedData.postalCode) {
+			await this.postalCodeField.clear();
 			await this.postalCodeField.fill(extendedData.postalCode);
 		}
 
 		if (extendedData.phoneNumber) {
+			await this.phoneField.clear();
 			await this.phoneField.fill(extendedData.phoneNumber);
 		}
 
 		if (extendedData.location) {
+			await this.locationField.clear();
 			await this.locationField.fill(extendedData.location);
 		}
 	}
@@ -318,11 +345,19 @@ export class AccountPage {
 	/**
 	 * Verify that all required form fields are present and visible
 	 */
-	async verifyFormFieldsPresent(): Promise<void> {
+	async verifyFormFieldsVisibility() {
 		await expect(this.nameField).toBeVisible();
 		await expect(this.nicknameField).toBeVisible();
 		await expect(this.emailField).toBeVisible();
-		await expect(this.updateButton).toBeVisible();
+		await expect(this.dateOfBirthField).toBeVisible();
+		await expect(this.genderSelect).toBeVisible();
+		await expect(this.countrySelect).toBeVisible();
+		await expect(this.postalCodeField).toBeVisible();
+		await expect(this.phoneField).toBeVisible();
+		await expect(this.locationField).toBeVisible();
+		await expect(this.personalUrlField).toBeVisible();
+		await expect(this.aboutTextarea).toBeVisible();
+		await expect(this.localeSelect).toBeVisible();
 	}
 
 	/**
@@ -386,5 +421,71 @@ export class AccountPage {
 		const notificationSettingsPage = new NotificationSettingsPage(this.page);
 		await notificationSettingsPage.waitForPageLoad();
 		return notificationSettingsPage;
+	}
+
+	/**
+	 * Verifies that updated fields have new values and are different from original values
+	 */
+	async verifyFieldsUpdated(
+		originalValues: {
+			name?: string;
+			nickname?: string;
+			email?: string;
+			dateOfBirth?: string;
+			gender?: string;
+			country?: string;
+			postalCode?: string;
+			phoneNumber?: string;
+			location?: string;
+			personalUrl?: string;
+			about?: string;
+			locale?: string;
+		},
+		updatedValues: {
+			name?: string;
+			nickname?: string;
+			dateOfBirth?: string;
+			gender?: string;
+			country?: string;
+			postalCode?: string;
+			phoneNumber?: string;
+			location?: string;
+			personalUrl?: string;
+			about?: string;
+		}
+	): Promise<void> {
+		const fieldMap: Record<string, Locator> = {
+			name: this.nameField,
+			nickname: this.nicknameField,
+			dateOfBirth: this.dateOfBirthField,
+			gender: this.genderSelect,
+			country: this.countrySelect,
+			postalCode: this.postalCodeField,
+			phoneNumber: this.phoneField,
+			location: this.locationField,
+			personalUrl: this.personalUrlField,
+			about: this.aboutTextarea
+		};
+
+		for (const [field, newValue] of Object.entries(updatedValues)) {
+			const locator = fieldMap[field];
+			const fieldKey = field as keyof typeof originalValues;
+			const originalValue = originalValues[fieldKey];
+
+			// Verify field has the new value
+			await expect(locator).toHaveValue(newValue);
+
+			// Verify it's different from original (if they were different)
+			if (originalValue !== newValue) {
+				await expect(locator).not.toHaveValue(originalValue);
+			}
+		}
+	}
+
+	/**
+	 * Wait for the account page load state
+	 */
+	async waitForLoadState() {
+		await this.page.waitForLoadState('load');
 	}
 }
