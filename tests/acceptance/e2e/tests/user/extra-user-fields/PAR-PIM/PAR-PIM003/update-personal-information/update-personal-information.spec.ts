@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { TEST_USERS } from '@config/test-users';
