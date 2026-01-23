@@ -7,6 +7,10 @@
 
 # frozen_string_literal: true
 
+# This migration comes from decidim_surveys (originally 20200609090533)
+# This file has been modified by `decidim upgrade:migrations` task on 2025-12-09 10:59:50 UTC
+# rubocop:disable Rails/Output
+# rubocop:disable Style/GuardClause
 class CheckLegacyTables < ActiveRecord::Migration[5.2]
   class Answer < ApplicationRecord
     self.table_name = :decidim_surveys_survey_answers
@@ -25,16 +29,16 @@ class CheckLegacyTables < ActiveRecord::Migration[5.2]
   end
 
   def up
-    return unless tables_exists.any?
-
-    if tables_exists.all?
-      migrate_legacy_data if Question.any?
-    else
-      Rails.logger.debug "Some legacy surveys tables exist but not all. Have you migrated all the data?"
-      Rails.logger.debug "Migrate or backup your data and then remove the following raise statement to continue with the migrations (that will remove surveys legacy tables)"
-      Rails.logger.debug "For migrating your data you can do that with the command:"
-      Rails.logger.debug "bundle exec rake decidim_surveys:migrate_data_to_decidim_forms"
-      raise "ERROR:  there is the risk to loose legacy information from old surveys!"
+    if tables_exists.any?
+      if tables_exists.all?
+        migrate_legacy_data if Question.any?
+      else
+        puts "Some legacy surveys tables exist but not all. Have you migrated all the data?"
+        puts "Migrate or backup your data and then remove the following raise statement to continue with the migrations (that will remove surveys legacy tables)"
+        puts "For migrating your data you can do that with the command:"
+        puts "bundle exec rake decidim_surveys:migrate_data_to_decidim_forms"
+        raise "ERROR:  there is the risk to loose legacy information from old surveys!"
+      end
     end
   end
 
@@ -43,12 +47,12 @@ class CheckLegacyTables < ActiveRecord::Migration[5.2]
   end
 
   def migrate_legacy_data
-    Rails.logger.debug "Migrating data from decidim_surveys tables to decidim_forms tables..."
+    puts "Migrating data from decidim_surveys tables to decidim_forms tables..."
     ActiveRecord::Base.transaction do
       Decidim::Surveys::Survey.find_each do |survey|
-        Rails.logger.debug { "Migrating survey #{survey.id}..." }
+        puts "Migrating survey #{survey.id}..."
         if survey.questionnaire.present?
-          Rails.logger.debug { "already migrated at questionnaire #{survey.questionnaire.id}" }
+          puts("already migrated at questionnaire #{survey.questionnaire.id}")
           next
         end
 
@@ -63,7 +67,7 @@ class CheckLegacyTables < ActiveRecord::Migration[5.2]
         )
 
         Question.where(decidim_survey_id: survey.id).find_each do |survey_question|
-          Rails.logger.debug { "Migrating question #{survey_question.id}..." }
+          puts "Migrating question #{survey_question.id}..."
 
           question = ::Decidim::Forms::Question.create!(
             questionnaire:,
@@ -114,3 +118,6 @@ class CheckLegacyTables < ActiveRecord::Migration[5.2]
     end
   end
 end
+
+# rubocop:enable Style/GuardClause
+# rubocop:enable Rails/Output

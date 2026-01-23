@@ -11,7 +11,9 @@
     <h2 class="h4"><%= t(".signup.legend") %></h2>
 
     <% if current_organization.activated_extra_field?(:date_of_birth) %>
-      <%= f.date_field :date_of_birth, id: "user_date_of_birth", max: Time.zone.today.to_s, pattern: "\\d{4}-\\d{2}-\\d{2}" %>
+      <%= f.date_field :date_of_birth, 
+          help_text: t("decidim.extra_user_fields.date_of_birth_help", default: "Select your birth date"),
+          data: { "action": "change->underage#dateChanged" } %>
     <% end %>
 
     <% if current_organization.activated_extra_field?(:gender) %>
@@ -31,10 +33,10 @@
     <% if current_organization.activated_extra_field?(:phone_number) %>
       <div class="field">
         <%= f.label :phone_number %>
-        <%= f.telephone_field :phone_number, placeholder: translated_attribute(f.object.phone_number_extra_user_field_placeholder), pattern: f.object.phone_number_extra_user_field_pattern, class: "#{f.object.errors[:phone_number].any? ? 'is-invalid-input' : ''}" %>
         <% if f.object.errors[:phone_number].any? %>
           <small class="form-error is-visible"><%= f.object.errors[:phone_number].first %></small>
         <% end %>
+        <%= f.telephone_field :phone_number, placeholder: translated_attribute(f.object.phone_number_extra_user_field_placeholder), pattern: f.object.phone_number_extra_user_field_pattern, class: "#{f.object.errors[:phone_number].any? ? 'is-invalid-input' : ''}" %>
       </div>
     <% end %>
 
@@ -44,10 +46,27 @@
 
     <% if current_organization.activated_extra_field?(:underage) %>
       <% if current_organization.activated_extra_field?(:date_of_birth) %>
-        <div class="fieldset hidden" id="underage_fieldset">
-          <%= f.check_box :underage, id: "underage_checkbox", label:  t(".signup.underage", limit: current_organization.age_limit?) %>
-          <div class="field <%= f.object.date_of_birth.present? ? '' : 'hidden' %>" id="statutory_representative_email_field">
+        <div class="fieldset hidden" 
+             id="underage_fieldset" 
+             data-controller="underage"
+             data-underage-underage-limit-value="<%= current_organization.age_limit? %>"
+             data-underage-underage-fieldset-target="underageFieldset">
+          <%= f.check_box :underage, 
+              id: "underage_checkbox", 
+              label: t(".signup.underage", limit: current_organization.age_limit?),
+              data: { 
+                "underage-target": "underageCheckbox",
+                "action": "change->underage#checkboxChanged"
+              } %>
+          <div class="field <%= f.object.date_of_birth.present? ? '' : 'hidden' %>" 
+               id="statutory_representative_email_field"
+               data-underage-target="representativeEmailField">
             <%= f.text_field :statutory_representative_email %>
+          </div>
+          <div class="field <%= f.object.date_of_birth.present? ? '' : 'hidden' %> callout warning" 
+               id="underage_warning"
+               data-underage-target="underageWarning">
+            <p><%= t(".signup.underage_warning") %></p>
           </div>
         </div>
       <% else %>
@@ -55,6 +74,9 @@
           <%= f.check_box :underage, id: "underage_checkbox", label:  t(".signup.underage", limit: current_organization.age_limit?) %>
           <div class="field hidden" id="statutory_representative_email_field">
             <%= f.text_field :statutory_representative_email %>
+          </div>
+          <div class="field hidden callout warning mt-5" id="underage_warning">
+            <p><%= t(".signup.underage_warning") %></p>
           </div>
         </div>
       <% end %>

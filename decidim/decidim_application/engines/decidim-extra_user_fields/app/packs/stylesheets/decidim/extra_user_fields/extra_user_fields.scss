@@ -1,0 +1,39 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0
+ * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+ * Authors: Gianfranco Cedro
+ */
+
+.extra-user-fields {
+  .fieldset.hidden {
+    display: none;
+  }
+  
+  .field.hidden {
+    display: none;
+  }
+  
+  .underage-warning {
+    border-left: 4px solid #ff6b35;
+    background-color: #fff5f0;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .date-field {
+    .form-error {
+      color: #cc4125;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+  }
+  
+  .country-select {
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  }
+}

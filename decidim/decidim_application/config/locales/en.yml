@@ -228,12 +228,24 @@ en:
                     preview:
                         tos_agreement: By participating you accept its Privacy Policy
         welcome_notification:
-            default_body: <br><p>Hi {{name}},</p><p>Thanks for joining {{organization}} and welcome!</p><ul><li>If you want to get a quick idea of what you can do here, have a look at the <a href="{{help_url}}">Help</a> section.</li><br><li>Once you have read it you will get your first badge. Here is a <a href="{{badges_url}}">list of all the badges</a> you can get as you participate in {{organization}}</li><br><li>Last but not least, join other people, share with them the experience of being engaged and participating in {{organization}}. Make proposals, comments, debate, think about how to contribute to the common good, provide arguments to convince, listen and read to be convinced, express your ideas in a concrete and direct way, respond with patience and decision, defend your ideas and keep an open mind to collaborate and join other people's ideas.</li></ul>
+            default_body: <p>Hi {{name}},</p><p>Thanks for joining {{organization}} and welcome!</p><ul><li>If you want to get a quick idea of what you can do here, have a look at the <a href="{{help_url}}">Help</a> section.</li><br><li>Once you have read it you will get your first badge. Here is a <a href="{{badges_url}}">list of all the badges</a> you can get as you participate in {{organization}}</li><br><li>Last but not least, join other people, share with them the experience of being engaged and participating in {{organization}}. Make proposals, comments, debate, think about how to contribute to the common good, provide arguments to convince, listen and read to be convinced, express your ideas in a concrete and direct way, respond with patience and decision, defend your ideas and keep an open mind to collaborate and join other people's ideas.</li></ul>
+        mailer:
+            cta_open_toolbox: 'Open EU LDT Toolbox Participate'
         newsletter_mailer:
             newsletter:
                 no_reply_notice: |
                     This email has been sent from a notification-only address that does not accept incoming messages. Please do not reply to this email.<br><br>
                     You can review how we process your data and how to exercise your rights in the <a href="%{privacy_policy_url}">Privacy Policy</a>, as well as manage the receipt of emails in your <a href="%{notification_preferences_url}">Notification Preferences</a>.
+        decidim_awesome:
+            admin:
+                admin_accountability:
+                    index:
+                        description: Listed here you'll find all users that have had some role in the administration of a participatory space. Normal admins are not listed.
+                        global_description: Listed here you'll find all users that have had some global role in administrating this organization. Participatory space admins are not listed.
+                        missing_users: 'NOTE: This list might not include users created/removed before %{date}. This is because "user traceability" was introduced in Decidim v0.24 and this installation is probably older.'
+                        see_global: List global admins
+                        see_spaces: List participatory space admins
+                        title: Admin accountability
     devise:
         omniauth_callbacks:
             add_tos_errors: Privacy policy must be accepted in order to create an account.
@@ -243,3 +255,6 @@ en:
                 edit: Edit
             footer:
                 terms_of_service: Privacy Policy
+---
+en:
+    decidim:

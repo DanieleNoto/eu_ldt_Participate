@@ -27,8 +27,10 @@ module Decidim
             @grafana_url = "http://grafana:3000"
           end
 
-          # Just load Grafana home page with light theme
-          @dashboard_path = "/?orgId=1&theme=light"
+          # Use OAuth login endpoint to trigger automatic Keycloak authentication
+          # This ensures users already logged into Keycloak will be automatically
+          # authenticated in Grafana without seeing the login page
+          @dashboard_path = "/login/generic_oauth?orgId=1&theme=light"
         end
       end
     end

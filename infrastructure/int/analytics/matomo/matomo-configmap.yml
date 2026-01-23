@@ -9,21 +9,21 @@ metadata:
     name: matomo-configmap
 data:
     # Database configuration
-    MATOMO_DATABASE_HOST: 'matomo-db'
-    DATABASE_HOST: 'matomo-db-svc'
+    MATOMO_DATABASE_HOST: _%MATOMO-DATABASE-HOST%_
+    DATABASE_HOST: _%MATOMO-DATABASE-HOST%_
     MATOMO_DATABASE_ADAPTER: 'mysqli'
     MATOMO_DATABASE_TABLES_PREFIX: 'matomo_'
-    MATOMO_DATABASE_DBNAME: 'matomo'
-    MYSQL_DATABASE: 'matomo'
-    
+    MATOMO_DATABASE_DBNAME: _%MATOMO-DATABASE-DBNAME%_
+    MYSQL_DATABASE: _%MYSQL-DATABASE%_
+
     # URL e configurazione subpath (IMPORTANTE!)
-    MATOMO_ROOT_URL: 'https://part-int.ldttoolbox.app/analytics/matomo/'
-    
+    MATOMO_ROOT_URL: _%MATOMO-ROOT-URL%_
+
     # Forza HTTPS e configurazione proxy per subpath
-    MATOMO_FORCE_SSL: "1"
-    MATOMO_ASSUME_SECURE_PROTOCOL: "1"
-    MATOMO_PROXY_URI_HEADER: "1"
-    
+    MATOMO_FORCE_SSL: '1'
+    MATOMO_ASSUME_SECURE_PROTOCOL: '1'
+    MATOMO_PROXY_URI_HEADER: '1'
+
     # PHP settings
-    PHP_MEMORY_LIMIT: "256M"
-    PHP_MAX_EXECUTION_TIME: "300"
+    PHP_MEMORY_LIMIT: '256M'
+    PHP_MAX_EXECUTION_TIME: '300'

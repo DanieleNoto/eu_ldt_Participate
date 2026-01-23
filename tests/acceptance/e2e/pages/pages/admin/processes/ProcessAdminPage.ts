@@ -182,6 +182,10 @@ export class ProcessAdminPage extends BaseAdminPage {
 		return this.page.getByRole('textbox', { name: 'title', exact: true });
 	}
 
+	async getSlugTextbox() {
+		return this.page.locator('#participatory_process_slug');
+	}
+
 	// Process creation form methods
 	async fillGeneralInfo(processData: ProcessGeneralInfo) {
 		console.log('Filling general info fields...');
@@ -878,6 +882,63 @@ export class ProcessAdminPage extends BaseAdminPage {
 				metadataUpdates.participatoryStructure
 			);
 		}
+	}
+
+	async expectFieldError(fieldId: string) {
+		const field = this.page.locator(`#${fieldId}`);
+		await expect(field).toHaveClass(/is-invalid-input/);
+
+		const error = field.locator('xpath=following-sibling::span[contains(@class,"form-error")]');
+		await expect(error).toBeVisible();
+	}
+
+	async expectTitleMultilangError() {
+		const panel = this.page.locator('[data-tabs-content="participatory_process-title-tabs"] .tabs-panel.is-active');
+		await expect(panel).toBeVisible();
+		const errorMessages = panel.locator('small.form-error.is-visible');
+		const errorCount = await errorMessages.count();
+
+		expect(errorCount).toBeGreaterThan(0);
+
+		let foundBlank = false;
+		for (let i = 0; i < errorCount; i++) {
+			const text = await errorMessages.nth(i).textContent();
+			if (text?.includes('cannot be blank')) {
+				foundBlank = true;
+				break;
+			}
+		}
+
+		expect(foundBlank).toBeTruthy();
+	}
+
+	async expectSubtitleMultilangError() {
+		const panel = this.page.locator(
+			'[data-tabs-content="participatory_process-subtitle-tabs"] .tabs-panel.is-active'
+		);
+		await expect(panel).toBeVisible();
+		const errorMessages = panel.locator('small.form-error.is-visible');
+		const errorCount = await errorMessages.count();
+
+		expect(errorCount).toBeGreaterThan(0);
+
+		let foundBlank = false;
+		for (let i = 0; i < errorCount; i++) {
+			const text = await errorMessages.nth(i).textContent();
+			if (text?.includes('cannot be blank')) {
+				foundBlank = true;
+				break;
+			}
+		}
+
+		expect(foundBlank).toBeTruthy();
+	}
+
+	async expectMultilangFieldError(field: 'participatory_process_title' | 'participatory_process_subtitle') {
+		if (field === 'participatory_process_title') {
+			return this.expectTitleMultilangError();
+		}
+		return this.expectSubtitleMultilangError();
 	}
 }
 

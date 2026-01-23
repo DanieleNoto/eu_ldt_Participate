@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { Page } from '@playwright/test';
@@ -31,11 +32,11 @@ export class VerticalTabsComponent {
 
 	// Selectors for individual tabs
 	private get accountTab() {
-		return this.page.locator('a[href*="/account"]');
+		return this.page.getByRole('menuitem', { name: 'Account', exact: true });
 	}
 
 	private get notificationSettingsTab() {
-		return this.page.locator('a[href*="/notifications_settings"]');
+		return this.page.getByRole('menuitem', { name: 'Notification settings', exact: true });
 	}
 
 	private get myInterestsTab() {
@@ -43,11 +44,11 @@ export class VerticalTabsComponent {
 	}
 
 	private get myDataTab() {
-		return this.page.locator('a[href*="/download_your_data"]');
+		return this.page.getByRole('menuitem', { name: 'My data', exact: true });
 	}
 
 	private get deleteAccountTab() {
-		return this.page.locator('a[href*="/account/delete"]');
+		return this.page.getByRole('menuitem', { name: 'Delete my account', exact: true });
 	}
 
 	// Verification methods

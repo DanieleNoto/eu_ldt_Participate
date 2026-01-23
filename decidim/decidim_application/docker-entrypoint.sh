@@ -32,8 +32,8 @@ if [ "$RAILS_ENV" = "production" ]; then
   
   # Verify assets compiled by init container
   echo "--- Verifying assets from init container ---"
-  if [ ! -d "public/packs" ] || [ -z "$(ls -A public/packs 2>/dev/null)" ]; then
-    echo "ERROR: No compiled assets found in public/packs"
+  if [ ! -d "public/decidim-packs" ] || [ -z "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
+    echo "ERROR: No compiled assets found in public/decidim-packs"
     echo "The init container may have failed to compile assets"
     exit 1
   else

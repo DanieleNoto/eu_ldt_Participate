@@ -11,45 +11,14 @@ module Decidim
     module DeviseExtension
       # Override the method that Devise calls after successful OmniAuth callback
       def create
-        # Get auth data before calling parent
         auth_data = request.env["omniauth.auth"]
+        user_locale = determine_user_locale(auth_data)
 
-        # Try to extract user's locale from Keycloak token first
-        user_locale = extract_locale_from_keycloak_token(auth_data)
-        Rails.logger.debug { "[Keycloak] Locale extraction result: #{user_locale.inspect}" }
+        apply_locale_to_session(user_locale)
 
-        # Fallback to session locale if token doesn't have locale info
-        if user_locale.blank? && session["omniauth.locale"].present?
-          user_locale = session["omniauth.locale"]
-          Rails.logger.debug { "[Keycloak] Using fallback session locale: #{user_locale}" }
-        end
-
-        # Set locale if we have one
-        if user_locale.present?
-          I18n.locale = user_locale
-          session["decidim-locale"] = user_locale
-          Rails.logger.info "[Keycloak] Set locale from token/session: #{user_locale}"
-        end
-
-        # Call parent create (handles user creation/sign-in)
         result = super
 
-        # After user is signed in, save token to cache and update user locale
-        if auth_data&.provider == "keycloakopenid" && current_user
-          save_keycloak_token_to_cache(current_user, auth_data)
-
-          # Save locale to user if we have one
-          if user_locale.present? && current_user.locale != user_locale
-            current_user.update_column(:locale, user_locale)
-            Rails.logger.info "[Keycloak] Updated user #{current_user.id} locale to: #{user_locale}"
-          end
-
-          # Mark session as Keycloak authenticated for Single Logout
-          session[:keycloak_authenticated] = true
-
-          # Note: id_token is now stored in cookies, not session, to avoid session cookie size limits
-          Rails.logger.info "[Keycloak] User #{current_user.id} authenticated via Keycloak"
-        end
+        handle_keycloak_post_auth(auth_data, user_locale) if keycloak_auth?(auth_data)
 
         result
       rescue StandardError => e
@@ -58,6 +27,39 @@ module Decidim
       end
 
       private
+
+      def determine_user_locale(auth_data)
+        locale = extract_locale_from_keycloak_token(auth_data)
+        locale = session["omniauth.locale"] if locale.blank? && session["omniauth.locale"].present?
+        Rails.logger.debug { "[Keycloak] Determined user locale: #{locale.inspect}" }
+        locale
+      end
+
+      def apply_locale_to_session(user_locale)
+        return if user_locale.blank?
+
+        I18n.locale = user_locale
+        session["decidim-locale"] = user_locale
+        Rails.logger.info "[Keycloak] Set locale from token/session: #{user_locale}"
+      end
+
+      def keycloak_auth?(auth_data)
+        auth_data&.provider == "keycloakopenid" && current_user
+      end
+
+      def handle_keycloak_post_auth(auth_data, user_locale)
+        save_keycloak_token_to_cache(current_user, auth_data)
+        update_user_locale(user_locale)
+        session[:keycloak_authenticated] = true
+        Rails.logger.info "[Keycloak] User #{current_user.id} authenticated via Keycloak"
+      end
+
+      def update_user_locale(user_locale)
+        return if user_locale.blank? || current_user.locale == user_locale
+
+        current_user.update!(locale: user_locale)
+        Rails.logger.info "[Keycloak] Updated user #{current_user.id} locale to: #{user_locale}"
+      end
 
       def extract_locale_from_keycloak_token(auth_data)
         return nil unless auth_data&.extra&.dig("id_token")
@@ -87,26 +89,22 @@ module Decidim
       end
 
       def extract_tokens_from_auth_data(auth_data)
-        access_token = auth_data&.extra&.dig("access_token") || auth_data&.credentials&.dig("token")
-        refresh_token = auth_data&.extra&.dig("refresh_token") || auth_data&.credentials&.dig("refresh_token")
-        id_token = auth_data&.extra&.dig("id_token") || auth_data&.credentials&.dig("id_token")
-
-        token_expires_in = auth_data&.extra&.dig("token_expires_in") ||
-                           auth_data&.extra&.dig("expires_in") ||
-                           auth_data&.credentials&.dig("expires_in")
-        token_expires_in = token_expires_in.to_i if token_expires_in
-
-        refresh_token_expires_in = auth_data&.extra&.dig("refresh_token_expires_in") ||
-                                   auth_data&.credentials&.dig("refresh_token_expires_in")
-        refresh_token_expires_in = refresh_token_expires_in.to_i if refresh_token_expires_in
-
         {
-          access_token: access_token,
-          refresh_token: refresh_token,
-          id_token: id_token,
-          expires_in: token_expires_in,
-          refresh_token_expires_in: refresh_token_expires_in
+          access_token: extract_token(auth_data, "access_token", "token"),
+          refresh_token: extract_token(auth_data, "refresh_token", "refresh_token"),
+          id_token: extract_token(auth_data, "id_token", "id_token"),
+          expires_in: extract_expiry(auth_data, "token_expires_in", "expires_in"),
+          refresh_token_expires_in: extract_expiry(auth_data, "refresh_token_expires_in", "refresh_token_expires_in")
         }
+      end
+
+      def extract_token(auth_data, extra_key, credentials_key)
+        auth_data&.extra&.dig(extra_key) || auth_data&.credentials&.dig(credentials_key)
+      end
+
+      def extract_expiry(auth_data, *keys)
+        value = keys.lazy.filter_map { |key| auth_data&.extra&.dig(key) || auth_data&.credentials&.dig(key) }.first
+        value&.to_i
       end
 
       def save_tokens_if_available(user, tokens)

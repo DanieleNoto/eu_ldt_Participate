@@ -6,16 +6,24 @@
 
 module Decidim
   module AdminHeader
+    # Service to fetch applications from Tool0 external API.
+    # Uses Keycloak JWT tokens for authentication.
+    #
+    # @example
+    #   service = Tool0ApiService.new(current_user: current_user, cookies: cookies)
+    #   applications = service.fetch_applications
+    #
     class Tool0ApiService
       require "net/http"
       require "json"
 
-      def initialize(current_user: nil)
+      def initialize(current_user: nil, cookies: nil)
         @tenant_id = ENV.fetch("TOOL0_TENANT_ID", nil)
         @domain = ENV.fetch("TOOL0_DOMAIN", nil)
         @api_path = ENV["TOOL0_API_TOOLBAR_APPLICATIONS"] || "/api/dashboard/applications/external-tools"
-        @auth_token = get_auth_token(current_user)
         @current_user = current_user
+        @cookies = cookies
+        @auth_token = fetch_auth_token
       end
 
       def fetch_applications
@@ -47,7 +55,7 @@ module Decidim
         uri = URI("#{@domain}#{@api_path}")
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = uri.scheme == "https"
-        http.read_timeout = 10 # seconds
+        http.read_timeout = 10
 
         request = Net::HTTP::Get.new(uri.path)
         request["x-tenant-id"] = @tenant_id
@@ -59,60 +67,70 @@ module Decidim
 
       def parse_response(response_body)
         JSON.parse(response_body)
-        # Return the data as-is if it already has the expected structure
       rescue JSON::ParserError => e
         Rails.logger.error "Tool0 API JSON parse error: #{e.message}"
+        nil
       end
 
-      def get_auth_token(current_user)
-        # Try to get JWT token from current user's session or request
-        if current_user
-          # Try to get JWT token from session (if stored during OAuth login)
-          jwt_token = jwt_from_session
-          return jwt_token if jwt_token
+      # Fetch auth token using centralized Keycloak cookie access
+      def fetch_auth_token
+        # Priority 1: Get token from cookies
+        token = token_from_cookies
+        return token if token.present?
 
-          # Try to get from user's OAuth data if available
-          begin
-            access_token = Doorkeeper::AccessToken.where(resource_owner_id: current_user.id)
-                                                  .where(revoked_at: nil)
-                                                  .where("expires_in IS NULL OR (created_at + INTERVAL '1 second' * expires_in) > ?", Time.current)
-                                                  .order(created_at: :desc)
-                                                  .first
+        # Priority 2: Try Doorkeeper tokens if user is present
+        token = token_from_doorkeeper
+        return token if token.present?
 
-            return access_token.token if access_token && access_token.token.include?(".")
-          rescue StandardError => e
-            Rails.logger.error "Error retrieving OAuth token for user #{current_user.id}: #{e.message}"
-          end
+        # Priority 3: Fallback to environment variables
+        token_from_env
+      end
+
+      def token_from_cookies
+        return nil unless @cookies
+
+        # Use the cookies hash directly (supports both Hash and CookieJar)
+        cookies_hash = @cookies.respond_to?(:to_h) ? @cookies.to_h : @cookies
+
+        # Access token is the JWT we need
+        access_token = cookies_hash["access_token"]
+        return access_token if access_token.present?
+
+        # Fallback to id_token
+        cookies_hash["id_token"]
+      end
+
+      def token_from_doorkeeper
+        return nil unless @current_user
+
+        begin
+          access_token = Doorkeeper::AccessToken
+                         .where(resource_owner_id: @current_user.id)
+                         .where(revoked_at: nil)
+                         .where("expires_in IS NULL OR (created_at + INTERVAL '1 second' * expires_in) > ?", Time.current)
+                         .order(created_at: :desc)
+                         .first
+
+          # Only return if it looks like a JWT (contains dots)
+          return access_token.token if access_token&.token&.include?(".")
+        rescue StandardError => e
+          Rails.logger.debug { "Error retrieving Doorkeeper token: #{e.message}" }
         end
 
-        # Fallback to environment variables
+        nil
+      end
+
+      def token_from_env
         keycloak_token = ENV.fetch("KEYCLOAK_ACCESS_TOKEN", nil)
         tool0_token = ENV.fetch("TOOL0_AUTH_TOKEN", nil)
 
         # Check if the token is just a placeholder
         if tool0_token == "your_auth_token_here"
-          Rails.logger.warn "TOOL0_AUTH_TOKEN is set to placeholder value - please configure a valid JWT token"
+          Rails.logger.warn "TOOL0_AUTH_TOKEN is set to placeholder value"
           return nil
         end
 
         keycloak_token || tool0_token
-      end
-
-      def jwt_from_session
-        # Try to get JWT token from current request/session
-        # This might be available in different places depending on the OAuth setup
-
-        # Check if there's a JWT in the session
-        session_jwt = session["jwt_token"] || session["id_token"] || session["access_token"]
-        return session_jwt if session_jwt
-
-        # Check cookies for JWT
-        cookies_jwt = cookies["jwt_token"] || cookies["id_token"] || cookies["access_token"]
-        return cookies_jwt if cookies_jwt
-
-        nil
-      rescue StandardError
-        nil
       end
     end
   end

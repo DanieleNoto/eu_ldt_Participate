@@ -227,13 +227,25 @@ de:
                 questionnaire_templates:
                     preview:
                         tos_agreement: Durch die Teilnahme akzeptieren Sie die Datenschutzrichtlinie
+        mailer:
+            cta_open_toolbox: 'EU LDT Toolbox Participate öffnen'
         welcome_notification:
-            default_body: <br><p>Guten Tag {{name}},</p><p>Vielen Dank dafür, dass Sie {{organization}} beigetreten sind und herzlich willkommen!</p><ul><li>Wenn Sie einen kurzen Überblick darüber bekommen möchten, was Sie hier tun können, schauen Sie sich den <a href="{{help_url}}">Hilfe-Abschnitt </a> an.</li><br><li>Sobald Sie ihn gelesen haben, bekommen Sie Ihr erstes Abzeichen. Hier finden Sie eine<a href="{{badges_url}}">Liste aller Abzeichen</a>, die Sie bei der Teilnahme auf {{organization}} erhalten können</li><br><li>Folgen Sie anderen Menschen, teilen Sie die Erfahrung der Zusammenarbeit und Teilnahme auf {{organization}} mit ihnen. Machen Sie Vorschläge und Kommentare, nehmen Sie an Debatten teil, denken Sie darüber nach, wie Sie zum Gemeinwohl beitragen können, liefern Sie Argumente zum Überzeugen, hören und lesen Sie, um sich überzeugen zu lassen, drücken Sie Ihre Ideen auf konkrete und direkte Weise aus, reagieren Sie mit Geduld und Entschlossenheit, verteidigen Sie Ihre Ideen und bleiben Sie offen für die Zusammenarbeit und die Ideen anderer Menschen.</li></ul>
+            default_body: <p>Guten Tag {{name}},</p><p>Vielen Dank dafür, dass Sie {{organization}} beigetreten sind und herzlich willkommen!</p><ul><li>Wenn Sie einen kurzen Überblick darüber bekommen möchten, was Sie hier tun können, schauen Sie sich den <a href="{{help_url}}">Hilfe-Abschnitt </a> an.</li><br><li>Sobald Sie ihn gelesen haben, bekommen Sie Ihr erstes Abzeichen. Hier finden Sie eine<a href="{{badges_url}}">Liste aller Abzeichen</a>, die Sie bei der Teilnahme auf {{organization}} erhalten können</li><br><li>Folgen Sie anderen Menschen, teilen Sie die Erfahrung der Zusammenarbeit und Teilnahme auf {{organization}} mit ihnen. Machen Sie Vorschläge und Kommentare, nehmen Sie an Debatten teil, denken Sie darüber nach, wie Sie zum Gemeinwohl beitragen können, liefern Sie Argumente zum Überzeugen, hören und lesen Sie, um sich überzeugen zu lassen, drücken Sie Ihre Ideen auf konkrete und direkte Weise aus, reagieren Sie mit Geduld und Entschlossenheit, verteidigen Sie Ihre Ideen und bleiben Sie offen für die Zusammenarbeit und die Ideen anderer Menschen.</li></ul>
         newsletter_mailer:
             newsletter:
                 no_reply_notice: |
                     Diese E-Mail wurde von einer Nur-Benachrichtigungs-Adresse gesendet, die keine eingehenden Nachrichten akzeptiert. Bitte antworten Sie nicht auf diese E-Mail.<br><br>
                     Sie können überprüfen, wie wir Ihre Daten verarbeiten und wie Sie Ihre Rechte ausüben können in der <a href="%{privacy_policy_url}">Datenschutzrichtlinie</a>, sowie den Empfang von E-Mails in Ihren <a href="%{notification_preferences_url}">Benachrichtigungseinstellungen</a> verwalten.
+        decidim_awesome:
+            admin:
+                admin_accountability:
+                    index:
+                        description: Hier finden Sie alle Benutzer, die eine administrator-Rolle in der Verwaltung eines partizipatorischen Raumes gespielt haben. Superadministratoren sind nicht aufgeführt.
+                        global_description: Hier finden Sie alle Benutzer, die eine superadministratoren-Rolle in der Verwaltung eines partizipatorischen Raumes gespielt haben. Normalen administrator-Rolle sind nicht aufgeführt.
+                        missing_users: 'HINWEIS: Diese Liste enthält möglicherweise keine vor %{date} erstellten/entfernten Benutzer. Dies liegt daran, dass die "Benutzerverfolgbarkeit" in Decidim v0.24 eingeführt wurde und diese Installation wahrscheinlich älter ist.'
+                        see_global: Globale Admins auflisten
+                        see_spaces: Admins von partizipativen Räumen auflisten
+                        title: Admin-Verantwortung
     devise:
         omniauth_callbacks:
             add_tos_errors: Die Datenschutzrichtlinie muss akzeptiert werden, um ein Konto zu erstellen.
