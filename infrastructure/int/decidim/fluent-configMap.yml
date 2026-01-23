@@ -21,6 +21,9 @@ data:
         Path_Key    filename
         Tag         app.log
         DB          /code/log/flb_kube.db
+        Buffer_Chunk_Size 512k
+        Buffer_Max_Size   10M
+        Skip_Long_Lines   On
         Refresh_Interval 5
         Parser      json
 

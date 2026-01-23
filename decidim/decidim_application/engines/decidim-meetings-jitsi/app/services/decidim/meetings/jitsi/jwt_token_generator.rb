@@ -44,9 +44,9 @@ module Decidim
                 name: @user.name,
                 email: @user.email,
                 avatar: avatar_url,
-                moderator: "true"
+                moderator: true
               },
-              group: @meeting.component.participatory_space.title[@meeting.organization.default_locale] || @meeting.component.participatory_space.title.values.first
+              group: @meeting.component.participatory_space.title[@meeting.organization.default_locale] || @meeting.component.participatory_space.title.values.first,
             },
 
             # Moderator flag (critical for admin privileges)
