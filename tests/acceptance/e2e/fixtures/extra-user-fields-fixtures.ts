@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { UserFieldsData } from '../pages/pages/user/account/UserExtraFieldsPage';

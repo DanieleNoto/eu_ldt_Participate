@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Denis Vasilev Dimchev
+ * Antonio Abramo Carotenuto
  */
 
 import { Page, Locator, expect } from '@playwright/test';

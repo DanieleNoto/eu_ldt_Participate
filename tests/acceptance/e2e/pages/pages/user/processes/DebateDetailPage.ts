@@ -5,6 +5,7 @@
  * Denise Scarcelli
  * Denis Vasilev Dimchev
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { expect, Locator, Page } from '@playwright/test';

@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Denise Scarcelli
+ * Antonio Abramo Carotenuto
  */
 
 import { Page, expect, Locator } from '@playwright/test';

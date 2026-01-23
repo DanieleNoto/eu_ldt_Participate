@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Denis Vasilev Dimchev
+ * Antonio Abramo Carotenuto
  */
 
 import { ComponentsPage } from '@pages/pages/admin/processes/detail/components/ComponentsPage';

@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { AuthenticatedPage } from '@pages/base/AuthenticatedPage';

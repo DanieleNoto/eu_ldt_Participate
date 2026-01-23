@@ -4,6 +4,7 @@
  * Simone Bianchelli
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { HomePage } from '@pages/pages/public/HomePage';

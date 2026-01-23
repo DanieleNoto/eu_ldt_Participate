@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Denise Scarcelli
+ * Antonio Abramo Carotenuto
  */
 
 import { HomePage } from '@pages/pages/public/HomePage';

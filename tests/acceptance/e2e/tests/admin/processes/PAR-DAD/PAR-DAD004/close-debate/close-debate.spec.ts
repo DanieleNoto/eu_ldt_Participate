@@ -4,6 +4,7 @@
  * Simone Bianchelli
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { CloseDebatePage } from '@pages/pages/admin/processes/detail/debates/CloseDebatePage';

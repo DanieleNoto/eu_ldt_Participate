@@ -2,9 +2,9 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Simone Bianchelli
- * Simone Bianchelli
  * Gianfranco Cedro
  * Denise Scarcelli
+ * Antonio Abramo Carotenuto
  */
 
 import { test, expect } from '@fixtures/parallel-test';

@@ -4,6 +4,7 @@
  * Simone Bianchelli
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { Locator, Page, expect } from '@playwright/test';

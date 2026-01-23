@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Simone Bianchelli
+ * Antonio Abramo Carotenuto
  */
 
 import { test, expect } from '@fixtures/parallel-test-reserved';

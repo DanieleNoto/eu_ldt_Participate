@@ -3,6 +3,7 @@
  * Authors:
  * Gianfranco Cedro
  * Denis Vasilev Dimchev
+ * Antonio Abramo Carotenuto
  */
 
 import { Page } from '@playwright/test';
