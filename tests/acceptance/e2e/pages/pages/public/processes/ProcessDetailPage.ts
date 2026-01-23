@@ -93,7 +93,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	async waitForPageLoad(): Promise<void> {
 		await this.waitForElement('.participatory-space__container');
 		await this.waitForElement('section[data-process-hero]');
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
