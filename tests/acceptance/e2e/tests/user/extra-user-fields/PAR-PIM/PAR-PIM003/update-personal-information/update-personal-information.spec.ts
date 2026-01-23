@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { TEST_USERS } from '@config/test-users';
@@ -29,12 +30,55 @@ test.describe('[PAR-PIM003] – Update personal information', () => {
 	let homePage: HomePage;
 	let accountPage: AccountPage;
 	let userExtraFieldsPage: UserExtraFieldsPage;
+	let originalValues: {
+		name?: string;
+		nickname?: string;
+		email?: string;
+		dateOfBirth?: string;
+		gender?: string;
+		country?: string;
+		postalCode?: string;
+		phoneNumber?: string;
+		location?: string;
+		personalUrl?: string;
+		about?: string;
+		locale?: string;
+	};
+	let updatedValues = {
+		name: 'Test Name',
+		nickname: 'usertest1',
+		dateOfBirth: '15/06/1990',
+		gender: 'prefer_not_to_say',
+		country: 'ES',
+		postalCode: '80058',
+		phoneNumber: '3334455666',
+		location: 'Test Location Updated',
+		personalUrl: 'https://test.com',
+		about: 'Test info'
+	};
 
 	test.beforeEach(async ({ userPage }) => {
 		homePage = new HomePage(userPage);
 		accountPage = new AccountPage(userPage);
 		userExtraFieldsPage = new UserExtraFieldsPage(userPage);
 		await homePage.navigateToHomePage();
+		await homePage.header.navigateToMyAccount();
+		await accountPage.waitForPageLoad();
+		// Retrieve personal information values before the update
+		originalValues = {
+			name: await accountPage.getFieldValue('name'),
+			nickname: await accountPage.getFieldValue('nickname'),
+			email: await accountPage.getFieldValue('email'),
+			dateOfBirth: await accountPage.getFieldValue('dateOfBirth'),
+			gender: await accountPage.getSelectValue('gender'),
+			country: await accountPage.getSelectValue('country'),
+			postalCode: await accountPage.getFieldValue('postalCode'),
+			phoneNumber: await accountPage.getFieldValue('phoneNumber'),
+			location: await accountPage.getFieldValue('location'),
+			personalUrl: await accountPage.getFieldValue('personalUrl'),
+			about: await accountPage.getFieldValue('about'),
+			locale: await accountPage.getSelectValue('locale')
+		};
 	});
 
 	test.describe('Main flow', () => {
@@ -45,17 +89,43 @@ test.describe('[PAR-PIM003] – Update personal information', () => {
 			await test.step("2. System: Displays the user's current personal information, including editable fields.", async () => {
 				await accountPage.waitForPageLoad();
 			});
-			await test.step('3. User: Selects the option to edit their personal information.”', async () => {});
-			await test.step('4. System: Enables editing of the personal information fields (address, contact information)', async () => {});
-			await test.step('5. User: Updates or corrects the desired personal information fields.', async () => {});
-			await test.step('6. User: Clicks on the "Save" or "Update" button to submit the changes.', async () => {});
-			await test.step('7. System: Validates the entered data for correctness and completeness.', async () => {});
-			await test.step('8. System: Saves the updated personal information securely in the database, ensuring compliance with data protection regulations.', async () => {});
-			await test.step('9. System: Confirms to the user that their personal information has been successfully updated.', async () => {});
-			await test.step('10. System: Reflects the updated information across all relevant platform features and services.', async () => {});
-			await test.step('Result.', async () => {});
+			await test.step('3. User: Selects the option to edit their personal information.”', async () => {
+				await accountPage.navigateToTab('account');
+				await accountPage.waitForPageLoad();
+			});
+			await test.step('4. System: Enables editing of the personal information fields (address, contact information)', async () => {
+				await accountPage.verifyFormFieldsVisibility();
+			});
+			await test.step('5. User: Updates or corrects the desired personal information fields.', async () => {
+				await accountPage.fillBasicAccountForm(updatedValues);
+				await accountPage.fillExtendedAccountForm(updatedValues);
+			});
+			await test.step('6. User: Clicks on the "Save" or "Update" button to submit the changes.', async () => {
+				await accountPage.submitAccountUpdate();
+			});
+			await test.step('7. System: Validates the entered data and confirms to the user that their personal information has been successfully updated.', async () => {
+				await accountPage.waitForLoadState();
+				expect(await accountPage.isSuccessNotificationVisible()).toBe(true);
+			});
+			await test.step('Result: System reflects the updated information across all relevant platform features and services.', async () => {
+				await accountPage.verifyFieldsUpdated(originalValues, updatedValues);
+			});
 		});
 	});
+
+	test.afterEach(async () => {
+		await homePage.navigateToHomePage();
+		await homePage.header.navigateToMyAccount();
+		await accountPage.waitForPageLoad();
+		// Restore personal information original values after the update
+		await accountPage.verifyFormFieldsVisibility();
+		await accountPage.fillBasicAccountForm(originalValues);
+		await accountPage.fillExtendedAccountForm(originalValues);
+		await accountPage.submitAccountUpdate();
+		await accountPage.waitForLoadState();
+		expect(await accountPage.isSuccessNotificationVisible()).toBe(true);
+	});
+
 	test.describe.skip('User Configuration - Data Validation and Business Logic', () => {
 		test('should validate date of birth business rules', async ({ page }) => {
 			await homePage.header.navigateToMyAccount();

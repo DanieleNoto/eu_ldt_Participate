@@ -8,7 +8,11 @@
 
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
-import { ProcessAdminPage, CompleteProcessData } from '@pages/pages/admin/processes/ProcessAdminPage';
+import {
+	ProcessAdminPage,
+	CompleteProcessData,
+	ProcessGeneralInfo
+} from '@pages/pages/admin/processes/ProcessAdminPage';
 import { test, expect } from '@fixtures/parallel-test-reserved';
 
 /**
@@ -56,6 +60,21 @@ function generateTestProcessData(testRunId: string): CompleteProcessData {
 	};
 }
 
+function generateInvalidGeneralData(
+	base: ProcessGeneralInfo,
+	keepFields: (keyof ProcessGeneralInfo)[]
+): ProcessGeneralInfo {
+	const invalid: ProcessGeneralInfo = { ...base };
+
+	for (const key of Object.keys(base) as (keyof ProcessGeneralInfo)[]) {
+		if (!keepFields.includes(key)) {
+			invalid[key] = '' as any;
+		}
+	}
+
+	return invalid;
+}
+
 test.describe('@reserved [PAR-PPM008] – Update process', () => {
 	// Force sequential execution to prevent test interference
 	test.describe.configure({ mode: 'serial' });
@@ -69,6 +88,7 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 	let testProcessSlug: string;
 	let testProcessTitle: string;
 	let testProcessCreated = false;
+	let testProcessData: CompleteProcessData;
 
 	test.beforeEach(async ({ adminPage }) => {
 		// Generate unique ID for this test
@@ -83,12 +103,12 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 
 		// Navigate to admin home
 		await adminHomePage.navigateToAdminHomePage();
-
+		await processAdminPage.navigateToProcesses();
 		// Create a dedicated test process for this test
 		await processAdminPage.navigateToNewProcess();
 
-		const testProcessData = generateTestProcessData(testRunId);
-
+		//const testProcessData = generateTestProcessData(testRunId);
+		testProcessData = generateTestProcessData(testRunId);
 		// Fill general information
 		await processAdminPage.fillGeneralInfo(testProcessData.general);
 
@@ -274,16 +294,22 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 				}
 			});
 
-			await test.step('Verify the process is updated and available', async () => {
-				// Result: The process is updated with new information and available for viewing
+			await test.step('8. System: Verify the process is updated and available', async () => {
 				await processAdminPage.navigateToProcesses();
-
-				// Always search for the updated process (title is mandatory)
 				await processAdminPage.searchProcesses(updateData.general.title);
-
-				// Verify the updated process appears in search results
 				const searchResults = await processAdminPage.getProcessCount();
 				expect(searchResults).toBe(1);
+				const processName = await processAdminPage.getFirstProcessName();
+				await processAdminPage.selectProcessForEdit(processName);
+				await processAdminPage.waitForEditFormToLoad();
+				const titleInput = await processAdminPage.getTitleTextbox();
+				await expect(titleInput).toHaveValue(updateData.general.title);
+				const subtitleInput = await processAdminPage.getSubtitleTextbox();
+				await expect(subtitleInput).toHaveValue(updateData.general.subtitle);
+				const slugInput = await processAdminPage.getSlugTextbox();
+				await expect(slugInput).toHaveValue(updateData.general.urlSlug);
+				const orderPositionInput = await processAdminPage.getOrderPositionSpinbutton();
+				await expect(orderPositionInput).toHaveValue(updateData.general.orderPosition.toString());
 			});
 		});
 	});
@@ -358,6 +384,32 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 
 				await processAdminPage.expectUpdateSuccessMessage();
 				await processAdminPage.expectMetadataInfoUpdated(metadataUpdates);
+			});
+		});
+	});
+
+	test.describe('Alternative Flow – Required fields validation', () => {
+		test('should show validation errors when required fields are empty', async ({ adminPage }) => {
+			await test.step('Navigate to process edit form', async () => {
+				const invalidData = generateInvalidGeneralData(testProcessData.general, []);
+				await processAdminPage.searchProcesses(testProcessTitle);
+				const processName = await processAdminPage.getFirstProcessName();
+				await processAdminPage.selectProcessForEdit(processName);
+				await processAdminPage.waitForEditFormToLoad();
+				await processAdminPage.fillGeneralInfo(invalidData);
+				await processAdminPage.expectFieldError('participatory_process_weight');
+				await processAdminPage.expectFieldError('participatory_process_slug');
+
+				const partiallyValidData = generateInvalidGeneralData(testProcessData.general, [
+					'orderPosition',
+					'urlSlug'
+				]);
+				await processAdminPage.fillGeneralInfo(partiallyValidData);
+				await processAdminPage.saveProcessChanges();
+
+				await processAdminPage.expectMultilangFieldError('participatory_process_title');
+
+				await processAdminPage.expectMultilangFieldError('participatory_process_subtitle');
 			});
 		});
 	});
