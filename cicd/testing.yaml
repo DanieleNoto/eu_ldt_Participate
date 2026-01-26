@@ -250,20 +250,17 @@ jobs:
             displayName: 'Copy All Accessibility Reports'
             continueOnError: true
           - script: |
-                cd tests/acceptance/e2e/a11y-reports
-                for file in *__latest.json; do
-                  if [ -f "$file" ]; then
-                    npx axe-sarif-converter -i "$file" -o "${file%.json}.sarif"
-                  fi
-                done
-                echo "JSON files converted to SARIF format"
-            displayName: 'Convert to SARIF format'
+                cd tests/acceptance/e2e
+                node convert-to-sarif.js
+                echo "Listing converted SARIF files:"
+                ls -la a11y-reports/sarif/
+            displayName: 'Convert Accessibility Reports to SARIF format'
             condition: succeededOrFailed()
             continueOnError: true
           - task: PublishBuildArtifacts@1
-            displayName: 'Publish SARIF Reports to Scans'
+            displayName: 'Publish SARIF Accessibility Reports to Scans'
             inputs:
-                PathtoPublish: 'tests/acceptance/e2e/a11y-reports'
+                PathtoPublish: 'tests/acceptance/e2e/a11y-reports/sarif'
                 ArtifactName: 'CodeAnalysisLogs'
                 publishLocation: 'Container'
             condition: succeededOrFailed()
