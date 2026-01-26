@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Simone Bianchelli
+ * Antonio Abramo Carotenuto
  */
 
 import { test, expect } from '@fixtures/parallel-test-reserved';
@@ -180,6 +181,7 @@ test.describe('[PAR-PAS004] – Reply to a survey @reserved', () => {
 
 			await test.step('8.4 User: Attempts to save the survey again', async () => {
 				await publicSurveysPage.submitSurvey();
+				await publicSurveysPage.validateAndConfirmSubmission();
 			});
 
 			await test.step('8.5 System: Revalidates the corrected fields', async () => {

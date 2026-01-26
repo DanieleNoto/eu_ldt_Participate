@@ -4,6 +4,7 @@
  * Simone Bianchelli
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { AuthenticatedPage } from '@pages/base/AuthenticatedPage';
@@ -41,7 +42,20 @@ export default class NotificationPage extends AuthenticatedPage {
 	 * Returns the current number of notifications.
 	 */
 	async getNotificationCount(): Promise<number> {
-		return await this.notificationItems.count();
+		let last = -1;
+		await expect
+			.poll(
+				async () => {
+					const c = await this.notificationItems.count();
+					const isStable = c === last;
+					last = c;
+					return isStable;
+				},
+				{ timeout: 6000, intervals: [2000] }
+			)
+			.toBeTruthy();
+		const count = last;
+		return count;
 	}
 
 	/**
@@ -128,27 +142,22 @@ export default class NotificationPage extends AuthenticatedPage {
 
 	/**
 	 * Verify that all notification fields are visible
-	 * @returns true if all fields are visible, false otherwise
 	 */
-	async verifyNotificationVisible(): Promise<boolean> {
-		try {
-			// Check wrapper visibility
-			const wrapperVisible = await this.page.locator('.notification__wrapper').isVisible();
+	async verifyNotificationVisible() {
+		// Check wrappers visibility
+		const wrappers = this.page.locator('.notification__wrapper');
+		for (const wrapper of await wrappers.all()) await expect(wrapper).toBeVisible();
 
-			// Check time field visibility
-			const timeVisible = await this.page.locator('.notification__time').isVisible();
+		// Check time fields visibility
+		const times = this.page.locator('.notification__time');
+		for (const time of await times.all()) await expect(time).toBeVisible();
 
-			// Check snippet visibility
-			const snippetVisible = await this.page.locator('.notification__snippet').isVisible();
+		// Check snippets visibility
+		const snippets = this.page.locator('.notification__snippet');
+		for (const snippet of await snippets.all()) await expect(snippet).toBeVisible();
 
-			// Check snippet title visibility
-			const titleVisible = await this.page.locator('.notification__snippet-title').isVisible();
-
-			// Return true only if all fields are visible
-			return wrapperVisible && timeVisible && snippetVisible && titleVisible;
-		} catch (error) {
-			console.warn('Notification visibility check failed:', error);
-			return false;
-		}
+		// Check snippet titles visibility
+		const titles = this.page.locator('.notification__snippet-title');
+		for (const title of await titles.all()) await expect(title).toBeVisible();
 	}
 }

@@ -5,6 +5,7 @@
  * Gianfranco Cedro
  * Denise Scarcelli
  * Denis Vasilev Dimchev
+ * Antonio Abramo Carotenuto
  */
 
 import { expect, Locator, Page } from '@playwright/test';
@@ -92,7 +93,7 @@ export class ComponentsPage extends BaseAdminPage {
 	async waitForComponentsPageLoad() {
 		await this.page.waitForSelector('.item_show__wrapper');
 		await this.page.waitForSelector('.table-list');
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async isOnComponentsPage(): Promise<boolean> {
@@ -544,16 +545,9 @@ export class ComponentsPage extends BaseAdminPage {
 	 * @param exportType - Optional: The type of data to export
 	 */
 	async selectExportFormat(fileFormat: string, exportType?: string): Promise<void> {
-		// If exportType is specified, use it to match the exact link
-		if (exportType) {
-			await this.page.getByRole('link', { name: new RegExp(`${exportType} as ${fileFormat}$`, 'i') }).click();
-		} else {
-			// Generic selector that matches any link ending with "as {fileFormat}"
-			await this.page
-				.getByRole('link', { name: new RegExp(`as ${fileFormat}$`) })
-				.first()
-				.click();
-		}
+		// The text is inside a li child of the link, so we need to find the link that contains the text
+		const linkSelector = `a:has(li:has-text("Export ${fileFormat}"))`;
+		await this.page.locator(linkSelector).first().click();
 	}
 
 	/**

@@ -4,6 +4,7 @@
  * Simone Bianchelli
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { Locator, Page, expect } from '@playwright/test';
@@ -571,22 +572,46 @@ export class FormMeetingPage extends BaseAdminPage {
 	}
 
 	/**
-	 * Selects a specific date in YYYY-MM-DD format.
+	 * Selects a specific date using the datepicker widget.
 	 * Works for both start and end date by passing the correct index.
+	 * Uses the widget to ensure all internal state is updated correctly.
 	 */
 	async selectCustomDate(date: Date, calendarIndex: number, selectIndex: number): Promise<void> {
 		const pad = (n: number) => (n < 10 ? '0' + n : n);
-		const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
-		// Open the datepicker
+		// Open the calendar widget
 		await this.calendarIcon(calendarIndex).click();
+		await this.page.waitForTimeout(500);
 
-		// Pick the target date
-		const dateCell = this.page.locator(`.wc-datepicker__date[data-date="${dateStr}"]:visible`).first();
-		await dateCell.click();
+		// Get the wc-datepicker component
+		const datepicker = this.page.locator('wc-datepicker').nth(calendarIndex);
+		await datepicker.waitFor({ state: 'visible' });
 
-		// Confirm date with "Select"
+		// Select the month using the dropdown
+		const targetMonth = date.getMonth() + 1; // 1-12 (HTML uses 1-based month values)
+		const monthSelect = datepicker.locator('.wc-datepicker__month-select');
+		await monthSelect.selectOption({ value: targetMonth.toString() });
+		await this.page.waitForTimeout(300);
+
+		// Input the year
+		const targetYear = date.getFullYear();
+		const yearInput = datepicker.locator('.wc-datepicker__year-select');
+		await yearInput.clear();
+		await yearInput.fill(targetYear.toString());
+		await yearInput.blur(); // Trigger year change
+		await this.page.waitForTimeout(500); // Wait for calendar to re-render with new month/year
+
+		// Click on the specific day using data-date attribute
+		const targetDateStr = `${targetYear}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`; // YYYY-MM-DD
+		const dayCell = datepicker.locator(`td.wc-datepicker__date[data-date="${targetDateStr}"]`);
+		await dayCell.waitFor({ state: 'visible' });
+		await dayCell.click();
+		await this.page.waitForTimeout(300);
+
+		// Click the "Select" button to confirm the date selection
+		await expect(this.selectButtoncalendar(selectIndex)).toBeVisible();
 		await this.selectButtoncalendar(selectIndex).click();
+		await this.page.waitForTimeout(500);
 	}
 
 	/**

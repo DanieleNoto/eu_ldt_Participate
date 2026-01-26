@@ -3,9 +3,10 @@
  * Authors:
  * Simone Bianchelli
  * Denis Vasilev Dimchev
+ * Antonio Abramo Carotenuto
  */
 
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { AdminHeaderComponent } from '../../AdminHeaderComponent';
 import { AdminProcessBreadcrumbComponent } from '../../process/AdminProcessBreadcrumbComponent';
 import { AdminNavigationComponent } from '../../AdminNavigationComponent';
@@ -667,6 +668,9 @@ export class ProcessModerationPage {
 	async verifyCommentNotPresentById(commentId: string): Promise<boolean> {
 		const selector = `#comment_${commentId}`;
 		const commentLocator = this.page.locator(selector);
+		const loadingMessage = this.page.locator('.flash__message', { hasText: 'Loading comments' }).first();
+
+		await expect(loadingMessage).toBeHidden({ timeout: 2000 });
 
 		const count = await commentLocator.count();
 		if (count === 0) {
@@ -769,6 +773,7 @@ export class ProcessModerationPage {
 
 			// Click the three dots button to open dropdown
 			const controlsButton = this.page.locator(`#dropdown-trigger-toggle-context-menu-${commentId}`);
+			await expect(controlsButton).toBeVisible();
 			await controlsButton.click();
 
 			// Click the Report button using the data-dialog-open attribute (more specific selector)

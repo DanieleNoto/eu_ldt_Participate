@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { expect, Locator, Page } from '@playwright/test';
@@ -79,7 +80,7 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 		await this.waitForElement('.item_show__wrapper');
 		await this.waitForElement('form.new_component');
 		await this.sidebar.isSidebarVisible();
-		await this.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async isOnNewDebatesComponentPage(): Promise<boolean> {

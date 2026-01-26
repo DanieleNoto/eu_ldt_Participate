@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Simone Bianchelli
+ * Antonio Abramo Carotenuto
  */
 
 import test, { expect } from '@playwright/test';
@@ -25,7 +26,9 @@ import { tmpdir } from 'os';
  * Prerequisites:
  * - The administrator has configured additional personal data fields.
  */
-test.describe('[PAR-PIM002] – Collect additional personal data on registration', () => {
+
+//Test marked as skipped due to the inability to register a new user on Decidim via Mailinator email
+test.describe.skip('[PAR-PIM002] – Collect additional personal data on registration', () => {
 	// Force fresh unauthenticated context for this test
 	test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -39,6 +42,7 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 	let testGender: string;
 	let testCountry: string;
 	let testPostalCode: string;
+	let testPhoneNumber: string;
 	let testLocation: string;
 
 	let homePage: HomePage;
@@ -58,6 +62,7 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 		testGender = extraFieldsData.gender!;
 		testCountry = extraFieldsData.country!;
 		testPostalCode = extraFieldsData.postalCode!;
+		testPhoneNumber = extraFieldsData.phoneNumber!;
 		testLocation = extraFieldsData.location!;
 
 		homePage = new HomePage(page);
@@ -153,6 +158,7 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 				await signUpPage.selectGender(testGender);
 				await signUpPage.selectCountry(testCountry);
 				await signUpPage.fillPostalCode(testPostalCode);
+				await signUpPage.fillPhoneNumber(testPhoneNumber);
 				await signUpPage.fillLocation(testLocation);
 
 				// Accept terms and conditions and newsletter
@@ -221,6 +227,7 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 					gender: testGender,
 					country: testCountry,
 					postalCode: testPostalCode,
+					phoneNumber: testPhoneNumber,
 					location: testLocation
 				});
 
@@ -323,6 +330,7 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 					'registration_user_date_of_birth',
 					'registration_user_gender',
 					'registration_user_postal_code',
+					'registration_user_phone_number',
 					'registration_user_location'
 				];
 
@@ -339,6 +347,7 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 				await signUpPage.selectGender(testGender);
 				await signUpPage.selectCountry(testCountry);
 				await signUpPage.fillPostalCode(testPostalCode);
+				await signUpPage.fillPhoneNumber(testPhoneNumber);
 				await signUpPage.fillLocation(testLocation);
 
 				console.log('Fields corrected except terms and conditions');
@@ -424,6 +433,7 @@ test.describe('[PAR-PIM002] – Collect additional personal data on registration
 					gender: testGender,
 					country: testCountry,
 					postalCode: testPostalCode,
+					phoneNumber: testPhoneNumber,
 					location: testLocation
 				});
 

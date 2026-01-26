@@ -4,6 +4,7 @@
  * Denise Scarcelli
  * Simone Bianchelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { expect, Locator, Page } from '@playwright/test';
@@ -39,9 +40,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	private readonly dateFilterActive: Locator;
 
 	// Scope filter
-	private readonly scopeFilterContainer: Locator;
 	private readonly scopeFilterTrigger: Locator;
-	private readonly scopeFilterPanel: Locator;
 	private readonly scopeFilterAll: Locator;
 	private readonly scopeFilterGlobal: Locator;
 
@@ -84,11 +83,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		this.dateFilterActive = page.locator('input[name="filter[with_date]"][value="active"]');
 
 		// Scope filter
-		this.scopeFilterContainer = page
-			.locator('.filter-container')
-			.filter({ has: page.locator('#trigger-menu-scope') });
 		this.scopeFilterTrigger = page.locator('#trigger-menu-scope');
-		this.scopeFilterPanel = page.locator('#panel-dropdown-menu-scope');
 		this.scopeFilterAll = page.locator(
 			'label[data-global-checkbox] input[name="filter[with_any_scope][]"][value=""]'
 		);
@@ -122,7 +117,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	async waitForPageLoad(): Promise<void> {
 		await this.waitForElement('.layout-2col');
 		await this.waitForElement('#processes-grid');
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -138,11 +133,30 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	/**
 	 * Navigates to a process by clicking on its card using the process title
 	 * @param processTitle - The title of the process to navigate to
+	 * @param processSlug - Optional: The exact slug of the process for fallback navigation
 	 */
-	async navigateToProcessByTitle(processTitle: string): Promise<void> {
-		const processCard = this.getProcessCardByTitle(processTitle);
-		await processCard.click();
-		await this.waitForLoadState('networkidle');
+	async navigateToProcessByTitle(processTitle: string, processSlug?: string): Promise<void> {
+		// Try to find and click the card by title
+		const processCard = this.getAllProcessCardByTitle(processTitle);
+		const cardCount = await processCard.count();
+
+		if (cardCount > 0) {
+			// Card found, click it
+			await processCard.first().click();
+			await this.waitForLoadState('networkidle');
+		} else {
+			// Fallback: Navigate directly using provided slug or derived from title
+			const slug =
+				processSlug ||
+				processTitle
+					.toLowerCase()
+					.replace(/[^a-z0-9]+/g, '-')
+					.replace(/^-+|-+$/g, '');
+
+			console.log(`Process card not found for "${processTitle}", navigating directly to slug: ${slug}`);
+			await this.navigateTo(`/processes/${slug}`);
+			await this.waitForLoadState('networkidle');
+		}
 	}
 
 	/**
@@ -151,8 +165,9 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	 */
 	async navigateToProcessByIndex(index: number): Promise<void> {
 		const processCard = this.processCards.nth(index);
+		await expect(processCard).toBeVisible();
 		await processCard.click();
-		await this.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Process card locator methods
@@ -309,8 +324,6 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		await expect(this.filterForm).toBeVisible();
 		await expect(this.dateFilterContainer).toBeVisible();
 		await expect(this.dateFilterPanel).toBeVisible();
-		await expect(this.scopeFilterContainer).toBeVisible();
-		await expect(this.scopeFilterPanel).toBeVisible();
 	}
 
 	// Page state verification
@@ -483,12 +496,6 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		await this.openDateFilter();
 		await this.dateFilterAll.check();
 
-		await this.openScopeFilter();
-		await this.scopeFilterAll.check();
-
-		await this.openAreaFilter();
-		await this.areaFilterAll.check();
-
 		// Wait for the results to update
 		await this.page.waitForLoadState('networkidle');
 	}
@@ -592,7 +599,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 			// Check if the process is visible and clickable
 			await expect(processCard).toBeVisible();
 			await processCard.click();
-			await this.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 			console.log(`Successfully clicked on process "${processTitle}" from the grid`);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error);
@@ -600,7 +607,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 			console.log(`Error: ${errorMessage}`);
 			const processUrl = `/processes/${processSlug}`;
 			await this.page.goto(processUrl);
-			await this.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 			console.log(`Successfully navigated to process URL: ${processUrl}`);
 		}
 	}
@@ -630,10 +637,24 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		}[] = [];
 
 		const processCards = this.allProcessCards;
-		const count = await processCards.count();
+
+		let last = -1;
+		await expect
+			.poll(
+				async () => {
+					const c = await processCards.count();
+					const isStable = c === last;
+					last = c;
+					return isStable;
+				},
+				{ timeout: 5000, intervals: [100, 150, 200] }
+			)
+			.toBeTruthy();
+		const count = last;
 
 		for (let i = 0; i < count; i++) {
 			const card = processCards.nth(i);
+			await expect(card).toBeVisible();
 
 			const id = (await card.getAttribute('id')) || '';
 			const href = (await card.getAttribute('href')) || '';

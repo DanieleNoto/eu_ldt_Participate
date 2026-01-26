@@ -7,11 +7,10 @@
 
 import { ConfirmDeleteModalComponent } from '@pages/components/common/ConfirmDeleteModalComponent';
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
-import { CategoriesPage } from '@pages/pages/admin/processes/detail/categories/CategoriesPage';
-import { NewCategoryPage } from '@pages/pages/admin/processes/detail/categories/NewCategoryPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
 import { test, expect } from '@fixtures/parallel-test';
+import { NewTaxonomyPage } from '../../../../../../pages/pages/admin/taxonomies/NewTaxonomyPage';
 
 /**
  * Test suite for Allows City Administrators to delete a category of the process.
@@ -29,45 +28,57 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
-	let categoriesPage: CategoriesPage;
 	let confirmDeleteModalComponent: ConfirmDeleteModalComponent;
-	let newCategoryPage: NewCategoryPage;
+	let newTaxonomyPage: NewTaxonomyPage;
+	let timestamp: string;
 
 	test.beforeEach(async ({ adminPage }) => {
 		adminHomePage = new AdminHomePage(adminPage);
 		processAdminPage = new ProcessAdminPage(adminPage);
 		updateProcessAdminPage = new UpdateProcessAdminPage(adminPage);
-		categoriesPage = new CategoriesPage(adminPage);
-		newCategoryPage = new NewCategoryPage(adminPage);
+		newTaxonomyPage = new NewTaxonomyPage(adminPage);
 		confirmDeleteModalComponent = new ConfirmDeleteModalComponent(adminPage);
+
+		// Generate timestamp for unique taxonomy names
+		timestamp = Date.now().toString();
+
 		await setupTestProcess();
 		await adminHomePage.navigateToAdminHomePage();
+	});
+
+	test.afterEach(async ({ adminPage }) => {
+		// Clean up taxonomies created during tests (they may or may not exist depending on test flow)
+		await adminPage.goto('/admin/taxonomies');
+		await newTaxonomyPage.waitForLoadState('networkidle');
+
+		// Try to delete test taxonomies
+		await newTaxonomyPage.deleteTaxonomyByName(`New Beautiful Taxonomy 1 ${timestamp}`);
+		await newTaxonomyPage.deleteTaxonomyByName(`New Beautiful Taxonomy 2 ${timestamp}`);
 	});
 
 	/**
 	 * Setup test environment by ensuring a test process exists
 	 */
 	async function setupTestProcess() {
-		await test.step('Setup: Create test categories ', async () => {
+		await test.step('Setup: Create test taxonomies ', async () => {
 			await adminHomePage.navigateToAdminHomePage();
 			await adminHomePage.navigateViaAdminNav('processes');
 			await processAdminPage.processTable.editFirstProcess();
-			await updateProcessAdminPage.navigateToCategories();
+			await updateProcessAdminPage.navigateToTaxonomies();
 
-			await categoriesPage.createNewCategory();
-			await newCategoryPage.fillName('New Beautiful Category 1');
-			await newCategoryPage.submitForm();
-			await categoriesPage.expectCategoryIsInTable('New Beautiful Category 1');
-			await categoriesPage.createNewCategory();
-			await newCategoryPage.fillName('New Beautiful Category 2');
-			await newCategoryPage.submitForm();
-			await categoriesPage.expectCategoryIsInTable('New Beautiful Category 2');
+			await newTaxonomyPage.createNewTaxonomy();
+			await newTaxonomyPage.fillName(`New Beautiful Taxonomy 1 ${timestamp}`);
+			await newTaxonomyPage.submitForm();
+			await newTaxonomyPage.expectTaxonomyIsInTable(`New Beautiful Taxonomy 1 ${timestamp}`);
+			await newTaxonomyPage.createNewTaxonomy();
+			await newTaxonomyPage.fillName(`New Beautiful Taxonomy 2 ${timestamp}`);
+			await newTaxonomyPage.submitForm();
+			await newTaxonomyPage.expectTaxonomyIsInTable(`New Beautiful Taxonomy 2 ${timestamp}`);
 		});
 	}
 
 	test.describe('Main Flow', () => {
 		test('should allow admin to delete categories of process', async () => {
-			let countPreviousDelete = 0;
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -91,14 +102,15 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
 			});
 			await test.step('5. User: Navigates to the "Manage categories" section within the process management interface.', async () => {
-				await updateProcessAdminPage.navigateToCategories();
+				await updateProcessAdminPage.navigateToTaxonomies();
 			});
 			await test.step('6. System: Displays a list of existing categories (if any) and provides options to add, edit, or remove categories.', async () => {
-				await categoriesPage.expectToBeOnCategoriesPage();
-				countPreviousDelete = await categoriesPage.getCategoryCount();
+				await newTaxonomyPage.expectToBeOnTaxonomiesPage();
+				await newTaxonomyPage.expectTaxonomyIsInTable(`New Beautiful Taxonomy 1 ${timestamp}`);
+				await newTaxonomyPage.expectTaxonomyIsInTable(`New Beautiful Taxonomy 2 ${timestamp}`);
 			});
 			await test.step('7. User: Selects an existing category to delete.', async () => {
-				await categoriesPage.clickFirstEnabledDeleteButton();
+				await newTaxonomyPage.clickDeleteButtonByName(`New Beautiful Taxonomy 1 ${timestamp}`);
 			});
 			await test.step('8. System: Prompts the user to confirm the deletion.', async () => {
 				await confirmDeleteModalComponent.expectModalVisible();
@@ -107,22 +119,21 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 				await confirmDeleteModalComponent.confirmDelete();
 			});
 			await test.step('10. System: Deletes the selected category from the process and updates the list of categories.', async () => {
-				await categoriesPage.waitForLoadState('networkidle');
+				await newTaxonomyPage.waitForLoadState('networkidle');
 				await confirmDeleteModalComponent.expectModalNotVisible();
 			});
 			await test.step('11. System: Notifies the City Administrator that the category has been successfully deleted.', async () => {
-				await categoriesPage.expectSuccessFlashMessage('Category deleted successfully.');
+				await newTaxonomyPage.expectSuccessFlashMessage('Taxonomy successfully destroyed.');
 			});
 			await test.step('Result.', async () => {
-				const count = await categoriesPage.getCategoryCount();
-				expect(count).toBeLessThan(countPreviousDelete);
+				await newTaxonomyPage.expectTaxonomyIsNotInTable(`New Beautiful Taxonomy 1 ${timestamp}`);
+				await newTaxonomyPage.expectTaxonomyIsInTable(`New Beautiful Taxonomy 2 ${timestamp}`);
 			});
 		});
 	});
 
 	test.describe('Alternative Flow', () => {
 		test('should can abort the delete of category', async () => {
-			let countPreviousDelete = 0;
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -146,14 +157,15 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
 			});
 			await test.step('5. User: Navigates to the "Manage categories" section within the process management interface.', async () => {
-				await updateProcessAdminPage.navigateToCategories();
+				await updateProcessAdminPage.navigateToTaxonomies();
 			});
 			await test.step('6. System: Displays a list of existing categories (if any) and provides options to add, edit, or remove categories.', async () => {
-				await categoriesPage.expectToBeOnCategoriesPage();
-				countPreviousDelete = await categoriesPage.getCategoryCount();
+				await newTaxonomyPage.expectToBeOnTaxonomiesPage();
+				await newTaxonomyPage.expectTaxonomyIsInTable(`New Beautiful Taxonomy 1 ${timestamp}`);
+				await newTaxonomyPage.expectTaxonomyIsInTable(`New Beautiful Taxonomy 2 ${timestamp}`);
 			});
 			await test.step('7. User: Selects an existing category to delete.', async () => {
-				await categoriesPage.clickFirstEnabledDeleteButton();
+				await newTaxonomyPage.clickDeleteButtonByName(`New Beautiful Taxonomy 1 ${timestamp}`);
 			});
 			await test.step('8. System: Prompts the user to confirm the deletion.', async () => {
 				await confirmDeleteModalComponent.expectModalVisible();
@@ -162,12 +174,12 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 				await confirmDeleteModalComponent.cancelDelete();
 			});
 			await test.step('10. System: Aborts the deletion process and returns the user to the list of categories.', async () => {
-				await categoriesPage.waitForLoadState('networkidle');
+				await newTaxonomyPage.waitForLoadState('networkidle');
 				await confirmDeleteModalComponent.expectModalNotVisible();
 			});
 			await test.step('Result.', async () => {
-				const count = await categoriesPage.getCategoryCount();
-				expect(count).toBe(countPreviousDelete);
+				await newTaxonomyPage.expectTaxonomyIsInTable(`New Beautiful Taxonomy 1 ${timestamp}`);
+				await newTaxonomyPage.expectTaxonomyIsInTable(`New Beautiful Taxonomy 2 ${timestamp}`);
 			});
 		});
 	});

@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Simone Bianchelli
+ * Antonio Abramo Carotenuto
  */
 
 import { Page, Locator, expect } from '@playwright/test';
@@ -106,7 +107,7 @@ export class AcceptInvitationPage extends BasePage {
 	 * Click the save button to complete registration
 	 */
 	async clickSave(): Promise<void> {
-		await this.saveButton.waitFor({ state: 'visible' });
+		await expect(this.saveButton).toBeVisible();
 		await this.saveButton.click();
 	}
 

@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { Page, expect } from '@playwright/test';
@@ -29,7 +30,18 @@ export class BaseAdminPage extends AuthenticatedPage {
 	}
 
 	async navigateToSettings() {
-		await this.page.getByRole('link', { name: 'Settings' }).click();
+		await this.page.getByRole('link', { name: 'Settings' }).first().click();
+	}
+
+	async navigateToTaxonomies() {
+		// First navigate to Settings page
+		await this.navigateToSettings();
+		await this.page.waitForLoadState('networkidle');
+
+		// Then click on Taxonomies link
+		await this.page.getByRole('link', { name: 'Taxonomies' }).click();
+		await this.page.waitForURL(/\/admin\/taxonomies/);
+		await this.page.waitForLoadState('networkidle');
 	}
 
 	// Login workflow for admin

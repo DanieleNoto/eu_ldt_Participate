@@ -4,11 +4,12 @@
  * Simone Bianchelli
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { HomePage } from '@pages/pages/public/HomePage';
 import NotificationPage from '@pages/pages/user/NotificationPage';
-import { test, expect } from '@fixtures/parallel-test';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 
 /**
  * Test suite for Allows citizens to view notifications related to platform activities.
@@ -24,7 +25,9 @@ import { test, expect } from '@fixtures/parallel-test';
  *
  */
 
-test.describe('[PAR-NOT001] – View notifications', () => {
+test.describe('@reserved [PAR-NOT001] – View notifications', () => {
+	test.describe.configure({ mode: 'serial' });
+
 	let notificationPage: NotificationPage;
 	let homePage: HomePage;
 
@@ -35,7 +38,6 @@ test.describe('[PAR-NOT001] – View notifications', () => {
 	});
 	test.describe('Main Flow', () => {
 		test('should allow user to view notifications', async () => {
-			let isVisible: boolean;
 			await test.step('1. User: Navigates to the "Profile -> Notifications" section.', async () => {
 				// Navigate to notifications section
 				await homePage.header.goToNotifications();
@@ -45,10 +47,9 @@ test.describe('[PAR-NOT001] – View notifications', () => {
 			});
 			await test.step('3. User: Scrolls through the list to view individual notifications.', async () => {
 				await notificationPage.scrollToLastComment();
-				isVisible = await notificationPage.verifyNotificationVisible();
 			});
 			await test.step('Result.', async () => {
-				expect(isVisible).toBeTruthy();
+				await notificationPage.verifyNotificationVisible();
 			});
 		});
 	});

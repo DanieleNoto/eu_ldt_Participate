@@ -2,9 +2,10 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Simone Bianchelli
+ * Denise Scarcelli
  */
 
-import { test, expect, BrowserContext, Page } from '@playwright/test';
+import { test, expect } from '@fixtures/keycloak-test';
 import { AdminHomePage } from '../../../../pages/pages/admin/AdminHomePage';
 import { IntegratedEnvironmentPage } from '../../../../pages/pages/admin/integrations/IntegratedEnvironmentPage';
 
@@ -16,41 +17,20 @@ import { IntegratedEnvironmentPage } from '../../../../pages/pages/admin/integra
  */
 
 test.describe('@useKeycloak Tool0 Integrated Environment', () => {
-	let context: BrowserContext;
-	let page: Page;
 	let adminHomePage: AdminHomePage;
 	let integratedEnvironmentPage: IntegratedEnvironmentPage;
 
-	test.beforeEach(async ({ browser }) => {
-		// Create a new browser context and page
-		context = await browser.newContext({ locale: 'en-US' });
-		page = await context.newPage();
-
-		// Initialize page objects
-		adminHomePage = new AdminHomePage(page);
-		integratedEnvironmentPage = new IntegratedEnvironmentPage(page);
+	test.beforeEach(async ({ adminPage }) => {
+		adminHomePage = new AdminHomePage(adminPage);
+		integratedEnvironmentPage = new IntegratedEnvironmentPage(adminPage);
 
 		// Navigate to admin dashboard
 		await adminHomePage.goToAdminDashboard();
-		await page.waitForLoadState('networkidle');
-
-		console.log('Admin dashboard loaded');
-	});
-
-	test.afterEach(async () => {
-		try {
-			await context.close();
-		} catch (error) {
-			if (error instanceof Error) {
-				console.log('Admin session already disposed:', error.message);
-			} else {
-				console.log('Admin session disposal issue:', String(error));
-			}
-		}
+		expect(await integratedEnvironmentPage.verifyLDTAdminHeaderPresent()).toBe(true);
 	});
 
 	test.describe('Main Flow', () => {
-		test('should verify tool0 integration is present in admin dashboard', async () => {
+		test('should verify tool0 integration is present in admin dashboard - with logout and session verification', async () => {
 			await test.step('1. System: Displays the EU LDT Toolbox Participate header toolbar', async () => {
 				// Verify all LDT Admin Header components are present
 				const verifications = [
@@ -68,6 +48,7 @@ test.describe('@useKeycloak Tool0 Integrated Environment', () => {
 
 				console.log('All toolbar components are present');
 			});
+
 			await test.step('2. System: Displays available tools in the Tools dropdown menu', async () => {
 				// Click on Tools button to open dropdown
 				await integratedEnvironmentPage.clickToolsButton();
@@ -81,7 +62,7 @@ test.describe('@useKeycloak Tool0 Integrated Environment', () => {
 				console.log('Verifying tools match between API and UI');
 				const matchVerification = await integratedEnvironmentPage.verifyToolsMatchAPIandUI();
 
-				await expect([...matchVerification.uiTools].sort()).toEqual([...matchVerification.apiTools].sort());
+				expect([...matchVerification.uiTools].sort()).toEqual([...matchVerification.apiTools].sort());
 
 				// Verify all tools are visible in UI
 				console.log('Verifying all tools are visible in UI');
@@ -101,15 +82,18 @@ test.describe('@useKeycloak Tool0 Integrated Environment', () => {
 
 				console.log('Result: All tools are accessible, functional and match API data');
 			});
+
 			await test.step('3. User: Verifies logout successful', async () => {
 				// Click on User button and logout
 				await integratedEnvironmentPage.logout();
 				console.log('Logout action completed');
 
-				// Wait for redirect to Keycloak auth page
-				await page.waitForURL(/.*\/realms\/LDT\/protocol\/openid-connect\/auth.*/);
-				await page.waitForLoadState('networkidle');
-				console.log('User successfully logged out - redirected to Keycloak auth page');
+				// Verify redirect to Decidim auth page via URL and visible Participate link
+				const page = integratedEnvironmentPage['page'];
+				await page.waitForURL(/ldttoolbox\.app\/?$/);
+				await page.getByRole('link', { name: 'Participate', exact: true }).waitFor({ state: 'visible' });
+
+				console.log('User successfully logged out - redirected to Decidim auth page');
 			});
 		});
 	});

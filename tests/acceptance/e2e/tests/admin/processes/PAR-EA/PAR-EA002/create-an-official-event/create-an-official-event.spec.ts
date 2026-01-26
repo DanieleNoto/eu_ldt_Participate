@@ -201,15 +201,26 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 					expect(meetingIndex).toBeGreaterThan(0);
 				});
 			}
-			// Verify the total number of meetings has increased by 2, then clean up
-			const afterMeetingCount = await meetingsPage.getMeetingCount();
-			expect(afterMeetingCount).toBe(beforeMeetingCount + 2);
-			await componentsPage.deleteComponentIfExists(
-				new RegExp(`New Meeting Title ${timestamp} - Type: online`, 'i')
-			);
-			await componentsPage.deleteComponentIfExists(
-				new RegExp(`New Meeting Title ${timestamp} - Type: in person`, 'i')
-			);
+			// Verify the meetings were created using the search form (pagination-safe approach)
+			// Navigate back to meetings page if needed
+			if (!(await meetingsPage.isOnMeetingsPage())) {
+				await meetingsPage.navigateToMeetings();
+			}
+			await meetingsPage.waitForMeetingsLoad();
+
+			// Verify both meetings exist by searching for their titles using the form
+			const onlineMeetingTitle = `New Meeting Title ${timestamp} - Type: online`;
+			const inPersonMeetingTitle = `New Meeting Title ${timestamp} - Type: in person`;
+
+			const onlineMeetingFound = await meetingsPage.searchAndVerifyMeetingExists(onlineMeetingTitle);
+			const inPersonMeetingFound = await meetingsPage.searchAndVerifyMeetingExists(inPersonMeetingTitle);
+
+			expect(onlineMeetingFound).toBe(true);
+			expect(inPersonMeetingFound).toBe(true);
+
+			// Clean up: delete the meetings we created
+			await componentsPage.deleteComponentIfExists(new RegExp(onlineMeetingTitle, 'i'));
+			await componentsPage.deleteComponentIfExists(new RegExp(inPersonMeetingTitle, 'i'));
 		});
 	});
 
@@ -221,7 +232,6 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 				{ fieldName: 'meeting[end_time]', message: 'There is an error in this field.' },
 				{ fieldName: 'meeting[registration_type]', message: 'There is an error in this field.' }
 			];
-			let beforeMeetingCount: number;
 
 			// Navigate directly to the specific process
 			await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
@@ -236,25 +246,32 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 			await meetingsLink.click();
 			await adminPage.waitForLoadState('networkidle');
 			await meetingsPage.verifyMeetingsPageVisible();
-			beforeMeetingCount = await meetingsPage.getMeetingCount();
-			expect(beforeMeetingCount).toBeGreaterThan(0);
 
+			// Create and test error validation for all 3 meeting types
 			await checkErrors(adminPage, meetingsPage, formMeetingPage, commonExpectedErrors, timestamp);
-			const afterMeetingCount = await meetingsPage.getMeetingCount();
-			expect(afterMeetingCount).toBe(beforeMeetingCount + 3);
+
+			// Verify all 3 meetings were created using the search form
 			await adminPage.screenshot({
 				path: 'test-results/screenshots/EA002/MeetingsListBeforeDeleteAF.png',
 				fullPage: true
 			});
-			await componentsPage.deleteComponentIfExists(
-				new RegExp(`New Meeting Title ${timestamp} - Type: online`, 'i')
-			);
-			await componentsPage.deleteComponentIfExists(
-				new RegExp(`New Meeting Title ${timestamp} - Type: in person`, 'i')
-			);
-			await componentsPage.deleteComponentIfExists(
-				new RegExp(`New Meeting Title ${timestamp} - Type: hybrid`, 'i')
-			);
+
+			const onlineMeetingTitle = `New Meeting Title ${timestamp} - Type: online`;
+			const inPersonMeetingTitle = `New Meeting Title ${timestamp} - Type: in person`;
+			const hybridMeetingTitle = `New Meeting Title ${timestamp} - Type: hybrid`;
+
+			const onlineMeetingFound = await meetingsPage.searchAndVerifyMeetingExists(onlineMeetingTitle);
+			const inPersonMeetingFound = await meetingsPage.searchAndVerifyMeetingExists(inPersonMeetingTitle);
+			const hybridMeetingFound = await meetingsPage.searchAndVerifyMeetingExists(hybridMeetingTitle);
+
+			expect(onlineMeetingFound).toBe(true);
+			expect(inPersonMeetingFound).toBe(true);
+			expect(hybridMeetingFound).toBe(true);
+
+			// Cleanup: delete the meetings we created
+			await componentsPage.deleteComponentIfExists(new RegExp(onlineMeetingTitle, 'i'));
+			await componentsPage.deleteComponentIfExists(new RegExp(inPersonMeetingTitle, 'i'));
+			await componentsPage.deleteComponentIfExists(new RegExp(hybridMeetingTitle, 'i'));
 			await adminPage.screenshot({
 				path: 'test-results/screenshots/EA002/MeetingsListAfterDeleteAF.png',
 				fullPage: true

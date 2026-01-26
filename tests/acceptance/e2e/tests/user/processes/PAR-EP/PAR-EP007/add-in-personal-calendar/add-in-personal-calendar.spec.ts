@@ -4,6 +4,7 @@
  * Simone Bianchelli
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { HomePage } from '@pages/pages/public/HomePage';
@@ -47,7 +48,7 @@ test.describe('[PAR-EP007] – Add in personal calendar', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 			});
 			await test.step('2. System: Displays a list of all participatory processes.', async () => {
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();

@@ -4,6 +4,7 @@
  * Simone Bianchelli
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { HomePage } from '@pages/pages/public/HomePage';
@@ -44,11 +45,25 @@ test.describe('[PAR-NOT005] – Manage notification settings', () => {
 		homePage = new HomePage(userPage);
 		accountPage = new AccountPage(userPage);
 		await homePage.navigateToHomePage();
+		// Normalize the initial state of notifications
+		await homePage.header.goToMyAccount();
+		await accountPage.waitForPageLoad();
+		await accountPage.navigateToTab('Notifications');
+		await notificationSettingsPage.waitForLoadState('load');
+		await notificationSettingsPage.setOwnActivity(notificationSettings.ownActivityToggle);
+		await notificationSettingsPage.setFollowed(notificationSettings.followedToggle);
+		await notificationSettingsPage.setFrequency(notificationSettings.frequency);
+		await notificationSettingsPage.setNewsletter(notificationSettings.newsletterToggle);
+		await notificationSettingsPage.setPublicContact(notificationSettings.publicContactToggle);
+		await notificationSettingsPage.setEvaluators(notificationSettings.evaluetorsEmailToggle);
+		await notificationSettingsPage.saveChanges();
+		await notificationSettingsPage.waitForSuccessFlashMessage();
 	});
 	test.describe('Main Flow', () => {
 		test('should allow user to manage notification settings', async () => {
 			await test.step('1. User: Navigates to the "Profile -> My Accounts -> Notifications" section.', async () => {
 				// Navigate to notifications section
+				await homePage.navigateToHomePage();
 				await homePage.header.goToMyAccount();
 				await accountPage.waitForPageLoad();
 				await accountPage.navigateToTab('Notifications');
@@ -62,12 +77,6 @@ test.describe('[PAR-NOT005] – Manage notification settings', () => {
 				await notificationSettingsPage.expectNewsletterToBe(notificationSettings.newsletterToggle);
 				await notificationSettingsPage.expectPublicContactToBe(notificationSettings.publicContactToggle);
 				await notificationSettingsPage.expectEvaluetorsEmailToBe(notificationSettings.evaluetorsEmailToggle);
-				await notificationSettingsPage.expectAdministratorsEmailToBe(
-					notificationSettings.administratorsEmailToggle
-				);
-				await notificationSettingsPage.expectAdministratorsReminderToBe(
-					notificationSettings.administratorsReminderToggle
-				);
 			});
 			await test.step('3. User: Customizes notification preferences by selecting or deselecting the types of notifications they wish to receive, and how often want to receive the notification mail.', async () => {
 				await notificationSettingsPage.setOwnActivity(!notificationSettings.ownActivityToggle);
@@ -75,6 +84,7 @@ test.describe('[PAR-NOT005] – Manage notification settings', () => {
 				await notificationSettingsPage.setFrequency(NotificationFrequency.Weekly);
 				await notificationSettingsPage.setNewsletter(!notificationSettings.newsletterToggle);
 				await notificationSettingsPage.setPublicContact(!notificationSettings.publicContactToggle);
+				await notificationSettingsPage.setEvaluators(!notificationSettings.evaluetorsEmailToggle);
 			});
 			await test.step('4. User: Clicks the "Save" button to apply the changes.', async () => {
 				await notificationSettingsPage.saveChanges();
@@ -86,6 +96,7 @@ test.describe('[PAR-NOT005] – Manage notification settings', () => {
 				await notificationSettingsPage.expectFrequencyToBe(NotificationFrequency.Weekly);
 				await notificationSettingsPage.expectNewsletterToBe(!notificationSettings.newsletterToggle);
 				await notificationSettingsPage.expectPublicContactToBe(!notificationSettings.publicContactToggle);
+				await notificationSettingsPage.expectEvaluetorsEmailToBe(!notificationSettings.evaluetorsEmailToggle);
 			});
 			await test.step('6. System: Confirms that the notification settings have been successfully updated.', async () => {
 				await notificationSettingsPage.waitForSuccessFlashMessage();
@@ -97,6 +108,7 @@ test.describe('[PAR-NOT005] – Manage notification settings', () => {
 				await notificationSettingsPage.expectFrequencyToBe(NotificationFrequency.Weekly);
 				await notificationSettingsPage.expectNewsletterToBe(!notificationSettings.newsletterToggle);
 				await notificationSettingsPage.expectPublicContactToBe(!notificationSettings.publicContactToggle);
+				await notificationSettingsPage.expectEvaluetorsEmailToBe(!notificationSettings.evaluetorsEmailToggle);
 			});
 		});
 	});

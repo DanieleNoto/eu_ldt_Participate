@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { Locator, Page, expect } from '@playwright/test';
@@ -22,7 +23,7 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 	constructor(page: Page) {
 		super(page);
 
-		this.newAdminButton = page.locator('a.button.button__sm.button__secondary.new');
+		this.newAdminButton = page.getByRole('link', { name: 'New process admin' });
 		this.filterDropdown = page.locator('ul.dropdown.menu');
 		this.searchInput = page.locator('input.input-group-field');
 		this.searchButton = page.locator('button.text-secondary');
@@ -105,9 +106,10 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 
 	/**
 	 * Verifies that the user is on the Participatory Process Admins page.
+	 * Accepts both the list view (/user_roles) and detail view (/user_roles/id)
 	 */
 	async expectToBeOnParticipatoryProcessAdminsPage(): Promise<void> {
-		await expect(this.page).toHaveURL(/user_roles$/);
+		await expect(this.page).toHaveURL(/user_roles/);
 		await expect(this.newAdminButton).toBeVisible();
 	}
 

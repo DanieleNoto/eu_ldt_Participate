@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { CookieBarComponent } from '@pages/components/common/CookieBarComponent';
@@ -39,7 +40,7 @@ test.describe('[PAR-DPCAM001] – Privacy Settings and Cookie Management', () =>
 			await test.step('1. USER: Navigates to their "Cookie Settings" section within their profile', async () => {
 				// Navigate to cookie settings through footer
 				await footerComponent.clickCookieSettings();
-				await userPage.waitForLoadState('networkidle');
+				await userPage.waitForLoadState('load');
 			});
 
 			await test.step('2. SYSTEM: Displays the Cookie settings dialog, showing current settings and options for data sharing preferences', async () => {
@@ -114,7 +115,7 @@ test.describe('[PAR-DPCAM001] – Privacy Settings and Cookie Management', () =>
 			await test.step('7. USER: Clicks on the "Save" button to apply the changes', async () => {
 				// Save the privacy settings
 				await cookieBar.saveSettings();
-				await userPage.waitForLoadState('networkidle');
+				await userPage.waitForLoadState('load');
 
 				console.log('User clicked Save button to apply changes');
 			});
@@ -163,7 +164,7 @@ test.describe('[PAR-DPCAM001] – Privacy Settings and Cookie Management', () =>
 
 				// Verify settings persist across page reload
 				await userPage.reload();
-				await userPage.waitForLoadState('networkidle');
+				await userPage.waitForLoadState('load');
 
 				await footerComponent.clickCookieSettings();
 				await cookieBar.verifyPreferencesToggleState(false);

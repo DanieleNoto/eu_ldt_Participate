@@ -115,12 +115,15 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				const isExpanded = await firstAccordionButton.getAttribute('aria-expanded');
 				if (isExpanded === 'false') {
 					await firstAccordionButton.click();
-					await firstQuestion.locator('.editor-input').waitFor();
+					await firstQuestion.locator('.editor-input').first().waitFor();
 				}
 
 				// Fill question 1 - Short answer
-				await firstQuestion.getByRole('textbox', { name: 'Statement' }).fill('What is your name?');
-				await firstQuestion.locator('.editor-input .tiptap').fill('Please provide your full name');
+				await firstQuestion
+					.locator('.tabs-panel.is-active input[type="text"]')
+					.first()
+					.fill('What is your name?');
+				await firstQuestion.locator('.editor-input .tiptap').first().fill('Please provide your full name');
 				await firstQuestion.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await firstQuestion.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('100');
 				await firstQuestion.getByLabel('TypeShort answer Long answer').selectOption('short_answer');
@@ -139,14 +142,18 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				const isSecondExpanded = await secondAccordionButton.getAttribute('aria-expanded');
 				if (isSecondExpanded === 'false') {
 					await secondAccordionButton.click();
-					await secondQuestion.locator('.editor-input').waitFor();
+					await secondQuestion.locator('.editor-input').first().waitFor();
 				}
 
 				// Fill second question details
 				await secondQuestion
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
+					.first()
 					.fill('What is your preferred communication method?');
-				await secondQuestion.locator('.editor-input .tiptap').fill('Select your preferred way to be contacted');
+				await secondQuestion
+					.locator('.editor-input .tiptap')
+					.first()
+					.fill('Select your preferred way to be contacted');
 
 				// Set question type to single option first - this will show the answer options section
 				await secondQuestion.getByLabel('TypeShort answer Long answer').selectOption('single_option');
@@ -154,29 +161,26 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				// Wait for answer options section to become visible
 				await secondQuestion.getByRole('button', { name: 'Add answer option' }).waitFor();
 
-				// Add exactly 3 answer options with proper text
-				await secondQuestion.getByRole('button', { name: 'Add answer option' }).click();
-				await secondQuestion.locator('.questionnaire-question-answer-option').last().waitFor();
+				// Fill the default two answer options that are automatically created
+				await secondQuestion.locator('.questionnaire-question-answer-option').first().waitFor();
 				await secondQuestion
 					.locator('.questionnaire-question-answer-option')
-					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.first()
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Email');
-
-				await secondQuestion.getByRole('button', { name: 'Add answer option' }).click();
-				await secondQuestion.locator('.questionnaire-question-answer-option').last().waitFor();
 				await secondQuestion
 					.locator('.questionnaire-question-answer-option')
-					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.nth(1)
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Phone');
 
+				// Add only 1 additional answer option (total 3)
 				await secondQuestion.getByRole('button', { name: 'Add answer option' }).click();
 				await secondQuestion.locator('.questionnaire-question-answer-option').last().waitFor();
 				await secondQuestion
 					.locator('.questionnaire-question-answer-option')
 					.last()
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('SMS');
 
 				console.log('Created second question: Multiple choice with 3 options');
@@ -193,15 +197,17 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				const isThirdExpanded = await thirdAccordionButton.getAttribute('aria-expanded');
 				if (isThirdExpanded === 'false') {
 					await thirdAccordionButton.click();
-					await thirdQuestion.locator('.editor-input').waitFor();
+					await thirdQuestion.locator('.editor-input').first().waitFor();
 				}
 
 				// Fill third question details
 				await thirdQuestion
-					.getByRole('textbox', { name: 'Statement' })
+					.locator('.tabs-panel.is-active input[type="text"]')
+					.first()
 					.fill('Please provide your feedback about our services');
 				await thirdQuestion
 					.locator('.editor-input .tiptap')
+					.first()
 					.fill('Share your detailed feedback and suggestions');
 				await thirdQuestion.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
 				await thirdQuestion.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
@@ -226,12 +232,16 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				const isTitleExpanded = await titleAccordionButton.getAttribute('aria-expanded');
 				if (isTitleExpanded === 'false') {
 					await titleAccordionButton.click();
-					await titleDescriptionElement.locator('.editor-input').waitFor();
+					await titleDescriptionElement.locator('.editor-input').first().waitFor();
 				}
 
-				await titleDescriptionElement.getByRole('textbox', { name: 'Title' }).fill('Additional Information');
+				await titleDescriptionElement
+					.locator('.tabs-panel.is-active input[type="text"]')
+					.first()
+					.fill('Additional Information');
 				await titleDescriptionElement
 					.locator('.editor-input .tiptap')
+					.first()
 					.fill('This section contains additional questions for more detailed feedback');
 
 				console.log('Added title and description section');
@@ -247,111 +257,47 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				// Wait for save operation to complete
 				await adminPage.waitForLoadState('networkidle');
 
-				// Check for validation errors on the page
-				const errorElements = adminPage.locator('.form-error, .field_with_errors, .is-invalid-input');
-				const errorCount = await errorElements.count();
+				// Verify we're on the template edit page
+				expect(adminPage.url()).toMatch(/\/admin\/templates\/questionnaire_templates\/\d+\/edit/);
 
-				if (errorCount > 0) {
-					console.log(`Found ${errorCount} validation errors, attempting to fix them`);
+				// Verify Name field is populated
+				const nameInput = adminPage.locator(
+					'[data-tabs-content="template-name-tabs"] .tabs-panel.is-active input[type="text"]'
+				);
+				await expect(nameInput).toHaveValue('Test Survey Template');
 
-					// Expand all questions to access all fields
-					const expandAllButton = adminPage.getByRole('button', { name: 'Expand all questions' });
-					await expandAllButton.click();
-					await adminPage.waitForTimeout(500);
+				// Verify Description field is populated
+				const descriptionTextarea = adminPage.locator(
+					'[data-tabs-content="template-description-tabs"] .tabs-panel.is-active textarea'
+				);
+				await expect(descriptionTextarea).toHaveValue('A comprehensive survey template for testing purposes');
 
-					// Find all blank answer option inputs that have validation errors
-					const invalidInputs = adminPage.locator('.questionnaire-question-answer-option .is-invalid-input');
-					const invalidCount = await invalidInputs.count();
-					console.log(`Found ${invalidCount} invalid answer option inputs`);
+				// Verify the 3 questions are present in the template
+				await expect(
+					adminPage.locator('.answer-questionnaire__question-label').filter({ hasText: 'What is your name?' })
+				).toBeVisible();
+				await expect(
+					adminPage
+						.locator('.answer-questionnaire__question-label')
+						.filter({ hasText: 'What is your preferred communication method?' })
+				).toBeVisible();
+				await expect(
+					adminPage
+						.locator('.answer-questionnaire__question-label')
+						.filter({ hasText: 'Please provide your feedback about our services' })
+				).toBeVisible();
 
-					// Remove all blank answer options that are causing validation errors
-					for (let i = invalidCount - 1; i >= 0; i--) {
-						const input = invalidInputs.nth(i);
-						const value = await input.inputValue();
-
-						if (!value || value.trim() === '') {
-							// Find the immediate parent answer option card for this specific input
-							const answerOptionCard = input.locator(
-								'xpath=ancestor::div[contains(@class, "questionnaire-question-answer-option")][1]'
-							);
-							// Get the remove button that's a direct child of this specific answer option card
-							const removeButton = answerOptionCard.locator(
-								'> div.card-divider > h2 > button:has-text("Remove")'
-							);
-
-							try {
-								if ((await removeButton.count()) > 0 && (await removeButton.isVisible())) {
-									await removeButton.click();
-									await adminPage.waitForTimeout(300);
-									console.log(`Removed blank answer option ${i + 1}`);
-								}
-							} catch (error) {
-								console.log(`Could not remove answer option ${i + 1}: ${error.message}`);
-							}
-						}
-					}
-
-					// Remove any display conditions that might have validation errors
-					const displayConditionErrors = adminPage.locator(
-						'.questionnaire-question-display-condition .form-error'
-					);
-					const conditionErrorCount = await displayConditionErrors.count();
-
-					if (conditionErrorCount > 0) {
-						console.log(`Found ${conditionErrorCount} display condition errors, removing them`);
-						const displayConditions = adminPage.locator('.questionnaire-question-display-condition');
-						const displayCount = await displayConditions.count();
-
-						for (let i = displayCount - 1; i >= 0; i--) {
-							const condition = displayConditions.nth(i);
-							const removeButton = condition.getByRole('button', { name: 'Remove' });
-
-							if (await removeButton.isVisible()) {
-								await removeButton.click();
-								await adminPage.waitForTimeout(200);
-								console.log(`Removed display condition ${i + 1}`);
-							}
-						}
-					}
-
-					// Try to save again after cleaning up
-					await adminPage.getByRole('button', { name: 'Save' }).click();
-					await adminPage.waitForLoadState('networkidle');
-				}
-
-				console.log('Form validation completed successfully');
+				console.log('Template validated - Name, Description and 3 questions are correctly populated');
 			});
 
 			await test.step('11. SYSTEM: Saves the template', async () => {
-				// Check final validation state
-				const finalErrorElements = adminPage.locator('.form-error, .field_with_errors, .is-invalid-input');
-				const finalErrorCount = await finalErrorElements.count();
+				// Verify template was saved successfully - we should still be on the edit page with all data
+				expect(adminPage.url()).toMatch(/\/admin\/templates\/questionnaire_templates\/\d+\/edit/);
 
-				if (finalErrorCount > 0) {
-					console.log(`Still have ${finalErrorCount} validation errors remaining`);
+				// Verify we can access questions management, confirming the template is fully saved
+				await expect(adminPage.getByRole('link', { name: 'Manage questions' })).toBeVisible();
 
-					// Log the specific errors for debugging
-					for (let i = 0; i < Math.min(finalErrorCount, 10); i++) {
-						const errorElement = finalErrorElements.nth(i);
-						const errorText = await errorElement.textContent();
-						const errorClass = await errorElement.getAttribute('class');
-						console.log(`Error ${i + 1}: ${errorText} (class: ${errorClass})`);
-					}
-
-					// If there are still errors after cleanup, take a screenshot for debugging
-					await adminPage.screenshot({ path: `form-validation-errors-${Date.now()}.png`, fullPage: true });
-					throw new Error(
-						`Form validation failed with ${finalErrorCount} errors remaining after cleanup attempts`
-					);
-				}
-
-				// Verify we're still on the questions page or redirected successfully
-				const currentUrl = adminPage.url();
-				if (currentUrl.includes('update_questions') || currentUrl.includes('edit_questions')) {
-					console.log('Template saved successfully');
-				} else {
-					console.log(`Unexpected URL after save: ${currentUrl}`);
-				}
+				console.log('Template saved successfully with all questions');
 			});
 
 			await test.step('Result.', async () => {

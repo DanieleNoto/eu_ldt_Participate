@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { HomePage } from '@pages/pages/public/HomePage';
@@ -65,7 +66,7 @@ test.describe('[PAR-DAD003] – Participate in a debate', () => {
 
 				// Navigate directly to the specific debate
 				await adminPage.goto(`/processes/${processSlug}/f/${debatesComponentId}/debates/${debateId}`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Delete the comment by ID
 				await debateDetailPage.deleteCommentById(createdCommentId);
@@ -83,7 +84,7 @@ test.describe('[PAR-DAD003] – Participate in a debate', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate directly to the fixed process with debates
 				await adminPage.goto(`/processes/${processSlug}`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 			await test.step('2. System: Displays the details of the selected process', async () => {
 				await processDetailPage.expectToBeOnProcessDetailPage();
@@ -91,7 +92,7 @@ test.describe('[PAR-DAD003] – Participate in a debate', () => {
 			await test.step('3. User: Navigate to the "Debates" section of the process', async () => {
 				// Navigate directly to the debates section of the process
 				await adminPage.goto(`/processes/${processSlug}/f/${debatesComponentId}/debates`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 			await test.step('4. System: Loads all the debates related to the navigated process', async () => {
 				await debatesOverviewPage.expectToBeOnDebatesOverviewPage();
@@ -99,7 +100,7 @@ test.describe('[PAR-DAD003] – Participate in a debate', () => {
 			await test.step('5. User: Selects a debate from the list of available debates.', async () => {
 				// Navigate directly to the specific debate (Test Debates)
 				await adminPage.goto(`/processes/${processSlug}/f/${debatesComponentId}/debates/${debateId}`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 			await test.step('6. System: Displays the selected debate, including the title, description, instructions, and current comments or posts.', async () => {
 				await debateDetailPage.expectToBeOnDebateDetailPage();

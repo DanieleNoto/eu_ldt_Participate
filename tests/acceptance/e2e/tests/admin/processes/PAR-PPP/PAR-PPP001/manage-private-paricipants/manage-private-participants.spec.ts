@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { ProcessTestDataGenerator } from '@fixtures/process-fixtures';
@@ -104,15 +105,12 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 				await privateParticipantsPage.waitForLoadState('networkidle');
 				await privateParticipantsPage.expectToBeOnPrivateParticipantsPage();
 			});
-			await test.step('11. System: Saves the new participant and updates the list of participants for the private process.', async () => {
-				await privateParticipantsPage.expectParticipantIsInTable('Test User', 'testuser@example.com');
-			});
-			await test.step('12. System: Notifies the City Administrator that the new participant has been successfully added.', async () => {
+			await test.step('11. System: Notifies the City Administrator that the new participant has been successfully added.', async () => {
 				await privateParticipantsPage.expectSuccessFlashMessage(
 					'Participatory space private participant access successfully created.'
 				);
 			});
-			await test.step('Result.', async () => {
+			await test.step('Result: System saves the new participant and updates the list of participants for the private process.', async () => {
 				await privateParticipantsPage.expectParticipantIsInTable('Test User', 'testuser@example.com');
 			});
 		});
@@ -174,6 +172,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 				);
 			});
 			await test.step('Result.', async () => {
+				await privateParticipantsPage.expectTableIsVisible();
 				await privateParticipantsPage.expectParticipantIsInTable('John Doe', 'john.doe@example.org');
 				await privateParticipantsPage.expectParticipantIsInTable('Jane Doe', 'jane.doe@example.org');
 				await privateParticipantsPage.expectParticipantIsInTable('Mario Rossi', 'mario.rossi@example.org');

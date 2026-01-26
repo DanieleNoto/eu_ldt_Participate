@@ -61,10 +61,16 @@ for (const user of reservedUsers) {
 			await page.waitForSelector('#trigger-dropdown-account');
 
 			if (user.role === 'admin') {
+				// Verify admin permissions by checking for admin-bar
 				const adminBar = page.locator('#admin-bar');
-				if (await adminBar.isVisible()) {
-					console.log(`[Setup] Reserved admin verified with admin permissions`);
+				const isAdminBarVisible = await adminBar.isVisible().catch(() => false);
+
+				if (!isAdminBarVisible) {
+					console.error(`[Setup] Reserved admin does NOT have admin permissions - admin-bar not found`);
+					throw new Error(`Reserved admin user ${user.email} is not an admin - cannot create admin state`);
 				}
+
+				console.log(`[Setup] Reserved admin verified with admin permissions`);
 			}
 
 			// Save storage state

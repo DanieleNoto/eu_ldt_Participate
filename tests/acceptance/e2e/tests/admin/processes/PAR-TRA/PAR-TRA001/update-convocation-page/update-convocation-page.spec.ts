@@ -2,9 +2,9 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Simone Bianchelli
- * Simone Bianchelli
  * Gianfranco Cedro
  * Denise Scarcelli
+ * Antonio Abramo Carotenuto
  */
 
 import { test, expect } from '@fixtures/parallel-test';
@@ -34,6 +34,10 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 	let managePageComponentPage: ManagePageComponentPage;
 	let processAdminPage: ProcessAdminPage;
 
+	// Variables to track created resources for cleanup
+	let componentName: string | null = null;
+	let processSlug: string | null = null;
+
 	const testContent = {
 		title: 'Process Outcomes and Next Steps',
 		body: 'This section contains the results, decisions and next steps of the participatory process.'
@@ -52,9 +56,78 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 		// Initial setup: verify/create process and convocation page
 	});
 
+	test.afterEach(async ({ adminPage }) => {
+		if (componentName && processSlug) {
+			try {
+				console.log('Starting cleanup: Deleting component...');
+
+				// Navigate to components page
+				await componentsPage.navigateToComponents(processSlug);
+
+				// Unpublish component first (must be done before hide)
+				try {
+					await componentsPage.unpublishComponentByName(componentName);
+					await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
+					await expect(adminPage.getByText('The component has been successfully unpublished')).toBeVisible();
+				} catch (error) {
+					console.log('Component already unpublished or unpublish failed:', error);
+				}
+
+				// Hide the component after unpublishing
+				try {
+					await componentsPage.hideComponentByName(componentName);
+					await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
+					await expect(
+						adminPage.getByText('The component has been successfully hidden from the menu')
+					).toBeVisible();
+				} catch (error) {
+					console.log('Component already hidden or hide failed:', error);
+				}
+
+				// Delete component
+				// Find and click delete button
+				const componentRow = componentsPage.getComponentRow(componentName);
+				const deleteLink = componentRow.locator('a.action-icon--delete');
+				await deleteLink.click();
+
+				// Wait for confirmation modal to appear
+				const confirmModal = adminPage.locator('#confirm-modal-content');
+				await expect(confirmModal).toBeVisible();
+
+				// Click OK button in the modal
+				const okButton = adminPage.locator('button[data-confirm-ok]');
+				await okButton.click();
+
+				// Wait for deletion to complete
+				await adminPage.waitForTimeout(1000);
+
+				// Verify component is no longer visible
+				const rowExists = await componentRow.isVisible().catch(() => false);
+				if (!rowExists) {
+					console.log('Component deleted successfully');
+				} else {
+					console.log('Component still visible after deletion attempt');
+				}
+			} catch (error) {
+				if (error instanceof Error) {
+					console.error('Cleanup failed:', error.message);
+					console.error('Stack trace:', error.stack);
+				} else {
+					console.error('Cleanup failed with unknown error:', String(error));
+				}
+			}
+		}
+
+		// Reset variables
+		componentName = null;
+		processSlug = null;
+	});
+
 	test.describe('Main Flow', () => {
-		test('should successfully update convocation page content', async () => {
+		test('should successfully update convocation page content', async ({ adminPage }) => {
 			const bodyContent = 'Summary of the process outcomes. Decisions taken. Next steps or upcoming actions.';
+			componentName = `Page_${Date.now()}`;
+
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				await processAdminPage.navigateToProcesses();
 			});
@@ -66,7 +139,15 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 			await test.step('3. User selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
+
+				// Extract process slug from URL
+				const currentUrl = adminPage.url();
+				const match = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
+				if (match) {
+					processSlug = match[1];
+					console.log(`Process slug extracted for cleanup: ${processSlug}`);
+				}
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -74,9 +155,10 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 			await test.step('5. User: Navigate to convocation page management', async () => {
 				// Navigate to convocation page component management
 				await updateProcessAdminPage.sidebarProcessDetail.navigateToComponents();
-				await componentsPage.checkPageComponent('Page');
-				await componentsPage.expectComponentExists('Page');
-				await componentsPage.manageComponent('Page');
+				await componentsPage.checkPageComponent(componentName);
+				// checkPageComponent creates, manages and saves the component, then returns to components list
+				// We need to navigate back to manage the component for updating
+				await componentsPage.manageComponent(componentName);
 				await managePageComponentPage.verifyPageLoaded();
 				await managePageComponentPage.fillBody(bodyContent);
 			});
@@ -93,30 +175,32 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 			await test.step('Result. ', async () => {
 				// Verify that the success notification appears
 				await managePageComponentPage.waitForSuccessFlashNotification('Page successfully saved.');
-				// Open the preview of the page and assert it shows the updated content
-				await expect(
-					managePageComponentPage.getPage().getByRole('link', { name: 'Preview' }).first()
-				).toBeVisible();
+
+				// Navigate back to components list to find the preview link
+				await updateProcessAdminPage.sidebarProcessDetail.navigateToComponents();
+				await componentsPage.waitForComponentsPageLoad();
+
+				// Find the row for our specific component and click its preview link
+				const componentRow = componentsPage.getComponentRow(componentName);
+				const previewLink = componentRow.locator('a[href*="/f/"]');
+				await expect(previewLink).toBeVisible();
 
 				const [previewPage] = await Promise.all([
 					managePageComponentPage.getPage().context().waitForEvent('page'),
-					managePageComponentPage
-						.getPage()
-						.getByRole('link', { name: 'Preview' })
-						.first()
-						.click({ force: true })
+					previewLink.click()
 				]);
-				await previewPage.waitForLoadState('domcontentloaded');
+
+				await previewPage.waitForLoadState('load');
 				const paragraph = previewPage.locator('div.rich-text-display p');
-				const text = await paragraph.textContent();
-				console.log('Text captured by preview:', text);
-				await expect(paragraph).toHaveText(bodyContent);
+				await expect(paragraph).toContainText(bodyContent);
 			});
 		});
 	});
 
 	test.describe('Alternative Flow - abort update', () => {
-		test('should discard changes when cancelling update', async () => {
+		test('should discard changes when cancelling update', async ({ adminPage }) => {
+			componentName = `Page_${Date.now()}`;
+
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				await processAdminPage.navigateToProcesses();
 			});
@@ -128,7 +212,15 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 			await test.step('3. User selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
+
+				// Extract process slug from URL
+				const currentUrl = adminPage.url();
+				const match = currentUrl.match(/\/admin\/participatory_processes\/([^\/]+)\//);
+				if (match) {
+					processSlug = match[1];
+					console.log(`Process slug extracted for cleanup: ${processSlug}`);
+				}
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -136,7 +228,8 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 			await test.step('5. User: Navigate to convocation page management', async () => {
 				// Navigate to convocation page component management
 				await updateProcessAdminPage.sidebarProcessDetail.navigateToComponents();
-				await componentsPage.manageComponent('Page');
+				await componentsPage.checkPageComponent(componentName);
+				await componentsPage.manageComponent(componentName);
 
 				// Verify being on the management page
 				await managePageComponentPage.verifyPageLoaded();

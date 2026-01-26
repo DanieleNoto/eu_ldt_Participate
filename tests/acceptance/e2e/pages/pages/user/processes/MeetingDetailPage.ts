@@ -4,6 +4,7 @@
  * Simone Bianchelli
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { AuthenticatedPage } from '@pages/base/AuthenticatedPage';
@@ -62,6 +63,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	 */
 
 	async expectOnMeetingDetailPage(): Promise<void> {
+		await this.page.waitForLoadState('load');
 		await expect(this.meetingTitle).toBeVisible();
 		await expect(this.meetingCalendarContainer).toBeVisible();
 	}
@@ -233,23 +235,28 @@ export class MeetingDetailPage extends AuthenticatedPage {
 
 	async expectLinkToJoinMeetingNotYetAvailable() {
 		await expect(this.page.locator('.meeting__online')).toBeVisible();
-		await expect(this.page.locator('.meeting__online p')).toHaveText(
+		await expect(this.page.locator('.meeting__online p').last()).toHaveText(
 			'The link to join the meeting will be available a few minutes before it starts'
 		);
 	}
 
 	// /**
 	//  * Check which scenario you landed in after join
+	//  * @param openedPage - Optional page that was already opened (if the test already captured the new tab)
 	//  */
-	async verifyJoinMeetingResult(): Promise<{
+	async verifyJoinMeetingResult(openedPage?: Page): Promise<{
 		success: boolean;
 		outcome: 'embed' | 'liveEvent' | 'newTab' | 'unknown';
 	}> {
-		let newPage: Page | null = null;
-		try {
-			newPage = await this.page.context().waitForEvent('page');
-		} catch {
-			newPage = null;
+		let newPage: Page | null = openedPage ?? null;
+
+		// Only try to wait for new page if not already provided
+		if (!newPage) {
+			try {
+				newPage = await this.page.context().waitForEvent('page', { timeout: 5000 });
+			} catch {
+				newPage = null;
+			}
 		}
 
 		const targetPage = newPage ?? this.page;
@@ -262,7 +269,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 
 		// Case 1: Live Event
 		if (url.includes('/meetings/') && url.includes('/live_event')) {
-			await expect(targetPage).toHaveURL(/\/meetings\/\d+\/live_event/);
+			await expect(targetPage).toHaveURL(/\/processes\/[^\/]+\/f\/\d+\/meetings\/\d+\/live_event/);
 			return { success: true, outcome: 'liveEvent' };
 		}
 
@@ -358,13 +365,21 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		// Verify location and address are visible and contain text
 		const location = this.page.locator('li .address__location').first();
 		const address = this.page.locator('.address__address');
-		await expect(location).toBeVisible();
-		await expect(address).toBeVisible();
+		const onlineLink = this.page.locator('a.address__hints').first();
 
+		await expect(location).toBeVisible();
 		const locationText = (await location.innerText()).trim();
-		const addressText = (await address.innerText()).trim();
 		expect(locationText.length).toBeGreaterThan(0);
-		expect(addressText.length).toBeGreaterThan(0);
+
+		if ((await address.count()) > 0) {
+			await expect(address).toBeVisible();
+			const addressText = (await address.innerText()).trim();
+			expect(addressText.length).toBeGreaterThan(0);
+		} else {
+			await expect(onlineLink).toBeVisible();
+			const linkText = (await onlineLink.innerText()).trim();
+			expect(linkText.length).toBeGreaterThan(0);
+		}
 
 		// Locate the address container that contains the time icon
 		const containers = this.page.locator('.address__container');

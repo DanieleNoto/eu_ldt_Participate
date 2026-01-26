@@ -3,6 +3,7 @@
  * Authors:
  * Simone Bianchelli
  * Denis Vasilev Dimchev
+ * Antonio Abramo Carotenuto
  */
 
 import { HomePage } from '@pages/pages/public/HomePage';
@@ -53,7 +54,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 		try {
 			// Navigate to the global moderation page to perform cleanup
 			await adminPage.goto('/admin/moderations?hidden=true');
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 
 			// Check if there are any hidden items
 			const hiddenRows = adminPage.locator('table.table-list tbody tr');
@@ -75,7 +76,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 						const unhideButton = row.getByRole('link', { name: 'Unhide' });
 						if ((await unhideButton.count()) > 0) {
 							await unhideButton.click();
-							await adminPage.waitForLoadState('networkidle');
+							await adminPage.waitForLoadState('load');
 							console.log(`Unhidden content ID ${testCommentId}`);
 						}
 						break;
@@ -100,11 +101,11 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 			await test.step('1. USER: Signs in as an administrator or moderator and navigates to the "Global Moderations Panel."', async () => {
 				// Navigate to admin dashboard
 				await adminPage.getByRole('link', { name: 'Admin dashboard' }).click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Navigate to global moderations
 				await adminPage.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we are on the global moderations page
 				await expect(adminPage).toHaveURL(/.*\/admin\/moderations.*/);
@@ -126,7 +127,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 
 				// Navigate back to global moderations after ensuring comment is reported
 				await adminPage.goto('/admin/moderations');
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify the table has at least one row
 				const tableRows = adminPage.locator('table.table-list tbody tr');
@@ -180,7 +181,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 
 				// Expand the row to see detailed information
 				await processModerationPage.table.expandRow(rowIndex);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				console.log('Expanded reported content details for review');
 
@@ -223,7 +224,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 				// We're on the detail page, so the hide action will work from here
 				// The hideRow method will detect we're on detail page and use the correct selector
 				await processModerationPage.table.hideRow(0);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				console.log(`Clicked Hide button for test comment ID ${contentId}`);
 			});
@@ -243,7 +244,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 
 				// Navigate to global moderations hidden filter to verify
 				await adminPage.goto('/admin/moderations?hidden=true');
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify our test comment is now in the hidden list
 				const isInHiddenList = await processModerationPage.isContentIdInModerationTable(contentId);
@@ -276,7 +277,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 
 				// Navigate to the reported content URL (public view)
 				await adminPage.goto(reportedContentUrl);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify the comment is no longer visible
 				const commentIsHidden = await processModerationPage.verifyCommentNotPresentById(contentId);
@@ -287,7 +288,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 			await test.step('Result.', async () => {
 				// Navigate back to global moderations for final verification
 				await adminPage.goto('/admin/moderations');
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Final verification
 				await expect(adminPage).toHaveURL(/.*\/admin\/moderations.*/);
@@ -316,9 +317,9 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 			await test.step('1-5. USER/SYSTEM: Navigate through the moderation process up to content review', async () => {
 				// Navigate to Global Moderations Panel
 				await adminPage.getByRole('link', { name: 'Admin dashboard' }).click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				await adminPage.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Ensure test comment is reported for testing
 				await processModerationPage.ensureTestCommentIsReported(
@@ -330,7 +331,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 
 				// Navigate back to global moderations
 				await adminPage.goto('/admin/moderations');
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify the test comment is present in the moderation table
 				const isInTable = await processModerationPage.isContentIdInModerationTable(testCommentId);
@@ -343,7 +344,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 
 				// Navigate back to get the URL from the table
 				await adminPage.goto('/admin/moderations');
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Get URL from the row (column 5 for global moderation)
 				const rows = await adminPage.locator('table.table-list tbody tr').all();
@@ -389,7 +390,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 			await test.step('Result.', async () => {
 				// Navigate back to moderations list
 				await adminPage.goto('/admin/moderations');
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify the content is no longer in the moderation table (unreported items are removed)
 				const isStillInTable = await processModerationPage.isContentIdInModerationTable(testCommentId);
@@ -399,7 +400,7 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 				// Navigate to the public debate page to verify the comment is visible
 				if (reportedContentUrl) {
 					await adminPage.goto(reportedContentUrl);
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 					console.log(`Navigated to public debate page: ${reportedContentUrl}`);
 
 					// Verify the comment is now visible again in the public view
@@ -427,19 +428,19 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 				const currentUrl = adminPage.url();
 				if (!currentUrl.includes('/admin')) {
 					await adminPage.getByRole('link', { name: 'Admin dashboard' }).click();
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				}
 
 				// Navigate to global moderations
 				await adminPage.getByRole('link', { name: 'Global moderations', exact: true }).first().click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we are on the moderations page
 				await expect(adminPage).toHaveURL(/.*\/admin\/moderations.*/);
 
 				// Cancel by navigating back without making changes
 				await adminPage.goBack();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				console.log('User decided to cancel the review process');
 			});

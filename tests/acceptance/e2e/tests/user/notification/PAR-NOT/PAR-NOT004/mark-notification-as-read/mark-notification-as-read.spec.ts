@@ -8,7 +8,7 @@
 
 import { HomePage } from '@pages/pages/public/HomePage';
 import NotificationPage from '@pages/pages/user/NotificationPage';
-import { test } from '@fixtures/parallel-test';
+import { test } from '@fixtures/parallel-test-reserved';
 
 /**
  * Test suite for Allows citizens to mark individual or multiple notifications as read, ensuring they can effectively manage their notifications and track what they have already reviewed.
@@ -24,7 +24,9 @@ import { test } from '@fixtures/parallel-test';
  *
  */
 
-test.describe('[PAR-NOT004] – Mark notifications as reads', () => {
+test.describe('@reserved [PAR-NOT004] – Mark notifications as reads', () => {
+	test.describe.configure({ mode: 'serial' });
+
 	let notificationCount = -1;
 	let notificationPage: NotificationPage;
 	let homePage: HomePage;

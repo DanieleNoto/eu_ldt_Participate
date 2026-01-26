@@ -4,8 +4,7 @@
  * Denise Scarcelli
  */
 
-import { test, expect } from '@playwright/test';
-import { DecidimKeycloakAuthHelper } from '../../../../../../utils/decidim-keycloak-auth';
+import { test, expect } from '@fixtures/keycloak-test';
 import { CookieBarComponent } from '@pages/components/common/CookieBarComponent';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
@@ -25,39 +24,27 @@ import { UseCaseScenariosPage } from '@pages/pages/public/processes/UseCaseScena
  * - The citizen has access to view process on the platform.
  */
 
-test.describe('[PAR-CP003] Display Use Case information in process', () => {
-	let decidimAuth: DecidimKeycloakAuthHelper;
+test.describe('@useKeycloak [PAR-CP003] Display Use Case information in process', () => {
 	let processesOverviewPage: ProcessesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
 	let useCaseScenariosPage: UseCaseScenariosPage;
 
-	test.beforeEach(async ({ page }) => {
-		const userEmail = process.env.TEST_USER_EMAIL;
-		const userPassword = process.env.TEST_USER_PASSWORD;
-		if (!userEmail || !userPassword) {
-			throw new Error('TEST_USER_EMAIL or TEST_USER_PASSWORD not set in .env file');
-		}
-		decidimAuth = new DecidimKeycloakAuthHelper();
-		await decidimAuth.injectSessionIntoPage(page, userEmail, userPassword);
-		const cookieBar = new CookieBarComponent(page);
+	test.beforeEach(async ({ userPage }) => {
+		const cookieBar = new CookieBarComponent(userPage);
 		if (await cookieBar.isCookieBarVisible()) {
 			await cookieBar.acceptAllAndWait();
 		}
-		processesOverviewPage = new ProcessesOverviewPage(page);
-		processDetailPage = new ProcessDetailPage(page);
-		useCaseScenariosPage = new UseCaseScenariosPage(page);
-	});
-
-	test.afterEach(async () => {
-		await decidimAuth.dispose();
+		processesOverviewPage = new ProcessesOverviewPage(userPage);
+		processDetailPage = new ProcessDetailPage(userPage);
+		useCaseScenariosPage = new UseCaseScenariosPage(userPage);
 	});
 	test.describe('Main Flow', () => {
-		test('User views Use Case information embedded in Process page', async ({ page }) => {
+		test('User views Use Case information embedded in Process page', async ({ userPage }) => {
 			await test.step('1. User: Navigates to the process section and selects a specific process that is linked to a Use Case.', async () => {
 				await processesOverviewPage.navigateToProcessesOverview();
-				await processesOverviewPage.filterByDate('all');
-				await processesOverviewPage.checkProcessVisibility('Test 2');
-				await processesOverviewPage.navigateToProcess('Test 2', 'a1');
+				await processesOverviewPage.applyDateFilterAndEnsureGridLoaded('all');
+				await processesOverviewPage.checkProcessVisibility('Update Test0');
+				await processesOverviewPage.navigateToProcess('Update Test0', 'test');
 				await processesOverviewPage.getPage().waitForLoadState('networkidle');
 			});
 
@@ -69,8 +56,8 @@ test.describe('[PAR-CP003] Display Use Case information in process', () => {
 
 			await test.step('3. User: The user selects "LDT Use Case Scenarios"', async () => {
 				await processDetailPage.clickOnMenuItem('LDT Use Case Scenarios');
-				await page.waitForLoadState('networkidle');
-				await expect(page).toHaveURL(/\/use_case_scenarios/);
+				await userPage.waitForLoadState('networkidle');
+				await expect(userPage).toHaveURL(/\/use_case_scenarios/);
 			});
 
 			await test.step('4. System: Verify scenarios are displayed', async () => {
@@ -78,7 +65,7 @@ test.describe('[PAR-CP003] Display Use Case information in process', () => {
 			});
 
 			await test.step('5. User: The user selects a specific scenario', async () => {
-				await useCaseScenariosPage.selectFirstScenario();
+				await useCaseScenariosPage.selectScenarioByTitle('zzzzz');
 			});
 
 			await test.step('6. System: Embed Use Case information exposed by Use Case & Scenario manager inside the Process page', async () => {

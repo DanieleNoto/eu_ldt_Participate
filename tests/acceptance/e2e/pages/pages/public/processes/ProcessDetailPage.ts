@@ -4,6 +4,7 @@
  * Simone Bianchelli
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Antonio Abramo Carotenuto
  */
 
 import { Download, expect, Locator, Page } from '@playwright/test';
@@ -93,7 +94,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	async waitForPageLoad(): Promise<void> {
 		await this.waitForElement('.participatory-space__container');
 		await this.waitForElement('section[data-process-hero]');
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -729,12 +730,12 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	public async openProcessSteps(timeout = 7000): Promise<boolean> {
 		const modalSel = '#process-steps-modal-content';
 		const userMenuBtn = this.page.getByRole('button', { name: 'User menu' }).first();
+		const menuDropdown = this.page.locator('.menu-bar__secondary-dropdown__left').first();
 
 		if ((await userMenuBtn.count()) === 0) throw new Error('User menu button not found');
 
 		await userMenuBtn.hover();
-		await this.page.waitForTimeout(200);
-		await userMenuBtn.click().catch(() => {});
+		await expect(menuDropdown).toBeVisible();
 
 		// try to find a link near "Current phase"
 		const currentPhase = this.page.getByLabel('User menu').getByText('Current phase').first();
@@ -814,16 +815,16 @@ export class ProcessDetailPage extends AuthenticatedPage {
 
 		// Extract the phase name, removing "Current phase" if present
 		const phaseTitleLocator = modal.locator('.participatory-space__metadata-modal__step-title');
-		const rawPhaseText = await phaseTitleLocator.innerText();
+		const rawPhaseText = await phaseTitleLocator.first().innerText();
 		const phaseName = rawPhaseText.replace('Current phase', '').trim();
 
 		// Extract the date range of the phase
 		const dateLocator = modal.locator('.participatory-space__metadata-modal__step-dates');
-		const dateRange = await dateLocator.innerText();
+		const dateRange = await dateLocator.first().innerText();
 
 		// Extract the phase description text
 		const descriptionLocator = modal.locator('.rich-text-display');
-		const description = await descriptionLocator.innerText();
+		const description = await descriptionLocator.first().innerText();
 
 		// Click the close button to dismiss the modal
 		const closeButton = modal.locator('button[data-dialog-close="process-steps-modal"]');
