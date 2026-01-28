@@ -15,11 +15,8 @@ data:
     MATOMO_DATABASE_TABLES_PREFIX: 'matomo_'
     MATOMO_DATABASE_DBNAME: _%MATOMO-DATABASE-DBNAME%_
     MYSQL_DATABASE: _%MYSQL-DATABASE%_
-
-    # URL e configurazione subpath (IMPORTANTE!)
     MATOMO_ROOT_URL: _%MATOMO-ROOT-URL%_
 
-    # Forza HTTPS e configurazione proxy per subpath
     MATOMO_FORCE_SSL: '1'
     MATOMO_ASSUME_SECURE_PROTOCOL: '1'
     MATOMO_PROXY_URI_HEADER: '1'
