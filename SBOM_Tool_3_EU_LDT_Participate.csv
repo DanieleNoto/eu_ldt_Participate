@@ -461,6 +461,8 @@ axe-core,pkg:npm/axe-core@4.10.3,4.10.3,MPL-2.0,YES,YES,, ,,https://www.npmjs.co
 playwright,pkg:npm/playwright@1.54.2,1.54.2,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/playwright/v/1.54.2
 fsevents,pkg:npm/fsevents@2.3.2,2.3.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/fsevents/v/2.3.2
 @types/node,pkg:npm/@types/node@22.17.0,22.17.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/node/v/22.17.0
+axe-sarif-converter,pkg:npm/axe-sarif-converter@1.4.0,1.4.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/axe-sarif-converter/v/1.4.0
+axe-core,pkg:npm/axe-core@3.5.6,3.5.6,MPL-2.0,YES,YES,, ,,https://www.npmjs.com/package/axe-core/v/3.5.6
 cross-env,pkg:npm/cross-env@7.0.3,7.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/cross-env/v/7.0.3
 dotenv,pkg:npm/dotenv@16.6.1,16.6.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/dotenv/v/16.6.1
 @emotion/react,pkg:npm/@emotion/react@11.14.0,11.14.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@emotion/react/v/11.14.0
