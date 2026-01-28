@@ -5,6 +5,107 @@ Denis Vasilev Dimchev
 Pierluigi Spedicato
 -->
 
+# Changelog from D03.04.Jan to D03.04.Feb
+ 
+## fix
+- update k8s manifests to include token replacements, remove redundant token replacement job
+- update deployment job dependencies
+- update token replacement parameters and add new applications for K8s manifests
+- update token replacement parameters and job dependencies for K8s manifests
+- update toolbar configuration for non-admin to disable local recording and screen sharing
+- enhance embed_transformed_url to add JWT token and toolbar config for Jitsi users
+- enable local recording in Jitsi configuration
+- correct features syntax in JWT token generation and enable local recording in config
+- correct features syntax in JWT token generation and remove local recording disable flag
+- correct features syntax in JWT token generation for recording
+- ensure local recording is disabled in config
+- update 'describeYourIssue' prompt to require a minimum of 20 characters
+- update SBOM target path to match the correct filename for Participate
+- update SBOM generation output filename and remove version pinning for cdxgen
+- correct require_relative paths for notification generator decorators
+- add decorators to handle non-User recipient types and prevent NoMethodError
+- update asset verification path to public/decidim-packs
+- update Node.js version and improve SBOM generation script
+- add admin accountability translations for German, English, Spanish, and French
+- enhance locale detection and snippet injection logic
+- update configMap reference in StatefulSet and remove unused secret handling in script
+- correct file extension for chatbot DB secrets in token replacement
+- update locale extraction priority in ChatbotInjector
+- ensure headers are properly formatted for chatbot injection
+- hide mobile menu items in main bar for better UX
+- add GF_SERVER_ROOT_URL to decidim-configmap
+- moved decorator to sanitize CTA button text and prevent XSS vulnerabilities
+- r01 - Cross-site scripting (stored)
+- r01 - Cross-site scripting (stored)
+- r02 - Cross-origin resource sharing
+- fix logout locator using exact visible text "Log out"
+- Updated qualityCheckSBOM.yml - remove another space
+- Updated qualityCheckSBOM.yml - remove extra space
+
+## refactor
+- merge main into current branch
+- ensure beforeEach checks auth and injects login if session is missing
+
+## feat
+- update SBOM file
+- use axe-sarif-converter programmatic API for SARIF conversion
+- added missing author in modified files
+- added missing author in modified files
+- fix failed test
+- moved axe-sarif-converter to package.json
+- pAR-PIM003 implementation completed
+- enhance deployment configuration with job dependencies for K8s manifests
+- refactor pipeline with template parameter
+- enhance build pipeline with additional components and token replacements for deployment
+- fix failed tests
+- fix failed tests
+- fixed missing keycloak accessibility reports
+- add 'recording' feature to JWT token generation
+- fix failed tests
+- specify cdxgen version in SBOM generation script
+- pipeline jobs handling improvement
+- improved keycloak authentication for pipeline execution
+- moved tests from parallel execution to reserved user
+- remove css class
+- fix PAR-EP001, PAR-EP002 and PAR-EP003
+- fix failed tests
+- fix PAR-PPA002 and PAR-PPR002
+- remove outdated INSTALLATION_AUDIT_REPORT.md file
+- fix failed tests
+- fix PAR-PAS004, PAR-PPP001 and PAR-EA006
+- add comprehensive installation procedure audit and validation report
+- fix PAR-NOT001, PAR-NOT004 and PAR-NOT005
+- increased timeouts and reduced number of workers for authentication problems using parallelism
+- fix user PAR-DAD006
+- fix failed tests
+- improved parallel authentication setup to avoid failures
+- optimized pipeline script for parallel execution
+- increased testing pipeline timeout
+- fixed package.json
+- increased workers for Azure testing pipeline execution
+- fix PAR-PIM002 and PAR-CP001
+- fix failed tests
+- test in progress
+- increased parallel workers for testing pipeline execution
+- test(integrations): assert logout redirect to ldttoolbox.app and add re-login check
+- fix failed tests
+- fix failed tests + added timeout for pipeline testing script
+- log correct label type for experiment detail visibility
+- make verifyExperimentIdDetailVisible robust to both 'Experiment ID' and 'Execution ID' labels
+- fix failed tests
+- work in progress, implementation not completed yet
+
+## PR Merge
+- Fix tests- Pending answer comment in old PR- Issues fixes- [ISSUE-JAN] - Fix ISSUES- Fix Penetration Tests findings- Updated qualityCheckSBOM.yml
+
+
+<!-- SPDX-License-Identifier: AGPL-3.0
+Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+Authors:
+Denis Vasilev Dimchev
+Pierluigi Spedicato
+-->
+
 # Changelog from D03.04.Dec to D03.04.Jan
  
 ## fix
@@ -1144,5 +1245,6 @@ Pierluigi Spedicato
 ## PR Merge
 
 - [PAR-PPM001] - Create new process- [PAR-PIM003] - Update personal information- [PAR-PIM001] - Configure form for additional personal data on first login- Startup Participate project
+
 
 
