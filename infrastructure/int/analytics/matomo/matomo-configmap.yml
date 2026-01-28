@@ -24,6 +24,9 @@ data:
     MATOMO_ASSUME_SECURE_PROTOCOL: '1'
     MATOMO_PROXY_URI_HEADER: '1'
 
+    # Trusted host configuration
+    MATOMO_TRUSTED_HOST: _%MATOMO-TRUSTED-HOST%_
+
     # PHP settings
     PHP_MEMORY_LIMIT: '256M'
     PHP_MAX_EXECUTION_TIME: '300'

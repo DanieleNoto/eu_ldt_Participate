@@ -28,13 +28,15 @@ RUN a2enmod headers && \
 RUN sed -i 's/expose_php = On/expose_php = Off/' /usr/local/etc/php/php.ini-production && \
     cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 
-# Copy custom config file with correct ownership
-COPY --chown=www-data:www-data config.ini.php /var/www/html/config/config.ini.php
+# Copy custom entrypoint script
+COPY entrypoint.sh /usr/local/bin/matomo-entrypoint.sh
+RUN chmod +x /usr/local/bin/matomo-entrypoint.sh
 
 # Fix permissions for Apache (only for directories that exist)
-RUN mkdir -p /var/www/html/tmp && \
+RUN mkdir -p /var/www/html/tmp /var/www/html/config && \
     chown -R www-data:www-data /var/www/html/config && \
     chown www-data:www-data /var/www/html/tmp
 
-# Switch to non-root user for security
-USER www-data
+# Use custom entrypoint
+ENTRYPOINT ["/usr/local/bin/matomo-entrypoint.sh"]
+CMD ["apache2-foreground"]
