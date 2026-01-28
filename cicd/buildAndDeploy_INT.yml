@@ -356,6 +356,18 @@ jobs:
                 arguments: secret generic storage-secret --from-literal=azurestorageaccountname=euldtsharedtfstateint --from-literal=azurestorageaccountkey=$(STORAGE-ACCOUNT-KEY)
                 secretType: 'generic'
 
+          - task: replacetokens@5
+            displayName: 'Replace tokens in Ingress files'
+            inputs:
+                rootDirectory: infrastructure/int/proxy
+                targetFiles: 'ingress.yml,matomo-ingress.yml'
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+
           - task: Kubernetes@1
             displayName: 'Apply Ingress'
             inputs:

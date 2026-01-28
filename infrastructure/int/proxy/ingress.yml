@@ -40,7 +40,7 @@ metadata:
 spec:
     ingressClassName: nginx
     rules:
-        - host: part-int.ldttoolbox.app
+        - host: _%PARTICIPATE-HOST%_
           http:
               paths:
                   # More-specific regex paths first so they are matched before the
@@ -72,7 +72,7 @@ spec:
                                 number: 5280
 
           # Jitsi is handled by a dedicated host
-        - host: jitsi-part-int.ldttoolbox.app
+        - host: _%JITSI-HOST%_
           http:
               paths:
                   - backend:
