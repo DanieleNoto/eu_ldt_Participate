@@ -45,11 +45,7 @@ spec:
                             name: matomo-configmap
                   volumeMounts:
                       - name: matomo-data
-                        mountPath: /var/www/html/config
-                        subPath: config
-                      - name: matomo-data
-                        mountPath: /var/www/html/tmp
-                        subPath: tmp
+                        mountPath: /var/www/html
     volumeClaimTemplates:
         - metadata:
               name: matomo-data
