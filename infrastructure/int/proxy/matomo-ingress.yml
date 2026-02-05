@@ -28,7 +28,8 @@ metadata:
 spec:
     ingressClassName: nginx
     rules:
-        - http:
+        - host: _%PARTICIPATE-HOST%_
+          http:
               paths:
                   - path: /analytics/matomo(/|$)(.*)
                     pathType: ImplementationSpecific
