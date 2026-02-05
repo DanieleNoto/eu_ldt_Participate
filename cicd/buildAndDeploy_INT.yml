@@ -134,11 +134,11 @@ parameters:
                 - { display: 'Decidim - Apply Services', file: 'infrastructure/int/decidim/decidim-service.yaml' }
           - name: 'Grafana'
             jobId: 'deployGrafana'
-            buildDependency: 'buildGrafana'
+            buildDependency: ''
             tokenReplacements:
                 - {
                       rootDirectory: 'infrastructure/int/analytics/grafana',
-                      targetFiles: 'grafana-statefulset.yaml,grafana-configmap.yml,grafana-secret.yml'
+                      targetFiles: 'grafana-statefulset.yaml,grafana-configmap.yml,grafana-secret.yml,grafana-provisioning-configmap.yml'
                   }
             manifests:
                 - {
@@ -148,6 +148,18 @@ parameters:
                 - {
                       display: 'Grafana - Apply Secrets',
                       file: 'infrastructure/int/analytics/grafana/grafana-secret.yml'
+                  }
+                - {
+                      display: 'Grafana - Apply Provisioning Datasources ConfigMap',
+                      file: 'infrastructure/int/analytics/grafana/grafana-provisioning-configmap.yml'
+                  }
+                - {
+                      display: 'Grafana - Apply Dashboards Provisioning ConfigMap',
+                      file: 'infrastructure/int/analytics/grafana/grafana-dashboards-provisioning-configmap.yml'
+                  }
+                - {
+                      display: 'Grafana - Apply Dashboards ConfigMap',
+                      file: 'infrastructure/int/analytics/grafana/grafana-dashboards-configmap.yml'
                   }
                 - {
                       display: 'GRAFANA - Apply Statefulset',
@@ -222,24 +234,6 @@ jobs:
                 addPipelineData: false
                 addBaseImageData: false
                 arguments: --build-arg RAILS_ENV=production --build-arg NODE_ENV=production
-                tags: |
-                    $(tag)
-
-    - job: buildGrafana
-      displayName: 'Build and Push Grafana Image'
-      variables:
-          tag: '$(Build.BuildId)'
-      steps:
-          - task: Docker@2
-            displayName: Build and Push Grafana
-            inputs:
-                command: buildAndPush
-                repository: grafana-custom
-                dockerfile: analytics/grafana/Dockerfile
-                containerRegistry: EU-LDT-Toolbox-ACR-Shared-INT
-                buildContext: analytics/grafana
-                addPipelineData: false
-                addBaseImageData: false
                 tags: |
                     $(tag)
 
