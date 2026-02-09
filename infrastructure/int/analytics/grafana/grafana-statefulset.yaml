@@ -29,36 +29,9 @@ spec:
                 runAsUser: 472 # UID del usuario Grafana
                 runAsGroup: 472 # GID del usuario Grafana
                 fsGroup: 472 # Grupo para los volumenes montados
-            initContainers:
-            - name: grafana-seed
-              image: euldtshared.azurecr.io/grafana-custom:_%CONTAINER_IMAGE_TOOL_TAG%_
-              command:
-                    - sh
-                    - -c
-                    - |
-                        set -e
-                        [ -d /target/provisioning ] || mkdir -p /target/provisioning
-                        [ -d /target/dashboards ] || mkdir -p /target/dashboards
-                        [ -d /target/data/dashboards ] || mkdir -p /target/data/dashboards
-                        # copy provisioning (from image) into PVC mount target
-                        cp -a /etc/grafana/provisioning/. /target/provisioning/ || true
-                        # ensure dashboards are available both under provisioning (for provisioning files)
-                        # and under /var/lib/grafana (Grafana expects dashboards there depending on config)
-                        cp -a /var/lib/grafana/dashboards/. /target/provisioning/ || true
-                        cp -a /var/lib/grafana/dashboards/. /target/dashboards/ || true
-                        cp -a /var/lib/grafana/dashboards/. /target/data/dashboards/ || true
-              securityContext:
-                    runAsUser: 0
-              volumeMounts:
-                    - name: grafana-claim1
-                      mountPath: /target/provisioning
-                    - name: grafana-claim2
-                      mountPath: /target/dashboards
-                    - name: grafana-data
-                      mountPath: /target/data
             containers:
                 - name: grafana
-                  image: euldtshared.azurecr.io/grafana-custom:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  image: grafana/grafana:12.2.0
                   resources:
                       requests:
                           memory: '256Mi'
@@ -80,18 +53,26 @@ spec:
                   volumeMounts:
                       - name: grafana-data
                         mountPath: /var/lib/grafana
-                      - name: grafana-claim1
-                        mountPath: /etc/grafana/provisioning
-                      - name: grafana-claim2
-                        mountPath: /etc/grafana/dashboards
+                      - name: grafana-provisioning-datasources
+                        mountPath: /etc/grafana/provisioning/datasources
+                        readOnly: true
+                      - name: grafana-provisioning-dashboards
+                        mountPath: /etc/grafana/provisioning/dashboards
+                        readOnly: true
+                      - name: grafana-dashboards
+                        mountPath: /var/lib/grafana/dashboards
+                        readOnly: true
             restartPolicy: Always
             volumes:
+                - name: grafana-provisioning-datasources
+                  configMap:
+                      name: grafana-provisioning-datasources
+                - name: grafana-provisioning-dashboards
+                  configMap:
+                      name: grafana-provisioning-dashboards
+                - name: grafana-dashboards
+                  configMap:
+                      name: grafana-dashboards
                 - name: grafana-data
                   persistentVolumeClaim:
                       claimName: grafana-data
-                - name: grafana-claim1
-                  persistentVolumeClaim:
-                      claimName: grafana-claim1
-                - name: grafana-claim2
-                  persistentVolumeClaim:
-                      claimName: grafana-claim2
