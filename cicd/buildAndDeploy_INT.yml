@@ -132,9 +132,35 @@ parameters:
                       file: 'infrastructure/int/decidim/decidim-statefulset.yaml'
                   }
                 - { display: 'Decidim - Apply Services', file: 'infrastructure/int/decidim/decidim-service.yaml' }
+          - name: 'Grafana DB'
+            jobId: 'deployGrafanaDB'
+            buildDependency: ''
+            tokenReplacements:
+                - {
+                      rootDirectory: 'infrastructure/int/analytics/grafana/db',
+                      targetFiles: 'grafana-db-configmap.yml,grafana-db-secrets.yml'
+                  }
+            manifests:
+                - {
+                      display: 'Grafana DB - Apply Service',
+                      file: 'infrastructure/int/analytics/grafana/db/grafana-db-service.yml'
+                  }
+                - {
+                      display: 'Grafana DB - Apply ConfigMap',
+                      file: 'infrastructure/int/analytics/grafana/db/grafana-db-configmap.yml'
+                  }
+                - {
+                      display: 'Grafana DB - Apply Secrets',
+                      file: 'infrastructure/int/analytics/grafana/db/grafana-db-secrets.yml'
+                  }
+                - {
+                      display: 'Grafana DB - Apply StatefulSet',
+                      file: 'infrastructure/int/analytics/grafana/db/grafana-db-statefulset.yml'
+                  }
           - name: 'Grafana'
             jobId: 'deployGrafana'
             buildDependency: ''
+            otherDependencies: ['deployGrafanaDB']
             tokenReplacements:
                 - {
                       rootDirectory: 'infrastructure/int/analytics/grafana',
