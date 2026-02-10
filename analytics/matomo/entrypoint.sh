@@ -48,6 +48,12 @@ add_array_setting() {
 	echo "Added array setting: ${setting}[] = \"${value}\""
 }
 
+# Create config directory if it doesn't exist
+if ! mkdir -p "$(dirname "$CONFIG_FILE")"; then
+    echo "Error: Cannot create config directory: $(dirname "$CONFIG_FILE")"
+    exit 1
+fi
+
 # Create config file if it doesn't exist
 if [ ! -f "$CONFIG_FILE" ]; then
 	echo "; <?php exit; ?> DO NOT REMOVE THIS LINE" > "$CONFIG_FILE"
