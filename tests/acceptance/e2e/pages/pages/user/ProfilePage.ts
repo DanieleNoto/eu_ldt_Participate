@@ -34,9 +34,13 @@ export class ProfilePage extends BasePage {
 		this.profileUsername = page.locator('.profile__details-item:has(svg[href*="ri-account-pin-circle-line"]) span');
 		this.profileWebsite = page.locator('.profile__details-item:has(svg[href*="ri-link"]) span a');
 		this.profileDescription = page.locator('.profile__description');
-		this.messageButton = page.locator('a[href*="/conversations/new"]:has-text("Message")');
-		this.followButton = page.locator('a[id*="follow_user"]:has-text("Follow")');
-		this.unfollowButton = page.locator('a[id*="follow_user"]:has-text("Stop following")');
+		this.messageButton = page.locator('a[href*="/conversations"]:has-text("Message")');
+		this.followButton = page
+			.locator('a[data-remote="true"][data-method="post"][href^="/follow"]')
+			.filter({ hasText: 'Follow' });
+		this.unfollowButton = page
+			.locator('a[data-remote="true"][data-method="delete"][href^="/follow"]')
+			.filter({ hasText: 'Stop following' });
 		this.reportButton = page.locator('button[data-dialog-open="flagUserModal"]:has-text("Report")');
 		this.activityTab = page.locator('a[href*="/activity"]:has-text("Activity")');
 		this.badgesTab = page.locator('a[href*="/badges"]:has-text("Badges")');

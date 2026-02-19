@@ -39,7 +39,7 @@ export class DecidimLoginPage extends BasePage {
 		await continueButton.click();
 
 		console.log('Waiting for username field...');
-		const usernameField = this.page.getByRole('textbox', { name: 'username' });
+		const usernameField = this.page.getByRole('textbox', { name: 'Email' });
 		await usernameField.waitFor({ state: 'visible' });
 		console.log('Filling username...');
 		await usernameField.fill(username);

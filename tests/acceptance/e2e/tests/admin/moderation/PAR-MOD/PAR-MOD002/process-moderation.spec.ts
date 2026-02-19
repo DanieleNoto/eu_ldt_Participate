@@ -39,7 +39,7 @@ test.describe('@reserved PAR-MOD002 – Process Content Moderation', () => {
 	let processModerationPage: ProcessModerationPage;
 
 	let contentId: string;
-	const processSlug = 'test'; // Fixed slug for "Update Test0" process (not "test-private" which is "Update Test0 private")
+	const processSlug = 'test'; // Fixed slug for "Update Test0" process
 	const componentId = '3';
 	const debateId = '24';
 	let reportedContentCount: number;
@@ -342,12 +342,8 @@ test.describe('@reserved PAR-MOD002 – Process Content Moderation', () => {
 
 				// Message to verify
 				const expectedMessage = 'An administrator removed your comment because it has been reported as spam';
-				const notificationVerified = await notificationPage.verifyNotificationWithCommentText(
-					expectedMessage,
-					testCommentText
-				);
-				
-				expect(notificationVerified).toBe(true);
+				await notificationPage.verifyNotificationWithCommentText(expectedMessage, testCommentText);
+
 				console.log('Notification verified successfully');
 
 				// Close userPage after use
