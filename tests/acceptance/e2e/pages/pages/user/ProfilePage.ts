@@ -34,7 +34,7 @@ export class ProfilePage extends BasePage {
 		this.profileUsername = page.locator('.profile__details-item:has(svg[href*="ri-account-pin-circle-line"]) span');
 		this.profileWebsite = page.locator('.profile__details-item:has(svg[href*="ri-link"]) span a');
 		this.profileDescription = page.locator('.profile__description');
-		this.messageButton = page.locator('a[href*="/conversations"]:has-text("Message")');
+		this.messageButton = page.locator('a.button[href*="/conversations"][title="Message"]');
 		this.followButton = page
 			.locator('a[data-remote="true"][data-method="post"][href^="/follow"]')
 			.filter({ hasText: 'Follow' });

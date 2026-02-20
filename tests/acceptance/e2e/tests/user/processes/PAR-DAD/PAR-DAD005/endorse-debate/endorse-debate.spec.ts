@@ -10,7 +10,7 @@ import { DebatesOverviewPage } from '@pages/pages/public/processes/DebatesOvervi
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { DebateDetailPage } from '@pages/pages/user/processes/DebateDetailPage';
-import { test, expect } from '@fixtures/parallel-test';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 
 /**
  * Test suite for ENDORSE a debate topic
@@ -25,7 +25,8 @@ import { test, expect } from '@fixtures/parallel-test';
  * - The debate is open for participation (not closed).
  */
 
-test.describe('[PAR-DAD005] – Endorse a debate', () => {
+test.describe('@reserved [PAR-DAD005] – Endorse a debate', () => {
+	test.describe.configure({ mode: 'serial' });
 	let processesOverviewPage: ProcessesOverviewPage;
 	let debatesOverviewPage: DebatesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
@@ -41,6 +42,15 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 		await homePage.navigateToHomePage();
 	});
 
+	test.afterEach(async () => {
+		// Clean up: remove the like if present
+		const isLiked = await debateDetailPage.isDebateLikedByCurrentUser();
+		if (isLiked) {
+			await debateDetailPage.clickEndorsementButton();
+			await debateDetailPage.getPage().waitForLoadState('networkidle');
+		}
+	});
+
 	test.describe('Main Flow', () => {
 		test('should allow user to endorse a debate', async () => {
 			let likesCount = 0;
@@ -51,7 +61,8 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 				await processesOverviewPage.getPage().waitForLoadState('networkidle');
 
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
-				await processesOverviewPage.navigateToProcessByIndex(0);
+
+				await processesOverviewPage.navigateToProcessByTitle('Update Test0', 'test');
 			});
 			await test.step('2. System: Displays the details of the selected process', async () => {
 				await processDetailPage.expectToBeOnProcessDetailPage();
