@@ -99,7 +99,7 @@ export class AccountPage {
 	 * Wait for the account page to fully load
 	 */
 	async waitForPageLoad(): Promise<void> {
-		await expect(this.page).toHaveURL(/\/account$/);
+		await expect(this.page).toHaveURL(/\/account(\?.*)?$/);
 		await expect(this.nameField).toBeVisible();
 		await expect(this.verticalTabs.isTabsContainerVisible()).resolves.toBe(true);
 	}
@@ -145,17 +145,17 @@ export class AccountPage {
 		about?: string;
 		locale?: string;
 	}): Promise<void> {
-		if (accountData.name) {
+		if (accountData.name !== undefined) {
 			await this.nameField.clear();
 			await this.nameField.fill(accountData.name);
 		}
 
-		if (accountData.nickname) {
+		if (accountData.nickname !== undefined) {
 			await this.nicknameField.clear();
 			await this.nicknameField.fill(accountData.nickname);
 		}
 
-		if (accountData.email) {
+		if (accountData.email !== undefined) {
 			await this.emailField.clear();
 			await this.emailField.fill(accountData.email);
 		}
@@ -181,21 +181,21 @@ export class AccountPage {
 			await this.page.getByRole('button', { name: 'Select' }).click();
 		}
 
-		if (accountData.gender) {
+		if (accountData.gender !== undefined) {
 			await this.genderSelect.selectOption(accountData.gender);
 		}
 
-		if (accountData.personalUrl) {
+		if (accountData.personalUrl !== undefined) {
 			await this.personalUrlField.clear();
 			await this.personalUrlField.fill(accountData.personalUrl);
 		}
 
-		if (accountData.about) {
+		if (accountData.about !== undefined) {
 			await this.aboutTextarea.clear();
 			await this.aboutTextarea.fill(accountData.about);
 		}
 
-		if (accountData.locale) {
+		if (accountData.locale !== undefined) {
 			await this.localeSelect.selectOption(accountData.locale);
 		}
 	}
@@ -209,21 +209,21 @@ export class AccountPage {
 		phoneNumber?: string;
 		location?: string;
 	}): Promise<void> {
-		if (extendedData.country) {
+		if (extendedData.country !== undefined) {
 			await this.countrySelect.selectOption(extendedData.country);
 		}
 
-		if (extendedData.postalCode) {
+		if (extendedData.postalCode !== undefined) {
 			await this.postalCodeField.clear();
 			await this.postalCodeField.fill(extendedData.postalCode);
 		}
 
-		if (extendedData.phoneNumber) {
+		if (extendedData.phoneNumber !== undefined) {
 			await this.phoneField.clear();
 			await this.phoneField.fill(extendedData.phoneNumber);
 		}
 
-		if (extendedData.location) {
+		if (extendedData.location !== undefined) {
 			await this.locationField.clear();
 			await this.locationField.fill(extendedData.location);
 		}

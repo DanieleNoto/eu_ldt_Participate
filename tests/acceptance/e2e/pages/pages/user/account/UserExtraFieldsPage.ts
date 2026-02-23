@@ -55,8 +55,29 @@ export class UserExtraFieldsPage extends AuthenticatedPage {
 
 	// Extra user fields modification
 	async fillDateOfBirth(date: string) {
-		await this.page.locator('#user_date_of_birth_date').click();
-		await this.page.locator('#user_date_of_birth_date').fill(date);
+		// date is expected in dd/mm/yyyy format
+		const [day, month, year] = date.split('/');
+		const dateFormatted = `${year}-${month}-${day}`;
+
+		// Set the hidden input via JS to ensure server-side validation
+		await this.page.evaluate(
+			({ value }: { value: string }) => {
+				const hidden = document.querySelector('#user_date_of_birth') as HTMLInputElement;
+				if (hidden) {
+					hidden.value = value;
+					hidden.dispatchEvent(new Event('change', { bubbles: true }));
+					hidden.dispatchEvent(new Event('input', { bubbles: true }));
+				}
+				// Also update the display input
+				const display = document.querySelector('#user_date_of_birth_date') as HTMLInputElement;
+				if (display) {
+					const [y, m, d] = value.split('-');
+					display.value = `${d}/${m}/${y}`;
+					display.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+			},
+			{ value: dateFormatted }
+		);
 	}
 
 	async selectGender(gender: string) {
@@ -84,6 +105,7 @@ export class UserExtraFieldsPage extends AuthenticatedPage {
 
 	async updateAccount() {
 		await this.page.locator(TEST_SELECTORS.USER_ACCOUNT.UPDATE_ACCOUNT_BUTTON).click();
+		await this.page.waitForLoadState('load');
 	}
 
 	// Complete modification workflow
@@ -111,7 +133,7 @@ export class UserExtraFieldsPage extends AuthenticatedPage {
 
 	// Validation methods
 	async expectUpdateSuccess() {
-		await expect(this.page.getByText('Account successfully updated')).toBeVisible();
+		await expect(this.page.getByText('Your account was successfully updated')).toBeVisible();
 	}
 
 	async expectUpdateError() {

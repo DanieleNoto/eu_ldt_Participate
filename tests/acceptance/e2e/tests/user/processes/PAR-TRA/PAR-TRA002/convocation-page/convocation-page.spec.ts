@@ -44,7 +44,10 @@ test.describe('[PAR-TRA002] – Access updated convocation page after process co
 
 			await test.step('2. User: Selects the specific process that has been completed.', async () => {
 				await processesOverviewPage.waitForPageLoad();
-				await processesOverviewPage.navigateToProcessByIndex(0);
+
+				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
+
+				await processesOverviewPage.navigateToProcessByTitle('Update Test0', 'test');
 			});
 
 			await test.step('3. System: Displays the main page for the completed process, including the option to view the updated convocation page.', async () => {

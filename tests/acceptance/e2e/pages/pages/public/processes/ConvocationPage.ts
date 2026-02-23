@@ -92,7 +92,7 @@ export class ConvocationPage extends AuthenticatedPage {
 	 */
 	async isTitleConvocationPage(): Promise<boolean> {
 		const title = await this.getPageTitle();
-		return title.trim() === 'Page';
+		return title.trim() === 'Convocation Page';
 	}
 
 	// Verification methods
@@ -101,7 +101,7 @@ export class ConvocationPage extends AuthenticatedPage {
 	 * Verifies that the page title is "Convocation Page"
 	 */
 	async expectTitleToBeConvocationPage(): Promise<void> {
-		await expect(this.pageTitle).toHaveText('Page');
+		await expect(this.pageTitle).toHaveText(/Convocation Page/);
 	}
 
 	/**
