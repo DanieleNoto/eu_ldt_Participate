@@ -174,11 +174,14 @@ export class AccountPage {
 			const yearInput = this.page.getByRole('spinbutton', { name: 'Select year' });
 			await yearInput.clear();
 			await yearInput.fill(year.toString());
-			await yearInput.blur();
+			await yearInput.press('Tab');
 			// Select day
 			await this.page.getByText(day.toString(), { exact: true }).first().click();
-			// Set selected date
-			await this.page.getByRole('button', { name: 'Select' }).click();
+			// Wait for the Select button to become enabled before clicking
+			const selectButton = this.page.getByRole('button', { name: 'Select' });
+			await selectButton.waitFor({ state: 'attached' });
+			await expect(selectButton).toBeEnabled();
+			await selectButton.click();
 		}
 
 		if (accountData.gender !== undefined) {

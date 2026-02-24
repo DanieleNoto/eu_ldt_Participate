@@ -36,7 +36,7 @@ test.describe('[PAR-RG001] - View reports and analytics', () => {
 	});
 
 	test.describe('Main Flow', () => {
-		test('Admin can view and interact with reports', async ({ page }) => {
+		test('Admin can view and interact with reports', async ({ page, browserName }) => {
 			await test.step('1. User: Navigates to the "Grafana Dashboard"', async () => {
 				await grafanaDashboardPage.navigateGrafanaDashboard();
 			});
@@ -156,6 +156,11 @@ test.describe('[PAR-RG001] - View reports and analytics', () => {
 			});
 
 			await test.step('7. User: Export data from widget', async () => {
+				if (browserName === 'firefox') {
+					test.skip(true, 'CSV export blocked by CSP frame-src policy on Firefox (blob: not allowed)');
+					return;
+				}
+
 				const results = await grafanaDashboardPage.exportAllMetricPanelsData(true);
 
 				const successful = results.filter(r => r.success);

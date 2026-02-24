@@ -75,13 +75,8 @@ test.describe('[PAR-UPM002] – View all conversations', () => {
 				await expect(conversationsPage.conversationsTitle).toBeVisible();
 				await expect(conversationsPage.conversationItems).toHaveCount(0);
 
-				// 4. Check if there's any empty state message (this might need adjustment based on actual implementation)
-				// We'll look for common empty state indicators
-				const emptyStateMessage = page
-					.locator('text=/no.*conversations?/i, text=/start.*conversation/i, text=/empty/i')
-					.first();
-
-				// If an empty state message exists, verify it's visible
+				// 4. Verify the empty state flash message is visible
+				const emptyStateMessage = page.locator('.flash__message').filter({ hasText: /no conversations yet/i });
 				await expect(emptyStateMessage).toBeVisible();
 				console.log('✅ Empty state message found and verified');
 			});

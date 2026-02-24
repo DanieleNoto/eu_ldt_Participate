@@ -129,8 +129,8 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 
 			await deleteMeetingByPattern(new RegExp(`Edit Test Meeting ${timestamp}`, 'i'));
 			await deleteMeetingByPattern(new RegExp(`Updated Meeting Title`, 'i'));
-			// Also clean up meetings that may have been renamed during Alternative Flow validation tests
-			await deleteMeetingByPattern(new RegExp(`^Valid Title$`, 'i'));
+			// Also clean up meetings renamed during Alternative Flow (timestamp-scoped to avoid cross-worker collisions)
+			await deleteMeetingByPattern(new RegExp(`Valid Title ${timestamp}`, 'i'));
 		} catch (error) {
 			console.log(`Cleanup warning: Could not delete meeting:`, error);
 		}
@@ -448,6 +448,18 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 
 			// getValidDate is now imported from utils
 
+			// Use a timestamp-scoped valid title so parallel workers never share the same title.
+			const validTitle = `Valid Title ${timestamp}`;
+
+			// Patch the 'valid' value for the 'title' field in every meeting type
+			for (const { requiredFields } of meetingTypes) {
+				const titleField = requiredFields.find(f => f.name === 'title');
+				if (titleField) titleField.valid = validTitle;
+			}
+
+			// Track the current title of the meeting under test
+			let currentMeetingTitle = createdMeetingTitle;
+
 			for (const { type, requiredFields } of meetingTypes) {
 				await test.step(`Alternative flow for meeting type: ${type}`, async () => {
 					// First, fill all required fields with valid values
@@ -515,14 +527,31 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 						expect(errorFound).toBe(true);
 						// Fix the field
 						await field.fill(field.valid);
+						// If this was the title field, the meeting title just changed
+						if (field.name === 'title') {
+							currentMeetingTitle = field.valid;
+						}
 						await formMeetingPage.submitForm();
 						// If the page returned to the meetings list, reopen the meeting
 						const currentUrl = await formMeetingPage.getCurrentUrl();
 						if (/\/admin.*\/meetings/.test(currentUrl)) {
-							// Find and edit our created meeting
-							const reopenIndex = await meetingsPage.findMeetingByTitle(createdMeetingTitle);
+							// Find and edit our meeting using the current title
+							const reopenIndex = await meetingsPage.findMeetingByTitle(currentMeetingTitle);
 							await meetingsPage.clickEdit(reopenIndex);
 							await adminPage.waitForLoadState('networkidle');
+							// Re-apply all required field values so the form is in the expected
+							// state for the remaining fields of this type's iteration.
+							for (const f of requiredFields) {
+								await f.fill(f.valid);
+							}
+							if (type === 'online') {
+								await formMeetingPage.selectMeetingType('online');
+							} else if (type === 'in_person') {
+								await formMeetingPage.selectMeetingType('in_person');
+							} else {
+								await formMeetingPage.selectMeetingType('hybrid');
+							}
+							await formMeetingPage.selectRegistrationType('on_this_platform');
 						}
 						// After fixing, no error should be visible for this field
 						const fieldIdCheck = field.selector.replace('#', '');

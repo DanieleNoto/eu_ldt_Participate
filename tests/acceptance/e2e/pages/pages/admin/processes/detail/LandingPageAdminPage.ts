@@ -76,8 +76,12 @@ export class LandingPageAdminPage extends BasePage {
 
 		console.log('Drag operation completed, waiting for page update...');
 
-		// Wait for the action to complete
+		// Wait for the AJAX save to complete
 		await this.page.waitForLoadState('networkidle');
+
+		// Reload the page to confirm the save persisted to the database
+		await this.page.reload();
+		await this.page.waitForLoadState('load');
 	}
 
 	/**

@@ -36,7 +36,7 @@ export class VerticalTabsComponent {
 	}
 
 	private get notificationSettingsTab() {
-		return this.page.getByRole('menuitem', { name: 'Notification settings', exact: true });
+		return this.page.getByRole('menuitem', { name: 'Notifications settings', exact: true });
 	}
 
 	private get myInterestsTab() {
@@ -82,30 +82,18 @@ export class VerticalTabsComponent {
 	}
 
 	async navigateToAccount() {
-		if (!(await this.tabsList.isVisible())) {
-			await this.openTabsDropdown();
-		}
 		await this.accountTab.click();
 	}
 
 	async navigateToNotificationSettings() {
-		if (!(await this.tabsList.isVisible())) {
-			await this.openTabsDropdown();
-		}
 		await this.notificationSettingsTab.click();
 	}
 
 	async navigateToMyInterests() {
-		if (!(await this.tabsList.isVisible())) {
-			await this.openTabsDropdown();
-		}
 		await this.myInterestsTab.click();
 	}
 
 	async navigateToMyData() {
-		if (!(await this.tabsList.isVisible())) {
-			await this.openTabsDropdown();
-		}
 		await this.myDataTab.click();
 	}
 

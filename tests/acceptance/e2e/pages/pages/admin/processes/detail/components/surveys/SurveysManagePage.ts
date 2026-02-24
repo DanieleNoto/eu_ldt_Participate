@@ -572,7 +572,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		await this.page.waitForURL(
 			/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
 		);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		console.log('Accessed questions management page');
 	}
 

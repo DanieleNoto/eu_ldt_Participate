@@ -146,7 +146,7 @@ export class FormMeetingPage extends BaseAdminPage {
 
 	/** Returns the "Select" button based on the index (0 = first, 1 = second) */
 	private selectButtoncalendar(index: number) {
-		return this.page.locator('button.datepicker__pick-calendar:enabled:has-text("Select")').nth(index);
+		return this.page.locator('button.datepicker__pick-calendar:has-text("Select")').nth(index);
 	}
 	// Page verification methods
 	async isOnMeetingFormPage(): Promise<boolean> {
@@ -598,20 +598,19 @@ export class FormMeetingPage extends BaseAdminPage {
 		const yearInput = datepicker.locator('.wc-datepicker__year-select');
 		await yearInput.clear();
 		await yearInput.fill(targetYear.toString());
-		await yearInput.blur(); // Trigger year change
-		await this.page.waitForTimeout(500); // Wait for calendar to re-render with new month/year
+		await yearInput.press('Tab');
 
 		// Click on the specific day using data-date attribute
 		const targetDateStr = `${targetYear}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`; // YYYY-MM-DD
 		const dayCell = datepicker.locator(`td.wc-datepicker__date[data-date="${targetDateStr}"]`);
 		await dayCell.waitFor({ state: 'visible' });
 		await dayCell.click();
-		await this.page.waitForTimeout(300);
 
-		// Click the "Select" button to confirm the date selection
-		await expect(this.selectButtoncalendar(selectIndex)).toBeVisible();
-		await this.selectButtoncalendar(selectIndex).click();
-		await this.page.waitForTimeout(500);
+		// Wait for the Select button to become enabled before clicking
+		const selectBtn = this.selectButtoncalendar(selectIndex);
+		await selectBtn.waitFor({ state: 'attached' });
+		await expect(selectBtn).toBeEnabled();
+		await selectBtn.click();
 	}
 
 	/**

@@ -39,8 +39,8 @@ export const TEST_USERS = {
 		lastName: 'User'
 	},
 	USER_WITHOUT_MESSAGES: {
-		email: process.env.TEST_USER_WITHOUT_MESSAGES_EMAIL || 'participatory_process_1_valuator@example.org',
-		password: process.env.TEST_USER_WITHOUT_MESSAGES_PASSWORD || 'decidim123456789'
+		email: process.env.TEST_USER4_EMAIL || 'participatory_process_1_valuator@example.org',
+		password: process.env.TEST_USER4_PASSWORD || 'decidim123456789'
 	}
 } as const;
 

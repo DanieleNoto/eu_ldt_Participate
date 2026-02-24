@@ -44,7 +44,7 @@ test.describe('[PAR-EP001] – View all meetings related to specific process', (
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
 				await processesOverviewPage.applyDateFilterAndEnsureGridLoaded('all');
 				await processesOverviewPage.checkProcessVisibility('Update Test0');
