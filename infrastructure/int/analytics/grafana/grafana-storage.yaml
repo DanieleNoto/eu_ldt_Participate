@@ -14,7 +14,6 @@ spec:
   resources:
     requests:
       storage: 100Mi
-  storageClassName: default
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -28,7 +27,6 @@ spec:
   resources:
     requests:
       storage: 100Mi
-  storageClassName: default
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -42,4 +40,3 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  storageClassName: default
