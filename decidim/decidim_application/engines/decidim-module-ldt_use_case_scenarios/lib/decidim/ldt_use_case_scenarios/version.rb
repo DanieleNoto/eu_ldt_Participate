@@ -6,10 +6,10 @@
 # frozen_string_literal: true
 
 module Decidim
-  # This holds the decidim-meetings version.
+  # This holds the decidim-ldt_use_case_scenarios version.
   module LdtUseCaseScenarios
     def self.version
-      "0.30.4"
+      "0.30.5"
     end
   end
 end
