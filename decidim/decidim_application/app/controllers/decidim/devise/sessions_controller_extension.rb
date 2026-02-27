@@ -19,19 +19,7 @@ module Decidim
         # Save cookie consent state before session is destroyed
         consent_state = session["cookie_consent"] || session["decidim_cookie_consent"]
 
-        # Set flag to prevent background auto-login after logout
-        # This flag is checked by check_keycloak_background_auto_login
-        # Duration: 30 minutes to cover async Keycloak SLO and cookie cleanup
-        cookies["manual_logout"] = {
-          value: "true",
-          expires: 30.minutes.from_now,
-          domain: calculate_cookie_domain,
-          secure: Rails.env.production?,
-          httponly: true,
-          same_site: :lax
-        }
-
-        # Clear Keycloak tokens
+        # Clear Keycloak tokens — cookie absence prevents background auto-login loop
         Decidim::Keycloak::CookieManager.clear_all_cookies(cookies, request.host, session)
 
         # Perform standard Devise logout
@@ -55,13 +43,6 @@ module Decidim
       end
 
       private
-
-      def calculate_cookie_domain
-        # Calculate the domain for the manual_logout cookie
-        Decidim::Keycloak::CookieManager.calculate_cookie_domain(request.host)
-      rescue StandardError
-        nil
-      end
 
       def build_keycloak_logout_url
         keycloak_site = ENV.fetch("OMNIAUTH_KEYCLOAK_SITE", nil)
