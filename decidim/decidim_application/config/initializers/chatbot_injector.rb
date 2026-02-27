@@ -79,6 +79,10 @@ class ChatbotInjector
       [status, headers, [body]]
     end
   rescue StandardError => e
+    # If status is nil, the exception came from @app.call itself (not our injection code).
+    # Re-raise to let Rails error handling deal with it properly.
+    raise if status.nil?
+
     Rails.logger.error("Chatbot: Error injecting widget - #{e.class}: #{e.message}")
     Rails.logger.debug { e.backtrace.join("\n") } if Rails.logger.debug?
     body ? [status, headers, [body]] : [status, headers, response]

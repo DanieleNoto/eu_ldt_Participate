@@ -289,12 +289,24 @@ module Decidim
       # Returns the token if still valid, nil if expired.
       # If expiry cannot be parsed (opaque token), assumes valid to avoid false logouts.
       def validate_existing_token(access_token)
-        expires_at = CookieManager.extract_jwt_expiration(access_token)
+        expires_at = extract_jwt_expiration(access_token)
         # Cannot parse expiry (e.g. opaque token) → assume valid
         return access_token unless expires_at
 
         # Token not yet expired locally → valid
         expires_at > Time.current ? access_token : nil
+      end
+
+      # Extract the exp claim from a JWT token (no signature verification needed).
+      # Returns nil if the token is blank, opaque, or cannot be decoded.
+      def extract_jwt_expiration(token)
+        return nil if token.blank?
+
+        payload = JWT.decode(token, nil, false).first
+        exp = payload["exp"]
+        exp ? Time.zone.at(exp) : nil
+      rescue StandardError
+        nil
       end
 
 
