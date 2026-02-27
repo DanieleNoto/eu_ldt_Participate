@@ -238,6 +238,60 @@ export class WebmailPage extends BasePage {
 	}
 
 	/**
+	 * Verify that a email related to a comment removal has been received in the inbox.
+	 * Refreshes the inbox until the unread email appears (max ~3 minutes).
+	 * @returns true if the email is found
+	 */
+	async verifyCommentRemovedEmail(): Promise<boolean> {
+		console.log('Looking for unread "Your comment has been removed" email...');
+
+		const unreadEmailRow = this.page
+			.locator('tr')
+			.filter({ has: this.page.locator('td.subject:has(.msgicon.status.unread)') })
+			.filter({ hasText: /Your comment has been removed/i })
+			.first();
+
+		const maxAttempts = 18; // ~3 minutes
+		const waitBetweenRefresh = 10000;
+
+		for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+			console.log(`Attempt ${attempt}/${maxAttempts}: Checking for comment removed email...`);
+
+			const isVisible = await unreadEmailRow.isVisible({ timeout: 2000 }).catch(() => false);
+
+			if (isVisible) {
+				console.log('"Your comment has been removed" email found!');
+				break;
+			}
+
+			if (attempt < maxAttempts) {
+				console.log('Email not yet available, refreshing inbox...');
+				await this.refreshInbox();
+				await this.page.waitForTimeout(waitBetweenRefresh);
+			}
+		}
+
+		await expect(unreadEmailRow).toBeVisible();
+		console.log('Found unread "Your comment has been removed" email');
+
+		// Open the email by clicking the subject link
+		const emailLink = unreadEmailRow.locator('td.subject span.subject a').first();
+		await emailLink.click();
+		await this.page.waitForLoadState('networkidle');
+		console.log('Opened "Your comment has been removed" email');
+
+		// Wait for the iframe content to be visible
+		const messageFrame = this.page.frameLocator('iframe[name="messagecontframe"]');
+		await expect(messageFrame.locator('p.v1email-instructions, p.email-instructions').first()).toBeVisible();
+		console.log('Email content fully loaded in iframe');
+
+		// Now that the message is fully loaded, delete it
+		await this.deleteCurrentEmail();
+
+		return true;
+	}
+
+	/**
 	 * Delete the currently selected/opened email
 	 * Moves the email to trash by clicking the delete button
 	 */

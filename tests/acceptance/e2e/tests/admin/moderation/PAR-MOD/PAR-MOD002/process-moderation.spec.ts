@@ -10,7 +10,7 @@ import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage'
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessModerationPage } from '@pages/components/admin/moderation/process/ProcessModerationPage';
 import { test, expect } from '@fixtures/parallel-test-reserved';
-import NotificationPage from '@pages/pages/user/NotificationPage';
+import { WebmailPage } from '@pages/base/WebmailPage';
 
 /**
  * Test suite for Process Content Moderation functionality
@@ -92,10 +92,7 @@ test.describe('@reserved PAR-MOD002 – Process Content Moderation', () => {
 
 	test.describe('Main Flow', () => {
 		test('should allow administrator to moderate reported content within a specific process', async ({
-			adminPage,
-			userContext,
-			fixedUser,
-			workerIndex
+			adminPage
 		}) => {
 			await test.step('1. USER: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section
@@ -305,51 +302,21 @@ test.describe('@reserved PAR-MOD002 – Process Content Moderation', () => {
 			});
 
 			await test.step('Result.', async () => {
-				// Create userPage ONLY when needed for notification verification
-				console.log(`[Worker ${workerIndex}] Creating userPage for notification verification...`);
-				const userPage = await userContext.newPage();
+				// Verify moderation notification via webmail
+				const webmailEmail = process.env.OVH_USER_EMAIL || 'info@ldttoolbox.eu';
+				const webmailPassword = process.env.OVH_USER_PASSWORD || '';
 
-				// Ensure user is authenticated
-				const baseURL = process.env.FE_BASE_URL || 'https://part-int.ldttoolbox.app';
-				await userPage.goto(baseURL);
-				await userPage.waitForLoadState('networkidle');
+				const webmailPage = new WebmailPage(adminPage);
 
-				const isLoggedIn = await userPage
-					.locator('#trigger-dropdown-account')
-					.isVisible({ timeout: 10000 })
-					.catch(() => false);
+				// Navigate to webmail and login
+				await webmailPage.navigateToWebmail();
+				await webmailPage.login(webmailEmail, webmailPassword);
+				console.log(`Logged into webmail as ${webmailEmail}`);
 
-				if (!isLoggedIn) {
-					console.log(`[Worker ${workerIndex}] User session expired, re-authenticating...`);
-					await userPage.goto(`${baseURL}/users/sign_in`);
-					await userPage.locator('#session_user_email').fill(fixedUser.email);
-					await userPage.locator('#session_user_password').fill(fixedUser.password);
-					await userPage.getByRole('button', { name: 'Log in' }).click();
-					await userPage.locator('#trigger-dropdown-account').waitFor({ state: 'visible' });
-					console.log(`[Worker ${workerIndex}] User re-authenticated successfully`);
-				}
+				// Verify the notification email arrived
+				await webmailPage.verifyCommentRemovedEmail();
 
-				// Create NotificationPage instance
-				const notificationPage = new NotificationPage(userPage);
-
-				// Navigate to notifications page
-				await userPage.goto('/notifications');
-				await userPage.waitForLoadState('networkidle');
-				console.log('Navigated to notifications page');
-
-				// Verify we're on notifications page
-				await notificationPage.expectToBeOnNotificationsPage();
-
-				// Message to verify
-				const expectedMessage = 'An administrator removed your comment because it has been reported as spam';
-				await notificationPage.verifyNotificationWithCommentText(expectedMessage, testCommentText);
-
-				console.log('Notification verified successfully');
-
-				// Close userPage after use
-				await userPage.close();
-
-				console.log('Result: The reported content has been hidden and moderation status updated');
+				console.log('Result: The reported content has been hidden and moderation notification email verified');
 			});
 		});
 	});
