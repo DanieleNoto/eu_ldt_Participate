@@ -285,36 +285,11 @@ module Decidim
         end
       end
 
-      # Extract expiration time from JWT token
-      # @param token [String] JWT token
-      # @return [Time, nil] Expiration time or nil if extraction fails
-      def extract_token_expiration(token)
-        return nil if token.blank?
-
-        begin
-          # Decode JWT without verification (we just need the exp claim)
-          decoded_token = JWT.decode(token, nil, false)
-          payload = decoded_token.first
-
-          # Extract exp claim (expiration time as Unix timestamp)
-          exp_timestamp = payload["exp"]
-          return nil unless exp_timestamp
-
-          Time.zone.at(exp_timestamp)
-        rescue JWT::DecodeError => e
-          Rails.logger.warn "[Keycloak TokenService] Failed to decode token for expiration extraction: #{e.message}"
-          nil
-        rescue StandardError => e
-          Rails.logger.warn "[Keycloak TokenService] Error extracting token expiration: #{e.message}"
-          nil
-        end
-      end
-
       # Local JWT expiry check — no network call.
       # Returns the token if still valid, nil if expired.
       # If expiry cannot be parsed (opaque token), assumes valid to avoid false logouts.
       def validate_existing_token(access_token)
-        expires_at = extract_token_expiration(access_token)
+        expires_at = CookieManager.extract_jwt_expiration(access_token)
         # Cannot parse expiry (e.g. opaque token) → assume valid
         return access_token unless expires_at
 

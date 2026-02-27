@@ -87,24 +87,21 @@ module Decidim
         session_obj.delete(:keycloak_id_token)
       end
 
-      # Save tokens to cookies with proper domain and expiry
+      # Save tokens to cookies using the JWT exp claim as source of truth for expiry.
       # @param cookies_obj [ActionDispatch::Cookies::CookieJar] The cookies object
-      # @param tokens [Hash] Hash containing :access_token, :refresh_token, :id_token, :expires_in
+      # @param tokens [Hash] Hash containing :access_token, :refresh_token, :id_token
       # @param request_host [String] The request host
       def self.save_tokens(cookies_obj, tokens, request_host)
         # First clear existing cookies to prevent duplication
         clear_all_cookies(cookies_obj, request_host)
 
         cookie_domain = calculate_cookie_domain(request_host)
-        expires_at = if tokens[:expires_in] && (tokens[:expires_in]).positive?
-                       Time.current + tokens[:expires_in].seconds
-                     else
-                       1.hour.from_now
-                     end
+        expires_at = extract_jwt_expiration(tokens[:access_token])
+        refresh_expires_at = extract_jwt_expiration(tokens[:refresh_token])
+        id_token_expires_at = extract_jwt_expiration(tokens[:id_token])
 
-        Rails.logger.debug { "[Keycloak CookieManager] Saving tokens with domain: #{cookie_domain.inspect}" }
+        Rails.logger.debug { "[Keycloak CookieManager] Saving tokens with domain: #{cookie_domain.inspect}, expires_at: #{expires_at.inspect}" }
 
-        # Save access token
         if tokens[:access_token]
           cookies_obj["access_token"] = {
             value: tokens[:access_token],
@@ -116,14 +113,7 @@ module Decidim
           }
         end
 
-        # Save refresh token (longer expiry)
         if tokens[:refresh_token]
-          refresh_expires_at = if tokens[:refresh_token_expires_in] && (tokens[:refresh_token_expires_in]).positive?
-                                 Time.current + tokens[:refresh_token_expires_in].seconds
-                               else
-                                 30.days.from_now
-                               end
-
           cookies_obj["refresh_token"] = {
             value: tokens[:refresh_token],
             expires: refresh_expires_at,
@@ -134,11 +124,10 @@ module Decidim
           }
         end
 
-        # Save ID token
         if tokens[:id_token]
           cookies_obj["id_token"] = {
             value: tokens[:id_token],
-            expires: expires_at,
+            expires: id_token_expires_at,
             secure: Rails.env.production?,
             httponly: true,
             same_site: :lax,
@@ -147,6 +136,20 @@ module Decidim
         end
 
         Rails.logger.info "[Keycloak CookieManager] Saved tokens to cookies with domain: #{cookie_domain}"
+      end
+
+      # Extract the exp claim from a JWT token (no signature verification needed).
+      # Returns nil if the token is blank, opaque, or cannot be decoded.
+      # @param token [String] JWT token string
+      # @return [Time, nil]
+      def self.extract_jwt_expiration(token)
+        return nil if token.blank?
+
+        payload = JWT.decode(token, nil, false).first
+        exp = payload["exp"]
+        exp ? Time.zone.at(exp) : nil
+      rescue StandardError
+        nil
       end
     end
   end
