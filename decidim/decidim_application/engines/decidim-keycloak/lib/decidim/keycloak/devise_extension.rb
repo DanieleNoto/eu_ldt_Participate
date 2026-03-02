@@ -51,6 +51,10 @@ module Decidim
         save_keycloak_token_to_cache(current_user, auth_data)
         update_user_locale(user_locale)
         session[:keycloak_authenticated] = true
+        # Persist id_token server-side — the cookie expires with the JWT (~5 min)
+        # but we need id_token_hint for SLO logout for the entire session lifetime.
+        id_token = auth_data&.extra&.dig("id_token") || auth_data&.credentials&.dig("id_token")
+        session[:keycloak_id_token] = id_token if id_token.present?
         Rails.logger.info "[Keycloak] User #{current_user.id} authenticated via Keycloak"
       end
 

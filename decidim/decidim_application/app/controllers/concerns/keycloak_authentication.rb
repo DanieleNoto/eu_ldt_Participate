@@ -142,7 +142,7 @@ module KeycloakAuthentication
     Rails.logger.info "[Keycloak AutoLogout] Session invalid, logging out user #{current_user.id}"
 
     # Back-channel SLO: notify Keycloak server-to-server so other SSO apps get logged out
-    notify_keycloak_session_end(cookies["id_token"])
+    notify_keycloak_session_end(cookies["id_token"] || session[:keycloak_id_token])
 
     # Clear tokens first — this also prevents the background auto-login loop on the next
     # request (check_keycloak_background_auto_login will find no tokens and return early).
