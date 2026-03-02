@@ -65,10 +65,15 @@ module Decidim
 
         # Get id_token from cookies for automatic logout
         id_token = cookies["id_token"]
+        client_id = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_ID", nil)
 
-        # Keycloak logout endpoint with redirect and id_token_hint for automatic logout
+        # Keycloak logout endpoint — always include client_id so Keycloak validates
+        # post_logout_redirect_uri against THIS client's registered URIs, not against
+        # the azp in the id_token (which may belong to a different SSO tool).
         keycloak_logout_path = "/realms/#{realm}/protocol/openid-connect/logout"
-        logout_url = "#{keycloak_site.chomp("/")}#{keycloak_logout_path}?post_logout_redirect_uri=#{CGI.escape(redirect_uri)}"
+        logout_url = "#{keycloak_site.chomp("/")}#{keycloak_logout_path}?" \
+                     "client_id=#{CGI.escape(client_id)}" \
+                     "&post_logout_redirect_uri=#{CGI.escape(redirect_uri)}"
 
         # Add id_token_hint for automatic logout without confirmation page
         if id_token.present?
