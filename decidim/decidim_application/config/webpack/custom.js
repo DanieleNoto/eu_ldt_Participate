@@ -101,10 +101,6 @@ module.exports = {
 				{
 					from: 'node_modules/workbox-sw/build/workbox-sw.js',
 					to: 'js/workbox-sw.js'
-				},
-				{
-					from: 'node_modules/workbox-sw/build/workbox-sw.js.map',
-					to: 'js/workbox-sw.js.map'
 				}
 			]
 		}),
