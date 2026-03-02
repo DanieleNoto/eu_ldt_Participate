@@ -264,16 +264,14 @@ export class IntegratedEnvironmentPage extends AuthenticatedPage {
 				let httpStatus = 0;
 				let pageLoaded = false;
 
+				console.log(`Checking ${app.name} → ${app.url}`);
 				try {
 					const response = await this.page.request.get(app.url);
 					httpStatus = response.status();
 					pageLoaded = httpStatus === 200;
 				} catch (error) {
-					if (error instanceof Error) {
-						console.warn(`${app.name}: Request failed - ${error.message}`);
-					} else {
-						console.warn(`${app.name}: Request failed - Unknown error`);
-					}
+					const errorMsg = error instanceof Error ? error.message : String(error);
+					console.warn(`${app.name} [${app.url}]: Request threw exception - ${errorMsg}`);
 					httpStatus = 0;
 					pageLoaded = false;
 				}
@@ -286,7 +284,7 @@ export class IntegratedEnvironmentPage extends AuthenticatedPage {
 				});
 
 				const status = pageLoaded ? 'PASS' : 'FAIL';
-				console.log(`${status} ${app.name}: HTTP ${httpStatus}`);
+				console.log(`${status} ${app.name} [${app.url}]: HTTP ${httpStatus}`);
 			}
 		}
 

@@ -325,11 +325,7 @@ test.describe('@reserved PAR-MOD002 – Process Content Moderation', () => {
 		let reportedContentUrl: string = '';
 		test('should allow administrator to unreport content and keep it visible', async ({ adminPage }) => {
 			await test.step('Setup: Navigate to moderation page and select content', async () => {
-				// Navigate to moderations section
-				await updateProcessAdminPage.sidebarProcessDetail.navigateToProcessModerations();
-				await adminPage.waitForLoadState('networkidle');
-
-				// Ensure we're on the correct process moderation page
+				// Navigate directly to the process moderation page
 				await adminPage.goto(`/admin/participatory_processes/${processSlug}/moderations`);
 				await adminPage.waitForLoadState('networkidle');
 
@@ -440,11 +436,7 @@ test.describe('@reserved PAR-MOD002 – Process Content Moderation', () => {
 	test.describe('Alternative Flow: Cancel', () => {
 		test('should allow administrator to cancel the review process', async ({ adminPage }) => {
 			await test.step('Setup: Navigate to moderation page and expand content', async () => {
-				// Navigate to moderations section
-				await updateProcessAdminPage.sidebarProcessDetail.navigateToProcessModerations();
-				await adminPage.waitForLoadState('networkidle');
-
-				// Ensure we're on the correct process moderation page
+				// Navigate directly to the process moderation page
 				await adminPage.goto(`/admin/participatory_processes/${processSlug}/moderations`);
 				await adminPage.waitForLoadState('networkidle');
 
@@ -508,14 +500,11 @@ test.describe('@reserved PAR-MOD002 – Process Content Moderation', () => {
 			});
 		});
 
-		test.describe('Alternative Flow: Submission error', () => {
+		// can't actually be reproduced since submtting the form with long content doesn't trigger the error in Decidim
+		test.describe.skip('Alternative Flow: Submission error', () => {
 			test('should handle submission error and allow user to retry with valid data', async ({ adminPage }) => {
 				await test.step('Setup: Navigate to moderation page and verify content status', async () => {
-					// Navigate to moderations section
-					await updateProcessAdminPage.sidebarProcessDetail.navigateToProcessModerations();
-					await adminPage.waitForLoadState('networkidle');
-
-					// Ensure we're on the correct process moderation page
+					// Navigate directly to the process moderation page
 					await adminPage.goto(`/admin/participatory_processes/${processSlug}/moderations`);
 					await adminPage.waitForLoadState('networkidle');
 

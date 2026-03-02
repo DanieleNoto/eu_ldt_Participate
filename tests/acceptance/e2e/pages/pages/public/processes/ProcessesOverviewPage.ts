@@ -189,11 +189,13 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	}
 
 	/**
-	 * Gets a process card from the main grid by its title
+	 * Gets a process card from the main grid by its title (exact match)
 	 * @param processTitle - The title of the process
 	 */
 	private getAllProcessCardByTitle(processTitle: string): Locator {
-		return this.allProcessCards.filter({ has: this.getPage().locator('h3', { hasText: processTitle }) });
+		return this.allProcessCards.filter({
+			has: this.getPage().locator('h3', { hasText: new RegExp(`^\\s*${processTitle}\\s*$`) })
+		});
 	}
 
 	/**
@@ -573,7 +575,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		console.log(`Looking for process with title: "${processTitle}"`);
 
 		const processesGrid = this.page.locator('#processes-grid .card__grid-grid');
-		const processLink = processesGrid.getByRole('link', { name: processTitle });
+		const processLink = processesGrid.getByRole('link', { name: processTitle, exact: true });
 
 		try {
 			await expect(processLink).toBeVisible();

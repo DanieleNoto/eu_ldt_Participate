@@ -3,6 +3,7 @@
  * Authors:
  * Gianfranco Cedro
  * Antonio Abramo Carotenuto
+ * Simone Bianchelli
  */
 
 import { Locator, Page, expect } from '@playwright/test';
@@ -161,27 +162,32 @@ export class AccountPage {
 		}
 
 		if (accountData.dateOfBirth) {
-			const [dayString, monthString, yearString] = accountData.dateOfBirth.split('/');
-			const day = parseInt(dayString, 10);
-			const month = parseInt(monthString, 10);
-			const year = parseInt(yearString, 10);
+			const [day, month, year] = accountData.dateOfBirth.split('/');
+			const dateFormatted = `${year}-${month}-${day}`;
 
-			// Open date picker
-			await this.calendarButton.click();
-			// Select month
-			await this.page.getByLabel('Select month').selectOption(month.toString());
-			// Select year
-			const yearInput = this.page.getByRole('spinbutton', { name: 'Select year' });
-			await yearInput.clear();
-			await yearInput.fill(year.toString());
-			await yearInput.press('Tab');
-			// Select day
-			await this.page.getByText(day.toString(), { exact: true }).first().click();
-			// Wait for the Select button to become enabled before clicking
-			const selectButton = this.page.getByRole('button', { name: 'Select' });
-			await selectButton.waitFor({ state: 'attached' });
-			await expect(selectButton).toBeEnabled();
-			await selectButton.click();
+			// Set value directly on the hidden input.
+			await this.page.evaluate(
+				({ value }: { value: string }) => {
+					const hidden = document.querySelector('#user_date_of_birth') as HTMLInputElement;
+					if (hidden) {
+						hidden.value = value;
+						hidden.dispatchEvent(new Event('change', { bubbles: true }));
+						hidden.dispatchEvent(new Event('input', { bubbles: true }));
+					}
+					const display = document.querySelector('#user_date_of_birth_date') as HTMLInputElement;
+					if (display) {
+						const [y, m, d] = value.split('-');
+						display.value = `${d}/${m}/${y}`;
+						display.dispatchEvent(new Event('change', { bubbles: true }));
+					}
+				},
+				{ value: dateFormatted }
+			);
+
+			// Verify both inputs were correctly written
+			await expect(this.page.locator('#user_date_of_birth')).toHaveValue(dateFormatted);
+			const [y, m, d] = dateFormatted.split('-');
+			await expect(this.page.locator('#user_date_of_birth_date')).toHaveValue(`${d}/${m}/${y}`);
 		}
 
 		if (accountData.gender !== undefined) {

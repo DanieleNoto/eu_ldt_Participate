@@ -244,12 +244,11 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 		await expect(this.submitButton).toBeEnabled();
 		await expect(this.submitButton).toBeVisible();
 
-		// Submit the form and wait for navigation
-		await this.submitButton.click();
-
-		// Wait for navigation to complete
-		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components/);
-		await this.waitForLoadState('networkidle');
+		await Promise.all([
+			this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components/),
+			this.submitButton.click()
+		]);
+		await this.waitForLoadState('load');
 	}
 
 	async isSubmitButtonEnabled(): Promise<boolean> {

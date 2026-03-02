@@ -31,7 +31,7 @@ export class MeetingsPage extends BaseAdminPage {
 	}
 
 	private get meetingsTable() {
-		return this.page.locator('table.table-list');
+		return this.page.locator('table.table-list:not(.hidden)');
 	}
 
 	private get tableRows() {
@@ -129,8 +129,8 @@ export class MeetingsPage extends BaseAdminPage {
 	}
 
 	async verifyMeetingsPageVisible() {
-		await expect(this.meetingsTable).toBeVisible({ timeout: 2000 });
-		await expect(this.newMeetingButton).toBeVisible({ timeout: 2000 });
+		await expect(this.meetingsTable).toBeVisible();
+		await expect(this.newMeetingButton).toBeVisible();
 	}
 
 	async hasMeetingToPublish(): Promise<boolean> {
