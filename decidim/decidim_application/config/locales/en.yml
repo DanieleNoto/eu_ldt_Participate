@@ -19,6 +19,9 @@ en:
                 global:
                     terms_and_conditions_url_for_meeting_creators: Privacy policy URL for meeting creators
     decidim:
+        keycloak:
+            sessions:
+                session_expired: "Your session has expired. Please sign in again."
         account:
             blocked: This account has been blocked due to privacy policy violation
         admin:

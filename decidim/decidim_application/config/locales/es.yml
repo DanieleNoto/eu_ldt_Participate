@@ -19,8 +19,10 @@ es:
                 global:
                     terms_and_conditions_url_for_meeting_creators: URL de la política de privacidad para creadores de reuniones
     decidim:
+        keycloak:
+            sessions:
+                session_expired: "Su sesión ha expirado. Por favor, vuelva a iniciar sesión."
         account:
-            blocked: Esta cuenta ha sido bloqueada por violación de la política de privacidad
         admin:
             admin_terms_of_service:
                 accept:

@@ -149,7 +149,7 @@ module KeycloakAuthentication
     clear_keycloak_cookies
     sign_out current_user
 
-    flash[:notice] = I18n.t("decidim.devise.sessions.destroy.signed_out")
+    flash[:alert] = I18n.t("decidim.keycloak.sessions.session_expired")
     redirect_to("/users/sign_in") && return
   end
 

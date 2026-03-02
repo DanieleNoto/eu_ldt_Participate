@@ -231,7 +231,7 @@ module Decidim
           }
         when 400, 401
           # Definitive rejection: refresh token expired/revoked → logout
-          Rails.logger.info "[Keycloak TokenService] Refresh rejected (HTTP #{response.code}) → session expired"
+          Rails.logger.info "[Keycloak TokenService] Refresh rejected (HTTP #{response.code}): #{response.body.truncate(200)} → session expired"
           nil
         else
           # Unexpected server/proxy error → keep session, retry next request
@@ -311,9 +311,12 @@ module Decidim
 
 
       def handle_token_refresh(refresh_token, cookies_obj: nil, request_host: nil, controller: nil)
-        return nil unless refresh_token && cookies_obj
+        unless refresh_token && cookies_obj
+          Rails.logger.info "[Keycloak Token Validation] Cannot refresh: refresh_token=#{refresh_token.present? ? "present" : "MISSING"}, cookies_obj=#{cookies_obj.nil? ? "MISSING" : "present"}"
+          return nil
+        end
 
-        Rails.logger.debug "[Keycloak Token Validation] Access token expired, attempting silent refresh"
+        Rails.logger.info "[Keycloak Token Validation] Access token expired, attempting silent refresh (refresh_token present: #{refresh_token.present?})"
         new_tokens = refresh_access_token(refresh_token)
 
         case new_tokens
