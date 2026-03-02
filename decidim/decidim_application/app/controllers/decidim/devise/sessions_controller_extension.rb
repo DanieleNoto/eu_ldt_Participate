@@ -63,8 +63,8 @@ module Decidim
                          "#{protocol}#{org_host}/"
                        end
 
-        # Get id_token from cookies (not session) for automatic logout
-        id_token = cookies["id_token"] || session[:keycloak_id_token]
+        # Get id_token from cookies for automatic logout
+        id_token = cookies["id_token"]
 
         # Keycloak logout endpoint with redirect and id_token_hint for automatic logout
         keycloak_logout_path = "/realms/#{realm}/protocol/openid-connect/logout"

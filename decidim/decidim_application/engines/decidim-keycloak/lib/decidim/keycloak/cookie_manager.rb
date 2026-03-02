@@ -98,7 +98,6 @@ module Decidim
         cookie_domain = calculate_cookie_domain(request_host)
         expires_at = extract_jwt_expiration(tokens[:access_token])
         refresh_expires_at = extract_jwt_expiration(tokens[:refresh_token])
-        id_token_expires_at = extract_jwt_expiration(tokens[:id_token])
 
         Rails.logger.debug { "[Keycloak CookieManager] Saving tokens with domain: #{cookie_domain.inspect}, expires_at: #{expires_at.inspect}" }
 
@@ -127,7 +126,7 @@ module Decidim
         if tokens[:id_token]
           cookies_obj["id_token"] = {
             value: tokens[:id_token],
-            expires: id_token_expires_at,
+            expires: refresh_expires_at,
             secure: Rails.env.production?,
             httponly: true,
             same_site: :lax,
