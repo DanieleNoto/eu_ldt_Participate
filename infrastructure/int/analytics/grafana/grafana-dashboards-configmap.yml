@@ -852,15 +852,10 @@ data:
         	"timezone": "browser",
         	"title": "Administrative Reports - PAR-RG001",
         	"uid": "admin_reports_rg001",
-        	"version": 1
+        	"version": 5
         }
     communication-effectiveness.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": [
-        		"Gianfranco Cedro"
-        	],
         	"annotations": {
         		"list": [
         			{
@@ -1733,15 +1728,10 @@ data:
         	"timezone": "browser",
         	"title": "Communication Effectiveness Analytics",
         	"uid": "decidim_communication",
-        	"version": 1
+        	"version": 3
         }
     community-engagement.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": [
-        		"Gianfranco Cedro"
-        	],
         	"annotations": {
         		"list": [
         			{
@@ -2389,15 +2379,10 @@ data:
         	"timezone": "browser",
         	"title": "Community Engagement Analytics",
         	"uid": "decidim_engagement",
-        	"version": 1
+        	"version": 4
         }
     decidim-0.30-enhanced.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": [
-        		"Gianfranco Cedro"
-        	],
         	"annotations": {
         		"list": [
         			{
@@ -3005,15 +2990,10 @@ data:
         	"timezone": "browser",
         	"title": "Decidim 0.30 Enhanced Analytics",
         	"uid": "decidim_030_enhanced",
-        	"version": 1
+        	"version": 3
         }
     decidim-analytics.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": [
-        		"Gianfranco Cedro"
-        	],
         	"annotations": {
         		"list": [
         			{
@@ -3425,15 +3405,10 @@ data:
         	"timezone": "browser",
         	"title": "Decidim Analytics (PostgreSQL)",
         	"uid": "cee4f9hzwv0g0d",
-        	"version": 4
+        	"version": 3
         }
     newsletter-communication-impact.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": [
-        		"Gianfranco Cedro"
-        	],
         	"annotations": {
         		"list": [
         			{
@@ -4114,15 +4089,10 @@ data:
         	"timezone": "browser",
         	"title": "Newsletter & Communication Impact",
         	"uid": "newsletter_communication_impact",
-        	"version": 1
+        	"version": 3
         }
     participation-demographics.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": [
-        		"Gianfranco Cedro"
-        	],
         	"annotations": {
         		"list": [
         			{
@@ -4663,5 +4633,5 @@ data:
         	"timezone": "browser",
         	"title": "Participation Demographics",
         	"uid": "decidim_demographics",
-        	"version": 1
+        	"version": 4
         }
