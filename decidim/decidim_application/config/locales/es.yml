@@ -21,8 +21,9 @@ es:
     decidim:
         keycloak:
             sessions:
-                session_expired: "Su sesión ha expirado. Por favor, vuelva a iniciar sesión."
+                session_expired: 'Su sesión ha expirado. Por favor, vuelva a iniciar sesión.'
         account:
+            blocked: Esta cuenta ha sido bloqueada por violación de la política de privacidad
         admin:
             admin_terms_of_service:
                 accept:

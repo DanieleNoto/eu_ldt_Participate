@@ -21,8 +21,9 @@ de:
     decidim:
         keycloak:
             sessions:
-                session_expired: "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
+                session_expired: 'Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.'
         account:
+            blocked: Dieses Konto wurde wegen Verstoßes gegen die Datenschutzrichtlinie gesperrt
         admin:
             admin_terms_of_service:
                 accept:
