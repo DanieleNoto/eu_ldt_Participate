@@ -19,19 +19,7 @@ module Decidim
         # Save cookie consent state before session is destroyed
         consent_state = session["cookie_consent"] || session["decidim_cookie_consent"]
 
-        # Set flag to prevent background auto-login after logout
-        # This flag is checked by check_keycloak_background_auto_login
-        # Duration: 30 minutes to cover async Keycloak SLO and cookie cleanup
-        cookies["manual_logout"] = {
-          value: "true",
-          expires: 30.minutes.from_now,
-          domain: calculate_cookie_domain,
-          secure: Rails.env.production?,
-          httponly: true,
-          same_site: :lax
-        }
-
-        # Clear Keycloak tokens
+        # Clear Keycloak tokens — cookie absence prevents background auto-login loop
         Decidim::Keycloak::CookieManager.clear_all_cookies(cookies, request.host, session)
 
         # Perform standard Devise logout
@@ -56,11 +44,18 @@ module Decidim
 
       private
 
-      def calculate_cookie_domain
-        # Calculate the domain for the manual_logout cookie
-        Decidim::Keycloak::CookieManager.calculate_cookie_domain(request.host)
-      rescue StandardError
-        nil
+      # Returns true if the id_token's azp (authorized party) matches the given client_id.
+      # Keycloak 18+ rejects id_token_hint when azp != client_id in the logout request.
+      def id_token_issued_for?(id_token, client_id)
+        payload_b64 = id_token.split(".")[1]
+        return false if payload_b64.blank?
+
+        claims = JSON.parse(Base64.decode64(payload_b64 + "=="))
+        token_client = claims["azp"] || Array(claims["aud"]).first
+        token_client == client_id
+      rescue StandardError => e
+        Rails.logger.warn "[Keycloak Logout] Could not decode id_token to check azp: #{e.message}"
+        false
       end
 
       def build_keycloak_logout_url
@@ -82,17 +77,26 @@ module Decidim
                          "#{protocol}#{org_host}/"
                        end
 
-        # Get id_token from cookies (not session) for automatic logout
+        # Get id_token from cookies for automatic logout
         id_token = cookies["id_token"]
+        client_id = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_ID", nil)
 
-        # Keycloak logout endpoint with redirect and id_token_hint for automatic logout
+        # Keycloak logout endpoint — always include client_id so Keycloak validates
+        # post_logout_redirect_uri against THIS client's registered URIs, not against
+        # the azp in the id_token (which may belong to a different SSO tool).
         keycloak_logout_path = "/realms/#{realm}/protocol/openid-connect/logout"
-        logout_url = "#{keycloak_site.chomp("/")}#{keycloak_logout_path}?post_logout_redirect_uri=#{CGI.escape(redirect_uri)}"
+        logout_url = "#{keycloak_site.chomp("/")}#{keycloak_logout_path}?" \
+                     "client_id=#{CGI.escape(client_id)}" \
+                     "&post_logout_redirect_uri=#{CGI.escape(redirect_uri)}"
 
-        # Add id_token_hint for automatic logout without confirmation page
-        if id_token.present?
+        # Add id_token_hint only if the token was issued for THIS client.
+        # Cross-tool SSO may leave an id_token from a different client (e.g. tool2) in the
+        # shared-domain cookie. Keycloak 18+ rejects id_token_hint when azp != client_id.
+        if id_token.present? && id_token_issued_for?(id_token, client_id)
           logout_url += "&id_token_hint=#{CGI.escape(id_token)}"
           Rails.logger.info "✓ Using id_token_hint for automatic Keycloak logout"
+        elsif id_token.present?
+          Rails.logger.warn "✗ id_token belongs to a different client — omitting id_token_hint to avoid Keycloak error"
         else
           Rails.logger.warn "✗ No id_token found in cookies, Keycloak may show confirmation page"
         end

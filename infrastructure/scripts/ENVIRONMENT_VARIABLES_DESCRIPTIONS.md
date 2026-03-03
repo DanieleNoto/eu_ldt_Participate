@@ -1,6 +1,22 @@
 # Environment Variables Descriptions
 
-This document provides descriptions for all environment variables used in the EU LDT Participate platform. Descriptions are provided in British English.
+This document provides descriptions for all environment variables used in the EU LDT Participate platform. Descriptions are provided in British English. Variables follow the template format `_%VAR-NAME%_` used in Kubernetes manifests under `infrastructure/int/`.
+
+## ConfigMap Reference
+
+| ConfigMap            | Location              | Key Variables                                                                                                                                                                                                                          |
+| -------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| decidim-configmap    | decidim/              | CHATBOT-URL, CHATBOT-BACKEND-URL, DATABASE-HOST-DECIDIM, DATABASE-NAME-DECIDIM, DECIDIM-_, HELP-URL, MATOMO-_, MEETINGS-EMBEDDABLE-SERVICES, OMNIAUTH-KEYCLOAK-_, QUEUE-ADAPTER, RAILS-_, REDIS-URL, SMTP-_, TOOL0-_, TOOL1-_, TOOL2-_ |
+| db-config            | decidim/db/           | POSTGRES-DATABASE                                                                                                                                                                                                                      |
+| chatbot-be-configmap | backend/              | CORS-ORIGINS, RATE-LIMIT-_, MAX-EVENT-LOOP-USE, CHATBOT-SUPPORT-EMAIL, CHATBOT-FROM-EMAIL, DB-NAME-CHATBOT, SMTP-_, DECIDIM-\*, PRIVACY-POLICY-URL, NOTIFICATION-PREFERENCES-URL                                                       |
+| chatbot-db-configmap | backend/              | DB-NAME-CHATBOT                                                                                                                                                                                                                        |
+| chatbot-fe-configmap | frontend/             | VITE-API-URL                                                                                                                                                                                                                           |
+| grafana-configmap    | analytics/grafana/    | GF-DATABASE-_, GF-SECURITY-_, GF-SERVER-_, GF-AUTH-GENERIC-OAUTH-_                                                                                                                                                                     |
+| grafana-db-config    | analytics/grafana/db/ | GF-DATABASE-NAME                                                                                                                                                                                                                       |
+| matomo-configmap     | analytics/matomo/     | MATOMO-DATABASE-\*, MYSQL-DATABASE, MATOMO-ROOT-URL, MATOMO-TRUSTED-HOST                                                                                                                                                               |
+| jitsi-configmap      | jitsi/                | JVB-STUN-SERVERS, JWT-APP-ID, JWT-ACCEPTED-ISSUERS, JWT-ACCEPTED-AUDIENCES, PUBLIC-URL, RESTART-POLICY                                                                                                                                 |
+
+_Note: fluent-configMap, grafana-provisioning-_, and grafana-dashboards-_ contain mostly static configuration or derive values from other ConfigMaps._
 
 ## Chatbot Variables
 
@@ -44,37 +60,37 @@ Secret key used for encryption/decryption operations in the chatbot backend. Use
 
 ## Database Configuration
 
-### DATABASE-HOST
+### DATABASE-HOST-DECIDIM
 
-Hostname or IP address of the PostgreSQL database server used by Decidim. Can be a service name in Kubernetes (e.g., `db`) or a hostname/IP address.
+Hostname or IP address of the PostgreSQL database server used by Decidim. Used in `decidim-configmap` and mapped to `DATABASE_HOST`. Can be a Kubernetes service name (e.g., `db`) or a hostname/IP address.
 
-### DATABASE-NAME
+### DATABASE-NAME-DECIDIM
 
-Name of the PostgreSQL database used by Decidim for storing application data. Example: `decidim_application_development` or `decidim_application_production`.
+Name of the PostgreSQL database used by Decidim for storing application data. Used in `decidim-configmap` and mapped to `DATABASE_NAME`. Example: `decidim_application_development` or `decidim_application_production`.
 
-### DATABASE-PASSWORD
+### DATABASE-PASSWORD-DECIDIM
 
-Password for authenticating to the Decidim PostgreSQL database. Stored as a Kubernetes secret for security.
+Password for authenticating to the Decidim PostgreSQL database. Stored in `decidim-secret` and `db-secret`. Required for both the Decidim application and the Decidim PostgreSQL init container.
 
-### DATABASE-URL
+### DATABASE-URL-CHATBOT
 
-Full PostgreSQL connection string for the chatbot backend database. Format: `postgresql://username:password@host:port/database`. This can be used instead of individual database connection parameters.
+Full PostgreSQL connection string for the chatbot backend database. Format: `postgresql://username:password@host:port/database`. Used in `chatbot-db-secrets` and `chatbot-be-secrets`. Can be used instead of individual `DB-*` parameters.
 
-### DATABASE-USERNAME
+### DATABASE-USERNAME-DECIDIM
 
-Username for authenticating to the Decidim PostgreSQL database. Example: `postgres`.
+Username for authenticating to the Decidim PostgreSQL database. Stored in `decidim-secret` and `db-secret`. Example: `postgres`.
 
-### DB-NAME
+### DB-NAME-CHATBOT
 
-Name of the PostgreSQL database used by the chatbot backend service. Example: `chatbot_db`.
+Name of the PostgreSQL database used by the chatbot backend service. Used in `chatbot-db-configmap`, `chatbot-be-configmap`, and `chatbot-db-secrets`. Example: `chatbot_db` or `decidim_application_development` when sharing a DB.
 
-### DB-PASSWORD
+### DB-PASSWORD-CHATBOT
 
-Password for authenticating to the chatbot backend PostgreSQL database.
+Password for authenticating to the chatbot backend PostgreSQL database. Stored in `chatbot-db-secrets` and `chatbot-be-secrets`.
 
-### DB-USERNAME
+### DB-USERNAME-CHATBOT
 
-Username for authenticating to the chatbot backend PostgreSQL database.
+Username for authenticating to the chatbot backend PostgreSQL database. Stored in `chatbot-db-secrets` and `chatbot-be-secrets`.
 
 ## Decidim Configuration
 
@@ -314,6 +330,10 @@ Unique identifier for the Matomo site being tracked. Used to associate tracking 
 
 Authentication token for the Matomo API. Used to authenticate API requests from Decidim to Matomo. Stored as a Kubernetes secret.
 
+### MATOMO-TRUSTED-HOST
+
+Comma-separated list of trusted hostnames for Matomo. Used to prevent host header injection. Must include the domain where Matomo is accessible. Example: `part-int.ldttoolbox.app` or `part-int.ldttoolbox.app,matomo.example.com`.
+
 ## Performance Monitoring
 
 ### MAX-EVENT-LOOP-USE
@@ -354,11 +374,11 @@ URL pointing to the page where users can manage their notification preferences. 
 
 ### POSTGRES-DATABASE
 
-Name of the PostgreSQL database. Can be used as an alternative to `DATABASE-NAME` or `DB-NAME` depending on context.
+Name of the PostgreSQL database for the Decidim DB init container. Used in `decidim/db/db-configmap` to set `POSTGRES_DATABASE`. Should match `DATABASE-NAME-DECIDIM`. Example: `decidim_application_development`.
 
 ### POSTGRES-DB
 
-Alternative name for PostgreSQL database name. Some PostgreSQL images use this environment variable.
+Alternative name for PostgreSQL database name. Some PostgreSQL images (e.g., Grafana DB via `grafana-db-config`) use `GF-DATABASE-NAME` for this.
 
 ### POSTGRES-PASSWORD
 
@@ -368,6 +388,16 @@ Password for the PostgreSQL database user. Stored as a Kubernetes secret.
 
 Username for the PostgreSQL database user. Example: `postgres`.
 
+## Ingress and Host Configuration
+
+### PARTICIPATE-HOST
+
+Hostname for the main Participate platform used in Ingress rules. Used in `proxy/ingress.yml` and `proxy/matomo-ingress.yml`. Example: `part-int.ldttoolbox.app`.
+
+### JITSI-HOST
+
+Hostname for the Jitsi Meet service used in Ingress rules. Used in `proxy/ingress.yml`. Example: `jitsi-part-int.ldttoolbox.app`.
+
 ## Privacy and Policy URLs
 
 ### PRIVACY-POLICY-URL
@@ -376,7 +406,7 @@ URL pointing to the privacy policy document. Used in email footers and chatbot i
 
 ### PUBLIC-URL
 
-Public URL of the Jitsi Meet service. Used to construct meeting room URLs and for public access. Example: `https://jitsi-part-int.ldttoolbox.app/`.
+Public URL of the Jitsi Meet service. Used in `jitsi-configmap` to construct meeting room URLs and for public access. Example: `https://jitsi-part-int.ldttoolbox.app/`.
 
 ## Queue Configuration
 

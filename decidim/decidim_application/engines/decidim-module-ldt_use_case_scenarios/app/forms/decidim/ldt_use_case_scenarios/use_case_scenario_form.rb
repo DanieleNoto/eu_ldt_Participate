@@ -32,9 +32,9 @@ module Decidim
           permitted = {}
         end
 
-        permitted.each do |k, v|
-          form.public_send("#{k}=", v) if form.respond_to?("#{k}=")
-        end
+        form.name          = permitted[:name]          || permitted["name"]
+        form.experiment_id = permitted[:experiment_id] || permitted["experiment_id"]
+        form.component_id  = permitted[:component_id]  || permitted["component_id"]
 
         form
       end

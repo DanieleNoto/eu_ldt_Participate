@@ -24,23 +24,20 @@ collect_vars_in_file() {
 
 env_value() {
   local k="$1"
-  # Convert dash to underscore for env var lookup (POSTGRES-USER -> POSTGRES_USER)
-  local env_k="${k//-/_}"
-  
-  # First try direct lookup
+  # Look up using the exact key from the template (no _/- conversion)
   local val
-  val=$(awk -F= -v key="$env_k" '
+  val=$(awk -F= -v key="$k" '
     $0 !~ /^[[:space:]]*#/ && $1 ~ /^[[:space:]]*(export[[:space:]]+)?[A-Za-z0-9_-]+[[:space:]]*$/ {
       gsub(/^[[:space:]]*export[[:space:]]+/,"",$1);
       gsub(/[[:space:]]+$/, "", $1);
       if ($1==key) { sub(/^[^=]*=/, "", $0); print $0; exit 0 }
     }' "$ENV_FILE" 2>/dev/null || true)
-  
+
   if [[ -n "$val" ]]; then
     echo "$val"
     return
   fi
-  
+
   # Try common mappings
   case "$k" in
     "POSTGRES-USER") env_value "DATABASE_USERNAME" ;;
@@ -224,8 +221,6 @@ echo "      docker build -t eu-ldt-chatbot-be:v1.0.0 ./backend"
 echo "      docker build -t eu-ldt-chatbot-fe:v1.0.0 ./frontend"
 echo "      docker build -t eu-ldt-part:v1.0.0 ./decidim"
 echo "      docker build -t matomo-custom:v1.0.0 ./analytics/matomo"
-echo "      docker build -t grafana-custom:v1.0.0 ./analytics/grafana"
-echo "   3. Apply the configurations to your local Kubernetes cluster:"
-echo "      kubectl apply -f $OUT_DIR/"
+echo "   3. Apply the configurations to your local Kubernetes cluster"
 echo ""
 echo "💡 Note: Secret values are automatically base64-encoded"

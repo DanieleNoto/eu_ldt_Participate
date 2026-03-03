@@ -14,9 +14,11 @@ class ApplicationController < ActionController::Base
 
   private
 
-  # Background auto-login check: If user has valid Keycloak cookies but isn't logged in,
-  # silently authenticate them without showing redirect/flicker.
-  # This runs on EVERY page before rendering.
+  # Background auto-login check: If user has potentially valid Keycloak tokens but isn't
+  # logged in, silently authenticate them via Keycloak SSO without showing redirect/flicker.
+  # Two triggers:
+  #   1. User has locally-valid tokens (returning user on this app)
+  #   2. User navigates from another tool in the same SSO domain (cross-tool SSO)
   def check_keycloak_background_auto_login
     # Skip for API controllers (no current_organization)
     return if self.class.module_parent == Api
@@ -24,31 +26,26 @@ class ApplicationController < ActionController::Base
     # Don't check if user already authenticated
     return if current_user.present?
 
-    # Don't check if user just manually logged out (within 2 hours)
-    # This flag prevents auto-login loop after logout
-    if cookies["manual_logout"].present? && cookies["manual_logout"] == "true"
-      Rails.logger.info "[Keycloak BG Auto-Login] Manual logout flag detected, skipping auto-login"
-      return
-    end
-
     # Don't check if Keycloak not enabled (current_organization might be nil)
     return if current_organization.blank?
     return unless keycloak_enabled_for_organization?
-
-    # Don't check if no Keycloak cookies
-    return unless keycloak_cookies_present?
 
     # Don't check on specific paths
     return if request.path.start_with?("/api/", "/assets/", "/users/auth/", "/admin/")
     return if request.xhr? || request.format.json?
 
-    # Validate Keycloak session
-    unless keycloak_session_valid?
-      Rails.logger.info "[Keycloak BG Auto-Login] Cookies present but session invalid, skipping"
+    # Attempt SSO if:
+    # - User has locally-valid auth tokens (returning user), OR
+    # - User navigates from another tool in the same SSO domain (cross-tool SSO, may have no tokens yet)
+    has_valid_tokens = keycloak_auth_tokens_present? && any_keycloak_token_locally_valid?
+    from_same_domain = coming_from_same_domain_tool?
+
+    unless has_valid_tokens || from_same_domain
+      Rails.logger.info "[Keycloak BG Auto-Login] No valid tokens and not from same domain, skipping"
       return
     end
 
-    Rails.logger.info "[Keycloak BG Auto-Login] Valid Keycloak session detected, initiating auto-login..."
+    Rails.logger.info "[Keycloak BG Auto-Login] Initiating SSO auto-login (tokens=#{has_valid_tokens}, cross-tool=#{from_same_domain})"
 
     # Generate CSRF state for OmniAuth
     state = SecureRandom.hex(32)
@@ -64,27 +61,17 @@ class ApplicationController < ActionController::Base
       state: state
     )
 
-    Rails.logger.info "[Keycloak BG Auto-Login] Redirecting to Keycloak for SSO login"
     redirect_to auth_url, allow_other_host: true
   end
 
-  def keycloak_enabled_for_organization?
-    current_organization&.enabled_omniauth_providers&.dig(:keycloakopenid).present?
-  end
-
-  def keycloak_cookies_present?
-    %w(access_token refresh_token id_token).any? { |name| cookies[name].present? }
-  end
-
-  def keycloak_session_valid?
-    Decidim::Keycloak::SessionValidator.validate_tokens_and_session(
-      cookies["access_token"],
-      cookies["id_token"],
-      cookies["refresh_token"],
-      cookies
-    )
-  rescue StandardError => e
-    Rails.logger.warn "[Keycloak BG Auto-Login] Error validating session: #{e.message}"
-    false
+  # Check if any Keycloak JWT cookie has not yet expired locally (zero network).
+  # Avoids redirecting to Keycloak when all tokens are definitively expired.
+  def any_keycloak_token_locally_valid?
+    %w(access_token refresh_token id_token).any? do |name|
+      token = cookies[name]
+      token.present? && !Decidim::Keycloak::JwtParser.locally_expired?(token)
+    end
+  rescue StandardError
+    true # On parse error, allow redirect (Keycloak will decide)
   end
 end

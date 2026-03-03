@@ -1166,15 +1166,15 @@
   resolved "https://registry.npmjs.org/@csstools/utilities/-/utilities-1.0.0.tgz"
   integrity sha512-tAgvZQe/t2mlvpNosA4+CkMiZ2azISW5WPAcdSalZlEjQvUfghHxfQcrCiK/7/CrfAWVxyM88kGFYO82heIGDg==
 
-"@decidim/browserslist-config@^0.30.4":
-  version "0.30.4"
-  resolved "https://registry.npmjs.org/@decidim/browserslist-config/-/browserslist-config-0.30.4.tgz"
-  integrity sha512-JJ3rpiPxNfiYKvTAL2wIS3ACF6R+CWy/mHbxwzi+1vw+hRj/3HZqY9AXKwOaGvMtEq8yWPcv3ukos7gR+QWeZQ==
+"@decidim/browserslist-config@^0.30.6":
+  version "0.30.6"
+  resolved "https://registry.npmjs.org/@decidim/browserslist-config/-/browserslist-config-0.30.6.tgz"
+  integrity sha512-aCWaPIuGEgC8FB6P70iNvUpty2ogcFYOaNUGOIl80iknBKq+iBX84v81f9DmW5pckXyobbauhgPt+IP9efqeRA==
 
-"@decidim/core@^0.30.4":
-  version "0.30.4"
-  resolved "https://registry.npmjs.org/@decidim/core/-/core-0.30.4.tgz"
-  integrity sha512-uZLRKMOsUiQv7+M9jhAgMCt/uPd5JpQ4YxIDUPdOS+/uGbLzm8x3HOVyyfCwU/j2ErLIPvfxF3TFpeFQ7hZx0A==
+"@decidim/core@^0.30.6":
+  version "0.30.6"
+  resolved "https://registry.npmjs.org/@decidim/core/-/core-0.30.6.tgz"
+  integrity sha512-zlQ9Wf62APVDb61l9PWZP623npcxIwoGw6ASo4JrMvXdae7GYFAbT1s4zD+rb6igRhi6Hp1OVrCWXKPeAxx5DQ==
   dependencies:
     "@emoji-mart/data" "^1.1.2"
     "@rails/activestorage" "^7.0.8"
@@ -1241,34 +1241,34 @@
     tom-select "2.2.2"
     wc-datepicker "^0.5.2"
 
-"@decidim/dev@^0.30.4":
-  version "0.30.4"
-  resolved "https://registry.npmjs.org/@decidim/dev/-/dev-0.30.4.tgz"
-  integrity sha512-h655v/mwCvmBpO17wLsm4bP3dAvi3FHNQR7HLYgrzKRUbErGYUpvkQMzcIl+vqIuTjjuA97D1gEVDLnbVtLC3Q==
+"@decidim/dev@^0.30.6":
+  version "0.30.6"
+  resolved "https://registry.npmjs.org/@decidim/dev/-/dev-0.30.6.tgz"
+  integrity sha512-bXHdzDCHE/uBnbzWGvUL4cikNy4S5+tOfeEzVT92v2gDQv74r4vONOtdQpETVg60Y1xZOoFzi/sQvMOSKP2WFw==
   dependencies:
     "@linthtml/linthtml" "^0.9.6"
     axe-core "^4.7.2"
     markdownlint-cli "^0.35.0"
 
-"@decidim/eslint-config@^0.30.4":
-  version "0.30.4"
-  resolved "https://registry.npmjs.org/@decidim/eslint-config/-/eslint-config-0.30.4.tgz"
-  integrity sha512-d5aZ3DvegeztPMPeEnJT+Rv6p0+aL9OyqBNZXfALXfXkUBa7oIC3wcqX2nCbQtkNuOlSsqhvwa+SmEBldQKgCg==
+"@decidim/eslint-config@^0.30.6":
+  version "0.30.6"
+  resolved "https://registry.npmjs.org/@decidim/eslint-config/-/eslint-config-0.30.6.tgz"
+  integrity sha512-2u1NUIEnL866WofLY5UMzlNAKewCikUedexJ71NLlVS7RI29i/IyUMpE+cp+jHqLV5vlNeaUXFDStyo+2TcuBg==
 
-"@decidim/prettier-config@^0.30.4":
-  version "0.30.4"
-  resolved "https://registry.npmjs.org/@decidim/prettier-config/-/prettier-config-0.30.4.tgz"
-  integrity sha512-oOZG8Ld3e944FINP3TkuzxCUAkqOdmuxvaDUFumw+PcgA1Zun3+KpOiu4jEh4XDmrGb22TLddGrpYNhUZ3lbXQ==
+"@decidim/prettier-config@^0.30.6":
+  version "0.30.6"
+  resolved "https://registry.npmjs.org/@decidim/prettier-config/-/prettier-config-0.30.6.tgz"
+  integrity sha512-PKXA9uHK/S3TbHcACVzMJBii7gx53MJtluPRiVpfdZwThOtxPx5DByx2OvIcYe14TxCT1atY/0/mo73z6HX0rw==
 
-"@decidim/stylelint-config@^0.30.4":
-  version "0.30.4"
-  resolved "https://registry.npmjs.org/@decidim/stylelint-config/-/stylelint-config-0.30.4.tgz"
-  integrity sha512-nKE2ixlxf2pgC7zNKJcow+xRWLjmZqJRJ1N3JcrUsUdtX3mccPEk2ea+7SRsiNxQkXYdn5+W4nI+78twPSRp5A==
+"@decidim/stylelint-config@^0.30.6":
+  version "0.30.6"
+  resolved "https://registry.npmjs.org/@decidim/stylelint-config/-/stylelint-config-0.30.6.tgz"
+  integrity sha512-qNLubGqYmtDjttoQ8D/XmC91Uw2VVDZkYgvlDxbUzxRgGTgFdOVv+qgpaWB+7jfiIFPz8YRgnaZx4xqKLvbCyw==
 
-"@decidim/webpacker@^0.30.4":
-  version "0.30.4"
-  resolved "https://registry.npmjs.org/@decidim/webpacker/-/webpacker-0.30.4.tgz"
-  integrity sha512-ma5yVP10sRj5aQKaHsHVWM/DM6wDMh/QKEk86876GsqgVc2hmnmTWLuQ3KlPYFCmSF0Nu5xejdCQbuwzO0Zp5A==
+"@decidim/webpacker@^0.30.6":
+  version "0.30.6"
+  resolved "https://registry.npmjs.org/@decidim/webpacker/-/webpacker-0.30.6.tgz"
+  integrity sha512-Z6+oWwNyylWpyvCZ/Hzj6k4Dg6wO87+hjszm9zz/YvBfB7buNQHKln2Pxv5XPHvm1UI1uNSVabmsKx28PLS7Ag==
   dependencies:
     "@rails/ujs" "^6.1.7"
     "@tailwindcss/typography" "^0.5.2"

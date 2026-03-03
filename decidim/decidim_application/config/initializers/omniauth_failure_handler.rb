@@ -11,8 +11,13 @@ Rails.application.config.to_prepare do
     def failure
       # Check if it's a CSRF error from Keycloak
       if params[:message] == "csrf_detected" && params[:strategy] == "keycloakopenid"
-        Rails.logger.info "[Keycloak] CSRF error detected, redirecting to login"
-        # Redirect to login page (background check will handle auto-login if session valid)
+        Rails.logger.info "[Keycloak] CSRF error detected, clearing tokens to prevent auto-login loop"
+
+        # Clear Keycloak tokens so check_keycloak_background_auto_login won't retrigger.
+        # Without this, locally-valid tokens would cause an immediate redirect back to Keycloak,
+        # producing another CSRF error in an infinite loop.
+        Decidim::Keycloak::CookieManager.clear_all_cookies(cookies, request.host, session)
+
         redirect_to("/users/sign_in") && return
       end
 

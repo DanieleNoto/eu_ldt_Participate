@@ -19,6 +19,9 @@ de:
                 global:
                     terms_and_conditions_url_for_meeting_creators: Datenschutzrichtlinien-URL für Meeting-Ersteller
     decidim:
+        keycloak:
+            sessions:
+                session_expired: 'Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.'
         account:
             blocked: Dieses Konto wurde wegen Verstoßes gegen die Datenschutzrichtlinie gesperrt
         admin:

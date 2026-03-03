@@ -36,7 +36,9 @@ data:
         			"icon": "external link",
         			"includeVars": false,
         			"keepTime": true,
-        			"tags": ["decidim"],
+        			"tags": [
+        				"decidim"
+        			],
         			"targetBlank": false,
         			"title": "Related Dashboards",
         			"tooltip": "",
@@ -100,7 +102,9 @@ data:
         				"orientation": "auto",
         				"percentChangeColorMode": "standard",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -172,7 +176,9 @@ data:
         				"orientation": "auto",
         				"percentChangeColorMode": "standard",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -191,7 +197,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT \n  ROUND(\n    (COUNT(DISTINCT CASE WHEN last_sign_in_at >= NOW() - INTERVAL '$time_range days' THEN id END) * 100.0 / \n     NULLIF(COUNT(DISTINCT id), 0)), 2\n  ) as value\nFROM decidim_users \nWHERE deleted_at IS NULL AND type = 'Decidim::User' AND confirmed_at IS NOT NULL;",
+        					"rawSql": "WITH active_users AS (\n  SELECT decidim_author_id as user_id FROM decidim_comments_comments\n  WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL '$time_range days'\n    AND decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity')\n  UNION\n  SELECT ca.decidim_author_id as user_id FROM decidim_coauthorships ca\n  JOIN decidim_proposals_proposals p ON ca.coauthorable_id = p.id\n    AND ca.coauthorable_type = 'Decidim::Proposals::Proposal'\n    AND ca.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity')\n  WHERE p.deleted_at IS NULL AND p.created_at >= NOW() - INTERVAL '$time_range days'\n  UNION\n  SELECT decidim_author_id as user_id FROM decidim_endorsements\n  WHERE created_at >= NOW() - INTERVAL '$time_range days'\n    AND decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity')\n)\nSELECT\n  ROUND(\n    (COUNT(DISTINCT au.user_id) * 100.0 /\n     NULLIF(COUNT(DISTINCT u.id), 0)), 2\n  ) as value\nFROM decidim_users u\nLEFT JOIN active_users au ON u.id = au.user_id\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User' AND u.confirmed_at IS NOT NULL;",
         					"refId": "A"
         				}
         			],
@@ -240,7 +246,9 @@ data:
         				"orientation": "auto",
         				"percentChangeColorMode": "standard",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -308,7 +316,9 @@ data:
         				"orientation": "auto",
         				"percentChangeColorMode": "standard",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -376,7 +386,9 @@ data:
         				"orientation": "auto",
         				"percentChangeColorMode": "standard",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -395,7 +407,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT COUNT(DISTINCT decidim_author_id) as value FROM (\n  SELECT decidim_author_id FROM decidim_proposals_proposals WHERE deleted_at IS NULL AND decidim_author_id IS NOT NULL AND created_at >= NOW() - INTERVAL '$time_range days'\n  UNION\n  SELECT decidim_author_id FROM decidim_comments_comments WHERE deleted_at IS NULL AND decidim_author_id IS NOT NULL AND created_at >= NOW() - INTERVAL '$time_range days'\n) contributors;",
+        					"rawSql": "SELECT COUNT(DISTINCT decidim_author_id) as value FROM (\n  SELECT ca.decidim_author_id FROM decidim_coauthorships ca\n  JOIN decidim_proposals_proposals p ON ca.coauthorable_id = p.id AND ca.coauthorable_type = 'Decidim::Proposals::Proposal'\n  WHERE p.deleted_at IS NULL AND ca.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity') AND p.created_at >= NOW() - INTERVAL '$time_range days'\n  UNION\n  SELECT decidim_author_id FROM decidim_comments_comments WHERE deleted_at IS NULL AND decidim_author_id IS NOT NULL AND created_at >= NOW() - INTERVAL '$time_range days'\n) contributors;",
         					"refId": "A"
         				}
         			],
@@ -444,7 +456,9 @@ data:
         				"orientation": "auto",
         				"percentChangeColorMode": "standard",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -618,7 +632,9 @@ data:
         				},
         				"pieType": "pie",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -639,7 +655,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "WITH engagement_levels AS (\n  SELECT \n    u.id,\n    COALESCE(p.proposal_count, 0) + COALESCE(c.comment_count, 0) + COALESCE(e.endorsement_count, 0) as total_activity\n  FROM decidim_users u\n  LEFT JOIN (\n    SELECT decidim_author_id, COUNT(*) as proposal_count\n    FROM decidim_proposals_proposals \n    WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL '$time_range days'\n    GROUP BY decidim_author_id\n  ) p ON u.id = p.decidim_author_id\n  LEFT JOIN (\n    SELECT decidim_author_id, COUNT(*) as comment_count\n    FROM decidim_comments_comments \n    WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL '$time_range days'\n    GROUP BY decidim_author_id\n  ) c ON u.id = c.decidim_author_id\n  LEFT JOIN (\n    SELECT decidim_user_id, COUNT(*) as endorsement_count\n    FROM decidim_endorsements \n    WHERE created_at >= NOW() - INTERVAL '$time_range days'\n    GROUP BY decidim_user_id\n  ) e ON u.id = e.decidim_user_id\n  WHERE u.deleted_at IS NULL AND u.type = 'Decidim::User' AND u.confirmed_at IS NOT NULL\n)\nSELECT \n  CASE \n    WHEN total_activity >= 10 THEN 'High Engagement (10+)'\n    WHEN total_activity >= 3 THEN 'Medium Engagement (3-9)'\n    WHEN total_activity >= 1 THEN 'Low Engagement (1-2)'\n    ELSE 'No Activity'\n  END as engagement_level,\n  COUNT(*) as value\nFROM engagement_levels\nGROUP BY \n  CASE \n    WHEN total_activity >= 10 THEN 'High Engagement (10+)'\n    WHEN total_activity >= 3 THEN 'Medium Engagement (3-9)'\n    WHEN total_activity >= 1 THEN 'Low Engagement (1-2)'\n    ELSE 'No Activity'\n  END;",
+        					"rawSql": "WITH engagement_levels AS (\n  SELECT \n    u.id,\n    COALESCE(p.proposal_count, 0) + COALESCE(c.comment_count, 0) + COALESCE(e.endorsement_count, 0) as total_activity\n  FROM decidim_users u\n  LEFT JOIN (\n    SELECT ca.decidim_author_id, COUNT(*) as proposal_count\n    FROM decidim_coauthorships ca\n    JOIN decidim_proposals_proposals p ON ca.coauthorable_id = p.id AND ca.coauthorable_type = 'Decidim::Proposals::Proposal'\n    WHERE p.deleted_at IS NULL AND ca.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity') AND p.created_at >= NOW() - INTERVAL '$time_range days'\n    GROUP BY ca.decidim_author_id\n  ) p ON u.id = p.decidim_author_id\n  LEFT JOIN (\n    SELECT decidim_author_id, COUNT(*) as comment_count\n    FROM decidim_comments_comments \n    WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL '$time_range days'\n    GROUP BY decidim_author_id\n  ) c ON u.id = c.decidim_author_id\n  LEFT JOIN (\n    SELECT decidim_author_id, COUNT(*) as endorsement_count\n    FROM decidim_endorsements \n    WHERE created_at >= NOW() - INTERVAL '$time_range days'\n    GROUP BY decidim_author_id\n  ) e ON u.id = e.decidim_author_id\n  WHERE u.deleted_at IS NULL AND u.type = 'Decidim::User' AND u.confirmed_at IS NOT NULL\n)\nSELECT \n  CASE \n    WHEN total_activity >= 10 THEN 'High Engagement (10+)'\n    WHEN total_activity >= 3 THEN 'Medium Engagement (3-9)'\n    WHEN total_activity >= 1 THEN 'Low Engagement (1-2)'\n    ELSE 'No Activity'\n  END as engagement_level,\n  COUNT(*) as value\nFROM engagement_levels\nGROUP BY \n  CASE \n    WHEN total_activity >= 10 THEN 'High Engagement (10+)'\n    WHEN total_activity >= 3 THEN 'Medium Engagement (3-9)'\n    WHEN total_activity >= 1 THEN 'Low Engagement (1-2)'\n    ELSE 'No Activity'\n  END;",
         					"refId": "A"
         				}
         			],
@@ -758,7 +774,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "WITH proposal_metrics AS (\n  SELECT \n    p.id,\n    COALESCE(p.title->>'en', p.title->>'it', p.title->>'fr', p.title->>'de', p.title->>'es', p.title::text) as title,\n    p.created_at,\n    u.name as author_name,\n    u.nickname as author_nickname,\n    COALESCE(c.comments_count, 0) as comments_count,\n    COALESCE(e.endorsements_count, 0) as endorsements_count,\n    s.title->>'en' as state,\n    pp.slug as process_slug\n  FROM decidim_proposals_proposals p\n  LEFT JOIN decidim_users u ON p.decidim_author_id = u.id\n  LEFT JOIN (\n    SELECT decidim_commentable_id, COUNT(*) as comments_count\n    FROM decidim_comments_comments \n    WHERE deleted_at IS NULL AND decidim_commentable_type = 'Decidim::Proposals::Proposal'\n    GROUP BY decidim_commentable_id\n  ) c ON p.id = c.decidim_commentable_id\n  LEFT JOIN (\n    SELECT decidim_resource_id, COUNT(*) as endorsements_count\n    FROM decidim_endorsements \n    WHERE decidim_resource_type = 'Decidim::Proposals::Proposal'\n    GROUP BY decidim_resource_id\n  ) e ON p.id = e.decidim_resource_id\n  LEFT JOIN decidim_proposals_proposal_states s ON p.decidim_proposals_proposal_state_id = s.id\n  LEFT JOIN decidim_components comp ON p.decidim_component_id = comp.id\n  LEFT JOIN decidim_participatory_processes pp ON comp.decidim_participatory_space_id = pp.id AND comp.decidim_participatory_space_type = 'Decidim::ParticipatoryProcess'\n  WHERE p.deleted_at IS NULL AND p.created_at >= NOW() - INTERVAL '$time_range days'\n)\nSELECT \n  title,\n  author_name,\n  author_nickname,\n  comments_count,\n  endorsements_count,\n  state,\n  process_slug,\n  created_at\nFROM proposal_metrics\nORDER BY (comments_count + endorsements_count) DESC\nLIMIT 20;",
+        					"rawSql": "WITH proposal_metrics AS (\n  SELECT \n    p.id,\n    COALESCE(p.title->>'en', p.title->>'it', p.title->>'fr', p.title->>'de', p.title->>'es', p.title::text) as title,\n    p.created_at,\n    u.name as author_name,\n    u.nickname as author_nickname,\n    COALESCE(c.comments_count, 0) as comments_count,\n    COALESCE(e.endorsements_count, 0) as endorsements_count,\n    s.title->>'en' as state,\n    pp.slug as process_slug\n  FROM decidim_proposals_proposals p\n  LEFT JOIN decidim_coauthorships ca ON ca.coauthorable_id = p.id AND ca.coauthorable_type = 'Decidim::Proposals::Proposal' AND ca.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity')\n  LEFT JOIN decidim_users u ON ca.decidim_author_id = u.id\n  LEFT JOIN (\n    SELECT decidim_commentable_id, COUNT(*) as comments_count\n    FROM decidim_comments_comments \n    WHERE deleted_at IS NULL AND decidim_commentable_type = 'Decidim::Proposals::Proposal'\n    GROUP BY decidim_commentable_id\n  ) c ON p.id = c.decidim_commentable_id\n  LEFT JOIN (\n    SELECT resource_id, COUNT(*) as endorsements_count\n    FROM decidim_endorsements \n    WHERE resource_type = 'Decidim::Proposals::Proposal'\n    GROUP BY resource_id\n  ) e ON p.id = e.resource_id\n  LEFT JOIN decidim_proposals_proposal_states s ON p.decidim_proposals_proposal_state_id = s.id\n  LEFT JOIN decidim_components comp ON p.decidim_component_id = comp.id\n  LEFT JOIN decidim_participatory_processes pp ON comp.participatory_space_id = pp.id AND comp.participatory_space_type = 'Decidim::ParticipatoryProcess'\n  WHERE p.deleted_at IS NULL AND p.created_at >= NOW() - INTERVAL '$time_range days'\n)\nSELECT \n  title,\n  author_name,\n  author_nickname,\n  comments_count,\n  endorsements_count,\n  state,\n  process_slug,\n  created_at\nFROM proposal_metrics\nORDER BY (comments_count + endorsements_count) DESC\nLIMIT 20;",
         					"refId": "A"
         				}
         			],
@@ -768,7 +784,12 @@ data:
         	],
         	"preload": false,
         	"schemaVersion": 42,
-        	"tags": ["decidim", "admin", "reports", "RG001"],
+        	"tags": [
+        		"decidim",
+        		"admin",
+        		"reports",
+        		"RG001"
+        	],
         	"templating": {
         		"list": [
         			{
@@ -825,17 +846,16 @@ data:
         		"from": "now-30d",
         		"to": "now"
         	},
-        	"timepicker": {},
+        	"timepicker": {
+        		"hidden": true
+        	},
         	"timezone": "browser",
         	"title": "Administrative Reports - PAR-RG001",
         	"uid": "admin_reports_rg001",
-        	"version": 1
+        	"version": 5
         }
     communication-effectiveness.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": ["Gianfranco Cedro"],
         	"annotations": {
         		"list": [
         			{
@@ -899,7 +919,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -962,7 +984,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -1025,7 +1049,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -1088,7 +1114,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -1104,11 +1132,11 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT COUNT(*) as value FROM decidim_meetings_meetings WHERE deleted_at IS NULL AND start_time >= NOW() - INTERVAL '30 days';",
+        					"rawSql": "SELECT COUNT(*) as value FROM decidim_meetings_meetings WHERE deleted_at IS NULL AND start_time >= NOW() - INTERVAL '$time_range days';",
         					"refId": "A"
         				}
         			],
-        			"title": "Meetings (30 days)",
+        			"title": "Meetings ($time_range days)",
         			"type": "stat"
         		},
         		{
@@ -1346,7 +1374,9 @@ data:
         				"footer": {
         					"countRows": false,
         					"fields": "",
-        					"reducer": ["sum"],
+        					"reducer": [
+        						"sum"
+        					],
         					"show": false
         				},
         				"showHeader": true
@@ -1360,11 +1390,11 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT \n  p.id,\n  COALESCE(p.title->>'en', p.title->>'it', p.title->>'fr', p.title->>'de', p.title->>'es', p.title::text) as title,\n  p.created_at,\n  COUNT(DISTINCT c.id) as comment_count,\n  COUNT(DISTINCT e.id) as endorsement_count,\n  ROUND(\n    (COUNT(DISTINCT c.id) + COUNT(DISTINCT e.id)) / \n    GREATEST(EXTRACT(days FROM NOW() - p.created_at), 1), 2\n  ) as engagement_rate\nFROM decidim_proposals_proposals p\nLEFT JOIN decidim_comments_comments c ON p.id = c.decidim_commentable_id AND c.decidim_commentable_type = 'Decidim::Proposals::Proposal' AND c.deleted_at IS NULL\nLEFT JOIN decidim_endorsements e ON p.id = e.resource_id AND e.resource_type = 'Decidim::Proposals::Proposal'\nWHERE p.deleted_at IS NULL AND p.created_at >= NOW() - INTERVAL '30 days'\nGROUP BY p.id, p.title, p.created_at\nORDER BY engagement_rate DESC\nLIMIT 10;",
+        					"rawSql": "SELECT \n  p.id,\n  COALESCE(p.title->>'en', p.title->>'it', p.title->>'fr', p.title->>'de', p.title->>'es', p.title::text) as title,\n  p.created_at,\n  COUNT(DISTINCT c.id) as comment_count,\n  COUNT(DISTINCT e.id) as endorsement_count,\n  ROUND(\n    (COUNT(DISTINCT c.id) + COUNT(DISTINCT e.id)) / \n    GREATEST(EXTRACT(days FROM NOW() - p.created_at), 1), 2\n  ) as engagement_rate\nFROM decidim_proposals_proposals p\nLEFT JOIN decidim_comments_comments c ON p.id = c.decidim_commentable_id AND c.decidim_commentable_type = 'Decidim::Proposals::Proposal' AND c.deleted_at IS NULL\nLEFT JOIN decidim_endorsements e ON p.id = e.resource_id AND e.resource_type = 'Decidim::Proposals::Proposal'\nWHERE p.deleted_at IS NULL AND p.created_at >= NOW() - INTERVAL '$time_range days'\nGROUP BY p.id, p.title, p.created_at\nORDER BY engagement_rate DESC\nLIMIT 10;",
         					"refId": "A"
         				}
         			],
-        			"title": "Most Engaging Recent Proposals",
+        			"title": "Most Engaging Recent Proposals ($time_range days)",
         			"type": "table"
         		},
         		{
@@ -1412,7 +1442,9 @@ data:
         				"footer": {
         					"countRows": false,
         					"fields": "",
-        					"reducer": ["sum"],
+        					"reducer": [
+        						"sum"
+        					],
         					"show": false
         				},
         				"showHeader": true
@@ -1426,11 +1458,11 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT \n  m.id,\n  COALESCE(m.title->>'en', m.title->>'it', m.title->>'fr', m.title->>'de', m.title->>'es', m.title::text) as title,\n  m.start_time,\n  m.attendees_count,\n  m.attending_organizations,\n  CASE \n    WHEN m.start_time > NOW() THEN 'Upcoming'\n    WHEN m.end_time < NOW() THEN 'Completed'\n    ELSE 'Ongoing'\n  END as status\nFROM decidim_meetings_meetings m\nWHERE m.deleted_at IS NULL AND m.start_time >= NOW() - INTERVAL '60 days'\nORDER BY m.start_time DESC\nLIMIT 10;",
+        					"rawSql": "SELECT \n  m.id,\n  COALESCE(m.title->>'en', m.title->>'it', m.title->>'fr', m.title->>'de', m.title->>'es', m.title::text) as title,\n  m.start_time,\n  m.attendees_count,\n  m.attending_organizations,\n  CASE \n    WHEN m.start_time > NOW() THEN 'Upcoming'\n    WHEN m.end_time < NOW() THEN 'Completed'\n    ELSE 'Ongoing'\n  END as status\nFROM decidim_meetings_meetings m\nWHERE m.deleted_at IS NULL AND m.start_time >= NOW() - INTERVAL '$time_range days'\nORDER BY m.start_time DESC\nLIMIT 10;",
         					"refId": "A"
         				}
         			],
-        			"title": "Recent and Upcoming Meetings",
+        			"title": "Recent and Upcoming Meetings ($time_range days)",
         			"type": "table"
         		},
         		{
@@ -1469,7 +1501,9 @@ data:
         				},
         				"pieType": "pie",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -1534,7 +1568,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -1550,7 +1586,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT COUNT(DISTINCT decidim_author_id) as value\nFROM decidim_comments_comments \nWHERE created_at >= NOW() - INTERVAL '7 days' \nAND deleted_at IS NULL \nAND decidim_author_type = 'Decidim::User';",
+        					"rawSql": "SELECT COUNT(DISTINCT decidim_author_id) as value\nFROM decidim_comments_comments \nWHERE created_at >= NOW() - INTERVAL '7 days' \nAND deleted_at IS NULL \nAND decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity');",
         					"refId": "A"
         				}
         			],
@@ -1597,7 +1633,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -1613,7 +1651,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT ROUND(\n  (COUNT(CASE WHEN response_time <= 24 THEN 1 END) * 100.0) / \n  NULLIF(COUNT(*), 0), 2\n) as value\nFROM (\n  SELECT \n    p.id,\n    EXTRACT(epoch FROM (MIN(c.created_at) - p.created_at)) / 3600 as response_time\n  FROM decidim_proposals_proposals p\n  LEFT JOIN decidim_comments_comments c ON p.id = c.decidim_commentable_id \n    AND c.decidim_commentable_type = 'Decidim::Proposals::Proposal' \n    AND c.deleted_at IS NULL\n  WHERE p.deleted_at IS NULL \n    AND p.created_at >= NOW() - INTERVAL '30 days'\n    AND c.id IS NOT NULL\n  GROUP BY p.id, p.created_at\n) as response_times;",
+        					"rawSql": "SELECT ROUND(\n  (COUNT(CASE WHEN response_time <= 24 THEN 1 END) * 100.0) / \n  NULLIF(COUNT(*), 0), 2\n) as value\nFROM (\n  SELECT \n    p.id,\n    EXTRACT(epoch FROM (MIN(c.created_at) - p.created_at)) / 3600 as response_time\n  FROM decidim_proposals_proposals p\n  LEFT JOIN decidim_comments_comments c ON p.id = c.decidim_commentable_id \n    AND c.decidim_commentable_type = 'Decidim::Proposals::Proposal' \n    AND c.deleted_at IS NULL\n  WHERE p.deleted_at IS NULL \n    AND p.created_at >= NOW() - INTERVAL '$time_range days'\n    AND c.id IS NOT NULL\n  GROUP BY p.id, p.created_at\n) as response_times;",
         					"refId": "A"
         				}
         			],
@@ -1623,25 +1661,77 @@ data:
         	],
         	"refresh": "5m",
         	"schemaVersion": 41,
-        	"tags": ["decidim", "communication", "effectiveness"],
+        	"tags": [
+        		"decidim",
+        		"communication",
+        		"effectiveness"
+        	],
         	"templating": {
-        		"list": []
+        		"list": [
+        			{
+        				"current": {
+        					"text": "30",
+        					"value": "30"
+        				},
+        				"includeAll": false,
+        				"label": "Time Range (days)",
+        				"name": "time_range",
+        				"options": [
+        					{
+        						"selected": false,
+        						"text": "7",
+        						"value": "7"
+        					},
+        					{
+        						"selected": false,
+        						"text": "14",
+        						"value": "14"
+        					},
+        					{
+        						"selected": true,
+        						"text": "30",
+        						"value": "30"
+        					},
+        					{
+        						"selected": false,
+        						"text": "60",
+        						"value": "60"
+        					},
+        					{
+        						"selected": false,
+        						"text": "90",
+        						"value": "90"
+        					},
+        					{
+        						"selected": false,
+        						"text": "180",
+        						"value": "180"
+        					},
+        					{
+        						"selected": false,
+        						"text": "365",
+        						"value": "365"
+        					}
+        				],
+        				"query": "7,14,30,60,90,180,365",
+        				"type": "custom"
+        			}
+        		]
         	},
         	"time": {
         		"from": "now-30d",
         		"to": "now"
         	},
-        	"timepicker": {},
+        	"timepicker": {
+        		"hidden": true
+        	},
         	"timezone": "browser",
         	"title": "Communication Effectiveness Analytics",
         	"uid": "decidim_communication",
-        	"version": 1
+        	"version": 3
         }
     community-engagement.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": ["Gianfranco Cedro"],
         	"annotations": {
         		"list": [
         			{
@@ -1705,7 +1795,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -1721,11 +1813,11 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT COUNT(*) as value FROM decidim_users WHERE created_at >= NOW() - INTERVAL '30 days' AND deleted_at IS NULL AND type = 'Decidim::User';",
+        					"rawSql": "SELECT COUNT(*) as value FROM decidim_users WHERE created_at >= NOW() - INTERVAL '$time_range days' AND deleted_at IS NULL AND type = 'Decidim::User';",
         					"refId": "A"
         				}
         			],
-        			"title": "New Users (30 days)",
+        			"title": "New Users ($time_range days)",
         			"type": "stat"
         		},
         		{
@@ -1768,7 +1860,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -1784,11 +1878,11 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT COUNT(*) as value FROM decidim_comments_comments WHERE created_at >= NOW() - INTERVAL '30 days' AND deleted_at IS NULL;",
+        					"rawSql": "SELECT COUNT(*) as value FROM decidim_comments_comments WHERE created_at >= NOW() - INTERVAL '$time_range days' AND deleted_at IS NULL;",
         					"refId": "A"
         				}
         			],
-        			"title": "Comments (30 days)",
+        			"title": "Comments ($time_range days)",
         			"type": "stat"
         		},
         		{
@@ -1831,7 +1925,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -1847,11 +1943,11 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT COUNT(*) as value FROM decidim_proposals_proposals WHERE created_at >= NOW() - INTERVAL '30 days' AND deleted_at IS NULL;",
+        					"rawSql": "SELECT COUNT(*) as value FROM decidim_proposals_proposals WHERE created_at >= NOW() - INTERVAL '$time_range days' AND deleted_at IS NULL;",
         					"refId": "A"
         				}
         			],
-        			"title": "New Proposals (30 days)",
+        			"title": "New Proposals ($time_range days)",
         			"type": "stat"
         		},
         		{
@@ -1894,7 +1990,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -1910,7 +2008,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT ROUND(\n  (COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) * 100.0) / \n  NULLIF(COUNT(DISTINCT u.id), 0), 2\n) as value\nFROM decidim_users u\nLEFT JOIN decidim_comments_comments c ON u.id = c.decidim_author_id AND c.decidim_author_type = 'Decidim::User' AND c.deleted_at IS NULL\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User';",
+        					"rawSql": "SELECT ROUND(\n  (COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '$time_range days' THEN c.decidim_author_id END) * 100.0) / \n  NULLIF(COUNT(DISTINCT u.id), 0), 2\n) as value\nFROM decidim_users u\nLEFT JOIN decidim_comments_comments c ON u.id = c.decidim_author_id AND c.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity') AND c.deleted_at IS NULL\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User';",
         					"refId": "A"
         				}
         			],
@@ -2005,11 +2103,11 @@ data:
         					"editorMode": "code",
         					"format": "time_series",
         					"rawQuery": true,
-        					"rawSql": "SELECT \n  DATE_TRUNC('day', created_at) as time,\n  COUNT(*) as \"Comments\"\nFROM decidim_comments_comments \nWHERE created_at >= NOW() - INTERVAL '30 days' AND deleted_at IS NULL\nGROUP BY DATE_TRUNC('day', created_at)\nUNION ALL\nSELECT \n  DATE_TRUNC('day', created_at) as time,\n  COUNT(*) as \"Proposals\"\nFROM decidim_proposals_proposals \nWHERE created_at >= NOW() - INTERVAL '30 days' AND deleted_at IS NULL\nGROUP BY DATE_TRUNC('day', created_at)\nORDER BY time;",
+        					"rawSql": "SELECT \n  DATE_TRUNC('day', created_at) as time,\n  COUNT(*) as \"Comments\"\nFROM decidim_comments_comments \nWHERE created_at >= NOW() - INTERVAL '$time_range days' AND deleted_at IS NULL\nGROUP BY DATE_TRUNC('day', created_at)\nUNION ALL\nSELECT \n  DATE_TRUNC('day', created_at) as time,\n  COUNT(*) as \"Proposals\"\nFROM decidim_proposals_proposals \nWHERE created_at >= NOW() - INTERVAL '$time_range days' AND deleted_at IS NULL\nGROUP BY DATE_TRUNC('day', created_at)\nORDER BY time;",
         					"refId": "A"
         				}
         			],
-        			"title": "Daily Activity Trend (30 days)",
+        			"title": "Daily Activity Trend ($time_range days)",
         			"type": "timeseries"
         		},
         		{
@@ -2048,7 +2146,9 @@ data:
         				},
         				"pieType": "pie",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -2118,7 +2218,9 @@ data:
         				"footer": {
         					"countRows": false,
         					"fields": "",
-        					"reducer": ["sum"],
+        					"reducer": [
+        						"sum"
+        					],
         					"show": false
         				},
         				"showHeader": true
@@ -2132,7 +2234,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT \n  u.nickname,\n  u.name,\n  COUNT(DISTINCT c.id) as comments_count,\n  COUNT(DISTINCT p.id) as proposals_count,\n  COUNT(DISTINCT e.id) as endorsements_count,\n  (COUNT(DISTINCT c.id) + COUNT(DISTINCT p.id) + COUNT(DISTINCT e.id)) as total_activity\nFROM decidim_users u\nLEFT JOIN decidim_comments_comments c ON u.id = c.decidim_author_id AND c.decidim_author_type = 'Decidim::User' AND c.deleted_at IS NULL\nLEFT JOIN decidim_proposals_proposals p ON u.id = p.decidim_author_id AND p.decidim_author_type = 'Decidim::User' AND p.deleted_at IS NULL\nLEFT JOIN decidim_endorsements e ON u.id = e.decidim_author_id AND e.decidim_author_type = 'Decidim::User'\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY u.id, u.nickname, u.name\nHAVING (COUNT(DISTINCT c.id) + COUNT(DISTINCT p.id) + COUNT(DISTINCT e.id)) > 0\nORDER BY total_activity DESC\nLIMIT 10;",
+        					"rawSql": "SELECT \n  u.nickname,\n  u.name,\n  COUNT(DISTINCT c.id) as comments_count,\n  COUNT(DISTINCT ca.coauthorable_id) as proposals_count,\n  COUNT(DISTINCT e.id) as endorsements_count,\n  (COUNT(DISTINCT c.id) + COUNT(DISTINCT ca.coauthorable_id) + COUNT(DISTINCT e.id)) as total_activity\nFROM decidim_users u\nLEFT JOIN decidim_comments_comments c ON u.id = c.decidim_author_id AND c.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity') AND c.deleted_at IS NULL\nLEFT JOIN decidim_coauthorships ca ON u.id = ca.decidim_author_id AND ca.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity') AND ca.coauthorable_type = 'Decidim::Proposals::Proposal'\nLEFT JOIN decidim_proposals_proposals p ON ca.coauthorable_id = p.id AND p.deleted_at IS NULL\nLEFT JOIN decidim_endorsements e ON u.id = e.decidim_author_id AND e.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity')\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY u.id, u.nickname, u.name\nHAVING (COUNT(DISTINCT c.id) + COUNT(DISTINCT ca.coauthorable_id) + COUNT(DISTINCT e.id)) > 0\nORDER BY total_activity DESC\nLIMIT 10;",
         					"refId": "A"
         				}
         			],
@@ -2184,7 +2286,9 @@ data:
         				"footer": {
         					"countRows": false,
         					"fields": "",
-        					"reducer": ["sum"],
+        					"reducer": [
+        						"sum"
+        					],
         					"show": false
         				},
         				"showHeader": true
@@ -2198,7 +2302,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT \n  pp.slug as process_slug,\n  COALESCE(pp.title->>'en', pp.title->>'it', pp.title->>'fr', pp.title->>'de', pp.title->>'es', pp.title::text) as process_title,\n  COUNT(DISTINCT p.id) as proposals_count,\n  COUNT(DISTINCT c.id) as comments_count,\n  COUNT(DISTINCT e.id) as endorsements_count,\n  (COUNT(DISTINCT p.id) + COUNT(DISTINCT c.id) + COUNT(DISTINCT e.id)) as total_engagement\nFROM decidim_participatory_processes pp\nLEFT JOIN decidim_components comp ON pp.id = comp.decidim_participatory_space_id AND comp.decidim_participatory_space_type = 'Decidim::ParticipatoryProcess'\nLEFT JOIN decidim_proposals_proposals p ON comp.id = p.decidim_component_id AND p.deleted_at IS NULL\nLEFT JOIN decidim_comments_comments c ON (p.id = c.decidim_commentable_id AND c.decidim_commentable_type = 'Decidim::Proposals::Proposal') AND c.deleted_at IS NULL\nLEFT JOIN decidim_endorsements e ON p.id = e.resource_id AND e.resource_type = 'Decidim::Proposals::Proposal'\nWHERE pp.deleted_at IS NULL\nGROUP BY pp.id, pp.slug, pp.title\nORDER BY total_engagement DESC\nLIMIT 10;",
+        					"rawSql": "SELECT \n  pp.slug as process_slug,\n  COALESCE(pp.title->>'en', pp.title->>'it', pp.title->>'fr', pp.title->>'de', pp.title->>'es', pp.title::text) as process_title,\n  COUNT(DISTINCT p.id) as proposals_count,\n  COUNT(DISTINCT c.id) as comments_count,\n  COUNT(DISTINCT e.id) as endorsements_count,\n  (COUNT(DISTINCT p.id) + COUNT(DISTINCT c.id) + COUNT(DISTINCT e.id)) as total_engagement\nFROM decidim_participatory_processes pp\nLEFT JOIN decidim_components comp ON pp.id = comp.participatory_space_id AND comp.participatory_space_type = 'Decidim::ParticipatoryProcess'\nLEFT JOIN decidim_proposals_proposals p ON comp.id = p.decidim_component_id AND p.deleted_at IS NULL\nLEFT JOIN decidim_comments_comments c ON (p.id = c.decidim_commentable_id AND c.decidim_commentable_type = 'Decidim::Proposals::Proposal') AND c.deleted_at IS NULL\nLEFT JOIN decidim_endorsements e ON p.id = e.resource_id AND e.resource_type = 'Decidim::Proposals::Proposal'\nWHERE pp.deleted_at IS NULL\nGROUP BY pp.id, pp.slug, pp.title\nORDER BY total_engagement DESC\nLIMIT 10;",
         					"refId": "A"
         				}
         			],
@@ -2208,25 +2312,77 @@ data:
         	],
         	"refresh": "5m",
         	"schemaVersion": 41,
-        	"tags": ["decidim", "engagement", "community"],
+        	"tags": [
+        		"decidim",
+        		"engagement",
+        		"community"
+        	],
         	"templating": {
-        		"list": []
+        		"list": [
+        			{
+        				"current": {
+        					"text": "30",
+        					"value": "30"
+        				},
+        				"includeAll": false,
+        				"label": "Time Range (days)",
+        				"name": "time_range",
+        				"options": [
+        					{
+        						"selected": false,
+        						"text": "7",
+        						"value": "7"
+        					},
+        					{
+        						"selected": false,
+        						"text": "14",
+        						"value": "14"
+        					},
+        					{
+        						"selected": true,
+        						"text": "30",
+        						"value": "30"
+        					},
+        					{
+        						"selected": false,
+        						"text": "60",
+        						"value": "60"
+        					},
+        					{
+        						"selected": false,
+        						"text": "90",
+        						"value": "90"
+        					},
+        					{
+        						"selected": false,
+        						"text": "180",
+        						"value": "180"
+        					},
+        					{
+        						"selected": false,
+        						"text": "365",
+        						"value": "365"
+        					}
+        				],
+        				"query": "7,14,30,60,90,180,365",
+        				"type": "custom"
+        			}
+        		]
         	},
         	"time": {
         		"from": "now-30d",
         		"to": "now"
         	},
-        	"timepicker": {},
+        	"timepicker": {
+        		"hidden": true
+        	},
         	"timezone": "browser",
         	"title": "Community Engagement Analytics",
         	"uid": "decidim_engagement",
-        	"version": 1
+        	"version": 4
         }
     decidim-0.30-enhanced.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": ["Gianfranco Cedro"],
         	"annotations": {
         		"list": [
         			{
@@ -2288,7 +2444,9 @@ data:
         				"minVizWidth": 75,
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -2352,7 +2510,9 @@ data:
         				"minVizWidth": 75,
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -2416,7 +2576,9 @@ data:
         				"minVizWidth": 75,
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -2480,7 +2642,9 @@ data:
         				"minVizWidth": 75,
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -2551,7 +2715,9 @@ data:
         				"footer": {
         					"countRows": false,
         					"fields": "",
-        					"reducer": ["sum"],
+        					"reducer": [
+        						"sum"
+        					],
         					"show": false
         				},
         				"showHeader": true
@@ -2619,7 +2785,9 @@ data:
         				"footer": {
         					"countRows": false,
         					"fields": "",
-        					"reducer": ["sum"],
+        					"reducer": [
+        						"sum"
+        					],
         					"show": false
         				},
         				"showHeader": true
@@ -2775,7 +2943,9 @@ data:
         				},
         				"pieType": "pie",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -2803,7 +2973,10 @@ data:
         	],
         	"preload": false,
         	"schemaVersion": 41,
-        	"tags": ["decidim", "analytics"],
+        	"tags": [
+        		"decidim",
+        		"analytics"
+        	],
         	"templating": {
         		"list": []
         	},
@@ -2811,17 +2984,16 @@ data:
         		"from": "now-30d",
         		"to": "now"
         	},
-        	"timepicker": {},
+        	"timepicker": {
+        		"hidden": true
+        	},
         	"timezone": "browser",
         	"title": "Decidim 0.30 Enhanced Analytics",
         	"uid": "decidim_030_enhanced",
-        	"version": 1
+        	"version": 3
         }
     decidim-analytics.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": ["Gianfranco Cedro"],
         	"annotations": {
         		"list": [
         			{
@@ -2883,7 +3055,9 @@ data:
         				"minVizWidth": 75,
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -2947,7 +3121,9 @@ data:
         				"minVizWidth": 75,
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -3018,7 +3194,9 @@ data:
         				"footer": {
         					"countRows": false,
         					"fields": "",
-        					"reducer": ["sum"],
+        					"reducer": [
+        						"sum"
+        					],
         					"show": false
         				},
         				"showHeader": true
@@ -3086,7 +3264,9 @@ data:
         				"footer": {
         					"countRows": false,
         					"fields": "",
-        					"reducer": ["sum"],
+        					"reducer": [
+        						"sum"
+        					],
         					"show": false
         				},
         				"showHeader": true
@@ -3209,7 +3389,9 @@ data:
         	],
         	"preload": false,
         	"schemaVersion": 41,
-        	"tags": ["decidim"],
+        	"tags": [
+        		"decidim"
+        	],
         	"templating": {
         		"list": []
         	},
@@ -3217,17 +3399,16 @@ data:
         		"from": "2024-07-02T11:00:00.000Z",
         		"to": "2026-07-02T10:59:59.998Z"
         	},
-        	"timepicker": {},
+        	"timepicker": {
+        		"hidden": true
+        	},
         	"timezone": "browser",
         	"title": "Decidim Analytics (PostgreSQL)",
         	"uid": "cee4f9hzwv0g0d",
-        	"version": 4
+        	"version": 3
         }
     newsletter-communication-impact.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": ["Gianfranco Cedro"],
         	"annotations": {
         		"list": [
         			{
@@ -3304,7 +3485,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -3368,7 +3551,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -3436,7 +3621,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -3500,7 +3687,9 @@ data:
         				"justifyMode": "auto",
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -3810,7 +3999,9 @@ data:
         				"footer": {
         					"countRows": false,
         					"fields": "",
-        					"reducer": ["sum"],
+        					"reducer": [
+        						"sum"
+        					],
         					"show": false
         				},
         				"showHeader": true
@@ -3835,7 +4026,12 @@ data:
         	],
         	"preload": false,
         	"schemaVersion": 41,
-        	"tags": ["decidim", "communication", "newsletter", "effectiveness"],
+        	"tags": [
+        		"decidim",
+        		"communication",
+        		"newsletter",
+        		"effectiveness"
+        	],
         	"templating": {
         		"list": [
         			{
@@ -3887,17 +4083,16 @@ data:
         		"from": "now-30d",
         		"to": "now"
         	},
-        	"timepicker": {},
+        	"timepicker": {
+        		"hidden": true
+        	},
         	"timezone": "browser",
         	"title": "Newsletter & Communication Impact",
         	"uid": "newsletter_communication_impact",
-        	"version": 1
+        	"version": 3
         }
     participation-demographics.json: |
         {
-        	"_license": "SPDX-License-Identifier: AGPL-3.0",
-        	"_copyright": "Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0",
-        	"_authors": ["Gianfranco Cedro"],
         	"annotations": {
         		"list": [
         			{
@@ -3958,7 +4153,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT \n  CASE \n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) < 25 THEN '< 25'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 25 AND 34 THEN '25-34'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 35 AND 44 THEN '35-44'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 45 AND 54 THEN '45-54'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 55 AND 64 THEN '55-64'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) >= 65 THEN '65+'\n    ELSE 'Unknown'\n  END as age_group,\n  COUNT(*) as value\nFROM decidim_users u\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY age_group\nORDER BY value DESC;",
+        					"rawSql": "SELECT \n  CASE \n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) < 25 THEN '< 25'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) BETWEEN 25 AND 34 THEN '25-34'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) BETWEEN 35 AND 44 THEN '35-44'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) BETWEEN 45 AND 54 THEN '45-54'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) BETWEEN 55 AND 64 THEN '55-64'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) >= 65 THEN '65+'\n    ELSE 'Unknown'\n  END as age_group,\n  COUNT(*) as value\nFROM decidim_users u\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY age_group\nORDER BY value DESC;",
         					"refId": "A"
         				}
         			],
@@ -4001,7 +4196,9 @@ data:
         				},
         				"pieType": "pie",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -4019,11 +4216,11 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT 'No Area' as area_name,\n  COUNT(DISTINCT u.id) as value\nFROM decidim_users u\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY area_name\nORDER BY value DESC\nLIMIT 10;",
+        					"rawSql": "SELECT \n  COALESCE(NULLIF(u.extended_data->>'country', ''), 'Unknown') as area_name,\n  COUNT(DISTINCT u.id) as value\nFROM decidim_users u\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY area_name\nORDER BY value DESC\nLIMIT 10;",
         					"refId": "A"
         				}
         			],
-        			"title": "Geographic Distribution (by Scope)",
+        			"title": "Geographic Distribution (by Country)",
         			"type": "piechart"
         		},
         		{
@@ -4166,7 +4363,9 @@ data:
         				"footer": {
         					"countRows": false,
         					"fields": "",
-        					"reducer": ["sum"],
+        					"reducer": [
+        						"sum"
+        					],
         					"show": false
         				},
         				"showHeader": true
@@ -4180,7 +4379,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT 'No Area' as area_name,\n  COUNT(DISTINCT u.id) as total_users,\n  COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) as active_users_30d,\n  COUNT(DISTINCT cp.decidim_proposal_id) as proposals_created,\n  COUNT(DISTINCT comm.id) as comments_made,\n  ROUND((COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) * 100.0) / NULLIF(COUNT(DISTINCT u.id), 0), 2) as activity_rate\nFROM decidim_users u\nLEFT JOIN decidim_coauthorships cp ON u.id = cp.decidim_author_id AND cp.decidim_author_type = 'Decidim::User'\nLEFT JOIN decidim_comments_comments comm ON u.id = comm.decidim_author_id AND comm.decidim_author_type = 'Decidim::User' AND comm.deleted_at IS NULL\nLEFT JOIN (SELECT DISTINCT decidim_author_id, created_at FROM decidim_comments_comments WHERE decidim_author_type = 'Decidim::User' AND deleted_at IS NULL) c ON u.id = c.decidim_author_id\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY area_name\nHAVING COUNT(DISTINCT u.id) > 0\nORDER BY total_users DESC\nLIMIT 10;",
+        					"rawSql": "SELECT \n  COALESCE(NULLIF(u.extended_data->>'country', ''), 'Unknown') as area_name,\n  COUNT(DISTINCT u.id) as total_users,\n  COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) as active_users_30d,\n  COUNT(DISTINCT cp.coauthorable_id) as proposals_created,\n  COUNT(DISTINCT comm.id) as comments_made,\n  ROUND((COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) * 100.0) / NULLIF(COUNT(DISTINCT u.id), 0), 2) as activity_rate\nFROM decidim_users u\nLEFT JOIN decidim_coauthorships cp ON u.id = cp.decidim_author_id AND cp.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity') AND cp.coauthorable_type = 'Decidim::Proposals::Proposal'\nLEFT JOIN decidim_comments_comments comm ON u.id = comm.decidim_author_id AND comm.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity') AND comm.deleted_at IS NULL\nLEFT JOIN (SELECT DISTINCT decidim_author_id, created_at FROM decidim_comments_comments WHERE decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity') AND deleted_at IS NULL) c ON u.id = c.decidim_author_id\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY area_name\nHAVING COUNT(DISTINCT u.id) > 0\nORDER BY total_users DESC\nLIMIT 10;",
         					"refId": "A"
         				}
         			],
@@ -4232,7 +4431,9 @@ data:
         				"footer": {
         					"countRows": false,
         					"fields": "",
-        					"reducer": ["sum"],
+        					"reducer": [
+        						"sum"
+        					],
         					"show": false
         				},
         				"showHeader": true
@@ -4246,7 +4447,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT \n  CASE \n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) < 25 THEN '< 25'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 25 AND 34 THEN '25-34'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 35 AND 44 THEN '35-44'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 45 AND 54 THEN '45-54'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 55 AND 64 THEN '55-64'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) >= 65 THEN '65+'\n    ELSE 'Unknown'\n  END as age_group,\n  COUNT(DISTINCT u.id) as total_users,\n  COUNT(DISTINCT cp.decidim_proposal_id) as proposals_created,\n  COUNT(DISTINCT c.id) as comments_made,\n  ROUND(AVG(EXTRACT(days FROM NOW() - u.last_sign_in_at)), 1) as avg_days_since_login\nFROM decidim_users u\nLEFT JOIN decidim_coauthorships cp ON u.id = cp.decidim_author_id AND cp.decidim_author_type = 'Decidim::User'\nLEFT JOIN decidim_comments_comments c ON u.id = c.decidim_author_id AND c.decidim_author_type = 'Decidim::User' AND c.deleted_at IS NULL\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY age_group\nORDER BY total_users DESC;",
+        					"rawSql": "SELECT \n  CASE \n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) < 25 THEN '< 25'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) BETWEEN 25 AND 34 THEN '25-34'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) BETWEEN 35 AND 44 THEN '35-44'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) BETWEEN 45 AND 54 THEN '45-54'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) BETWEEN 55 AND 64 THEN '55-64'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, NULLIF(u.extended_data->>'date_of_birth', '')::date)) >= 65 THEN '65+'\n    ELSE 'Unknown'\n  END as age_group,\n  COUNT(DISTINCT u.id) as total_users,\n  COUNT(DISTINCT cp.coauthorable_id) as proposals_created,\n  COUNT(DISTINCT c.id) as comments_made,\n  ROUND(AVG(EXTRACT(days FROM NOW() - u.last_sign_in_at)), 1) as avg_days_since_login\nFROM decidim_users u\nLEFT JOIN decidim_coauthorships cp ON u.id = cp.decidim_author_id AND cp.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity') AND cp.coauthorable_type = 'Decidim::Proposals::Proposal'\nLEFT JOIN decidim_comments_comments c ON u.id = c.decidim_author_id AND c.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity') AND c.deleted_at IS NULL\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY age_group\nORDER BY total_users DESC;",
         					"refId": "A"
         				}
         			],
@@ -4341,7 +4542,7 @@ data:
         					"editorMode": "code",
         					"format": "time_series",
         					"rawQuery": true,
-        					"rawSql": "SELECT \n  DATE_TRUNC('week', u.last_sign_in_at) as time,\n  COUNT(DISTINCT u.id) as \"Active Users\"\nFROM decidim_users u\nWHERE u.last_sign_in_at >= NOW() - INTERVAL '12 weeks' \n  AND u.deleted_at IS NULL \n  AND u.type = 'Decidim::User'\nGROUP BY DATE_TRUNC('week', u.last_sign_in_at)\nORDER BY time;",
+        					"rawSql": "SELECT \n  DATE_TRUNC('week', action_time) as time,\n  COUNT(DISTINCT user_id) as \"Active Users\"\nFROM (\n  SELECT decidim_author_id as user_id, created_at as action_time\n  FROM decidim_comments_comments\n  WHERE deleted_at IS NULL AND decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity')\n    AND created_at >= NOW() - INTERVAL '12 weeks'\n  UNION ALL\n  SELECT ca.decidim_author_id as user_id, p.created_at as action_time\n  FROM decidim_coauthorships ca\n  JOIN decidim_proposals_proposals p ON ca.coauthorable_id = p.id AND ca.coauthorable_type = 'Decidim::Proposals::Proposal'\n  WHERE p.deleted_at IS NULL AND ca.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity')\n    AND p.created_at >= NOW() - INTERVAL '12 weeks'\n  UNION ALL\n  SELECT decidim_author_id as user_id, created_at as action_time\n  FROM decidim_endorsements\n  WHERE decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity')\n    AND created_at >= NOW() - INTERVAL '12 weeks'\n) activities\nGROUP BY DATE_TRUNC('week', action_time)\nORDER BY time;",
         					"refId": "A"
         				}
         			],
@@ -4385,7 +4586,9 @@ data:
         			"options": {
         				"orientation": "auto",
         				"reduceOptions": {
-        					"calcs": ["lastNotNull"],
+        					"calcs": [
+        						"lastNotNull"
+        					],
         					"fields": "",
         					"values": false
         				},
@@ -4402,7 +4605,7 @@ data:
         					"editorMode": "code",
         					"format": "table",
         					"rawQuery": true,
-        					"rawSql": "SELECT \n  ROUND(\n    (COUNT(CASE WHEN u.last_sign_in_at >= NOW() - INTERVAL '7 days' THEN 1 END) * 100.0) / \n    NULLIF(COUNT(*), 0), 2\n  ) as value\nFROM decidim_users u\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User';",
+        					"rawSql": "WITH active_users AS (\n  SELECT decidim_author_id as user_id FROM decidim_comments_comments\n  WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL '7 days'\n    AND decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity')\n  UNION\n  SELECT ca.decidim_author_id as user_id FROM decidim_coauthorships ca\n  JOIN decidim_proposals_proposals p ON ca.coauthorable_id = p.id\n    AND ca.coauthorable_type = 'Decidim::Proposals::Proposal'\n    AND ca.decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity')\n  WHERE p.deleted_at IS NULL AND p.created_at >= NOW() - INTERVAL '7 days'\n  UNION\n  SELECT decidim_author_id as user_id FROM decidim_endorsements\n  WHERE created_at >= NOW() - INTERVAL '7 days'\n    AND decidim_author_type IN ('Decidim::User', 'Decidim::UserBaseEntity')\n)\nSELECT\n  ROUND(\n    (COUNT(DISTINCT au.user_id) * 100.0) /\n    NULLIF(COUNT(DISTINCT u.id), 0), 2\n  ) as value\nFROM decidim_users u\nLEFT JOIN active_users au ON u.id = au.user_id\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User';",
         					"refId": "A"
         				}
         			],
@@ -4412,12 +4615,23 @@ data:
         	],
         	"refresh": "5m",
         	"schemaVersion": 41,
-        	"tags": ["decidim", "demographics", "participation"],
-        	"templating": { "list": [] },
-        	"time": { "from": "now-30d", "to": "now" },
-        	"timepicker": {},
+        	"tags": [
+        		"decidim",
+        		"demographics",
+        		"participation"
+        	],
+        	"templating": {
+        		"list": []
+        	},
+        	"time": {
+        		"from": "now-30d",
+        		"to": "now"
+        	},
+        	"timepicker": {
+        		"hidden": true
+        	},
         	"timezone": "browser",
         	"title": "Participation Demographics",
         	"uid": "decidim_demographics",
-        	"version": 1
+        	"version": 4
         }
