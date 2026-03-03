@@ -8,6 +8,7 @@
 .ldt-admin-header {
 	height: 56px;
 	max-height: 56px;
+	padding-right: 1px;
 	background-color: #fcfcfc;
 	font-family: 'Open Sans', sans-serif !important;
 
@@ -180,8 +181,8 @@
 			transition: transform 0.2s ease;
 		}
 
-		&[aria-expanded='false'] svg {
-			transform: rotate(-90deg);
+		&[aria-expanded='true'] svg {
+			transform: rotate(180deg);
 		}
 	}
 
