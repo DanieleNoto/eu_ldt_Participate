@@ -403,19 +403,14 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 					await adminPage.waitForLoadState('load');
 					console.log(`Navigated to public debate page: ${reportedContentUrl}`);
 
-					// Verify the comment is now visible again in the public view
-					const commentIsVisible = !(await processModerationPage.verifyCommentNotPresentById(testCommentId));
-					expect(commentIsVisible).toBe(true);
-					console.log(`Verified: Comment ID ${testCommentId} is now visible in the public debate`);
-
-					// Additional verification: Check that the comment element is present
+					// Verify the comment is now visible again in the public view.
 					const commentElement = adminPage.locator(`#comment_${testCommentId}`);
 					await expect(commentElement).toBeVisible();
-					console.log('✓ The reported content is still visible on the public page');
+					console.log(`Verified: Comment ID ${testCommentId} is now visible in the public debate`);
 				}
 
-				console.log('✓ The moderation status has been updated to unreported');
-				console.log('✓ The content has been removed from the moderation table');
+				console.log('The moderation status has been updated to unreported');
+				console.log('The content has been removed from the moderation table');
 				console.log('Result: The reported content is kept visible and moderation status updated');
 			});
 		});

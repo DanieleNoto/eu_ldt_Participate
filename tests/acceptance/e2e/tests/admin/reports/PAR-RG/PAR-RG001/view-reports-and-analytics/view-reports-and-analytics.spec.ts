@@ -66,7 +66,7 @@ test.describe('[PAR-RG001] - View reports and analytics', () => {
 
 				await page.waitForURL(/\/d\//);
 
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				// Wait for dashboard panels to be rendered
 				await grafanaDashboardPage.waitForDashboardDetailLoaded();

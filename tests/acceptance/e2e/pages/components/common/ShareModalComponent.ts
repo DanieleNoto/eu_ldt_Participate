@@ -4,6 +4,7 @@
  * Denise Scarcelli
  * Gianfranco Cedro
  * Denis Vasilev Dimchev
+ * Simone Bianchelli
  */
 
 import { expect, type Locator, type Page } from '@playwright/test';
@@ -37,7 +38,7 @@ export class ShareModalComponent {
 		// Modal container and dialog
 		this.modalDialog = this.page.locator('#socialShare[role="dialog"]');
 		this.closeButton = this.page.locator('button[data-dialog-close="socialShare"]');
-		this.modalTitle = this.page.locator('#dialog-title-socialShare');
+		this.modalTitle = this.page.locator('#dialog-title-social-share-modal');
 
 		// Social sharing options
 		this.shareList = this.page.locator('.share-modal__list[data-social-share]');

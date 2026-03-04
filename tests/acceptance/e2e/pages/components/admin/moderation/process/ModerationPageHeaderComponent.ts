@@ -103,12 +103,12 @@ export class ModerationPageHeaderComponent {
 	// Filter actions
 	async clickNotHiddenFilter(): Promise<void> {
 		await this.notHiddenLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async clickHiddenFilter(): Promise<void> {
 		await this.hiddenLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async openFilterDropdown(): Promise<void> {
@@ -129,7 +129,7 @@ export class ModerationPageHeaderComponent {
 			await this.proposalTypeFilter.click();
 		}
 
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async filterByComment(): Promise<void> {
@@ -144,13 +144,13 @@ export class ModerationPageHeaderComponent {
 	async searchModerations(searchTerm: string): Promise<void> {
 		await this.searchInput.fill(searchTerm);
 		await this.searchButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async clearSearch(): Promise<void> {
 		await this.searchInput.clear();
 		await this.searchButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async getSearchValue(): Promise<string> {

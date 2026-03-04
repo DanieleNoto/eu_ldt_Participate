@@ -131,7 +131,7 @@ test.describe('[PAR-PAS005] – Review result of specific surveys @reserved', ()
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -154,7 +154,7 @@ test.describe('[PAR-PAS005] – Review result of specific surveys @reserved', ()
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we're on the edit page with process information using Page Object
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -189,7 +189,7 @@ test.describe('[PAR-PAS005] – Review result of specific surveys @reserved', ()
 				await adminPage.getByRole('link', { name: 'Show responses' }).click();
 
 				// Wait for the responses page to load
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				console.log('Clicked on Show responses button');
 			});
@@ -236,7 +236,7 @@ test.describe('[PAR-PAS005] – Review result of specific surveys @reserved', ()
 
 				// Wait for the new tab to open
 				const page1 = await page1Promise;
-				await page1.waitForLoadState('networkidle');
+				await page1.waitForLoadState('load');
 
 				console.log('Clicked on Show answers icon for first response');
 
@@ -283,7 +283,7 @@ test.describe('[PAR-PAS005] – Review result of specific surveys @reserved', ()
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -306,7 +306,7 @@ test.describe('[PAR-PAS005] – Review result of specific surveys @reserved', ()
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we're on the edit page with process information using Page Object
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
