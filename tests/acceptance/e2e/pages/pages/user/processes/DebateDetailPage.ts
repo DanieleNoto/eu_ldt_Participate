@@ -1008,11 +1008,17 @@ export class DebateDetailPage {
 	// === ENDORSEMENT/LIKE METHODS ===
 
 	/**
-	 * Click the like/endorsement button
+	 * Click the like/endorsement button.
 	 */
 	async clickEndorsementButton(): Promise<void> {
+		const wasLiked = await this.isDebateLikedByCurrentUser();
 		await this.endorsementButton.click();
-		await this.page.waitForLoadState('networkidle');
+		// Wait for the DOM to reflect the new state
+		if (wasLiked) {
+			await expect(this.endorsementButton).not.toHaveAttribute('aria-label', /undo/i);
+		} else {
+			await expect(this.endorsementButton).toHaveAttribute('aria-label', /undo/i);
+		}
 	}
 
 	/**

@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
+ * Simone Bianchelli
  */
 
 import { SidebarProcessDetailComponent } from '@pages/components/admin/process/detail/SidebarProcessDetailComponent';
@@ -127,10 +128,15 @@ export class NewDebatePage extends BaseAdminPage {
 	}
 
 	/**
-	 * Click the create debate button
+	 * Click the create debate button and wait for the redirect to the debates list.
+	 * Uses Promise.all + noWaitAfter to avoid "Target page closed" errors while
+	 * ensuring the navigation has completed before returning.
 	 */
 	async clickCreateDebate(): Promise<void> {
-		await this.createDebateButton.click();
+		await Promise.all([
+			this.page.waitForURL(/\/manage\/debates$/),
+			this.createDebateButton.click({ noWaitAfter: true })
+		]);
 	}
 
 	/**

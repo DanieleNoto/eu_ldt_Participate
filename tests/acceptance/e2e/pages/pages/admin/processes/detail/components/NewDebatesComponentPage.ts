@@ -8,6 +8,7 @@
 
 import { expect, Locator, Page } from '@playwright/test';
 import { LocalizationUtils } from '../../../../../../utils/localization.utils';
+import { pasteTiptapContent } from '../../../../../../utils/tiptap.utils';
 import { SidebarProcessDetailComponent } from '../../../../../components/admin/process/detail/SidebarProcessDetailComponent';
 import { BaseAdminPage } from '../../../BaseAdminPage';
 
@@ -131,7 +132,7 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 
 		// Wait for the rich text editor to be ready
 		await editorLocator.waitFor({ state: 'visible' });
-		await editorLocator.fill(content);
+		await pasteTiptapContent(editorLocator, content);
 	}
 
 	async getGlobalAnnouncement(): Promise<string> {
@@ -153,7 +154,7 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 		await editorLocator.scrollIntoViewIfNeeded();
 		// Wait for the rich text editor to be ready
 		await editorLocator.waitFor({ state: 'visible' });
-		await editorLocator.fill(content);
+		await pasteTiptapContent(editorLocator, content);
 	}
 
 	async getStepAnnouncement(): Promise<string> {
@@ -183,23 +184,25 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	}
 
 	async blockComments(): Promise<void> {
-		const checkboxes = await this.commentsBlockedToggle.all();
-		for (const checkbox of checkboxes) {
-			if (!(await checkbox.isChecked())) {
-				await checkbox.check();
-				await this.page.waitForTimeout(50);
-			}
-		}
+		await this.commentsBlockedToggle.evaluateAll((els: HTMLInputElement[]) => {
+			els.forEach(el => {
+				if (!el.checked) {
+					el.checked = true;
+					el.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+			});
+		});
 	}
 
 	async unblockComments(): Promise<void> {
-		const checkboxes = await this.commentsBlockedToggle.all();
-		for (const checkbox of checkboxes) {
-			if (await checkbox.isChecked()) {
-				await checkbox.uncheck();
-				await this.page.waitForTimeout(50);
-			}
-		}
+		await this.commentsBlockedToggle.evaluateAll((els: HTMLInputElement[]) => {
+			els.forEach(el => {
+				if (el.checked) {
+					el.checked = false;
+					el.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+			});
+		});
 	}
 
 	async areCommentsBlocked(): Promise<boolean> {
@@ -245,8 +248,8 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 		await expect(this.submitButton).toBeVisible();
 
 		await Promise.all([
-			this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components/),
-			this.submitButton.click()
+			this.page.waitForURL(/\/admin\/participatory_processes\/[^/]+\/components(?!\/)/),
+			this.submitButton.click({ noWaitAfter: true })
 		]);
 		await this.waitForLoadState('load');
 	}
@@ -342,14 +345,17 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	}
 
 	async expectCommentsBlocked(blocked: boolean): Promise<void> {
-		const checkboxes = await this.commentsBlockedToggle.all();
-		for (const checkbox of checkboxes) {
-			if (blocked) {
-				await expect(checkbox).toBeChecked();
-			} else {
-				await expect(checkbox).not.toBeChecked();
-			}
-		}
+		await expect
+			.poll(async () => {
+				const states: boolean[] = await this.commentsBlockedToggle.evaluateAll((els: HTMLInputElement[]) =>
+					els.map(el => el.checked)
+				);
+				if (states.length === 0) {
+					return blocked ? 'no-checkboxes' : 'ok';
+				}
+				return states.every(s => s === blocked) ? 'ok' : 'mismatch';
+			})
+			.toBe('ok');
 	}
 
 	async expectCommentsMaxLength(expectedLength: number): Promise<void> {

@@ -340,8 +340,12 @@ export class FormMeetingPage extends BaseAdminPage {
 	}
 
 	async submitForm() {
+		const urlBefore = this.page.url();
 		await this.updateButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
+		if (this.page.url() !== urlBefore) {
+			await this.page.waitForLoadState('networkidle');
+		}
 	}
 
 	// For creating a new meeting

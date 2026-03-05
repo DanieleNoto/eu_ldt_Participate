@@ -93,7 +93,7 @@ export class AcceptInvitationPage extends BasePage {
 	 */
 	async acceptTermsOfService(): Promise<void> {
 		await this.termsOfServiceCheckbox.waitFor({ state: 'visible' });
-		await this.termsOfServiceCheckbox.check();
+		await this.termsOfServiceCheckbox.check({ force: true });
 	}
 
 	/**

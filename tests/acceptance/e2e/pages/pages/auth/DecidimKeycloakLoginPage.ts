@@ -14,60 +14,72 @@ export class DecidimLoginPage extends BasePage {
 		super(page);
 	}
 
+	/**
+	 * Authenticate via the Keycloak SSO flow.
+	 *
+	 * All wait operations rely on the global `navigationTimeout` and
+	 * `actionTimeout` configured in playwright.config.ts
+	 *
+	 * The `waitForURL` is registered *before* `click()` via `Promise.all` to
+	 * avoid the race condition where the Keycloak redirect completes before
+	 * `waitForURL` is called.
+	 *
+	 * Flow: sign_in → Keycloak auth → Continue → credentials → Accept → app
+	 */
 	async loginWithKeycloak(username: string, password: string): Promise<void> {
-		console.log('Starting Keycloak authentication');
+		// 1. Navigate to the Decidim login page
+		console.log('Navigating to sign_in page...');
+		await this.page.goto('/users/sign_in', { waitUntil: 'domcontentloaded' });
 
-		await this.page.goto('/users/sign_in', { waitUntil: 'networkidle' });
-
-		console.log('Login page loaded, waiting for Keycloak button...');
-
+		// 2. Click the Keycloak SSO button
+		console.log('Waiting for Keycloak button...');
 		const keycloakButton = this.page.locator('a[href*="/users/auth/keycloakopenid"]').first();
-
-		// Wait for the Keycloak button to be visible before clicking
 		await keycloakButton.waitFor({ state: 'visible' });
-		console.log('Keycloak button found, clicking...');
+		console.log('Keycloak button found – clicking and waiting for Keycloak auth page...');
 
-		await keycloakButton.click();
+		// Register the URL listener before the click to avoid the race condition.
+		await Promise.all([
+			this.page.waitForURL('**/realms/LDT/protocol/openid-connect/auth**'),
+			keycloakButton.click()
+		]);
 
-		console.log('Waiting for Keycloak auth page...');
-		await this.page.waitForURL('**/realms/LDT/protocol/openid-connect/auth**');
-
+		// 3. "Continue" button
 		console.log('Waiting for Continue button...');
 		const continueButton = this.page.getByRole('button').filter({ hasText: 'Continue' });
 		await continueButton.waitFor({ state: 'visible' });
-		console.log('Clicking Continue button...');
+		console.log('Clicking Continue...');
 		await continueButton.click();
 
-		console.log('Waiting for username field...');
+		// 4. Fill in credentials
+		console.log('Filling username...');
 		const usernameField = this.page.getByRole('textbox', { name: 'Email' });
 		await usernameField.waitFor({ state: 'visible' });
-		console.log('Filling username...');
 		await usernameField.fill(username);
 
-		console.log('Waiting for password field...');
+		console.log('Filling password...');
 		const passwordField = this.page.getByRole('textbox', { name: 'Password' });
 		await passwordField.waitFor({ state: 'visible' });
-		console.log('Filling password...');
 		await passwordField.fill(password);
 
-		console.log('Waiting for Sign In button...');
+		console.log('Clicking Sign In...');
 		const signInButton = this.page.getByRole('button', { name: 'Sign In' });
 		await signInButton.waitFor({ state: 'visible' });
-		console.log('Clicking Sign In...');
 		await signInButton.click();
 
+		// 5. OIDC consent screen ("Accept")
 		console.log('Waiting for Accept button...');
 		const acceptButton = this.page.getByRole('button', { name: 'Accept' });
 		await acceptButton.waitFor({ state: 'visible' });
 		console.log('Clicking Accept...');
 		await acceptButton.click();
 
-		console.log('Waiting for redirect...');
+		// 6. Wait for the final redirect back to the app
+		console.log('Waiting for redirect to app...');
 		await this.page.waitForURL(`${auth_redirect_uri}/**`);
 		await this.page.waitForLoadState('networkidle');
 
 		if (this.page.url().includes('/users/sign_in')) {
-			throw new Error('Authentication failed - still on login page');
+			throw new Error('Authentication failed - still on login page after redirect');
 		}
 
 		console.log('Authentication successful');
