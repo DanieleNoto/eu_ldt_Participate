@@ -249,7 +249,7 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 
 		await Promise.all([
 			this.page.waitForURL(/\/admin\/participatory_processes\/[^/]+\/components(?!\/)/),
-			this.submitButton.click({ noWaitAfter: true })
+			this.submitButton.click({ noWaitAfter: true, force: true })
 		]);
 		await this.waitForLoadState('load');
 	}

@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
+ * Simone Bianchelli
  */
 
 import { expect, Locator, Page } from '@playwright/test';
@@ -60,7 +61,7 @@ export class ConvocationPage extends AuthenticatedPage {
 	async waitForPageLoad(): Promise<void> {
 		await this.waitForElement('main.layout-1col');
 		await this.waitForElement('h1.h1.decorator');
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	// Content verification methods

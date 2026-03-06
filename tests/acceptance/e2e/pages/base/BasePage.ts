@@ -4,6 +4,7 @@
  * Gianfranco Cedro
  * Denis Vasilev Dimchev
  * Antonio Abramo Carotenuto
+ * Simone Bianchelli
  */
 
 import { Page } from '@playwright/test';
@@ -33,7 +34,7 @@ export abstract class BasePage {
 	/**
 	 * Waits for the page to fully load
 	 */
-	async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle' = 'networkidle'): Promise<void> {
+	async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle' = 'load'): Promise<void> {
 		await this.page.waitForLoadState(state);
 	}
 

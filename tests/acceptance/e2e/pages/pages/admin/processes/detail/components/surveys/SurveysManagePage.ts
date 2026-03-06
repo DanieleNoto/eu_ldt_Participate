@@ -79,7 +79,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		// Navigate to admin home and processes
 		await adminHomePage.navigateToAdminHomePage();
 		await processAdminPage.navigateToProcesses();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Create a new test process as prerequisite
 		await processAdminPage.navigateToNewProcess();

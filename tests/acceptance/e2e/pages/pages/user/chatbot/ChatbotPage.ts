@@ -133,6 +133,7 @@ export class ChatbotPage extends BasePage {
 	async closeHelpAssistant(): Promise<void> {
 		await expect(this.closeHelpAssistantButton).toBeVisible();
 		await this.closeHelpAssistantButton.click({ force: true });
+		await this.chatbotDialog.waitFor({ state: 'hidden' });
 	}
 
 	/**
