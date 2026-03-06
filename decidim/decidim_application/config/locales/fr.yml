@@ -19,6 +19,9 @@ fr:
                 global:
                     terms_and_conditions_url_for_meeting_creators: URL de la politique de confidentialité pour les créateurs de réunions
     decidim:
+        keycloak:
+            sessions:
+                session_expired: 'Votre session a expiré. Veuillez vous reconnecter.'
         account:
             blocked: Ce compte a été bloqué en raison d'une violation de la politique de confidentialité
         admin:

@@ -4,13 +4,15 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
+require "net/http"
+require "uri"
+
 # Main Keycloak authentication concern for Decidim controllers.
 # Handles auto-login, auto-logout, and locale synchronization.
 #
 # Dependencies (from decidim-keycloak engine):
 # - Decidim::Keycloak::Configuration - Centralized config
-# - Decidim::Keycloak::SessionValidator - Token/session validation
-# - Decidim::Keycloak::TokenService - Token refresh/revocation
+# - Decidim::Keycloak::TokenService - Token validation/refresh (Silent Refresh pattern)
 # - Decidim::Keycloak::CookieManager - Cookie operations
 # - Decidim::Keycloak::LocaleSynchronizer - Locale sync from tokens
 #
@@ -27,12 +29,6 @@ module KeycloakAuthentication
   end
 
   private
-
-  # ============================================================================
-  # Configuration Delegation (Single Source of Truth)
-  # ============================================================================
-
-  delegate :config, :valid?, to: "Decidim::Keycloak::Configuration", prefix: :keycloak_config
 
   # ============================================================================
   # User & Organization Checks
@@ -63,12 +59,6 @@ module KeycloakAuthentication
     %w(access_token refresh_token id_token).any? { |name| cookies[name].present? }
   end
 
-  # Check if any Keycloak-related cookies are present (including i18next for cross-tool SSO)
-  # @return [Boolean] true if any Keycloak cookie exists
-  def keycloak_cookies_present?
-    keycloak_auth_tokens_present? || cookies["i18next"].present?
-  end
-
   # ============================================================================
   # Cross-Tool SSO Detection
   # ============================================================================
@@ -86,24 +76,6 @@ module KeycloakAuthentication
     )
   rescue URI::InvalidURIError => e
     Rails.logger.debug { "[Keycloak AutoLogin] Invalid referer URI: #{e.message}" }
-    false
-  end
-
-  # ============================================================================
-  # Session Validation (Delegated to Engine)
-  # ============================================================================
-
-  # Validate Keycloak session using the centralized SessionValidator
-  # @return [Boolean] true if session is valid
-  def keycloak_session_valid?
-    Decidim::Keycloak::SessionValidator.validate_tokens_and_session(
-      cookies["access_token"],
-      cookies["id_token"],
-      cookies["refresh_token"],
-      cookies
-    )
-  rescue StandardError => e
-    Rails.logger.warn "[Keycloak AutoLogin] Error validating session: #{e.message}"
     false
   end
 
@@ -165,24 +137,48 @@ module KeycloakAuthentication
     apply_locale_if_changed(new_locale, current_session_locale)
   end
 
-  # ============================================================================
-  # Helper Methods
-  # ============================================================================
-
-  def error_page?
-    controller_name == "errors" ||
-      action_name == "not_found" ||
-      action_name == "internal_server_error"
-  end
 
   def perform_automatic_logout
     Rails.logger.info "[Keycloak AutoLogout] Session invalid, logging out user #{current_user.id}"
 
-    session[:automatic_logout_no_autologin] = true
+    # Back-channel SLO: notify Keycloak server-to-server so other SSO apps get logged out
+    notify_keycloak_session_end(cookies["id_token"])
+
+    # Clear tokens first — this also prevents the background auto-login loop on the next
+    # request (check_keycloak_background_auto_login will find no tokens and return early).
     clear_keycloak_cookies
     sign_out current_user
 
+    flash[:alert] = I18n.t("decidim.keycloak.sessions.session_expired")
     redirect_to("/users/sign_in") && return
+  end
+
+  # Back-channel logout: POST to Keycloak logout endpoint to propagate SLO to other apps.
+  # Non-blocking — failures are logged but do not prevent local logout.
+  def notify_keycloak_session_end(id_token)
+    keycloak_site = ENV.fetch("OMNIAUTH_KEYCLOAK_SITE", nil)
+    realm = ENV["OMNIAUTH_KEYCLOAK_REALM"] || "master"
+    return unless keycloak_site.present? && realm.present?
+
+    uri = URI("#{keycloak_site}/realms/#{realm}/protocol/openid-connect/logout")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = uri.scheme == "https"
+    http.open_timeout = 3
+    http.read_timeout = 3
+
+    request = Net::HTTP::Post.new(uri)
+    request["Content-Type"] = "application/x-www-form-urlencoded"
+    params = {
+      client_id: ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_ID", nil),
+      client_secret: ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_SECRET", nil)
+    }
+    params[:id_token_hint] = id_token if id_token.present?
+    request.set_form_data(params)
+
+    response = http.request(request)
+    Rails.logger.info "[Keycloak AutoLogout] SLO notification: HTTP #{response.code}"
+  rescue StandardError => e
+    Rails.logger.warn "[Keycloak AutoLogout] SLO call failed (non-blocking): #{e.message}"
   end
 
   def detect_keycloak_locale(current_session_locale)

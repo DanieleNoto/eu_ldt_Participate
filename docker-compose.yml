@@ -246,8 +246,7 @@ services:
             start_period: 40s
             retries: 3
     grafana:
-        build:
-            context: ./analytics/grafana
+        image: grafana/grafana:12.2.0
         ports:
             - "3001:3000"
         env_file:

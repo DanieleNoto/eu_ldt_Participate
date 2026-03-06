@@ -284,7 +284,7 @@
 					"editorMode": "code",
 					"format": "table",
 					"rawQuery": true,
-					"rawSql": "SELECT 'No Area' as area_name,\n  COUNT(DISTINCT u.id) as total_users,\n  COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) as active_users_30d,\n  COUNT(DISTINCT cp.decidim_proposal_id) as proposals_created,\n  COUNT(DISTINCT comm.id) as comments_made,\n  ROUND((COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) * 100.0) / NULLIF(COUNT(DISTINCT u.id), 0), 2) as activity_rate\nFROM decidim_users u\nLEFT JOIN decidim_coauthorships cp ON u.id = cp.decidim_author_id AND cp.decidim_author_type = 'Decidim::User'\nLEFT JOIN decidim_comments_comments comm ON u.id = comm.decidim_author_id AND comm.decidim_author_type = 'Decidim::User' AND comm.deleted_at IS NULL\nLEFT JOIN (SELECT DISTINCT decidim_author_id, created_at FROM decidim_comments_comments WHERE decidim_author_type = 'Decidim::User' AND deleted_at IS NULL) c ON u.id = c.decidim_author_id\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY area_name\nHAVING COUNT(DISTINCT u.id) > 0\nORDER BY total_users DESC\nLIMIT 10;",
+					"rawSql": "SELECT 'No Area' as area_name,\n  COUNT(DISTINCT u.id) as total_users,\n  COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) as active_users_30d,\n  COUNT(DISTINCT cp.coauthorable_id) as proposals_created,\n  COUNT(DISTINCT comm.id) as comments_made,\n  ROUND((COUNT(DISTINCT CASE WHEN c.created_at >= NOW() - INTERVAL '30 days' THEN c.decidim_author_id END) * 100.0) / NULLIF(COUNT(DISTINCT u.id), 0), 2) as activity_rate\nFROM decidim_users u\nLEFT JOIN decidim_coauthorships cp ON u.id = cp.decidim_author_id AND cp.decidim_author_type = 'Decidim::User' AND cp.coauthorable_type = 'Decidim::Proposals::Proposal'\nLEFT JOIN decidim_comments_comments comm ON u.id = comm.decidim_author_id AND comm.decidim_author_type = 'Decidim::User' AND comm.deleted_at IS NULL\nLEFT JOIN (SELECT DISTINCT decidim_author_id, created_at FROM decidim_comments_comments WHERE decidim_author_type = 'Decidim::User' AND deleted_at IS NULL) c ON u.id = c.decidim_author_id\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY area_name\nHAVING COUNT(DISTINCT u.id) > 0\nORDER BY total_users DESC\nLIMIT 10;",
 					"refId": "A"
 				}
 			],
@@ -350,7 +350,7 @@
 					"editorMode": "code",
 					"format": "table",
 					"rawQuery": true,
-					"rawSql": "SELECT \n  CASE \n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) < 25 THEN '< 25'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 25 AND 34 THEN '25-34'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 35 AND 44 THEN '35-44'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 45 AND 54 THEN '45-54'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 55 AND 64 THEN '55-64'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) >= 65 THEN '65+'\n    ELSE 'Unknown'\n  END as age_group,\n  COUNT(DISTINCT u.id) as total_users,\n  COUNT(DISTINCT cp.decidim_proposal_id) as proposals_created,\n  COUNT(DISTINCT c.id) as comments_made,\n  ROUND(AVG(EXTRACT(days FROM NOW() - u.last_sign_in_at)), 1) as avg_days_since_login\nFROM decidim_users u\nLEFT JOIN decidim_coauthorships cp ON u.id = cp.decidim_author_id AND cp.decidim_author_type = 'Decidim::User'\nLEFT JOIN decidim_comments_comments c ON u.id = c.decidim_author_id AND c.decidim_author_type = 'Decidim::User' AND c.deleted_at IS NULL\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY age_group\nORDER BY total_users DESC;",
+					"rawSql": "SELECT \n  CASE \n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) < 25 THEN '< 25'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 25 AND 34 THEN '25-34'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 35 AND 44 THEN '35-44'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 45 AND 54 THEN '45-54'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) BETWEEN 55 AND 64 THEN '55-64'\n    WHEN DATE_PART('year', AGE(CURRENT_DATE, (u.extended_data->>'date_of_birth')::date)) >= 65 THEN '65+'\n    ELSE 'Unknown'\n  END as age_group,\n  COUNT(DISTINCT u.id) as total_users,\n  COUNT(DISTINCT cp.coauthorable_id) as proposals_created,\n  COUNT(DISTINCT c.id) as comments_made,\n  ROUND(AVG(EXTRACT(days FROM NOW() - u.last_sign_in_at)), 1) as avg_days_since_login\nFROM decidim_users u\nLEFT JOIN decidim_coauthorships cp ON u.id = cp.decidim_author_id AND cp.decidim_author_type = 'Decidim::User' AND cp.coauthorable_type = 'Decidim::Proposals::Proposal'\nLEFT JOIN decidim_comments_comments c ON u.id = c.decidim_author_id AND c.decidim_author_type = 'Decidim::User' AND c.deleted_at IS NULL\nWHERE u.deleted_at IS NULL AND u.type = 'Decidim::User'\nGROUP BY age_group\nORDER BY total_users DESC;",
 					"refId": "A"
 				}
 			],
@@ -517,8 +517,13 @@
 	"refresh": "5m",
 	"schemaVersion": 41,
 	"tags": ["decidim", "demographics", "participation"],
-	"templating": { "list": [] },
-	"time": { "from": "now-30d", "to": "now" },
+	"templating": {
+		"list": []
+	},
+	"time": {
+		"from": "now-30d",
+		"to": "now"
+	},
 	"timepicker": {},
 	"timezone": "browser",
 	"title": "Participation Demographics",

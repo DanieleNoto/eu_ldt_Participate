@@ -35,17 +35,14 @@ module Decidim
 
       # Calculate all possible cookie domains to clear cookies from
       # @param request_host [String] The request host
-      # @return [Array<String, nil>] Array of domains to clear cookies from
+      # @return [Array<String>] Array of domains to clear cookies from
       def self.calculate_all_cookie_domains(request_host)
-        return [nil] if request_host.blank?
+        return [] if request_host.blank?
 
         host = request_host.to_s
         domain_parts = host.split(".")
 
-        domains = [
-          host, # Exact host (e.g., "part-int.ldttoolbox.app")
-          nil # Current domain only (no domain attribute)
-        ]
+        domains = [host] # Exact host (e.g., "part-int.ldttoolbox.app")
 
         # Add cross-subdomain domain
         domains << ".#{domain_parts[-2]}.#{domain_parts[-1]}" if (Rails.env.production? || Rails.env.development?) && domain_parts.length >= 3
@@ -61,76 +58,26 @@ module Decidim
       # @param request_host [String] The request host
       # @param session_obj [ActionDispatch::Request::Session, nil] Optional session object to clean
       def self.clear_all_cookies(cookies_obj, request_host, session_obj = nil)
-        # NOTE: Do NOT include _session_id here - it's managed by Rails session store
-        # Only clear Keycloak-specific cookies
-        cookie_names = %w(access_token refresh_token id_token manual_logout)
+        cookie_names = %w(access_token refresh_token id_token)
         domains = calculate_all_cookie_domains(request_host)
-        primary_domain = calculate_cookie_domain(request_host)
 
-        log_clearing_start(cookie_names, primary_domain, cookies_obj)
+        Rails.logger.info "[Keycloak CookieManager] Clearing #{cookie_names.inspect} from #{domains.inspect}"
 
-        # Only delete cookies, don't create new ones with empty values
-        # Creating cookies with empty values can cause issues with cookie consent
-        clear_cookies_by_deletion(cookies_obj, cookie_names, domains)
-
-        # Clean session data if provided
-        clear_session_data(session_obj)
-
-        log_clearing_completion(domains, cookies_obj)
-      end
-
-      def self.log_clearing_start(cookie_names, primary_domain, cookies_obj)
-        Rails.logger.info "[Keycloak CookieManager] Clearing cookies #{cookie_names.inspect}, primary domain: #{primary_domain.inspect}"
-        Rails.logger.debug do
-          "[Keycloak CookieManager] Current cookies before clearing: " \
-            "access_token=#{cookies_obj["access_token"]&.length}, " \
-            "refresh_token=#{cookies_obj["refresh_token"]&.length}, " \
-            "id_token=#{cookies_obj["id_token"]&.length}"
-        end
-      end
-
-      # Simplified cookie clearing - only delete, never create empty cookies
-      # Creating cookies with empty values can interfere with cookie consent mechanisms
-      def self.clear_cookies_by_deletion(cookies_obj, cookie_names, domains)
         cookie_names.each do |name|
-          next if name.blank?
-
-          # Try to delete from all possible domains with all cookie attributes
-          # Rails requires matching the same attributes used during cookie creation
+          # Delete from each explicit domain (browser matches by name+domain+path)
           domains.each do |domain|
-            next unless domain
-
-            # Delete with all possible attribute combinations
-            begin
-              cookies_obj.delete(name, domain: domain, path: "/", secure: Rails.env.production?, httponly: true, same_site: :lax)
-              Rails.logger.debug { "[Keycloak CookieManager] Deleted #{name} from domain: #{domain}" }
-            rescue StandardError => e
-              Rails.logger.debug { "[Keycloak CookieManager] Error deleting #{name} from #{domain} with attributes: #{e.message}" }
-            end
-
-            # Also try simpler deletion
-            begin
-              cookies_obj.delete(name, domain: domain, path: "/")
-            rescue StandardError => e
-              Rails.logger.debug { "[Keycloak CookieManager] Error deleting #{name} from #{domain}: #{e.message}" }
-            end
-          end
-
-          # Try without domain specification but with other attributes
-          begin
-            cookies_obj.delete(name, path: "/", secure: Rails.env.production?, httponly: true, same_site: :lax)
+            cookies_obj.delete(name, domain: domain, path: "/")
           rescue StandardError => e
-            Rails.logger.debug { "[Keycloak CookieManager] Error deleting #{name} with attributes: #{e.message}" }
+            Rails.logger.debug { "[Keycloak CookieManager] Could not delete #{name} from #{domain}: #{e.message}" }
           end
 
-          # Also try simplest deletion
-          begin
-            cookies_obj.delete(name, path: "/")
-            cookies_obj.delete(name)
-          rescue StandardError => e
-            Rails.logger.debug { "[Keycloak CookieManager] Error deleting #{name}: #{e.message}" }
-          end
+          # Also delete without domain (covers cookies set without explicit domain attribute)
+          cookies_obj.delete(name, path: "/")
+        rescue StandardError => e
+          Rails.logger.debug { "[Keycloak CookieManager] Could not delete #{name}: #{e.message}" }
         end
+
+        clear_session_data(session_obj)
       end
 
       def self.clear_session_data(session_obj)
@@ -140,31 +87,20 @@ module Decidim
         session_obj.delete(:keycloak_id_token)
       end
 
-      def self.log_clearing_completion(domains, cookies_obj)
-        Rails.logger.info "[Keycloak CookieManager] Cleared all Keycloak cookies from #{domains.length} domain(s). " \
-                          "Final state: access_token=#{cookies_obj["access_token"]&.length}, " \
-                          "refresh_token=#{cookies_obj["refresh_token"]&.length}, " \
-                          "id_token=#{cookies_obj["id_token"]&.length}"
-      end
-
-      # Save tokens to cookies with proper domain and expiry
+      # Save tokens to cookies using the JWT exp claim as source of truth for expiry.
       # @param cookies_obj [ActionDispatch::Cookies::CookieJar] The cookies object
-      # @param tokens [Hash] Hash containing :access_token, :refresh_token, :id_token, :expires_in
+      # @param tokens [Hash] Hash containing :access_token, :refresh_token, :id_token
       # @param request_host [String] The request host
       def self.save_tokens(cookies_obj, tokens, request_host)
         # First clear existing cookies to prevent duplication
         clear_all_cookies(cookies_obj, request_host)
 
         cookie_domain = calculate_cookie_domain(request_host)
-        expires_at = if tokens[:expires_in] && (tokens[:expires_in]).positive?
-                       Time.current + tokens[:expires_in].seconds
-                     else
-                       1.hour.from_now
-                     end
+        expires_at = extract_jwt_expiration(tokens[:access_token])
+        refresh_expires_at = extract_jwt_expiration(tokens[:refresh_token])
 
-        Rails.logger.debug { "[Keycloak CookieManager] Saving tokens with domain: #{cookie_domain.inspect}" }
+        Rails.logger.debug { "[Keycloak CookieManager] Saving tokens with domain: #{cookie_domain.inspect}, expires_at: #{expires_at.inspect}" }
 
-        # Save access token
         if tokens[:access_token]
           cookies_obj["access_token"] = {
             value: tokens[:access_token],
@@ -176,14 +112,7 @@ module Decidim
           }
         end
 
-        # Save refresh token (longer expiry)
         if tokens[:refresh_token]
-          refresh_expires_at = if tokens[:refresh_token_expires_in] && (tokens[:refresh_token_expires_in]).positive?
-                                 Time.current + tokens[:refresh_token_expires_in].seconds
-                               else
-                                 30.days.from_now
-                               end
-
           cookies_obj["refresh_token"] = {
             value: tokens[:refresh_token],
             expires: refresh_expires_at,
@@ -194,11 +123,10 @@ module Decidim
           }
         end
 
-        # Save ID token
         if tokens[:id_token]
           cookies_obj["id_token"] = {
             value: tokens[:id_token],
-            expires: expires_at,
+            expires: refresh_expires_at,
             secure: Rails.env.production?,
             httponly: true,
             same_site: :lax,
@@ -207,6 +135,20 @@ module Decidim
         end
 
         Rails.logger.info "[Keycloak CookieManager] Saved tokens to cookies with domain: #{cookie_domain}"
+      end
+
+      # Extract the exp claim from a JWT token (no signature verification needed).
+      # Returns nil if the token is blank, opaque, or cannot be decoded.
+      # @param token [String] JWT token string
+      # @return [Time, nil]
+      def self.extract_jwt_expiration(token)
+        return nil if token.blank?
+
+        payload = JWT.decode(token, nil, false).first
+        exp = payload["exp"]
+        exp ? Time.zone.at(exp) : nil
+      rescue StandardError
+        nil
       end
     end
   end

@@ -6,10 +6,10 @@
 # frozen_string_literal: true
 
 module Decidim
-  # This holds the decidim-meetings version.
+  # This holds the decidim-ldt_map_visualization version.
   module LdtMapVisualization
     def self.version
-      "0.30.4"
+      "0.30.6"
     end
   end
 end

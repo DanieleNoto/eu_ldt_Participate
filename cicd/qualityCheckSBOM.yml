@@ -17,14 +17,14 @@ jobs:
       steps:
           - task: UseNode@1
             inputs:
-                version: '20.x'
+                version: '22.x'
             displayName: 'Install Node.js'
 
           - script: |
                 node -v
                 npm -v
                 npm cache clean --force
-                npm install -g @cyclonedx/cdxgen@12.0.0
+                npm install -g @cyclonedx/cdxgen@12.1.1
 
                 export CDXGEN_NO_CACHE=true
                 export NO_PROXY="*"

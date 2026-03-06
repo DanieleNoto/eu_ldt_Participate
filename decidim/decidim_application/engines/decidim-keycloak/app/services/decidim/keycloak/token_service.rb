@@ -24,15 +24,7 @@ module Decidim
       # @param user [Decidim::User] The user to validate token for
       # @param options [Hash] Options hash with :cookies_hash, :cookies_obj, :request_host, :controller
       def self.ensure_valid_token(user, options = {})
-        # Support legacy positional arguments for backward compatibility
-        if options.is_a?(Hash)
-          new.ensure_valid_token(user, **options)
-        else
-          # Legacy: ensure_valid_token(user, cookies_hash, cookies_obj, request_host, controller)
-          cookies_hash, cookies_obj, request_host, controller = options, *Array.new(3)
-          new.ensure_valid_token(user, cookies_hash: cookies_hash, cookies_obj: cookies_obj,
-                                       request_host: request_host, controller: controller)
-        end
+        new.ensure_valid_token(user, **options)
       end
 
       def self.revoke_tokens(access_token, refresh_token = nil)
@@ -51,24 +43,32 @@ module Decidim
         new.send(:exchange_token_for_audience, subject_token, audience)
       end
 
-      # Ensure the user has a valid token, refreshing if needed
+      # Ensure the user has a valid token, refreshing silently if expired.
+      #
+      # Flow:
+      #   1. Local JWT expiry check (zero network) → return token if valid
+      #   2. Token expired/missing → attempt silent refresh via Keycloak
+      #   3. HTTP 200 → save new tokens, return new access_token
+      #   4. HTTP 400/401 → return nil (definitive rejection → logout)
+      #   5. Network error → return :network_error (truthy → keep session, retry later)
+      #
       # @param _user [Decidim::User] The user (unused but kept for API compatibility)
       # @param cookies_hash [Hash, nil] Hash of cookies
       # @param cookies_obj [ActionDispatch::Cookies, nil] Cookies object for writing
       # @param request_host [String, nil] Request host for cookie domain
       # @param controller [ActionController::Base, nil] Controller for callbacks
+      # @return [String, Symbol, nil] token string or :network_error (truthy = keep session), nil = logout
       def ensure_valid_token(_user, cookies_hash: nil, cookies_obj: nil, request_host: nil, controller: nil)
         access_token = reconstruct_token_from_cookies(cookies_hash, "access_token")
         refresh_token = reconstruct_token_from_cookies(cookies_hash, "refresh_token")
 
-        # If we have access_token, validate it
-        if access_token
-          result = validate_existing_token(access_token, refresh_token,
-                                           cookies_obj: cookies_obj, request_host: request_host, controller: controller)
+        # Step 1: Local JWT expiry check — no network call
+        if access_token.present?
+          result = validate_existing_token(access_token)
           return result if result
         end
 
-        # Token is expired or missing, try to refresh if we have refresh_token
+        # Step 2: Token expired or missing → silent refresh
         handle_token_refresh(refresh_token, cookies_obj: cookies_obj, request_host: request_host, controller: controller)
       end
 
@@ -129,28 +129,6 @@ module Decidim
       end
 
       private
-
-      def clear_existing_keycloak_cookies(cookies_obj, request_host = nil)
-        # CENTRALIZED: Uses Decidim::Keycloak::CookieManager
-        Decidim::Keycloak::CookieManager.clear_all_cookies(cookies_obj, request_host)
-      end
-
-      def determine_keycloak_cookie_domain(request_host = nil)
-        # CENTRALIZED: Uses Decidim::Keycloak::CookieManager
-        Decidim::Keycloak::CookieManager.calculate_cookie_domain(request_host)
-      end
-
-      # Extract domain part similar to request.domain (removes subdomain)
-      # This method is kept for backward compatibility but delegates to CookieManager
-      def extract_domain_from_host(host)
-        return nil if host.blank?
-
-        domain_parts = host.split(".")
-        return nil unless domain_parts.length >= 2
-
-        # For domains like part-int.ldttoolbox.app, return ldttoolbox.app
-        "#{domain_parts[-2]}.#{domain_parts[-1]}"
-      end
 
       # Exchange an incoming token (subject_token) for a token targeted at a specific audience/client
       # Returns the exchanged access_token string on success, or nil on failure.
@@ -217,7 +195,6 @@ module Decidim
       end
 
       def refresh_access_token(refresh_token)
-        # Get Keycloak configuration
         keycloak_site = ENV.fetch("OMNIAUTH_KEYCLOAK_SITE", nil)
         realm = ENV["OMNIAUTH_KEYCLOAK_REALM"] || "master"
         client_id = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_ID", nil)
@@ -225,36 +202,49 @@ module Decidim
 
         token_endpoint = "#{keycloak_site}/realms/#{realm}/protocol/openid-connect/token"
 
-        begin
-          uri = URI(token_endpoint)
-          http = Net::HTTP.new(uri.host, uri.port)
-          http.use_ssl = uri.scheme == "https"
+        uri = URI(token_endpoint)
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = uri.scheme == "https"
+        http.open_timeout = 5
+        http.read_timeout = 5
 
-          request = Net::HTTP::Post.new(uri)
-          request["Content-Type"] = "application/x-www-form-urlencoded"
-          request.set_form_data(
-            grant_type: "refresh_token",
-            refresh_token: refresh_token,
-            client_id: client_id,
-            client_secret: client_secret
-          )
+        request = Net::HTTP::Post.new(uri)
+        request["Content-Type"] = "application/x-www-form-urlencoded"
+        request.set_form_data(
+          grant_type: "refresh_token",
+          refresh_token: refresh_token,
+          client_id: client_id,
+          client_secret: client_secret
+        )
 
-          response = http.request(request)
+        response = http.request(request)
 
-          return nil unless response.code == "200"
-
+        case response.code.to_i
+        when 200
           result = JSON.parse(response.body)
-
           {
             access_token: result["access_token"],
-            refresh_token: result["refresh_token"] || refresh_token, # Keep old refresh_token if not provided
-            id_token: result["id_token"], # Include id_token from refresh response
+            refresh_token: result["refresh_token"] || refresh_token,
+            id_token: result["id_token"],
             expires_in: result["expires_in"].to_i,
             refresh_token_expires_in: result["refresh_token_expires_in"]&.to_i
           }
-        rescue StandardError
+        when 400, 401
+          # Definitive rejection: refresh token expired/revoked → logout
+          Rails.logger.info "[Keycloak TokenService] Refresh rejected (HTTP #{response.code}): #{response.body.truncate(200)} → session expired"
           nil
+        else
+          # Unexpected server/proxy error → keep session, retry next request
+          Rails.logger.warn "[Keycloak TokenService] Unexpected refresh response (HTTP #{response.code}) → keeping session"
+          :network_error
         end
+      rescue Net::TimeoutError, Net::OpenTimeout, Net::ReadTimeout,
+             Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError => e
+        Rails.logger.warn "[Keycloak TokenService] Network error during refresh: #{e.class} - #{e.message}"
+        :network_error
+      rescue StandardError => e
+        Rails.logger.error "[Keycloak TokenService] Unexpected error during refresh: #{e.class} - #{e.message}"
+        :network_error
       end
 
       def revoke_token(token)
@@ -295,70 +285,54 @@ module Decidim
         end
       end
 
-      # Extract expiration time from JWT token
-      # @param token [String] JWT token
-      # @return [Time, nil] Expiration time or nil if extraction fails
-      def extract_token_expiration(token)
-        return nil if token.blank?
-
-        begin
-          # Decode JWT without verification (we just need the exp claim)
-          decoded_token = JWT.decode(token, nil, false)
-          payload = decoded_token.first
-
-          # Extract exp claim (expiration time as Unix timestamp)
-          exp_timestamp = payload["exp"]
-          return nil unless exp_timestamp
-
-          Time.zone.at(exp_timestamp)
-        rescue JWT::DecodeError => e
-          Rails.logger.warn "[Keycloak TokenService] Failed to decode token for expiration extraction: #{e.message}"
-          nil
-        rescue StandardError => e
-          Rails.logger.warn "[Keycloak TokenService] Error extracting token expiration: #{e.message}"
-          nil
-        end
-      end
-
-      def validate_existing_token(access_token, refresh_token, cookies_obj: nil, request_host: nil, controller: nil)
-        expires_at = extract_token_expiration(access_token)
+      # Local JWT expiry check — no network call.
+      # Returns the token if still valid, nil if expired.
+      # If expiry cannot be parsed (opaque token), assumes valid to avoid false logouts.
+      def validate_existing_token(access_token)
+        expires_at = extract_jwt_expiration(access_token)
+        # Cannot parse expiry (e.g. opaque token) → assume valid
         return access_token unless expires_at
 
-        if expires_at > Time.current
-          Rails.logger.debug "[Keycloak Token Validation] Performing introspection check"
-          return access_token if introspect_token(access_token)
+        # Token not yet expired locally → valid
+        expires_at > Time.current ? access_token : nil
+      end
 
-          Rails.logger.info "[Keycloak Token Validation] Token revoked or invalid, attempting refresh"
-          return handle_token_refresh_attempt(refresh_token, cookies_obj: cookies_obj, request_host: request_host,
-                                                             controller: controller, context: "after introspection failure")
-        end
+      # Extract the exp claim from a JWT token (no signature verification needed).
+      # Returns nil if the token is blank, opaque, or cannot be decoded.
+      def extract_jwt_expiration(token)
+        return nil if token.blank?
 
+        payload = JWT.decode(token, nil, false).first
+        exp = payload["exp"]
+        exp ? Time.zone.at(exp) : nil
+      rescue StandardError
         nil
       end
 
-      def handle_token_refresh_attempt(refresh_token, cookies_obj: nil, request_host: nil, controller: nil, context: nil)
-        return nil unless refresh_token && cookies_obj
-
-        new_tokens = refresh_access_token(refresh_token)
-        return nil unless new_tokens
-
-        clear_cookies_if_controller(controller)
-        save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
-        Rails.logger.info "[Keycloak Token Validation] Token refreshed successfully #{context}"
-        new_tokens[:access_token]
-      end
 
       def handle_token_refresh(refresh_token, cookies_obj: nil, request_host: nil, controller: nil)
-        return nil unless refresh_token && cookies_obj
+        unless refresh_token && cookies_obj
+          Rails.logger.info "[Keycloak Token Validation] Cannot refresh: refresh_token=#{refresh_token.present? ? "present" : "MISSING"}, cookies_obj=#{cookies_obj.nil? ? "MISSING" : "present"}"
+          return nil
+        end
 
-        Rails.logger.debug "[Keycloak Token Validation] No valid access_token, attempting refresh with refresh_token"
+        Rails.logger.info "[Keycloak Token Validation] Access token expired, attempting silent refresh (refresh_token present: #{refresh_token.present?})"
         new_tokens = refresh_access_token(refresh_token)
-        if new_tokens
+
+        case new_tokens
+        when Hash
+          # Successful refresh: persist new tokens and return new access token
           clear_cookies_if_controller(controller)
           save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
+          Rails.logger.info "[Keycloak Token Validation] Token refreshed successfully"
           new_tokens[:access_token]
+        when :network_error
+          # Transient failure: keep session alive, retry on next request
+          Rails.logger.warn "[Keycloak Token Validation] Network error during refresh → keeping session alive"
+          :network_error
         else
-          Rails.logger.info "[Keycloak Token Validation] Refresh token invalid, clearing cookies"
+          # nil: definitive rejection (400/401) → force logout
+          Rails.logger.info "[Keycloak Token Validation] Refresh rejected by Keycloak → session expired"
           clear_cookies_if_controller(controller)
           nil
         end
