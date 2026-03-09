@@ -4144,6 +4144,25 @@ data:
         				"y": 0
         			},
         			"id": 1,
+        			"options": {
+        				"legend": {
+        					"displayMode": "list",
+        					"placement": "bottom",
+        					"showLegend": true
+        				},
+        				"pieType": "pie",
+        				"reduceOptions": {
+        					"calcs": [
+        						"lastNotNull"
+        					],
+        					"fields": "",
+        					"values": true
+        				},
+        				"tooltip": {
+        					"mode": "single",
+        					"sort": "none"
+        				}
+        			},
         			"targets": [
         				{
         					"datasource": {
@@ -4191,7 +4210,7 @@ data:
         			"options": {
         				"legend": {
         					"displayMode": "list",
-        					"placement": "right",
+        					"placement": "bottom",
         					"showLegend": true
         				},
         				"pieType": "pie",
@@ -4200,7 +4219,7 @@ data:
         						"lastNotNull"
         					],
         					"fields": "",
-        					"values": false
+        					"values": true
         				},
         				"tooltip": {
         					"mode": "single",
