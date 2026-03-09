@@ -169,7 +169,7 @@ export class ModerationTableComponent {
 		const expandButton = row.locator('a.action-icon.action-icon--expand');
 
 		await expandButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async unreportRow(rowIndex: number): Promise<void> {
@@ -187,7 +187,7 @@ export class ModerationTableComponent {
 			await unreportButton.click();
 		}
 
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async hideRow(rowIndex: number): Promise<void> {
@@ -205,7 +205,7 @@ export class ModerationTableComponent {
 			await hideButton.click();
 		}
 
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Row actions by ID
@@ -214,7 +214,7 @@ export class ModerationTableComponent {
 		const expandButton = row.locator('a.action-icon.action-icon--expand');
 
 		await expandButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async unreportRowById(dataId: string): Promise<void> {
@@ -222,7 +222,7 @@ export class ModerationTableComponent {
 		const unreportButton = row.locator('a.action-icon.action-icon--unreport');
 
 		await unreportButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async hideRowById(dataId: string): Promise<void> {
@@ -230,7 +230,7 @@ export class ModerationTableComponent {
 		const hideButton = row.locator('a.action-icon.action-icon--hide');
 
 		await hideButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// URL navigation
@@ -241,7 +241,7 @@ export class ModerationTableComponent {
 
 		if (await urlLink.isVisible()) {
 			await urlLink.click();
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 		} else {
 			console.log('URL link not found for row', rowIndex);
 		}
@@ -274,7 +274,7 @@ export class ModerationTableComponent {
 		// Click if we need to change direction
 		if ((direction === 'asc' && isCurrentlyDesc) || (direction === 'desc' && !isCurrentlyDesc)) {
 			await sortLink.click();
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 		}
 	}
 
@@ -288,7 +288,7 @@ export class ModerationTableComponent {
 		// Click if we need to change direction
 		if ((direction === 'asc' && isCurrentlyDesc) || (direction === 'desc' && !isCurrentlyDesc)) {
 			await sortLink.click();
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 		}
 	}
 
@@ -430,7 +430,7 @@ export class ModerationTableComponent {
 		const selectAllCheckbox = this.page.locator('input#moderations_bulk[value="all"]');
 		if (!(await selectAllCheckbox.isChecked())) {
 			await selectAllCheckbox.check();
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 		}
 	}
 

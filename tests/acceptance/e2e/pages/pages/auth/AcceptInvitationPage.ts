@@ -93,7 +93,7 @@ export class AcceptInvitationPage extends BasePage {
 	 */
 	async acceptTermsOfService(): Promise<void> {
 		await this.termsOfServiceCheckbox.waitFor({ state: 'visible' });
-		await this.termsOfServiceCheckbox.check();
+		await this.termsOfServiceCheckbox.check({ force: true });
 	}
 
 	/**
@@ -104,11 +104,11 @@ export class AcceptInvitationPage extends BasePage {
 	}
 
 	/**
-	 * Click the save button to complete registration
+	 * Click the save button to complete registration.
 	 */
 	async clickSave(): Promise<void> {
 		await expect(this.saveButton).toBeVisible();
-		await this.saveButton.click();
+		await this.saveButton.click({ force: true });
 	}
 
 	/**

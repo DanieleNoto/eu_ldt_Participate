@@ -91,7 +91,12 @@ export class NewAttachmentProcessPage extends BaseAdminPage {
 	 * Submits the new attachment form
 	 */
 	async submitForm(): Promise<void> {
+		const urlBefore = this.page.url();
 		await this.submitButton.click();
+		await this.page.waitForLoadState('load');
+		if (this.page.url() === urlBefore) {
+			await this.page.waitForLoadState('networkidle');
+		}
 	}
 
 	/**

@@ -59,18 +59,18 @@ export class ProcessModerationPage {
 	// Page navigation
 	async navigateToPage(processSlug: string): Promise<void> {
 		await this.page.goto(`/admin/participatory_processes/${processSlug}/moderations`);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async navigateToHiddenModerations(processSlug: string): Promise<void> {
 		await this.page.goto(`/admin/participatory_processes/${processSlug}/moderations?hidden=true`);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async navigateToMainModerationListing(processSlug: string): Promise<void> {
 		// Navigate to the main moderation listing (not a detail page)
 		await this.page.goto(`/admin/participatory_processes/${processSlug}/moderations`);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Ensure we're on the main listing page, not a detail page
 		await this.ensureOnMainListing();
@@ -89,7 +89,7 @@ export class ProcessModerationPage {
 				// Fallback to global moderations page
 				await this.page.goto('/admin/moderations');
 			}
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 		}
 	}
 
@@ -142,11 +142,11 @@ export class ProcessModerationPage {
 	// Common page actions
 	async refreshPage(): Promise<void> {
 		await this.page.reload();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async waitForPageLoad(): Promise<void> {
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		await this.main.waitFor({ state: 'visible' });
 	}
 
@@ -488,7 +488,7 @@ export class ProcessModerationPage {
 		}
 
 		await this.page.goto(`/admin/participatory_processes/${processSlug}/moderations?hidden=true`);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Wait for table to be fully loaded
 		await this.page.locator('.table-list').waitFor({ state: 'visible' });
@@ -530,7 +530,7 @@ export class ProcessModerationPage {
 		await confirmButton.click();
 
 		// Wait for action to complete
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		console.log(`Bulk unhide action confirmed and completed`);
 	}
@@ -553,7 +553,7 @@ export class ProcessModerationPage {
 
 			// Navigate to hidden list
 			await this.page.goto(`/admin/participatory_processes/${processSlug}/moderations?hidden=true`);
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 
 			// Check if table exists and is visible before proceeding
 			const tableExists = await this.page
@@ -619,7 +619,7 @@ export class ProcessModerationPage {
 
 			// Verify cleanup
 			await this.page.goto(`/admin/participatory_processes/${processSlug}/moderations?hidden=true`);
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 
 			// Check if table still exists before proceeding with verification
 			const tableStillExists = await this.page
@@ -662,15 +662,37 @@ export class ProcessModerationPage {
 	}
 
 	/**
-	 * Verify that a comment has been moderated (hidden from public view)
-	 * A moderated comment will have the .comment__moderated div instead of the original content
+	 * Verify that a comment has been moderated (hidden from public view).
+	 * A moderated comment will have the .comment__moderated div instead of the original content.
 	 */
 	async verifyCommentNotPresentById(commentId: string): Promise<boolean> {
 		const selector = `#comment_${commentId}`;
 		const commentLocator = this.page.locator(selector);
-		const loadingMessage = this.page.locator('.flash__message', { hasText: 'Loading comments' }).first();
+		const moderatedLocator = commentLocator.locator('.comment__moderated');
 
-		await expect(loadingMessage).toBeHidden({ timeout: 2000 });
+		// Poll the comment's final state
+		try {
+			await expect
+				.poll(async () => {
+					// Case 1: comment element absent from DOM (fully removed after moderation)
+					const count = await commentLocator.count();
+					if (count === 0) return 'absent';
+
+					// Case 2: comment present but replaced by moderated placeholder
+					const isModerated = await moderatedLocator.isVisible().catch(() => false);
+					if (isModerated) return 'moderated';
+
+					// Case 3: comment still fully visible (not yet moderated)
+					return 'visible';
+				})
+				.toMatch(/absent|moderated/);
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.warn(
+				`Comment with id ${selector} is still visible and not moderated after waiting: ${errorMessage}`
+			);
+			return false;
+		}
 
 		const count = await commentLocator.count();
 		if (count === 0) {
@@ -678,19 +700,9 @@ export class ProcessModerationPage {
 			return true;
 		}
 
-		// Check if the comment has the moderated message
-		const moderatedMessageLocator = commentLocator.locator('.comment__moderated');
-		const isModerationMessageVisible = await moderatedMessageLocator.isVisible().catch(() => false);
-
-		if (isModerationMessageVisible) {
-			const moderationText = await moderatedMessageLocator.textContent();
-			console.log(`Comment with id ${selector} is correctly moderated: "${moderationText?.trim()}"`);
-			return true;
-		}
-
-		// If comment exists but doesn't have moderation message, it's still visible
-		console.warn(`Comment with id ${selector} is still visible and not moderated`);
-		return false;
+		const moderationText = await moderatedLocator.textContent().catch(() => '');
+		console.log(`Comment with id ${selector} is correctly moderated: "${moderationText?.trim()}"`);
+		return true;
 	}
 
 	/**
@@ -857,15 +869,15 @@ export class ProcessModerationPage {
 
 				// Navigate to the debate page
 				await this.navigateToDebate(processSlug, componentId, debateId);
-				await this.page.waitForLoadState('networkidle');
+				await this.page.waitForLoadState('load');
 
 				// Report the test comment by ID
 				await this.reportCommentById(testCommentId, 'test report content');
-				await this.page.waitForLoadState('networkidle');
+				await this.page.waitForLoadState('load');
 
 				// Navigate back to moderation page
 				await this.page.goto(`/admin/participatory_processes/${processSlug}/moderations`);
-				await this.page.waitForLoadState('networkidle');
+				await this.page.waitForLoadState('load');
 
 				console.log('Comment reported and moderation page refreshed');
 			} else {

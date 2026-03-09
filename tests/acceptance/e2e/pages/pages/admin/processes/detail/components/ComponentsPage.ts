@@ -511,11 +511,11 @@ export class ComponentsPage extends BaseAdminPage {
 	}
 
 	/**
-	 * Returns the link of a component based on the text (e.g. "Meetings", "Accountability").
-	 * @param componentName Text of the link in the table
+	 * Returns the link of a component based on the exact name
+	 * @param componentName Exact text of the link in the table
 	 */
 	getComponentLinkByName(componentName: string): Locator {
-		return this.componentRows.locator(`td a:has-text("${componentName}")`);
+		return this.componentRows.getByRole('link', { name: componentName, exact: true }).first();
 	}
 	/**
 	 * Click on link component from name

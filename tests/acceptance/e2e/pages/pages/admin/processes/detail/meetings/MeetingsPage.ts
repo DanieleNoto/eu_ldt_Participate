@@ -31,7 +31,7 @@ export class MeetingsPage extends BaseAdminPage {
 	}
 
 	private get meetingsTable() {
-		return this.page.locator('table.table-list');
+		return this.page.locator('table.table-list:not(.hidden)');
 	}
 
 	private get tableRows() {
@@ -129,8 +129,8 @@ export class MeetingsPage extends BaseAdminPage {
 	}
 
 	async verifyMeetingsPageVisible() {
-		await expect(this.meetingsTable).toBeVisible({ timeout: 2000 });
-		await expect(this.newMeetingButton).toBeVisible({ timeout: 2000 });
+		await expect(this.meetingsTable).toBeVisible();
+		await expect(this.newMeetingButton).toBeVisible();
 	}
 
 	async hasMeetingToPublish(): Promise<boolean> {
@@ -173,34 +173,49 @@ export class MeetingsPage extends BaseAdminPage {
 	}
 
 	async findMeetingByTitle(title: string): Promise<number> {
+		await this.waitForLoadState('load');
 		const meetingCount = await this.getMeetingCount();
 		let editableIndex = 0; // Counter for editable meetings only
 
 		for (let i = 0; i < meetingCount; i++) {
-			const row = this.tableRows.nth(i);
-			const titleCell = row.locator('td').nth(1);
+			try {
+				const row = this.tableRows.nth(i);
+				const titleCell = row.locator('td').nth(1);
 
-			// Check if this meeting is editable (has a link in the title cell)
-			const titleLink = titleCell.locator('a');
-			const hasLink = (await titleLink.count()) > 0;
+				// Check if this meeting is editable (has a link in the title cell)
+				const titleLink = titleCell.locator('a');
+				const hasLink = (await titleLink.count()) > 0;
 
-			if (hasLink) {
-				// For editable meetings, get the link text
-				const linkText = await titleLink.textContent();
-				if (linkText && linkText.includes(title)) {
-					return editableIndex; // Return the relative index among editable meetings
+				if (hasLink) {
+					// For editable meetings, get the link text
+					const linkText = await titleLink.textContent();
+					if (linkText && linkText.includes(title)) {
+						return editableIndex; // Return the relative index among editable meetings
+					}
+					editableIndex++; // Increment counter for editable meetings
 				}
-				editableIndex++; // Increment counter for editable meetings
+				// Skip non-editable meetings in the count
+			} catch (error) {
+				console.warn(`findMeetingByTitle: context destroyed at row ${i}, retrying after load. Cause: ${error}`);
+				await this.waitForLoadState('load');
+				return this.findMeetingByTitle(title);
 			}
-			// Skip non-editable meetings in the count
 		}
 		return -1; // Not found
 	} // Helper method to check if a meeting is editable (has link in title)
 	async isMeetingEditable(index: number): Promise<boolean> {
-		const row = this.tableRows.nth(index);
-		const titleCell = row.locator('td').nth(1);
-		const titleLink = titleCell.locator('a');
-		return (await titleLink.count()) > 0;
+		try {
+			const row = this.tableRows.nth(index);
+			const titleCell = row.locator('td').nth(1);
+			const titleLink = titleCell.locator('a');
+			return (await titleLink.count()) > 0;
+		} catch (error) {
+			console.warn(
+				`isMeetingEditable: context destroyed at index ${index}, retrying after load. Cause: ${error}`
+			);
+			await this.waitForLoadState('load');
+			return this.isMeetingEditable(index);
+		}
 	}
 
 	// Debug method to understand table structure

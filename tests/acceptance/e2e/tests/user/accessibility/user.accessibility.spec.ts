@@ -5,9 +5,7 @@
  * Denise Scarcelli
  */
 
-import test, { expect } from '@playwright/test';
-import { ensureLoggedIn } from '@utils/auth-helper';
-import { STORAGE_STATE } from '@utils/constants';
+import { test, expect } from '@fixtures/parallel-test';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { MeetingsPage } from '@pages/pages/user/processes/MeetingsPage';
@@ -21,31 +19,21 @@ import { tryAnalyze, saveAccessibilityResults } from '@utils/helpers';
  * The tool must comply with accessibility guidelines for people with disabilities using WAI-ARIA
  */
 
-test.beforeAll(async ({ browser }) => {
-	const context = await browser.newContext();
-	const page = await context.newPage();
-	await ensureLoggedIn(page, 'USER');
-	await page.close();
-	await context.close();
-});
-
 test.describe('[PAR-USA03] Accessibility - Footer Navigation', () => {
-	test.use({ storageState: STORAGE_STATE.USER });
-
 	let homePage: HomePage;
 	let processDetailPage: ProcessDetailPage;
 	let meetingsPage: MeetingsPage;
 
 	const processSlug = 'test';
 
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async ({ userPage: page }) => {
 		homePage = new HomePage(page);
 		processDetailPage = new ProcessDetailPage(page);
 		meetingsPage = new MeetingsPage(page);
 	});
 
 	test('should have a minimum of a WCAG 2.1 AA level on login + homepage + footer navigation links', async ({
-		page
+		userPage: page
 	}) => {
 		await test.step('Visit homepage and accessibility check', async () => {
 			await homePage.navigateToHomePage();

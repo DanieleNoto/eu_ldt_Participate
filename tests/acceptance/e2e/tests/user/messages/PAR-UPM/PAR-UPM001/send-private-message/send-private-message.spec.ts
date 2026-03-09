@@ -9,7 +9,7 @@ import { HomePage } from '@pages/pages/public/HomePage';
 import { ConversationDetailPage } from '@pages/pages/user/conversations/ConversationDetailPage';
 import { ConversationsPage } from '@pages/pages/user/conversations/ConversationsPage';
 import { ProfilePage } from '@pages/pages/user/ProfilePage';
-import { test, expect } from '@fixtures/parallel-test';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 
 /**
  * Test suite for Enables citizens to communicate privately with other users.
@@ -24,11 +24,13 @@ import { test, expect } from '@fixtures/parallel-test';
  *
  */
 
-test.describe('[PAR-UPM001] – Send private messages', () => {
+test.describe('@reserved [PAR-UPM001] – Send private messages', () => {
+	test.describe.configure({ mode: 'serial' });
 	let homePage: HomePage;
 	let profilePage: ProfilePage;
 	let conversationsPage: ConversationsPage;
 	let conversationDetailPage: ConversationDetailPage;
+	const targetProfileUsername = 'admin'; // Fixed user to message
 
 	test.beforeEach(async ({ userPage }) => {
 		homePage = new HomePage(userPage);
@@ -37,35 +39,30 @@ test.describe('[PAR-UPM001] – Send private messages', () => {
 		conversationDetailPage = new ConversationDetailPage(userPage);
 		await homePage.navigateToHomePage();
 	});
+
 	test.describe('Main Flow', () => {
-		test('should allow user to send a private message', async () => {
-			let recipientName: string;
-			let messageContent: string;
+		let recipientName: string;
+		let messageContent: string;
+		let messageTimestamp: string;
+		let senderName: string;
+
+		test('should allow user to send a private message', async ({ userPage, adminPage }) => {
+			// Generate unique timestamp
+			messageTimestamp = new Date().toISOString();
+
+			// Get the sender's name (logged in user) for verification
+			const userProfilePage = new ProfilePage(userPage);
+			await homePage.header.goToMyProfile();
+			await userProfilePage.waitForProfileToLoad();
+			senderName = await userProfilePage.getProfileName();
+			console.log(`Sender (logged in user): ${senderName}`);
+			await homePage.navigateToHomePage();
 
 			await test.step('1. User: Navigates to the profile of the user they wish to message.', async () => {
-				// Navigate to user profile by clicking on an author avatar from last activity
-				await homePage.lastActivitySection.waitForActivityToLoad();
+				// Navigate directly to the target user's profile
+				const profileUrl = `/profiles/${targetProfileUsername}`;
+				console.log(`Navigating to profile: ${profileUrl}`);
 
-				// Scroll to the last activity section to ensure it's visible
-				await homePage.lastActivitySection.scrollToSection();
-
-				// Wait for activities to be fully loaded
-				await homePage.waitForLoadState('networkidle');
-
-				// Ensure there are activities with authors
-				const activitiesWithAuthors = await homePage.lastActivitySection.getActivitiesWithAuthors();
-				expect(activitiesWithAuthors.length).toBeGreaterThan(0);
-
-				// Get the first activity with an author (most reliable approach)
-				const firstActivityWithAuthor = activitiesWithAuthors[0];
-				console.log(`Getting profile URL for activity at index: ${firstActivityWithAuthor}`);
-
-				// Get the profile URL directly and navigate to it
-				const profileUrl = await homePage.lastActivitySection.getAuthorProfileUrl(firstActivityWithAuthor);
-				expect(profileUrl).toBeTruthy();
-				console.log(`Navigating directly to profile URL: ${profileUrl}`);
-
-				// Navigate directly to the profile page
 				await homePage.navigateTo(profileUrl);
 				await homePage.waitForLoadState('load');
 			});
@@ -74,7 +71,6 @@ test.describe('[PAR-UPM001] – Send private messages', () => {
 				// Verify we're on the profile page
 				await profilePage.expectToBeOnProfilePage();
 
-				// Wait for profile to load completely
 				await profilePage.waitForProfileToLoad();
 
 				// Get the recipient's name for later verification
@@ -99,68 +95,81 @@ test.describe('[PAR-UPM001] – Send private messages', () => {
 			});
 
 			await test.step('4. System: Displays the messaging interface with a text input box.', async () => {
-				// Verify we're redirected to the conversation detail page (new conversation)
-				await conversationDetailPage.expectToBeOnNewConversationDetailPage();
-
-				// Verify the messaging interface elements are present
-				await expect(conversationDetailPage.newConversationTextarea).toBeVisible();
-				await expect(conversationDetailPage.sendButton).toBeVisible();
+				// Verify we're redirected to the conversation detail page
+				await conversationDetailPage.expectToBeOnConversationPage();
 
 				// Verify the conversation title indicates it's with the selected user
 				await expect(conversationDetailPage.conversationTitle).toBeVisible();
 				await expect(conversationDetailPage.conversationTitle).toContainText('Conversation with');
+
+				// Verify the messaging interface elements are present
+				const activeTextarea = await conversationDetailPage.getActiveTextarea();
+				await expect(activeTextarea).toBeVisible();
+				await expect(conversationDetailPage.sendButton).toBeVisible();
 			});
 
 			await test.step('5. User: Types the message content into the input box.', async () => {
-				// Define the message content
-				messageContent = `Hello ${recipientName}! This is a test private message sent via automated testing. How are you doing today?`;
+				// Define the message content with unique timestamp
+				messageContent = `Test message sent at ${messageTimestamp} - Hello ${recipientName}! This is an automated test message.`;
 
-				await conversationDetailPage.newConversationTextarea.fill(messageContent);
+				// Get the active textarea
+				const activeTextarea = await conversationDetailPage.getActiveTextarea();
+				await activeTextarea.fill(messageContent);
 
 				// Verify the message was typed correctly
-				const typedText = await conversationDetailPage.newConversationTextarea.inputValue();
+				const typedText = await activeTextarea.inputValue();
 				expect(typedText).toBe(messageContent);
 			});
 
 			await test.step('6. User: Clicks the "Send" button to send the message.', async () => {
 				// Get initial message count for comparison
 				const initialMessageCount = await conversationDetailPage.getMessageCount();
+				console.log(`Initial message count: ${initialMessageCount}`);
 
 				// Send the message
 				await conversationDetailPage.sendButton.click();
 
 				// Wait for the message to be sent and page to update
-				await test.step('Wait for message processing', async () => {
-					await conversationDetailPage.waitForLoadState('networkidle');
-				});
+				await conversationDetailPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('7. System: Sends the message to the recipient and adds it to the conversation history between the two users.', async () => {
-				// Verify the message appears in the conversation
+				// Verify the message with unique timestamp appears in the conversation
+				await conversationDetailPage.expectMessageWithText(messageTimestamp);
+
+				// Verify the full message content is present
 				await conversationDetailPage.expectMessageWithText(messageContent);
 
 				// Verify the message count has increased
 				const finalMessageCount = await conversationDetailPage.getMessageCount();
 				expect(finalMessageCount).toBeGreaterThan(0);
+				console.log(`Final message count: ${finalMessageCount}`);
 
-				// Verify the latest message contains our sent text
-				const latestMessageIndex = finalMessageCount - 1;
-				const latestMessageText = await conversationDetailPage.getMessageText(latestMessageIndex);
-				expect(latestMessageText).toContain(messageContent);
+				// Find and verify the specific message by searching for the unique timestamp
+				let foundOurMessage = false;
+				for (let i = 0; i < finalMessageCount; i++) {
+					const msgText = await conversationDetailPage.getMessageText(i);
+					if (msgText.includes(messageTimestamp)) {
+						foundOurMessage = true;
+						console.log(`Found our message at index ${i}: "${msgText.substring(0, 50)}..."`);
 
-				// Verify the message has a timestamp
-				const messageTimestamp = await conversationDetailPage.getMessageTimestamp(latestMessageIndex);
-				expect(messageTimestamp).toBeTruthy();
+						// Verify the message has a timestamp
+						const msgTimestamp = await conversationDetailPage.getMessageTimestamp(i);
+						expect(msgTimestamp).toBeTruthy();
+						break;
+					}
+				}
+
+				expect(foundOurMessage).toBe(true);
 
 				// Verify the conversation participant is correct
 				await conversationDetailPage.expectParticipantInConversation(recipientName);
 			});
 
 			await test.step('8. System: Notifies the recipient that they have received a new private message.', async () => {
-				// Note: We cannot directly verify the recipient's notification in this test
-				// as we're testing from the sender's perspective. However, we can verify
-				// that the system has processed the message correctly.
+				// Verify from both sender and recipient perspectives that the message was sent/received
 
+				// First, verify from sender's perspective (user)
 				// Verify the conversation is now in the conversations list
 				await conversationsPage.goto();
 				await conversationsPage.expectToBeOnConversationsPage();
@@ -186,17 +195,60 @@ test.describe('[PAR-UPM001] – Send private messages', () => {
 				}
 
 				expect(foundConversation).toBe(true);
+
+				// Verify from admin's perspective that the message was received
+				const adminConversationsPage = new ConversationsPage(adminPage);
+
+				// Navigate to admin's conversations page
+				await adminConversationsPage.goto();
+				await adminConversationsPage.expectToBeOnConversationsPage();
+				await adminConversationsPage.waitForConversationsToLoad();
+
+				// Look for conversation with the sender (logged in user)
+				const adminConversationCount = await adminConversationsPage.getConversationCount();
+				expect(adminConversationCount).toBeGreaterThan(0);
+
+				let foundSenderConversation = false;
+				for (let i = 0; i < adminConversationCount; i++) {
+					const participantName = await adminConversationsPage.getConversationParticipant(i);
+					if (participantName.includes(senderName)) {
+						foundSenderConversation = true;
+
+						// Verify the conversation snippet shows the specific message with unique timestamp
+						// This ensures we're not matching old messages from the same sender
+						const snippet = await adminConversationsPage.getConversationSnippet(i);
+						expect(snippet).toContain(messageTimestamp);
+
+						console.log(`Admin received message from ${senderName}`);
+						console.log(`Message contains unique timestamp: ${messageTimestamp}`);
+
+						break;
+					}
+				}
+
+				expect(foundSenderConversation).toBe(true);
+				console.log('Message successfully received and visible to admin in conversation list');
 			});
 
 			await test.step('Result.', async () => {
 				// Final verification: Private message was successfully sent
 
-				// Verify we can navigate back to the specific conversation
-				await conversationsPage.clickConversationByParticipant(recipientName);
+				// Find and click on the specific conversation
+				const adminConversation = conversationsPage
+					.getPage()
+					.locator('a.conversation__item')
+					.filter({
+						has: conversationsPage
+							.getPage()
+							.locator('.conversation__item-snippet-title h2', { hasText: targetProfileUsername })
+					})
+					.first();
+
+				await adminConversation.click();
 				await conversationDetailPage.expectToBeOnConversationDetailPage();
 
-				// Verify our message is still there
-				await conversationDetailPage.expectMessageWithText(messageContent);
+				// Verify our unique message is still there
+				await conversationDetailPage.expectMessageWithText(messageTimestamp);
 
 				// Verify the conversation maintains the correct participant
 				await conversationDetailPage.expectParticipantInConversation(recipientName);
@@ -205,9 +257,10 @@ test.describe('[PAR-UPM001] – Send private messages', () => {
 				const isReplyFormReady = await conversationDetailPage.isReplyFormReady();
 				expect(isReplyFormReady).toBe(true);
 
-				console.log(
-					`✅ Test completed successfully: Private message "${messageContent.substring(0, 50)}..." was sent to ${recipientName} and appears in conversation history.`
-				);
+				console.log(`Test completed successfully:`);
+				console.log(`- Message sent at: ${messageTimestamp}`);
+				console.log(`- Recipient: ${recipientName}`);
+				console.log(`- Message appears in conversation history`);
 			});
 		});
 	});

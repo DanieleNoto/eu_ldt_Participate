@@ -127,7 +127,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	async navigateToProcessBySlug(processSlug: string): Promise<void> {
 		const processCard = this.getProcessCardBySlug(processSlug);
 		await processCard.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -143,7 +143,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		if (cardCount > 0) {
 			// Card found, click it
 			await processCard.first().click();
-			await this.waitForLoadState('networkidle');
+			await this.waitForLoadState('load');
 		} else {
 			// Fallback: Navigate directly using provided slug or derived from title
 			const slug =
@@ -155,7 +155,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 
 			console.log(`Process card not found for "${processTitle}", navigating directly to slug: ${slug}`);
 			await this.navigateTo(`/processes/${slug}`);
-			await this.waitForLoadState('networkidle');
+			await this.waitForLoadState('load');
 		}
 	}
 
@@ -189,11 +189,13 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	}
 
 	/**
-	 * Gets a process card from the main grid by its title
+	 * Gets a process card from the main grid by its title (exact match)
 	 * @param processTitle - The title of the process
 	 */
 	private getAllProcessCardByTitle(processTitle: string): Locator {
-		return this.allProcessCards.filter({ has: this.getPage().locator('h3', { hasText: processTitle }) });
+		return this.allProcessCards.filter({
+			has: this.getPage().locator('h3', { hasText: new RegExp(`^\\s*${processTitle}\\s*$`) })
+		});
 	}
 
 	/**
@@ -433,7 +435,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		}
 
 		// Wait for the results to update
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -453,7 +455,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		}
 
 		// Wait for the results to update
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -462,7 +464,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	async filterByAllAreas(): Promise<void> {
 		await this.openAreaFilter();
 		await this.areaFilterAll.check();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -480,7 +482,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 			// Go up to the parent label and then find the checkbox
 			const parent = areaOption.locator('xpath=..');
 			await parent.locator('input[type="checkbox"]').check();
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 		} else {
 			throw new Error(`Area "${areaName}" not found in area filter`);
 		}
@@ -497,7 +499,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		await this.dateFilterAll.check();
 
 		// Wait for the results to update
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -540,8 +542,6 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 			console.log(`"${dateOption}" date filter is already applied`);
 		}
 
-		await this.page.waitForLoadState('networkidle');
-
 		// Wait for grid container to be present
 		await expect(this.processesGrid).toBeVisible();
 		await expect(this.cardGrid).toBeVisible();
@@ -573,7 +573,7 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 		console.log(`Looking for process with title: "${processTitle}"`);
 
 		const processesGrid = this.page.locator('#processes-grid .card__grid-grid');
-		const processLink = processesGrid.getByRole('link', { name: processTitle });
+		const processLink = processesGrid.getByRole('link', { name: processTitle, exact: true });
 
 		try {
 			await expect(processLink).toBeVisible();

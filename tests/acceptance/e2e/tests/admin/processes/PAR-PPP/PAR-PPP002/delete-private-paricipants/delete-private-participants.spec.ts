@@ -57,10 +57,11 @@ test.describe('[PAR-PPP002] – Delete an existing participant (only if the proc
 	test.describe('Main Flow', () => {
 		test('should delete private participants from private process', async () => {
 			let countPreviousDelete = 0;
+			let deletedEmail = '';
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -74,7 +75,7 @@ test.describe('[PAR-PPP002] – Delete an existing participant (only if the proc
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.clickFirstPrivateProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -86,6 +87,8 @@ test.describe('[PAR-PPP002] – Delete an existing participant (only if the proc
 				await privateParticipantsPage.expectToBeOnPrivateParticipantsPage();
 				await privateParticipantsPage.expectTableIsVisible();
 				countPreviousDelete = await privateParticipantsPage.getRowsCount();
+				// Record the email of the first participant so we can verify deletion regardless of pagination
+				deletedEmail = await privateParticipantsPage.getParticipantEmailAtRow(0);
 			});
 			await test.step('7. User: Selects an existing participant to remove.', async () => {
 				await privateParticipantsPage.clickDelete(0);
@@ -97,29 +100,30 @@ test.describe('[PAR-PPP002] – Delete an existing participant (only if the proc
 				await confirmDeleteModalComponent.clickOK();
 			});
 			await test.step('10. System: Removes the selected user from the list of participants for the private process.', async () => {
-				await privateParticipantsPage.waitForLoadState('networkidle');
+				await privateParticipantsPage.waitForLoadState('load');
 				await privateParticipantsPage.expectToBeOnPrivateParticipantsPage();
-				await privateParticipantsPage.expectSearchResultsCount(countPreviousDelete - 1);
 			});
 			await test.step('11. System: Notifies the City Administrator that the participant has been successfully removed.', async () => {
 				await privateParticipantsPage.expectSuccessFlashMessage(
 					'Participatory space private participant access successfully destroyed.'
 				);
+				await privateParticipantsPage.expectParticipantDeletedByEmail(deletedEmail);
 			});
 			await test.step('Result.', async () => {
 				expect(countPreviousDelete).toBeGreaterThan(0);
-				await privateParticipantsPage.expectSearchResultsCount(countPreviousDelete - 1);
+				// Confirm the deleted participant is still absent after full reload
+				await privateParticipantsPage.expectParticipantDeletedByEmail(deletedEmail);
 			});
 		});
 	});
 
 	test.describe('Alternative Flow', () => {
 		test('should can abort delete private participants from private process', async () => {
-			let countPreviousDelete = 0;
+			let cancelledEmail = '';
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -133,7 +137,7 @@ test.describe('[PAR-PPP002] – Delete an existing participant (only if the proc
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.clickFirstPrivateProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -144,7 +148,8 @@ test.describe('[PAR-PPP002] – Delete an existing participant (only if the proc
 			await test.step('6. System: Displays a list of current participants and provides options to add or remove participants.', async () => {
 				await privateParticipantsPage.expectToBeOnPrivateParticipantsPage();
 				await privateParticipantsPage.expectTableIsVisible();
-				countPreviousDelete = await privateParticipantsPage.getRowsCount();
+				// Record the email of the first participant to verify it's still present after cancel
+				cancelledEmail = await privateParticipantsPage.getParticipantEmailAtRow(0);
 			});
 			await test.step('7. User: Selects an existing participant to remove.', async () => {
 				await privateParticipantsPage.clickDelete(0);
@@ -157,11 +162,12 @@ test.describe('[PAR-PPP002] – Delete an existing participant (only if the proc
 				await confirmDeleteModalComponent.expectModalNotVisible();
 			});
 			await test.step('9.2. System: Aborts the participant deletion process and returns to the list of participants.', async () => {
-				await privateParticipantsPage.waitForLoadState('networkidle');
+				await privateParticipantsPage.waitForLoadState('load');
 				await privateParticipantsPage.expectToBeOnPrivateParticipantsPage();
 			});
 			await test.step('Result.', async () => {
-				await privateParticipantsPage.expectSearchResultsCount(countPreviousDelete);
+				// Verify the participant was NOT deleted: search must return at least one row with that email
+				await privateParticipantsPage.expectParticipantStillPresentByEmail(cancelledEmail);
 			});
 		});
 	});

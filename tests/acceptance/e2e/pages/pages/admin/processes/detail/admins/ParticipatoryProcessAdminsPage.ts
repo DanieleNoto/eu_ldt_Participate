@@ -149,4 +149,15 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 		const roleCell = row.locator('td:nth-child(5)'); // Assuming the "Role" column is the fifth
 		return (await roleCell.textContent())?.trim() || '';
 	}
+
+	/**
+	 * Returns the role of the admin identified by email, regardless of row order.
+	 * @param email The email of the admin.
+	 * @returns The role as a string.
+	 */
+	async getRoleForAdmin(email: string): Promise<string> {
+		const row = this.tableRows.filter({ hasText: email }).first();
+		const roleCell = row.locator('td:nth-child(5)');
+		return (await roleCell.textContent())?.trim() || '';
+	}
 }

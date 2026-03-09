@@ -22,7 +22,10 @@ As a Citizen, I want to request the deletion of my personal data so that I can e
  * - The citizen has an active account on the platform.
  * - The citizen is logged into the platform.
  */
-test.describe('[PAR-DAAP003] – Request deletion of personal account', () => {
+
+// Test marked as skipped: no dedicated email account is available for this test, making it impossible to complete
+// the Decidim account registration required as a prerequisite for the test execution.
+test.describe.skip('[PAR-DAAP003] – Request deletion of personal account', () => {
 	let homePage: HomePage;
 	let accountDeletionPage: AccountDeletionPage;
 	let headerComponent: HeaderComponent;

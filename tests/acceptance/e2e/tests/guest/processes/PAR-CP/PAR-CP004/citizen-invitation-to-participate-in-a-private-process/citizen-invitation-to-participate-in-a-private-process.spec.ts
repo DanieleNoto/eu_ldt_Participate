@@ -101,7 +101,7 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 			await test.step('1. User: Receives an email invitation to participate in a private process', async () => {
 				// Navigate to temporary webmail inbox
 				await tempwebmailPage.navigateToTempInbox(testUserEmail);
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 				console.log(`Navigated to temp inbox for: ${testUserEmail}`);
 
 				// Wait for the invitation email to arrive
@@ -112,12 +112,12 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 			await test.step('2. User: Opens the email and clicks on the "Accept Invitation" button/link', async () => {
 				// Click on the invitation email with specific subject
 				await tempwebmailPage.clickInvitationEmail();
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 				console.log('Clicked on invitation email');
 
 				// Verify the email content (greeting) and click on "Accept invitation" link
 				await tempwebmailPage.verifyInvitationEmailAndAccept(testUserName);
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 				console.log('Email content verified and "Accept invitation" link clicked');
 			});
 
@@ -160,7 +160,7 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 				console.log('Registration form submitted');
 
 				// Wait for the page to load after registration
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 				console.log('Account creation completed successfully');
 			});
 

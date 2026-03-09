@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
+ * Simone Bianchelli
  */
 
 import { expect, Locator, Page } from '@playwright/test';
@@ -60,7 +61,7 @@ export class ConvocationPage extends AuthenticatedPage {
 	async waitForPageLoad(): Promise<void> {
 		await this.waitForElement('main.layout-1col');
 		await this.waitForElement('h1.h1.decorator');
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	// Content verification methods
@@ -92,7 +93,7 @@ export class ConvocationPage extends AuthenticatedPage {
 	 */
 	async isTitleConvocationPage(): Promise<boolean> {
 		const title = await this.getPageTitle();
-		return title.trim() === 'Page';
+		return title.trim() === 'Convocation Page';
 	}
 
 	// Verification methods
@@ -101,7 +102,7 @@ export class ConvocationPage extends AuthenticatedPage {
 	 * Verifies that the page title is "Convocation Page"
 	 */
 	async expectTitleToBeConvocationPage(): Promise<void> {
-		await expect(this.pageTitle).toHaveText('Page');
+		await expect(this.pageTitle).toHaveText(/Convocation Page/);
 	}
 
 	/**

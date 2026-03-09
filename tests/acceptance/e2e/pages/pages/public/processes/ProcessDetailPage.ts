@@ -108,7 +108,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		// Find and click the convocation page link
 		const convocationLink = this.navItems.filter({ hasText: 'Page' });
 		await convocationLink.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**

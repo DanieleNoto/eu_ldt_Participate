@@ -115,7 +115,7 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 		});
 	});
 
-	test.describe.skip('Alternative Flow: Cancel Creation ', () => {
+	test.describe('Alternative Flow: Cancel Creation ', () => {
 		test('should allow cancellation of process creation and return to dashboard', async ({ adminPage }) => {
 			await test.step('Start process creation and then cancel', async () => {
 				// Start at point 1-3: Navigate and begin filling form

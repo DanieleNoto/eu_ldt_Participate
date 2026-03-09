@@ -29,7 +29,9 @@ export class ConversationDetailPage extends AuthenticatedPage {
 		this.messagesContainer = page.locator('#messages');
 		this.messages = page.locator('.conversation__message');
 		this.replyTextarea = page.locator('#message_body');
-		this.newConversationTextarea = page.locator('#conversation_body');
+		this.newConversationTextarea = page
+			.locator('form.new_conversation textarea, #conversation_body, #message_body')
+			.first();
 		this.sendButton = page.locator('button[type="submit"]:has-text("Send")');
 		this.emojiButton = page.locator('.emoji__button');
 		this.characterCounter = page.locator('#message_body_characters');
@@ -63,6 +65,29 @@ export class ConversationDetailPage extends AuthenticatedPage {
 		await expect(this.participantsSection).toBeVisible();
 		await expect(this.newConversationTextarea).toBeVisible();
 		await expect(this.page).toHaveURL(/.*\/conversations\/new(\?.*)?$/);
+	}
+
+	/**
+	 * Verify that we are on a conversation detail page (new or existing)
+	 */
+	async expectToBeOnConversationPage() {
+		await expect(this.conversationTitle).toBeVisible();
+		await expect(this.conversationTitle).toContainText('Conversation with');
+		await expect(this.participantsSection).toBeVisible();
+
+		// Accept either new conversation or existing conversation URL
+		await expect(this.page).toHaveURL(/.*\/conversations\/(new|\d+)/);
+
+		// Wait for either textarea to be available
+		await this.page.waitForSelector('textarea', { state: 'visible' });
+	}
+
+	/**
+	 * Get the active textarea (new conversation or reply)
+	 */
+	async getActiveTextarea(): Promise<Locator> {
+		const isNewConversation = await this.newConversationTextarea.isVisible().catch(() => false);
+		return isNewConversation ? this.newConversationTextarea : this.replyTextarea;
 	}
 
 	/**

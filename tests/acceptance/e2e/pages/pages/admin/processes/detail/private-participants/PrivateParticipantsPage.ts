@@ -21,7 +21,7 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 		await this.page.goto(
 			'/admin/participatory_processes/minimal-process-1750076875679/participatory_space_private_users'
 		);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Actions
@@ -41,6 +41,72 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 	async getRowsCount(): Promise<number> {
 		const rows = this.page.locator('table.table-list tbody tr');
 		return await rows.count();
+	}
+
+	/**
+	 * Returns the email of the participant at the given row index.
+	 * Robust regardless of pagination — use this to identify the deleted participant.
+	 */
+	async getParticipantEmailAtRow(rowIndex: number): Promise<string> {
+		const row = this.page.locator('table.table-list tbody tr').nth(rowIndex);
+		// Email is the second <td> in each row in Decidim's admin table
+		const email = await row.locator('td').nth(1).textContent();
+		if (!email) throw new Error(`Could not read email at row ${rowIndex}`);
+		return email.trim();
+	}
+
+	/**
+	 * Searches for the given email and asserts that it no longer appears in the table.
+	 * Works correctly even when the table has pagination (>25 rows).
+	 */
+	async expectParticipantDeletedByEmail(email: string): Promise<void> {
+		const searchField = this.page.getByRole('searchbox', { name: 'Search by user name, email' });
+		const searchButton = this.page.getByRole('button', { name: 'Search' });
+		await searchField.fill(email);
+		await searchButton.click();
+		await this.page.waitForLoadState('load');
+		const rows = this.page.locator('table.table-list tbody tr');
+		// Either 0 rows, or all visible rows must not contain the email
+		const count = await rows.count();
+		for (let i = 0; i < count; i++) {
+			const cellText = await rows.nth(i).textContent();
+			if (cellText?.includes(email)) {
+				throw new Error(`Participant with email "${email}" still present in the table after deletion`);
+			}
+		}
+		// Restore empty search
+		await searchField.fill('');
+		await searchButton.click();
+		await this.page.waitForLoadState('load');
+	}
+
+	/**
+	 * Searches for the given email and asserts that at least one row still contains it.
+	 * Used in the Alternative Flow (cancel) to confirm the participant was NOT deleted.
+	 */
+	async expectParticipantStillPresentByEmail(email: string): Promise<void> {
+		const searchField = this.page.getByRole('searchbox', { name: 'Search by user name, email' });
+		const searchButton = this.page.getByRole('button', { name: 'Search' });
+		await searchField.fill(email);
+		await searchButton.click();
+		await this.page.waitForLoadState('load');
+		const rows = this.page.locator('table.table-list tbody tr');
+		const count = await rows.count();
+		let found = false;
+		for (let i = 0; i < count; i++) {
+			const cellText = await rows.nth(i).textContent();
+			if (cellText?.includes(email)) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			throw new Error(`Participant with email "${email}" was not found — it may have been accidentally deleted`);
+		}
+		// Restore empty search
+		await searchField.fill('');
+		await searchButton.click();
+		await this.page.waitForLoadState('load');
 	}
 
 	// Validations

@@ -146,7 +146,7 @@ export class FormMeetingPage extends BaseAdminPage {
 
 	/** Returns the "Select" button based on the index (0 = first, 1 = second) */
 	private selectButtoncalendar(index: number) {
-		return this.page.locator('button.datepicker__pick-calendar:enabled:has-text("Select")').nth(index);
+		return this.page.locator('button.datepicker__pick-calendar:has-text("Select")').nth(index);
 	}
 	// Page verification methods
 	async isOnMeetingFormPage(): Promise<boolean> {
@@ -340,8 +340,12 @@ export class FormMeetingPage extends BaseAdminPage {
 	}
 
 	async submitForm() {
+		const urlBefore = this.page.url();
 		await this.updateButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
+		if (this.page.url() !== urlBefore) {
+			await this.page.waitForLoadState('networkidle');
+		}
 	}
 
 	// For creating a new meeting
@@ -578,40 +582,75 @@ export class FormMeetingPage extends BaseAdminPage {
 	 */
 	async selectCustomDate(date: Date, calendarIndex: number, selectIndex: number): Promise<void> {
 		const pad = (n: number) => (n < 10 ? '0' + n : n);
+		const targetMonth = date.getMonth() + 1; // 1-12
+		const targetYear = date.getFullYear();
+		const targetDateStr = `${targetYear}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`; // YYYY-MM-DD
 
 		// Open the calendar widget
 		await this.calendarIcon(calendarIndex).click();
-		await this.page.waitForTimeout(500);
+		await this.page.waitForTimeout(300);
 
-		// Get the wc-datepicker component
 		const datepicker = this.page.locator('wc-datepicker').nth(calendarIndex);
 		await datepicker.waitFor({ state: 'visible' });
 
-		// Select the month using the dropdown
-		const targetMonth = date.getMonth() + 1; // 1-12 (HTML uses 1-based month values)
-		const monthSelect = datepicker.locator('.wc-datepicker__month-select');
-		await monthSelect.selectOption({ value: targetMonth.toString() });
-		await this.page.waitForTimeout(300);
-
-		// Input the year
-		const targetYear = date.getFullYear();
-		const yearInput = datepicker.locator('.wc-datepicker__year-select');
-		await yearInput.clear();
-		await yearInput.fill(targetYear.toString());
-		await yearInput.blur(); // Trigger year change
-		await this.page.waitForTimeout(500); // Wait for calendar to re-render with new month/year
+		// Navigate to the correct month/year via JS.
+		// Setting value + change on the internal inputs of the Stencil component is reliable
+		// regardless of focus/blur timing.
+		await datepicker.evaluate(
+			(el: Element, { year, month }: { year: number; month: number }) => {
+				const yearInput = el.querySelector('.wc-datepicker__year-select') as HTMLInputElement | null;
+				const monthSelect = el.querySelector('.wc-datepicker__month-select') as HTMLSelectElement | null;
+				if (yearInput) {
+					yearInput.value = year.toString();
+					yearInput.dispatchEvent(new Event('input', { bubbles: true }));
+					yearInput.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+				if (monthSelect) {
+					monthSelect.value = month.toString();
+					monthSelect.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+			},
+			{ year: targetYear, month: targetMonth }
+		);
+		await this.page.waitForTimeout(300); // allow Stencil to re-render the calendar grid
 
 		// Click on the specific day using data-date attribute
-		const targetDateStr = `${targetYear}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`; // YYYY-MM-DD
 		const dayCell = datepicker.locator(`td.wc-datepicker__date[data-date="${targetDateStr}"]`);
 		await dayCell.waitFor({ state: 'visible' });
 		await dayCell.click();
-		await this.page.waitForTimeout(300);
+		await this.page.waitForTimeout(300); // allow wc-datepicker to react
 
-		// Click the "Select" button to confirm the date selection
-		await expect(this.selectButtoncalendar(selectIndex)).toBeVisible();
-		await this.selectButtoncalendar(selectIndex).click();
-		await this.page.waitForTimeout(500);
+		// The Decidim listener stores event.detail directly as `pickedDate` (an ISO string
+		// like "YYYY-MM-DD"), then uses it as `input.value = `${pickedDate}T${time}`.
+		// We must pass the ISO string as detail.
+		// We also set datePicker.value to the Date so displayDate() formats the display input.
+		await this.page.evaluate(
+			({ dateStr, idx }: { dateStr: string; idx: number }) => {
+				const dp = document.querySelectorAll('wc-datepicker')[idx] as any;
+				if (dp) {
+					dp.value = new Date(`${dateStr}T12:00:00`);
+					dp.dispatchEvent(
+						new CustomEvent('selectDate', {
+							bubbles: true,
+							composed: true,
+							detail: dateStr // ISO string "YYYY-MM-DD"
+						})
+					);
+				}
+			},
+			{ dateStr: targetDateStr, idx: calendarIndex }
+		);
+
+		// Wait for the Select button to become enabled before clicking
+		const selectBtn = this.selectButtoncalendar(selectIndex);
+		await selectBtn.waitFor({ state: 'attached' });
+		await this.page.waitForFunction((idx: number) => {
+			const btns = Array.from(
+				document.querySelectorAll<HTMLButtonElement>('button.datepicker__pick-calendar')
+			).filter(b => b.textContent?.trim() === 'Select');
+			return btns[idx] !== undefined && !btns[idx].disabled;
+		}, selectIndex);
+		await selectBtn.click();
 	}
 
 	/**

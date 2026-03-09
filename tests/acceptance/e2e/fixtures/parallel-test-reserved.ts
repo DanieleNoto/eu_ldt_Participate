@@ -86,6 +86,34 @@ async function ensureAuthenticated(
 	await page.goto(loginUrl, { timeout: authTimeout });
 	await page.waitForLoadState('load', { timeout: authTimeout });
 
+	// In CI, the server may redirect away from the login page if a stored session
+	// cookie is still partially valid (e.g. present client-side but invalidated server-side).
+	// Detect this early instead of timing out after 90s waiting for a form that never appears.
+	const currentUrl = page.url();
+	if (!currentUrl.includes('/users/sign_in')) {
+		console.log(`[Worker ${workerIndex}] Redirected away from login page to: ${currentUrl}`);
+
+		// Check if we ended up logged in anyway
+		const isNowLoggedIn = await page
+			.locator('#trigger-dropdown-account')
+			.isVisible({ timeout: sessionCheckTimeout })
+			.catch(() => false);
+
+		if (isNowLoggedIn) {
+			console.log(`[Worker ${workerIndex}] Session restored via server redirect for reserved ${role}`);
+			if (role === 'admin') {
+				await page.goto(`${baseURL}/admin/`, { timeout: authTimeout });
+				await page.waitForLoadState('load', { timeout: authTimeout });
+			}
+			return;
+		}
+
+		// Redirect happened but we're not logged in – navigate back to login page
+		console.log(`[Worker ${workerIndex}] Not logged in after redirect, retrying login page`);
+		await page.goto(loginUrl, { timeout: authTimeout });
+		await page.waitForLoadState('load', { timeout: authTimeout });
+	}
+
 	// Wait for login form to be visible
 	const emailField = page.locator('#session_user_email');
 	const passwordField = page.locator('#session_user_password');

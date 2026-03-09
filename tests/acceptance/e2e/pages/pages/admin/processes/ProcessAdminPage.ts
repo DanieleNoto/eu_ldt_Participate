@@ -4,6 +4,7 @@
  * Denise Scarcelli
  * Gianfranco Cedro
  * Denis Vasilev Dimchev
+ * Simone Bianchelli
  */
 
 import { Page, expect } from '@playwright/test';
@@ -413,7 +414,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 	public async createTestProcess(validProcessData: CompleteProcessData, isPrivateProcess: boolean = false) {
 		await this.navigateToProcesses();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 		await this.page.waitForTimeout(1000); // Ensure the page is fully loaded
 		const hasPrivateProcess = await this.hasPrivateProcess();
 		if (!isPrivateProcess || (isPrivateProcess && hasPrivateProcess)) {

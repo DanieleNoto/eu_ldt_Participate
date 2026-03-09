@@ -79,7 +79,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		// Navigate to admin home and processes
 		await adminHomePage.navigateToAdminHomePage();
 		await processAdminPage.navigateToProcesses();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Create a new test process as prerequisite
 		await processAdminPage.navigateToNewProcess();
@@ -572,7 +572,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		await this.page.waitForURL(
 			/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
 		);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		console.log('Accessed questions management page');
 	}
 

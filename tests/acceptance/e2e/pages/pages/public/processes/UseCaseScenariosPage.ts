@@ -117,7 +117,7 @@ export class UseCaseScenariosPage extends BasePage {
 				}
 
 				await scenario.click();
-				await this.page.waitForLoadState('networkidle');
+				await this.page.waitForLoadState('load');
 				foundScenario = true;
 				break;
 			}

@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denise Scarcelli
+ * Simone Bianchelli
  */
 
 import { test, expect } from '@fixtures/keycloak-test';
@@ -56,7 +57,6 @@ test.describe('@useKeycloak [PAR-CP003] Display Use Case information in process'
 
 			await test.step('3. User: The user selects "LDT Use Case Scenarios"', async () => {
 				await processDetailPage.clickOnMenuItem('LDT Use Case Scenarios');
-				await userPage.waitForLoadState('networkidle');
 				await expect(userPage).toHaveURL(/\/use_case_scenarios/);
 			});
 

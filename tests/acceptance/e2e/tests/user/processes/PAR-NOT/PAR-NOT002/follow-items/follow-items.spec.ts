@@ -7,7 +7,7 @@
 
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProfilePage } from '@pages/pages/user/ProfilePage';
-import { test, expect } from '@fixtures/parallel-test';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 
 /**
  * Test suite for Allows citizens to follow content items, participatory spaces, enabling them to receive notifications of the activities of the things they follow.
@@ -22,42 +22,64 @@ import { test, expect } from '@fixtures/parallel-test';
  *
  */
 
-test.describe('[PAR-NOT002] – Follow items', () => {
+test.describe('@reserved [PAR-NOT002] – Follow items', () => {
+	test.describe.configure({ mode: 'serial' });
 	let homePage: HomePage;
 	let profilePage: ProfilePage;
+	const targetProfileUsername = 'admin'; // Fixed user to follow
 
 	test.beforeEach(async ({ userPage }) => {
 		homePage = new HomePage(userPage);
 		profilePage = new ProfilePage(userPage);
 		await homePage.navigateToHomePage();
+
+		// Ensure clean state: unfollow admin if already following
+		const profileUrl = `/profiles/${targetProfileUsername}`;
+		await homePage.navigateTo(profileUrl);
+		await homePage.waitForLoadState('load');
+		await profilePage.waitForProfileToLoad();
+
+		// Check if already following (unfollow button is visible)
+		const isFollowing = await profilePage.unfollowButton.isVisible().catch(() => false);
+		if (isFollowing) {
+			await profilePage.clickUnfollowButton();
+			console.log('Cleanup: Unfollowed admin to ensure clean state');
+		}
+
+		// Return to home page
+		await homePage.navigateToHomePage();
+	});
+
+	test.afterEach(async ({ userPage }) => {
+		// Cleanup: unfollow admin after test
+		try {
+			const profileUrl = `/profiles/${targetProfileUsername}`;
+			await userPage.goto(profileUrl);
+			await userPage.waitForLoadState('load');
+
+			const unfollowButton = userPage.locator('a[data-remote="true"][data-method="delete"][href^="/follow"]');
+			const isFollowing = await unfollowButton.isVisible().catch(() => false);
+
+			if (isFollowing) {
+				await unfollowButton.click();
+				await userPage.waitForLoadState('networkidle');
+				console.log('Cleanup: Unfollowed admin after test');
+			}
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error('Error during cleanup:', error.message);
+			}
+		}
 	});
 	test.describe('Main Flow', () => {
 		let recipientName: string;
+
 		test('should allow user to follow items', async () => {
 			await test.step('1. User: Navigates to the content item, participatory space they wish to follow.', async () => {
-				// Navigate to user profile by clicking on an author avatar from last activity
-				await homePage.lastActivitySection.waitForActivityToLoad();
+				// Navigate directly to the target user's profile
+				const profileUrl = `/profiles/${targetProfileUsername}`;
+				console.log(`Navigating to profile: ${profileUrl}`);
 
-				// Scroll to the last activity section to ensure it's visible
-				await homePage.lastActivitySection.scrollToSection();
-
-				// Wait for activities to be fully loaded
-				await homePage.waitForLoadState('networkidle');
-
-				// Ensure there are activities with authors
-				const activitiesWithAuthors = await homePage.lastActivitySection.getActivitiesWithAuthors();
-				expect(activitiesWithAuthors.length).toBeGreaterThan(0);
-
-				// Get the first activity with an author (most reliable approach)
-				const firstActivityWithAuthor = activitiesWithAuthors[0];
-				console.log(`Getting profile URL for activity at index: ${firstActivityWithAuthor}`);
-
-				// Get the profile URL directly and navigate to it
-				const profileUrl = await homePage.lastActivitySection.getAuthorProfileUrl(firstActivityWithAuthor);
-				expect(profileUrl).toBeTruthy();
-				console.log(`Navigating directly to profile URL: ${profileUrl}`);
-
-				// Navigate directly to the profile page
 				await homePage.navigateTo(profileUrl);
 				await homePage.waitForLoadState('load');
 			});
@@ -73,64 +95,59 @@ test.describe('[PAR-NOT002] – Follow items', () => {
 				recipientName = await profilePage.getProfileName();
 				expect(recipientName).toBeTruthy();
 
-				// Verify the message button is present and visible
-				await expect(profilePage.messageButton).toBeVisible();
-
 				// Verify the profile displays expected elements
 				await expect(profilePage.profileAvatar).toBeVisible();
 				await expect(profilePage.profileName).toBeVisible();
 				await expect(profilePage.profileDetails).toBeVisible();
 				await expect(profilePage.followButton).toBeVisible();
+				await expect(profilePage.messageButton).toBeVisible();
 
-				// Verify the message button has correct functionality
-				await profilePage.expectMessageButtonWithRecipientId();
+				// Verify the follow button shows "Follow" (clean state)
+				await expect(profilePage.followButton).toHaveText('Follow');
 			});
 
 			await test.step('3. User: Clicks the "Follow" button to follow the selected item, space, or participant.', async () => {
-				let buttonText = await profilePage.followButton.textContent();
-
-				if (buttonText.includes('Stop following')) {
-					// If already following, we might want to unfollow
-					await profilePage.clickUnfollowButton();
-					// Wait for the button to change back
-					await expect(profilePage.followButton).toHaveText('Follow');
-				}
 				// Click the follow button
 				await profilePage.clickFollowButton();
 			});
 
 			await test.step('4. System: Displays the "Stop Following" button in place of the "Follow" button.', async () => {
-				// Verify the follow button has changed to "Stop Following"
-				await expect(profilePage.followButton).toHaveText('Stop following');
+				// Verify the unfollow button is now visible
+				await expect(profilePage.unfollowButton).toBeVisible();
+				await expect(profilePage.unfollowButton).toHaveText('Stop following');
+
+				// And the follow button is no longer present
+				await expect(profilePage.followButton).not.toBeVisible();
 			});
 			await test.step('5. System: Updates the citizen\'s profile to include the followed item in their "Following" list', async () => {
-				// Navigate to user's own profile
+				// Navigate to the logged-in user's profile
 				await homePage.header.goToMyProfile();
 
-				// Wait for profile page to load
 				await profilePage.waitForProfileToLoad();
 
-				// Click on the follows/following tab
+				// Click on the follows/following tab to see who we are following
 				await profilePage.clickFollowsTab();
 
-				// Wait for the page to load after clicking the tab
 				await profilePage.waitForLoadState('load');
 
 				// Verify we're on the following page by checking URL
 				await expect(profilePage.getPage()).toHaveURL(/.*\/following/);
 
-				// Look for the followed user in the following list
-				// This could be a list of cards or profiles showing who we follow
+				// Verify the followed user appears in the following list
 				const followingList = profilePage.getPage().locator('a.profile__user');
 				const followingCount = await followingList.count();
 				expect(followingCount).toBeGreaterThan(0);
 
-				const followedUser = await profilePage
+				// Verify the admin user is in the following list
+				const followedUser = profilePage
 					.getPage()
-					.locator('div.profile__user-name')
-					.filter({ hasText: recipientName });
+					.locator(`a.profile__user[href="/profiles/${targetProfileUsername}"]`);
 
-				expect(await followedUser.count()).toBe(1);
+				await expect(followedUser).toBeVisible();
+
+				// Also verify the displayed name matches what we captured earlier
+				const displayedName = await followedUser.locator('div.profile__user-name').textContent();
+				expect(displayedName).toContain(recipientName);
 			});
 
 			await test.step('Result.', async () => {

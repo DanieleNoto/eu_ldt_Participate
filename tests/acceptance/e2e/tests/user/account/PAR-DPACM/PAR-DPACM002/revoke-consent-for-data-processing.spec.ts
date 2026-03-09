@@ -32,6 +32,29 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 		accountPage = new AccountPage(userPage);
 		notificationSettingsPage = new NotificationSettingsPage(userPage);
 		await homePage.navigateToHomePage();
+
+		// Ensure toggles are in the required initial state before each test.
+		await homePage.header.navigateToMyAccount();
+		await notificationSettingsPage.navigateToNotificationSettings();
+
+		const ownActivity = await notificationSettingsPage.isOwnActivityNotificationsEnabled();
+		const newsletter = await notificationSettingsPage.isNewsletterNotificationsEnabled();
+		const publicContact = await notificationSettingsPage.isPublicContactPermissionEnabled();
+		const frequency = await notificationSettingsPage.getSelectedNotificationFrequency();
+
+		const needsReset = !ownActivity || !newsletter || !publicContact || frequency === 'none';
+		if (needsReset) {
+			await notificationSettingsPage.configureNotificationSettings({
+				...(ownActivity ? {} : { ownActivity: true }),
+				...(newsletter ? {} : { newsletter: true }),
+				...(publicContact ? {} : { publicContact: true }),
+				...(frequency === 'none' ? { frequency: 'real_time' as const } : {})
+			});
+			await notificationSettingsPage.saveNotificationSettings();
+			console.log('Notification settings adjusted to required initial state for test execution');
+		}
+
+		await homePage.navigateToHomePage();
 	});
 
 	test.describe('Main Flow', () => {
@@ -213,7 +236,7 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 				await notificationSettingsPage.navigateToNotificationSettings();
 				await page.waitForLoadState('networkidle');
 
-				// Verify that original settings are maintained (only check available user settings)
+				// Verify that original settings are maintained
 				const currentSettings = {
 					ownActivity: await notificationSettingsPage.isOwnActivityNotificationsEnabled(),
 					followed: await notificationSettingsPage.isFollowedNotificationsEnabled(),
@@ -224,8 +247,9 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 				};
 				console.log('Current settings after navigation without saving:', currentSettings);
 
-				// The settings should not reflect the unsaved changes
-				// Note: This assumes the original settings had these enabled
+				// The unsaved changes must not have persisted
+				expect(currentSettings.ownActivity).toBe(true);
+				expect(currentSettings.newsletter).toBe(true);
 				console.log('System maintained original consent settings without saving changes');
 			});
 

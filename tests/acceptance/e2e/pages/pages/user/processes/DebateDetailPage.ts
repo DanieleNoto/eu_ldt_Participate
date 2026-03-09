@@ -1008,11 +1008,17 @@ export class DebateDetailPage {
 	// === ENDORSEMENT/LIKE METHODS ===
 
 	/**
-	 * Click the like/endorsement button
+	 * Click the like/endorsement button.
 	 */
 	async clickEndorsementButton(): Promise<void> {
+		const wasLiked = await this.isDebateLikedByCurrentUser();
 		await this.endorsementButton.click();
-		await this.page.waitForLoadState('networkidle');
+		// Wait for the DOM to reflect the new state
+		if (wasLiked) {
+			await expect(this.endorsementButton).not.toHaveAttribute('aria-label', /undo/i);
+		} else {
+			await expect(this.endorsementButton).toHaveAttribute('aria-label', /undo/i);
+		}
 	}
 
 	/**
@@ -1024,11 +1030,11 @@ export class DebateDetailPage {
 
 	/**
 	 * Check if the current user has liked/endorsed the debate
-	 * @returns True if the endorsement button shows "Dislike", false if it shows "Like"
+	 * @returns True if the endorsement button aria-label is "Undo the like", false if it's "Like"
 	 */
 	async isDebateLikedByCurrentUser(): Promise<boolean> {
-		const buttonText = (await this.endorsementButton.textContent()) || '';
-		return buttonText.trim().toLowerCase().includes('dislike');
+		const ariaLabel = (await this.endorsementButton.getAttribute('aria-label')) || '';
+		return ariaLabel.toLowerCase().includes('undo');
 	}
 
 	/**
@@ -1052,6 +1058,13 @@ export class DebateDetailPage {
 	 * @returns The number of people who endorsed/liked the debate
 	 */
 	async getEndorsersCount(): Promise<number> {
+		const dropdownTriggerCount = await this.endorsementDropdown.count();
+
+		if (dropdownTriggerCount === 0) {
+			const isLiked = await this.isDebateLikedByCurrentUser();
+			return isLiked ? 1 : 0;
+		}
+
 		// Check if dropdown is already visible
 		const isDropdownVisible = await this.endorsersListDropdown.isVisible();
 

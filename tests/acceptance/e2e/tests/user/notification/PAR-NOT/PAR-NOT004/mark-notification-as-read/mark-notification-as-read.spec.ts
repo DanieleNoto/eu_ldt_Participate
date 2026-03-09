@@ -8,6 +8,7 @@
 
 import { HomePage } from '@pages/pages/public/HomePage';
 import NotificationPage from '@pages/pages/user/NotificationPage';
+import { DebateDetailPage } from '@pages/pages/user/processes/DebateDetailPage';
 import { test } from '@fixtures/parallel-test-reserved';
 
 /**
@@ -30,11 +31,68 @@ test.describe('@reserved [PAR-NOT004] – Mark notifications as reads', () => {
 	let notificationCount = -1;
 	let notificationPage: NotificationPage;
 	let homePage: HomePage;
+	let createdCommentId: string | null = null;
 
-	test.beforeEach(async ({ userPage }) => {
+	const processSlug = 'test';
+	const componentId = '3';
+	const debateId = '24';
+
+	test.beforeEach(async ({ userPage, adminPage }) => {
+		// Step 1: Admin navigates to debate page and leaves a comment
+		const debateDetailPage = new DebateDetailPage(adminPage);
+		const debateUrl = `/processes/${processSlug}/f/${componentId}/debates/${debateId}`;
+
+		console.log(`Admin navigating to debate: ${debateUrl}`);
+		await adminPage.goto(debateUrl);
+		await adminPage.waitForLoadState('networkidle');
+
+		// Wait for comments to load (wait for "Loading comments..." to disappear)
+		await debateDetailPage.waitForCommentsToLoad();
+		console.log('Comments loaded, form should be enabled');
+
+		// Add comment with mention (without setting opinion, as this debate may not have opinions enabled)
+		const commentText = 'test comment @info';
+		await debateDetailPage.fillComment(commentText);
+		await debateDetailPage.submitComment();
+		console.log(`Admin added comment: "${commentText}"`);
+
+		// Get the ID of the comment just created
+		createdCommentId = await debateDetailPage.getCommentIdByText(commentText);
+		console.log(`Created comment ID: ${createdCommentId}`);
+
+		// Step 2: User navigates to home page
 		notificationPage = new NotificationPage(userPage);
 		homePage = new HomePage(userPage);
 		await homePage.navigateToHomePage();
+	});
+
+	test.afterEach(async ({ adminPage }) => {
+		// Cleanup: Delete the comment created in beforeEach
+		if (createdCommentId) {
+			try {
+				console.log(`Cleaning up comment ID: ${createdCommentId}`);
+				const debateDetailPage = new DebateDetailPage(adminPage);
+				const debateUrl = `/processes/${processSlug}/f/${componentId}/debates/${debateId}`;
+
+				await adminPage.goto(debateUrl);
+				await adminPage.waitForLoadState('networkidle');
+
+				// Wait for comments to load before deleting
+				await debateDetailPage.waitForCommentsToLoad();
+
+				// Delete the comment
+				await debateDetailPage.deleteCommentById(createdCommentId);
+				console.log(`Successfully deleted comment ID: ${createdCommentId}`);
+
+				createdCommentId = null;
+			} catch (error) {
+				if (error instanceof Error) {
+					console.error(`Error during cleanup of comment ${createdCommentId}:`, error.message);
+				} else {
+					console.error('Unknown error during comment cleanup');
+				}
+			}
+		}
 	});
 	test.describe('Main Flow', () => {
 		test('should allow user to mark notifications as reads', async () => {

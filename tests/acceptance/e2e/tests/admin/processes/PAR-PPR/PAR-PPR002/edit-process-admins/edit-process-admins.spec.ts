@@ -110,9 +110,9 @@ test.describe('[PAR-PPR002] – Edit process administrator role', () => {
 				);
 			});
 			await test.step('Result.', async () => {
-				const newRole = await participatoryProcessAdminsPage.getRoleByRowIndex(0);
-				expect(newRole.toLowerCase()).toBe('collaborator');
 				await participatoryProcessAdminsPage.expectAdminIsInTable('Test Admin', 'testadmin@example.com');
+				const newRole = await participatoryProcessAdminsPage.getRoleForAdmin('testadmin@example.com');
+				expect(newRole.toLowerCase()).toBe('collaborator');
 			});
 		});
 	});

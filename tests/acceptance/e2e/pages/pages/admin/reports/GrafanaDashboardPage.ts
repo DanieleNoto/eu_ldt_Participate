@@ -162,6 +162,13 @@ export class GrafanaDashboardPage {
 	}
 
 	/**
+	 * Locator for the Nav toolbar container (Edit, Export, Share buttons).
+	 */
+	get navToolbar(): Locator {
+		return this.page.getByTestId('data-testid Nav toolbar');
+	}
+
+	/**
 	 * Locator for the TimePicker open button.
 	 */
 	get timePickerButton(): Locator {
@@ -215,7 +222,7 @@ export class GrafanaDashboardPage {
 	 */
 	async navigateGrafanaDashboard(): Promise<void> {
 		await this.page.goto(`${GRAFANA_URLS.BASE}/dashboards`, {
-			waitUntil: 'networkidle'
+			waitUntil: 'load'
 		});
 
 		await expect(this.page).toHaveURL(/\/dashboards/);
@@ -364,7 +371,7 @@ export class GrafanaDashboardPage {
 		await expect(option).toBeVisible();
 		await option.click();
 
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Verify the change
 		const newValue = await this.getCurrentTimeRange();
@@ -495,13 +502,12 @@ export class GrafanaDashboardPage {
 			throw new Error(`Expected "Inspect" menu item but found: "${inspectText}"`);
 		}
 
-		// Click Inspect to open submenu
-		await this.inspectMenuItem.click();
+		// Hover Inspect to open submenu (clicking directly opens the drawer, not the submenu)
+		await this.inspectMenuItem.hover();
 
 		// Wait for Inspect submenu and click on "Data"
 		const dataMenuItem = this.page.locator('[data-testid="data-testid Panel menu item Data"]');
-		await this.page.waitForTimeout(1000);
-		await expect(dataMenuItem).toBeVisible();
+		await dataMenuItem.waitFor({ state: 'visible' });
 		await dataMenuItem.click();
 
 		// Wait for drawer to open with explicit check
@@ -509,8 +515,7 @@ export class GrafanaDashboardPage {
 		await drawer.waitFor({ state: 'visible' });
 
 		// Wait for Download CSV button to be visible in the drawer
-		await this.page.waitForTimeout(1000);
-		await expect(this.downloadCSVButton).toBeVisible();
+		await this.downloadCSVButton.waitFor({ state: 'visible' });
 
 		// Start waiting for download before clicking
 		const downloadPromise = this.page.waitForEvent('download');
@@ -626,7 +631,7 @@ export class GrafanaDashboardPage {
 	async openDecidimSection() {
 		await expect(this.decidimLink).toBeVisible();
 		await this.decidimLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		await expect(this.decidimHeading).toBeVisible();
 	}
 	/**
@@ -635,7 +640,7 @@ export class GrafanaDashboardPage {
 	async openParticipationDemographicsReport() {
 		await expect(this.participationDemographicsLink).toBeVisible();
 		await this.participationDemographicsLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		expect(this.page.url()).toContain(`${GRAFANA_URLS.BASE}/d/decidim_demographics/participation-demographics`);
 	}
 	/**
@@ -643,6 +648,13 @@ export class GrafanaDashboardPage {
 	 */
 	async verifyDashboardControlsVisible() {
 		await expect(this.dashboardControls).toBeVisible();
+	}
+
+	/**
+	 * Verifies that the Nav toolbar (Edit, Export, Share buttons) is visible.
+	 */
+	async verifyNavToolbarVisible() {
+		await expect(this.navToolbar).toBeVisible();
 	}
 	/**
 	 * Opens the TimePicker and selects the "Last 1 year" option to filter data.

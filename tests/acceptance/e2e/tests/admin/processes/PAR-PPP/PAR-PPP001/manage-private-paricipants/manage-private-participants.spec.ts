@@ -65,7 +65,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -79,7 +79,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.clickFirstPrivateProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -102,7 +102,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 				await newPrivateParticipantFormPage.submitForm();
 			});
 			await test.step('10. System: Validates the participant information for completeness and correctness.', async () => {
-				await privateParticipantsPage.waitForLoadState('networkidle');
+				await privateParticipantsPage.waitForLoadState('load');
 				await privateParticipantsPage.expectToBeOnPrivateParticipantsPage();
 			});
 			await test.step('11. System: Notifies the City Administrator that the new participant has been successfully added.', async () => {
@@ -121,7 +121,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -135,7 +135,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.clickFirstPrivateProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -163,7 +163,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 			});
 			await test.step('7.4. System: Saves all valid participants from the CSV file to the list of participants for the private process.', async () => {
 				await importCsvPage.waitForTimeout(1500);
-				await privateParticipantsPage.getPage().waitForLoadState('networkidle');
+				await privateParticipantsPage.getPage().waitForLoadState('load');
 				await privateParticipantsPage.expectToBeOnPrivateParticipantsPage();
 			});
 			await test.step('7.5. System: Notifies the City Administrator that participants have been successfully imported and added.', async () => {
@@ -185,7 +185,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -199,7 +199,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.clickFirstPrivateProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -230,7 +230,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 				await uploadFileModalComponent.expectModalNotVisible();
 				await importCsvPage.submitForm();
 				await importCsvPage.waitForTimeout(1500);
-				await privateParticipantsPage.getPage().waitForLoadState('networkidle');
+				await privateParticipantsPage.getPage().waitForLoadState('load');
 				await privateParticipantsPage.expectToBeOnPrivateParticipantsPage();
 			});
 			await test.step('Result.', async () => {
@@ -246,7 +246,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -260,7 +260,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.clickFirstPrivateProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -292,7 +292,7 @@ test.describe('[PAR-PPP001] – Manage private participants (Only If the process
 				await newPrivateParticipantFormPage.fillName('Test User');
 				await newPrivateParticipantFormPage.fillEmail('testuser@example.com');
 				await newPrivateParticipantFormPage.submitForm();
-				await privateParticipantsPage.waitForLoadState('networkidle');
+				await privateParticipantsPage.waitForLoadState('load');
 				await privateParticipantsPage.expectToBeOnPrivateParticipantsPage();
 				await privateParticipantsPage.expectSuccessFlashMessage(
 					'Participatory space private participant access successfully created.'

@@ -10,7 +10,7 @@ import { DebatesOverviewPage } from '@pages/pages/public/processes/DebatesOvervi
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { ProcessesOverviewPage } from '@pages/pages/public/processes/ProcessesOverviewPage';
 import { DebateDetailPage } from '@pages/pages/user/processes/DebateDetailPage';
-import { test, expect } from '@fixtures/parallel-test';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 
 /**
  * Test suite for ENDORSE a debate topic
@@ -25,7 +25,8 @@ import { test, expect } from '@fixtures/parallel-test';
  * - The debate is open for participation (not closed).
  */
 
-test.describe('[PAR-DAD005] – Endorse a debate', () => {
+test.describe('@reserved [PAR-DAD005] – Endorse a debate', () => {
+	test.describe.configure({ mode: 'serial' });
 	let processesOverviewPage: ProcessesOverviewPage;
 	let debatesOverviewPage: DebatesOverviewPage;
 	let processDetailPage: ProcessDetailPage;
@@ -41,6 +42,14 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 		await homePage.navigateToHomePage();
 	});
 
+	test.afterEach(async () => {
+		// Clean up: remove the like if present
+		const isLiked = await debateDetailPage.isDebateLikedByCurrentUser();
+		if (isLiked) {
+			await debateDetailPage.clickEndorsementButton();
+		}
+	});
+
 	test.describe('Main Flow', () => {
 		test('should allow user to endorse a debate', async () => {
 			let likesCount = 0;
@@ -48,10 +57,11 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
-				await processesOverviewPage.navigateToProcessByIndex(0);
+
+				await processesOverviewPage.navigateToProcessByTitle('Update Test0', 'test');
 			});
 			await test.step('2. System: Displays the details of the selected process', async () => {
 				await processDetailPage.expectToBeOnProcessDetailPage();
@@ -81,8 +91,6 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 				// If already liked, remove the like first for a clean test
 				if (isAlreadyLiked) {
 					await debateDetailPage.clickEndorsementButton();
-					// Wait for the system to process the unlike
-					await debateDetailPage.getPage().waitForLoadState('networkidle');
 					// Get the count again after removing the like
 					likesCount = await debateDetailPage.getEndorsersCount();
 					console.log('Likes count after unlike:', likesCount);
@@ -96,17 +104,13 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 				console.log('About to click like button...');
 				await debateDetailPage.clickEndorsementButton();
 
-				// Wait for the system to process the like
-				await debateDetailPage.getPage().waitForLoadState('networkidle');
-
 				// Check that the button now shows "Dislike"
 				const isNowLiked = await debateDetailPage.isDebateLikedByCurrentUser();
 				console.log('Is now liked after click:', isNowLiked);
 			});
 			await test.step('8. System: Registers the endorsement and updates the endorsement count for the debate.', async () => {
-				// Wait a bit longer to ensure the operation is completed
-				await debateDetailPage.getPage().waitForTimeout(1000);
-				await debateDetailPage.getPage().waitForLoadState('networkidle');
+				// Allow a brief moment for the endorsers dropdown count to settle
+				await debateDetailPage.getPage().waitForTimeout(500);
 
 				// Check that the debate is now liked by the user
 				const isNowLiked = await debateDetailPage.isDebateLikedByCurrentUser();
@@ -120,7 +124,6 @@ test.describe('[PAR-DAD005] – Endorse a debate', () => {
 				if (!isNowLiked) {
 					console.log('WARNING: Like did not register properly, attempting to force like...');
 					await debateDetailPage.likeDebate();
-					await debateDetailPage.getPage().waitForLoadState('networkidle');
 					resultLikesCount = await debateDetailPage.getEndorsersCount();
 					console.log('Final likes count after force like:', resultLikesCount);
 				}
