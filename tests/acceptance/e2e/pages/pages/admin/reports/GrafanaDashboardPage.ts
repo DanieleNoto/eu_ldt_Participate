@@ -502,13 +502,12 @@ export class GrafanaDashboardPage {
 			throw new Error(`Expected "Inspect" menu item but found: "${inspectText}"`);
 		}
 
-		// Click Inspect to open submenu
-		await this.inspectMenuItem.click();
+		// Hover Inspect to open submenu (clicking directly opens the drawer, not the submenu)
+		await this.inspectMenuItem.hover();
 
 		// Wait for Inspect submenu and click on "Data"
 		const dataMenuItem = this.page.locator('[data-testid="data-testid Panel menu item Data"]');
-		await this.page.waitForTimeout(1000);
-		await expect(dataMenuItem).toBeVisible();
+		await dataMenuItem.waitFor({ state: 'visible' });
 		await dataMenuItem.click();
 
 		// Wait for drawer to open with explicit check
@@ -516,8 +515,7 @@ export class GrafanaDashboardPage {
 		await drawer.waitFor({ state: 'visible' });
 
 		// Wait for Download CSV button to be visible in the drawer
-		await this.page.waitForTimeout(1000);
-		await expect(this.downloadCSVButton).toBeVisible();
+		await this.downloadCSVButton.waitFor({ state: 'visible' });
 
 		// Start waiting for download before clicking
 		const downloadPromise = this.page.waitForEvent('download');
