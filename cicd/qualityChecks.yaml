@@ -206,7 +206,7 @@ jobs:
                 testType: 'app'
                 targetFile: 'backend/package.json'
                 monitorWhen: 'always'
-                failOnIssues: false
+                failOnIssues: true
                 projectName: 'EU-LDT-Toobox-Participate'
                 organization: 'eutoolbox'
           - script: |
@@ -219,6 +219,6 @@ jobs:
                 testType: 'app'
                 targetFile: 'frontend/package.json'
                 monitorWhen: 'always'
-                failOnIssues: false
+                failOnIssues: true
                 projectName: 'EU-LDT-Toobox-Participate'
                 organization: 'eutoolbox'
