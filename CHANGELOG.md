@@ -1,3 +1,64 @@
+# Changelog from D03.04.Feb to PAR-1.0.0
+ 
+## fix
+- enable failOnIssues for Snyk scans in qualityChecks.yaml
+- enhance Grafana dashboard options for improved data visualization
+- update SQL queries to include 'Decidim::UserBaseEntity' for improved user engagement metrics
+- adjust padding and update dropdown icon rotation for better UX
+- update admin header styles and assets for improved layout and font consistency
+- update dashboard versions in Grafana ConfigMap
+- enhance Keycloak logout handling by validating id_token against client_id
+- update Node.js version to 22.x and cdxgen to 12.1.1 in SBOM generation
+- update PGDATA path in Grafana DB config to use environment variable
+- add account blocked notifications in German, Spanish, and French locales
+- include client_id in Keycloak logout URL for validation against registered URIs
+- streamline Keycloak id_token handling for logout and session management
+- simplify parameter assignment in UseCaseScenarioForm
+- enhance Keycloak session management by using session-stored id_token for logout
+- update admin header assets and styles
+- remove unnecessary workbox-sw.js.map file copy from webpack configuration
+- update session expiration messages and improve logging for token refresh handling
+- improve token expiration handling by extracting JWT exp claim in a dedicated method
+- update base image version to 0.30.6 for builder and runtime stages
+- update Decidim version to 0.30.6 and related dependencies
+- update base image version to 0.30.5 for builder and runtime stages
+- standardize indentation and formatting in PersistentVolumeClaim definitions
+- update database configuration and improve environment variable descriptions
+- add Grafana database configuration, secrets, and statefulset
+- improve error handling for config directory creation in entrypoint script
+- update database configuration for chatbot and decidim components
+- verify and update config.ini.php with required settings
+- update statefulset with new configmaps
+- add host specification to Matomo Ingress rules
+- simplify Matomo StatefulSet volume mounts and update Ingress headers
+
+## refactor
+- update grafana dashboards
+- streamline token expiration handling by utilizing JWT exp claim
+- keycloak authentication and session handling
+- queries in Grafana dashboards for improved accuracy and consistency
+
+## feat
+- add toolbar with tool name
+- update glob dependency from 10.5.0 to 9.3.5 in package.json
+- update dependencies in package.json
+- fix failed tests
+- update dependencies in package.json
+- fix failed tests
+- fix failed tests
+- fix failed tests
+- fix failed tests
+- fix failed tests
+- bump Decidim module versions to 0.30.5 and update dependencies to 0.30.6
+- fix failed tests
+- fix failed tests
+- fix failed tests
+- fix failed tests
+
+## PR Merge
+- Fix mar issues- Chore: Add imagen External- test: fix failed tests- Fix Feb/Mar issues- Fix Grafana and Matomo Issues- Fix manifest issues
+
+
 <!-- SPDX-License-Identifier: AGPL-3.0
 Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 Authors:
@@ -1245,6 +1306,7 @@ Pierluigi Spedicato
 ## PR Merge
 
 - [PAR-PPM001] - Create new process- [PAR-PIM003] - Update personal information- [PAR-PIM001] - Configure form for additional personal data on first login- Startup Participate project
+
 
 
 
