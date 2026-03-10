@@ -11,4 +11,5 @@ import '../images/decidim/admin_header/help.svg';
 import '../images/decidim/admin_header/ldt-logo.png';
 import '../images/decidim/admin_header/logo.svg';
 import '../images/decidim/admin_header/tools.svg';
+import '../images/decidim/admin_header/participate-logo.svg';
 import '../images/decidim/admin_header/user.svg';
