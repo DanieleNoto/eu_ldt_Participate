@@ -1,0 +1,98 @@
+trigger:
+  branches:
+    include:
+      - main
+pr: none
+parameters:
+- name: scanPath
+  displayName: "Integration Path"
+  type: string
+  default: "./infrastructure/int"
+jobs:
+- job: AuditAndPatchImages
+  displayName: 'Image Migration Process'
+  pool:
+    vmImage: 'ubuntu-latest'
+  variables:
+  - group: 'Tool 3 - Tool parameters - INT'
+  - group: 'Tool 3 - Resources Configuration - INT'
+  - group: 'Toolbox Shared Infrastructure - INTEGRATION'
+  - group: 'TOOL3 - PT'
+  - group: 'TOOL3 - PT - KV'
+  
+  steps:
+  - task: replacetokens@5
+    displayName: "Replace tokens"
+    inputs:
+      rootDirectory: infrastructure/int
+      targetFiles: '*.yml'
+      tokenPattern: custom
+      tokenPrefix: _%
+      tokenSuffix: '%_'
+  - task: Docker@2
+    displayName: 'Login to ACR'
+    inputs:
+      command: login
+      containerRegistry: 'EU-LDT-Toolbox-ACR-Shared-INT'
+  - script: |
+      ScanPath="${{ parameters.scanPath }}"
+      ACR_URL="euldtshared.azurecr.io"
+      TARGET_REPO="ldt-external-images"
+      MISSING_IMAGES_LOG="missing_images.log"
+      
+      echo "--- Starting Path Validation ---"
+      if [ ! -d "$ScanPath" ]; then
+        echo "❌ ERROR: The path does not exist: $ScanPath"
+        exit 1
+      fi
+      # We cleaned the log of missing images
+      > $MISSING_IMAGES_LOG
+      files=$(grep -rlE "kind: (Deployment|StatefulSet)" "$ScanPath" 2>/dev/null)
+      
+      if [ -z "$files" ]; then
+        echo "ℹ️ No YAML files were found.."
+        exit 0
+      fi
+      for file in $files; do
+        # Robust image extraction, ignoring quotes and comments
+        images=$(grep -E "image:" "$file" | sed -E 's/.*image:[[:space:]]*["'\'']?([^#"'\'']+)["'\'']?.*/\1/')
+        
+        for img in $images; do
+          # Ignore images that already come from our ACR
+          if [[ $img == *"$ACR_URL"* ]]; then
+              echo "ℹ️ Image already in ACR, omitted: $img"
+              continue
+          fi
+          echo "⚠️ External detected: $img"
+          
+          # Create a flat tag for the ACR
+          CLEAN_NAME=$(echo "$img" | awk -F'/' '{print $NF}')
+          IMG_TAG=$(echo "$CLEAN_NAME" | sed 's/:/-/g')
+          NEW_IMAGE_FULL="$ACR_URL/$TARGET_REPO:$IMG_TAG"
+          
+          # Check if it already exists in ACR
+          if docker manifest inspect "$NEW_IMAGE_FULL" > /dev/null 2>&1; then
+              echo "ℹ️ Image already exists in ACR: $NEW_IMAGE_FULL. Push is skipped."
+              # We updated the YAML anyway
+              sed -i "s|$img|$NEW_IMAGE_FULL|g" "$file"
+              echo "✅ YAML Update: $file"
+              continue
+          fi
+          
+          # Try downloading an external image
+          if docker pull "$img" > /dev/null 2>&1; then
+              docker tag "$img" "$NEW_IMAGE_FULL"
+              docker push "$NEW_IMAGE_FULL"
+              sed -i "s|$img|$NEW_IMAGE_FULL|g" "$file"
+              echo "✅ YAML Updated: $file"
+          else
+              echo "⚠️ WARNING: External image not found: $img"
+              echo "$img" >> "$MISSING_IMAGES_LOG"
+          fi
+        done
+      done
+      echo "🔹 Process Complete."
+      if [ -s "$MISSING_IMAGES_LOG" ]; then
+        echo "⚠️ Some external images were not found. Review $MISSING_IMAGES_LOG"
+      fi
+    displayName: 'Detect, Migrate to Repository'
