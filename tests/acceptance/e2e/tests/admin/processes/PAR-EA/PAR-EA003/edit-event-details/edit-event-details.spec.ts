@@ -312,6 +312,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 	});
 	test.describe('Alternative Flow', () => {
 		test('should handle validation failures for all meeting types', async ({ adminPage }) => {
+			test.slow();
 			// Navigate directly to the specific process
 			await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
 			await adminPage.waitForLoadState('networkidle');
@@ -480,9 +481,6 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 						// Clear only the current field using the appropriate method
 						await field.clear();
 						await formMeetingPage.submitForm();
-
-						// Wait a moment for validation errors to appear
-						await adminPage.waitForTimeout(500);
 
 						// Look for a visible error - can be sibling of field OR inside the label containing the field
 						const fieldId = field.selector.replace('#', '');

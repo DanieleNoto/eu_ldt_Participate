@@ -93,7 +93,7 @@ export class ComponentsPage extends BaseAdminPage {
 	async waitForComponentsPageLoad() {
 		await this.page.waitForSelector('.item_show__wrapper');
 		await this.page.waitForSelector('.table-list');
-		await this.page.waitForLoadState('load');
+		await this.page.waitForLoadState('domcontentloaded');
 	}
 
 	async isOnComponentsPage(): Promise<boolean> {
@@ -158,8 +158,10 @@ export class ComponentsPage extends BaseAdminPage {
 
 	async addDebatesComponent() {
 		await this.openAddComponentDropdown();
-		await this.debatesLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await Promise.all([
+			this.page.waitForURL(/\/admin\/participatory_processes\/[^/]+\/components\/new\?type=debates/),
+			this.debatesLink.click()
+		]);
 	}
 
 	async addMeetingsComponent() {

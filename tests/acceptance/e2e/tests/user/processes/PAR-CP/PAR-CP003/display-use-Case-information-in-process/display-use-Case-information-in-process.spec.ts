@@ -46,7 +46,7 @@ test.describe('@useKeycloak [PAR-CP003] Display Use Case information in process'
 				await processesOverviewPage.applyDateFilterAndEnsureGridLoaded('all');
 				await processesOverviewPage.checkProcessVisibility('Update Test0');
 				await processesOverviewPage.navigateToProcess('Update Test0', 'test');
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 			});
 
 			await test.step('2. System: Displays the Process in a clear and organized format.', async () => {

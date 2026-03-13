@@ -115,9 +115,9 @@ export class ProcessesOverviewPage extends AuthenticatedPage {
 	 * Waits for the page to load completely
 	 */
 	async waitForPageLoad(): Promise<void> {
-		await this.waitForElement('.layout-2col');
-		await this.waitForElement('#processes-grid');
-		await this.waitForLoadState('load');
+		await expect(this.getPage()).toHaveURL(/\/processes(?:\?.*)?$/);
+		await expect(this.processesGrid).toBeVisible();
+		await this.waitForLoadState('domcontentloaded');
 	}
 
 	/**

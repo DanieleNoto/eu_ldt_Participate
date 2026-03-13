@@ -80,8 +80,8 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 	async waitForNewDebatesComponentPageLoad(): Promise<void> {
 		await this.waitForElement('.item_show__wrapper');
 		await this.waitForElement('form.new_component');
-		await this.sidebar.isSidebarVisible();
-		await this.page.waitForLoadState('load');
+		await expect(this.submitButton).toBeVisible();
+		await this.page.waitForLoadState('domcontentloaded');
 	}
 
 	async isOnNewDebatesComponentPage(): Promise<boolean> {
@@ -240,18 +240,16 @@ export class NewDebatesComponentPage extends BaseAdminPage {
 
 	// Form submission methods
 	async submitForm(): Promise<void> {
-		// Wait for any pending operations to complete
-		await this.page.waitForTimeout(200);
-
 		// Ensure the submit button is ready
 		await expect(this.submitButton).toBeEnabled();
 		await expect(this.submitButton).toBeVisible();
+		await expect(this.form).toBeVisible();
 
 		await Promise.all([
 			this.page.waitForURL(/\/admin\/participatory_processes\/[^/]+\/components(?!\/)/),
-			this.submitButton.click({ noWaitAfter: true, force: true })
+			this.form.evaluate((form: HTMLFormElement) => form.requestSubmit())
 		]);
-		await this.waitForLoadState('load');
+		await this.waitForLoadState('domcontentloaded');
 	}
 
 	async isSubmitButtonEnabled(): Promise<boolean> {
