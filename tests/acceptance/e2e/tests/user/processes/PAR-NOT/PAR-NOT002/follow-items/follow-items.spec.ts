@@ -36,7 +36,6 @@ test.describe('@reserved [PAR-NOT002] – Follow items', () => {
 		// Ensure clean state: unfollow admin if already following
 		const profileUrl = `/profiles/${targetProfileUsername}`;
 		await homePage.navigateTo(profileUrl);
-		await homePage.waitForLoadState('load');
 		await profilePage.waitForProfileToLoad();
 
 		// Check if already following (unfollow button is visible)
@@ -55,14 +54,15 @@ test.describe('@reserved [PAR-NOT002] – Follow items', () => {
 		try {
 			const profileUrl = `/profiles/${targetProfileUsername}`;
 			await userPage.goto(profileUrl);
-			await userPage.waitForLoadState('load');
+			await profilePage.waitForProfileToLoad();
 
 			const unfollowButton = userPage.locator('a[data-remote="true"][data-method="delete"][href^="/follow"]');
 			const isFollowing = await unfollowButton.isVisible().catch(() => false);
 
 			if (isFollowing) {
 				await unfollowButton.click();
-				await userPage.waitForLoadState('networkidle');
+				await expect(profilePage.followButton).toBeVisible();
+				await expect(profilePage.unfollowButton).not.toBeVisible();
 				console.log('Cleanup: Unfollowed admin after test');
 			}
 		} catch (error) {
@@ -81,7 +81,7 @@ test.describe('@reserved [PAR-NOT002] – Follow items', () => {
 				console.log(`Navigating to profile: ${profileUrl}`);
 
 				await homePage.navigateTo(profileUrl);
-				await homePage.waitForLoadState('load');
+				await profilePage.waitForProfileToLoad();
 			});
 
 			await test.step("2. System: Displays the details of the item, space including a 'Follow' button.", async () => {
@@ -127,8 +127,6 @@ test.describe('@reserved [PAR-NOT002] – Follow items', () => {
 
 				// Click on the follows/following tab to see who we are following
 				await profilePage.clickFollowsTab();
-
-				await profilePage.waitForLoadState('load');
 
 				// Verify we're on the following page by checking URL
 				await expect(profilePage.getPage()).toHaveURL(/.*\/following/);
