@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib,vendor}/**/*", "LICENSE-AGPLv3.txt", "package.json", "package-lock.json", "Rakefile", "README.md"]
 
-  s.add_dependency "decidim-admin", Decidim::Calendar::COMPAT_DECIDIM_VERSION
-  s.add_dependency "decidim-core", Decidim::Calendar::COMPAT_DECIDIM_VERSION
+  s.add_dependency "decidim-admin", *Decidim::Calendar::COMPAT_DECIDIM_VERSION
+  s.add_dependency "decidim-core", *Decidim::Calendar::COMPAT_DECIDIM_VERSION
   s.metadata["rubygems_mfa_required"] = "true"
 end

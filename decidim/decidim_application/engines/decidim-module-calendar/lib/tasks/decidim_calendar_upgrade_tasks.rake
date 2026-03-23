@@ -4,8 +4,8 @@
 # Denis Vasilev Dimchev
 # frozen_string_literal: true
 
-Rake::Task["decidim:webpacker:install"].enhance do
-  Rake::Task["decidim_calendar:webpacker:install"].invoke
+Rake::Task["decidim:shakapacker:install"].enhance do
+  Rake::Task["decidim_calendar:shakapacker:install"].invoke
 end
 
 Rake::Task["decidim:choose_target_plugins"].enhance do

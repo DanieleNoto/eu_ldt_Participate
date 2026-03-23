@@ -258,6 +258,7 @@ spec:
                           -q decidim_production_conference_diplomas,2 \
                           -q decidim_production_user_report,2 \
                           -q decidim_production_block_user,2 \
+                          -q decidim_production_delete_inactive_participants,2 \
                           -q decidim_production_exports,1 \
                           -q decidim_production_close_meeting_reminder,1 \
                           -q decidim_production_spam_analysis,1 \

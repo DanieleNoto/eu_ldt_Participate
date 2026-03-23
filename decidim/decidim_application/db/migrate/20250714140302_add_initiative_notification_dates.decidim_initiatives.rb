@@ -1,12 +1,7 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-
 # frozen_string_literal: true
 
 # This migration comes from decidim_initiatives (originally 20171019103358)
-# This file has been modified by `decidim upgrade:migrations` task on 2025-12-09 10:59:49 UTC
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:59 UTC
 class AddInitiativeNotificationDates < ActiveRecord::Migration[5.1]
   def change
     add_column :decidim_initiatives,

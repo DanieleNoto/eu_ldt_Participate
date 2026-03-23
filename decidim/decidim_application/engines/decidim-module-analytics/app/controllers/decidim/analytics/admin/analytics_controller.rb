@@ -12,12 +12,9 @@ module Decidim
         def index
           enforce_permission_to :update, :organization, organization: current_organization
 
-          @server_address = Rails.application.credentials.dig(:matomo, :server_address) ||
-                            Rails.application.secrets.dig(:matomo, :server_address)
-          @site_id = Rails.application.credentials.dig(:matomo, :site_id) ||
-                     Rails.application.secrets.dig(:matomo, :site_id)
-          @token_auth = Rails.application.credentials.dig(:matomo, :token_auth) ||
-                        Rails.application.secrets.dig(:matomo, :token_auth)
+          @server_address = ENV["MATOMO_SERVER_ADDRESS"]
+          @site_id = ENV["MATOMO_SITE_ID"]
+          @token_auth = ENV["MATOMO_TOKEN_AUTH"]
         end
       end
     end

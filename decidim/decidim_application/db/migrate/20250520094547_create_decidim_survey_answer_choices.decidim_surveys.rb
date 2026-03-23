@@ -1,12 +1,7 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-# Marco Pinnella
-# Pierluigi Spedicato
-
 # frozen_string_literal: true
 
+# This migration comes from decidim_surveys (originally 20180405015147)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:59 UTC
 class CreateDecidimSurveyAnswerChoices < ActiveRecord::Migration[5.1]
   class SurveyAnswer < ApplicationRecord
     self.table_name = :decidim_surveys_survey_answers

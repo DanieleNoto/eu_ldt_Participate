@@ -22,9 +22,10 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,lib}/**/*", "LICENSE-AGPLv3.txt", "Rakefile", "README.md"]
 
-  s.add_dependency "decidim-core", Decidim::Keycloak::COMPAT_DECIDIM_VERSION
+  s.add_dependency "decidim-core", *Decidim::Keycloak::COMPAT_DECIDIM_VERSION
   s.add_dependency "deface", "~> 1.5"
   s.add_dependency "omniauth-keycloak", "~> 1.5"
 
-  s.add_development_dependency "decidim-dev", Decidim::Keycloak::COMPAT_DECIDIM_VERSION
+  s.add_development_dependency "decidim-dev", *Decidim::Keycloak::COMPAT_DECIDIM_VERSION
+  s.metadata["rubygems_mfa_required"] = "true"
 end
