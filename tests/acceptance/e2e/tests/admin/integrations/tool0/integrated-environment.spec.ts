@@ -88,12 +88,12 @@ test.describe('@useKeycloak Tool0 Integrated Environment', () => {
 				await integratedEnvironmentPage.logout();
 				console.log('Logout action completed');
 
-				// Verify redirect to Decidim auth page via URL and visible Participate link
+				// Verify redirect to Keycloak login page via URL and visible username input
 				const page = integratedEnvironmentPage['page'];
-				await page.waitForURL(/ldttoolbox\.app\/?$/);
-				await page.getByRole('link', { name: 'Participate', exact: true }).waitFor({ state: 'visible' });
+				await page.waitForURL(/im-int\.ldttoolbox\.app\/realms\/LDT\/protocol\/openid-connect\/auth/);
+				await page.locator('input[name="username"]').waitFor({ state: 'visible' });
 
-				console.log('User successfully logged out - redirected to Decidim auth page');
+				console.log('User successfully logged out - redirected to Keycloak login page');
 			});
 		});
 	});

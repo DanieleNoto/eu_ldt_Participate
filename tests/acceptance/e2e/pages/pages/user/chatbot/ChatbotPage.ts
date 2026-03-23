@@ -131,9 +131,17 @@ export class ChatbotPage extends BasePage {
 	 * Clicks the "Close help assistant" button to close the chatbot
 	 */
 	async closeHelpAssistant(): Promise<void> {
+		await expect(this.chatbotDialog).toBeVisible();
 		await expect(this.closeHelpAssistantButton).toBeVisible();
-		await this.closeHelpAssistantButton.click({ force: true });
-		await this.chatbotDialog.waitFor({ state: 'hidden' });
+		await this.closeHelpAssistantButton.scrollIntoViewIfNeeded();
+		await this.closeHelpAssistantButton.click();
+
+		if (await this.chatbotDialog.isVisible().catch(() => false)) {
+			await this.page.keyboard.press('Escape');
+		}
+
+		await expect(this.chatbotDialog).toBeHidden();
+		await expect(this.openHelpAssistantButton).toBeVisible();
 	}
 
 	/**
