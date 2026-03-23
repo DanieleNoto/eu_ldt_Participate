@@ -17,19 +17,6 @@ if [ "$RAILS_ENV" = "production" ]; then
   # Database setup (optimized)
   echo "--- Setting up database ---"
   bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
-  
-  # TEMPORARY - ensure hero ContentBlock exists for all orgs before migration 20260313112166
-  # (MoveCtaToHeroContentBlock fails if an org has no hero block)
-  # Remove this block after the first successful run of migration 20260313112166
-  echo "--- [TEMP] Ensuring hero ContentBlock exists for all organizations ---"
-  bin/rails runner "
-    Decidim::Organization.find_each do |org|
-      next if Decidim::ContentBlock.exists?(organization: org, scope_name: :homepage, manifest_name: :hero)
-      Decidim::ContentBlock.create!(organization: org, scope_name: :homepage, manifest_name: :hero, weight: 1, published_at: Time.current)
-      puts \"Created hero ContentBlock for org #\#{org.id}\"
-    end
-  " || echo "WARN: hero ContentBlock pre-check failed, proceeding anyway"
-  # END TEMPORARY
 
   # Run migrations (always safe, idempotent)
   echo "--- Running database migrations ---"
