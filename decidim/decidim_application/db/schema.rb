@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_13_112190) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_24_074841) do
   create_schema "example_schema"
 
   # These are extensions that must be enabled in order to support this database
@@ -1400,6 +1400,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_13_112190) do
     t.jsonb "content_security_policy", default: {}
     t.jsonb "name", default: {}, null: false
     t.jsonb "extra_user_fields", default: {"enabled"=>false}
+    t.jsonb "short_name", default: {}, null: false
     t.index ["host"], name: "index_decidim_organizations_on_host", unique: true
   end
 

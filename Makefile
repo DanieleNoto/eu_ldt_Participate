@@ -8,10 +8,10 @@
 # EU LDT Participate - Development Makefile
 # This Makefile automates the setup and testing of the EU LDT Participate platform
 
-.PHONY: help setup install-deps check-env check-prerequisites setup-node setup-decidim setup-playwright setup-frontend setup-backend setup-jitsi setup-matomo setup-grafana
+.PHONY: help setup install-deps check-env check-prerequisites setup-node setup-decidim setup-playwright setup-frontend setup-backend setup-jitsi setup-matomo
 .PHONY: start setup-initial-environment stop restart logs test test-playwright test-frontend test-backend test-all clean
 .PHONY: build-chatbot rebuild-chatbot restart-chatbot
-.PHONY: dev-decidim dev-frontend dev-backend dev-all status check-services build-matomo build-grafana build-analytics-images
+.PHONY: dev-decidim dev-frontend dev-backend dev-all status check-services build-matomo build-analytics-images
 
 # Default target
 .DEFAULT_GOAL := help
@@ -114,36 +114,20 @@ setup-matomo: ## Setup Matomo with custom Docker image
 		exit 1; \
 	fi
 
-setup-grafana: ## Setup Grafana with custom Docker image
-	@echo "$(YELLOW)Setting up Grafana...$(NC)"
-	@if [ -d analytics/grafana ]; then \
-		echo "Building custom Grafana Docker image..."; \
-		docker build -t grafana-custom ./analytics/grafana; \
-		echo "$(GREEN)✓ Custom Grafana image built$(NC)"; \
-	else \
-		echo "$(RED)Error: analytics/grafana directory not found$(NC)"; \
-		exit 1; \
-	fi
-
 build-matomo: ## Build custom Matomo Docker image
 	@echo "$(YELLOW)Building custom Matomo Docker image...$(NC)"
 	@docker build -t matomo-custom ./analytics/matomo
 	@echo "$(GREEN)✓ Custom Matomo image built successfully$(NC)"
 
-build-grafana: ## Build custom Grafana Docker image
-	@echo "$(YELLOW)Building custom Grafana Docker image...$(NC)"
-	@docker build -t grafana-custom ./analytics/grafana
-	@echo "$(GREEN)✓ Custom Grafana image built successfully$(NC)"
-
-build-analytics-images: build-matomo build-grafana ## Build both Matomo and Grafana custom Docker images
-	@echo "$(GREEN)✓ All analytics images built successfully$(NC)"
+build-analytics-images: build-matomo ## Build Matomo custom Docker image
+	@echo "$(GREEN)✓ Analytics images built successfully$(NC)"
 
 setup-decidim: check-prerequisites ## Setup Decidim with Docker Compose (builds only the decidim service)
 	@echo "$(YELLOW)Setting up Decidim (building only decidim service)...$(NC)"
 	@docker compose build decidim --build-arg RAILS_ENV=development --build-arg NODE_ENV=development --progress=plain --no-cache
 	@echo "$(GREEN)✓ Decidim setup completed$(NC)"
 
-setup: setup-node install-deps setup-playwright setup-frontend setup-backend setup-jitsi setup-matomo setup-grafana setup-decidim ## Complete environment setup
+setup: setup-node install-deps setup-playwright setup-frontend setup-backend setup-jitsi setup-matomo setup-decidim ## Complete environment setup
 	@echo "$(GREEN)🎉 Complete environment setup finished!$(NC)"
 	@echo "$(YELLOW)Next steps:$(NC)"
 	@echo "  1. Run 'make setup-initial-environment' for first time setup with DB reset and data initialization"
@@ -250,7 +234,7 @@ clean-deps: ## Remove all node_modules directories
 reset: clean clean-deps setup ## Complete reset and setup
 
 # Development workflow shortcuts
-quick-setup: check-prerequisites setup-node install-deps setup-jitsi setup-matomo setup-grafana setup-decidim ## Quick setup without Playwright
+quick-setup: check-prerequisites setup-node install-deps setup-jitsi setup-matomo setup-decidim ## Quick setup without Playwright
 	@echo "$(GREEN)Quick setup completed! Run 'make start' to begin.$(NC)"
 
 ci-test: setup test-all ## CI/CD pipeline test target
