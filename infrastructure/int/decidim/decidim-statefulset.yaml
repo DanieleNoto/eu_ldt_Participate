@@ -22,6 +22,8 @@ spec:
                 app: decidim
         spec:
             automountServiceAccountToken: false
+            imagePullSecrets:
+              - name: acr-secret
             securityContext:
                 fsGroup: 1000 # group ID of decidim user
                 runAsUser: 1000
