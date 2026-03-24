@@ -63,8 +63,12 @@ module Decidim
             return render json: { error: "No valid Keycloak JWT token" }, status: :unauthorized
           end
 
+          # Validate and sanitize experiment_id to prevent path traversal
+          experiment_id = validate_experiment_id(params[:experiment_id])
+          return render json: { error: "Invalid experiment_id format" }, status: :bad_request unless experiment_id
+
           # Fetch experiment detail from TOOL2
-          result = fetch_from_tool2(jwt, "/experiment-executions/#{params[:experiment_id]}")
+          result = fetch_from_tool2(jwt, "/experiment-executions/#{experiment_id}")
           render json: result[:data]
         rescue JSON::ParserError => e
           Rails.logger.error("JSON parsing error: #{e.message}")
@@ -80,8 +84,12 @@ module Decidim
           scenario_name = params[:scenario_name]
           component_id = params[:component_id]
 
+          # Validate experiment_id to prevent path traversal
+          experiment_id = validate_experiment_id(experiment_id)
+          return render json: { error: "Invalid experiment_id format" }, status: :bad_request unless experiment_id
+
           # Validate params
-          return render json: { error: "Missing experiment_id or scenario_name" }, status: :bad_request unless experiment_id.present? && scenario_name.present?
+          return render json: { error: "Missing experiment_id or scenario_name" }, status: :bad_request unless scenario_name.present?
 
           # Get component_id from params or current_component
           comp_id = component_id || current_component&.id
@@ -405,6 +413,17 @@ module Decidim
           end
 
           data_response
+        end
+
+        # Validate experiment_id to prevent path traversal attacks
+        # Only allows alphanumeric characters, hyphens, and underscores
+        def validate_experiment_id(experiment_id)
+          return nil unless experiment_id.present?
+
+          # Only allow alphanumeric characters, hyphens, and underscores
+          return nil unless experiment_id.match?(/\A[\w-]+\z/)
+
+          experiment_id
         end
       end
     end
