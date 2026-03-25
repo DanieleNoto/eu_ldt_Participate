@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # --- Settings ---------------------------------------------------------------
-TEMPLATE_DIR="${TEMPLATE_DIR:-infrastructure/int}"
+TEMPLATE_DIR="${TEMPLATE_DIR:-../int}"
 OUT_DIR="${OUT_DIR:-infrastructure/local}"
 ENV_FILE="${ENV_FILE:-.env}"
 ALLOW_UNSET="${ALLOW_UNSET:-true}"
@@ -148,23 +148,25 @@ replace_placeholders() {
     secret_mode="true"
   fi
 
-  # Handle Docker images specially first
+  # Handle Docker images specially first - replace placeholders while keeping ACR prefix
   if grep -q "euldtshared\.azurecr\.io" "$dst_file"; then
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-be-int:_%CONTAINER-IMAGE-TOOL-TAG%_|eu-ldt-chatbot-be:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-fe-int:_%CONTAINER-IMAGE-TOOL-TAG%_|eu-ldt-chatbot-fe:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-part-int:_%CONTAINER-IMAGE-TOOL-TAG%_|eu-ldt-part:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|matomo-custom:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/grafana-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|grafana-custom:v1.0.0|g' -i "$dst_file"
+    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:v1.0.0|g' -i "$dst_file"
+    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:v1.0.0|g' -i "$dst_file"
+    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-part-int:v1.0.0|g' -i "$dst_file"
+    perl -pe 's|euldtshared\.azurecr\.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/matomo-custom:v1.0.0|g' -i "$dst_file"
+    perl -pe 's|euldtshared\.azurecr\.io/grafana-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/grafana-custom:v1.0.0|g' -i "$dst_file"
     # Handle cases where the tag placeholder is missing (just ends with :)
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-be-int:$|eu-ldt-chatbot-be:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-fe-int:$|eu-ldt-chatbot-fe:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-part-int:$|eu-ldt-part:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/matomo-custom:$|matomo-custom:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/grafana-custom:$|grafana-custom:v1.0.0|g' -i "$dst_file"
+    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-be-int:$|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:v1.0.0|g' -i "$dst_file"
+    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-fe-int:$|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:v1.0.0|g' -i "$dst_file"
+    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-part-int:$|euldtshared.azurecr.io/eu-ldt-part-int:v1.0.0|g' -i "$dst_file"
+    perl -pe 's|euldtshared\.azurecr\.io/matomo-custom:$|euldtshared.azurecr.io/matomo-custom:v1.0.0|g' -i "$dst_file"
+    perl -pe 's|euldtshared\.azurecr\.io/grafana-custom:$|euldtshared.azurecr.io/grafana-custom:v1.0.0|g' -i "$dst_file"
   fi
 
   while IFS= read -r var; do
     [[ -z "$var" ]] && continue
+    # Skip Docker image tag placeholder as it's already handled above
+    [[ "$var" == "CONTAINER_IMAGE_TOOL_TAG" ]] && continue
     local val
     val="$(env_value "$var" || true)"
 

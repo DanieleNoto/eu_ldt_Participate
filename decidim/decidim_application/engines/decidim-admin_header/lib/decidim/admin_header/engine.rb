@@ -9,6 +9,14 @@ module Decidim
     class Engine < ::Rails::Engine
       isolate_namespace Decidim::AdminHeader
 
+      initializer "decidim_admin_header.overrides", after: "decidim.action_controller" do
+        overrides = "#{root}/app/overrides"
+        Rails.autoloaders.main.ignore(overrides)
+        config.to_prepare do
+          Dir.glob("#{overrides}/**/*.rb").each { |override| load override }
+        end
+      end
+
       initializer "decidim_admin_header.assets" do
         assets_path = File.expand_path("config/assets.rb", root)
         load assets_path if File.exist?(assets_path)

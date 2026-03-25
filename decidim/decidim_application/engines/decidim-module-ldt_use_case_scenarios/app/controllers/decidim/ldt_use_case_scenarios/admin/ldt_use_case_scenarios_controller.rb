@@ -43,6 +43,12 @@ module Decidim
 
           # Fetch experiments from TOOL2
           result = fetch_from_tool2(jwt, "/experiment-executions?page=#{page}&size=#{size}")
+          
+          if result[:error]
+            Rails.logger.error("Invalid endpoint path: #{result[:error]}")
+            return render json: { error: "Invalid request parameters" }, status: :bad_request
+          end
+          
           render json: result[:data]
         rescue JSON::ParserError => e
           Rails.logger.error("JSON parsing error: #{e.message}")
@@ -64,7 +70,13 @@ module Decidim
           end
 
           # Fetch experiment detail from TOOL2
-          result = fetch_from_tool2(jwt, "/experiment-executions/#{params[:experiment_id]}")
+          result = fetch_from_tool2(jwt, "/experiment-executions/#{experiment_id}")
+          
+          if result[:error]
+            Rails.logger.error("Invalid endpoint path: #{result[:error]}")
+            return render json: { error: "Invalid request" }, status: :bad_request
+          end
+          
           render json: result[:data]
         rescue JSON::ParserError => e
           Rails.logger.error("JSON parsing error: #{e.message}")
@@ -98,6 +110,12 @@ module Decidim
 
           # Step 2: Fetch experiment detail from TOOL2
           result = fetch_from_tool2(jwt, "/experiment-executions/#{experiment_id}")
+          
+          if result[:error]
+            Rails.logger.error("Invalid endpoint path: #{result[:error]}")
+            return render json: { error: "Invalid request" }, status: :bad_request
+          end
+          
           experiment_data = result[:data]
 
           # Step 3: Create new scenario with experiment data from TOOL2
@@ -173,6 +191,14 @@ module Decidim
 
             # Fetch experiment data from TOOL2 API
             result = fetch_from_tool2(jwt, "/experiment-executions/#{experiment_id}")
+            
+            if result[:error]
+              Rails.logger.error("Invalid endpoint path: #{result[:error]}")
+              flash[:alert] = "Invalid request parameters"
+              redirect_to new_ldt_use_case_scenario_path
+              return
+            end
+            
             experiment_data = result[:data]
 
             # Create new scenario
@@ -266,6 +292,13 @@ module Decidim
 
           # Fetch experiments list (first page, 100 results)
           result = fetch_from_tool2(jwt, "/experiment-executions?page=0&size=100")
+          
+          if result[:error]
+            Rails.logger.error("Invalid endpoint path: #{result[:error]}")
+            @experiments = []
+            @experiments_error = "Invalid request parameters"
+            return
+          end
 
           # Extract experiments array
           experiments_data = result[:data]
@@ -291,8 +324,13 @@ module Decidim
           experiments_url = ENV["TOOL2_EXPERIMENTS_URL"] || "https://ucs-int.ldttoolbox.app/api/v1/experiment-executions"
 
           base_url = normalize_base_url(experiments_url)
+          
+          # Validate and sanitize endpoint_path to prevent path traversal
+          validated_path = validate_endpoint_path(endpoint_path)
+          return { error: "Invalid endpoint path" } unless validated_path
+          
           csrf_token, csrf_cookies = get_csrf_token(base_url, jwt)
-          data_url = "#{base_url}#{endpoint_path}"
+          data_url = "#{base_url}#{validated_path}"
 
           data_response = make_api_request_with_retry(data_url, jwt, csrf_token, csrf_cookies)
           data = JSON.parse(data_response.body)
@@ -405,6 +443,38 @@ module Decidim
           end
 
           data_response
+        end
+
+        # Validate endpoint path to prevent path traversal attacks
+        # Only allows safe path characters and prevents directory traversal
+        def validate_endpoint_path(endpoint_path)
+          return nil unless endpoint_path.present?
+          
+          # Path must start with /
+          return nil unless endpoint_path.start_with?("/")
+          
+          # Reject paths containing .. (parent directory references)
+          return nil if endpoint_path.include?("..")
+          
+          # Reject null bytes
+          return nil if endpoint_path.include?("\0")
+          
+          # Ensure path only contains safe URL characters
+          # Allow: alphanumeric, /, -, _, ., ~, :, @, !, $, &, ', (, ), *, +, ,, ;, =, ?, and %xx
+          return nil unless endpoint_path.match?(%r{\A/[\w\-/.~:@!$&'()*+,;=?%]*\z})
+          
+          endpoint_path
+        end
+
+        # Validate experiment_id to prevent path traversal attacks
+        # Only allows alphanumeric characters, hyphens, and underscores
+        def validate_experiment_id(experiment_id)
+          return nil unless experiment_id.present?
+
+          # Only allow alphanumeric characters, hyphens, and underscores
+          return nil unless experiment_id.match?(/\A[\w-]+\z/)
+
+          experiment_id
         end
       end
     end

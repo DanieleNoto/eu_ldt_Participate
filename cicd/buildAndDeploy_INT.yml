@@ -27,6 +27,11 @@ variables:
     - group: 'TOOL3 - PT - KV'
 
 parameters:
+    - name: skipDeploy
+      type: boolean
+      default: true
+      displayName: 'Skip deployment (build only)'
+
     - name: k8sManifests
       type: object
       default:
@@ -311,6 +316,7 @@ jobs:
                     $(tag)
 
     - job: prepareInfrastructure
+      condition: eq(${{ parameters.skipDeploy }}, false)
       displayName: 'Prepare K8s Infrastructure'
       steps:
           - task: KubectlInstaller@0
@@ -413,6 +419,7 @@ jobs:
     # Generate deployment jobs dynamically from k8sManifests parameter
     - ${{ each app in parameters.k8sManifests }}:
           - job: ${{ app.jobId }}
+            condition: eq(${{ parameters.skipDeploy }}, false)
             dependsOn:
                 - ${{ if ne(app.buildDependency, '') }}:
                       - ${{ app.buildDependency }}

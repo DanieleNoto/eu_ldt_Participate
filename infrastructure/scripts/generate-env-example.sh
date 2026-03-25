@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # --- Settings ---------------------------------------------------------------
-TEMPLATE_DIR="${TEMPLATE_DIR:-infrastructure/int}"   # where your _%VAR%_ templates live
+TEMPLATE_DIR="${TEMPLATE_DIR:-../int}"   # where your _%VAR%_ templates live
 EXAMPLE_FILE="${EXAMPLE_FILE:-.env.example}"
 PREFILL_FILE="${PREFILL_FILE:-}"                     # optional: an existing .env to prefill values
 
