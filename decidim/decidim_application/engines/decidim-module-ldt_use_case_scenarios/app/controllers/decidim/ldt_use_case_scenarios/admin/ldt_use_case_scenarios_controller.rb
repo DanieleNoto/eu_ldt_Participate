@@ -261,12 +261,15 @@ module Decidim
 
         private
 
-        # Centralized method to fetch valid JWT token using Keycloak TokenService
+        # Centralized method to fetch valid JWT token using Keycloak TokenService.
+        # Uses cookies.to_h (not request.cookies) so that tokens refreshed by
+        # before_action :check_keycloak_auto_logout are visible here, avoiding
+        # a double-refresh with the same refresh token.
         # @return [String, nil] The valid JWT token or nil
         def fetch_valid_jwt_token
           Decidim::Keycloak::TokenService.ensure_valid_token(
             current_user,
-            cookies_hash: request.cookies,
+            cookies_hash: cookies.to_h,
             cookies_obj: cookies,
             request_host: request.host,
             controller: self
@@ -421,10 +424,11 @@ module Decidim
         def handle_unauthorized_retry(data_request, data_http, _original_response)
           Rails.logger.warn("TOOL2 API returned 401 - attempting token refresh and retry")
 
-          # Use TokenService to refresh token with proper keyword arguments
+          # Use TokenService to refresh token with proper keyword arguments.
+          # Use cookies.to_h so any prior refresh within this request is visible.
           jwt = Decidim::Keycloak::TokenService.ensure_valid_token(
             current_user,
-            cookies_hash: request.cookies,
+            cookies_hash: cookies.to_h,
             cookies_obj: cookies,
             request_host: request.host,
             controller: self
