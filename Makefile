@@ -49,16 +49,16 @@ help: ## Show this help message
 	@echo "$(YELLOW)Available targets:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-20s$(NC) %s\n", $$1, $$2}'
 
-check-env: ## Check if .env file exists and create from .env.example if needed
+check-env: ## Check if .env file exists and create from .env.dev.example if needed
 	@echo "$(YELLOW)Checking .env file...$(NC)"
 	@if [ ! -f .env ]; then \
-		if [ -f .env.example ]; then \
-			echo "$(YELLOW).env file not found, creating from .env.example...$(NC)"; \
-			cp .env.example .env; \
-			echo "$(GREEN)✓ .env file created from .env.example$(NC)"; \
+		if [ -f .env.dev.example ]; then \
+			echo "$(YELLOW).env file not found, creating from .env.dev.example...$(NC)"; \
+			cp .env.dev.example .env; \
+			echo "$(GREEN)✓ .env file created from .env.dev.example$(NC)"; \
 			echo "$(YELLOW)Please review and update .env file with your configuration$(NC)"; \
 		else \
-			echo "$(RED)Error: Neither .env nor .env.example file found$(NC)"; \
+			echo "$(RED)Error: Neither .env nor .env.dev.example file found$(NC)"; \
 			exit 1; \
 		fi; \
 	else \

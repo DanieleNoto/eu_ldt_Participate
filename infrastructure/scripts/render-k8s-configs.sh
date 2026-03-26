@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # --- Settings ---------------------------------------------------------------
-TEMPLATE_DIR="${TEMPLATE_DIR:-infrastructure/int}"
+TEMPLATE_DIR="${TEMPLATE_DIR:-../int}"
 OUT_DIR="${OUT_DIR:-infrastructure/local}"
 ENV_FILE="${ENV_FILE:-.env}"
 ALLOW_UNSET="${ALLOW_UNSET:-true}"
@@ -63,7 +63,7 @@ env_value() {
     "MATOMO-SITE-ID") env_value "MATOMO_SITE_ID" ;;
     "MATOMO-SERVER-ADDRESS"|"MATOMO-ROOT-URL") env_value "MATOMO_SERVER_ADDRESS" ;;
     "MATOMO-TOKEN-AUTH") env_value "MATOMO_TOKEN_AUTH" ;;
-    "MATOMO-DATABASE-HOST") env_value "MATOMO_DATABASE_HOST" ;;
+    "MATOMO-DATABASE-HOST") val="$(env_value "MATOMO_DATABASE_HOST")"; echo "${val:-matomo-db-svc}" ;;
     "MATOMO-DATABASE-USERNAME"|"MYSQL-USER") env_value "MATOMO_DATABASE_USERNAME" ;;
     "MATOMO-DATABASE-PASSWORD"|"MYSQL-PASSWORD") env_value "MATOMO_DATABASE_PASSWORD" ;;
     "MATOMO-DATABASE-DBNAME"|"MYSQL-DATABASE") env_value "MATOMO_DATABASE_DBNAME" ;;
@@ -82,33 +82,26 @@ env_value() {
     "TOOL2-IFRAME-URL") env_value "TOOL2_IFRAME_URL" ;;
     "HELP-URL") env_value "HELP_URL" ;;
     # Default values
-    "CONTAINER-IMAGE-TOOL-TAG"|"CONTAINER_IMAGE_TOOL_TAG") echo "v1.0.0" ;;
+    "CONTAINER-IMAGE-TOOL-TAG"|"CONTAINER_IMAGE_TOOL_TAG") env_value "CONTAINER_IMAGE_TOOL_TAG" ;;
     "DECIDIM-AVAILABLE-LOCALES") echo "en,it,fr,de,es" ;;
     "DECIDIM-DEFAULT-LOCALE") echo "en" ;;
     "DECIDIM-THROTTLING-MAX-REQUESTS") echo "100" ;;
-    "ENABLE-JSON-LOGS") echo "false" ;;
-    "KEYCLOAK-DISABLE-SSL-VERIFY") echo "false" ;;
-    "QUEUE-ADAPTER") echo "async" ;;
-    "RAILS-LOG-LEVEL") echo "info" ;;
-    "RAILS-ASSET-HOST") echo "" ;;
-    "RESTART-POLICY") echo "unless-stopped" ;;
-    "SMTP-TLS") echo "false" ;;
-    "SMTP-OPEN-TIMEOUT") echo "10" ;;
-    "SMTP-READ-TIMEOUT") echo "10" ;;
-    "RATE-LIMIT-MAX") echo "100" ;;
-    "CHATBOT-SUPPORT-EMAIL") echo "support@example.com" ;;
-    "CHATBOT-FROM-EMAIL") echo "noreply@example.com" ;;
-    "DECIDIM-PRIMARY-COLOR") echo "#1976d2" ;;
-    "DECIDIM-ORGANIZATION-NAME") echo "EU LDT Participate" ;;
-    "DECIDIM-LOGO-URL") echo "" ;;
-    "PRIVACY-POLICY-URL") echo "/privacy" ;;
-    "NOTIFICATION-PREFERENCES-URL") echo "/notifications" ;;
-    "JWT-ACCEPTED-ISSUERS"|"JWT-ACCEPTED-AUDIENCES") echo "decidim_app" ;;
+    # k8s service defaults (aligned with generate-env-example.sh K8S_DEFAULTS)
+    "DATABASE-HOST-DECIDIM") echo "db" ;;
+    "ENABLE-JSON-LOGS") echo "true" ;;
+    "GF-DATABASE-HOST") echo "grafana-db" ;;
     "GF-DATABASE-TYPE") echo "postgres" ;;
-    "GF-DATABASE-HOST") echo "db" ;;
+    "GRAFANA-PGDATA-PATH") echo "/var/lib/postgresql/data/pgdata" ;;
+    "KEYCLOAK-DISABLE-SSL-VERIFY") echo "false" ;;
+    "MAX-EVENT-LOOP-USE") echo "0.98" ;;
+    "QUEUE-ADAPTER") echo "sidekiq" ;;
+    "RATE-LIMIT-MAX") echo "100" ;;
+    "RATE-LIMIT-TIME-WINDOW") echo "1 minute" ;;
+    "REDIS-URL") echo "redis://redis:6379/0" ;;
+    "RESTART-POLICY") echo "always" ;;
+    # Grafana OAuth / misc
     "GF-DATABASE-NAME") echo "grafana" ;;
     "GF-DATABASE-USER") echo "grafana" ;;
-    "GF-DATABASE-PASSWORD") echo "grafana" ;;
     "GF-AUTH-GENERIC-OAUTH-ALLOW-SIGN-UP") echo "true" ;;
     "GF-AUTH-GENERIC-OAUTH-ALLOW-ASSIGN-GRAFANA-ADMIN") echo "true" ;;
     "GF-AUTH-GENERIC-OAUTH-API-URL") echo "" ;;
@@ -120,6 +113,20 @@ env_value() {
     "GF-AUTH-GENERIC-OAUTH-NAME-ATTRIBUTE-PATH") echo "full_name" ;;
     "GF-AUTH-GENERIC-OAUTH-SIGNOUT-REDIRECT-URL") echo "" ;;
     "GF-AUTH-GENERIC-OAUTH-TOKEN-URL") echo "" ;;
+    # Misc app defaults
+    "RAILS-LOG-LEVEL") echo "info" ;;
+    "RAILS-ASSET-HOST") echo "" ;;
+    "SMTP-TLS") echo "false" ;;
+    "SMTP-OPEN-TIMEOUT") echo "10" ;;
+    "SMTP-READ-TIMEOUT") echo "10" ;;
+    "CHATBOT-SUPPORT-EMAIL") echo "support@example.com" ;;
+    "CHATBOT-FROM-EMAIL") echo "noreply@example.com" ;;
+    "DECIDIM-PRIMARY-COLOR") echo "#1976d2" ;;
+    "DECIDIM-ORGANIZATION-NAME") echo "EU LDT Participate" ;;
+    "DECIDIM-LOGO-URL") echo "" ;;
+    "PRIVACY-POLICY-URL") echo "/privacy" ;;
+    "NOTIFICATION-PREFERENCES-URL") echo "/notifications" ;;
+    "JWT-ACCEPTED-ISSUERS"|"JWT-ACCEPTED-AUDIENCES") echo "decidim_app" ;;
     *) echo "" ;;  # Return empty for unknown vars
   esac
 }
@@ -148,23 +155,26 @@ replace_placeholders() {
     secret_mode="true"
   fi
 
-  # Handle Docker images specially first
+  # Handle Docker images specially first - replace placeholders while keeping ACR prefix
   if grep -q "euldtshared\.azurecr\.io" "$dst_file"; then
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-be-int:_%CONTAINER-IMAGE-TOOL-TAG%_|eu-ldt-chatbot-be:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-fe-int:_%CONTAINER-IMAGE-TOOL-TAG%_|eu-ldt-chatbot-fe:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-part-int:_%CONTAINER-IMAGE-TOOL-TAG%_|eu-ldt-part:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|matomo-custom:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/grafana-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|grafana-custom:v1.0.0|g' -i "$dst_file"
+    local image_tag
+    image_tag="$(env_value "CONTAINER_IMAGE_TOOL_TAG" || true)"
+    image_tag="${image_tag:-v1.0.0}"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/matomo-custom:${image_tag}|g" -i "$dst_file"
     # Handle cases where the tag placeholder is missing (just ends with :)
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-be-int:$|eu-ldt-chatbot-be:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-fe-int:$|eu-ldt-chatbot-fe:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-part-int:$|eu-ldt-part:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/matomo-custom:$|matomo-custom:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/grafana-custom:$|grafana-custom:v1.0.0|g' -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:\$|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:\$|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:\$|euldtshared.azurecr.io/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:\$|euldtshared.azurecr.io/matomo-custom:${image_tag}|g" -i "$dst_file"
   fi
 
   while IFS= read -r var; do
     [[ -z "$var" ]] && continue
+    # Skip Docker image tag placeholder as it's already handled above
+    [[ "$var" == "CONTAINER_IMAGE_TOOL_TAG" ]] && continue
     local val
     val="$(env_value "$var" || true)"
 
@@ -214,13 +224,15 @@ done < <(find "$TEMPLATE_DIR" -type f \( -name "*.yml" -o -name "*.yaml" \) -pri
 echo "✅ Successfully rendered $total_files Kubernetes manifests!"
 echo "📁 Local configurations available in: $OUT_DIR"
 echo ""
+_rendered_tag="$(env_value "CONTAINER_IMAGE_TOOL_TAG" || true)"
+_rendered_tag="${_rendered_tag:-v1.0.0}"
 echo "🚀 Next steps:"
 echo "   1. Review the generated configurations in $OUT_DIR"
 echo "   2. Make sure your local Docker images are built with correct tags:"
-echo "      docker build -t eu-ldt-chatbot-be:v1.0.0 ./backend"
-echo "      docker build -t eu-ldt-chatbot-fe:v1.0.0 ./frontend"
-echo "      docker build -t eu-ldt-part:v1.0.0 ./decidim"
-echo "      docker build -t matomo-custom:v1.0.0 ./analytics/matomo"
+echo "      docker build -t eu-ldt-chatbot-be:${_rendered_tag} ./backend"
+echo "      docker build -t eu-ldt-chatbot-fe:${_rendered_tag} ./frontend"
+echo "      docker build -t eu-ldt-part:${_rendered_tag} ./decidim"
+echo "      docker build -t matomo-custom:${_rendered_tag} ./analytics/matomo"
 echo "   3. Apply the configurations to your local Kubernetes cluster"
 echo ""
 echo "💡 Note: Secret values are automatically base64-encoded"

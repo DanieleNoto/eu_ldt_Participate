@@ -27,6 +27,11 @@ variables:
     - group: 'TOOL3 - PT - KV'
 
 parameters:
+    - name: skipDeploy
+      type: boolean
+      default: true
+      displayName: 'Skip deployment (build only)'
+
     - name: k8sManifests
       type: object
       default:
@@ -311,6 +316,7 @@ jobs:
                     $(tag)
 
     - job: prepareInfrastructure
+      condition: eq(${{ parameters.skipDeploy }}, false)
       displayName: 'Prepare K8s Infrastructure'
       steps:
           - task: KubectlInstaller@0
@@ -349,7 +355,7 @@ jobs:
                 kubernetesCluster: 'eu-ldt-tool-03-participate-aks-int'
                 namespace: 'participate'
                 command: 'create'
-                arguments: secret docker-registry acr-secret --docker-server=euldtshared.azurecr.io --docker-username=f703f14b-9128-4eb8-b78b-a819d3e66d32 --docker-password=y_LusONCFAN7Az6SI7lHCq4S0YwqZzV3t-
+                arguments: secret docker-registry acr-secret --docker-server=euldtshared.azurecr.io --docker-username=$(TF-SP-CLIENT-ID) --docker-password=$(TF-SP-CLIENT-SECRET)
                 secretType: 'dockerRegistry'
                 containerRegistryType: 'Azure Container Registry'
 
@@ -413,6 +419,7 @@ jobs:
     # Generate deployment jobs dynamically from k8sManifests parameter
     - ${{ each app in parameters.k8sManifests }}:
           - job: ${{ app.jobId }}
+            condition: eq(${{ parameters.skipDeploy }}, false)
             dependsOn:
                 - ${{ if ne(app.buildDependency, '') }}:
                       - ${{ app.buildDependency }}

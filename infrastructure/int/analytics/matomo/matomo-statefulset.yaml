@@ -23,6 +23,8 @@ spec:
                 io.kompose.network/temp1-private: 'true'
         spec:
             automountServiceAccountToken: false
+            imagePullSecrets:
+              - name: acr-secret
             containers:
                 - name: matomo
                   image: euldtshared.azurecr.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_
