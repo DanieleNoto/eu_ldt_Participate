@@ -8,7 +8,7 @@ set -euo pipefail
 
 # --- Settings ---------------------------------------------------------------
 TEMPLATE_DIR="${TEMPLATE_DIR:-../int}"   # where your _%VAR%_ templates live
-EXAMPLE_FILE="${EXAMPLE_FILE:-./.env}"
+EXAMPLE_FILE="${EXAMPLE_FILE:-./.env.example}"
 PREFILL_FILE="${PREFILL_FILE:-../../.env.dev.example}"         # optional: existing .env to prefill values
                                          # (e.g. ../../.env.dev.example from docker-compose)
 
