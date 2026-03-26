@@ -157,15 +157,18 @@ replace_placeholders() {
 
   # Handle Docker images specially first - replace placeholders while keeping ACR prefix
   if grep -q "euldtshared\.azurecr\.io" "$dst_file"; then
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-part-int:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/matomo-custom:v1.0.0|g' -i "$dst_file"
+    local image_tag
+    image_tag="$(env_value "CONTAINER_IMAGE_TOOL_TAG" || true)"
+    image_tag="${image_tag:-v1.0.0}"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/matomo-custom:${image_tag}|g" -i "$dst_file"
     # Handle cases where the tag placeholder is missing (just ends with :)
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-be-int:$|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-chatbot-fe-int:$|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/eu-ldt-part-int:$|euldtshared.azurecr.io/eu-ldt-part-int:v1.0.0|g' -i "$dst_file"
-    perl -pe 's|euldtshared\.azurecr\.io/matomo-custom:$|euldtshared.azurecr.io/matomo-custom:v1.0.0|g' -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:\$|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:\$|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:\$|euldtshared.azurecr.io/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:\$|euldtshared.azurecr.io/matomo-custom:${image_tag}|g" -i "$dst_file"
   fi
 
   while IFS= read -r var; do
@@ -221,13 +224,15 @@ done < <(find "$TEMPLATE_DIR" -type f \( -name "*.yml" -o -name "*.yaml" \) -pri
 echo "✅ Successfully rendered $total_files Kubernetes manifests!"
 echo "📁 Local configurations available in: $OUT_DIR"
 echo ""
+_rendered_tag="$(env_value "CONTAINER_IMAGE_TOOL_TAG" || true)"
+_rendered_tag="${_rendered_tag:-v1.0.0}"
 echo "🚀 Next steps:"
 echo "   1. Review the generated configurations in $OUT_DIR"
 echo "   2. Make sure your local Docker images are built with correct tags:"
-echo "      docker build -t eu-ldt-chatbot-be:v1.0.0 ./backend"
-echo "      docker build -t eu-ldt-chatbot-fe:v1.0.0 ./frontend"
-echo "      docker build -t eu-ldt-part:v1.0.0 ./decidim"
-echo "      docker build -t matomo-custom:v1.0.0 ./analytics/matomo"
+echo "      docker build -t eu-ldt-chatbot-be:${_rendered_tag} ./backend"
+echo "      docker build -t eu-ldt-chatbot-fe:${_rendered_tag} ./frontend"
+echo "      docker build -t eu-ldt-part:${_rendered_tag} ./decidim"
+echo "      docker build -t matomo-custom:${_rendered_tag} ./analytics/matomo"
 echo "   3. Apply the configurations to your local Kubernetes cluster"
 echo ""
 echo "💡 Note: Secret values are automatically base64-encoded"
