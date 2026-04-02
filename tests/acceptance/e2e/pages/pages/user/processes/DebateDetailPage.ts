@@ -97,7 +97,7 @@ export class DebateDetailPage {
 		this.instructionsSection = this.page.locator('[data-announcement] .rich-text-display');
 
 		// Action buttons
-		this.likeButton = this.page.locator('#endorsement-button');
+		this.likeButton = this.page.locator('#like-button');
 		this.endorsementDropdown = this.page.locator('button#dropdown-trigger');
 		this.commentButton = this.page.getByRole('link', { name: 'Comment' });
 		this.followButton = this.page.locator('button[id^="follow_debate"]');
@@ -105,7 +105,7 @@ export class DebateDetailPage {
 		this.reportButton = this.page.locator('button[data-dialog-open="loginModal"]', { hasText: 'Rapporto' });
 
 		// Endorsement/Like system
-		this.endorsementButton = this.page.locator('#endorsement-button').first();
+		this.endorsementButton = this.page.locator('#like-button').first();
 		this.endorsersListDropdown = this.page.locator('#dropdown-menu-endorsers-list');
 		this.endorsersListGrid = this.page.locator('.endorsers-list__grid');
 		this.endorsersListText = this.page.locator('.endorsers-list__text');

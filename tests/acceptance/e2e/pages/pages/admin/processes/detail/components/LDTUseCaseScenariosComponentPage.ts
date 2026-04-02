@@ -52,6 +52,7 @@ export class LDTUseCaseScenariosComponentPage extends BaseAdminPage {
 	 */
 	async clickAssociateExperimentsResults(): Promise<void> {
 		await this.page.getByRole('link', { name: 'Associate experiments results' }).click();
+		await this.page.waitForLoadState('load');
 	}
 
 	/**

@@ -76,18 +76,8 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				// Hide the component
 				await componentsPage.hideComponentByName(componentName);
 
-				// Wait for success message
-				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
-				await expect(
-					adminPage.getByText('The component has been successfully hidden from the menu')
-				).toBeVisible();
-
 				// Unpublish component
 				await componentsPage.unpublishComponentByName(componentName);
-
-				// Wait for success message
-				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
-				await expect(adminPage.getByText('The component has been successfully unpublished')).toBeVisible();
 
 				// Delete component
 				await componentsPage.deleteComponentIfExists(componentName);

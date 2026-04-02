@@ -188,6 +188,8 @@ export class LDTMapVisualizationComponentPage extends BaseAdminPage {
 	 * Verifies that the validation error message is displayed.
 	 */
 	async verifyAssociationNameRequiredError(): Promise<void> {
-		await expect(this.page.getByText('There is an error in this field')).toBeVisible();
+		await expect(
+			this.page.locator('span.form-error.is-visible', { hasText: 'Map name is required' })
+		).toBeVisible();
 	}
 }

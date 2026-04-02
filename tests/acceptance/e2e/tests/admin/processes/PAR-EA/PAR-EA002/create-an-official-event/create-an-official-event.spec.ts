@@ -2,7 +2,6 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Simone Bianchelli
- * Simone Bianchelli
  * Gianfranco Cedro
  * Denise Scarcelli
  */
@@ -58,7 +57,7 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 
 			await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
 				await processAdminPage.navigateToProcesses();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -73,7 +72,7 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 			await test.step('3. Admin: selects the process that want to update', async () => {
 				// Navigate directly to the specific process edit page
 				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System: loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -94,7 +93,7 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 				const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
 				expect(meetingsLink).not.toBeNull();
 				await meetingsLink.click();
-				await componentsPage.getPage().waitForLoadState('networkidle');
+				await componentsPage.getPage().waitForLoadState('load');
 				await meetingsPage.verifyMeetingsPageVisible();
 				// Check if there are meetings available
 				beforeMeetingCount = await meetingsPage.getMeetingCount();
@@ -109,7 +108,7 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 			for (const { type } of meetingTypes) {
 				await test.step(`7. Admin: Clicks on "New Meeting" to start the process of creating a ${type} meeting`, async () => {
 					await meetingsPage.clickNewMeeting();
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				});
 				await test.step('8. System: Displays the "New Meeting" form, prompting the user to fill in the meeting details.', async () => {
 					// Verify we're on the new meeting form page
@@ -235,7 +234,7 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 
 			// Navigate directly to the specific process
 			await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 
 			// Navigate to Components tab/section
 			await componentsPage.sidebarProcessDetail.navigateToComponents();
@@ -244,7 +243,7 @@ test.describe('[PAR-EA002] – Create an official event', () => {
 			const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
 			expect(meetingsLink).not.toBeNull();
 			await meetingsLink.click();
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 			await meetingsPage.verifyMeetingsPageVisible();
 
 			// Create and test error validation for all 3 meeting types
@@ -293,7 +292,7 @@ async function checkErrors(
 
 	for (const { type } of meetingTypes) {
 		await meetingsPage.clickNewMeeting();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 		await formMeetingPage.createMeeting();
 		expect(await formMeetingPage.hasValidationErrors()).toBe(true);
 		const actualErrors = await formMeetingPage.getValidationErrorsDetailed();
@@ -335,7 +334,7 @@ async function checkErrors(
 				fullPage: true
 			});
 			await expect(adminPage.locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 			await formMeetingPage.checkTitleFieldErrors();
 			await formMeetingPage.checkDescriptionFieldErrors();
 			// 🔹 Catch Description lowercase → "must start with a capital letter"
@@ -403,7 +402,7 @@ async function checkErrors(
 				fullPage: true
 			});
 			await expect(adminPage.locator('.flash__icon svg[aria-hidden="true"]')).toBeVisible();
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 			await formMeetingPage.checkTitleFieldErrors();
 			await formMeetingPage.checkDescriptionFieldErrors();
 			await formMeetingPage.checkAddressFieldErrors();
@@ -457,6 +456,6 @@ async function checkErrors(
 		});
 		const successMessage = adminPage.locator('.flash.success, .alert.success, [role="alert"]');
 		await expect(successMessage).toBeVisible();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 	}
 }

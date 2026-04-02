@@ -93,7 +93,27 @@ export class AcceptInvitationPage extends BasePage {
 	 */
 	async acceptTermsOfService(): Promise<void> {
 		await this.termsOfServiceCheckbox.waitFor({ state: 'visible' });
-		await this.termsOfServiceCheckbox.check({ force: true });
+		await expect(this.termsOfServiceCheckbox).toBeEnabled();
+		await this.termsOfServiceCheckbox.scrollIntoViewIfNeeded();
+
+		if (await this.termsOfServiceCheckbox.isChecked()) {
+			return;
+		}
+
+		try {
+			await this.termsOfServiceCheckbox.check();
+		} catch (error: unknown) {
+			// Playwright's check() may fail if a custom component intercepts the click;
+			// fall back to direct DOM manipulation to ensure the checkbox state is set.
+			console.warn('Checkbox check() failed, falling back to evaluate():', error);
+			await this.termsOfServiceCheckbox.evaluate((checkbox: HTMLInputElement) => {
+				checkbox.checked = true;
+				checkbox.dispatchEvent(new Event('input', { bubbles: true }));
+				checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+			});
+		}
+
+		await expect(this.termsOfServiceCheckbox).toBeChecked();
 	}
 
 	/**
@@ -108,7 +128,9 @@ export class AcceptInvitationPage extends BasePage {
 	 */
 	async clickSave(): Promise<void> {
 		await expect(this.saveButton).toBeVisible();
-		await this.saveButton.click({ force: true });
+		await expect(this.saveButton).toBeEnabled();
+		await this.saveButton.scrollIntoViewIfNeeded();
+		await this.saveButton.click();
 	}
 
 	/**

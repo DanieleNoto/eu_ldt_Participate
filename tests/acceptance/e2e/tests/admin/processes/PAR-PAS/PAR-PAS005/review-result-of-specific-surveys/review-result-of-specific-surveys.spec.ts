@@ -128,6 +128,7 @@ test.describe('[PAR-PAS005] – Review result of specific surveys @reserved', ()
 		});
 
 		test('should review results of specific surveys', async ({ adminPage }) => {
+			let responsePage: any;
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
@@ -165,109 +166,68 @@ test.describe('[PAR-PAS005] – Review result of specific surveys @reserved', ()
 				await componentsPage.manageComponent(componentName);
 				console.log('Accessed survey component for results review');
 
-				await surveysManagePage.accessQuestionsManagement();
-				console.log('Navigated to Manage questions page for survey results review');
+				await surveysManagePage.accessSurveyResponsesBySurveyTitle(surveyName);
+				console.log('Navigated to Responses page for survey results review');
 			});
 
-			await test.step('6. System: Displays the survey details page, including a "Show responses" button.', async () => {
-				// Verify we're on the survey details/manage questions page
-				expect(adminPage.url()).toMatch(/\/edit_questions$/);
+			await test.step('6. System: Displays the survey Responses page with individual response rows.', async () => {
+				// Verify we're on the responses page
+				expect(adminPage.url()).toMatch(/\/surveys\/\d+\/responses$/);
 
-				// Verify the "Show responses" button is visible
-				await expect(adminPage.getByRole('link', { name: 'Show responses' })).toBeVisible();
-				console.log('Show responses button is visible');
-
-				// Verify the confirmation message is present
-				await expect(adminPage.getByText('The form is already answered')).toBeVisible();
-				console.log('Confirmation message is visible');
-
-				console.log('Survey details page displayed with all required elements for results review');
-			});
-
-			await test.step('7. User: Clicks on the "Show responses" button', async () => {
-				// Click on the "Show responses" button
-				await adminPage.getByRole('link', { name: 'Show responses' }).click();
-
-				// Wait for the responses page to load
-				await adminPage.waitForLoadState('load');
-
-				console.log('Clicked on Show responses button');
-			});
-
-			await test.step('8. System: Loads the results page for the selected survey, showing individual responses', async () => {
 				// Verify the header shows total responses with a number
 				const header = adminPage.getByRole('heading');
 				await expect(header).toContainText('total responses');
-
-				// Extract and verify the dynamic number
 				const headerText = await header.textContent();
 				const numberMatch = headerText?.match(/(\d+)\s+total responses/);
 				expect(numberMatch).toBeTruthy();
+				expect(parseInt(numberMatch![1])).toBeGreaterThan(0);
+				console.log(`Header shows ${numberMatch![1]} total responses`);
 
-				const totalResponsesFromHeader = parseInt(numberMatch![1]);
-				expect(totalResponsesFromHeader).toBeGreaterThan(0);
-				console.log(`Header shows ${totalResponsesFromHeader} total responses`);
-
-				// Verify at least one response row is present by checking for row number
+				// Verify at least one response row is present
 				await expect(adminPage.getByRole('cell', { name: '1', exact: true })).toBeVisible();
-				console.log('First response row (#1) is displayed');
-
-				// Verify that "Registered" user status is present in the response
 				await expect(adminPage.getByRole('cell', { name: 'Registered' })).toBeVisible();
-				console.log('User status "Registered" found in response');
-
-				// Verify completion percentage format is present (any percentage)
 				await expect(adminPage.locator('td:has-text("%")')).toBeVisible();
-				console.log('Completion percentage is displayed');
-
-				// Verify that response data is present without checking specific values
-				const responseRows = adminPage.locator('tbody tr');
-				const totalResponses = await responseRows.count();
+				const totalResponses = await adminPage.locator('tbody tr').count();
 				expect(totalResponses).toBeGreaterThan(0);
-				console.log(`Survey results page loaded with ${totalResponses} individual response(s) displayed`);
+				console.log(`Responses page loaded with ${totalResponses} response row(s)`);
+			});
+
+			await test.step('7. User: Opens the actions dropdown for the first response and clicks "Show responses"', async () => {
+				const firstRow = adminPage.locator('tbody tr').first();
+				await firstRow.locator('button[data-controller="dropdown"]').click();
+
+				// "Show responses" opens in a new tab (target="_blank"); "Export" does not → use target="_blank" to disambiguate
+				const popupPromise = adminPage.waitForEvent('popup');
+				await firstRow.locator('a.dropdown__button[target="_blank"]').click();
+				responsePage = await popupPromise;
+				await responsePage.waitForLoadState('load');
+				console.log('Opened individual response in new tab');
+			});
+
+			await test.step('8. System: Loads the individual response detail page in a new tab', async () => {
+				// Verify we're on the individual response page
+				expect(responsePage.url()).toMatch(/\/responses\/\w+$/);
+				console.log('Individual response page loaded in new tab');
 			});
 
 			await test.step('9. User: Reviews the survey results', async () => {
-				// Click on the first "Show answers" icon to view detailed responses
-				const page1Promise = adminPage.waitForEvent('popup');
-
-				// Select the first "Show answers" link in the first row of the table
-				await adminPage.locator('tbody tr').first().getByRole('link', { name: 'Show answers' }).click();
-
-				// Wait for the new tab to open
-				const page1 = await page1Promise;
-				await page1.waitForLoadState('load');
-
-				console.log('Clicked on Show answers icon for first response');
-
-				// Verify we're on the correct answers page
-				expect(page1.url()).toMatch(/\/answers\/\d+$/);
-				console.log('Individual response page loaded in new tab');
-
-				// Verify the survey responses are displayed
-				// Check for the survey questions and answers that were created in setup
-
 				// Question 1: Opinion
-				await expect(page1.getByText('What is your opinion on this topic?')).toBeVisible();
-				await expect(page1.getByText('I really like this topic')).toBeVisible();
+				await expect(responsePage.getByText('What is your opinion on this topic?')).toBeVisible();
+				await expect(responsePage.getByText('I really like this topic')).toBeVisible();
 
 				// Question 2: Color preference
-				await expect(page1.getByText('What color do you prefer?')).toBeVisible();
-				await expect(page1.getByText('Blue')).toBeVisible();
+				await expect(responsePage.getByText('What color do you prefer?')).toBeVisible();
+				await expect(responsePage.getByText('Blue')).toBeVisible();
 
 				// Question 3: Pet preference
-				await expect(page1.getByText('Which pets do you prefer?')).toBeVisible();
-				// Verify the answer is displayed as '-' for no selection
-				const petQuestion = page1.getByText('Which pets do you prefer?');
+				await expect(responsePage.getByText('Which pets do you prefer?')).toBeVisible();
+				const petQuestion = responsePage.getByText('Which pets do you prefer?');
 				const petAnswer = petQuestion.locator('xpath=following-sibling::dd[1]');
 				await expect(petAnswer).toHaveText('-');
 
 				console.log('Survey questions and responses verified');
 
-				console.log('Individual survey responses reviewed successfully');
-
-				// Close the popup tab
-				await page1.close();
+				await responsePage.close();
 				console.log('Response details tab closed');
 			});
 		});
@@ -317,20 +277,21 @@ test.describe('[PAR-PAS005] – Review result of specific surveys @reserved', ()
 				await componentsPage.manageComponent(componentName);
 				console.log('Accessed survey component for results review');
 
-				await surveysManagePage.accessQuestionsManagement();
-				console.log('Navigated to Manage questions page for survey results review');
+				await surveysManagePage.accessSurveyResponsesBySurveyTitle(surveyName);
+				console.log('Navigated to Responses page for survey results review');
 			});
 
-			await test.step('6. System: Displays the survey details page.', async () => {
-				// Verify we're on the survey details/manage questions page
-				expect(adminPage.url()).toMatch(/\/edit_questions$/);
-
-				console.log('Survey details page displayed');
+			await test.step('6. System: Displays the survey Responses page.', async () => {
+				// Verify we're on the responses page
+				expect(adminPage.url()).toMatch(/\/surveys\/\d+\/responses$/);
+				console.log('Survey Responses page displayed');
 			});
 			await test.step('7.1. System: Detects that no responses have been submitted yet.', async () => {
-				// Verify that the system shows "No answers yet" button indicating no responses
-				await expect(adminPage.getByRole('button', { name: 'No answers yet' })).toBeVisible();
-				console.log('System correctly detects and displays "No answers yet" state');
+				// With no responses, the responses table should be empty (0 rows)
+				const responseRows = adminPage.locator('tbody tr');
+				const count = await responseRows.count();
+				expect(count).toBe(0);
+				console.log('System correctly shows empty responses table (no responses submitted yet)');
 			});
 		});
 	});

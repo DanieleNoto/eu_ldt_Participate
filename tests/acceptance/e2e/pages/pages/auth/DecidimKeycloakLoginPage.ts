@@ -75,8 +75,11 @@ export class DecidimLoginPage extends BasePage {
 
 		// 6. Wait for the final redirect back to the app
 		console.log('Waiting for redirect to app...');
-		await this.page.waitForURL(`${auth_redirect_uri}/**`);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForURL(
+			url => url.toString().startsWith(`${auth_redirect_uri}/`) && !url.toString().includes('/users/sign_in')
+		);
+		await this.page.locator('body').waitFor({ state: 'attached' });
+		await this.page.locator('#trigger-dropdown-account').waitFor({ state: 'visible' });
 
 		if (this.page.url().includes('/users/sign_in')) {
 			throw new Error('Authentication failed - still on login page after redirect');

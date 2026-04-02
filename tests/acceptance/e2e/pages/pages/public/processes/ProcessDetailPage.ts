@@ -137,13 +137,10 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 */
 
 	async navigateToComponent(componentName: string): Promise<void> {
-		// Ensure the dropdown is open
-		await this.openNavigationDropdown();
-
 		// Find and click the component link
 		const componentLink = this.navItems.filter({ hasText: componentName });
 		await componentLink.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	// Navigation dropdown interaction methods

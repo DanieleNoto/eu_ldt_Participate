@@ -46,10 +46,6 @@ export class MeetingsPage extends BaseAdminPage {
 		return this.page.locator('a[title="Unpublish"]:visible');
 	}
 
-	private get editButtons() {
-		return this.page.locator('a[title="Edit"]');
-	}
-
 	private get duplicateButtons() {
 		return this.page.locator('a[title="Duplicate"]');
 	}
@@ -76,9 +72,11 @@ export class MeetingsPage extends BaseAdminPage {
 
 	// Action methods for meeting management
 	async clickEdit(meetingIndex: number = 0) {
-		const editButton = this.editButtons.nth(meetingIndex);
-		await expect(editButton).toBeVisible();
-		await editButton.click();
+		await this.page
+			.getByRole('button', { name: /^Actions for / })
+			.nth(meetingIndex)
+			.click();
+		await this.page.getByRole('link', { name: 'Edit', exact: true }).click();
 		await this.expectUrl(/\/admin.*\/meetings\/\d+\/edit/);
 	}
 
@@ -302,7 +300,11 @@ export class MeetingsPage extends BaseAdminPage {
 
 	// Action button verification methods
 	async verifyEditButtonVisible(meetingIndex: number = 0) {
-		await expect(this.editButtons.nth(meetingIndex)).toBeVisible();
+		await this.page
+			.getByRole('button', { name: /^Actions for / })
+			.nth(meetingIndex)
+			.click();
+		await expect(this.page.getByRole('link', { name: 'Edit', exact: true })).toBeVisible();
 	}
 
 	async verifyDuplicateButtonVisible(meetingIndex: number = 0) {
@@ -319,13 +321,15 @@ export class MeetingsPage extends BaseAdminPage {
 
 	// Bulk actions methods (if needed for future use)
 	async getActionsForMeeting(meetingIndex: number) {
-		const row = this.tableRows.nth(meetingIndex);
-		const actionsCell = row.locator('.table-list__actions, td:last-child');
+		await this.page
+			.getByRole('button', { name: /^Actions for / })
+			.nth(meetingIndex)
+			.click();
 		return {
-			edit: actionsCell.locator('a[title="Edit"]'),
-			duplicate: actionsCell.locator('a[title="Duplicate"]'),
-			publish: actionsCell.locator('a[title="Publish"]'),
-			unpublish: actionsCell.locator('a[title="Unpublish"]')
+			edit: this.page.getByRole('link', { name: 'Edit', exact: true }),
+			duplicate: this.page.getByRole('link', { name: 'Duplicate' }),
+			publish: this.page.getByRole('link', { name: 'Publish' }),
+			unpublish: this.page.getByRole('link', { name: 'Unpublish' })
 		};
 	}
 
@@ -397,11 +401,10 @@ export class MeetingsPage extends BaseAdminPage {
 						return parseInt(dataId, 10);
 					}
 
-					// Fallback: extract from edit link href
-					const editLink = row.locator('a[title="Edit"]');
-					const href = await editLink.getAttribute('href');
+					// Fallback: extract from title link href
+					const href = await titleLink.getAttribute('href');
 					if (href) {
-						const match = href.match(/meetings\/(\d+)\/edit/);
+						const match = href.match(/meetings\/(\d+)/);
 						if (match) {
 							return parseInt(match[1], 10);
 						}

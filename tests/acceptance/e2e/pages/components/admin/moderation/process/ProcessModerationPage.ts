@@ -783,8 +783,11 @@ export class ProcessModerationPage {
 			// Wait for comment to be visible
 			await this.page.locator(commentSelector).waitFor({ state: 'visible' });
 
-			// Click the three dots button to open dropdown
-			const controlsButton = this.page.locator(`#dropdown-trigger-toggle-context-menu-${commentId}`);
+			// Click the three dots button scoped to the comment container
+			const commentContainer = this.page.locator(commentSelector);
+			const controlsButton = commentContainer.locator(
+				'button[data-controller="dropdown"][aria-label="Comment controls"]'
+			);
 			await expect(controlsButton).toBeVisible();
 			await controlsButton.click();
 
