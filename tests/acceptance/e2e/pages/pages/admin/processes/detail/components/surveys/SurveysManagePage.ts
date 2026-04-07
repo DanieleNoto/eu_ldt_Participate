@@ -5,7 +5,7 @@
  * Antonio Abramo Carotenuto
  */
 
-import { expect, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 import { BaseAdminPage } from '../../../../BaseAdminPage';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
@@ -894,7 +894,11 @@ export class SurveysManagePage extends BaseAdminPage {
 	/**
 	 * Fills question statement (title) which is in language-specific tab panels
 	 */
-	async fillQuestionStatement(questionContainer, statementText: string, languageCode?: string): Promise<void> {
+	async fillQuestionStatement(
+		questionContainer: Locator,
+		statementText: string,
+		languageCode?: string
+	): Promise<void> {
 		const currentLanguage = languageCode || (await LocalizationUtils.getCurrentLocale(this.page));
 
 		// Find the active tab panel
@@ -922,7 +926,7 @@ export class SurveysManagePage extends BaseAdminPage {
 	/**
 	 * Checks the Mandatory checkbox for a question
 	 */
-	async checkMandatory(questionContainer): Promise<void> {
+	async checkMandatory(questionContainer: Locator): Promise<void> {
 		await questionContainer.getByRole('checkbox', { name: 'Mandatory' }).check();
 		console.log('Checked Mandatory checkbox');
 	}
@@ -930,7 +934,7 @@ export class SurveysManagePage extends BaseAdminPage {
 	/**
 	 * Fills character limit for a question
 	 */
-	async fillCharacterLimit(questionContainer, limit: string): Promise<void> {
+	async fillCharacterLimit(questionContainer: Locator, limit: string): Promise<void> {
 		await questionContainer.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill(limit);
 		console.log(`Set character limit to ${limit}`);
 	}
@@ -938,7 +942,7 @@ export class SurveysManagePage extends BaseAdminPage {
 	/**
 	 * Selects question type from dropdown
 	 */
-	async selectQuestionType(questionContainer, typeValue: string): Promise<void> {
+	async selectQuestionType(questionContainer: Locator, typeValue: string): Promise<void> {
 		await questionContainer.locator('select[name*="question_type"]').selectOption(typeValue);
 		console.log(`Selected question type: ${typeValue}`);
 	}

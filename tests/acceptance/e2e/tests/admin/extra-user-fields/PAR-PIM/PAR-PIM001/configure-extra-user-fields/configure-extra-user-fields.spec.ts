@@ -29,12 +29,13 @@ test.describe('[PAR-PIM001] Admin Extra User Fields Configuration', () => {
 		await extraUserFieldsAdminPage.expectConfigurationSaved();
 
 		await expect(adminPage.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
-		await expect(adminPage.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
-		await expect(adminPage.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
-		await expect(adminPage.getByRole('checkbox', { name: 'Enable postal code field' })).toBeChecked();
-		await expect(adminPage.getByRole('checkbox', { name: 'Enable gender field' })).toBeChecked();
-		await expect(adminPage.getByRole('checkbox', { name: 'Enable phone number field' })).toBeChecked();
-		await expect(adminPage.getByRole('checkbox', { name: 'Enable location field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Age range enabled' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Date of birth enabled' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Country enabled' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Postal code enabled' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Gender enabled' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Phone number enabled' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Location enabled' })).toBeChecked();
 	});
 
 	test('should allow selective enabling of user fields', async ({ adminPage }) => {
@@ -45,16 +46,18 @@ test.describe('[PAR-PIM001] Admin Extra User Fields Configuration', () => {
 		// Enable main extra user fields and selective fields
 		await extraUserFieldsAdminPage.navigateToExtraUserFieldsConfig();
 		await extraUserFieldsAdminPage.enableExtraUserField('Enable extra user fields');
-		await extraUserFieldsAdminPage.enableExtraUserField('Enable date of birth field');
-		await extraUserFieldsAdminPage.enableExtraUserField('Enable country field');
+		await extraUserFieldsAdminPage.enableExtraUserField('Age range enabled');
+		await extraUserFieldsAdminPage.enableExtraUserField('Date of birth enabled');
+		await extraUserFieldsAdminPage.enableExtraUserField('Country enabled');
 		// Leave other fields unchecked
 
 		await extraUserFieldsAdminPage.saveConfiguration();
 
 		// Verify only selected fields are enabled
 		await expect(adminPage.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
-		await expect(adminPage.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
-		await expect(adminPage.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Age range enabled' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Date of birth enabled' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Country enabled' })).toBeChecked();
 	});
 
 	test('should maintain configuration state after page reload', async ({ adminPage }) => {
@@ -70,8 +73,9 @@ test.describe('[PAR-PIM001] Admin Extra User Fields Configuration', () => {
 
 		// Verify configuration persisted
 		await expect(adminPage.getByRole('checkbox', { name: 'Enable extra user fields' })).toBeChecked();
-		await expect(adminPage.getByRole('checkbox', { name: 'Enable date of birth field' })).toBeChecked();
-		await expect(adminPage.getByRole('checkbox', { name: 'Enable country field' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Age range enabled' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Date of birth enabled' })).toBeChecked();
+		await expect(adminPage.getByRole('checkbox', { name: 'Country enabled' })).toBeChecked();
 	});
 
 	test('should validate form before submission to prevent errors', async ({ adminPage }) => {

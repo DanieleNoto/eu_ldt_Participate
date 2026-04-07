@@ -102,13 +102,16 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 		// PUBLISH the meeting so it has agenda management access
 		const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 		await expect(meetingRow).toBeVisible();
-		const publishButton = meetingRow.locator('a[title="Publish"]');
-		await publishButton.click();
+		await meetingRow.locator('button[data-controller="dropdown"]').click();
+		await meetingRow.locator('a.dropdown__button[href*="/publish"]').click();
 		await adminPage.waitForLoadState('networkidle');
 
-		// Verify meeting is now published
-		const unpublishButton = meetingRow.locator('a[title="Unpublish"]');
-		await expect(unpublishButton).toBeVisible();
+		// Verify meeting is now published (Unpublish link is present in the dropdown)
+		const meetingRowAfter = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
+		await meetingRowAfter.locator('button[data-controller="dropdown"]').click();
+		await expect(meetingRowAfter.locator('a.dropdown__button[href*="/unpublish"]')).toBeVisible();
+		// Close the dropdown by pressing Escape
+		await adminPage.keyboard.press('Escape');
 	});
 
 	test.afterEach(async ({ adminPage }) => {
@@ -126,17 +129,11 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 			const deleteMeetingByPattern = async (pattern: RegExp) => {
 				const row = adminPage.locator('table tbody tr', { hasText: pattern });
 				if ((await row.count()) > 0) {
-					const deleteLink = row
-						.first()
-						.locator('a.action-icon--remove, a[title="Delete"], a.action-icon--delete');
-					if ((await deleteLink.count()) > 0) {
-						await deleteLink.first().click();
-						// Confirm deletion
-						const okButton = adminPage.getByRole('button', { name: 'OK' });
-						if ((await okButton.count()) > 0) {
-							await okButton.click();
-							await adminPage.waitForLoadState('networkidle');
-						}
+					await row.first().locator('button[data-controller="dropdown"]').click();
+					const trashLink = adminPage.locator('a.dropdown__button:has-text("Move to trash")');
+					if ((await trashLink.count()) > 0) {
+						await trashLink.first().click();
+						await adminPage.waitForLoadState('networkidle');
 						console.log(`Deleted meeting matching: ${pattern}`);
 					}
 				}
@@ -192,13 +189,11 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 			});
 
 			await test.step('7. User: Clicks on "Manage Agenda"', async () => {
-				// Find our specific meeting and click on Manage Agenda
+				// Find our specific meeting and click on Manage Agenda via dropdown
 				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 				await expect(meetingRow).toBeVisible();
-
-				// Click the agenda link for our specific meeting (use only title attribute to avoid matching meeting title link)
-				const agendaLink = meetingRow.locator('a[title="Agenda"]');
-				await agendaLink.click();
+				await meetingRow.locator('button[data-controller="dropdown"]').click();
+				await meetingRow.locator('a.dropdown__button[href*="/agenda"]').click();
 				await adminPage.waitForLoadState('networkidle');
 			});
 
@@ -322,13 +317,11 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
 				await meetingsPage.verifyMeetingsPageVisible();
 
-				// Find our specific meeting and click on Manage Agenda
+				// Find our specific meeting and click on Manage Agenda via dropdown
 				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 				await expect(meetingRow).toBeVisible();
-
-				// Use only title attribute to avoid matching meeting title link
-				const agendaLink = meetingRow.locator('a[title="Agenda"]');
-				await agendaLink.click();
+				await meetingRow.locator('button[data-controller="dropdown"]').click();
+				await meetingRow.locator('a.dropdown__button[href*="/agenda"]').click();
 				await adminPage.waitForLoadState('networkidle');
 				await meetingAgendaPage.waitForAgendaPageLoad();
 
@@ -377,13 +370,11 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
 				await meetingsPage.verifyMeetingsPageVisible();
 
-				// Find our specific meeting and click on Manage Agenda
+				// Find our specific meeting and click on Manage Agenda via dropdown
 				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 				await expect(meetingRow).toBeVisible();
-
-				// Use only title attribute to avoid matching meeting title link
-				const agendaLink = meetingRow.locator('a[title="Agenda"]');
-				await agendaLink.click();
+				await meetingRow.locator('button[data-controller="dropdown"]').click();
+				await meetingRow.locator('a.dropdown__button[href*="/agenda"]').click();
 				await adminPage.waitForLoadState('networkidle');
 				await meetingAgendaPage.waitForAgendaPageLoad();
 			});

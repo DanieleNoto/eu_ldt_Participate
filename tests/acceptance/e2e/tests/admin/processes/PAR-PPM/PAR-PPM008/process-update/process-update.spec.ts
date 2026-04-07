@@ -151,11 +151,13 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 			const processRow = adminPage.locator('table.table-list tbody tr').first();
 
 			if (await processRow.isVisible()) {
-				// Click the Soft delete button in that row
-				const deleteButton = processRow.locator('a[title="Soft delete"]');
+				// Open the actions dropdown for the row
+				await processRow.locator('button[data-controller="dropdown"]').click();
 
-				if (await deleteButton.isVisible()) {
-					await deleteButton.click();
+				const softDeleteLink = adminPage.locator('a.dropdown__button:has-text("Move to trash")');
+				const isSoftDeleteVisible = await softDeleteLink.isVisible();
+				if (isSoftDeleteVisible) {
+					await softDeleteLink.click();
 
 					// Wait for confirmation modal and click OK button
 					const confirmModal = adminPage.locator('#confirm-modal-content');
@@ -164,9 +166,8 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 
 					await adminPage.waitForLoadState('networkidle');
 				} else {
-					// If delete is disabled (process is published), unpublish first
-					const configureLink = processRow.locator('a[title="Configure"]');
-					await configureLink.click();
+					// If Soft delete is absent, the process is published — navigate to edit via dropdown "Edit"
+					await adminPage.locator('a.dropdown__button[href*="/edit"]').click();
 					await adminPage.waitForLoadState('networkidle');
 
 					// Try to unpublish
@@ -182,8 +183,8 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 					await processAdminPage.searchProcesses(updatedTitle);
 
 					const rowAfterUnpublish = adminPage.locator('table.table-list tbody tr').first();
-					const deleteBtn = rowAfterUnpublish.locator('a[title="Soft delete"]');
-					await deleteBtn.click();
+					await rowAfterUnpublish.locator('button[data-controller="dropdown"]').click();
+					await adminPage.locator('a.dropdown__button:has-text("Move to trash")').click();
 
 					// Wait for confirmation modal and click OK
 					const modal = adminPage.locator('#confirm-modal-content');
