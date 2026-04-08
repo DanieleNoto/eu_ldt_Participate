@@ -62,10 +62,10 @@ Rails.application.configure do
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 
   if ENV["RAILS_LOG_TO_STDOUT"].present?
-  config.logger = ActiveSupport::Logger.new(STDOUT)
-    .tap  { |logger| logger.formatter = ::Logger::Formatter.new }
-    .then { |logger| ActiveSupport::TaggedLogging.new(logger) }
-end
+    config.logger = ActiveSupport::Logger.new(STDOUT)
+      .tap  { |logger| logger.formatter = config.log_formatter || ::Logger::Formatter.new }
+      .then { |logger| ActiveSupport::TaggedLogging.new(logger) }
+  end
 
   # Prepend all log lines with the following tags.
   config.log_tags = [ :request_id ]
@@ -90,7 +90,7 @@ end
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
   config.active_job.queue_adapter = ENV['QUEUE_ADAPTER'] if ENV['QUEUE_ADAPTER'].present?
-  # config.active_job.queue_name_prefix = "decidim_development_app_production"
+  config.active_job.queue_name_prefix = "decidim_production"
 
   # Disable caching for Action Mailer templates even if Action Controller
   # caching is enabled.
