@@ -164,7 +164,7 @@ spec:
                       - mountPath: /code/tmp
                         name: tmp-volume
                       - mountPath: /code/log
-                        name: tmp-volume
+                        name: log-volume
 
                 - name: open-data-exporter
                   image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
@@ -310,6 +310,8 @@ spec:
                         readOnly: true
                       - mountPath: /code/tmp
                         name: tmp-volume
+                      - mountPath: /code/log
+                        name: log-volume
 
                 - name: fluent-bit
                   image: cr.fluentbit.io/fluent/fluent-bit:2.2-debug
@@ -326,13 +328,15 @@ spec:
                           cpu: '200m'
                           memory: '200Mi'
                   volumeMounts:
-                      - name: tmp-volume
+                      - name: log-volume
                         mountPath: /code/log
                       - name: config
                         mountPath: /fluent-bit/etc/
 
             volumes:
                 - name: tmp-volume
+                  emptyDir: {}
+                - name: log-volume
                   emptyDir: {}
                 - name: fluentbit-buffer
                   emptyDir: {}
