@@ -44,7 +44,8 @@ export class AttachmentsProcessPage extends BaseAdminPage {
 	 */
 	async clickEditAttachmentByIndex(rowIndex: number): Promise<void> {
 		const row = this.tableRows.nth(rowIndex);
-		const editLink = row.locator('a.action-icon--edit');
+		await row.locator('button[data-controller="dropdown"]').click();
+		const editLink = row.locator('a.dropdown__button[href*="/edit"]');
 		await editLink.click();
 	}
 
@@ -54,7 +55,8 @@ export class AttachmentsProcessPage extends BaseAdminPage {
 	 */
 	async clickDeleteAttachmentByIndex(rowIndex: number): Promise<void> {
 		const row = this.tableRows.nth(rowIndex);
-		const deleteLink = row.locator('a.action-icon--remove');
+		await row.locator('button[data-controller="dropdown"]').click();
+		const deleteLink = row.locator('a.dropdown__button--danger, a.dropdown__button[data-confirm]');
 		await deleteLink.click();
 	}
 

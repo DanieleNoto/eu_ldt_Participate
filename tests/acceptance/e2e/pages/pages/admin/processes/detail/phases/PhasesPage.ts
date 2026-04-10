@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
+ * Simone Bianchelli
  */
 
 import { SidebarProcessDetailComponent } from '@pages/components/admin/process/detail/SidebarProcessDetailComponent';
@@ -62,8 +63,12 @@ export class PhasesPage extends BaseAdminPage {
 	 */
 	async clickDeleteButtonByIndex(index: number): Promise<void> {
 		const row = this.tableRows.nth(index);
-		const deleteButton = row.locator('.action-icon--remove');
-		await deleteButton.click();
+		await row.locator('button[data-controller="dropdown"]').click();
+		await row.locator('a.dropdown__button--danger, a.dropdown__button[data-confirm]').click();
+		const okButton = this.page.locator('button[data-confirm-ok]');
+		if ((await okButton.count()) > 0) {
+			await okButton.click();
+		}
 	}
 
 	/**

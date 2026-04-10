@@ -3,6 +3,7 @@
  * Authors:
  * Gianfranco Cedro
  * Antonio Abramo Carotenuto
+ * Simone Bianchelli
  */
 
 import { BaseAdminPage } from '@pages/pages/admin/BaseAdminPage';
@@ -35,7 +36,9 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 
 	async clickDelete(rowIndex: number): Promise<void> {
 		const row = this.page.locator('table.table-list tbody tr').nth(rowIndex);
-		await row.locator('a.action-icon--remove').click();
+		await row.locator('button[data-controller="dropdown"]').click();
+		const deleteLink = row.locator('a.dropdown__button--danger, a.dropdown__button[data-confirm]');
+		await deleteLink.click();
 	}
 
 	async getRowsCount(): Promise<number> {

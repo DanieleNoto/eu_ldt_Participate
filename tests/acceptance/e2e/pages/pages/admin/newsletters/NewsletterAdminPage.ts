@@ -346,16 +346,17 @@ export class NewsletterAdminPage extends BaseAdminPage {
 		const newsletterRow = this.newsletterRowBySubject(subject);
 		await expect(newsletterRow).toBeVisible();
 
-		// Find and click the delete button (last action icon in the row)
-		const deleteButton = newsletterRow.locator('a.action-icon--remove[title="Delete"]');
-		await deleteButton.click();
+		// Open the actions dropdown
+		const actionsButton = newsletterRow.locator('button[data-controller="dropdown"]');
+		await actionsButton.click();
 
-		// Wait for the confirmation modal to appear
-		const confirmModal = this.page.locator('#confirm-modal-content');
-		await expect(confirmModal).toBeVisible();
+		// Find and click the Delete link inside the dropdown
+		const deleteLink = newsletterRow.locator('a.dropdown__button--danger');
+		await deleteLink.click();
 
-		// Click the OK button to confirm deletion
-		const okButton = confirmModal.locator('button[data-confirm-ok]');
+		// Wait for the custom confirm modal and click OK
+		const okButton = this.page.locator('button[data-confirm-ok]');
+		await okButton.waitFor();
 		await okButton.click();
 
 		// Wait for the page to reload after deletion

@@ -128,15 +128,11 @@ export class NewDebatePage extends BaseAdminPage {
 	}
 
 	/**
-	 * Click the create debate button and wait for the redirect to the debates list.
-	 * Uses Promise.all + noWaitAfter to avoid "Target page closed" errors while
-	 * ensuring the navigation has completed before returning.
+	 * Click the create debate button and wait for the page to finish loading.
 	 */
 	async clickCreateDebate(): Promise<void> {
-		await Promise.all([
-			this.page.waitForURL(/\/manage\/debates$/),
-			this.createDebateButton.click({ noWaitAfter: true })
-		]);
+		await this.createDebateButton.click();
+		await this.page.waitForLoadState('load');
 	}
 
 	/**

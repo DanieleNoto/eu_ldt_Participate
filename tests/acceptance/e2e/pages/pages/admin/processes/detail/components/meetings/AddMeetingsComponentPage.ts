@@ -22,7 +22,7 @@ export class AddMeetingsComponentPage extends FormMeetingPage {
 		this.announcementContentEditableEn = page.locator(
 			'#component_settings_announcement_en [contenteditable="true"]'
 		);
-		this.saveButton = page.locator('form#new_component_ button[type="submit"]');
+		this.saveButton = page.locator('button[type="submit"]').filter({ hasText: /add component/i });
 		this.updateComponentButton = page.getByRole('button', { name: 'Update' });
 	}
 

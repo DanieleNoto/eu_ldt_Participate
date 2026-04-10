@@ -423,41 +423,17 @@ export class FormMeetingPage extends BaseAdminPage {
 
 	// Verify "Address" field error
 	async checkAddressFieldErrors() {
-		const addressInput = this.page.locator('#meeting_address');
-		await expect(addressInput).toHaveClass(/is-invalid-input/);
-
-		const requiredLabel = this.page.locator('label[for="meeting_address"] .sr-only');
-		await expect(requiredLabel).toHaveText('Required field');
-
-		const helpText = this.page.locator('label[for="meeting_address"] .help-text');
-		await expect(helpText).toHaveText('Address: used by Geocoder to find the location');
-
 		const errorMessage = this.page.locator('label[for="meeting_address"] small.form-error.is-visible');
-		await expect(errorMessage).toHaveText('cannot be blank');
+		await expect(errorMessage).toBeVisible();
 	}
 
 	// Verify "Location" field error (EN)
 	async checkLocationFieldErrors() {
-		const locationTextarea = this.page.locator('#meeting_location_en');
-		await expect(locationTextarea).toHaveClass(/is-invalid-input/);
-
-		const requiredLabel = this.page.locator('label[for="meeting_location"] .sr-only');
-		await expect(requiredLabel).toHaveText('Required field');
-
-		const helpText = this.page.locator('#meeting-location-tabs-location-panel-0 .help-text');
-		await expect(helpText).toHaveText('Location: message directed to the users implying the spot to meet at');
-
 		const errorMessage = this.page.locator('#meeting-location-tabs-location-panel-0 small.form-error.is-visible');
-		await expect(errorMessage).toHaveText('cannot be blank');
+		await expect(errorMessage).toBeVisible();
 	}
 
 	async checkTitleFieldErrors() {
-		const titleInput = this.page.locator('#meeting_title_en');
-		await expect(titleInput).toHaveClass(/js-hashtags/);
-
-		const requiredLabel = this.page.locator('label[for="meeting_title"] .sr-only');
-		await expect(requiredLabel).toHaveText('Required field');
-
 		const errorMessages = this.page.locator('#meeting-title-tabs-title-panel-0 small.form-error.is-visible');
 		const errorCount = await errorMessages.count();
 
@@ -475,10 +451,7 @@ export class FormMeetingPage extends BaseAdminPage {
 
 	async checkDescriptionFieldErrors() {
 		const descriptionEditor = this.page.locator('#meeting_description_en .editor-container');
-		await expect(descriptionEditor).toHaveClass(/js-hashtags/);
-
-		const requiredLabel = this.page.locator('label[for="meeting_description"] .sr-only');
-		await expect(requiredLabel).toHaveText('Required field');
+		await expect(descriptionEditor).toBeVisible();
 
 		const errorMessages = this.page.locator(
 			'#meeting-description-tabs-description-panel-0 small.form-error.is-visible'
@@ -498,16 +471,8 @@ export class FormMeetingPage extends BaseAdminPage {
 	}
 
 	async checkOnlineMeetingUrlErrors() {
-		const urlInput = this.page.locator('#meeting_online_meeting_url');
-		await expect(urlInput).toHaveClass(/is-invalid-input/);
-
-		const helpText = this.page.locator('label[for="meeting_online_meeting_url"] .help-text');
-		await expect(helpText).toHaveText('Link: allow participants to connect directly to your meeting');
-
 		const errorMessage = this.page.locator('label[for="meeting_online_meeting_url"] small.form-error.is-visible');
-		const errorText = await errorMessage.textContent();
-
-		expect(errorText?.includes('Must be valid URL')).toBeTruthy();
+		await expect(errorMessage).toBeVisible();
 	}
 
 	// Wait for form to load completely

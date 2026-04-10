@@ -87,33 +87,57 @@ export class MeetingsPage extends BaseAdminPage {
 	}
 
 	async clickPublish(meetingIndex: number = 0) {
-		const publishButton = this.publishButtons.nth(meetingIndex);
-		await publishButton.click();
-		// Wait for the page to refresh or update after publish action
+		const row = await this.getNthEditableRow(meetingIndex);
+		await row.locator('button[data-controller="dropdown"]').click();
+		await row.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+		await row.locator('a.dropdown__button[href*="/publish"]:not([href*="/unpublish"])').click();
 		await this.waitForLoadState('load');
 	}
 
 	async clickFirstPublish() {
-		const firstPublishButton = this.page.locator('a[title="Publish"]:visible').first();
-		await firstPublishButton.click();
-		// Wait for the page to refresh or update after publish action
-		await this.waitForLoadState('load');
+		const rows = this.tableRows;
+		const count = await rows.count();
+		for (let i = 0; i < count; i++) {
+			const row = rows.nth(i);
+			const publishLink = row.locator('a.dropdown__button[href*="/publish"]:not([href*="/unpublish"])');
+			if ((await publishLink.count()) > 0) {
+				await row.locator('button[data-controller="dropdown"]').click();
+				await row.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+				await publishLink.click();
+				await this.waitForLoadState('load');
+				return;
+			}
+		}
+		throw new Error('No publishable meeting found');
 	}
 
 	async clickUnpublish(meetingIndex: number = 0) {
-		const unpublishButton = this.unpublishButtons.nth(meetingIndex);
-		await unpublishButton.click();
-		// Wait for the page to refresh or update after unpublish action
+		const row = await this.getNthEditableRow(meetingIndex);
+		await row.locator('button[data-controller="dropdown"]').click();
+		await row.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+		await row.locator('a.dropdown__button[href*="/unpublish"]').click();
+		await this.page.locator('[data-confirm-ok]').waitFor({ state: 'visible' });
+		await this.page.locator('[data-confirm-ok]').click();
 		await this.waitForLoadState('load');
 	}
+
 	async clickFirstUnpublish() {
-		const unpublishButton = this.page.locator('a[title="Unpublish"]:visible').first();
-		await unpublishButton.click();
-		// Wait for the page to refresh or update after unpublish action
-		await this.waitForLoadState('load');
-		const okButton = this.page.locator('button[data-confirm-ok]');
-		await okButton.click();
-		await this.waitForLoadState('load');
+		const rows = this.tableRows;
+		const count = await rows.count();
+		for (let i = 0; i < count; i++) {
+			const row = rows.nth(i);
+			const unpublishLink = row.locator('a.dropdown__button[href*="/unpublish"]');
+			if ((await unpublishLink.count()) > 0) {
+				await row.locator('button[data-controller="dropdown"]').click();
+				await row.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+				await unpublishLink.click();
+				await this.page.locator('[data-confirm-ok]').waitFor({ state: 'visible' });
+				await this.page.locator('[data-confirm-ok]').click();
+				await this.waitForLoadState('load');
+				return;
+			}
+		}
+		throw new Error('No unpublishable meeting found');
 	}
 
 	// Verification methods
@@ -131,30 +155,50 @@ export class MeetingsPage extends BaseAdminPage {
 		await expect(this.newMeetingButton).toBeVisible();
 	}
 
-	async hasMeetingToPublish(): Promise<boolean> {
-		try {
-			const publishButtonsCount = await this.publishButtons.count();
-			return publishButtonsCount > 0;
-		} catch {
-			return false;
+	// Returns the nth table row whose title cell contains a link (i.e. an editable meeting)
+	private async getNthEditableRow(index: number): Promise<import('@playwright/test').Locator> {
+		const rows = this.tableRows;
+		const count = await rows.count();
+		let editableIndex = 0;
+		for (let i = 0; i < count; i++) {
+			const row = rows.nth(i);
+			const hasLink = (await row.locator('td').nth(1).locator('a').count()) > 0;
+			if (hasLink) {
+				if (editableIndex === index) return row;
+				editableIndex++;
+			}
 		}
+		throw new Error(`No editable meeting row at index ${index}`);
+	}
+
+	async hasMeetingToPublish(): Promise<boolean> {
+		const rows = this.tableRows;
+		const count = await rows.count();
+		for (let i = 0; i < count; i++) {
+			const publishLink = rows.nth(i).locator('a.dropdown__button[href*="/publish"]:not([href*="/unpublish"])');
+			if ((await publishLink.count()) > 0) return true;
+		}
+		return false;
 	}
 
 	async verifyMeetingToPublishExists() {
-		await expect(this.publishButtons.first()).toBeVisible();
+		const hasPublishable = await this.hasMeetingToPublish();
+		await expect(hasPublishable).toBe(true);
 	}
 
 	async hasMeetingToUnpublish(): Promise<boolean> {
-		try {
-			const unpublishButtonsCount = await this.unpublishButtons.count();
-			return unpublishButtonsCount > 0;
-		} catch {
-			return false;
+		const rows = this.tableRows;
+		const count = await rows.count();
+		for (let i = 0; i < count; i++) {
+			const unpublishLink = rows.nth(i).locator('a.dropdown__button[href*="/unpublish"]');
+			if ((await unpublishLink.count()) > 0) return true;
 		}
+		return false;
 	}
 
 	async verifyMeetingToUnpublishExists() {
-		await expect(this.unpublishButtons.first()).toBeVisible();
+		const hasUnpublishable = await this.hasMeetingToUnpublish();
+		await expect(hasUnpublishable).toBe(true);
 	}
 
 	// Utility methods for meeting table interactions
@@ -316,7 +360,9 @@ export class MeetingsPage extends BaseAdminPage {
 	}
 
 	async verifyUnpublishButtonVisible(meetingIndex: number = 0) {
-		await expect(this.unpublishButtons.nth(meetingIndex)).toBeVisible();
+		const row = await this.getNthEditableRow(meetingIndex);
+		const unpublishLink = row.locator('a.dropdown__button[href*="/unpublish"]');
+		expect(await unpublishLink.count()).toBeGreaterThan(0);
 	}
 
 	// Bulk actions methods (if needed for future use)

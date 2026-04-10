@@ -126,7 +126,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 
 			await test.step('Result.', async () => {
 				// Final verification: check the new component appears in the components list with correct type
-				const row = adminPage.getByRole('option', { name: new RegExp(newName, 'i') }).first();
+				const row = adminPage.locator('.table-list tbody tr', { hasText: newName }).first();
 				await expect(row).toBeVisible();
 				const typeCell = row.locator('td').nth(2);
 				await expect(typeCell).toHaveText(/Meetings/i);

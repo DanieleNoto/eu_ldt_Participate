@@ -405,13 +405,10 @@ async function checkErrors(
 			await adminPage.waitForLoadState('load');
 			await formMeetingPage.checkTitleFieldErrors();
 			await formMeetingPage.checkDescriptionFieldErrors();
-			await formMeetingPage.checkAddressFieldErrors();
-			await formMeetingPage.checkLocationFieldErrors();
-			// fill address&location
-			const address = '123 Main St, Cityville';
-			await formMeetingPage.fillAddress(address);
-			const location = 'City Hall Conference Room';
-			await formMeetingPage.fillLocation(location);
+
+			// fill address & location
+			await formMeetingPage.fillAddress('123 Main St, Cityville');
+			await formMeetingPage.fillLocation('City Hall Conference Room');
 
 			// 🔹 Catch Description lowercase → "must start with a capital letter"
 

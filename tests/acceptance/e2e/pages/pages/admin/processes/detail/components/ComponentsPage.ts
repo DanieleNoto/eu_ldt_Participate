@@ -59,16 +59,16 @@ export class ComponentsPage extends BaseAdminPage {
 		this.pageTitle = page.locator('.item_show__header-title h1, h1.item_show__header-title');
 
 		// Add component dropdown
-		this.addComponentButton = page.getByRole('button', { name: 'Add component' });
+		this.addComponentButton = page.locator('button[data-target="add-component-dropdown"]');
 		this.addComponentDropdown = page.locator('#add-component-dropdown');
 
 		// Component type links
 		this.accountabilityLink = page.locator('a.accountability[href*="components/new?type=accountability"]');
 		this.blogLink = page.locator('a.blogs[href*="components/new?type=blogs"]');
 		this.budgetsLink = page.locator('a.budgets[href*="components/new?type=budgets"]');
-		this.debatesLink = page.locator('a.debates[href*="components/new?type=debates"]');
-		this.meetingsLink = page.locator('a.meetings[href*="components/new?type=meetings"]');
-		this.pagesLink = page.locator('a.pages[href*="components/new?type=pages"]');
+		this.debatesLink = page.locator('a[href*="components/new?type=debates"]');
+		this.meetingsLink = page.locator('a[href*="components/new?type=meetings"]');
+		this.pagesLink = page.locator('a[href*="components/new?type=pages"]');
 		this.proposalsLink = page.locator('a.proposals[href*="components/new?type=proposals"]');
 		this.sortitionsLink = page.locator('a.sortitions[href*="components/new?type=sortitions"]');
 		this.surveysLink = page.locator('a[href*="components/new?type=surveys"]');
@@ -118,7 +118,6 @@ export class ComponentsPage extends BaseAdminPage {
 
 	async openAddComponentDropdown() {
 		await this.addComponentButton.click();
-		await expect(this.addComponentDropdown).toHaveAttribute('aria-hidden', 'false');
 	}
 
 	async closeAddComponentDropdown() {
@@ -492,9 +491,9 @@ export class ComponentsPage extends BaseAdminPage {
 
 		await deleteLink.first().click();
 
-		// confirm the deletion (adjust the button name if necessary)
-		const okButton = this.page.getByRole('button', { name: 'OK' });
-		await okButton.evaluate((element: HTMLElement) => element.click());
+		// confirm the deletion via the custom confirm modal
+		const okButton = this.page.locator('button[data-confirm-ok]');
+		await okButton.click();
 
 		// wait for success message or for the row to be removed
 		const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');

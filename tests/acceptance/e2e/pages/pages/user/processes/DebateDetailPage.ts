@@ -155,7 +155,7 @@ export class DebateDetailPage {
 		this.referenceItem = this.page.locator('.metadata__item', { hasText: 'Riferimento:' });
 		this.versionItem = this.page.locator('.metadata__item', { hasText: 'Versione' });
 
-		this.closeDebateLink = this.page.locator('a.button[href*="debate_closes"]');
+		this.closeDebateLink = this.page.locator('a.dropdown__button[href*="debate_closes"]');
 
 		// Initialize components
 		this.shareModal = new ShareModalComponent(this.page);
@@ -561,8 +561,8 @@ export class DebateDetailPage {
 	 * @returns True if the textarea has tribute data attributes
 	 */
 	async isTributeInitialized(): Promise<boolean> {
-		const hasTributeAttr = await this.commentTextarea.getAttribute('data-tribute');
-		return hasTributeAttr === 'true';
+		const controller = await this.commentTextarea.getAttribute('data-controller');
+		return controller !== null && controller.split(' ').includes('mention');
 	}
 
 	/**

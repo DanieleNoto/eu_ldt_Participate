@@ -72,7 +72,7 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 			});
 			await test.step('8. User: Types a message in the provided text box and uses the "@" symbol to mention a specific user.', async () => {
 				// First click in the textarea to make sure it is active
-				const textarea = debateDetailPage.getPage().locator('textarea[data-tribute="true"]:visible');
+				const textarea = debateDetailPage.getPage().locator('textarea[data-controller~="mention"]:visible');
 				await textarea.click();
 
 				// Make sure the textarea is empty
@@ -113,7 +113,7 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 
 							await debateDetailPage
 								.getPage()
-								.locator('textarea[data-tribute="true"]')
+								.locator('textarea[data-controller~="mention"]')
 								.dispatchEvent('input', {
 									data: '@a',
 									inputType: 'insertText'
@@ -125,13 +125,19 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 							console.log('Visible after dispatch event:', isVisibleAfterDispatch);
 
 							if (!isVisibleAfterDispatch) {
-								await debateDetailPage.getPage().locator('textarea[data-tribute="true"]').clear();
 								await debateDetailPage
 									.getPage()
-									.locator('textarea[data-tribute="true"]')
+									.locator('textarea[data-controller~="mention"]')
+									.clear();
+								await debateDetailPage
+									.getPage()
+									.locator('textarea[data-controller~="mention"]')
 									.press('Shift+2'); // @ symbol
 								await debateDetailPage.getPage().waitForTimeout(300);
-								await debateDetailPage.getPage().locator('textarea[data-tribute="true"]').press('a');
+								await debateDetailPage
+									.getPage()
+									.locator('textarea[data-controller~="mention"]')
+									.press('a');
 								await debateDetailPage.getPage().waitForTimeout(1000);
 							}
 						}
@@ -223,7 +229,7 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 			});
 			await test.step('8a. User: Types the "@" symbol and begins typing the user\'s name.', async () => {
 				// First click in the textarea to make sure it is active
-				const textarea = debateDetailPage.getPage().locator('textarea[data-tribute="true"]:visible');
+				const textarea = debateDetailPage.getPage().locator('textarea[data-controller~="mention"]:visible');
 				await textarea.click();
 
 				// Make sure the textarea is empty

@@ -95,39 +95,60 @@ test.describe('[PAR-EA004] – Publish a meeting', () => {
 	});
 
 	test.afterEach(async ({ adminPage }) => {
-		// Cleanup: delete the created meeting
+		const meetingsComponentId = '6';
+
+		const deleteMeetingByTitle = async (searchText: string): Promise<void> => {
+			await adminPage.goto(
+				`/admin/participatory_processes/${processSlug}/components/${meetingsComponentId}/manage/meetings`
+			);
+			await adminPage.waitForLoadState('load');
+
+			// Search by title to avoid pagination issues
+			await adminPage.locator('#q_id_string_or_title_cont').fill(searchText);
+			await adminPage.locator('#q_id_string_or_title_cont').press('Enter');
+			await adminPage.waitForLoadState('load');
+
+			const row = adminPage.locator('table tbody tr').filter({ hasText: searchText });
+			const found = await row
+				.first()
+				.waitFor({ state: 'visible' })
+				.then(() => true)
+				.catch(() => false);
+			if (!found) {
+				console.log(`[Cleanup] Meeting not found: ${searchText}`);
+				return;
+			}
+
+			// Open dropdown and unpublish first if needed
+			await row.locator('button[data-controller="dropdown"]').click();
+			await row.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+			const unpublishLink = row.locator('a.dropdown__button[href*="/unpublish"]');
+			if ((await unpublishLink.count()) > 0) {
+				await unpublishLink.click();
+				await adminPage.locator('[data-confirm-ok]').waitFor({ state: 'visible' });
+				await adminPage.locator('[data-confirm-ok]').click();
+				await adminPage.waitForLoadState('load');
+				// After page reload, re-search and re-find the row (old locator is stale)
+				await adminPage.locator('#q_id_string_or_title_cont').fill(searchText);
+				await adminPage.locator('#q_id_string_or_title_cont').press('Enter');
+				await adminPage.waitForLoadState('load');
+				const freshRow = adminPage.locator('table tbody tr').filter({ hasText: searchText }).first();
+				await freshRow.locator('button[data-controller="dropdown"]').click();
+				await freshRow.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+				await freshRow.locator('a.dropdown__button[href*="soft_delete"]').click();
+			} else {
+				await row.locator('a.dropdown__button[href*="soft_delete"]').click();
+			}
+			await adminPage.locator('[data-confirm-ok]').waitFor({ state: 'visible' });
+			await adminPage.locator('[data-confirm-ok]').click();
+			await adminPage.waitForLoadState('load');
+			console.log(`[Cleanup] Meeting deleted: ${searchText}`);
+		};
+
 		try {
-			// Navigate to meetings list inside the Meetings component
-			await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-			await adminPage.waitForLoadState('networkidle');
-			await componentsPage.sidebarProcessDetail.navigateToComponents();
-			const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
-			await meetingsLink.click();
-			await adminPage.waitForLoadState('networkidle');
-
-			// Find and delete meeting by title pattern
-			const deleteMeetingByPattern = async (pattern: RegExp) => {
-				const row = adminPage.locator('table tbody tr', { hasText: pattern });
-				if ((await row.count()) > 0) {
-					const deleteLink = row
-						.first()
-						.locator('a.action-icon--remove, a[title="Delete"], a.action-icon--delete');
-					if ((await deleteLink.count()) > 0) {
-						await deleteLink.first().click();
-						// Confirm deletion
-						const okButton = adminPage.getByRole('button', { name: 'OK' });
-						if ((await okButton.count()) > 0) {
-							await okButton.click();
-							await adminPage.waitForLoadState('networkidle');
-						}
-						console.log(`Deleted meeting matching: ${pattern}`);
-					}
-				}
-			};
-
-			await deleteMeetingByPattern(new RegExp(`Publish Test Meeting ${timestamp}`, 'i'));
+			await deleteMeetingByTitle(`Publish Test Meeting ${timestamp}`);
 		} catch (error) {
-			console.log(`Cleanup warning: Could not delete meeting:`, error);
+			console.error(`[Cleanup] Failed to delete meeting:`, error);
 		}
 	});
 	test.describe('Main Flow', () => {

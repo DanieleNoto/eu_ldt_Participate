@@ -139,42 +139,35 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				console.log(`Configured component settings and created component: ${componentName}`);
 			});
 
-			await test.step('9. System: Display the "Edit questionnaire" form and ask to user to select a template or Skip.', async () => {
+			await test.step('9. System: Displays the survey creation form with Title, Description and Privacy Policy fields.', async () => {
 				await surveysManagePage.accessComponentAndCreateNewSurvey(componentsPage, componentName);
-				await surveysManagePage.verifyTemplateSelectionDisplayed();
-			});
-
-			await test.step('10. User: Clicks "Skip".', async () => {
-				await surveysManagePage.skipTemplateSelection();
-			});
-
-			await test.step('11. System: Create the new empty questionnaire and displays options for adding survey elements.', async () => {
 				await surveysManagePage.verifyEmptyQuestionnaireDisplayed();
 			});
 
-			await test.step('12. User: Fulfil name and description input', async () => {
+			await test.step('10. User: Fills Title, Description and Privacy Policy fields and saves.', async () => {
 				const surveyTimestamp = Date.now().toString();
 				const surveyName = `survey_${surveyTimestamp}`;
 				await surveysManagePage.fillSurveyDetailsAndSave(surveyName, 'description');
 			});
 
-			await test.step('13. User: Clicks "Add Question" to add question to the poll.', async () => {
+			await test.step('11. User: Navigates to the "Questions" tab, selects "Create new form" and clicks Continue.', async () => {
 				await surveysManagePage.accessQuestionsManagement();
-
-				// Add new question
-				await adminPage.getByRole('button', { name: 'Add question' }).click();
 			});
 
-			await test.step('14. System: Displays the "Add Question" form.', async () => {
+			await test.step('12. System: Displays the empty questionnaire with options for adding survey elements.', async () => {
 				// Verify questions management interface is available
 				await expect(adminPage.getByRole('button', { name: 'Add question' })).toBeVisible();
 				await expect(adminPage.getByRole('button', { name: 'Add separator' })).toBeVisible();
 				await expect(adminPage.getByRole('button', { name: 'Add title and description' })).toBeVisible();
-
 				console.log('Questions management interface displayed with add question options');
 			});
 
-			await test.step('15. User: Fills in the Question Form: Statement: Adds the main question, Type: select question types, Mandatory: check if must be answered before submitting', async () => {
+			await test.step('13. User: Clicks "Add Question" to add question to the poll.', async () => {
+				// Add new question
+				await adminPage.getByRole('button', { name: 'Add question' }).click();
+			});
+
+			await test.step('14. User: Fills in the Question Form: Statement: Adds the main question, Type: select question types, Mandatory: check if must be answered before submitting', async () => {
 				// Question 1: Long Answer
 				await adminPage.waitForSelector('.questionnaire-question:nth-child(1)');
 				const question1Container = adminPage.locator('.questionnaire-question:nth-child(1)');
@@ -195,7 +188,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await surveysManagePage.fillQuestionDescription(question1Container, 'Please share your thoughts');
 				await surveysManagePage.checkMandatory(question1Container);
 				await surveysManagePage.fillCharacterLimit(question1Container, '500');
-				await surveysManagePage.selectQuestionType(question1Container, 'long_answer');
+				await surveysManagePage.selectQuestionType(question1Container, 'long_response');
 
 				// Increment questions counter
 				questionsCount++;
@@ -204,15 +197,15 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				);
 			});
 
-			await test.step('16. User: Clicks on "Save" to create Single-Question Polls', async () => {
+			await test.step('15. User: Clicks on "Save" to create Single-Question Polls', async () => {
 				await surveysManagePage.clickSaveQuestions();
 			});
 
-			await test.step('17. System: Validates the form for completeness and correctness.', async () => {
+			await test.step('16. System: Validates the form for completeness and correctness.', async () => {
 				await surveysManagePage.verifySurveyQuestionsSaved();
 			});
 
-			await test.step('18. System: Saves the template', async () => {
+			await test.step('17. System: Saves and publishes the poll', async () => {
 				// Final step: Publish the survey poll
 				await surveysManagePage.publishSurvey();
 
@@ -284,7 +277,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await surveysManagePage.fillQuestionDescription(question1Container, 'Please share your thoughts');
 				await surveysManagePage.checkMandatory(question1Container);
 				await surveysManagePage.fillCharacterLimit(question1Container, '500');
-				await surveysManagePage.selectQuestionType(question1Container, 'long_answer');
+				await surveysManagePage.selectQuestionType(question1Container, 'long_response');
 
 				templateQuestionsCount++;
 
@@ -351,29 +344,18 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				);
 			});
 
-			await test.step('10.1. User: Select a specific template', async () => {
-				// Use the template created in beforeEach
-				await adminPage.getByRole('combobox', { name: 'Choose template' }).click();
-				await adminPage.getByRole('combobox', { name: 'Choose template' }).fill(templateName);
-				await adminPage.getByRole('button', { name: 'Create from template' }).click();
-
-				// Wait for redirect after template application
-				await adminPage.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
-				);
-				await adminPage.waitForLoadState('load');
-				await expect(adminPage.getByText('Template applied successfully.')).toBeVisible();
-				console.log(`Template "${templateName}" applied successfully`);
-			});
-
-			await test.step('10.2. System: Create the new questionnaire based on selected template and displays options for adding survey elements', async () => {
+			await test.step('10.1. User: Fill survey form details and save', async () => {
 				await surveysManagePage.verifyEmptyQuestionnaireDisplayed();
 
 				const surveyTimestamp = Date.now().toString();
 				const surveyName = `survey_template_${surveyTimestamp}`;
 				await surveysManagePage.fillSurveyDetailsAndSave(surveyName, 'Survey created from template');
+				console.log(`Survey form saved: ${surveyName}`);
+			});
 
-				await surveysManagePage.accessQuestionsManagement();
+			await test.step('10.2. System: Create the new questionnaire based on selected template and displays options for adding survey elements', async () => {
+				await surveysManagePage.accessQuestionsManagementWithTemplate(templateName);
+				await expect(adminPage.getByText('Template applied successfully.')).toBeVisible();
 
 				// Verify the imported question from template is present
 				await expect(adminPage.locator('.questionnaire-question:nth-child(1)')).toBeVisible();
@@ -407,7 +389,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				// Verify question type is Long Answer as configured in template
 				const questionTypeSelect = question1Container.locator('select:not([data-editor-type])').first();
 				await questionTypeSelect.waitFor({ state: 'visible' });
-				await expect(questionTypeSelect).toHaveValue('long_answer');
+				await expect(questionTypeSelect).toHaveValue('long_response');
 
 				// Verify mandatory checkbox is checked as configured in template
 				const mandatoryCheckbox = question1Container.locator('input[type="checkbox"]').first();
@@ -424,10 +406,7 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await surveysManagePage.clickSaveQuestions();
 				await surveysManagePage.verifySurveyQuestionsSaved();
 
-				// Verify template questions are pre-populated and publish (Steps 17-18 equivalent)
-				await expect(adminPage.getByRole('link', { name: 'Publish' })).toBeVisible();
-
-				// Final step: Publish the survey poll
+				// Final step: Publish the survey poll (navigates back to /manage/ first)
 				await surveysManagePage.publishSurvey();
 
 				// Verify that the survey was actually created with the correct number of questions (from template)
@@ -484,8 +463,6 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				await expect(adminPage.getByText('Component created successfully')).toBeVisible();
 
 				await surveysManagePage.accessComponentAndCreateNewSurvey(componentsPage, componentName);
-				await surveysManagePage.verifyTemplateSelectionDisplayed();
-				await surveysManagePage.skipTemplateSelection();
 				await surveysManagePage.verifyEmptyQuestionnaireDisplayed();
 
 				const surveyTimestamp = Date.now().toString();
@@ -538,20 +515,20 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 					.first();
 				await expect(statementInput).toHaveValue('');
 
-				// Verify that the two option fields are empty
+				// Verify that the two response option fields are empty
 				await expect(
 					question1Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.first()
-						.locator('[role="tabpanel"][aria-hidden="false"]')
+						.locator('.tabs-panel.is-active')
 						.locator('input[type="text"]')
 						.first()
 				).toHaveValue('');
 				await expect(
 					question1Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(1)
-						.locator('[role="tabpanel"][aria-hidden="false"]')
+						.locator('.tabs-panel.is-active')
 						.locator('input[type="text"]')
 						.first()
 				).toHaveValue('');
@@ -560,9 +537,6 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 
 				// Test validation by trying to save empty form
 				await adminPage.getByRole('button', { name: 'Save' }).click();
-				await adminPage.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/update_questions/
-				);
 				await adminPage.waitForLoadState('load');
 				console.log('System initiated validation check for form completeness');
 			});
@@ -593,19 +567,19 @@ test.describe('[PAR-PAS002] – Create single-question polls', () => {
 				// Set question type to single option
 				await surveysManagePage.selectQuestionType(question1Container, 'single_option');
 
-				// Fill the default two answer options that are automatically created
-				await question1Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				// Fill the default two response options that are automatically created
+				await question1Container.locator('.questionnaire-question-response-option').first().waitFor();
 				await question1Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
-					.locator('[role="tabpanel"][aria-hidden="false"]')
+					.locator('.tabs-panel.is-active')
 					.locator('input[type="text"]')
 					.first()
 					.fill('Option A');
 				await question1Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
-					.locator('[role="tabpanel"][aria-hidden="false"]')
+					.locator('.tabs-panel.is-active')
 					.locator('input[type="text"]')
 					.first()
 					.fill('Option B');

@@ -90,11 +90,11 @@ export class AdminProcessTableComponent {
 	}
 
 	async editFirstProcess() {
-		await this.page
-			.getByRole('button', { name: /Actions for / })
-			.first()
-			.click();
-		await this.page.getByRole('link', { name: 'Edit' }).click();
+		const actionsButton = this.page.getByRole('button', { name: /Actions for / }).first();
+		await actionsButton.click();
+		// Click the Edit link inside the dropdown that just opened (aria-hidden=false)
+		const openMenu = this.page.locator('ul[role="menu"]:not([aria-hidden="true"])').first();
+		await openMenu.getByRole('link', { name: 'Edit' }).click();
 	}
 
 	async duplicateProcess(processName: string) {

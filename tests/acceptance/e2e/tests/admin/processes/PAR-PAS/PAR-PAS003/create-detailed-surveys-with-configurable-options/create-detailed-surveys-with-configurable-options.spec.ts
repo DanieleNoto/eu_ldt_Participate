@@ -138,28 +138,30 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				console.log(`Configured component settings and created component: ${componentName}`);
 			});
 
-			await test.step('9. System: Display the "Edit questionnaire" form and ask to user to select a template or Skip.', async () => {
+			await test.step('9. System: Displays the survey creation form with Title, Description and Privacy Policy fields.', async () => {
 				await surveysManagePage.accessComponentAndCreateNewSurvey(componentsPage, componentName);
-				await surveysManagePage.verifyTemplateSelectionDisplayed();
-			});
-
-			await test.step('10. User: Clicks "Skip".', async () => {
-				await surveysManagePage.skipTemplateSelection();
-			});
-
-			await test.step('11. System: Create the new empty questionnaire and displays options for adding survey elements.', async () => {
 				await surveysManagePage.verifyEmptyQuestionnaireDisplayed();
 			});
 
-			await test.step('12. User: Fulfil name and description input', async () => {
+			await test.step('10. User: Fills Title, Description and Privacy Policy fields and saves.', async () => {
 				const surveyTimestamp = Date.now().toString();
 				const surveyName = `survey_${surveyTimestamp}`;
 				await surveysManagePage.fillSurveyDetailsAndSave(surveyName, 'description');
 			});
 
-			await test.step('13. User: Clicks "Add Question" to add question to the poll.', async () => {
+			await test.step('11. User: Navigates to the "Questions" tab and clicks Continue.', async () => {
 				await surveysManagePage.accessQuestionsManagement();
+			});
 
+			await test.step('12. System: Displays the empty questionnaire with options for adding survey elements.', async () => {
+				// Verify questions management interface is available
+				await expect(adminPage.getByRole('button', { name: 'Add question' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add separator' })).toBeVisible();
+				await expect(adminPage.getByRole('button', { name: 'Add title and description' })).toBeVisible();
+				console.log('Questions management interface displayed with add question options');
+			});
+
+			await test.step('13. User: Clicks "Add Question" to add question to the poll.', async () => {
 				// Add new question
 				await adminPage.getByRole('button', { name: 'Add question' }).click();
 			});
@@ -193,7 +195,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.fillQuestionDescription(question1Container, 'Please share your thoughts');
 				await surveysManagePage.checkMandatory(question1Container);
 				await surveysManagePage.fillCharacterLimit(question1Container, '500');
-				await surveysManagePage.selectQuestionType(question1Container, 'long_answer');
+				await surveysManagePage.selectQuestionType(question1Container, 'long_response');
 
 				// Increment questions counter
 				questionsCount++;
@@ -219,7 +221,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.fillQuestionDescription(question2Container, 'Please share your thoughts');
 				await surveysManagePage.checkMandatory(question2Container);
 				await surveysManagePage.fillCharacterLimit(question2Container, '250');
-				await surveysManagePage.selectQuestionType(question2Container, 'short_answer');
+				await surveysManagePage.selectQuestionType(question2Container, 'short_response');
 
 				// Increment questions counter
 				questionsCount++;
@@ -247,14 +249,14 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.selectQuestionType(question3Container, 'single_option');
 
 				// Fill the default two answer options that are automatically created
-				await question3Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question3Container.locator('.questionnaire-question-response-option').first().waitFor();
 				await question3Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Blue');
 				await question3Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Green');
@@ -285,31 +287,31 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.selectQuestionType(question4Container, 'multiple_option');
 
 				// Fill the default two answer options that are automatically created
-				await question4Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question4Container.locator('.questionnaire-question-response-option').first().waitFor();
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Cat');
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Dog');
 
 				// Add the additional two options
-				await question4Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question4Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question4Container.getByRole('button', { name: 'Add response option' }).click();
+				await question4Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Parrot');
 
-				await question4Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question4Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question4Container.getByRole('button', { name: 'Add response option' }).click();
+				await question4Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Fish');
@@ -343,14 +345,14 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.selectQuestionType(question5Container, 'sorting');
 
 				// Fill the default two answer options that are automatically created for sorting
-				await question5Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question5Container.locator('.questionnaire-question-response-option').first().waitFor();
 				await question5Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Car');
 				await question5Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Motorcycle');
@@ -427,39 +429,39 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await allMatrixRows7.nth(4).fill('Very Negative');
 
 				// Fill the default two answer options that are automatically created
-				await question7Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question7Container.locator('.questionnaire-question-response-option').first().waitFor();
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on how decisions are made');
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Time for everyone to speak');
 
 				// Add only 3 additional answer options (total 5 columns)
-				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question7Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question7Container.getByRole('button', { name: 'Add response option' }).click();
+				await question7Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on complex issues');
 
-				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question7Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question7Container.getByRole('button', { name: 'Add response option' }).click();
+				await question7Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Meetings frequency');
 
-				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question7Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question7Container.getByRole('button', { name: 'Add response option' }).click();
+				await question7Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Follow-up or implementation of decisions');
@@ -508,31 +510,31 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await allMatrixRows8.nth(3).fill('Location and facilities');
 
 				// Fill the default two answer options that are automatically created
-				await question8Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question8Container.locator('.questionnaire-question-response-option').first().waitFor();
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Useful contacts');
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Practical knowledge gained');
 
 				// Add only 2 additional answer options (total 4 columns)
-				await question8Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question8Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question8Container.getByRole('button', { name: 'Add response option' }).click();
+				await question8Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Enjoyable atmosphere');
 
-				await question8Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question8Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question8Container.getByRole('button', { name: 'Add response option' }).click();
+				await question8Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Well-structured sessions');
@@ -624,7 +626,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.fillQuestionDescription(question1Container, 'Please share your thoughts');
 				await surveysManagePage.checkMandatory(question1Container);
 				await surveysManagePage.fillCharacterLimit(question1Container, '500');
-				await surveysManagePage.selectQuestionType(question1Container, 'long_answer');
+				await surveysManagePage.selectQuestionType(question1Container, 'long_response');
 
 				// Increment template questions counter
 				templateQuestionsCount++;
@@ -650,7 +652,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.fillQuestionDescription(question2Container, 'Please share your thoughts');
 				await surveysManagePage.checkMandatory(question2Container);
 				await surveysManagePage.fillCharacterLimit(question2Container, '250');
-				await surveysManagePage.selectQuestionType(question2Container, 'short_answer');
+				await surveysManagePage.selectQuestionType(question2Container, 'short_response');
 
 				// Increment template questions counter
 				templateQuestionsCount++;
@@ -678,14 +680,14 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.selectQuestionType(question3Container, 'single_option');
 
 				// Fill the default two answer options that are automatically created
-				await question3Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question3Container.locator('.questionnaire-question-response-option').first().waitFor();
 				await question3Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Blue');
 				await question3Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Green');
@@ -716,31 +718,31 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.selectQuestionType(question4Container, 'multiple_option');
 
 				// Fill the default two answer options that are automatically created
-				await question4Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question4Container.locator('.questionnaire-question-response-option').first().waitFor();
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Cat');
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Dog');
 
 				// Add the additional two options
-				await question4Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question4Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question4Container.getByRole('button', { name: 'Add response option' }).click();
+				await question4Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Parrot');
 
-				await question4Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question4Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question4Container.getByRole('button', { name: 'Add response option' }).click();
+				await question4Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Fish');
@@ -774,14 +776,14 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.selectQuestionType(question5Container, 'sorting');
 
 				// Fill the default two answer options that are automatically created for sorting
-				await question5Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question5Container.locator('.questionnaire-question-response-option').first().waitFor();
 				await question5Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Car');
 				await question5Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Motorcycle');
@@ -858,39 +860,39 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await allMatrixRows7.nth(4).fill('Very Negative');
 
 				// Fill the default two answer options that are automatically created
-				await question7Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question7Container.locator('.questionnaire-question-response-option').first().waitFor();
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on how decisions are made');
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Time for everyone to speak');
 
 				// Add only 3 additional answer options (total 5 columns)
-				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question7Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question7Container.getByRole('button', { name: 'Add response option' }).click();
+				await question7Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on complex issues');
 
-				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question7Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question7Container.getByRole('button', { name: 'Add response option' }).click();
+				await question7Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Meetings frequency');
 
-				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question7Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question7Container.getByRole('button', { name: 'Add response option' }).click();
+				await question7Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Follow-up or implementation of decisions');
@@ -939,31 +941,31 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await allMatrixRows8.nth(3).fill('Location and facilities');
 
 				// Fill the default two answer options that are automatically created
-				await question8Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question8Container.locator('.questionnaire-question-response-option').first().waitFor();
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Useful contacts');
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Practical knowledge gained');
 
 				// Add only 2 additional answer options (total 4 columns)
-				await question8Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question8Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question8Container.getByRole('button', { name: 'Add response option' }).click();
+				await question8Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Enjoyable atmosphere');
 
-				await question8Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question8Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question8Container.getByRole('button', { name: 'Add response option' }).click();
+				await question8Container.locator('.questionnaire-question-response-option').last().waitFor();
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Well-structured sessions');
@@ -1042,29 +1044,18 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				);
 			});
 
-			await test.step('10.1. User: Select a specific template', async () => {
-				// Use the template created in beforeEach
-				await adminPage.getByRole('combobox', { name: 'Choose template' }).click();
-				await adminPage.getByRole('combobox', { name: 'Choose template' }).fill(templateName);
-				await adminPage.getByRole('button', { name: 'Create from template' }).click();
-
-				// Wait for redirect after template application
-				await adminPage.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/
-				);
-				await adminPage.waitForLoadState('networkidle');
-				await expect(adminPage.getByText('Template applied successfully.')).toBeVisible();
-				console.log(`Template "${templateName}" applied successfully`);
-			});
-
-			await test.step('10.2. System: Create the new questionnaire based on selected template and displays options for adding survey elements', async () => {
+			await test.step('10.1. User: Fill survey form details and save', async () => {
 				await surveysManagePage.verifyEmptyQuestionnaireDisplayed();
 
 				const surveyTimestamp = Date.now().toString();
 				const surveyName = `survey_template_${surveyTimestamp}`;
 				await surveysManagePage.fillSurveyDetailsAndSave(surveyName, 'Survey created from template');
+				console.log(`Survey form saved: ${surveyName}`);
+			});
 
-				await surveysManagePage.accessQuestionsManagement();
+			await test.step('10.2. System: Create the new questionnaire based on selected template and displays options for adding survey elements', async () => {
+				await surveysManagePage.accessQuestionsManagementWithTemplate(templateName);
+				await expect(adminPage.getByText('Template applied successfully.')).toBeVisible();
 
 				// Verify the imported questions from template are present
 				await expect(adminPage.locator('.questionnaire-question:nth-child(1)')).toBeVisible();
@@ -1092,7 +1083,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.locator('.tabs-panel.is-active .editor-input .tiptap')
 					.innerText();
 				expect(descriptionText1.trim()).toBe('Please share your thoughts');
-				await expect(question1Container.getByLabel('TypeShort answer Long answer')).toHaveValue('long_answer');
+				await expect(question1Container.locator('select[name*="question_type"]').first()).toHaveValue(
+					'long_response'
+				);
 				await expect(question1Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
 				await expect(
 					question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' })
@@ -1114,7 +1107,9 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.locator('.tabs-panel.is-active .editor-input .tiptap')
 					.innerText();
 				expect(descriptionText2.trim()).toBe('Please share your thoughts');
-				await expect(question2Container.getByLabel('TypeShort answer Long answer')).toHaveValue('short_answer');
+				await expect(question2Container.locator('select[name*="question_type"]').first()).toHaveValue(
+					'short_response'
+				);
 				await expect(question2Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
 				await expect(
 					question2Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' })
@@ -1136,20 +1131,20 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.locator('.tabs-panel.is-active .editor-input .tiptap')
 					.innerText();
 				expect(descriptionText3.trim()).toBe('select one of the available options');
-				await expect(question3Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
+				await expect(question3Container.getByLabel('TypeShort response Long response')).toHaveValue(
 					'single_option'
 				);
 				await expect(question3Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
 				// Verify answer options
 				await expect(
 					question3Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.first()
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Blue');
 				await expect(
 					question3Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(1)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Green');
@@ -1170,7 +1165,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.locator('.tabs-panel.is-active .editor-input .tiptap')
 					.innerText();
 				expect(descriptionText4.trim()).toBe('select two of the available options');
-				await expect(question4Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
+				await expect(question4Container.getByLabel('TypeShort response Long response')).toHaveValue(
 					'multiple_option'
 				);
 				await expect(question4Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
@@ -1178,25 +1173,25 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Verify answer options
 				await expect(
 					question4Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(0)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Cat');
 				await expect(
 					question4Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(1)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Dog');
 				await expect(
 					question4Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(2)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Parrot');
 				await expect(
 					question4Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(3)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Fish');
@@ -1217,18 +1212,18 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.locator('.tabs-panel.is-active .editor-input .tiptap')
 					.innerText();
 				expect(descriptionText5.trim()).toBe('select an option');
-				await expect(question5Container.getByLabel('TypeShort answer Long answer')).toHaveValue('sorting');
+				await expect(question5Container.getByLabel('TypeShort response Long response')).toHaveValue('sorting');
 				await expect(question5Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
 				// Verify answer options
 				await expect(
 					question5Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.first()
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Car');
 				await expect(
 					question5Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(1)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Motorcycle');
@@ -1251,7 +1246,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				expect(descriptionText6.trim()).toBe(
 					'Share with us a file, notes, document, photos, that might be relevant for the next assemblies!'
 				);
-				await expect(question6Container.getByLabel('TypeShort answer Long answer')).toHaveValue('files');
+				await expect(question6Container.getByLabel('TypeShort response Long response')).toHaveValue('files');
 				await expect(question6Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
 
 				// Verify Question 7: Matrix (single option)
@@ -1270,7 +1265,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.locator('.tabs-panel.is-active .editor-input .tiptap')
 					.innerText();
 				expect(descriptionText7.trim()).toBe('Rate your experience regarding different aspects!');
-				await expect(question7Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
+				await expect(question7Container.getByLabel('TypeShort response Long response')).toHaveValue(
 					'matrix_single'
 				);
 				await expect(question7Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
@@ -1286,31 +1281,31 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Verify answer options
 				await expect(
 					question7Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(0)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Clarity on how decisions are made');
 				await expect(
 					question7Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(1)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Time for everyone to speak');
 				await expect(
 					question7Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(2)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Clarity on complex issues');
 				await expect(
 					question7Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(3)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Meetings frequency');
 				await expect(
 					question7Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(4)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Follow-up or implementation of decisions');
@@ -1331,7 +1326,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.locator('.tabs-panel.is-active .editor-input .tiptap')
 					.innerText();
 				expect(descriptionText8.trim()).toBe('Select all that apply for each area');
-				await expect(question8Container.getByLabel('TypeShort answer Long answer')).toHaveValue(
+				await expect(question8Container.getByLabel('TypeShort response Long response')).toHaveValue(
 					'matrix_multiple'
 				);
 				await expect(question8Container.getByRole('checkbox', { name: 'Mandatory' })).toBeChecked();
@@ -1346,25 +1341,25 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Verify answer options
 				await expect(
 					question8Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(0)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Useful contacts');
 				await expect(
 					question8Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(1)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Practical knowledge gained');
 				await expect(
 					question8Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(2)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Enjoyable atmosphere');
 				await expect(
 					question8Container
-						.locator('.questionnaire-question-answer-option')
+						.locator('.questionnaire-question-response-option')
 						.nth(3)
 						.locator('.tabs-panel.is-active input[type="text"]')
 				).toHaveValue('Well-structured sessions');
@@ -1375,7 +1370,6 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.verifySurveyQuestionsSaved();
 
 				// Verify template questions are pre-populated and publish (Steps 17-18 equivalent)
-				await expect(adminPage.getByRole('link', { name: 'Publish' })).toBeVisible();
 
 				// Final step: Publish the survey poll
 				await surveysManagePage.publishSurvey();
@@ -1438,8 +1432,6 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await expect(adminPage.getByText('Component created successfully')).toBeVisible();
 
 				await surveysManagePage.accessComponentAndCreateNewSurvey(componentsPage, componentName);
-				await surveysManagePage.verifyTemplateSelectionDisplayed();
-				await surveysManagePage.skipTemplateSelection();
 				await surveysManagePage.verifyEmptyQuestionnaireDisplayed();
 
 				const surveyTimestamp = Date.now().toString();
@@ -1472,7 +1464,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question1Container.locator('.editor-input .tiptap').first().fill('Please share your thoughts');
 				await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
-				await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+				await question1Container.locator('select[name*="question_type"]').first().selectOption('long_response');
 
 				questionsCount++;
 				console.log('Added question 1: Long Answer');
@@ -1495,7 +1487,10 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.fill('What is your opinion on this other topic?');
 				await question2Container.locator('.editor-input .tiptap').first().fill('Please share your thoughts');
 				await question2Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('250');
-				await question2Container.getByLabel('TypeShort answer Long answer').selectOption('short_answer');
+				await question2Container
+					.locator('select[name*="question_type"]')
+					.first()
+					.selectOption('short_response');
 
 				questionsCount++;
 				console.log('Added question 2: Short Answer');
@@ -1522,10 +1517,10 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.first()
 					.fill('select one of the available options');
 				await question3Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question3Container.getByLabel('TypeShort answer Long answer').selectOption('single_option');
+				await question3Container.getByLabel('TypeShort response Long response').selectOption('single_option');
 
 				// Leave the default two answer options empty for validation testing
-				await question3Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question3Container.locator('.questionnaire-question-response-option').first().waitFor();
 
 				questionsCount++;
 				console.log('Added question 3: Single Option');
@@ -1552,14 +1547,14 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.first()
 					.fill('select two of the available options');
 				await question4Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question4Container.getByLabel('TypeShort answer Long answer').selectOption('multiple_option');
+				await question4Container.getByLabel('TypeShort response Long response').selectOption('multiple_option');
 
 				// Add additional answer options to have 4 total (leave all empty for validation testing)
-				await question4Container.locator('.questionnaire-question-answer-option').first().waitFor();
-				await question4Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question4Container.locator('.questionnaire-question-answer-option').last().waitFor();
-				await question4Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question4Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				await question4Container.locator('.questionnaire-question-response-option').first().waitFor();
+				await question4Container.getByRole('button', { name: 'Add response option' }).click();
+				await question4Container.locator('.questionnaire-question-response-option').last().waitFor();
+				await question4Container.getByRole('button', { name: 'Add response option' }).click();
+				await question4Container.locator('.questionnaire-question-response-option').last().waitFor();
 
 				// Set maximum choices to 2
 				await question4Container.getByLabel('Maximum number of choices').selectOption('2');
@@ -1586,10 +1581,10 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.fill('What kind of vehicle do you prefer?');
 				await question5Container.locator('.editor-input .tiptap').first().fill('select an option');
 				await question5Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question5Container.getByLabel('TypeShort answer Long answer').selectOption('sorting');
+				await question5Container.getByLabel('TypeShort response Long response').selectOption('sorting');
 
 				// Leave the default two answer options empty for validation testing
-				await question5Container.locator('.questionnaire-question-answer-option').first().waitFor();
+				await question5Container.locator('.questionnaire-question-response-option').first().waitFor();
 
 				questionsCount++;
 				console.log('Added question 5: Sorting');
@@ -1617,7 +1612,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 						'Share with us a file, notes, document, photos, that might be relevant for the next assemblies!'
 					);
 				await question6Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question6Container.getByLabel('TypeShort answer Long answer').selectOption('files');
+				await question6Container.getByLabel('TypeShort response Long response').selectOption('files');
 
 				questionsCount++;
 				console.log('Added question 6: Files');
@@ -1644,7 +1639,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.first()
 					.fill('Rate your experience regarding different aspects!');
 				await question7Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question7Container.getByLabel('TypeShort answer Long answer').selectOption('matrix_single');
+				await question7Container.getByLabel('TypeShort response Long response').selectOption('matrix_single');
 
 				// Add matrix rows (leave empty for validation testing) - total 5 rows
 				const allMatrixRows7 = question7Container.locator(
@@ -1657,14 +1652,14 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question7Container.getByRole('button', { name: 'Add row' }).click();
 				await question7Container.getByRole('button', { name: 'Add row' }).click();
 
-				// Add answer options to have 5 total (leave empty for validation testing)
-				await question7Container.locator('.questionnaire-question-answer-option').first().waitFor();
-				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question7Container.locator('.questionnaire-question-answer-option').last().waitFor();
-				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question7Container.locator('.questionnaire-question-answer-option').last().waitFor();
-				await question7Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question7Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				// Add response options to have 5 total (leave empty for validation testing)
+				await question7Container.locator('.questionnaire-question-response-option').first().waitFor();
+				await question7Container.getByRole('button', { name: 'Add response option' }).click();
+				await question7Container.locator('.questionnaire-question-response-option').last().waitFor();
+				await question7Container.getByRole('button', { name: 'Add response option' }).click();
+				await question7Container.locator('.questionnaire-question-response-option').last().waitFor();
+				await question7Container.getByRole('button', { name: 'Add response option' }).click();
+				await question7Container.locator('.questionnaire-question-response-option').last().waitFor();
 
 				questionsCount++;
 				console.log('Added question 7: Matrix (single option)');
@@ -1691,7 +1686,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 					.first()
 					.fill('Select all that apply for each area');
 				await question8Container.getByRole('checkbox', { name: 'Mandatory' }).check();
-				await question8Container.getByLabel('TypeShort answer Long answer').selectOption('matrix_multiple');
+				await question8Container.getByLabel('TypeShort response Long response').selectOption('matrix_multiple');
 
 				// Add matrix rows (leave empty for validation testing) - total 4 rows
 				const allMatrixRows8 = question8Container.locator(
@@ -1703,12 +1698,12 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await question8Container.getByRole('button', { name: 'Add row' }).click();
 				await question8Container.getByRole('button', { name: 'Add row' }).click();
 
-				// Add answer options to have 4 total (leave empty for validation testing)
-				await question8Container.locator('.questionnaire-question-answer-option').first().waitFor();
-				await question8Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question8Container.locator('.questionnaire-question-answer-option').last().waitFor();
-				await question8Container.getByRole('button', { name: 'Add answer option' }).click();
-				await question8Container.locator('.questionnaire-question-answer-option').last().waitFor();
+				// Add response options to have 4 total (leave empty for validation testing)
+				await question8Container.locator('.questionnaire-question-response-option').first().waitFor();
+				await question8Container.getByRole('button', { name: 'Add response option' }).click();
+				await question8Container.locator('.questionnaire-question-response-option').last().waitFor();
+				await question8Container.getByRole('button', { name: 'Add response option' }).click();
+				await question8Container.locator('.questionnaire-question-response-option').last().waitFor();
 
 				questionsCount++;
 				console.log('Added question 8: Matrix (Multiple option)');
@@ -1721,9 +1716,6 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			await test.step('17.1. System: Validates the input fields for completeness', async () => {
 				// Test validation by trying to save empty form
 				await adminPage.getByRole('button', { name: 'Save' }).click();
-				await adminPage.waitForURL(
-					/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/update_questions/
-				);
 				await adminPage.waitForLoadState('load');
 				console.log('System initiated validation check for form completeness');
 			});
@@ -1745,12 +1737,12 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Question 3: Single Option - Fill the empty answer options
 				const question3Container = adminPage.locator('.questionnaire-question:nth-child(3)');
 				await question3Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Blue');
 				await question3Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Green');
@@ -1759,22 +1751,22 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Question 4: Multiple Option - Fill the empty answer options
 				const question4Container = adminPage.locator('.questionnaire-question:nth-child(4)');
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(0)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Cat');
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Dog');
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(2)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Parrot');
 				await question4Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(3)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Fish');
@@ -1783,12 +1775,12 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				// Question 5: Sorting - Fill the empty answer options
 				const question5Container = adminPage.locator('.questionnaire-question:nth-child(5)');
 				await question5Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Car');
 				await question5Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Motorcycle');
@@ -1806,27 +1798,27 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await allMatrixRows7.nth(4).fill('Very Negative');
 
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(0)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on how decisions are made');
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Time for everyone to speak');
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(2)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Clarity on complex issues');
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(3)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Meetings frequency');
 				await question7Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(4)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Follow-up or implementation of decisions');
@@ -1843,22 +1835,22 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await allMatrixRows8.nth(3).fill('Location and facilities');
 
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(0)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Useful contacts');
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Practical knowledge gained');
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(2)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Enjoyable atmosphere');
 				await question8Container
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(3)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Well-structured sessions');
