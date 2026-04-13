@@ -304,7 +304,13 @@ function goToPage(page) {
 		.catch(error => {
 			console.error('Error fetching maps page:', error);
 			if (tbody) {
-				tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-600 py-4">${error.message}</td></tr>`;
+				const tr = document.createElement('tr');
+				const td = document.createElement('td');
+				td.setAttribute('colspan', '6');
+				td.className = 'text-center text-red-600 py-4';
+				td.textContent = error.message;
+				tr.appendChild(td);
+				tbody.replaceChildren(tr);
 			}
 		});
 }
