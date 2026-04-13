@@ -5,9 +5,10 @@
  * Antonio Abramo Carotenuto
  */
 
-import test, { expect } from '@playwright/test';
+import { test } from '@fixtures/parallel-test-reserved';
+import { expect } from '@playwright/test';
 import { ExtraUserFieldsTestDataGenerator } from '@fixtures/extra-user-fields-fixtures';
-import { TempWebmailPage } from '@pages/base/TempWebmailPage';
+import { WebmailPage } from '@pages/base/WebmailPage';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { SignUpPage } from '@pages/pages/public/SignUpPage';
 import { UserExtraFieldsPage } from '@pages/pages/user/account/UserExtraFieldsPage';
@@ -27,15 +28,19 @@ import { tmpdir } from 'os';
  * - The administrator has configured additional personal data fields.
  */
 
-//Test marked as skipped due to the inability to register a new user on Decidim via Mailinator email
-test.describe.skip('[PAR-PIM002] – Collect additional personal data on registration', () => {
-	// Force fresh unauthenticated context for this test
+test.describe('@reserved [PAR-PIM002] – Collect additional personal data on registration', () => {
+	test.describe.configure({ mode: 'serial' });
+
+	// Force fresh unauthenticated context for the registration page
 	test.use({ storageState: { cookies: [], origins: [] } });
+
+	// Fixed email account used for registration
+	const testUserEmail = process.env.OVH_USER4_EMAIL ?? '';
+	// Password used when registering on Decidim
+	const testUserPassword = 'decidim123456789';
 
 	// Variables for test data - Basic fields
 	let testUserName: string;
-	let testUserEmail: string;
-	let testUserPassword: string;
 
 	// Variables for test data - Extra fields
 	let testDateOfBirth: string;
@@ -47,14 +52,12 @@ test.describe.skip('[PAR-PIM002] – Collect additional personal data on registr
 
 	let homePage: HomePage;
 	let signUpPage: SignUpPage;
-	let tempwebmailPage: TempWebmailPage;
+	let webmailPage: WebmailPage;
 
 	test.beforeEach(async ({ page }) => {
 		// Generate unique test user data
 		const timestamp = Date.now().toString().slice(-8);
 		testUserName = `TestUser${timestamp}`;
-		testUserEmail = `testuser${timestamp}@mailinator.com`;
-		testUserPassword = 'decidim123456789';
 
 		// Generate test data - Extra fields using fixture
 		const extraFieldsData = ExtraUserFieldsTestDataGenerator.generateValidUserData(timestamp);
@@ -67,7 +70,7 @@ test.describe.skip('[PAR-PIM002] – Collect additional personal data on registr
 
 		homePage = new HomePage(page);
 		signUpPage = new SignUpPage(page);
-		tempwebmailPage = new TempWebmailPage(page);
+		webmailPage = new WebmailPage(page);
 
 		await homePage.navigateToHomePage();
 	});
@@ -109,14 +112,14 @@ test.describe.skip('[PAR-PIM002] – Collect additional personal data on registr
 				await accountDeletionPage.waitForConfirmationModal();
 				await accountDeletionPage.confirmDeletion();
 
-				const homePage = new HomePage(cleanupPage);
-				await homePage.expectToBeOnHomePage();
+				const cleanupHomePage = new HomePage(cleanupPage);
+				await cleanupHomePage.expectToBeOnHomePage();
 
 				console.log(`User account deleted successfully: ${testUserName} (${testUserEmail})`);
 
 				await cleanupContext.close();
 				console.log('Cleanup context closed');
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error(
 					`Failed to delete test user account: ${testUserName} (${testUserEmail})`,
 					error instanceof Error ? error.message : String(error)
@@ -177,22 +180,22 @@ test.describe.skip('[PAR-PIM002] – Collect additional personal data on registr
 			});
 
 			await test.step('4. System: Confirms successful data submission', async () => {
-				// Navigate to temporary webmail inbox
-				await tempwebmailPage.navigateToTempInbox(testUserEmail);
-				await page.waitForLoadState('networkidle');
-				console.log(`Navigated to temp inbox for: ${testUserEmail}`);
+				// Navigate to OVH webmail and log in
+				await webmailPage.navigateToWebmail();
+				await webmailPage.login(process.env.OVH_USER4_EMAIL!, process.env.OVH_USER4_PASSWORD!);
+				console.log(`Logged in to OVH webmail as: ${testUserEmail}`);
 
-				// Wait for the confirmation email to arrive
-				await tempwebmailPage.waitForEmailToArrive();
-				console.log('Confirmation email arrived successfully');
+				// Wait for the confirmation email to arrive and open it
+				await webmailPage.waitForConfirmationEmailAndOpen();
+				console.log('Confirmation email arrived and opened successfully');
 
-				// Click on the confirmation email
-				await tempwebmailPage.clickConfirmationEmail();
-				console.log('Clicked on confirmation email');
-
-				// Find and click on the confirmation link in the email
-				const confirmationUrl = await tempwebmailPage.getConfirmationLink();
+				// Extract the confirmation link from the email
+				const confirmationUrl = await webmailPage.getConfirmationLink();
 				console.log('Extracted confirmation link from email');
+
+				// Delete the email from the webmail inbox to keep it clean
+				await webmailPage.deleteCurrentEmail();
+				console.log('Confirmation email deleted from OVH inbox');
 
 				const freshContext = await browser.newContext();
 				const freshPage = await freshContext.newPage();
@@ -383,22 +386,22 @@ test.describe.skip('[PAR-PIM002] – Collect additional personal data on registr
 			});
 
 			await test.step('6. System: Confirms successful data submission', async () => {
-				// Navigate to temporary webmail inbox
-				await tempwebmailPage.navigateToTempInbox(testUserEmail);
-				await page.waitForLoadState('networkidle');
-				console.log(`Navigated to temp inbox for: ${testUserEmail}`);
+				// Navigate to OVH webmail and log in
+				await webmailPage.navigateToWebmail();
+				await webmailPage.login(process.env.OVH_USER4_EMAIL!, process.env.OVH_USER4_PASSWORD!);
+				console.log(`Logged in to OVH webmail as: ${testUserEmail}`);
 
-				// Wait for the confirmation email to arrive
-				await tempwebmailPage.waitForEmailToArrive();
-				console.log('Confirmation email arrived successfully');
+				// Wait for the confirmation email to arrive and open it
+				await webmailPage.waitForConfirmationEmailAndOpen();
+				console.log('Confirmation email arrived and opened successfully');
 
-				// Click on the confirmation email
-				await tempwebmailPage.clickConfirmationEmail();
-				console.log('Clicked on confirmation email');
-
-				// Find and click on the confirmation link in the email
-				const confirmationUrl = await tempwebmailPage.getConfirmationLink();
+				// Extract the confirmation link from the email
+				const confirmationUrl = await webmailPage.getConfirmationLink();
 				console.log('Extracted confirmation link from email');
+
+				// Delete the email from the webmail inbox to keep it clean
+				await webmailPage.deleteCurrentEmail();
+				console.log('Confirmation email deleted from OVH inbox');
 
 				const freshContext = await browser.newContext();
 				const freshPage = await freshContext.newPage();

@@ -134,7 +134,14 @@ export class ChatbotPage extends BasePage {
 		await expect(this.chatbotDialog).toBeVisible();
 		await expect(this.closeHelpAssistantButton).toBeVisible();
 		await this.closeHelpAssistantButton.scrollIntoViewIfNeeded();
-		await this.closeHelpAssistantButton.click();
+
+		// Try clicking the close button; if it fails, fall back to Escape
+		try {
+			await this.closeHelpAssistantButton.click({ force: true });
+		} catch (error: unknown) {
+			console.warn('closeHelpAssistant: click failed, falling back to Escape key.', error);
+			await this.page.keyboard.press('Escape');
+		}
 
 		if (await this.chatbotDialog.isVisible().catch(() => false)) {
 			await this.page.keyboard.press('Escape');

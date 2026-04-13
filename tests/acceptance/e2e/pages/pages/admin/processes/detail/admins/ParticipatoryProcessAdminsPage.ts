@@ -146,6 +146,28 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 	}
 
 	/**
+	 * Returns the name of the admin at the given row index.
+	 * @param rowIndex The index of the row (0-based).
+	 * @returns The name as a string.
+	 */
+	async getAdminNameAtRow(rowIndex: number): Promise<string> {
+		const row = this.tableRows.nth(rowIndex);
+		const nameCell = row.locator('td[data-label="Name"]');
+		return (await nameCell.textContent())?.trim() || '';
+	}
+
+	/**
+	 * Returns the email of the admin at the given row index.
+	 * @param rowIndex The index of the row (0-based).
+	 * @returns The email as a string.
+	 */
+	async getAdminEmailAtRow(rowIndex: number): Promise<string> {
+		const row = this.tableRows.nth(rowIndex);
+		const emailCell = row.locator('td[data-label="Email"]');
+		return (await emailCell.textContent())?.trim() || '';
+	}
+
+	/**
 	 * Returns the role of the admin at the given row index.
 	 * @param rowIndex The index of the row (0-based).
 	 * @returns The role as a string.

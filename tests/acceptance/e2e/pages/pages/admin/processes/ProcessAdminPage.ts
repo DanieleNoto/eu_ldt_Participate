@@ -405,7 +405,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 	}
 
 	async expectErrorMessage() {
-		await expect(this.page.locator('div.slug span.form-error')).toBeVisible();
+		await expect(this.page.locator('[data-controller="slug"] span.form-error.is-visible')).toBeVisible();
 	}
 
 	async expectToBeOnProcessesAdminPage() {

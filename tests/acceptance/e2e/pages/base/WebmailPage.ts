@@ -292,6 +292,68 @@ export class WebmailPage extends BasePage {
 	}
 
 	/**
+	 * Wait for the Decidim account confirmation email to arrive in the inbox and open it.
+	 * Polls by refreshing until the email appears (max ~3 minutes).
+	 */
+	async waitForConfirmationEmailAndOpen(): Promise<void> {
+		console.log('Looking for unread Decidim confirmation email...');
+
+		const emailRow = this.page
+			.locator('tr')
+			.filter({ has: this.page.locator('td.subject:has(.msgicon.status.unread)') })
+			.filter({ hasText: /Confirmation instructions/i })
+			.first();
+
+		const maxAttempts = 18; // ~3 minutes
+		const waitBetweenRefresh = 10000;
+
+		for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+			console.log(`Attempt ${attempt}/${maxAttempts}: Checking for confirmation email...`);
+
+			const isVisible = await emailRow.isVisible({ timeout: 2000 }).catch(() => false);
+
+			if (isVisible) {
+				console.log('Confirmation email found!');
+				break;
+			}
+
+			if (attempt < maxAttempts) {
+				console.log('Email not yet available, refreshing inbox...');
+				await this.refreshInbox();
+				await this.page.waitForTimeout(waitBetweenRefresh);
+			}
+		}
+
+		await expect(emailRow).toBeVisible();
+		console.log('Found unread Decidim confirmation email');
+
+		const emailLink = emailRow.locator('td.subject span.subject a').first();
+		await emailLink.click();
+		await this.page.waitForLoadState('networkidle');
+		console.log('Opened Decidim confirmation email');
+	}
+
+	/**
+	 * Extract the "Confirm my account" URL from the currently open email in Roundcube.
+	 * Must be called after the email has been opened.
+	 * @returns The account confirmation URL
+	 */
+	async getConfirmationLink(): Promise<string> {
+		const messageFrame = this.page.frameLocator('iframe[name="messagecontframe"]');
+		const confirmLink = messageFrame.getByRole('link', { name: 'Confirm my account' });
+
+		await expect(confirmLink).toBeVisible();
+
+		const confirmationUrl = await confirmLink.getAttribute('href');
+		if (!confirmationUrl) {
+			throw new Error('Confirmation link not found in the email');
+		}
+
+		console.log(`Found confirmation URL: ${confirmationUrl}`);
+		return confirmationUrl;
+	}
+
+	/**
 	 * Delete the currently selected/opened email
 	 * Moves the email to trash by clicking the delete button
 	 */
@@ -330,9 +392,10 @@ export class WebmailPage extends BasePage {
 			}
 
 			if (downloadReceived && receivedDownload) {
+				const download = receivedDownload as Download;
 				console.log('Download received');
 
-				const suggestedFilename = receivedDownload.suggestedFilename();
+				const suggestedFilename = download.suggestedFilename();
 				console.log(`Suggested filename: "${suggestedFilename}"`);
 
 				const isValidExportFile =
@@ -352,7 +415,7 @@ export class WebmailPage extends BasePage {
 				const downloadPath = join(tempDir, suggestedFilename);
 
 				try {
-					await receivedDownload.saveAs(downloadPath);
+					await download.saveAs(downloadPath);
 					console.log(`File downloaded: ${downloadPath}`);
 
 					if (existsSync(downloadPath)) {

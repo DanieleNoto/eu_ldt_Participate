@@ -34,6 +34,8 @@ test.describe('[PAR-PPR002] – Edit process administrator role', () => {
 	let newAdminPage: NewAdminPage;
 
 	let validProcessData: any;
+	let editedAdminName: string;
+	let editedAdminEmail: string;
 
 	test.beforeEach(async ({ adminPage }) => {
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
@@ -87,6 +89,8 @@ test.describe('[PAR-PPR002] – Edit process administrator role', () => {
 				await participatoryProcessAdminsPage.expectTableIsVisible();
 			});
 			await test.step('7. User: Select a specific Process Admin that want to edit', async () => {
+				editedAdminName = await participatoryProcessAdminsPage.getAdminNameAtRow(0);
+				editedAdminEmail = await participatoryProcessAdminsPage.getAdminEmailAtRow(0);
 				await participatoryProcessAdminsPage.performActionOnRow(0, 'edit');
 			});
 			await test.step('8. System: Displays the current permissions assigned to the administrator.', async () => {
@@ -110,8 +114,8 @@ test.describe('[PAR-PPR002] – Edit process administrator role', () => {
 				);
 			});
 			await test.step('Result.', async () => {
-				await participatoryProcessAdminsPage.expectAdminIsInTable('Test Admin', 'testadmin@example.com');
-				const newRole = await participatoryProcessAdminsPage.getRoleForAdmin('testadmin@example.com');
+				await participatoryProcessAdminsPage.expectAdminIsInTable(editedAdminName, editedAdminEmail);
+				const newRole = await participatoryProcessAdminsPage.getRoleForAdmin(editedAdminEmail);
 				expect(newRole.toLowerCase()).toBe('collaborator');
 			});
 		});
