@@ -82,7 +82,12 @@ else
   echo "--- Skipping data setup (only available in development) ---"
 fi
 
-echo "--- Starting Rails server ---"
+echo "--- Starting server ---"
 
-# Ensure Spring is disabled for Rails server as well
-exec bundle exec rails s -b 0.0.0.0 -p 3000
+# If a command was passed (e.g. bin/dev from docker-compose), execute it;
+# otherwise fall back to the plain Rails server.
+if [ $# -gt 0 ]; then
+  exec "$@"
+else
+  exec bundle exec rails s -b 0.0.0.0 -p 3000
+fi

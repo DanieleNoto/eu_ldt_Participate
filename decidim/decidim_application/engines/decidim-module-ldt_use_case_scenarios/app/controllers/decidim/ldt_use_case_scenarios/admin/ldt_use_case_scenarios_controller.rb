@@ -14,7 +14,8 @@ module Decidim
       # This controller allows managing the LdtUseCaseScenarios component in the admin panel.
       class LdtUseCaseScenariosController < ApplicationController
         def index
-          @use_case_scenarios = collection
+          enforce_permission_to :read, :ldt_use_case_scenario
+          @use_case_scenarios = collection.page(params[:page])
         end
 
         # Proxy endpoint to fetch experiment executions from the external TOOL2 API.
@@ -36,13 +37,13 @@ module Decidim
             0
           end
           size = begin
-            Integer(params[:size] || 100)
+            Integer(params[:size] || 10)
           rescue StandardError
-            100
+            10
           end
 
-          # Fetch experiments from TOOL2
-          result = fetch_from_tool2(jwt, "/experiment-executions?page=#{page}&size=#{size}")
+          # Fetch experiments from TOOL2, always sorted by last update descending
+          result = fetch_from_tool2(jwt, "/experiment-executions?page=#{page}&size=#{size}&sort=updatedAt::DESC")
           
           if result[:error]
             Rails.logger.error("Invalid endpoint path: #{result[:error]}")
@@ -158,6 +159,7 @@ module Decidim
         end
 
         def new
+          enforce_permission_to :create, :ldt_use_case_scenario
           @form = ::Decidim::LdtUseCaseScenarios::UseCaseScenarioForm.new
           fetch_experiments_for_form
         end
@@ -168,6 +170,7 @@ module Decidim
         end
 
         def create
+          enforce_permission_to :create, :ldt_use_case_scenario
           @form = ::Decidim::LdtUseCaseScenarios::UseCaseScenarioForm.from_params(params)
 
           if @form.invalid?
@@ -277,7 +280,7 @@ module Decidim
         end
 
         def collection
-          UseCaseScenario.where(decidim_component_id: current_component.id)
+          UseCaseScenario.where(decidim_component_id: current_component.id).order(updated_at: :desc)
         end
 
         def scenario_params
@@ -301,8 +304,8 @@ module Decidim
             return
           end
 
-          # Fetch experiments list (first page, 100 results)
-          result = fetch_from_tool2(jwt, "/experiment-executions?page=0&size=100")
+          # Fetch experiments list (first page, sorted by last update)
+          result = fetch_from_tool2(jwt, "/experiment-executions?page=0&size=10&sort=updatedAt::DESC")
           
           if result[:error]
             Rails.logger.error("Invalid endpoint path: #{result[:error]}")
@@ -321,7 +324,17 @@ module Decidim
                            []
                          end
 
-          @total_pages = experiments_data.is_a?(Hash) ? (experiments_data["totalPages"] || 1) : 1
+          @total_pages = if experiments_data.is_a?(Hash) && experiments_data["metadata"].is_a?(Hash)
+                           metadata = experiments_data["metadata"]
+                           total = metadata["total"].to_i
+                           size = metadata["size"].to_i
+                           size > 0 ? (total.to_f / size).ceil : 1
+                         elsif experiments_data.is_a?(Hash)
+                           (experiments_data["totalPages"] || 1).to_i
+                         else
+                           1
+                         end
+          @page_size = 10
           @experiments_error = nil
         rescue StandardError => e
           Rails.logger.error("Error fetching experiments in fetch_experiments_for_form: #{e.message}")
@@ -375,6 +388,8 @@ module Decidim
           uri = URI(csrf_url)
           http = Net::HTTP.new(uri.host, uri.port)
           http.use_ssl = uri.scheme == "https"
+          http.open_timeout = 5
+          http.read_timeout = 10
 
           csrf_request = Net::HTTP::Get.new(uri)
           csrf_request["Authorization"] = "Bearer #{jwt}"
@@ -402,6 +417,8 @@ module Decidim
           data_uri = URI(data_url)
           data_http = Net::HTTP.new(data_uri.host, data_uri.port)
           data_http.use_ssl = data_uri.scheme == "https"
+          data_http.open_timeout = 5
+          data_http.read_timeout = 15
 
           data_request = Net::HTTP::Get.new(data_uri)
           data_request["Authorization"] = "Bearer #{jwt}"
@@ -412,7 +429,7 @@ module Decidim
           data_response = data_http.request(data_request)
 
           if data_response.code == "401"
-            handle_unauthorized_retry(data_request, data_http, data_response)
+            data_response = handle_unauthorized_retry(data_request, data_http, data_response)
           elsif data_response.code != "200"
             Rails.logger.error("TOOL2 API error - Status: #{data_response.code}, Body: #{data_response.body[0..500]}")
             raise "TOOL2 returned status #{data_response.code}"
