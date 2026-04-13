@@ -4,10 +4,17 @@
 // # Gianfranco Cedro
 let selectedMap = null;
 
+// Pagination state
+let currentPage = 0;
+let pageSize = 20;
+let hasMore = false;
+let totalPages = 1;
+
 document.addEventListener('DOMContentLoaded', function () {
 	console.log('DOMContentLoaded fired - initializing maps_association');
 
 	// Setup event handlers
+	initPagination();
 	setupRadioHandlers();
 	setupCancelHandler();
 	setupSubmitHandler();
@@ -216,5 +223,163 @@ function setupInputValidation() {
 				}
 			}
 		});
+	});
+}
+
+// ============================================================
+// Pagination
+// ============================================================
+
+function initPagination() {
+	const container = document.querySelector('.maps-association');
+	if (container) {
+		hasMore = container.dataset.hasMore === 'true';
+		pageSize = parseInt(container.dataset.pageSize || '20', 10);
+	}
+	renderPaginationControls();
+}
+
+function renderPaginationControls() {
+	const paginationDiv = document.querySelector('[data-pagination]');
+	if (!paginationDiv) return;
+
+	paginationDiv.innerHTML = '';
+
+	const showPrev = currentPage > 0;
+	if (!showPrev && !hasMore) return;
+
+	paginationDiv.className = 'pagination-controls flex items-center gap-x-2 mt-4';
+
+	if (showPrev) {
+		const prevBtn = document.createElement('button');
+		prevBtn.textContent = '←';
+		prevBtn.className = 'button button__sm button__secondary';
+		prevBtn.addEventListener('click', () => goToPage(currentPage - 1));
+		paginationDiv.appendChild(prevBtn);
+	}
+
+	const pageInfo = document.createElement('span');
+	pageInfo.className = 'text-sm';
+	pageInfo.textContent = ` ${currentPage + 1} `;
+	paginationDiv.appendChild(pageInfo);
+
+	if (hasMore) {
+		const nextBtn = document.createElement('button');
+		nextBtn.textContent = '→';
+		nextBtn.className = 'button button__sm button__secondary';
+		nextBtn.addEventListener('click', () => goToPage(currentPage + 1));
+		paginationDiv.appendChild(nextBtn);
+	}
+}
+
+function goToPage(page) {
+	if (page < 0) return;
+
+	const adminPath = document.querySelector('[data-admin-path]')?.getAttribute('data-admin-path');
+	const url = `${adminPath}/external_maps?page=${page}&pageSize=${pageSize}`;
+
+	const tbody = document.getElementById('maps-tbody');
+	if (tbody) {
+		tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">Loading...</td></tr>`;
+	}
+
+	fetch(url, {
+		method: 'GET',
+		credentials: 'same-origin',
+		headers: { Accept: 'application/json' }
+	})
+		.then(response => {
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			return response.json();
+		})
+		.then(data => {
+			const maps = data.maps || (Array.isArray(data) ? data : []);
+			hasMore = data.hasMore ?? maps.length >= pageSize;
+			totalPages = data.totalPages ?? totalPages;
+			currentPage = page;
+			renderMapRows(maps);
+			renderPaginationControls();
+			setupRadioHandlers();
+		})
+		.catch(error => {
+			console.error('Error fetching maps page:', error);
+			if (tbody) {
+				tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-600 py-4">${error.message}</td></tr>`;
+			}
+		});
+}
+
+function renderMapRows(maps) {
+	const tbody = document.getElementById('maps-tbody');
+	if (!tbody) return;
+
+	tbody.innerHTML = '';
+
+	if (!maps.length) {
+		const tr = document.createElement('tr');
+		const td = document.createElement('td');
+		td.colSpan = 6;
+		td.className = 'text-center py-4';
+		td.textContent = 'No maps found.';
+		tr.appendChild(td);
+		tbody.appendChild(tr);
+		return;
+	}
+
+	maps.forEach(map => {
+		const tr = document.createElement('tr');
+		tr.dataset.mapId = map.id || '';
+
+		// Radio
+		const tdRadio = document.createElement('td');
+		const radio = document.createElement('input');
+		radio.type = 'radio';
+		radio.name = 'selected_map';
+		radio.value = map.id || '';
+		radio.className = 'select-map-radio';
+		tdRadio.appendChild(radio);
+		tr.appendChild(tdRadio);
+
+		// Image
+		const tdImg = document.createElement('td');
+		tdImg.dataset.label = 'Preview';
+		if (map.map_image) {
+			const img = document.createElement('img');
+			img.src = map.map_image;
+			img.alt = map.name || 'Map';
+			img.style.cssText = 'max-width:80px;max-height:80px;object-fit:contain';
+			tdImg.appendChild(img);
+		} else {
+			tdImg.style.color = '#999';
+			tdImg.textContent = '—';
+		}
+		tr.appendChild(tdImg);
+
+		// Name
+		const tdName = document.createElement('td');
+		tdName.className = '!text-left';
+		tdName.dataset.label = 'Name';
+		tdName.textContent = map.name || '';
+		tr.appendChild(tdName);
+
+		// Owner
+		const tdOwner = document.createElement('td');
+		tdOwner.dataset.label = 'Owner';
+		tdOwner.textContent = map.owner || '';
+		tr.appendChild(tdOwner);
+
+		// Scope
+		const tdScope = document.createElement('td');
+		tdScope.dataset.label = 'Scope';
+		tdScope.textContent = map.scope || '';
+		tr.appendChild(tdScope);
+
+		// Description
+		const tdDesc = document.createElement('td');
+		tdDesc.dataset.label = 'Description';
+		tdDesc.textContent = (map.description || '-').slice(0, 100);
+		tr.appendChild(tdDesc);
+
+		tbody.appendChild(tr);
 	});
 }

@@ -13,9 +13,9 @@ module Decidim
   module LdtMapVisualization
     module Admin
       # Admin controller for managing map visualizations with proxy to external TOOL1 API
-      class MapVisualizationsController < Decidim::Admin::Components::BaseController
+      class MapVisualizationsController < ApplicationController
         def index
-          @map_visualizations = collection
+          @map_visualizations = collection.page(params[:page])
         end
 
         def debug_token
@@ -26,6 +26,41 @@ module Decidim
             id_token_present: request.cookies["id_token"].present?,
             session_keys: session.keys.grep(/jwt|token|keycloak/)
           }
+        end
+
+        # Proxy endpoint for AJAX pagination of maps from TOOL1.
+        def external_maps
+          token = tool1_token
+          unless token
+            return render json: { error: "No valid authentication token. Please log in again." },
+                          status: :unauthorized
+          end
+
+          page = begin
+            Integer(params[:page] || 0)
+          rescue StandardError
+            0
+          end
+          page_size = begin
+            [Integer(params[:pageSize] || 20), 50].min
+          rescue StandardError
+            20
+          end
+
+          maps_url = ENV["TOOL1_MAPS_URL"] || "https://maps-int.ldttoolbox.app/api/v1/maps"
+          result = fetch_from_tool1(token, "#{maps_url}?page=#{page}&pageSize=#{page_size}")
+          maps = parse_maps_response(result)
+          pagination = result.is_a?(Hash) ? (result["pagination"] || {}) : {}
+          total_pages = pagination["totalPages"].to_i
+          has_more = total_pages > 1 ? (page + 1) < total_pages : maps.length >= page_size
+
+          render json: { maps: maps, hasMore: has_more, page: page, pageSize: page_size, totalPages: total_pages }
+        rescue JSON::ParserError => e
+          Rails.logger.error("JSON parsing error in external_maps: #{e.message}")
+          render json: { error: "Parsing error: #{e.message}" }, status: :unprocessable_entity
+        rescue StandardError => e
+          Rails.logger.error("Unexpected error in external_maps: #{e.message}")
+          render json: { error: e.message }, status: :internal_server_error
         end
 
         def new
@@ -145,7 +180,9 @@ module Decidim
             request_host: request.host,
             controller: self
           )
-          return jwt if jwt.present?
+          # ensure_valid_token may return :network_error (Symbol) on transient failures;
+          # only accept a non-empty String as a usable token.
+          return jwt if jwt.is_a?(String) && jwt.present?
 
           # Fallback: try to get JWT token from cookies directly
           access_token = cookies["access_token"]
@@ -167,10 +204,10 @@ module Decidim
         def parse_maps_response(result)
           if result.is_a?(Array)
             result
-          elsif result.is_a?(Hash) && result["content"].is_a?(Array)
-            result["content"]
-          elsif result.is_a?(Hash) && result["maps"].is_a?(Array)
-            result["maps"]
+          elsif result.is_a?(Hash)
+            (result["data"] || result["content"] || result["maps"] || result["items"] || result["results"] || []).then do |maps|
+              maps.is_a?(Array) ? maps : []
+            end
           else
             []
           end
@@ -201,7 +238,6 @@ module Decidim
           Rails.logger.info("TOOL1 response status: #{response.code}")
 
           if response.code == "200"
-            # Parse and return data
             return JSON.parse(response.body)
           end
 
@@ -252,39 +288,42 @@ module Decidim
           end
         end
 
-        def fetch_maps_for_form
-          # Fetch maps from TOOL1 when rendering the form
-
-          # Get token from cookies (this is the user's actual Keycloak token from browser login)
+        # Returns a TOOL1-compatible token (exchange or fallback to base token)
+        def tool1_token
           access_token = jwt_token
+          return nil if access_token.blank?
 
-          if access_token.blank?
+          begin
+            exchanged = Decidim::Keycloak::TokenService.exchange_token_for_audience(
+              access_token, ENV["TOOL1_CLIENT_ID"] || "tool1"
+            )
+            exchanged.presence || access_token
+          rescue StandardError => e
+            Rails.logger.warn("Token exchange raised: #{e.class} - #{e.message}; using original token")
+            access_token
+          end
+        end
+
+        def fetch_maps_for_form
+          token = tool1_token
+
+          if token.blank?
             Rails.logger.warn("No Keycloak access token in cookies for user #{current_user&.id}")
             @maps = []
             @maps_error = "No valid authentication token. Please log in again or refresh the page."
             return
           end
 
-          Rails.logger.info("Using access token (#{access_token.length} chars) for user #{current_user&.id}")
+          Rails.logger.info("Using access token (#{token.length} chars) for user #{current_user&.id}")
 
-          # Fetch maps from TOOL1
           maps_url = ENV["TOOL1_MAPS_URL"] || "https://maps-int.ldttoolbox.app/api/v1/maps"
+          @page_size = 20
 
-          # Try to exchange the token for TOOL1 audience/client if possible
-          begin
-            exchanged = Decidim::Keycloak::TokenService.exchange_token_for_audience(access_token, ENV["TOOL1_CLIENT_ID"] || "tool1")
-            token_to_use = exchanged.presence || access_token
-          rescue StandardError => e
-            Rails.logger.warn("Token exchange attempt raised: #{e.class} - #{e.message}; falling back to original token")
-            token_to_use = access_token
-          end
-
-          # Use the chosen token to fetch maps
-          result = fetch_from_tool1(token_to_use, maps_url)
-
-          # Parse maps data
+          result = fetch_from_tool1(token, "#{maps_url}?page=0&pageSize=#{@page_size}")
           @maps = parse_maps_response(result)
-
+          pagination = result.is_a?(Hash) ? (result["pagination"] || {}) : {}
+          total_pages = pagination["totalPages"].to_i
+          @has_more = total_pages > 1 ? 1 < total_pages : @maps.length >= @page_size
           @maps_error = nil
         rescue StandardError => e
           Rails.logger.error("Error fetching maps: #{e.class} - #{e.message}")

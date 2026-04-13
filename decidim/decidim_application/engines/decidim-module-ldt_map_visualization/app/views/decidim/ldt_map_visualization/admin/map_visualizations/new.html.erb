@@ -16,6 +16,8 @@
   <div class="item__edit-form">
     <div class="card maps-association"
          data-admin-path="<%= "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/map_visualizations" %>"
+         data-has-more="<%= @has_more ? 'true' : 'false' %>"
+         data-page-size="<%= @page_size || 20 %>"
          data-i18n-name-required="<%= t(".name_required") %>"
          data-i18n-save-error="<%= t(".save_error") %>">
 
@@ -72,6 +74,9 @@
                 <% end %>
               </tbody>
             </table>
+          </div>
+          <div class="table-controls">
+            <div data-pagination></div>
           </div>
         </div>
       <% end %>
