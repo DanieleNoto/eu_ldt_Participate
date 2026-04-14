@@ -416,7 +416,7 @@ test.describe('@reserved PAR-MOD002 – Process Content Moderation', () => {
 				console.log(`Navigated to public debate page: ${reportedContentUrl}`);
 
 				// Verify the comment is now visible again in the public view
-				const commentIsVisible = !(await processModerationPage.verifyCommentNotPresentById(contentId));
+				const commentIsVisible = await processModerationPage.verifyCommentIsVisibleById(contentId);
 				expect(commentIsVisible).toBe(true);
 				console.log(`Verified: Comment ID ${contentId} is now visible in the public debate`);
 

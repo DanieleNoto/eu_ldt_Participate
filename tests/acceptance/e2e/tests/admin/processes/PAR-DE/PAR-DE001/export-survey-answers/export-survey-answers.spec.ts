@@ -165,7 +165,7 @@ test.describe('@reserved [PAR-DE001] – Export survey answers', () => {
 						console.log('Checked for new messages in inbox');
 
 						// Verify and open the survey export email
-						await webmailPage.verifyExportEmail('survey_user_answers');
+						await webmailPage.verifyExportEmail('survey_user_responses');
 						console.log(`Export email with ${fileFormat} attachment verified successfully`);
 
 						// Download export file

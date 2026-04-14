@@ -706,6 +706,31 @@ export class ProcessModerationPage {
 	}
 
 	/**
+	 * Verify that a comment is publicly visible (i.e. NOT moderated/hidden).
+	 * Use this when the expected outcome is that the comment remains on the page,
+	 * e.g. after an "Unreport" action.
+	 * @param commentId The ID of the comment (without the '#comment_' prefix)
+	 * @returns Promise<boolean> true if the comment element is present and visible
+	 */
+	async verifyCommentIsVisibleById(commentId: string): Promise<boolean> {
+		const commentLocator = this.page.locator(`#comment_${commentId}`);
+		try {
+			await commentLocator.waitFor({ state: 'visible', timeout: 10000 });
+			const moderatedLocator = commentLocator.locator('.comment__moderated');
+			const isModerated = await moderatedLocator.isVisible().catch(() => false);
+			if (isModerated) {
+				console.warn(`Comment #comment_${commentId} is present but shows moderated placeholder`);
+				return false;
+			}
+			console.log(`Comment #comment_${commentId} is visible and not moderated`);
+			return true;
+		} catch {
+			console.warn(`Comment #comment_${commentId} is not visible`);
+			return false;
+		}
+	}
+
+	/**
 	 * Find and return the URL for a specific content ID
 	 * @param contentId The content ID to search for
 	 * @returns Promise<string> The URL of the reported content
@@ -780,8 +805,10 @@ export class ProcessModerationPage {
 		try {
 			const commentSelector = `#comment_${commentId}`;
 
-			// Wait for comment to be visible
+			// Wait for comment to be visible and scroll it into view.
+			// With long comment lists the element may be below the viewport.
 			await this.page.locator(commentSelector).waitFor({ state: 'visible' });
+			await this.page.locator(commentSelector).scrollIntoViewIfNeeded();
 
 			// Click the three dots button scoped to the comment container
 			const commentContainer = this.page.locator(commentSelector);
@@ -804,9 +831,22 @@ export class ProcessModerationPage {
 			const reasonTextbox = reportDialog.getByRole('textbox', { name: 'Additional comments' });
 			await reasonTextbox.fill(reportReason);
 
-			// Click Report button in the dialog
-			const modalReportButton = reportDialog.getByRole('button', { name: 'Report' });
-			await modalReportButton.click();
+			// Submit the form directly via JS to bypass any overlay
+			// that may intercept pointer events. requestSubmit() triggers native HTML5 validation
+			await this.page.evaluate(dialogId => {
+				const dialog = document.getElementById(dialogId);
+				const form = dialog?.querySelector<HTMLFormElement>('form');
+				if (!form) throw new Error(`Form not found inside dialog #${dialogId}`);
+				form.requestSubmit();
+			}, `flagModalComment${commentId}`);
+
+			// Wait for the server to confirm the report was created.
+			// requestSubmit() triggers an AJAX/Turbo call – without this wait the caller
+			// would navigate back to the moderation table before the record is persisted.
+			const successConfirmed = await this.waitForReportSuccessMessage();
+			if (!successConfirmed) {
+				throw new Error(`Report submission for comment ${commentId} did not produce a success message`);
+			}
 
 			console.log(`Successfully reported comment ${commentId}`);
 		} catch (error) {
@@ -859,38 +899,86 @@ export class ProcessModerationPage {
 		testCommentId: string,
 		processSlug: string,
 		componentId: string | number,
-		debateId: string | number
+		debateId: string | number,
+		moderationScope: 'global' | 'process' = 'process'
 	): Promise<void> {
 		try {
 			console.log(`Ensuring test comment ${testCommentId} is reported...`);
 
-			// Check if comment is already in table
-			const isCommentInTable = await this.isContentIdInModerationTable(testCommentId);
+			const activeUrl =
+				moderationScope === 'global'
+					? '/admin/moderations'
+					: `/admin/participatory_processes/${processSlug}/moderations`;
+			const hiddenUrl =
+				moderationScope === 'global'
+					? '/admin/moderations?hidden=true'
+					: `/admin/participatory_processes/${processSlug}/moderations?hidden=true`;
+
+			// Step 1: check the active (non-hidden) moderation table.
+			await this.page.goto(activeUrl);
+			await this.page.waitForLoadState('load');
+			let isCommentInTable = await this.isContentIdInModerationTable(testCommentId);
 
 			if (!isCommentInTable) {
-				console.log(`Comment ID ${testCommentId} not found in moderation table, reporting it now...`);
+				// Step 2: the comment might be hidden from a previous test run.
+				// In Decidim, "Unhide" restores the moderation record to the active list
+				console.log(
+					`Comment ID ${testCommentId} not found in active moderation table – checking hidden list...`
+				);
+				await this.page.goto(hiddenUrl);
+				await this.page.waitForLoadState('load');
 
-				// Navigate to the debate page
+				const isHidden = await this.isContentIdInModerationTable(testCommentId);
+				if (isHidden) {
+					console.log(`Comment ID ${testCommentId} is hidden – unhiding to restore active record...`);
+					const rows = await this.page.locator('table.table-list tbody tr').all();
+					for (const row of rows) {
+						const idCell = row.locator('td').nth(1);
+						const idText = await idCell.textContent();
+						if (idText?.trim() === testCommentId) {
+							await row.locator('button[data-controller="dropdown"]').click();
+							const unhideLink = row.locator('a.dropdown__button[href*="/unhide"]');
+							await unhideLink.waitFor({ state: 'visible' });
+							await unhideLink.click();
+							await this.page.waitForLoadState('load');
+							console.log(`Unhidden comment ID ${testCommentId}`);
+							break;
+						}
+					}
+
+					// After unhiding, Decidim restores the moderation record to the active list –
+					// navigate back to the active table and re-check.
+					await this.page.goto(activeUrl);
+					await this.page.waitForLoadState('load');
+					isCommentInTable = await this.isContentIdInModerationTable(testCommentId);
+				} else {
+					console.log(`Comment ID ${testCommentId} not in hidden list either – will report it now`);
+					await this.page.goto(activeUrl);
+					await this.page.waitForLoadState('load');
+				}
+			}
+
+			if (!isCommentInTable) {
+				// Step 3: comment is in neither list – navigate to the debate page and report it.
+				console.log(`Reporting comment ID ${testCommentId}...`);
 				await this.navigateToDebate(processSlug, componentId, debateId);
 				await this.page.waitForLoadState('load');
 
-				// Report the test comment by ID
 				await this.reportCommentById(testCommentId, 'test report content');
 				await this.page.waitForLoadState('load');
 
-				// Navigate back to moderation page
-				await this.page.goto(`/admin/participatory_processes/${processSlug}/moderations`);
+				// Navigate back to moderation page to verify
+				await this.page.goto(activeUrl);
 				await this.page.waitForLoadState('load');
-
 				console.log('Comment reported and moderation page refreshed');
 			} else {
-				console.log(`Comment ID ${testCommentId} already in table, skipping report action`);
+				console.log(`Comment ID ${testCommentId} already in active moderation table, skipping report action`);
 			}
 
 			// Ensure we're on main listing view
 			await this.ensureOnMainListing();
 
-			// Verify it's now in the table
+			// Final guard: verify the comment is actually present in the active table.
 			const isPresent = await this.isContentIdInModerationTable(testCommentId);
 			if (!isPresent) {
 				throw new Error(`Failed to ensure comment ${testCommentId} is reported`);
@@ -962,7 +1050,9 @@ export class ProcessModerationPage {
 
 			// Get the message text
 			const messageText = await successMessage.locator('.flash__message').textContent();
-			const hasExpectedMessage = messageText?.includes('The report has been created successfully');
+			const hasExpectedMessage = messageText?.includes(
+				'The report has been created successfully and it will be reviewed by an admin'
+			);
 
 			if (hasExpectedMessage) {
 				console.log(`Report success message confirmed: "${messageText?.trim()}"`);

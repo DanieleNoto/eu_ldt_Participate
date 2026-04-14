@@ -162,8 +162,10 @@ test.describe('@reserved [PAR-DE002] – Export debate data', () => {
 					await webmailPage.refreshInbox();
 					console.log('Checked for new messages in inbox');
 
-					// Verify and open the debates export email
-					await webmailPage.verifyExportEmail('debates');
+					// Verify and open the debates export email.
+					// The email subject uses 'debates' for debate data and 'debate_comments' for comments.
+					const emailExportType = exportType === 'Comments' ? 'debate_comments' : 'debates';
+					await webmailPage.verifyExportEmail(emailExportType);
 					console.log(`Export email for ${exportType} with ${fileFormat} format verified successfully`);
 
 					// Download the export file

@@ -693,8 +693,25 @@ export class SurveysManagePage extends BaseAdminPage {
 	 */
 	async accessSurveyResponsesBySurveyTitle(surveyTitle: string): Promise<void> {
 		const surveyRow = this.page.locator('table.table-list tbody tr').filter({ hasText: surveyTitle }).first();
+
+		// Try the dropdown link first (only present after at least one response exists).
 		await surveyRow.locator('button[data-controller="dropdown"]').click();
-		await surveyRow.locator('a.dropdown__button[href*="/responses"]').click();
+		const responsesLink = surveyRow.locator('a.dropdown__button[href*="/responses"]');
+		const hasResponsesLink = await responsesLink.isVisible({ timeout: 2000 }).catch(() => false);
+
+		if (hasResponsesLink) {
+			await responsesLink.click();
+		} else {
+			// The "Responses" entry is absent from the dropdown when the survey has no
+			// responses yet (Decidim hides it). Build the URL directly from any known
+			// dropdown href (e.g. the Edit link) and replace the trailing segment.
+			const editLink = surveyRow.locator('a.dropdown__button[href*="/edit"]').first();
+			const editHref = (await editLink.getAttribute('href')) ?? '';
+			// editHref ends with /surveys/{id}/edit  – strip the trailing /edit
+			const responsesUrl = editHref.replace(/\/edit$/, '/responses');
+			await this.page.goto(responsesUrl);
+		}
+
 		await this.page.waitForURL(/\/surveys\/\d+\/responses/);
 		await this.page.waitForLoadState('domcontentloaded');
 		console.log(`Accessed responses page for survey: "${surveyTitle}"`);
@@ -830,7 +847,7 @@ export class SurveysManagePage extends BaseAdminPage {
 
 		// Verify Question 1: Long Answer is visible
 		await expect(this.page.getByText('What is your opinion on this')).toBeVisible();
-		await expect(this.page.getByRole('textbox', { name: '1 What is your opinion on' })).toBeVisible();
+		await expect(this.page.locator('#questionnaire_responses_0')).toBeVisible();
 		console.log('Question 1 (Long Answer) is visible');
 
 		// Verify Question 2: Single Option is visible with options
@@ -856,8 +873,8 @@ export class SurveysManagePage extends BaseAdminPage {
 	 */
 	async fillSurveyResponses(): Promise<void> {
 		// Fill Question 1: Long Answer
-		await this.page.getByRole('textbox', { name: '1 What is your opinion on' }).click();
-		await this.page.getByRole('textbox', { name: '1 What is your opinion on' }).fill('I really like this topic.');
+		await this.page.locator('#questionnaire_responses_0').click();
+		await this.page.locator('#questionnaire_responses_0').fill('I really like this topic.');
 
 		// Fill Question 2: Single Option
 		await this.page.getByRole('radio', { name: 'Blue' }).click();
@@ -910,7 +927,7 @@ export class SurveysManagePage extends BaseAdminPage {
 	 */
 	async verifySurveyValidationErrors(): Promise<void> {
 		// Verify validation error for missing mandatory field is displayed
-		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_BODY_BLANK)).toBeVisible();
+		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_BODY_BLANK).first()).toBeVisible();
 		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_PRIVACY_POLICY_UNCHECKED)).toBeVisible();
 		console.log('Survey validation errors are displayed for missing mandatory fields');
 	}

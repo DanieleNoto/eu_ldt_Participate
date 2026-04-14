@@ -212,6 +212,13 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		await expect(this.flashSuccessMessage).toContainText(expectedSubstring);
 	}
 
+	async isCancelRegistrationButtonVisible(): Promise<boolean> {
+		return this.page
+			.getByRole('button', { name: 'Cancel your registration' })
+			.isVisible()
+			.catch(() => false);
+	}
+
 	async CancelRegistration(): Promise<void> {
 		const btn = this.page.getByRole('button', { name: 'Cancel your registration' });
 		await expect(btn).toBeVisible();
@@ -243,9 +250,12 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	}
 
 	async expectMeetingFullMessageVisible(): Promise<void> {
-		// Disabled button with text "No slots available" — role-based and scoped to the body
-		const disabledButton = this.page.getByRole('button', { name: 'No slots available', disabled: true }).first();
-		await expect(disabledButton).toBeVisible();
+		const slotsSpan = this.page
+			.locator('.meeting__aside-progress span')
+			.filter({ hasText: /slots remaining/ })
+			.first();
+		await expect(slotsSpan).toBeAttached();
+		await expect(slotsSpan).toHaveText(/0 slots remaining/);
 	}
 
 	async expectLinkToJoinMeetingNotYetAvailable() {

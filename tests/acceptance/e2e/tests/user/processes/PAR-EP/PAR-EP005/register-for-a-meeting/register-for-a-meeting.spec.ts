@@ -44,7 +44,7 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 	let homePage: HomePage;
 	let headerComponent: HeaderComponent;
 	let notificationPage: NotificationPage;
-	let meetingDetailUrl: string;
+	let meetingDetailUrl: string | undefined;
 	let webmailPage: WebmailPage;
 
 	// Use existing process with meetings and registrations
@@ -179,6 +179,7 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 		// Cleanup: deregister the user after each test
 		test.afterEach(async () => {
 			await test.step('Deregister the user from the meeting', async () => {
+				if (!meetingDetailUrl) return;
 				await meetingDetailPage.getPage().goto(meetingDetailUrl);
 				await meetingDetailPage.getPage().waitForLoadState('load');
 				await meetingDetailPage.expectOnMeetingDetailPage();
@@ -217,7 +218,7 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 				.screenshot({ path: 'test-results/screenshots/OnMeetingDetailPageAF.png', fullPage: true });
 		});
 		test.describe('Alternative flow: Meeting Full', () => {
-			test.beforeEach(async ({ adminPage }) => {
+			test.beforeEach(async ({ adminPage, browser }) => {
 				// Setup: Set available slots to 1 for this test
 				const adminHomePage = new AdminHomePage(adminPage);
 				const processAdminPage = new ProcessAdminPage(adminPage);
@@ -225,7 +226,7 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 				const meetingsPageAdmin = new MeetingsPageAdmin(adminPage);
 				const registrationsPage = new RegistrationsPage(adminPage);
 
-				await test.step('Setup: Admin sets available slots to 1', async () => {
+				await test.step('Setup: Admin sets available slots to 1 and second user occupies the slot', async () => {
 					await adminHomePage.navigateToAdminHomePage();
 					await processAdminPage.navigateToProcesses();
 					await processAdminPage.getPage().waitForLoadState('load');
@@ -244,20 +245,58 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 					const meetingId = await meetingsPageAdmin.getMeetingIdByTitle(meetingTitle);
 					expect(meetingId).toBeGreaterThan(0);
 
-					// Navigate to registrations page and set slots to 1
+					// First reset to unlimited to avoid Decidim's validation:
+					// available_slots cannot be < current registrations count.
+					// This guards against leftover registrations from previous failed runs.
+					await registrationsPage.navigateToRegistrations(processSlug, 6, meetingId);
+					await registrationsPage.setAvailableSlotsAndSave(0);
+
+					// Set slots = 1. Decidim accepts this even if there's already 1 registration (1 >= 1).
+					// If the meeting already has ≥ 1 registration it becomes full immediately.
+					// If it has 0, user will register below to fill the slot.
 					await registrationsPage.navigateToRegistrations(processSlug, 6, meetingId);
 					await registrationsPage.setAvailableSlotsAndSave(1);
+
+					// Have user register if the slot is still free.
+					const user10Context = await browser.newContext({
+						baseURL: process.env.FE_BASE_URL,
+						storageState: undefined
+					});
+					const user10Page = await user10Context.newPage();
+					await user10Page.goto('/users/sign_in');
+					await user10Page.waitForLoadState('load');
+					await user10Page.getByRole('textbox', { name: 'Email' }).fill(process.env.TEST_USER10_EMAIL!);
+					await user10Page.getByRole('textbox', { name: 'Password' }).fill(process.env.TEST_USER10_PASSWORD!);
+					await user10Page.getByRole('button', { name: 'Log in' }).click();
+					await user10Page.waitForLoadState('load');
+					const user10MeetingPage = new MeetingDetailPage(user10Page);
+					await user10Page.goto(`/processes/${processSlug}/f/6/meetings/${meetingId}`);
+					await user10Page.waitForLoadState('networkidle');
+					if (!(await user10MeetingPage.isCancelRegistrationButtonVisible())) {
+						// Slot is free: register. If already full (another user registered), skip.
+						const registerVisible = await user10Page
+							.getByRole('button', { name: 'Register' })
+							.isVisible()
+							.catch(() => false);
+						if (registerVisible) {
+							await user10MeetingPage.clickRegisterMeetingButton();
+							await user10MeetingPage.confirmRegistration();
+							await user10Page.waitForLoadState('load');
+						}
+					}
+					await user10Context.close();
+					// Meeting is now full.
 				});
 			});
-			test.afterEach(async ({ adminPage }) => {
-				// Cleanup: Reset available slots to 0
+			test.afterEach(async ({ adminPage, browser }) => {
+				// Cleanup: Reset available slots to 0 and deregister second user
 				const adminHomePage = new AdminHomePage(adminPage);
 				const processAdminPage = new ProcessAdminPage(adminPage);
 				const updateProcessPage = new UpdateProcessAdminPage(adminPage);
 				const meetingsPageAdmin = new MeetingsPageAdmin(adminPage);
 				const registrationsPage = new RegistrationsPage(adminPage);
 
-				await test.step('Cleanup: Admin resets available slots to 0', async () => {
+				await test.step('Cleanup: Admin resets available slots to 0 and cancels second user registration', async () => {
 					await adminHomePage.navigateToAdminHomePage();
 					await processAdminPage.navigateToProcesses();
 					await processAdminPage.getPage().waitForLoadState('load');
@@ -272,14 +311,40 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 					if (meetingFound) {
 						const meetingId = await meetingsPageAdmin.getMeetingIdByTitle(meetingTitle);
 						if (meetingId > 0) {
+							// Reset slots to unlimited.
 							await registrationsPage.navigateToRegistrations(processSlug, 6, meetingId);
 							await registrationsPage.setAvailableSlotsAndSave(0);
+
+							// Cancel user registration if present (only needed when existingCount was 0).
+							const user10Context = await browser.newContext({
+								baseURL: process.env.FE_BASE_URL,
+								storageState: undefined
+							});
+							const user10Page = await user10Context.newPage();
+							await user10Page.goto('/users/sign_in');
+							await user10Page.waitForLoadState('load');
+							await user10Page
+								.getByRole('textbox', { name: 'Email' })
+								.fill(process.env.TEST_USER10_EMAIL!);
+							await user10Page
+								.getByRole('textbox', { name: 'Password' })
+								.fill(process.env.TEST_USER10_PASSWORD!);
+							await user10Page.getByRole('button', { name: 'Log in' }).click();
+							await user10Page.waitForLoadState('load');
+							const user10MeetingPage = new MeetingDetailPage(user10Page);
+							await user10Page.goto(`/processes/${processSlug}/f/6/meetings/${meetingId}`);
+							await user10Page.waitForLoadState('networkidle');
+							if (await user10MeetingPage.isCancelRegistrationButtonVisible()) {
+								await user10MeetingPage.CancelRegistration();
+							}
+							await user10Context.close();
 						}
 					}
 				});
 			});
 			test('Meeting Full', async () => {
 				await test.step('1.10 USER: registers for a meeting', async () => {
+					await homePage.navigateToHomePage();
 					await homePage.goToProcessesFromHomeMenu();
 					await processesOverviewPage.getPage().waitForLoadState('load');
 					await processesOverviewPage.expectToBeOnProcessesOverviewPage();

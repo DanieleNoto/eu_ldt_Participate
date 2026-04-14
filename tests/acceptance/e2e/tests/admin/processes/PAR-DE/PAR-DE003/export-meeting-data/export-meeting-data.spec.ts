@@ -138,8 +138,18 @@ test.describe('@reserved [PAR-DE003] – Export meeting data', () => {
 					await webmailPage.refreshInbox();
 					console.log('Checked for new messages in inbox');
 
-					// Verify and open the meetings export email
-					await webmailPage.verifyExportEmail('meetings');
+					// Verify and open the meetings export email.
+					// The email subject key depends on the export type:
+					//   Meetings  → 'meetings'
+					//   Comments  → 'meeting_comments'
+					//   Answers   → 'responses'
+					const emailExportType =
+						exportType === 'Comments'
+							? 'meeting_comments'
+							: exportType === 'Answers'
+								? 'responses'
+								: 'meetings';
+					await webmailPage.verifyExportEmail(emailExportType);
 					console.log(`Export email for ${exportType} with ${fileFormat} format verified successfully`);
 
 					// Download the export file
