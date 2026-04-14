@@ -7,7 +7,7 @@
 # Pierluigi Spedicato
 # Simone Bianchelli
 # denise.scarcelli
-FROM decidim/decidim-dev:0.31.2 AS builder
+FROM decidim/decidim-dev:0.31.3 AS builder
 
 # Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
@@ -100,7 +100,7 @@ RUN rm -rf tmp/cache vendor/bundle/spec \
   && rm -rf log/*.log
 
 ### Runtime stage: lean image with only runtime dependencies
-FROM decidim/decidim-dev:0.31.2  AS runtime
+FROM decidim/decidim-dev:0.31.3  AS runtime
 
 # Inherit build arguments for runtime
 ARG RAILS_ENV=production
