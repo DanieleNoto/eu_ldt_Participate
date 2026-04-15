@@ -23,10 +23,8 @@ module Decidim
           payload = Base64.decode64(token_parts[1].ljust((token_parts[1].length + 3) / 4 * 4, "="))
           JSON.parse(payload)
         rescue JSON::ParserError => e
-          Rails.logger.warn "[Keycloak JwtParser] JSON parsing error: #{e.message}"
           nil
         rescue StandardError => e
-          Rails.logger.warn "[Keycloak JwtParser] Error parsing JWT: #{e.message}"
           nil
         end
       end
@@ -45,7 +43,6 @@ module Decidim
         # Keycloak can return timestamps in milliseconds (> 1 trillion)
         exp > 1_000_000_000_000 ? Time.zone.at(exp / 1000) : Time.zone.at(exp)
       rescue StandardError => e
-        Rails.logger.warn "[Keycloak JwtParser] Error extracting expiry: #{e.message}"
         nil
       end
 
@@ -92,7 +89,6 @@ module Decidim
         language_code = user_locale.to_s.split("-").first
         return language_code if locales_list.include?(language_code)
 
-        Rails.logger.debug { "[Keycloak JwtParser] Locale #{user_locale} not in available locales: #{locales_list.join(", ")}" }
         nil
       end
 
@@ -108,7 +104,6 @@ module Decidim
         # Check for required claims
         claims["sub"].present? && claims["email"].present?
       rescue StandardError => e
-        Rails.logger.warn "[Keycloak JwtParser] Validation error: #{e.message}"
         false
       end
     end

@@ -24,7 +24,6 @@ module Decidim
       # Load decorators when the app is prepared
       config.to_prepare do
         Dir.glob("#{Decidim::Keycloak::Engine.root}/app/decorators/**/*_decorator.rb").each do |decorator|
-          Rails.logger.info("[Keycloak] Loading decorator: #{decorator}")
           load decorator
         end
       end
@@ -73,6 +72,8 @@ module Decidim
               ui_locales: current_locale.to_s,
               kc_locale: current_locale.to_s
             }
+            # Ensure we request the OpenID Connect scopes so id_token is returned
+            env["omniauth.strategy"].options[:scope] = "openid profile email"
           }
         end
       end

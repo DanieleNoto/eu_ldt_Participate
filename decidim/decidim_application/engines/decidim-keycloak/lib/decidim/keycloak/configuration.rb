@@ -49,7 +49,6 @@ module Decidim
 
             # Validate URI scheme and host
             unless (uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)) && uri.host.present?
-              Rails.logger.error "Keycloak configuration error: Invalid site URL: #{site}"
               return nil
             end
 
@@ -69,7 +68,6 @@ module Decidim
             query_string = auth_params.map { |k, v| "#{k}=#{v}" }.join("&")
             "#{base}/realms/#{CGI.escape(realm)}/protocol/openid-connect/auth?#{query_string}"
           rescue URI::InvalidURIError => e
-            Rails.logger.error "Keycloak configuration error: Malformed site URL: #{site} - #{e.message}"
             nil
           end
         end

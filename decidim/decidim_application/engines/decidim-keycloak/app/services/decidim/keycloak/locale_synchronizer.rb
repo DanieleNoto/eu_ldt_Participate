@@ -25,7 +25,6 @@ module Decidim
         if token_locale == @current_locale
           nil # No change needed
         else
-          Rails.logger.info "[Keycloak Locale Sync] Locale changed from #{@current_locale} to #{token_locale}"
           token_locale
         end
       end
@@ -39,11 +38,8 @@ module Decidim
         available_locales = Decidim.available_locales
         user_locale = Decidim::Keycloak::JwtParser.extract_locale(@id_token, available_locales)
 
-        Rails.logger.debug "[Keycloak Locale Sync] No valid locale found in token" if user_locale.blank?
-
         user_locale
       rescue StandardError => e
-        Rails.logger.warn "[Keycloak Locale Sync] Error extracting locale from JWT: #{e.message}"
         nil
       end
     end
