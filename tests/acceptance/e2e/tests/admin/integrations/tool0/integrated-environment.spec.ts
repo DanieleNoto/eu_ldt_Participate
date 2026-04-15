@@ -88,15 +88,8 @@ test.describe('@useKeycloak Tool0 Integrated Environment', () => {
 				await integratedEnvironmentPage.logout();
 				console.log('Logout action completed');
 
-				// After clicking logout, Keycloak shows a confirmation page — click the "Logout" button
+				// Keycloak redirects directly to the login/auth page after logout
 				const page = integratedEnvironmentPage['page'];
-				await page.waitForURL(/im-int\.ldttoolbox\.app\/realms\/LDT\/protocol\/openid-connect\/logout/, {
-					waitUntil: 'load'
-				});
-				await page.locator('#kc-logout').click();
-				console.log('Clicked Keycloak logout confirmation button');
-
-				// After confirming, Keycloak redirects to the login page
 				await page.waitForURL(/im-int\.ldttoolbox\.app\/realms\/LDT\/protocol\/openid-connect\/auth/, {
 					waitUntil: 'load'
 				});

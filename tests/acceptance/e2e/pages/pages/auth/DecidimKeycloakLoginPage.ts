@@ -67,19 +67,28 @@ export class DecidimLoginPage extends BasePage {
 		await signInButton.click();
 
 		// 5. OIDC consent screen ("Accept")
+		// Use explicit timeout early — setup contexts (browser.newContext()) do not inherit
+		// navigationTimeout from playwright.config.ts and default to 30s.
+		const isCI = process.env.CI === 'true';
+		const redirectTimeout = isCI ? 90000 : 60000;
 		console.log('Waiting for Accept button...');
 		const acceptButton = this.page.getByRole('button', { name: 'Accept' });
-		await acceptButton.waitFor({ state: 'visible' });
+		await acceptButton.waitFor({ state: 'visible', timeout: redirectTimeout });
 		console.log('Clicking Accept...');
 		await acceptButton.click();
 
 		// 6. Wait for the final redirect back to the app
 		console.log('Waiting for redirect to app...');
 		await this.page.waitForURL(
-			url => url.toString().startsWith(`${auth_redirect_uri}/`) && !url.toString().includes('/users/sign_in')
+			url => url.toString().startsWith(`${auth_redirect_uri}/`) && !url.toString().includes('/users/sign_in'),
+			{ timeout: redirectTimeout }
 		);
-		await this.page.locator('body').waitFor({ state: 'attached' });
-		await this.page.locator('#trigger-dropdown-account').waitFor({ state: 'visible' });
+		await this.page.locator('body').waitFor({ state: 'attached', timeout: redirectTimeout });
+		// Public pages use #trigger-dropdown-account; the admin panel uses #admin-dropdown-menu-login-trigger.
+		const accountDropdown = this.page
+			.locator('#trigger-dropdown-account, #admin-dropdown-menu-login-trigger')
+			.first();
+		await accountDropdown.waitFor({ state: 'visible', timeout: redirectTimeout });
 
 		if (this.page.url().includes('/users/sign_in')) {
 			throw new Error('Authentication failed - still on login page after redirect');

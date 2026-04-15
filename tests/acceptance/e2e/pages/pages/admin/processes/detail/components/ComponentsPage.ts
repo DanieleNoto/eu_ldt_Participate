@@ -332,7 +332,7 @@ export class ComponentsPage extends BaseAdminPage {
 	async publishComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
 		await this.openRowActionsDropdown(row);
-		await row.locator('a[href$="/publish"]').click();
+		await row.locator('a[href*="/publish"]').click();
 		await this.page.waitForLoadState('load');
 	}
 
@@ -346,7 +346,7 @@ export class ComponentsPage extends BaseAdminPage {
 	async deleteComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
 		await this.openRowActionsDropdown(row);
-		await row.locator('a[href$="/soft_delete"]').click();
+		await row.locator('a[href*="/soft_delete"]').click();
 		await this.page.waitForLoadState('load');
 	}
 
