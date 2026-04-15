@@ -17,11 +17,15 @@ if [ "$RAILS_ENV" = "production" ]; then
   # Database setup (optimized)
   echo "--- Setting up database ---"
   bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
-  
+
   # Run migrations (always safe, idempotent)
   echo "--- Running database migrations ---"
   if ! bin/rails db:migrate; then
     echo "ERROR: Database migration failed"
+    exit 1
+  fi
+  if ! bin/rails data:migrate; then
+    echo "ERROR: Database data migration failed"
     exit 1
   fi
   echo "--- Database setup completed ---"
@@ -46,23 +50,11 @@ if [ "$RAILS_ENV" = "production" ]; then
 elif [ "$RAILS_ENV" = "development" ]; then
   echo "=== DEVELOPMENT ENVIRONMENT SETUP ==="
   
-  # Database reset (if requested)
-  if [ "$FORCE_DB_RESET" = "true" ]; then
-    echo "--- FORCE_DB_RESET=true, dropping database ---"
-    bin/rails db:drop DISABLE_DATABASE_ENVIRONMENT_CHECK=1 || true
-    echo "--- Database dropped ---"
-  fi
-  
   # Database setup (optimized)
   echo "--- Setting up database ---"
-  bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
-  
-  # Run migrations (always safe, idempotent)
-  echo "--- Running database migrations ---"
-  if ! bin/rails db:migrate; then
-    echo "ERROR: Database migration failed"
-    exit 1
-  fi
+  bin/rails db:create >/dev/null 2>&1 || true
+  bin/rails db:migrate
+  bin/rails data:migrate 2>/dev/null || true
   echo "--- Database setup completed ---"
 
   # Data setup (if requested)
@@ -82,49 +74,20 @@ elif [ "$RAILS_ENV" = "development" ]; then
 else
   echo "=== NON-PRODUCTION ENVIRONMENT SETUP (${RAILS_ENV}) ==="
   
-  # Block dangerous operations
-  if [ "$FORCE_DB_RESET" = "true" ]; then
-    echo "ERROR: FORCE_DB_RESET is not allowed in ${RAILS_ENV} environment"
-    echo "This could destroy important data. Use proper database procedures."
-    exit 1
-  fi
-  
-  # Database setup (optimized)
-  echo "--- Setting up database ---"
-  bin/rails db:create >/dev/null 2>&1 || echo "Database already exists"
-  
-  # Run migrations (always safe, idempotent)
-  echo "--- Running database migrations ---"
-  if ! bin/rails db:migrate; then
-    echo "ERROR: Database migration failed"
-    exit 1
-  fi
-  echo "--- Database setup completed ---"
-  
-  # Asset precompilation for non-dev environments
-  echo "--- Checking assets for ${RAILS_ENV} ---"
-  if [ ! -d "public/decidim-packs" ] || [ -z "$(ls -A public/decidim-packs 2>/dev/null)" ]; then
-    echo "--- No precompiled assets found, compiling now ---"
-    if ! bin/rails assets:precompile; then
-      echo "ERROR: Asset precompilation failed"
-      exit 1
-    fi
-    echo "--- Assets compiled successfully ---"
-  else
-    echo "--- Precompiled assets found, skipping compilation ---"
-  fi
-
-  # After precompile, ensure compatibility symlink exists so any code expecting public/packs works
-  if [ ! -e public/packs ] && [ -d public/decidim-packs ]; then
-    echo "--- Creating compatibility symlink public/packs -> public/decidim-packs (post-precompile) ---"
-    ln -sfn public/decidim-packs public/packs || true
-  fi
+  bin/rails db:create >/dev/null 2>&1 || true
+  bin/rails db:migrate
+  bin/rails data:migrate 2>/dev/null || true
   
   # No data setup in non-development environments
   echo "--- Skipping data setup (only available in development) ---"
 fi
 
-echo "--- Starting Rails server ---"
+echo "--- Starting server ---"
 
-# Ensure Spring is disabled for Rails server as well
-exec bundle exec rails s -b 0.0.0.0 -p 3000
+# If a command was passed (e.g. bin/dev from docker-compose), execute it;
+# otherwise fall back to the plain Rails server.
+if [ $# -gt 0 ]; then
+  exec "$@"
+else
+  exec bundle exec rails s -b 0.0.0.0 -p 3000
+fi

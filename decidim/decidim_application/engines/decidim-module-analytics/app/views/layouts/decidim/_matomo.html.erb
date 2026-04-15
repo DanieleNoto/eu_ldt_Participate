@@ -5,10 +5,10 @@
     Gianfranco Cedro
 %>
 
-<% if Rails.application.secrets.dig(:matomo, :enabled) %>
+<% if ENV["MATOMO_ENABLED"] == "true" %>
   <%
-    server_address = Rails.application.secrets.dig(:matomo, :server_address)
-    site_id = Rails.application.secrets.dig(:matomo, :site_id)
+    server_address = ENV["MATOMO_SERVER_ADDRESS"]
+    site_id = ENV["MATOMO_SITE_ID"]
   %>
 
   <% if server_address.present? && site_id.present? %>

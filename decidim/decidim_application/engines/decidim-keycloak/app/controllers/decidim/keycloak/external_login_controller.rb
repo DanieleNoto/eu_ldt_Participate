@@ -19,7 +19,6 @@ module Decidim
       def initiate
         # Ensure we have an organization context
         unless current_organization
-          Rails.logger.error "External login failed: No organization found for host #{request.host}"
           render plain: "Organization not found for this domain", status: :not_found
           return
         end
@@ -27,7 +26,6 @@ module Decidim
         # Verify Keycloak is enabled for this organization
         keycloak_config = current_organization.enabled_omniauth_providers[:keycloakopenid]
         unless keycloak_config
-          Rails.logger.error "External login failed: Keycloak not enabled for #{current_organization.name}"
           render plain: "Keycloak authentication not enabled", status: :forbidden
           return
         end
@@ -54,13 +52,9 @@ module Decidim
         )
 
         unless auth_url
-          Rails.logger.error "External login failed: Could not build valid authorization URL for #{current_organization.name}"
           render plain: "Invalid authentication configuration", status: :internal_server_error
           return
         end
-
-        Rails.logger.info "External login: Redirecting to Keycloak with state=#{state[0..8]}..."
-        Rails.logger.info "   Callback URL: #{callback_url}"
 
         # Redirect to the validated and sanitized Keycloak URL
         redirect_to auth_url, allow_other_host: true

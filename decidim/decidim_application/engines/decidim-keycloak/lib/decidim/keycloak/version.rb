@@ -7,8 +7,8 @@
 module Decidim
   # This holds the decidim-keycloak version.
   module Keycloak
-    VERSION = "0.30.1"
-    DECIDIM_VERSION = "0.30.1"
-    COMPAT_DECIDIM_VERSION = "~> 0.30.0"
+    VERSION = "0.1.1"
+    DECIDIM_VERSION = "0.31.1"
+    COMPAT_DECIDIM_VERSION = [">= 0.30.0", "< 0.32.0"].freeze
   end
 end

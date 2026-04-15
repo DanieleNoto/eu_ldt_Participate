@@ -34,5 +34,5 @@ Gem::Specification.new do |s|
     end
   end
 
-  s.add_dependency "decidim-core", Decidim::LdtMapVisualization.version
+  s.add_dependency "decidim-core", *Decidim::LdtMapVisualization::COMPAT_DECIDIM_VERSION
 end

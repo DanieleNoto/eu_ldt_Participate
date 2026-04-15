@@ -1,12 +1,7 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-# Marco Pinnella
-# Pierluigi Spedicato
-
 # frozen_string_literal: true
 
+# This migration comes from decidim (originally 20181113101935)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:58 UTC
 class CreateDecidimContextualHelpSections < ActiveRecord::Migration[5.2]
   def change
     create_table :decidim_contextual_help_sections do |t|

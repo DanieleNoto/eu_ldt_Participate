@@ -17,6 +17,8 @@
   <div class="item__edit-form">
     <div class="card experiments-association"
          data-admin-path="<%= "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/ldt_use_case_scenarios" %>"
+         data-total-pages="<%= @total_pages || 1 %>"
+         data-page-size="<%= @page_size || 10 %>"
          data-i18n-name-required="<%= t(".name_required") %>"
          data-i18n-save-error="<%= t(".save_error") %>"
          data-i18n-details-title="<%= t(".experiment_details.title") %>"

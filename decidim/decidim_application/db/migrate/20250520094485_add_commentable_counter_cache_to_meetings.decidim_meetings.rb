@@ -1,16 +1,17 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-# Marco Pinnella
-# Pierluigi Spedicato
-
 # frozen_string_literal: true
 
+# This migration comes from decidim_meetings (originally 20200827153856)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:59 UTC
 class AddCommentableCounterCacheToMeetings < ActiveRecord::Migration[5.2]
+  class Meeting < ApplicationRecord
+    self.table_name = :decidim_meetings_meetings
+    include Decidim::HasComponent
+    include Decidim::Comments::CommentableWithComponent
+  end
+
   def change
     add_column :decidim_meetings_meetings, :comments_count, :integer, null: false, default: 0
-    Decidim::Meetings::Meeting.reset_column_information
-    Decidim::Meetings::Meeting.unscoped.find_each(&:update_comments_count)
+    Meeting.reset_column_information
+    Meeting.unscoped.find_each(&:update_comments_count)
   end
 end

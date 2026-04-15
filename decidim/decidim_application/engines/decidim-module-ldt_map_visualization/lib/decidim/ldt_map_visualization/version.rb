@@ -8,8 +8,15 @@
 module Decidim
   # This holds the decidim-ldt_map_visualization version.
   module LdtMapVisualization
+    VERSION = "0.31.0"
+    COMPAT_DECIDIM_VERSION = [">= 0.30.0", "< 0.32.0"].freeze
+
     def self.version
-      "0.30.6"
+      VERSION
+    end
+
+    def self.decidim_version
+      COMPAT_DECIDIM_VERSION
     end
   end
 end

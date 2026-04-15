@@ -1,12 +1,7 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-# Marco Pinnella
-# Pierluigi Spedicato
-
 # frozen_string_literal: true
 
+# This migration comes from decidim_participatory_processes (originally 20170809084005)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:59 UTC
 class AddScopesEnabledToParticipatoryProcesses < ActiveRecord::Migration[5.1]
   def change
     add_column :decidim_participatory_processes, :scopes_enabled, :boolean, null: false, default: true

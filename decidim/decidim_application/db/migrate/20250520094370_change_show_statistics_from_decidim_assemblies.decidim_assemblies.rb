@@ -1,12 +1,7 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-# Marco Pinnella
-# Pierluigi Spedicato
-
 # frozen_string_literal: true
 
+# This migration comes from decidim_assemblies (originally 20240712061153)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:58 UTC
 class ChangeShowStatisticsFromDecidimAssemblies < ActiveRecord::Migration[7.0]
   def up
     change_column_default :decidim_assemblies, :show_statistics, from: false, to: true

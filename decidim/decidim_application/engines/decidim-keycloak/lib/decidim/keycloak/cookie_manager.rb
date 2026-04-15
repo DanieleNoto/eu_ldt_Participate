@@ -61,20 +61,16 @@ module Decidim
         cookie_names = %w(access_token refresh_token id_token)
         domains = calculate_all_cookie_domains(request_host)
 
-        Rails.logger.info "[Keycloak CookieManager] Clearing #{cookie_names.inspect} from #{domains.inspect}"
-
         cookie_names.each do |name|
           # Delete from each explicit domain (browser matches by name+domain+path)
           domains.each do |domain|
             cookies_obj.delete(name, domain: domain, path: "/")
           rescue StandardError => e
-            Rails.logger.debug { "[Keycloak CookieManager] Could not delete #{name} from #{domain}: #{e.message}" }
           end
 
           # Also delete without domain (covers cookies set without explicit domain attribute)
           cookies_obj.delete(name, path: "/")
         rescue StandardError => e
-          Rails.logger.debug { "[Keycloak CookieManager] Could not delete #{name}: #{e.message}" }
         end
 
         clear_session_data(session_obj)
@@ -98,8 +94,6 @@ module Decidim
         cookie_domain = calculate_cookie_domain(request_host)
         expires_at = extract_jwt_expiration(tokens[:access_token])
         refresh_expires_at = extract_jwt_expiration(tokens[:refresh_token])
-
-        Rails.logger.debug { "[Keycloak CookieManager] Saving tokens with domain: #{cookie_domain.inspect}, expires_at: #{expires_at.inspect}" }
 
         if tokens[:access_token]
           cookies_obj["access_token"] = {
@@ -134,7 +128,6 @@ module Decidim
           }
         end
 
-        Rails.logger.info "[Keycloak CookieManager] Saved tokens to cookies with domain: #{cookie_domain}"
       end
 
       # Extract the exp claim from a JWT token (no signature verification needed).

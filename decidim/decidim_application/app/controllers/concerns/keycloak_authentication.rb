@@ -75,7 +75,6 @@ module KeycloakAuthentication
       decidim_host: ENV.fetch("DECIDIM_HOST", nil)
     )
   rescue URI::InvalidURIError => e
-    Rails.logger.debug { "[Keycloak AutoLogin] Invalid referer URI: #{e.message}" }
     false
   end
 
@@ -107,14 +106,13 @@ module KeycloakAuthentication
     # Delegate token validation and refresh to TokenService
     valid_token = Decidim::Keycloak::TokenService.ensure_valid_token(
       current_user,
-      cookies_hash: cookies.to_h,
+      cookies_hash: request.cookies,
       cookies_obj: cookies,
       request_host: request.host,
       controller: self
     )
 
     if valid_token
-      Rails.logger.debug { "[Keycloak AutoLogout] Token valid for user #{current_user.id}" }
       return
     end
 
@@ -137,9 +135,7 @@ module KeycloakAuthentication
     apply_locale_if_changed(new_locale, current_session_locale)
   end
 
-
   def perform_automatic_logout
-    Rails.logger.info "[Keycloak AutoLogout] Session invalid, logging out user #{current_user.id}"
 
     # Back-channel SLO: notify Keycloak server-to-server so other SSO apps get logged out
     notify_keycloak_session_end(cookies["id_token"])
@@ -160,7 +156,7 @@ module KeycloakAuthentication
     realm = ENV["OMNIAUTH_KEYCLOAK_REALM"] || "master"
     return unless keycloak_site.present? && realm.present?
 
-    uri = URI("#{keycloak_site}/realms/#{realm}/protocol/openid-connect/logout")
+    uri = URI("#{keycloak_site.to_s.chomp('/')}/realms/#{realm}/protocol/openid-connect/logout")
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = uri.scheme == "https"
     http.open_timeout = 3
@@ -176,9 +172,7 @@ module KeycloakAuthentication
     request.set_form_data(params)
 
     response = http.request(request)
-    Rails.logger.info "[Keycloak AutoLogout] SLO notification: HTTP #{response.code}"
   rescue StandardError => e
-    Rails.logger.warn "[Keycloak AutoLogout] SLO call failed (non-blocking): #{e.message}"
   end
 
   def detect_keycloak_locale(current_session_locale)
@@ -186,7 +180,6 @@ module KeycloakAuthentication
     if cookies["i18next"].present?
       locale = cookies["i18next"].strip
       if current_organization.available_locales.include?(locale)
-        Rails.logger.info "[Keycloak Locale] Using i18next cookie: #{locale}"
         return locale
       end
     end
@@ -196,7 +189,6 @@ module KeycloakAuthentication
     if id_token.present?
       locale = Decidim::Keycloak::LocaleSynchronizer.sync_from_token(id_token, current_session_locale)
       if locale.present?
-        Rails.logger.info "[Keycloak Locale] Using id_token claim: #{locale}"
         return locale
       end
     end
@@ -209,6 +201,5 @@ module KeycloakAuthentication
 
     I18n.locale = new_locale
     session["decidim-locale"] = new_locale
-    Rails.logger.info "[Keycloak Locale] Updated: #{current_session_locale} → #{new_locale} for user #{current_user.id}"
   end
 end

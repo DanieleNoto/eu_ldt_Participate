@@ -1,16 +1,17 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-# Marco Pinnella
-# Pierluigi Spedicato
-
 # frozen_string_literal: true
 
+# This migration comes from decidim_meetings (originally 20181107175558)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:59 UTC
 class AddQuestionnaireToExistingMeetings < ActiveRecord::Migration[5.2]
+  class Meeting < ApplicationRecord
+    self.table_name = :decidim_meetings_meetings
+    include Decidim::HasComponent
+    include Decidim::Forms::HasQuestionnaire
+  end
+
   def change
-    Decidim::Meetings::Meeting.transaction do
-      Decidim::Meetings::Meeting.unscoped.find_each do |meeting|
+    Meeting.transaction do
+      Meeting.unscoped.find_each do |meeting|
         if meeting.component.present? && meeting.questionnaire.blank?
           meeting.update!(
             questionnaire: Decidim::Forms::Questionnaire.new

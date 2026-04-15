@@ -22,7 +22,6 @@ module Decidim
 
         result
       rescue StandardError => e
-        Rails.logger.error "[Keycloak] ERROR in DeviseExtension#create: #{e.class} - #{e.message}"
         raise
       end
 
@@ -31,7 +30,6 @@ module Decidim
       def determine_user_locale(auth_data)
         locale = extract_locale_from_keycloak_token(auth_data)
         locale = session["omniauth.locale"] if locale.blank? && session["omniauth.locale"].present?
-        Rails.logger.debug { "[Keycloak] Determined user locale: #{locale.inspect}" }
         locale
       end
 
@@ -40,7 +38,6 @@ module Decidim
 
         I18n.locale = user_locale
         session["decidim-locale"] = user_locale
-        Rails.logger.info "[Keycloak] Set locale from token/session: #{user_locale}"
       end
 
       def keycloak_auth?(auth_data)
@@ -51,14 +48,12 @@ module Decidim
         save_keycloak_token_to_cache(current_user, auth_data)
         update_user_locale(user_locale)
         session[:keycloak_authenticated] = true
-        Rails.logger.info "[Keycloak] User #{current_user.id} authenticated via Keycloak"
       end
 
       def update_user_locale(user_locale)
         return if user_locale.blank? || current_user.locale == user_locale
 
         current_user.update!(locale: user_locale)
-        Rails.logger.info "[Keycloak] Updated user #{current_user.id} locale to: #{user_locale}"
       end
 
       def extract_locale_from_keycloak_token(auth_data)
@@ -71,14 +66,11 @@ module Decidim
         user_locale = Decidim::Keycloak::JwtParser.extract_locale(id_token, available_locales)
 
         if user_locale.blank?
-          Rails.logger.debug "[Keycloak] No valid locale found in token"
         else
-          Rails.logger.debug { "[Keycloak] Extracted locale from token: #{user_locale}" }
         end
 
         user_locale
       rescue StandardError => e
-        Rails.logger.warn "[Keycloak] Failed to extract locale from token: #{e.message}"
         nil
       end
 
@@ -111,7 +103,6 @@ module Decidim
         return unless tokens[:access_token]
 
         Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, tokens, request.host)
-        Rails.logger.info "[Keycloak] Tokens saved to cookies for user #{user.id}"
       end
 
       def sync_admin_role(user, auth_data)
@@ -123,7 +114,6 @@ module Decidim
           user.update!(admin: false)
         end
       rescue StandardError
-        Rails.logger.error "[Keycloak] Could not save token - access_token nil for user #{user.id}"
       end
     end
   end

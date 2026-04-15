@@ -24,8 +24,8 @@ Gem::Specification.new do |spec|
   end
 
   # Decidim Dependencies
-  spec.add_dependency "decidim-core", "~> 0.30.4"
-  spec.add_dependency "decidim-meetings", "~> 0.30.4"
+  spec.add_dependency "decidim-core", *Decidim::Meetings::Jitsi::COMPAT_DECIDIM_VERSION
+  spec.add_dependency "decidim-meetings", *Decidim::Meetings::Jitsi::COMPAT_DECIDIM_VERSION
   spec.add_dependency "rails", ">= 7.0.8.7"
 
   # JWT authentication for Jitsi (must match Decidim's jwt version)

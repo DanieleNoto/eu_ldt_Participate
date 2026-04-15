@@ -40,7 +40,6 @@ module Decidim
           return false unless base_domain
 
           if different_subdomain_same_domain?(referer_uri.host, current_host, base_domain)
-            Rails.logger.info "[Keycloak CrossToolDetector] Cross-tool navigation: " \
                               "#{referer_uri.host} → #{current_host} (domain: #{base_domain})"
             return true
           end
@@ -57,7 +56,6 @@ module Decidim
           return true if referer_host == decidim_host
           return true if referer_host == current_host
 
-          Rails.logger.debug { "[Keycloak CrossToolDetector] Referer #{referer_host} is different from #{decidim_host}" }
           false
         end
 

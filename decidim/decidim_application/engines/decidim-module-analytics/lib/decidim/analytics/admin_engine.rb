@@ -32,7 +32,7 @@ module Decidim
                         position: 7.2,
                         active: :inclusive,
                         if: proc { |context|
-                          Rails.application.secrets.dig(:matomo, :enabled) &&
+                          ENV["MATOMO_ENABLED"] == "true" &&
                             context[:current_user] &&
                             context[:current_user].admin? &&
                             context[:current_organization]

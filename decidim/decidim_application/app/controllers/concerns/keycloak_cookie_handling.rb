@@ -21,6 +21,5 @@ module KeycloakCookieHandling
   # This prevents cookie accumulation and ensures clean logout
   def clear_keycloak_cookies
     Decidim::Keycloak::CookieManager.clear_all_cookies(cookies, request.host, session)
-    Rails.logger.debug "[Keycloak Cookie Cleanup] Cleared cookies from all domains"
   end
 end
