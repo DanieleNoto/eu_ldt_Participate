@@ -37,10 +37,6 @@ export default defineConfig({
 		{
 			name: 'reserved-setup-chromium',
 			use: { ...devices['Desktop Chrome'] }
-		},
-		{
-			name: 'reserved-setup-firefox',
-			use: { ...devices['Desktop Firefox'] }
 		}
 	]
 });

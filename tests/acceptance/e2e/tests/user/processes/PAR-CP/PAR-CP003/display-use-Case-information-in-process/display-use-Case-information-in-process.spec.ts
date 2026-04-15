@@ -56,8 +56,9 @@ test.describe('@useKeycloak [PAR-CP003] Display Use Case information in process'
 			});
 
 			await test.step('3. User: The user selects "LDT Use Case Scenarios"', async () => {
-				await processDetailPage.clickOnMenuItem('LDT Use Case Scenarios');
+				await processDetailPage.clickOnMenuItem('LDT Use Case Scenarios test');
 				await expect(userPage).toHaveURL(/\/use_case_scenarios/);
+				await userPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System: Verify scenarios are displayed', async () => {
@@ -65,7 +66,7 @@ test.describe('@useKeycloak [PAR-CP003] Display Use Case information in process'
 			});
 
 			await test.step('5. User: The user selects a specific scenario', async () => {
-				await useCaseScenariosPage.selectScenarioByTitle('zzzzz');
+				await useCaseScenariosPage.selectScenarioByTitle('prova');
 			});
 
 			await test.step('6. System: Embed Use Case information exposed by Use Case & Scenario manager inside the Process page', async () => {

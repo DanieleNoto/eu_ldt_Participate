@@ -39,10 +39,6 @@ export default defineConfig({
 		{
 			name: 'parallel-setup-chromium',
 			use: { ...devices['Desktop Chrome'] }
-		},
-		{
-			name: 'parallel-setup-firefox',
-			use: { ...devices['Desktop Firefox'] }
 		}
 	]
 });
