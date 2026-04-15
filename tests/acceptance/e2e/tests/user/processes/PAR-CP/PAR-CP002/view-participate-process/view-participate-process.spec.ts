@@ -40,7 +40,7 @@ test.describe('[PAR-CP002] – View and participate in a specific process', () =
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 
 				// Verify that we are on the processes page
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();

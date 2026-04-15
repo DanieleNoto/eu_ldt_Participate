@@ -112,7 +112,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		// Navigate to the process edit page directly and store URL
 		const processEditUrl = `/admin/participatory_processes/${processSlug}/edit`;
 		await this.page.goto(processEditUrl);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		console.log('Process edit URL stored:', processEditUrl);
 
@@ -163,7 +163,7 @@ export class SurveysManagePage extends BaseAdminPage {
 
 		// Navigate back to edit page using stored URL
 		await this.page.goto(processEditUrl);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Verify we're on the edit page with process information using Page Object
 		await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -356,7 +356,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		if (await skipElement.isVisible().catch(() => false)) {
 			await skipElement.click();
 
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 
 			await this.page.waitForLoadState('domcontentloaded');
 
@@ -368,7 +368,7 @@ export class SurveysManagePage extends BaseAdminPage {
 			if (skipStillVisible) {
 				console.log('Skip button still visible, retrying click...');
 				await skipElement.click();
-				await this.page.waitForLoadState('networkidle');
+				await this.page.waitForLoadState('load');
 				await this.page.waitForTimeout(500);
 			}
 
@@ -401,26 +401,26 @@ export class SurveysManagePage extends BaseAdminPage {
 	/**
 	 * Fills name and description and saves
 	 */
-	async fillSurveyDetailsAndSave(surveyName: string, description: string = 'Survey description'): Promise<void> {
+	async fillSurveyDetailsAndSave(
+		surveyName: string,
+		description: string = 'Survey description',
+		privacyPolicy: string = 'Privacy policy'
+	): Promise<void> {
 		// Fill title using aria-label selector (language-independent)
 		const titleInput = this.page.locator('input[aria-label="title"]').first();
 		await titleInput.waitFor({ state: 'visible' });
 		await titleInput.click();
 		await titleInput.fill(surveyName);
 
-		// Fill description: first tiptap editor in the active description tab panel
-		const descriptionEditor = this.page
-			.locator('[id^="survey-desc-tabs"] .tabs-panel.is-active .editor-input .tiptap')
-			.first()
-			.or(this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first());
+		// Fill description
+		const descriptionEditor = this.page.locator('[id^="survey_description_"] .editor-input .tiptap').first();
+		await descriptionEditor.waitFor({ state: 'visible' });
 		await pasteTiptapContent(descriptionEditor, description);
 
-		// Fill Privacy Policy (TOS): tiptap editor in the active TOS tab panel
-		const tosEditor = this.page
-			.locator('[data-tabs-content="survey-tos-tabs"] .tabs-panel.is-active .editor-input .tiptap')
-			.first();
+		// Fill Privacy Policy (TOS)
+		const tosEditor = this.page.locator('[id^="survey_tos_"] .editor-input .tiptap').first();
 		await tosEditor.waitFor({ state: 'visible' });
-		await pasteTiptapContent(tosEditor, 'Privacy policy');
+		await pasteTiptapContent(tosEditor, privacyPolicy);
 
 		// Save survey using the specific form submit button
 		const saveButton = this.page
@@ -428,7 +428,7 @@ export class SurveysManagePage extends BaseAdminPage {
 			.or(this.page.getByRole('button', { name: 'Save' }));
 		await saveButton.click();
 		// Wait for stabilisation: either a URL change or the success flash message
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		await expect(this.page.getByText('Survey successfully').first()).toBeVisible();
 		console.log(`Survey "${surveyName}" created and saved successfully`);
 	}
@@ -461,7 +461,7 @@ export class SurveysManagePage extends BaseAdminPage {
 			await this.page.waitForLoadState('domcontentloaded');
 			const settingsTab = this.page.locator('nav.main-nav a[href*="/settings/edit"]');
 			await settingsTab.click();
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 
 			// Enable "Allow responses" checkbox
 			const allowResponsesCheckbox = this.page.locator('#survey_settings_allow_responses');
@@ -740,7 +740,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		await this.page.waitForURL(
 			/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/questions\/edit_questions/
 		);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -826,7 +826,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		await surveyComponentLink.click();
 
 		// Wait for component page to load
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		console.log('Navigated to survey component page via direct link');
 		console.log('Component page URL:', this.page.url());
 
@@ -841,7 +841,7 @@ export class SurveysManagePage extends BaseAdminPage {
 	 */
 	async verifySurveyFormDisplayed(): Promise<void> {
 		// Wait for survey questions page to load
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		console.log('Navigated to survey questions page');
 		console.log('Survey questions page URL:', this.page.url());
 
@@ -912,7 +912,7 @@ export class SurveysManagePage extends BaseAdminPage {
 	 * Used in: reply-to-a-survey.spec.ts
 	 */
 	async verifySurveySubmissionSuccess(): Promise<void> {
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		// Verify successful submission message is displayed
 		await expect(this.page.getByText('Survey successfully responded')).toBeVisible();
 

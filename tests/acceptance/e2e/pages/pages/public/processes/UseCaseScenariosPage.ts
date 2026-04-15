@@ -82,7 +82,7 @@ export class UseCaseScenariosPage extends BasePage {
 		}
 
 		await firstScenario.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**

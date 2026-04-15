@@ -53,15 +53,15 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 
 		// Navigate to meetings section
 		await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 		await componentsPage.sidebarProcessDetail.navigateToComponents();
 		const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
 		await meetingsLink.click();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Create the meeting
 		await meetingsPage.clickNewMeeting();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Fill meeting details
 		await formMeetingPage.fillTitle(createdMeetingTitle);
@@ -90,7 +90,7 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 
 		// Submit the form - meeting is created as UNPUBLISHED by default
 		await formMeetingPage.createMeeting();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Verify meeting was created
 		await meetingsPage.verifyMeetingsPageVisible();
@@ -174,7 +174,7 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 		}) => {
 			await test.step('1. User: Navigates to the "Processes" section', async () => {
 				await processAdminPage.navigateToProcesses();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -189,7 +189,7 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Navigate directly to the specific process edit page
 				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {

@@ -68,4 +68,13 @@ export async function pasteTiptapContent(editorLocator: Locator, content: string
 			);
 		}, content);
 	}
+
+	// Attempt 3: keyboard.type() — works in all browsers but is slower.
+	// Used when both clipboard strategies leave the editor empty.
+	const isStillEmpty = await editorLocator.evaluate((el: Element) => (el.textContent ?? '').trim() === '');
+	if (isStillEmpty) {
+		await editorLocator.click();
+		await editorLocator.page().keyboard.press('Control+a');
+		await editorLocator.page().keyboard.type(content);
+	}
 }

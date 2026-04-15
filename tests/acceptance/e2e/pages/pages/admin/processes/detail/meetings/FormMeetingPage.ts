@@ -336,7 +336,7 @@ export class FormMeetingPage extends BaseAdminPage {
 	// Form submission and validation
 	async updateMeeting() {
 		await this.updateButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async submitForm() {
@@ -344,14 +344,14 @@ export class FormMeetingPage extends BaseAdminPage {
 		await this.updateButton.click();
 		await this.page.waitForLoadState('load');
 		if (this.page.url() !== urlBefore) {
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 		}
 	}
 
 	// For creating a new meeting
 	async createMeeting() {
 		await this.createButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Comprehensive form filling method for test scenarios

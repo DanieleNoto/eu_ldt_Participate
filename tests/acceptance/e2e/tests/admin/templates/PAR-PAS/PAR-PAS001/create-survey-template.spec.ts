@@ -255,7 +255,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 
 			await test.step('10. SYSTEM: Validates the form for completeness and correctness.', async () => {
 				// Wait for save operation to complete
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we're on the template edit page
 				expect(adminPage.url()).toMatch(/\/admin\/templates\/questionnaire_templates\/\d+\/edit/);
@@ -313,7 +313,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				await adminPage.getByRole('link', { name: 'Questions' }).click();
 
 				// Wait for questions to load
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify questions exist by checking for question content instead of heading numbers
 				await expect(adminPage.getByText('What is your name?')).toBeVisible();
@@ -381,7 +381,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 			await test.step('10.2. SYSTEM: Detects missing or invalid fields.', async () => {
 				// Try to save without filling required name field
 				await adminPage.getByRole('button', { name: 'Save' }).click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Check for validation error message or validation state
 				const hasValidationError =
@@ -405,7 +405,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				// If we're not on the new template page, navigate there
 				if (!currentUrl.includes('/new') && !currentUrl.includes('template')) {
 					await adminPage.goto('/admin/templates/questionnaire_templates/new');
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				}
 
 				// Wait for the form to be visible
@@ -424,7 +424,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 			await test.step('10.4. USER: Attempts to save the template again.', async () => {
 				// Try to save again with corrected data
 				await adminPage.getByRole('button', { name: 'Save' }).click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				console.log('Attempted to save template again');
 			});
 

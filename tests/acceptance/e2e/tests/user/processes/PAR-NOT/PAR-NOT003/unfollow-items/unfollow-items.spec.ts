@@ -63,7 +63,7 @@ test.describe('@reserved [PAR-NOT003] – Unfollow items', () => {
 
 			if (isFollowing) {
 				await unfollowButton.click();
-				await userPage.waitForLoadState('networkidle');
+				await userPage.waitForLoadState('load');
 				console.log('Cleanup: Unfollowed admin after test');
 			}
 		} catch (error) {

@@ -94,7 +94,7 @@ export class LDTMapVisualizationComponentPage extends BaseAdminPage {
 	 */
 	async saveAssociationConfiguration(): Promise<void> {
 		await this.page.getByRole('button', { name: 'Create' }).click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -167,7 +167,7 @@ export class LDTMapVisualizationComponentPage extends BaseAdminPage {
 		await okButton.evaluate((element: HTMLElement) => element.click());
 
 		// Wait for deletion to complete
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Verify success message
 		await this.verifyMapVisualizationDeletedSuccessfully();

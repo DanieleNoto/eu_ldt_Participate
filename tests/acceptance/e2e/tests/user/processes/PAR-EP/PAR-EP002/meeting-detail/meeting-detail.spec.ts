@@ -48,12 +48,12 @@ test.describe('[PAR-EP002] – View meeting details', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
 				await processesOverviewPage.applyDateFilterAndEnsureGridLoaded('all');
 				await processesOverviewPage.checkProcessVisibility('Update Test0');
 				await processesOverviewPage.navigateToProcess('Update Test0', 'test');
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 			});
 			await test.step('2. System: Displays the details of the selected process, including the title, description, phases.', async () => {
 				await processDetailPage.expectToBeOnProcessDetailPage();

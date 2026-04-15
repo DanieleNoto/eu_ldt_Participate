@@ -46,7 +46,7 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
 				await processesOverviewPage.navigateToProcessByIndex(0);
@@ -203,7 +203,7 @@ test.describe('[PAR-DAD006] – Mention users in messages', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
 				await processesOverviewPage.navigateToProcessByIndex(0);

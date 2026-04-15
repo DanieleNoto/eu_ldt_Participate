@@ -279,7 +279,7 @@ export class UserExtraFieldsPage extends AuthenticatedPage {
 	 * Verifies that a profile picture has been successfully uploaded
 	 */
 	async expectProfilePictureUploaded(): Promise<void> {
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Verify the modal is closed
 		await expect(this.saveButton).not.toBeVisible();

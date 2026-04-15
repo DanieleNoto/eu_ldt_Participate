@@ -63,7 +63,7 @@ test.describe('@reserved [PAR-DE002] – Export debate data', () => {
 				});
 
 				await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 
 					// Verify we're on the processes page, with fallback navigation
 					let isOnProcessesPage = await processAdminPage.isOnProcessesPage();
@@ -71,7 +71,7 @@ test.describe('@reserved [PAR-DE002] – Export debate data', () => {
 					if (!isOnProcessesPage) {
 						// Try direct navigation if component navigation failed
 						await adminPage.goto('/admin/participatory_processes');
-						await adminPage.waitForLoadState('networkidle');
+						await adminPage.waitForLoadState('load');
 						isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 					}
 
@@ -87,7 +87,7 @@ test.describe('@reserved [PAR-DE002] – Export debate data', () => {
 
 				await test.step('3. User: Selects the process that want to update', async () => {
 					await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				});
 
 				await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -139,14 +139,14 @@ test.describe('@reserved [PAR-DE002] – Export debate data', () => {
 					await componentsPage.exportComponentData(fileFormat, exportType);
 					console.log(`Selected Export ${exportType} as ${fileFormat} format`);
 
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				});
 
 				await test.step('8. System: Displays a confirmation message on the platform, indicating that the export process has been initiated and that the file will be sent via email', async () => {
 					await componentsPage.expectExportConfirmationMessage();
 					console.log('Export status message is visible');
 
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				});
 
 				await test.step("9. System: Sends an email to the administrator's registered email address with the export file as an attachment or a secure download link", async () => {

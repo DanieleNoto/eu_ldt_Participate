@@ -168,6 +168,6 @@ export class NewTaxonomyPage extends BaseAdminPage {
 		await confirmButton.click();
 
 		// Wait for the deletion to complete
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 }

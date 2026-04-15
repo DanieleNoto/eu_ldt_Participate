@@ -87,7 +87,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -110,7 +110,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we're on the edit page with process information using Page Object
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -574,7 +574,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 		test.beforeEach(async ({ adminPage }) => {
 			await test.step('Setup: Navigate to Templates section', async () => {
 				await templatesPage.navigateToPage();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				console.log('Navigated to Templates section for prerequisite setup');
 			});
 
@@ -982,14 +982,14 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			await test.step('Setup: Save template and return to process', async () => {
 				// Save template questions
 				await adminPage.getByRole('button', { name: 'Save' }).click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				console.log('Template questions saved successfully');
 
 				// Navigate back to the process edit page using the stored URL
 				console.log('Navigating back to process edit page:', processEditUrl);
 				await adminPage.goto(processEditUrl);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				console.log('Template setup completed - ready for template selection test');
 			});
 		});
@@ -1012,7 +1012,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			await test.step('1-9. User: Navigates through process setup and creates Survey component with template selection', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				// Verify we're on processes page and select our created process
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
@@ -1022,7 +1022,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
 
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Navigate to Components section and create Survey component
 				await updateProcessAdminPage.navigateToComponents();
@@ -1408,7 +1408,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 			await test.step('1-16. User: Navigates through complete poll creation process up to question creation', async () => {
 				// Navigate to processes section and select our created process
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -1417,7 +1417,7 @@ test.describe('[PAR-PAS003] – Create detailed surveys with configurable option
 				await surveysManagePage.searchAndSelectProcess(validProcessData.general.title);
 
 				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/edit/);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Navigate to Components section and create Survey component
 				await updateProcessAdminPage.navigateToComponents();

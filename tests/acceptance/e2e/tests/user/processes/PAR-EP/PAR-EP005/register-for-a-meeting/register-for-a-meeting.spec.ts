@@ -271,7 +271,7 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 					await user10Page.waitForLoadState('load');
 					const user10MeetingPage = new MeetingDetailPage(user10Page);
 					await user10Page.goto(`/processes/${processSlug}/f/6/meetings/${meetingId}`);
-					await user10Page.waitForLoadState('networkidle');
+					await user10Page.waitForLoadState('load');
 					if (!(await user10MeetingPage.isCancelRegistrationButtonVisible())) {
 						// Slot is free: register. If already full (another user registered), skip.
 						const registerVisible = await user10Page
@@ -333,7 +333,7 @@ test.describe('[PAR-EP005] – Register for a meeting @reserved', () => {
 							await user10Page.waitForLoadState('load');
 							const user10MeetingPage = new MeetingDetailPage(user10Page);
 							await user10Page.goto(`/processes/${processSlug}/f/6/meetings/${meetingId}`);
-							await user10Page.waitForLoadState('networkidle');
+							await user10Page.waitForLoadState('load');
 							if (await user10MeetingPage.isCancelRegistrationButtonVisible()) {
 								await user10MeetingPage.CancelRegistration();
 							}

@@ -55,7 +55,7 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 		await test.step('Setup: Send invitation to a citizen as prerequisite', async () => {
 			// Navigate to the process edit page
 			await adminPage.goto(processEditUrl);
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 
 			// Navigate to private participants section using existing component
 			await sidebarProcessDetailComponent.navigateToPrivateParticipants();

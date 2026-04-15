@@ -111,7 +111,7 @@ export class LDTUseCaseScenariosComponentPage extends BaseAdminPage {
 	 */
 	async saveAssociationConfiguration(): Promise<void> {
 		await this.page.getByRole('button', { name: 'Save' }).click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -184,7 +184,7 @@ export class LDTUseCaseScenariosComponentPage extends BaseAdminPage {
 		await okButton.evaluate((element: HTMLElement) => element.click());
 
 		// Wait for deletion to complete
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Verify success message
 		await this.verifyAssociationDeletedSuccessfully();
@@ -207,6 +207,8 @@ export class LDTUseCaseScenariosComponentPage extends BaseAdminPage {
 	 * Verifies that the validation error message is displayed.
 	 */
 	async verifyAssociationNameRequiredError(): Promise<void> {
-		await expect(this.page.getByText('There is an error in this field')).toBeVisible();
+		await expect(
+			this.page.locator('small.form-error.is-visible', { hasText: 'Association name is required' })
+		).toBeVisible();
 	}
 }

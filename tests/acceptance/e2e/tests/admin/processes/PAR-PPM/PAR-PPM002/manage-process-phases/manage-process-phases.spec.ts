@@ -52,7 +52,7 @@ test.describe('[PAR-PPM002] – Manage process phases', () => {
 				const index = await phasePage.findPhaseIndexByTitle(title);
 				if (index >= 0) {
 					await phasePage.clickDeleteButtonByIndex(index);
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				}
 			}
 		} catch (error: unknown) {
@@ -65,7 +65,7 @@ test.describe('[PAR-PPM002] – Manage process phases', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -79,7 +79,7 @@ test.describe('[PAR-PPM002] – Manage process phases', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -106,7 +106,7 @@ test.describe('[PAR-PPM002] – Manage process phases', () => {
 				await newPhasePage.clickCreatePhase();
 			});
 			await test.step('10. System: Validates the user selection and checks permissions.', async () => {
-				await phasePage.waitForLoadState('networkidle');
+				await phasePage.waitForLoadState('load');
 				await phasePage.expectToBeOnPhasesPage();
 			});
 			await test.step('11. System: Adds the selected user as an administrator of the process.', async () => {
@@ -126,7 +126,7 @@ test.describe('[PAR-PPM002] – Manage process phases', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -140,7 +140,7 @@ test.describe('[PAR-PPM002] – Manage process phases', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();

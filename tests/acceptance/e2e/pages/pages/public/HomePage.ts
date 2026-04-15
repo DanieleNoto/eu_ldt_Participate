@@ -3,6 +3,7 @@
  * Authors:
  * Gianfranco Cedro
  * Denis Vasilev Dimchev
+ * Simone Bianchelli
  */
 
 import { BasePage } from '@pages/base/BasePage';
@@ -429,11 +430,11 @@ export class HomePage extends BasePage {
 			// Wait for the link to be visible and click it
 			await termsOfServiceLink.waitFor({ state: 'visible' });
 			await termsOfServiceLink.click();
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 		} catch {
 			// If link not found, navigate directly to the URL
 			await this.page.goto('/pages/terms-of-service');
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 		}
 	}
 }

@@ -132,7 +132,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 
 	async clickJoinMeetingButton(): Promise<void> {
 		await this.joinLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async expectRegisterButtonVisible() {
@@ -141,7 +141,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 
 	async clickRegisterMeetingButton(): Promise<void> {
 		await this.registerButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Assert the registration confirmation dialog is visible.
@@ -153,14 +153,14 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	}
 
 	// Confirm registration by clicking the Confirm button inside the dialog.
-	// Waits for the submit to complete by awaiting networkidle.
+	// Waits for the submit to complete by awaiting load.
 	async confirmRegistration(): Promise<void> {
 		const dialog = this.page.locator('.meeting__registration-modal:visible').first();
 		const confirmButton = dialog.locator('form button[type="submit"]:has-text("Confirm")');
 		await expect(dialog).toBeVisible();
 		await expect(confirmButton).toBeVisible();
 		await expect(confirmButton).toBeEnabled();
-		await Promise.all([this.page.waitForLoadState('networkidle').catch(() => null), confirmButton.click()]);
+		await Promise.all([this.page.waitForLoadState('load').catch(() => null), confirmButton.click()]);
 	}
 
 	// Cancel registration by clicking the Cancel button inside the dialog.
@@ -235,7 +235,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		await Promise.all([
 			confirmBtn.click(),
 			cancelDialog.waitFor({ state: 'hidden' }).catch(() => null),
-			this.page.waitForLoadState('networkidle').catch(() => null)
+			this.page.waitForLoadState('load').catch(() => null)
 		]);
 		await expect(cancelDialog).not.toBeVisible();
 	}

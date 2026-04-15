@@ -93,7 +93,7 @@ export class ChatbotPage extends BasePage {
 	 */
 	async openHelpAssistant(): Promise<void> {
 		await this.openHelpAssistantButton.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -101,7 +101,7 @@ export class ChatbotPage extends BasePage {
 	 */
 	async clickTopicByName(topicName: string): Promise<void> {
 		await this.page.getByRole('button', { name: topicName }).click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -109,7 +109,7 @@ export class ChatbotPage extends BasePage {
 	 */
 	async clickSupportButton(): Promise<void> {
 		await this.SupportButton.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -124,7 +124,7 @@ export class ChatbotPage extends BasePage {
 	 */
 	async clickSendButton(): Promise<void> {
 		await this.sendButton.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**

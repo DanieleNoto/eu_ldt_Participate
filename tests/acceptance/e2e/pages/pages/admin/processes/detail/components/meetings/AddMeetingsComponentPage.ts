@@ -36,12 +36,12 @@ export class AddMeetingsComponentPage extends FormMeetingPage {
 
 	async submitForm() {
 		await this.saveButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async updateComponent() {
 		await this.updateComponentButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async expectNameVisible() {

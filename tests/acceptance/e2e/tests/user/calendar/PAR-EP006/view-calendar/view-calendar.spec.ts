@@ -37,7 +37,7 @@ test.describe('[PAR-EP006] – View calendar', () => {
 			await test.step('1. User: Navigates to the "Calendar" section on the platform.', async () => {
 				// Navigate to calendar section
 				await homePage.goToCalendarFromHomeMenu();
-				await calendarPage.getPage().waitForLoadState('networkidle');
+				await calendarPage.getPage().waitForLoadState('load');
 			});
 			await test.step('2. System: Displays an interactive calendar interface showing all events associated with processes.', async () => {
 				await calendarPage.expectCalendarVisible();

@@ -44,7 +44,7 @@ test.describe('[PAR-CS001] – Share content on social media', () => {
 			await test.step('1. User: Navigates to the content they want to share', async () => {
 				// Navigate to processes section to find content to share
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 
 				// Verify we are on the processes overview page
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();

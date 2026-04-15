@@ -52,15 +52,15 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 
 		// Navigate to meetings section
 		await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 		await componentsPage.sidebarProcessDetail.navigateToComponents();
 		const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
 		await meetingsLink.click();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Create the meeting to be edited
 		await meetingsPage.clickNewMeeting();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Fill meeting details
 		await formMeetingPage.fillTitle(createdMeetingTitle);
@@ -89,7 +89,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 
 		// Submit the form
 		await formMeetingPage.createMeeting();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Verify meeting was created
 		await meetingsPage.verifyMeetingsPageVisible();
@@ -168,7 +168,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 			let updatedRegistrationType: 'on_this_platform' | 'registration_disabled' | 'on_different_platform';
 			await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
 				await processAdminPage.navigateToProcesses();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -183,7 +183,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 			await test.step('3. Admin: selects the process that want to update', async () => {
 				// Navigate directly to the specific process edit page
 				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System: loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -209,7 +209,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 				// Find and click edit on our created meeting
 				const meetingIndex = await meetingsPage.findMeetingByTitle(createdMeetingTitle);
 				await meetingsPage.clickEdit(meetingIndex);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('8. System: Displays the meeting details, including options to modify various attributes.', async () => {
@@ -258,7 +258,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 			await test.step('10. Admin: Clicks on "Save Event" to update  the event.', async () => {
 				// Click the Update button to save changes
 				await formMeetingPage.submitForm();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('11. System: Validates the event details for completeness and correctness.', async () => {
@@ -299,7 +299,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 
 				// Click edit on the meeting we just updated
 				await meetingsPage.clickEdit(meetingIndex);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify the edit form loads
 				await formMeetingPage.verifyEditMeetingPageVisible();
@@ -334,7 +334,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 			test.slow();
 			// Navigate directly to the specific process
 			await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 			await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
 			await meetingsPage.verifyMeetingsPageVisible();
 
@@ -342,7 +342,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 			const meetingIndex = await meetingsPage.findMeetingByTitle(createdMeetingTitle);
 			expect(meetingIndex).toBeGreaterThanOrEqual(0);
 			await meetingsPage.clickEdit(meetingIndex);
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 
 			const meetingTypes = [
 				{
@@ -541,7 +541,7 @@ test.describe('[PAR-EA003] – Edit event details', () => {
 							// Find and edit our meeting using the current title
 							const reopenIndex = await meetingsPage.findMeetingByTitle(currentMeetingTitle);
 							await meetingsPage.clickEdit(reopenIndex);
-							await adminPage.waitForLoadState('networkidle');
+							await adminPage.waitForLoadState('load');
 							// Re-apply all required field values so the form is in the expected
 							// state for the remaining fields of this type's iteration.
 							for (const f of requiredFields) {

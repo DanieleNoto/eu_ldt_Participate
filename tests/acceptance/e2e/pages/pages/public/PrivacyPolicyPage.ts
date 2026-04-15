@@ -3,6 +3,7 @@
  * Authors:
  * Gianfranco Cedro
  * Denis Vasilev Dimchev
+ * Simone Bianchelli
  */
 
 import { BasePage } from '@pages/base/BasePage';
@@ -30,7 +31,7 @@ export class PrivacyPolicyPage extends BasePage {
 	 */
 	async navigateToPrivacyPolicy(): Promise<void> {
 		await this.page.goto('/pages/terms-of-service');
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**

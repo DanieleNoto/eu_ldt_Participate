@@ -38,7 +38,7 @@ export class AcceptInvitationPage extends BasePage {
 	 */
 	async navigateToAcceptInvitation(token: string): Promise<void> {
 		await this.page.goto(`/users/invitation/accept?invitation_token=${token}`);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**

@@ -24,7 +24,7 @@ export class RegistrationsPage extends BasePage {
 	async navigateToRegistrations(processSlug: string, componentId: number, meetingId: number): Promise<void> {
 		const url = `/admin/participatory_processes/${processSlug}/components/${componentId}/manage/meetings/${meetingId}/registrations/edit`;
 		await this.page.goto(url);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -44,7 +44,7 @@ export class RegistrationsPage extends BasePage {
 	async clickSave(): Promise<void> {
 		const saveButton = this.page.locator('button[type="submit"]:has-text("Save")');
 		await saveButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**

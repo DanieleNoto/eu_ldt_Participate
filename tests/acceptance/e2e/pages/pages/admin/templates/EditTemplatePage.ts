@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denis Vasilev Dimchev
+ * Simone Bianchelli
  */
 
 import { Page } from '@playwright/test';
@@ -92,7 +93,10 @@ export class EditTemplatePage {
 	}
 
 	async manageQuestions(): Promise<void> {
-		await this.form.clickManageQuestions();
+		await Promise.all([
+			this.page.waitForURL(/\/admin\/templates\/questionnaire_templates\/\d+\/edit_questions/),
+			this.form.clickManageQuestions()
+		]);
 	}
 
 	// Check questionnaire status

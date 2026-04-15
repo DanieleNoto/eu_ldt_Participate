@@ -107,7 +107,7 @@ export class ComponentsPage extends BaseAdminPage {
 	}
 
 	// Convenience method for waiting for load state
-	async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle' = 'networkidle') {
+	async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle' = 'load') {
 		await this.page.waitForLoadState(state);
 	}
 
@@ -136,19 +136,19 @@ export class ComponentsPage extends BaseAdminPage {
 	async addAccountabilityComponent() {
 		await this.openAddComponentDropdown();
 		await this.accountabilityLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addBlogComponent() {
 		await this.openAddComponentDropdown();
 		await this.blogLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addBudgetsComponent() {
 		await this.openAddComponentDropdown();
 		await this.budgetsLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addDebatesComponent() {
@@ -162,31 +162,31 @@ export class ComponentsPage extends BaseAdminPage {
 	async addMeetingsComponent() {
 		await this.openAddComponentDropdown();
 		await this.meetingsLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addPagesComponent() {
 		await this.openAddComponentDropdown();
 		await this.pagesLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addProposalsComponent() {
 		await this.openAddComponentDropdown();
 		await this.proposalsLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addSortitionsComponent() {
 		await this.openAddComponentDropdown();
 		await this.sortitionsLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addSurveysComponent() {
 		await this.openAddComponentDropdown();
 		await this.surveysLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addLDTUseCaseScenariosComponent() {
@@ -263,7 +263,7 @@ export class ComponentsPage extends BaseAdminPage {
 		const row = this.getComponentRow(componentName);
 		await this.openRowActionsDropdown(row);
 		await row.locator('a[href*="/manage/"]').first().click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async checkPageComponent(componentName: string) {
@@ -271,7 +271,7 @@ export class ComponentsPage extends BaseAdminPage {
 		await this.newPageComponentPage.waitForNewPageComponentPageLoad();
 		await this.newPageComponentPage.fillComponentName(componentName);
 		await this.newPageComponentPage.submitForm();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		await this.expectComponentExists(componentName);
 		await this.manageComponent(componentName);
 		await this.managePageComponentPage.fillBody('This is a test page body');
@@ -282,21 +282,21 @@ export class ComponentsPage extends BaseAdminPage {
 		const row = this.getComponentRow(componentName);
 		await this.openRowActionsDropdown(row);
 		await row.locator('a[href*="/share_tokens"]').click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async configureComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
 		await this.openRowActionsDropdown(row);
 		await row.locator('a[href$="/edit"]').first().click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async configureFirstComponent() {
 		const row = this.getComponentRowByIndex(0);
 		await this.openRowActionsDropdown(row);
 		await row.locator('a[href$="/edit"]').first().click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -305,7 +305,7 @@ export class ComponentsPage extends BaseAdminPage {
 	async hideComponentByName(componentName: string): Promise<void> {
 		const row = this.getComponentRow(componentName);
 		await this.openRowActionsDropdown(row);
-		const hideLink = row.locator('a[href$="/hide"]');
+		const hideLink = row.locator('a[href*="/hide"]');
 		if ((await hideLink.count()) > 0) {
 			await hideLink.click();
 			await this.page.waitForLoadState('load');
@@ -314,8 +314,13 @@ export class ComponentsPage extends BaseAdminPage {
 
 	/**
 	 * Click on the "Unpublish" action link to unpublish a component.
+	 * Always hides first (idempotent), then unpublishes.
 	 */
 	async unpublishComponentByName(componentName: string): Promise<void> {
+		// Hide first if needed (hideComponentByName already checks if hide link exists)
+		await this.hideComponentByName(componentName);
+
+		// Open dropdown and click unpublish
 		const row = this.getComponentRow(componentName);
 		await this.openRowActionsDropdown(row);
 		const unpublishLink = row.locator('a[href$="/unpublish"]');
@@ -328,21 +333,21 @@ export class ComponentsPage extends BaseAdminPage {
 		const row = this.getComponentRow(componentName);
 		await this.openRowActionsDropdown(row);
 		await row.locator('a[href$="/publish"]').click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async previewComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
 		await this.openRowActionsDropdown(row);
 		await row.locator('a[href*="/processes/"]').click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async deleteComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
 		await this.openRowActionsDropdown(row);
 		await row.locator('a[href$="/soft_delete"]').click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Component state checks
@@ -495,9 +500,11 @@ export class ComponentsPage extends BaseAdminPage {
 		const okButton = this.page.locator('button[data-confirm-ok]');
 		await okButton.click();
 
-		// wait for success message or for the row to be removed
-		const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
-		await expect(deletionSuccessMessage).toBeVisible();
+		// Wait for the page to reload after deletion
+		await this.page.waitForLoadState('load');
+
+		// Verify the row is no longer visible
+		await expect(rowLocator.first()).not.toBeVisible();
 	}
 
 	/**

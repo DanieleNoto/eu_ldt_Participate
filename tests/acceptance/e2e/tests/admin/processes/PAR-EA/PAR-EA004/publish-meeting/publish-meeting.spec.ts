@@ -51,15 +51,15 @@ test.describe('[PAR-EA004] – Publish a meeting', () => {
 
 		// Navigate to meetings section
 		await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 		await componentsPage.sidebarProcessDetail.navigateToComponents();
 		const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
 		await meetingsLink.click();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Create the meeting to be published
 		await meetingsPage.clickNewMeeting();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Fill meeting details
 		await formMeetingPage.fillTitle(createdMeetingTitle);
@@ -88,7 +88,7 @@ test.describe('[PAR-EA004] – Publish a meeting', () => {
 
 		// Submit the form - meeting is created as UNPUBLISHED by default
 		await formMeetingPage.createMeeting();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Verify meeting was created
 		await meetingsPage.verifyMeetingsPageVisible();
@@ -155,7 +155,7 @@ test.describe('[PAR-EA004] – Publish a meeting', () => {
 		test('should allow admin to publish a meeting', async ({ adminPage }) => {
 			await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
 				await processAdminPage.navigateToProcesses();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -170,7 +170,7 @@ test.describe('[PAR-EA004] – Publish a meeting', () => {
 			await test.step('3. Admin: selects the process that want to update', async () => {
 				// Navigate directly to the specific process edit page
 				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System: loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -199,7 +199,7 @@ test.describe('[PAR-EA004] – Publish a meeting', () => {
 
 				// Click publish on our specific meeting
 				await meetingsPage.clickPublish(meetingIndex);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('8. System: Updates the meeting status to "Published" and makes it available for participants to view and register.', async () => {

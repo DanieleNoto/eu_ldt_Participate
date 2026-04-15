@@ -130,7 +130,7 @@ test.describe('@reserved [PAR-UPM001] – Send private messages', () => {
 				await conversationDetailPage.sendButton.click();
 
 				// Wait for the message to be sent and page to update
-				await conversationDetailPage.waitForLoadState('networkidle');
+				await conversationDetailPage.waitForLoadState('load');
 			});
 
 			await test.step('7. System: Sends the message to the recipient and adds it to the conversation history between the two users.', async () => {

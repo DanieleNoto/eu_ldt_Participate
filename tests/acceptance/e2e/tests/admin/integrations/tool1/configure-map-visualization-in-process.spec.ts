@@ -58,7 +58,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 	});
 
 	test.afterEach(async ({ adminPage }) => {
-		if (selectedMapId && componentId) {
+		if (selectedMapId && componentId && componentName) {
 			try {
 				console.log('Starting cleanup: Deleting association...');
 
@@ -73,14 +73,11 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				// Navigate to components page
 				await componentsPage.navigateToComponents(processSlug);
 
-				// Hide the component
-				await componentsPage.hideComponentByName(componentName);
-
-				// Unpublish component
-				await componentsPage.unpublishComponentByName(componentName);
+				// Unpublish component (handles Hide → Unpublish flow internally)
+				await componentsPage.unpublishComponentByName(componentName!);
 
 				// Delete component
-				await componentsPage.deleteComponentIfExists(componentName);
+				await componentsPage.deleteComponentIfExists(componentName!);
 			} catch (error) {
 				if (error instanceof Error) {
 					console.error('Cleanup failed:', error.message);
@@ -107,7 +104,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -131,7 +128,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
 				const page = updateProcessAdminPage['page'];
 				await page.waitForURL(new RegExp(`/admin/participatory_processes/${processSlug}/edit`));
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				// Verify we're on the edit page with process information
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -150,14 +147,14 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				console.log('Selected LDT Map Visualization component type');
 
 				// Fill the component form
-				await ldtMapVisualizationPage.fillComponentForm(componentName, componentTitle);
+				await ldtMapVisualizationPage.fillComponentForm(componentName!, componentTitle);
 				console.log('Component form filled');
 
 				// Save the component
 				await ldtMapVisualizationPage.saveComponent();
 				console.log('Component saved successfully');
 
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 				// Verify redirect to components page
 				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
 				console.log('Redirected to components page');
@@ -166,21 +163,21 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				await componentsPage.verifyComponentCreatedSuccessfully();
 
 				// Verify component exists in the table
-				await componentsPage.expectComponentExists(componentName);
+				await componentsPage.expectComponentExists(componentName!);
 				console.log(`Component "${componentName}" found in table`);
 
 				// Publish the component
-				await componentsPage.publishComponent(componentName);
+				await componentsPage.publishComponent(componentName!);
 				console.log(`Published component: ${componentName}`);
 
 				// Verify it was published successfully
-				const isPublished = await componentsPage.isComponentPublished(componentName);
+				const isPublished = await componentsPage.isComponentPublished(componentName!);
 				expect(isPublished).toBeTruthy();
 				console.log(`Component "${componentName}" is now published`);
 
 				// Click on component name to navigate to detail page
-				await componentsPage.clickComponentLink(componentName);
-				await page.waitForLoadState('networkidle');
+				await componentsPage.clickComponentLink(componentName!);
+				await page.waitForLoadState('load');
 
 				// Verify navigation to component manage page
 				await page.waitForURL(
@@ -198,7 +195,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				// Click on "Add New Map" button
 				await ldtMapVisualizationPage.clickAddNewMap();
 
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 				console.log('Clicked on "Add New Map"');
 			});
 
@@ -237,7 +234,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				console.log('Success message displayed');
 
 				// Verify the map visualization exists in the table
-				await ldtMapVisualizationPage.verifyMapVisualizationExists(associationName, selectedMapId);
+				await ldtMapVisualizationPage.verifyMapVisualizationExists(associationName!, selectedMapId);
 				console.log(`Verified map visualization exists - Name: "${associationName}", Map ID: ${selectedMapId}`);
 			});
 
@@ -250,7 +247,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				await processDetailPage.navigateToProcess(processSlug);
 				console.log(`Navigated to process public page: /processes/${processSlug}`);
 
-				await processDetailPage.navigateToComponent(componentName);
+				await processDetailPage.navigateToComponent(componentName!);
 				console.log(`Navigated to component "${componentName}"`);
 
 				await mapVisualizationPage.verifyMapIdVisible(selectedMapId);
@@ -276,7 +273,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -300,7 +297,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
 				const page = updateProcessAdminPage['page'];
 				await page.waitForURL(new RegExp(`/admin/participatory_processes/${processSlug}/edit`));
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				// Verify we're on the edit page with process information
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -319,14 +316,14 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				console.log('Selected LDT Map Visualization component type');
 
 				// Fill the component form
-				await ldtMapVisualizationPage.fillComponentForm(componentName, componentTitle);
+				await ldtMapVisualizationPage.fillComponentForm(componentName!, componentTitle);
 				console.log('Component form filled');
 
 				// Save the component
 				await ldtMapVisualizationPage.saveComponent();
 				console.log('Component saved successfully');
 
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 				// Verify redirect to components page
 				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
 				console.log('Redirected to components page');
@@ -335,21 +332,21 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				await componentsPage.verifyComponentCreatedSuccessfully();
 
 				// Verify component exists in the table
-				await componentsPage.expectComponentExists(componentName);
+				await componentsPage.expectComponentExists(componentName!);
 				console.log(`Component "${componentName}" found in table`);
 
 				// Publish the component
-				await componentsPage.publishComponent(componentName);
+				await componentsPage.publishComponent(componentName!);
 				console.log(`Published component: ${componentName}`);
 
 				// Verify it was published successfully
-				const isPublished = await componentsPage.isComponentPublished(componentName);
+				const isPublished = await componentsPage.isComponentPublished(componentName!);
 				expect(isPublished).toBeTruthy();
 				console.log(`Component "${componentName}" is now published`);
 
 				// Click on component name to navigate to detail page
-				await componentsPage.clickComponentLink(componentName);
-				await page.waitForLoadState('networkidle');
+				await componentsPage.clickComponentLink(componentName!);
+				await page.waitForLoadState('load');
 
 				// Verify navigation to component manage page
 				await page.waitForURL(
@@ -367,7 +364,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				// Click on "Add New Map" button
 				await ldtMapVisualizationPage.clickAddNewMap();
 
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 				console.log('Clicked on "Add New Map"');
 			});
 
@@ -425,7 +422,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				console.log('Success message displayed');
 
 				// Verify the map visualization exists in the table
-				await ldtMapVisualizationPage.verifyMapVisualizationExists(associationName, selectedMapId);
+				await ldtMapVisualizationPage.verifyMapVisualizationExists(associationName!, selectedMapId);
 				console.log(`Verified map visualization exists - Name: "${associationName}", Map ID: ${selectedMapId}`);
 			});
 
@@ -438,7 +435,7 @@ test.describe('@useKeycloak Configure Map Visualization in process', () => {
 				await processDetailPage.navigateToProcess(processSlug);
 				console.log(`Navigated to process public page: /processes/${processSlug}`);
 
-				await processDetailPage.navigateToComponent(componentName);
+				await processDetailPage.navigateToComponent(componentName!);
 				console.log(`Navigated to component "${componentName}"`);
 
 				await mapVisualizationPage.verifyMapIdVisible(selectedMapId);

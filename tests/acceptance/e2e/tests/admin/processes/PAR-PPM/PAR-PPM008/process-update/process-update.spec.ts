@@ -68,7 +68,7 @@ function generateInvalidGeneralData(
 
 	for (const key of Object.keys(base) as (keyof ProcessGeneralInfo)[]) {
 		if (!keepFields.includes(key)) {
-			invalid[key] = '' as any;
+			(invalid as unknown as Record<string, unknown>)[key] = '';
 		}
 	}
 
@@ -141,7 +141,7 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 		try {
 			// Navigate to processes list page where delete action is available
 			await adminPage.goto('/admin/participatory_processes');
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 
 			// Search for the process by updated title (more reliable than slug)
 			const updatedTitle = updateData.general.title;
@@ -164,22 +164,22 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 					await confirmModal.waitFor({ state: 'visible' });
 					await confirmModal.locator('button[data-confirm-ok]').click();
 
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				} else {
 					// If Soft delete is absent, the process is published — navigate to edit via dropdown "Edit"
 					await adminPage.locator('a.dropdown__button[href*="/edit"]').click();
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 
 					// Try to unpublish
 					const unpublishButton = adminPage.getByRole('button', { name: /unpublish/i });
 					if (await unpublishButton.isVisible()) {
 						await unpublishButton.click();
-						await adminPage.waitForLoadState('networkidle');
+						await adminPage.waitForLoadState('load');
 					}
 
 					// Go back to list and delete
 					await adminPage.goto('/admin/participatory_processes');
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 					await processAdminPage.searchProcesses(updatedTitle);
 
 					const rowAfterUnpublish = adminPage.locator('table.table-list tbody tr').first();
@@ -191,7 +191,7 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 					await modal.waitFor({ state: 'visible' });
 					await modal.locator('button[data-confirm-ok]').click();
 
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				}
 			}
 		} catch (error) {
@@ -208,7 +208,7 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 			});
 
 			await test.step('2. System: Displays a list of all Processes that the City Administrator has created or has permissions to update.', async () => {
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we're on the processes page, with fallback navigation
 				let isOnProcessesPage = await processAdminPage.isOnProcessesPage();
@@ -216,7 +216,7 @@ test.describe('@reserved [PAR-PPM008] – Update process', () => {
 				if (!isOnProcessesPage) {
 					// Try direct navigation if component navigation failed
 					await adminPage.goto('/admin/participatory_processes');
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 					isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				}
 

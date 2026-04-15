@@ -400,7 +400,7 @@ export class DebateDetailPage {
 	 */
 	async submitComment(): Promise<void> {
 		await this.commentSubmitButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -824,7 +824,7 @@ export class DebateDetailPage {
 		} catch {
 			// Loading indicator might not appear for fast loads
 		}
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -925,7 +925,7 @@ export class DebateDetailPage {
 	async upvoteCommentByIndex(index: number): Promise<void> {
 		const upvoteButton = this.commentUpvoteButtons.nth(index);
 		await upvoteButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -939,7 +939,7 @@ export class DebateDetailPage {
 		// Find the upvote button within the specific comment
 		const upvoteButton = this.page.locator(`${commentSelector} .js-comment__votes--up`);
 		await upvoteButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -949,7 +949,7 @@ export class DebateDetailPage {
 	async downvoteCommentByIndex(index: number): Promise<void> {
 		const downvoteButton = this.commentDownvoteButtons.nth(index);
 		await downvoteButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -978,7 +978,7 @@ export class DebateDetailPage {
 		// Submit the reply
 		const submitButton = replyForm.locator('button[type="submit"]');
 		await submitButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -1338,7 +1338,7 @@ export class DebateDetailPage {
 			await confirmOkButton.click();
 
 			// Wait for action to complete
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 
 			console.log(`Successfully deleted comment ${commentId}`);
 		} catch (error) {

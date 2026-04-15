@@ -57,15 +57,15 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 
 		// Navigate to meetings section
 		await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 		await componentsPage.sidebarProcessDetail.navigateToComponents();
 		const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
 		await meetingsLink.click();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Create the meeting
 		await meetingsPage.clickNewMeeting();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Fill meeting details
 		await formMeetingPage.fillTitle(createdMeetingTitle);
@@ -94,7 +94,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 
 		// Submit the form - meeting is created as UNPUBLISHED by default
 		await formMeetingPage.createMeeting();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Verify meeting was created
 		await meetingsPage.verifyMeetingsPageVisible();
@@ -104,7 +104,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 		await expect(meetingRow).toBeVisible();
 		await meetingRow.locator('button[data-controller="dropdown"]').click();
 		await meetingRow.locator('a.dropdown__button[href*="/publish"]').click();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Verify meeting is now published (Unpublish link is present in the dropdown)
 		const meetingRowAfter = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
@@ -178,7 +178,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 		}) => {
 			await test.step('1. User: Navigates to the "Processes" section', async () => {
 				await processAdminPage.navigateToProcesses();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -193,7 +193,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Navigate directly to the specific process edit page
 				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -221,7 +221,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				await expect(meetingRow).toBeVisible();
 				await meetingRow.locator('button[data-controller="dropdown"]').click();
 				await meetingRow.locator('a.dropdown__button[href*="/agenda"]').click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('8. System: Displays the "Agenda" section in the admin panel for the specific meeting', async () => {
@@ -257,7 +257,6 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				}
 
 				// Wait for page to stabilize after all removals
-				await adminPage.waitForLoadState('networkidle');
 				await adminPage.waitForTimeout(500);
 
 				// Add first agenda item
@@ -305,7 +304,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 
 			await test.step('12. System: Saves the agenda and updates the meeting details', async () => {
 				// Wait for navigation after successful submission
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we're no longer on the agenda creation/edit form
 				const isStillOnNewAgenda = await meetingAgendaPage.isOnNewAgendaPage();
@@ -340,7 +339,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 			await test.step('Start at point 1-10', async () => {
 				// Navigate to meetings section
 				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
 				await meetingsPage.verifyMeetingsPageVisible();
 
@@ -349,7 +348,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				await expect(meetingRow).toBeVisible();
 				await meetingRow.locator('button[data-controller="dropdown"]').click();
 				await meetingRow.locator('a.dropdown__button[href*="/agenda"]').click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				await meetingAgendaPage.waitForAgendaPageLoad();
 
 				// Fill some data that we will later cancel
@@ -370,7 +369,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 
 			await test.step('User: Confirms cancellation', async () => {
 				// Wait for the navigation to complete
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('System: Exits without saving changes', async () => {
@@ -393,7 +392,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 			await test.step('Start at point 11', async () => {
 				// Navigate to meetings section
 				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
 				await meetingsPage.verifyMeetingsPageVisible();
 
@@ -402,7 +401,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 				await expect(meetingRow).toBeVisible();
 				await meetingRow.locator('button[data-controller="dropdown"]').click();
 				await meetingRow.locator('a.dropdown__button[href*="/agenda"]').click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				await meetingAgendaPage.waitForAgendaPageLoad();
 			});
 
@@ -423,7 +422,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 
 				// Try to submit form with missing/invalid required fields
 				await meetingAgendaPage.createAgenda();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('11.2. System: Detects missing or invalid fields', async () => {
@@ -487,7 +486,7 @@ test.describe('[PAR-EA006] – Manage meeting agenda', () => {
 
 			await test.step('11.5. System: Revalidates the corrected fields', async () => {
 				// Wait for the form submission to complete
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('Result: The system highlights invalid or incomplete fields with appropriate error messages. Upon correction, the component can be saved successfully', async () => {

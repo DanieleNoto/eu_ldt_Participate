@@ -40,7 +40,7 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 			});
 			await test.step('2. System: Displays a list of all processes, categorized as ongoing, upcoming, or completed. The list includes basic information, such as title, short description, and status.', async () => {
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
@@ -50,7 +50,7 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 				for (const filter of dateFilters) {
 					await test.step(`Applying and verifying filter: ${filter}`, async () => {
 						await processesOverviewPage.filterByStatus(filter);
-						await processesOverviewPage.getPage().waitForLoadState('networkidle');
+						await processesOverviewPage.getPage().waitForLoadState('load');
 						const processes = await processesOverviewPage.getAllProcesses();
 						if (processes.length === 0) {
 							console.log(`No processes found for filter: ${filter}`);
@@ -94,7 +94,7 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 			});
 			await test.step('2. System: Displays a list of all processes, categorized as ongoing, upcoming, or completed. The list includes basic information, such as title, short description, and status.', async () => {
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
@@ -111,7 +111,7 @@ test.describe('[PAR-CP001] – Visualize all processes in the system', () => {
 				await processesOverviewPage.filterByStatus('active');
 
 				// Wait for the results to update
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 			});
 			await test.step('3.2 System: Displays an updated list of processes based on the filters.', async () => {
 				// Verify that the filter was applied

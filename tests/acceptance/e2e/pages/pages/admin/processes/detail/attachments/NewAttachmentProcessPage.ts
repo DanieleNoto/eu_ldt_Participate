@@ -95,7 +95,7 @@ export class NewAttachmentProcessPage extends BaseAdminPage {
 		await this.submitButton.click();
 		await this.page.waitForLoadState('load');
 		if (this.page.url() === urlBefore) {
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 		}
 	}
 

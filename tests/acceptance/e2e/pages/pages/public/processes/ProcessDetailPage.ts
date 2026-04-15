@@ -118,7 +118,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	async navigateToDebatesPage(): Promise<void> {
 		// Find and click the debates page link
 		await this.debatesLink.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -128,7 +128,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	async navigateToMeetingsPage(): Promise<void> {
 		// Find and click the meetings page link
 		await this.meetingsLink.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
