@@ -120,11 +120,14 @@ export class ChatbotPage extends BasePage {
 	}
 
 	/**
-	 * Clicks the "Send" button
+	 * Clicks the "Send" button.
+	 * Does not wait for load state: the chatbot sends the message via an API call (no page
+	 * navigation), so any waitForLoadState is unreliable on Firefox in CI.
+	 * Callers that need to assert the result should use isConfirmationMessageVisible(), which
+	 * already waits for the confirmation element to appear in the DOM.
 	 */
 	async clickSendButton(): Promise<void> {
 		await this.sendButton.click();
-		await this.waitForLoadState('load');
 	}
 
 	/**

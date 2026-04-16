@@ -294,6 +294,11 @@ jobs:
     - job: PerformanceTests
       timeoutInMinutes: 120
       displayName: Service Load Test
+      dependsOn:
+          - PlaywrightParallelTests
+          - PlaywrightReservedTests
+          - PlaywrightKeycloakTests
+      condition: succeededOrFailed()
       steps:
           - task: replacetokens@5
             displayName: 'Replace tokens Locust config'
