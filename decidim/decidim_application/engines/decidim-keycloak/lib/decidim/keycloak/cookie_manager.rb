@@ -73,7 +73,34 @@ module Decidim
         rescue StandardError => e
         end
 
+        # Clear any fragmented cookie remnants from previous saves
+        clear_fragmented_cookies(cookies_obj, request_host)
+
         clear_session_data(session_obj)
+      end
+
+      # Clear fragmented cookie remnants (Rails auto-fragments large cookies into _0, _1, etc.)
+      # @param cookies_obj [ActionDispatch::Cookies::CookieJar] The cookies object
+      # @param request_host [String] The request host
+      def self.clear_fragmented_cookies(cookies_obj, request_host)
+        token_names = %w(access_token refresh_token id_token)
+        domains = calculate_all_cookie_domains(request_host)
+
+        token_names.each do |token_name|
+          # Clear fragment count marker
+          cookies_obj.delete("#{token_name}.count", path: "/")
+
+          # Clear up to 10 fragments (arbitrary but safe limit)
+          10.times do |i|
+            fragment_key = "#{token_name}_#{i}"
+            domains.each do |domain|
+              cookies_obj.delete(fragment_key, domain: domain, path: "/")
+            rescue StandardError => e
+            end
+            cookies_obj.delete(fragment_key, path: "/")
+          rescue StandardError => e
+          end
+        end
       end
 
       def self.clear_session_data(session_obj)

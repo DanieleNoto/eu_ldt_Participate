@@ -187,7 +187,28 @@ module Decidim
       def reconstruct_token_from_cookies(cookies_hash, token_key)
         return nil unless cookies_hash
 
-        cookies_hash[token_key]
+        # First, try direct access (normal single cookie)
+        token = cookies_hash[token_key]
+        return token if token.present?
+
+        # Handle Rails cookie fragmentation for large tokens
+        # Rails splits cookies > 4KB into fragments: token_0, token_1, ... + token.count
+        fragment_count_key = "#{token_key}.count"
+        fragment_count = cookies_hash[fragment_count_key].to_i
+
+        if fragment_count > 0
+          # Reassemble fragments in order
+          fragments = []
+          fragment_count.times do |i|
+            fragment_key = "#{token_key}_#{i}"
+            fragment = cookies_hash[fragment_key]
+            fragments << fragment if fragment.present?
+          end
+
+          return fragments.join if fragments.length == fragment_count
+        end
+
+        nil
       end
 
       def refresh_access_token(refresh_token)
