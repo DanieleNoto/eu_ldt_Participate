@@ -11,12 +11,6 @@
 # 3. Sidekiq tries to deserialize the GlobalID and finds no record
 
 if defined?(Sidekiq)
-  Sidekiq.configure_server do |config|
-    config.server_middleware do |chain|
-      chain.add(RegistrationDeserializationErrorHandler)
-    end
-  end
-
   class RegistrationDeserializationErrorHandler
     include Sidekiq::ServerMiddleware
 
@@ -35,6 +29,12 @@ if defined?(Sidekiq)
         # Re-raise other deserialization errors
         raise
       end
+    end
+  end
+
+  Sidekiq.configure_server do |config|
+    config.server_middleware do |chain|
+      chain.add(RegistrationDeserializationErrorHandler)
     end
   end
 end
