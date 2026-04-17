@@ -125,12 +125,21 @@ export class AcceptInvitationPage extends BasePage {
 
 	/**
 	 * Click the save button to complete registration.
+	 * Uses JS dispatch as primary strategy to avoid Firefox CI stalling on coordinate-based clicks,
+	 * falling back to keyboard Enter if the JS dispatch also fails.
 	 */
 	async clickSave(): Promise<void> {
 		await expect(this.saveButton).toBeVisible();
 		await expect(this.saveButton).toBeEnabled();
 		await this.saveButton.scrollIntoViewIfNeeded();
-		await this.saveButton.click();
+
+		try {
+			await this.saveButton.evaluate((btn: HTMLButtonElement) => btn.click());
+		} catch (_error) {
+			console.warn('JS btn.click() failed, falling back to keyboard Enter');
+			await this.saveButton.focus();
+			await this.page.keyboard.press('Enter');
+		}
 	}
 
 	/**

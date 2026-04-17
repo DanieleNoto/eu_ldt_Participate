@@ -148,7 +148,8 @@ test.describe('[PAR-PPA002] – Edit attachment in a process', () => {
 				await newAttachmentProcessPage.submitForm();
 			});
 			await test.step('10.2. System: Detects errors in the updated attachment details.', async () => {
-				await newAttachmentProcessPage.getPage().waitForTimeout(1000); // Wait for error message to appear
+				// Verify the system stayed on the attachment edit form (no navigation = error detected)
+				await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();
 			});
 			await test.step('10.3. System: Displays an error message highlighting the invalid or missing fields.', async () => {
 				await newAttachmentProcessPage.expectErrorFlashMessage('There was a problem updating this attachment.');

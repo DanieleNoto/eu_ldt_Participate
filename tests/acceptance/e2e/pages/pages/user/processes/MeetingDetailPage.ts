@@ -140,8 +140,24 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	}
 
 	async clickRegisterMeetingButton(): Promise<void> {
-		await this.registerButton.click();
-		await this.page.waitForLoadState('load');
+		// Wait for networkidle to ensure JS (Alpine.js/Stimulus) has attached event listeners
+		// before clicking. In Firefox CI the listener may not be ready yet, causing the anchor
+		// to fall back to href="#" navigation and triggering a 404.
+		await this.page.waitForLoadState('networkidle');
+		await expect(this.registerButton).toBeVisible();
+		await expect(this.registerButton).toBeEnabled();
+
+		const urlBefore = this.page.url();
+		await this.registerButton.evaluate((btn: HTMLElement) => btn.click());
+
+		// If navigation occurred (href="#" fallback), go back and retry with native click
+		const urlAfter = this.page.url();
+		if (urlAfter !== urlBefore) {
+			console.warn(`Register button caused unexpected navigation to "${urlAfter}", navigating back and retrying`);
+			await this.page.goto(urlBefore);
+			await this.page.waitForLoadState('networkidle');
+			await this.registerButton.click();
+		}
 	}
 
 	// Assert the registration confirmation dialog is visible.

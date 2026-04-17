@@ -88,15 +88,24 @@ export class NewAttachmentProcessPage extends BaseAdminPage {
 	}
 
 	/**
-	 * Submits the new attachment form
+	 * Submits the new attachment form.
+	 * Waits for a flash notification (success or error) rather than just waitForLoadState,
+	 * because Decidim may respond with a Turbo/Rails inline re-render (no full navigation)
+	 * on validation errors — causing waitForLoadState('load') to settle before the flash appears.
 	 */
 	async submitForm(): Promise<void> {
-		const urlBefore = this.page.url();
 		await this.submitButton.click();
-		await this.page.waitForLoadState('load');
-		if (this.page.url() === urlBefore) {
-			await this.page.waitForLoadState('load');
-		}
+		await Promise.race([
+			this.page
+				.locator('.flash.success[data-alert-box], .flash.notice[data-alert-box]')
+				.first()
+				.waitFor({ state: 'visible' }),
+			this.page
+				.locator('.flash.alert[data-alert-box], .flash.error[data-alert-box]')
+				.first()
+				.waitFor({ state: 'visible' }),
+			this.page.waitForLoadState('load')
+		]);
 	}
 
 	/**

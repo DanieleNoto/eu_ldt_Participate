@@ -88,34 +88,99 @@ test.describe('@reserved [PAR-PIM002] – Collect additional personal data on re
 				await cleanupPage.getByRole('textbox', { name: 'Password' }).fill(testUserPassword);
 				await cleanupPage.getByRole('button', { name: 'Log in' }).click();
 
-				await cleanupPage.waitForURL(/.*/, { waitUntil: 'domcontentloaded' });
+				// Wait for the page to fully settle after login (redirect on success, same page on failure)
+				await cleanupPage.waitForLoadState('networkidle');
 
 				// Verify if login was successful
 				const currentUrl = cleanupPage.url();
 
-				if (currentUrl.includes('/users/sign_in')) {
+				if (!currentUrl.includes('/users/sign_in')) {
+					// Login succeeded (account confirmed) — delete via self-service account deletion
+					console.log('Logged in successfully for cleanup');
+
+					await cleanupPage.goto(ROUTES.accountDeletePage.pattern);
+
+					const accountDeletionPage = new AccountDeletionPage(cleanupPage);
+					await accountDeletionPage.fillDeleteReason('Test cleanup - automated test user deletion');
+					await accountDeletionPage.clickDeleteAccountButton();
+					await accountDeletionPage.waitForConfirmationModal();
+					await accountDeletionPage.confirmDeletion();
+
+					const cleanupHomePage = new HomePage(cleanupPage);
+					await cleanupHomePage.expectToBeOnHomePage();
+					await expect(cleanupPage.getByText('Your account was successfully deleted.')).toBeVisible();
+
+					console.log(`User account deleted successfully: ${testUserName} (${testUserEmail})`);
+				} else {
+					// Login failed — account may not exist, or email is not yet confirmed.
+					// Try to confirm the account via webmail, then retry login and delete.
 					console.log(
-						'Login failed - user account does not exist (test likely failed before registration completed)'
+						'User login failed (account may not exist or email not confirmed). Trying webmail confirmation fallback...'
 					);
-					console.log('Skipping account deletion - nothing to clean up');
-					await cleanupContext.close();
-					return;
+
+					const webmailFallback = new WebmailPage(cleanupPage);
+					await webmailFallback.navigateToWebmail();
+					await webmailFallback.login(process.env.OVH_USER4_EMAIL!, process.env.OVH_USER4_PASSWORD!);
+
+					let confirmationFound = false;
+					try {
+						await webmailFallback.waitForConfirmationEmailAndOpen();
+						const confirmationUrl = await webmailFallback.getConfirmationLink();
+
+						// Open the confirmation link in a separate page, keeping cleanupPage on webmail
+						const confirmPage = await cleanupContext.newPage();
+						await confirmPage.goto(confirmationUrl, { waitUntil: 'networkidle' });
+						await expect(
+							confirmPage.getByText('Your email address has been successfully confirmed')
+						).toBeVisible();
+						await confirmPage.close();
+						console.log('Account confirmed via webmail link');
+
+						// Now delete the confirmation email from webmail (cleanupPage is still on webmail)
+						await webmailFallback.deleteCurrentEmail();
+						console.log('Confirmation email deleted from webmail');
+
+						confirmationFound = true;
+					} catch (_error) {
+						console.log(
+							'No confirmation email found in webmail — account likely does not exist, skipping cleanup'
+						);
+					}
+
+					if (!confirmationFound) {
+						await cleanupContext.close();
+						return;
+					}
+
+					// Now log in with the newly confirmed account and delete it
+					await cleanupPage.goto('/users/sign_in');
+					await cleanupPage.getByRole('textbox', { name: 'Email' }).fill(testUserEmail);
+					await cleanupPage.getByRole('textbox', { name: 'Password' }).fill(testUserPassword);
+					await cleanupPage.getByRole('button', { name: 'Log in' }).click();
+					await cleanupPage.waitForLoadState('networkidle');
+
+					if (cleanupPage.url().includes('/users/sign_in')) {
+						console.log('Login failed even after confirmation — skipping cleanup');
+						await cleanupContext.close();
+						return;
+					}
+
+					console.log('Logged in after confirmation. Proceeding with account deletion...');
+
+					await cleanupPage.goto(ROUTES.accountDeletePage.pattern);
+
+					const accountDeletionPageFallback = new AccountDeletionPage(cleanupPage);
+					await accountDeletionPageFallback.fillDeleteReason('Test cleanup - automated test user deletion');
+					await accountDeletionPageFallback.clickDeleteAccountButton();
+					await accountDeletionPageFallback.waitForConfirmationModal();
+					await accountDeletionPageFallback.confirmDeletion();
+
+					const cleanupHomePage2 = new HomePage(cleanupPage);
+					await cleanupHomePage2.expectToBeOnHomePage();
+					await expect(cleanupPage.getByText('Your account was successfully deleted.')).toBeVisible();
+
+					console.log(`User account deleted successfully after confirmation: ${testUserEmail}`);
 				}
-
-				console.log('Logged in successfully for cleanup');
-
-				await cleanupPage.goto(ROUTES.accountDeletePage.pattern);
-
-				const accountDeletionPage = new AccountDeletionPage(cleanupPage);
-				await accountDeletionPage.fillDeleteReason('Test cleanup - automated test user deletion');
-				await accountDeletionPage.clickDeleteAccountButton();
-				await accountDeletionPage.waitForConfirmationModal();
-				await accountDeletionPage.confirmDeletion();
-
-				const cleanupHomePage = new HomePage(cleanupPage);
-				await cleanupHomePage.expectToBeOnHomePage();
-
-				console.log(`User account deleted successfully: ${testUserName} (${testUserEmail})`);
 
 				await cleanupContext.close();
 				console.log('Cleanup context closed');
