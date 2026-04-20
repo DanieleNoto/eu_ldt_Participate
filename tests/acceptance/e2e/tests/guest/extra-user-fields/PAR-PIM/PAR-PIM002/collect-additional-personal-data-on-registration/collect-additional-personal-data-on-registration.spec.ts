@@ -122,50 +122,30 @@ test.describe('@reserved [PAR-PIM002] – Collect additional personal data on re
 					await webmailFallback.navigateToWebmail();
 					await webmailFallback.login(process.env.OVH_USER4_EMAIL!, process.env.OVH_USER4_PASSWORD!);
 
-					let confirmationFound = false;
-					try {
-						await webmailFallback.waitForConfirmationEmailAndOpen();
-						const confirmationUrl = await webmailFallback.getConfirmationLink();
+					// getConfirmationLinkIfExists finds the email regardless of read/unread status,
+					// waits properly for the iframe link, and deletes the email internally.
+					const confirmationUrl = await webmailFallback.getConfirmationLinkIfExists();
 
-						// Open the confirmation link in a separate page, keeping cleanupPage on webmail
-						const confirmPage = await cleanupContext.newPage();
-						await confirmPage.goto(confirmationUrl, { waitUntil: 'networkidle' });
-						await expect(
-							confirmPage.getByText('Your email address has been successfully confirmed')
-						).toBeVisible();
-						await confirmPage.close();
-						console.log('Account confirmed via webmail link');
-
-						// Now delete the confirmation email from webmail (cleanupPage is still on webmail)
-						await webmailFallback.deleteCurrentEmail();
-						console.log('Confirmation email deleted from webmail');
-
-						confirmationFound = true;
-					} catch (_error) {
+					if (!confirmationUrl) {
 						console.log(
 							'No confirmation email found in webmail — account likely does not exist, skipping cleanup'
 						);
-					}
-
-					if (!confirmationFound) {
 						await cleanupContext.close();
 						return;
 					}
 
-					// Now log in with the newly confirmed account and delete it
-					await cleanupPage.goto('/users/sign_in');
-					await cleanupPage.getByRole('textbox', { name: 'Email' }).fill(testUserEmail);
-					await cleanupPage.getByRole('textbox', { name: 'Password' }).fill(testUserPassword);
-					await cleanupPage.getByRole('button', { name: 'Log in' }).click();
-					await cleanupPage.waitForLoadState('networkidle');
+					// Open the confirmation link in a separate page
+					const confirmPage = await cleanupContext.newPage();
+					await confirmPage.goto(confirmationUrl, { waitUntil: 'networkidle' });
+					await expect(
+						confirmPage.getByText('Your email address has been successfully confirmed')
+					).toBeVisible();
+					await confirmPage.close();
+					console.log('Account confirmed via webmail link');
 
-					if (cleanupPage.url().includes('/users/sign_in')) {
-						console.log('Login failed even after confirmation — skipping cleanup');
-						await cleanupContext.close();
-						return;
-					}
-
-					console.log('Logged in after confirmation. Proceeding with account deletion...');
+					// confirmPage and cleanupPage share cleanupContext — Decidim auto-logs in on
+					// confirmation, so the session cookie is already set. Go straight to deletion.
+					console.log('Session already authenticated via confirmation. Proceeding with account deletion...');
 
 					await cleanupPage.goto(ROUTES.accountDeletePage.pattern);
 

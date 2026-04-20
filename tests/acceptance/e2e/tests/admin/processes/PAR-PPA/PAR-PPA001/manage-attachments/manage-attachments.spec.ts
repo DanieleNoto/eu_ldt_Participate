@@ -23,9 +23,11 @@ import { test, expect } from '@fixtures/parallel-test';
  * Prerequisites:
  * - The City Administrator has an active account on the platform and is logged in.
  * - The process has already been created.
+ *
+ * @reserved - PAR-PPA tests share the attachments of the first process and must run sequentially.
  */
 
-test.describe('[PAR-PPA001] – Manage attachments in process', () => {
+test.describe('@reserved [PAR-PPA001] – Manage attachments in process', () => {
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -41,6 +43,51 @@ test.describe('[PAR-PPA001] – Manage attachments in process', () => {
 		newAttachmentProcessPage = new NewAttachmentProcessPage(adminPage);
 		uploadFileModal = new UploadFileModalComponent(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
+
+		// Ensure at least one attachment exists so step 6 can assert the table is visible.
+		await adminHomePage.navigateViaAdminNav('processes');
+		await processAdminPage.waitForLoadState('load');
+		await processAdminPage.editFirstProcess();
+		await processAdminPage.getPage().waitForLoadState('load');
+		await updateProcessAdminPage.navigateToAttachments();
+
+		if (!(await attachmentsProcessPage.hasAttachmentWithTitle('Test'))) {
+			await attachmentsProcessPage.clickNewAttachment();
+			await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();
+			await newAttachmentProcessPage.clickLinkTab();
+			await newAttachmentProcessPage.fillTitle('Test');
+			await newAttachmentProcessPage.fillDescription('Test attachment description.');
+			await newAttachmentProcessPage.fillLink('https://example.org');
+			await newAttachmentProcessPage.submitForm();
+			await attachmentsProcessPage.expectToBeOnAttachmentsProcessPage();
+			console.log('Setup: created fresh "Test" attachment');
+		}
+
+		await adminHomePage.navigateToAdminHomePage();
+	});
+
+	test.afterEach(async () => {
+		try {
+			await adminHomePage.navigateViaAdminNav('processes');
+			await processAdminPage.waitForLoadState('load');
+			await processAdminPage.editFirstProcess();
+			await processAdminPage.getPage().waitForLoadState('load');
+			await updateProcessAdminPage.navigateToAttachments();
+
+			// Delete all "Test" attachments — the test creates one and beforeEach may have
+			// created another; loop restarts after each deletion because table re-renders.
+			let found = true;
+			while (found) {
+				found = false;
+				if (await attachmentsProcessPage.hasAttachmentWithTitle('Test')) {
+					await attachmentsProcessPage.clickDeleteAttachmentByTitle('Test');
+					console.log('Cleanup: deleted attachment "Test"');
+					found = true;
+				}
+			}
+		} catch (error: unknown) {
+			console.error('PAR-PPA001 cleanup failed:', error instanceof Error ? error.message : String(error));
+		}
 	});
 
 	test.describe('Main Flow', () => {

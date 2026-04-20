@@ -159,8 +159,10 @@ test.describe('[PAR-CP004] – Citizen invitation to participate in a private pr
 				await acceptInvitationPage.clickSave();
 				console.log('Registration form submitted');
 
-				// Wait for the page to load after registration
-				await page.waitForLoadState('load');
+				// Wait for Decidim to redirect away from the invitation page.
+				// waitForLoadState('load') resolves on the current page before navigation starts —
+				// waitForURL ensures the redirect has actually completed before step 5 runs.
+				await page.waitForURL(/^https?:\/\/[^\/]+\/(\?.*)?$/, { waitUntil: 'load' });
 				console.log('Account creation completed successfully');
 			});
 

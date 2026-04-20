@@ -23,9 +23,11 @@ import { test, expect } from '@fixtures/parallel-test';
  * - The City Administrator has an active account on the platform and is logged in.
  * - The process has already been created.
  * - The attachment has already been uploaded into the process.
+ *
+ * @reserved - PAR-PPA tests share the attachments of the first process and must run sequentially.
  */
 
-test.describe('[PAR-PPA002] – Edit attachment in a process', () => {
+test.describe('@reserved [PAR-PPA002] – Edit attachment in a process', () => {
 	let adminHomePage: AdminHomePage;
 	let processAdminPage: ProcessAdminPage;
 	let updateProcessAdminPage: UpdateProcessAdminPage;
@@ -39,6 +41,73 @@ test.describe('[PAR-PPA002] – Edit attachment in a process', () => {
 		attachmentsProcessPage = new AttachmentsProcessPage(adminPage);
 		newAttachmentProcessPage = new NewAttachmentProcessPage(adminPage);
 		await adminHomePage.navigateToAdminHomePage();
+
+		// Ensure exactly one fresh "Test" attachment exists before each test.
+		// First, purge any leftover attachments from previous runs (duplicates included),
+		// then create a single clean "Test" attachment.
+		const titlesToClean = ['Test updated title', 'Corrected title', 'Test'];
+
+		await adminHomePage.navigateViaAdminNav('processes');
+		await processAdminPage.waitForLoadState('load');
+		await processAdminPage.editFirstProcess();
+		await processAdminPage.getPage().waitForLoadState('load');
+		await updateProcessAdminPage.navigateToAttachments();
+
+		// Delete ALL stale test attachments (loop restarts after each deletion
+		// because the table re-renders and indices shift)
+		let found = true;
+		while (found) {
+			found = false;
+			for (const title of titlesToClean) {
+				if (await attachmentsProcessPage.hasAttachmentWithTitle(title)) {
+					await attachmentsProcessPage.clickDeleteAttachmentByTitle(title);
+					console.log(`Setup: deleted stale attachment "${title}"`);
+					found = true;
+					break;
+				}
+			}
+		}
+
+		// Create a single fresh "Test" attachment
+		await attachmentsProcessPage.clickNewAttachment();
+		await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();
+		await newAttachmentProcessPage.clickLinkTab();
+		await newAttachmentProcessPage.fillTitle('Test');
+		await newAttachmentProcessPage.fillDescription('Test attachment description.');
+		await newAttachmentProcessPage.fillLink('https://example.org');
+		await newAttachmentProcessPage.submitForm();
+		await attachmentsProcessPage.expectToBeOnAttachmentsProcessPage();
+		console.log('Setup: created fresh "Test" attachment');
+
+		await adminHomePage.navigateToAdminHomePage();
+	});
+
+	test.afterEach(async () => {
+		try {
+			await adminHomePage.navigateViaAdminNav('processes');
+			await processAdminPage.waitForLoadState('load');
+			await processAdminPage.editFirstProcess();
+			await processAdminPage.getPage().waitForLoadState('load');
+			await updateProcessAdminPage.navigateToAttachments();
+
+			// Delete ALL test attachments — loop restarts after each deletion because
+			// the table re-renders and indices shift after a delete.
+			const titlesToClean = ['Test updated title', 'Corrected title', 'Test'];
+			let found = true;
+			while (found) {
+				found = false;
+				for (const title of titlesToClean) {
+					if (await attachmentsProcessPage.hasAttachmentWithTitle(title)) {
+						await attachmentsProcessPage.clickDeleteAttachmentByTitle(title);
+						console.log(`Cleanup: deleted attachment "${title}"`);
+						found = true;
+						break;
+					}
+				}
+			}
+		} catch (error: unknown) {
+			console.error('PAR-PPA002 cleanup failed:', error instanceof Error ? error.message : String(error));
+		}
 	});
 
 	test.describe('Main Flow', () => {
@@ -71,7 +140,7 @@ test.describe('[PAR-PPA002] – Edit attachment in a process', () => {
 				await attachmentsProcessPage.expectAttachmentsTableVisible();
 			});
 			await test.step('7. User: Selects an existing attachment to edit.', async () => {
-				await attachmentsProcessPage.clickEditAttachmentByIndex(0);
+				await attachmentsProcessPage.clickEditAttachmentByTitle('Test');
 			});
 			await test.step('8. System: Displays the attachment details in an editable form.', async () => {
 				await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();
@@ -96,8 +165,7 @@ test.describe('[PAR-PPA002] – Edit attachment in a process', () => {
 				await attachmentsProcessPage.expectSuccessFlashMessage('Attachment updated successfully.');
 			});
 			await test.step('Result.', async () => {
-				const title = await attachmentsProcessPage.getAttachmentTitleByIndex(0);
-				expect(title).toBe('Test updated title');
+				await attachmentsProcessPage.expectAttachmentWithTitleExists('Test updated title');
 			});
 		});
 	});
@@ -132,7 +200,7 @@ test.describe('[PAR-PPA002] – Edit attachment in a process', () => {
 				await attachmentsProcessPage.expectAttachmentsTableVisible();
 			});
 			await test.step('7. User: Selects an existing attachment to edit.', async () => {
-				await attachmentsProcessPage.clickEditAttachmentByIndex(0);
+				await attachmentsProcessPage.clickEditAttachmentByTitle('Test');
 			});
 			await test.step('8. System: Displays the attachment details in an editable form.', async () => {
 				await newAttachmentProcessPage.expectToBeOnNewAttachmentPage();

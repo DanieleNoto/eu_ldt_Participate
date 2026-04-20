@@ -262,11 +262,15 @@ export class ChatbotPage extends BasePage {
 	}
 
 	/**
-	 * Checks if the confirmation message is visible
+	 * Checks if the confirmation message is visible.
+	 * After clicking Send, the chatbot shows a typing indicator (3 animated dots) while the
+	 * API call is in progress. The confirmation message replaces it once the response arrives.
+	 * On CI (especially Firefox) the API round-trip can take longer than the default 30s timeout,
+	 * so we use expect() with an explicit 60s timeout to cover slow environments.
 	 */
 	async isConfirmationMessageVisible(): Promise<boolean> {
-		await this.confirmationMessage.waitFor({ state: 'visible' });
-		return await this.confirmationMessage.isVisible();
+		await expect(this.confirmationMessage).toBeVisible({ timeout: 60000 });
+		return true;
 	}
 
 	/**

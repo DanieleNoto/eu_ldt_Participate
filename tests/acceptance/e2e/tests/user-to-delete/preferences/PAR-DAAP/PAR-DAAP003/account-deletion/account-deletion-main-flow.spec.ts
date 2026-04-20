@@ -110,8 +110,7 @@ test.describe('@reserved [PAR-DAAP003] – Request deletion of personal account'
 		// Always close the confirmed context first
 		await confirmedContext?.close().catch(() => null);
 
-		// Safety cleanup: if the test failed before completing deletion, the account
-		// still exists (confirmed). Log in and delete it to unblock the next run.
+		// Safety cleanup: handle all failure scenarios to unblock the next test run.
 		const cleanupContext = await browser.newContext();
 		const cleanupPage = await cleanupContext.newPage();
 
@@ -123,8 +122,44 @@ test.describe('@reserved [PAR-DAAP003] – Request deletion of personal account'
 			await cleanupPage.waitForLoadState('networkidle');
 
 			if (cleanupPage.url().includes('/users/sign_in')) {
-				// Login failed — account was already deleted by the test (happy path)
-				console.log('Cleanup: account already deleted by the test — nothing to do');
+				// Login failed — either account was already deleted (happy path)
+				// or account exists but was never confirmed (beforeEach failed during webmail step).
+				console.log('Cleanup: login failed — checking if account is unconfirmed...');
+
+				const webmailContext = await browser.newContext();
+				const webmailRawPage = await webmailContext.newPage();
+				const webmailPage = new WebmailPage(webmailRawPage);
+				let confirmationUrl: string | null = null;
+
+				try {
+					await webmailPage.navigateToWebmail();
+					await webmailPage.login(process.env.OVH_USER3_EMAIL!, process.env.OVH_USER3_PASSWORD!);
+					confirmationUrl = await webmailPage.getConfirmationLinkIfExists();
+				} finally {
+					await webmailContext.close();
+				}
+
+				if (confirmationUrl) {
+					// Account registered but not confirmed — confirm it so we can log in, then delete.
+					console.log('Cleanup: unconfirmed account detected — confirming account now...');
+					await cleanupPage.goto(confirmationUrl, { waitUntil: 'networkidle' });
+					// Decidim logs the user in automatically after confirmation.
+
+					await cleanupPage.goto(ROUTES.accountDeletePage.pattern);
+					const cleanupAccountDeletionPage = new AccountDeletionPage(cleanupPage);
+					await cleanupAccountDeletionPage.fillDeleteReason('Test cleanup - automated test user deletion');
+					await cleanupAccountDeletionPage.clickDeleteAccountButton();
+					await cleanupAccountDeletionPage.waitForConfirmationModal();
+					await cleanupAccountDeletionPage.confirmDeletion();
+
+					await expect(cleanupPage.getByText('Your account was successfully deleted.')).toBeVisible();
+					console.log(
+						`Cleanup: unconfirmed account confirmed and deleted: ${testUserName} (${testUserEmail})`
+					);
+				} else {
+					// No confirmation email found — account was already deleted by the test (happy path).
+					console.log('Cleanup: account already deleted by the test — nothing to do');
+				}
 			} else {
 				// Login succeeded — test failed before deletion, clean up now
 				console.log('Cleanup: test failed before account deletion — deleting account now...');
