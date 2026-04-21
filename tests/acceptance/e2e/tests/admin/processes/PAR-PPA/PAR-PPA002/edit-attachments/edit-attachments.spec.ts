@@ -10,7 +10,7 @@ import { AttachmentsProcessPage } from '@pages/pages/admin/processes/detail/atta
 import { NewAttachmentProcessPage } from '@pages/pages/admin/processes/detail/attachments/NewAttachmentProcessPage';
 import { UpdateProcessAdminPage } from '@pages/pages/admin/processes/detail/UpdateProcessAdminPage';
 import { ProcessAdminPage } from '@pages/pages/admin/processes/ProcessAdminPage';
-import { test, expect } from '@fixtures/parallel-test';
+import { test, expect } from '@fixtures/parallel-test-reserved';
 
 /**
  * Test suite for Allows City Administrators to edit an attachment of the process.
