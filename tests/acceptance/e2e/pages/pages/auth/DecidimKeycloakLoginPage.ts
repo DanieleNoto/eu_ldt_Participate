@@ -27,14 +27,21 @@ export class DecidimLoginPage extends BasePage {
 	 * Flow: sign_in → Keycloak auth → Continue → credentials → Accept → app
 	 */
 	async loginWithKeycloak(username: string, password: string): Promise<void> {
+		// Use a larger timeout in CI because setup contexts (browser.newContext()) do not
+		// inherit actionTimeout / navigationTimeout from playwright.config.ts and default to 30s.
+		const isCI = process.env.CI === 'true';
+		const redirectTimeout = isCI ? 90000 : 60000;
+
 		// 1. Navigate to the Decidim login page
+		// Use 'load' (instead of 'domcontentloaded') to ensure JS-rendered elements
+		// such as the Keycloak SSO button are already present in the DOM.
 		console.log('Navigating to sign_in page...');
-		await this.page.goto('/users/sign_in', { waitUntil: 'domcontentloaded' });
+		await this.page.goto('/users/sign_in', { waitUntil: 'load', timeout: redirectTimeout });
 
 		// 2. Click the Keycloak SSO button
 		console.log('Waiting for Keycloak button...');
 		const keycloakButton = this.page.locator('a[href*="/users/auth/keycloakopenid"]').first();
-		await keycloakButton.waitFor({ state: 'visible' });
+		await keycloakButton.waitFor({ state: 'visible', timeout: redirectTimeout });
 		console.log('Keycloak button found – clicking and waiting for Keycloak auth page...');
 
 		// Register the URL listener before the click to avoid the race condition.
@@ -67,10 +74,6 @@ export class DecidimLoginPage extends BasePage {
 		await signInButton.click();
 
 		// 5. OIDC consent screen ("Accept")
-		// Use explicit timeout early — setup contexts (browser.newContext()) do not inherit
-		// navigationTimeout from playwright.config.ts and default to 30s.
-		const isCI = process.env.CI === 'true';
-		const redirectTimeout = isCI ? 90000 : 60000;
 		console.log('Waiting for Accept button...');
 		const acceptButton = this.page.getByRole('button', { name: 'Accept' });
 		await acceptButton.waitFor({ state: 'visible', timeout: redirectTimeout });

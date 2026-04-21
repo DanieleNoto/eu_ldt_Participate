@@ -34,6 +34,21 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 		await this.page.click('a.button.new');
 	}
 
+	/**
+	 * Fills the search field and submits the search form.
+	 * Disables browser autocomplete before filling to prevent Firefox's autocomplete
+	 * dropdown from intercepting keystrokes and producing partial/wrong values.
+	 */
+	private async fillSearchAndSubmit(value: string): Promise<void> {
+		const searchField = this.page.getByRole('searchbox', { name: 'Search by user name, email' });
+		const searchButton = this.page.getByRole('button', { name: 'Search' });
+		await searchField.evaluate((el: HTMLInputElement) => el.setAttribute('autocomplete', 'off'));
+		await searchField.fill(value);
+		await expect(searchField).toHaveValue(value);
+		await searchButton.click();
+		await this.page.waitForLoadState('load');
+	}
+
 	async clickDelete(rowIndex: number): Promise<void> {
 		const row = this.page.locator('table.table-list tbody tr').nth(rowIndex);
 		await row.locator('button[data-controller="dropdown"]').click();
@@ -63,11 +78,7 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 	 * Works correctly even when the table has pagination (>25 rows).
 	 */
 	async expectParticipantDeletedByEmail(email: string): Promise<void> {
-		const searchField = this.page.getByRole('searchbox', { name: 'Search by user name, email' });
-		const searchButton = this.page.getByRole('button', { name: 'Search' });
-		await searchField.fill(email);
-		await searchButton.click();
-		await this.page.waitForLoadState('load');
+		await this.fillSearchAndSubmit(email);
 		const rows = this.page.locator('table.table-list tbody tr');
 		// Either 0 rows, or all visible rows must not contain the email
 		const count = await rows.count();
@@ -78,9 +89,7 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 			}
 		}
 		// Restore empty search
-		await searchField.fill('');
-		await searchButton.click();
-		await this.page.waitForLoadState('load');
+		await this.fillSearchAndSubmit('');
 	}
 
 	/**
@@ -88,11 +97,7 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 	 * Used in the Alternative Flow (cancel) to confirm the participant was NOT deleted.
 	 */
 	async expectParticipantStillPresentByEmail(email: string): Promise<void> {
-		const searchField = this.page.getByRole('searchbox', { name: 'Search by user name, email' });
-		const searchButton = this.page.getByRole('button', { name: 'Search' });
-		await searchField.fill(email);
-		await searchButton.click();
-		await this.page.waitForLoadState('load');
+		await this.fillSearchAndSubmit(email);
 		const rows = this.page.locator('table.table-list tbody tr');
 		const count = await rows.count();
 		let found = false;
@@ -107,9 +112,7 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 			throw new Error(`Participant with email "${email}" was not found — it may have been accidentally deleted`);
 		}
 		// Restore empty search
-		await searchField.fill('');
-		await searchButton.click();
-		await this.page.waitForLoadState('load');
+		await this.fillSearchAndSubmit('');
 	}
 
 	// Validations
@@ -132,38 +135,29 @@ export class PrivateParticipantsPage extends BaseAdminPage {
 
 	async expectParticipantIsInTable(name?: string, email?: string): Promise<void> {
 		const searchField = this.page.getByRole('searchbox', { name: 'Search by user name, email' });
-		const searchButton = this.page.getByRole('button', { name: 'Search' });
 		const table = this.page.locator('table.table-list tbody');
 		await expect(searchField).toBeVisible();
 		await expect(table).toBeVisible();
 
 		if (name && email) {
 			// Look for a row that contains both name and email using hasText for partial matching
-			await searchField.click();
-			await searchField.fill(name);
-			await searchButton.click();
+			await this.fillSearchAndSubmit(name);
 			const row = table.locator('tr').filter({ hasText: name }).filter({ hasText: email });
 			await expect(row.first()).toBeVisible();
 		} else if (name) {
 			// Look for a row containing the name
-			await searchField.click();
-			await searchField.fill(name);
-			await searchButton.click();
+			await this.fillSearchAndSubmit(name);
 			const row = table.locator('tr', { hasText: name });
 			await expect(row.first()).toBeVisible();
 		} else if (email) {
 			// Look for a row containing the email
-			await searchField.click();
-			await searchField.fill(email);
-			await searchButton.click();
+			await this.fillSearchAndSubmit(email);
 			const row = table.locator('tr', { hasText: email });
 			await expect(row.first()).toBeVisible();
 		} else {
 			throw new Error('Either name or email must be provided');
 		}
 
-		await searchField.click();
-		await searchField.fill('');
-		await searchButton.click();
+		await this.fillSearchAndSubmit('');
 	}
 }
