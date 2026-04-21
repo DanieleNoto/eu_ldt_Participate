@@ -6,7 +6,7 @@
 %>
 
 <% add_decidim_meta_tags(
-  description: @use_case_scenario.experiment_data&.dig('description'),
+  description: (@use_case_scenario.experiment_data.is_a?(Hash) ? @use_case_scenario.experiment_data.dig('description') : nil),
   title: decidim_escape_translated(@use_case_scenario.name),
   url: use_case_scenario_url(@use_case_scenario)
 ) %>
@@ -37,7 +37,7 @@
     </div>
   </div>
 
-  <% if @use_case_scenario.experiment_data.present? %>
+  <% if @use_case_scenario.experiment_data.is_a?(Hash) && @use_case_scenario.experiment_data.present? %>
     <div class="row">
       <div class="columns large-12">
         <div class="card">
@@ -67,7 +67,7 @@
       <div class="card__content">
         <h3 class="card__title"><%= t(".title") %></h3>
         <div class="experiment-iframe-container"
-             data-experiment-data="<%= @use_case_scenario.experiment_data.to_json %>"
+             data-experiment-data="<%= (@use_case_scenario.experiment_data.is_a?(Hash) ? @use_case_scenario.experiment_data : {}).to_json %>"
              data-iframe-url="<%= @tool2_iframe_url %>"
              style="margin-top: 1rem;">
           <iframe

@@ -11,7 +11,7 @@
       <%= use_case_scenario.name %>
     </div>
 
-    <% if use_case_scenario.experiment_data.present? && use_case_scenario.experiment_data['description'].present? %>
+    <% if use_case_scenario.experiment_data.is_a?(Hash) && use_case_scenario.experiment_data['description'].present? %>
       <div class="card__list-text">
         <div class="rich-text-display">
           <%= truncate(use_case_scenario.experiment_data['description'], length: 200, separator: ' ') %>
@@ -20,7 +20,7 @@
     <% end %>
 
     <div class="card__list-metadata">
-      <% if use_case_scenario.experiment_data&.dig('id').present? %>
+      <% if use_case_scenario.experiment_data.is_a?(Hash) && use_case_scenario.experiment_data.dig('id').present? %>
         <div>
           <svg width="1em" height="1em" role="img" aria-hidden="true">
             <use href="/decidim-packs/media/images/remixicon.symbol-e643e553623ffcd49f94.svg#ri-flask-line"></use>
