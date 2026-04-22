@@ -77,12 +77,28 @@
 						background-color: #f5f5f5;
 					}
 
-					.app-icon {
+					// Constrain all icon variants to a consistent 24x24 box
+					.app-icon,
+					.application-icon {
 						width: 24px;
 						height: 24px;
 						border-radius: 4px;
-						object-fit: cover;
+						object-fit: contain;
 						flex-shrink: 0;
+					}
+
+					// Inline SVG wrapper span
+					> span {
+						display: inline-flex;
+						flex-shrink: 0;
+						width: 24px;
+						height: 24px;
+						overflow: hidden;
+
+						svg {
+							width: 24px;
+							height: 24px;
+						}
 					}
 
 					.app-icon-placeholder {

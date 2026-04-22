@@ -80,6 +80,21 @@ function initializeToolsDropdown() {
 			return;
 		}
 
+		// Wraps SVG markup in a fixed 24×24 span, forcing the SVG element's own
+		// width/height attributes to 24 so the icon can't overflow its container.
+		function buildSvgSpan(svgMarkup) {
+			const span = document.createElement('span');
+			span.style.cssText = 'display:inline-flex;flex-shrink:0;width:24px;height:24px;overflow:hidden;';
+			span.innerHTML = svgMarkup;
+			const svgEl = span.querySelector('svg');
+			if (svgEl) {
+				svgEl.setAttribute('width', '24');
+				svgEl.setAttribute('height', '24');
+				svgEl.style.cssText = 'width:24px;height:24px;';
+			}
+			return span;
+		}
+
 		// Helper to build an icon DOM element from whatever format Tool0 returns.
 		// Supported formats:
 		//   • data:image/svg+xml;base64,…  → decoded inline SVG
@@ -90,14 +105,11 @@ function initializeToolsDropdown() {
 		function buildIconElement(iconString) {
 			if (!iconString) return null;
 
-			// base64-encoded SVG data URI → decode and inline so CSS can style it
+			// base64-encoded SVG data URI → decode and inline
 			if (iconString.startsWith('data:image/svg+xml;base64,')) {
 				const base64 = iconString.slice('data:image/svg+xml;base64,'.length);
 				try {
-					const svgMarkup = atob(base64);
-					const span = document.createElement('span');
-					span.innerHTML = svgMarkup;
-					return span;
+					return buildSvgSpan(atob(base64));
 				} catch (e) {
 					console.error('Error decoding SVG icon:', e);
 				}
@@ -105,9 +117,7 @@ function initializeToolsDropdown() {
 
 			// Raw SVG markup
 			if (iconString.trimStart().startsWith('<svg')) {
-				const span = document.createElement('span');
-				span.innerHTML = iconString;
-				return span;
+				return buildSvgSpan(iconString);
 			}
 
 			// Any remaining data URI (PNG, ICO, JPEG, …) or plain URL / absolute path
@@ -121,6 +131,7 @@ function initializeToolsDropdown() {
 				img.src = iconString;
 				img.alt = '';
 				img.className = 'application-icon';
+				img.style.cssText = 'width:24px;height:24px;flex-shrink:0;object-fit:contain;';
 				return img;
 			}
 
