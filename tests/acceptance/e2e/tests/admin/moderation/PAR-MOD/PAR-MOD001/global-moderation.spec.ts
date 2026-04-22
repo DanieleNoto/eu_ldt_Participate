@@ -413,6 +413,9 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 					await adminPage.waitForLoadState('load');
 					console.log(`Navigated to public debate page: ${reportedContentUrl}`);
 
+					// Decidim loads comments via AJAX: wait for the loading indicator to disappear first
+					await adminPage.locator('.loading-comments:not(.hidden)').waitFor({ state: 'hidden' });
+
 					// Verify the comment is now visible again in the public view.
 					const commentElement = adminPage.locator(`#comment_${testCommentId}`);
 					await expect(commentElement).toBeVisible();

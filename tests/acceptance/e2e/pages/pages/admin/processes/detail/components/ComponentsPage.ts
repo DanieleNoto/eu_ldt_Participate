@@ -256,6 +256,8 @@ export class ComponentsPage extends BaseAdminPage {
 	// Opens the 3-dots actions dropdown for a given row
 	private async openRowActionsDropdown(row: Locator): Promise<void> {
 		await row.locator('button[data-controller="dropdown"]').click();
+		// Wait for the dropdown menu to become visible before interacting with its items
+		await row.locator('ul.dropdown__action:not([aria-hidden="true"])').waitFor({ state: 'visible' });
 	}
 
 	// Component actions
@@ -332,7 +334,9 @@ export class ComponentsPage extends BaseAdminPage {
 	async publishComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
 		await this.openRowActionsDropdown(row);
-		await row.locator('a[href*="/publish"]').click();
+		const publishLink = row.locator('a[href$="/publish"]');
+		await publishLink.waitFor({ state: 'visible' });
+		await publishLink.click();
 		await this.page.waitForLoadState('load');
 	}
 

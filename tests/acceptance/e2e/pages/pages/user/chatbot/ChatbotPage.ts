@@ -120,14 +120,16 @@ export class ChatbotPage extends BasePage {
 	}
 
 	/**
-	 * Clicks the "Send" button.
-	 * Does not wait for load state: the chatbot sends the message via an API call (no page
-	 * navigation), so any waitForLoadState is unreliable on Firefox in CI.
-	 * Callers that need to assert the result should use isConfirmationMessageVisible(), which
-	 * already waits for the confirmation element to appear in the DOM.
+	 * Clicks the "Send" button and waits for the chatbot backend API to respond with 200.
 	 */
 	async clickSendButton(): Promise<void> {
+		const responsePromise = this.page.waitForResponse(
+			response => response.url().includes('/chatbot-backend-api/api/v1/support/send') && response.status() === 200
+		);
 		await this.sendButton.click();
+		const response = await responsePromise;
+		const body = await response.json().catch(() => null);
+		console.log(`[ChatbotPage] Support send API responded 200:`, JSON.stringify(body));
 	}
 
 	/**
@@ -249,27 +251,23 @@ export class ChatbotPage extends BasePage {
 	 * Fills the "Describe your issue" textbox with a question
 	 */
 	async fillDescribeIssueTextbox(question: string): Promise<void> {
-		await this.describeIssueTextbox.fill(question);
-
-		// Trigger input event on the textbox
-		await this.describeIssueTextbox.dispatchEvent('input');
+		await this.describeIssueTextbox.click();
+		// Use pressSequentially to fire real keyboard events (keydown/keypress/input/keyup)
+		// which reliably triggers reactive framework bindings on all browsers including Firefox CI.
+		await this.describeIssueTextbox.pressSequentially(question);
 
 		// Wait for the Send button to be enabled
-		await this.page.waitForFunction(() => {
-			const button = document.querySelector('button[type="submit"]');
-			return button && !button.hasAttribute('disabled');
-		});
+		await this.sendButton.waitFor({ state: 'visible' });
+		await expect(this.sendButton).toBeEnabled();
 	}
 
 	/**
 	 * Checks if the confirmation message is visible.
-	 * After clicking Send, the chatbot shows a typing indicator (3 animated dots) while the
-	 * API call is in progress. The confirmation message replaces it once the response arrives.
-	 * On CI (especially Firefox) the API round-trip can take longer than the default 30s timeout,
-	 * so we use expect() with an explicit 60s timeout to cover slow environments.
+	 * clickSendButton() already awaits the API 200 response, so by the time this is called
+	 * the component only needs to re-render — the default timeout is sufficient.
 	 */
 	async isConfirmationMessageVisible(): Promise<boolean> {
-		await expect(this.confirmationMessage).toBeVisible({ timeout: 60000 });
+		await expect(this.confirmationMessage).toBeVisible();
 		return true;
 	}
 
