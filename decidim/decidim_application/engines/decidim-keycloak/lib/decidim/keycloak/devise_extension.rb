@@ -48,6 +48,8 @@ module Decidim
         save_keycloak_token_to_cache(current_user, auth_data)
         update_user_locale(user_locale)
         session[:keycloak_authenticated] = true
+        # Clear the auto-login debounce so future single redirects work normally
+        session.delete("keycloak_autologin_redirect_at")
       end
 
       def update_user_locale(user_locale)
