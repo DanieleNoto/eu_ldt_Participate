@@ -4,11 +4,22 @@
 # Gianfranco Cedro
 # frozen_string_literal: true
 
-# Handle race condition where a job references a deleted Registration
+# Handle race condition where a job references a deleted record.
 # This can happen when:
-# 1. A mailer job is enqueued with a Registration object
-# 2. The registration is deleted before the job executes
+# 1. A mailer/job is enqueued with a GlobalID reference to a record
+# 2. The record is deleted before the job executes
 # 3. Sidekiq tries to deserialize the GlobalID and finds no record
+#
+# Covered models:
+# - Decidim::Meetings::Registration — deleted when a meeting registration is removed
+# - Decidim::Report                 — deleted when a moderation report is cleared
+# - Decidim::Attachment             — deleted when an attached file is removed
+
+SKIPPABLE_DELETED_RECORD_CLASSES = %w(
+  Decidim::Meetings::Registration
+  Decidim::Report
+  Decidim::Attachment
+).freeze
 
 if defined?(Sidekiq)
   class RegistrationDeserializationErrorHandler
@@ -17,16 +28,15 @@ if defined?(Sidekiq)
     def call(_worker, job, _queue)
       yield
     rescue ActiveJob::DeserializationError => e
-      # Check if the error is related to a deleted Meeting Registration
-      if e.message.include?("Decidim::Meetings::Registration")
+      skippable = SKIPPABLE_DELETED_RECORD_CLASSES.any? { |klass| e.message.include?(klass) }
+
+      if skippable
         Rails.logger.warn(
-          "Skipping mailer job for deleted registration: #{e.message}",
+          "Skipping job for deleted record: #{e.message}",
           job_id: job["jid"],
           job_class: job["class"]
         )
-        # Don't re-raise - silently skip this job
       else
-        # Re-raise other deserialization errors
         raise
       end
     end
