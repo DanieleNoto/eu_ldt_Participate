@@ -80,17 +80,50 @@ function initializeToolsDropdown() {
 			return;
 		}
 
-		// Helper to decode base64 SVG icons
-		function decodeIcon(iconString) {
-			const prefix = 'data:image/svg+xml;base64,';
-			if (iconString && iconString.startsWith(prefix)) {
-				const base64 = iconString.slice(prefix.length);
+		// Helper to build an icon DOM element from whatever format Tool0 returns.
+		// Supported formats:
+		//   • data:image/svg+xml;base64,…  → decoded inline SVG
+		//   • raw SVG markup (<svg …)       → inline SVG
+		//   • any other data URI            → <img src="…">
+		//   • http(s):// or absolute path   → <img src="…">
+		// Returns null when the string is empty/unrecognised.
+		function buildIconElement(iconString) {
+			if (!iconString) return null;
+
+			// base64-encoded SVG data URI → decode and inline so CSS can style it
+			if (iconString.startsWith('data:image/svg+xml;base64,')) {
+				const base64 = iconString.slice('data:image/svg+xml;base64,'.length);
 				try {
-					return atob(base64);
+					const svgMarkup = atob(base64);
+					const span = document.createElement('span');
+					span.innerHTML = svgMarkup;
+					return span;
 				} catch (e) {
 					console.error('Error decoding SVG icon:', e);
 				}
 			}
+
+			// Raw SVG markup
+			if (iconString.trimStart().startsWith('<svg')) {
+				const span = document.createElement('span');
+				span.innerHTML = iconString;
+				return span;
+			}
+
+			// Any remaining data URI (PNG, ICO, JPEG, …) or plain URL / absolute path
+			if (
+				iconString.startsWith('data:') ||
+				iconString.startsWith('http://') ||
+				iconString.startsWith('https://') ||
+				iconString.startsWith('/')
+			) {
+				const img = document.createElement('img');
+				img.src = iconString;
+				img.alt = '';
+				img.className = 'application-icon';
+				return img;
+			}
+
 			return null;
 		}
 
@@ -109,16 +142,15 @@ function initializeToolsDropdown() {
 				link.classList.add('selected');
 			}
 
-			const svgMarkup = decodeIcon(app.icon, app.name);
-			if (svgMarkup) {
-				const iconSpan = document.createElement('span');
-				iconSpan.innerHTML = svgMarkup; // Safe because it's from base64-decoded SVG
-				link.appendChild(iconSpan);
+			const iconElement = buildIconElement(app.icon);
+			if (iconElement) {
+				link.appendChild(iconElement);
 			} else {
-				const iconDiv = document.createElement('span');
-				iconDiv.innerHTML =
-					'<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>';
-				link.appendChild(iconDiv);
+				// Fallback: generic grid icon (not a hamburger)
+				const iconSpan = document.createElement('span');
+				iconSpan.innerHTML =
+					'<svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 8a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zm6-6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zm0 8a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>';
+				link.appendChild(iconSpan);
 			}
 
 			const nameSpan = document.createElement('span');
