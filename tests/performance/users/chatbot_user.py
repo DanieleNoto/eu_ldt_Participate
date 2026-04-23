@@ -24,18 +24,6 @@ TOPICS = [
     {"id": "initiatives", "text": "What are initiatives?"}
 ]
 
-# Custom questions for "Further support" (simulate user typing custom questions)
-CUSTOM_QUESTIONS = [
-    "I need help with configuring my account settings",
-    "If a data breach will happen i will be notified about the impacts?",
-    "Will my data be deleted if I close my account?",
-    "I'm experiencing issues with email notifications",
-    "How can I reset my password if i forgot it?",
-    "Is there a manual that can i refer to for this platform?",
-    "Can you provide more details how can i be involved in process participation?",
-    "I have a question about data privacy and GDPR compliance"
-]
-
 
 class ChatbotLoadTest(AuthenticatedUser):
     """
@@ -146,35 +134,7 @@ class ChatbotLoadTest(AuthenticatedUser):
             else:
                 response.failure(f"Failed to switch topic: {response.status_code}")
 
-    @task(4)
-    def further_support(self):
-        """
-        Simulate user clicking "Further support" to send a custom question.
-        Weight=4 to simulate 40% of users who need personalized support.
-        Reflects public platform usage where users contact support for specific issues.
-        """
-        if not hasattr(self, 'conversation_id') or not self.conversation_id:
-            print("[Chatbot] No conversation ID, skipping further support")
-            return
-        
-        # User types a custom question
-        custom_question = random.choice(CUSTOM_QUESTIONS)
-        
-        # Send custom question via "Further support" feature
-        with self.catch_401(
-            self.client.post,
-            f"{self.context_path}/support/send",
-            json={
-                "conversationId": self.conversation_id,
-                "message": custom_question
-            },
-            name="Chatbot - Further Support",
-            catch_response=True
-        ) as response:
-            if response.status_code == 200:
-                print(f"[Chatbot] Further support sent: '{custom_question[:50]}...'")
-            else:
-                response.failure(f"Failed to send further support: {response.status_code}")
+
 
 if __name__ == "__main__":
     run_single_user(ChatbotLoadTest)
