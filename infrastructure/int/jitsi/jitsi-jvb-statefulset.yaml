@@ -23,7 +23,7 @@ spec:
             automountServiceAccountToken: false
             containers:
                 - name: jitsi-jvb
-                  image: jitsi/jvb:stable-8960
+                  image: jitsi/jvb:stable-10888
                   imagePullPolicy: IfNotPresent
                   resources:
                       requests:
