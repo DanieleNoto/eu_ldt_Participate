@@ -7,8 +7,8 @@
 
 base_path = File.expand_path("..", __dir__)
 
-Decidim::Webpacker.register_path("#{base_path}/app/packs")
-Decidim::Webpacker.register_entrypoints(
+Decidim::Shakapacker.register_path("#{base_path}/app/packs")
+Decidim::Shakapacker.register_entrypoints(
   decidim_ldt_map_visualization: "#{base_path}/app/packs/entrypoints/decidim_ldt_map_visualization.js"
 )
-Decidim::Webpacker.register_stylesheet_import("stylesheets/decidim/ldt_map_visualization/ldt_map_visualization")
+Decidim::Shakapacker.register_stylesheet_import("stylesheets/decidim/ldt_map_visualization/ldt_map_visualization")

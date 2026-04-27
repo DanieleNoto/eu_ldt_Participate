@@ -1,12 +1,7 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-# Marco Pinnella
-# Pierluigi Spedicato
-
 # frozen_string_literal: true
 
+# This migration comes from decidim_budgets (originally 20200714103519)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:58 UTC
 class MoveBudgetsToOwnModel < ActiveRecord::Migration[5.2]
   class Component < ApplicationRecord
     self.table_name = :decidim_components
@@ -40,10 +35,8 @@ class MoveBudgetsToOwnModel < ActiveRecord::Migration[5.2]
   end
 
   def down
-    add_column :decidim_budgets_projects, :decidim_component_id, :integer
-    add_index :decidim_budgets_projects, :decidim_component_id
-    add_column :decidim_budgets_orders, :decidim_component_id, :integer
-    add_index :decidim_budgets_orders, :decidim_component_id
+    add_column :decidim_budgets_projects, :decidim_component_id, :integer, index: true
+    add_column :decidim_budgets_orders, :decidim_component_id, :integer, index: true
 
     Budget.find_each do |resource|
       revert_budget_to_component(resource)

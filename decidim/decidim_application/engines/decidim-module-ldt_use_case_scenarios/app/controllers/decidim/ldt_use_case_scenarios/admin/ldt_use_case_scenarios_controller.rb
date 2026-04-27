@@ -14,7 +14,8 @@ module Decidim
       # This controller allows managing the LdtUseCaseScenarios component in the admin panel.
       class LdtUseCaseScenariosController < ApplicationController
         def index
-          @use_case_scenarios = collection
+          enforce_permission_to :read, :ldt_use_case_scenario
+          @use_case_scenarios = collection.page(params[:page])
         end
 
         # Proxy endpoint to fetch experiment executions from the external TOOL2 API.
@@ -25,7 +26,6 @@ module Decidim
           jwt = fetch_valid_jwt_token
 
           unless jwt
-            Rails.logger.warn("No valid Keycloak JWT token available for user #{current_user&.id}")
             return render json: { error: "No valid Keycloak JWT token. Please log in again." }, status: :unauthorized
           end
 
@@ -36,25 +36,22 @@ module Decidim
             0
           end
           size = begin
-            Integer(params[:size] || 100)
+            Integer(params[:size] || 10)
           rescue StandardError
-            100
+            10
           end
 
-          # Fetch experiments from TOOL2
-          result = fetch_from_tool2(jwt, "/experiment-executions?page=#{page}&size=#{size}")
+          # Fetch experiments from TOOL2, always sorted by last update descending
+          result = fetch_from_tool2(jwt, "/experiment-executions?page=#{page}&size=#{size}&sort=updatedAt::DESC")
           
           if result[:error]
-            Rails.logger.error("Invalid endpoint path: #{result[:error]}")
             return render json: { error: "Invalid request parameters" }, status: :bad_request
           end
           
           render json: result[:data]
         rescue JSON::ParserError => e
-          Rails.logger.error("JSON parsing error: #{e.message}")
           render json: { error: "parsing error: #{e.message}" }, status: :unprocessable_entity
         rescue StandardError => e
-          Rails.logger.error("Unexpected error: #{e.message}")
           render json: { error: "unexpected error: #{e.message}" }, status: :internal_server_error
         end
 
@@ -65,24 +62,24 @@ module Decidim
           jwt = fetch_valid_jwt_token
 
           unless jwt
-            Rails.logger.warn("No valid Keycloak JWT token available")
             return render json: { error: "No valid Keycloak JWT token" }, status: :unauthorized
           end
+
+          # Validate and sanitize experiment_id to prevent path traversal
+          experiment_id = validate_experiment_id(params[:experiment_id])
+          return render json: { error: "Invalid experiment_id format" }, status: :bad_request unless experiment_id
 
           # Fetch experiment detail from TOOL2
           result = fetch_from_tool2(jwt, "/experiment-executions/#{experiment_id}")
           
           if result[:error]
-            Rails.logger.error("Invalid endpoint path: #{result[:error]}")
             return render json: { error: "Invalid request" }, status: :bad_request
           end
           
           render json: result[:data]
         rescue JSON::ParserError => e
-          Rails.logger.error("JSON parsing error: #{e.message}")
           render json: { error: "parsing error: #{e.message}" }, status: :unprocessable_entity
         rescue StandardError => e
-          Rails.logger.error("Unexpected error: #{e.message}")
           render json: { error: "unexpected error: #{e.message}" }, status: :internal_server_error
         end
 
@@ -92,8 +89,12 @@ module Decidim
           scenario_name = params[:scenario_name]
           component_id = params[:component_id]
 
+          # Validate experiment_id to prevent path traversal
+          experiment_id = validate_experiment_id(experiment_id)
+          return render json: { error: "Invalid experiment_id format" }, status: :bad_request unless experiment_id
+
           # Validate params
-          return render json: { error: "Missing experiment_id or scenario_name" }, status: :bad_request unless experiment_id.present? && scenario_name.present?
+          return render json: { error: "Missing experiment_id or scenario_name" }, status: :bad_request unless scenario_name.present?
 
           # Get component_id from params or current_component
           comp_id = component_id || current_component&.id
@@ -104,7 +105,6 @@ module Decidim
           jwt = fetch_valid_jwt_token
 
           unless jwt
-            Rails.logger.warn("No valid Keycloak JWT token available")
             return render json: { error: "No valid Keycloak JWT token" }, status: :unauthorized
           end
 
@@ -112,7 +112,6 @@ module Decidim
           result = fetch_from_tool2(jwt, "/experiment-executions/#{experiment_id}")
           
           if result[:error]
-            Rails.logger.error("Invalid endpoint path: #{result[:error]}")
             return render json: { error: "Invalid request" }, status: :bad_request
           end
           
@@ -127,29 +126,25 @@ module Decidim
           )
 
           if @scenario.save
-            Rails.logger.info "Scenario saved successfully: #{@scenario.id}"
             flash[:notice] = I18n.t("create.experiment_saved", scope: "decidim.ldt_use_case_scenarios.admin")
             redirect_to ldt_use_case_scenarios_path
           else
-            Rails.logger.error("Failed to save scenario: #{@scenario.errors.full_messages.join(", ")}")
             flash[:alert] = "Error saving experiment: #{@scenario.errors.full_messages.join(", ")}"
             redirect_to new_ldt_use_case_scenario_path
           end
         rescue ActiveRecord::RecordNotUnique => e
-          Rails.logger.error("Duplicate experiment: #{e.message}")
           flash[:alert] = I18n.t("create.duplicate_experiment", scope: "decidim.ldt_use_case_scenarios.admin")
           redirect_to ldt_use_case_scenarios_path
         rescue JSON::ParserError => e
-          Rails.logger.error("JSON parsing error: #{e.message}")
           flash[:alert] = "Error parsing data from TOOL2: #{e.message}"
           redirect_to new_ldt_use_case_scenario_path
         rescue StandardError => e
-          Rails.logger.error("Unexpected error in save_experiment: #{e.class} - #{e.message}")
           flash[:alert] = "Unexpected error: #{e.message}"
           redirect_to new_ldt_use_case_scenario_path
         end
 
         def new
+          enforce_permission_to :create, :ldt_use_case_scenario
           @form = ::Decidim::LdtUseCaseScenarios::UseCaseScenarioForm.new
           fetch_experiments_for_form
         end
@@ -160,6 +155,7 @@ module Decidim
         end
 
         def create
+          enforce_permission_to :create, :ldt_use_case_scenario
           @form = ::Decidim::LdtUseCaseScenarios::UseCaseScenarioForm.from_params(params)
 
           if @form.invalid?
@@ -193,7 +189,6 @@ module Decidim
             result = fetch_from_tool2(jwt, "/experiment-executions/#{experiment_id}")
             
             if result[:error]
-              Rails.logger.error("Invalid endpoint path: #{result[:error]}")
               flash[:alert] = "Invalid request parameters"
               redirect_to new_ldt_use_case_scenario_path
               return
@@ -217,7 +212,6 @@ module Decidim
               redirect_to new_ldt_use_case_scenario_path
             end
           rescue StandardError => e
-            Rails.logger.error("Error creating use case scenario: #{e.message}")
             flash[:alert] = "Error creating scenario: #{e.message}"
             redirect_to new_ldt_use_case_scenario_path
           end
@@ -253,20 +247,31 @@ module Decidim
 
         private
 
-        # Centralized method to fetch valid JWT token using Keycloak TokenService
-        # @return [String, nil] The valid JWT token or nil
+        # Centralized method to fetch valid JWT token using Keycloak TokenService.
+        # Uses cookies.to_h (not request.cookies) so that tokens refreshed by
+        # before_action :check_keycloak_auto_logout are visible here, avoiding
+        # a double-refresh with the same refresh token.
+        #
+        # TokenService can return :network_error (truthy Symbol) when Keycloak is
+        # temporarily unreachable. We explicitly return nil in that case so callers
+        # can show a proper error instead of sending "network_error" as a Bearer token.
+        #
+        # @return [String, nil] The valid JWT token string, or nil if unavailable
         def fetch_valid_jwt_token
-          Decidim::Keycloak::TokenService.ensure_valid_token(
+          result = Decidim::Keycloak::TokenService.ensure_valid_token(
             current_user,
-            cookies_hash: request.cookies,
+            cookies_hash: cookies.to_h,
             cookies_obj: cookies,
             request_host: request.host,
             controller: self
           )
+          return nil unless result.is_a?(String) && result.present?
+
+          result
         end
 
         def collection
-          UseCaseScenario.where(decidim_component_id: current_component.id)
+          UseCaseScenario.where(decidim_component_id: current_component.id).order(updated_at: :desc)
         end
 
         def scenario_params
@@ -278,23 +283,28 @@ module Decidim
         end
 
         def fetch_experiments_for_form
-          # Fetch experiments from TOOL2 when rendering the form
 
           # Ensure token is valid
-          jwt = fetch_valid_jwt_token
+          raw_token_result = Decidim::Keycloak::TokenService.ensure_valid_token(
+            current_user,
+            cookies_hash: cookies.to_h,
+            cookies_obj: cookies,
+            request_host: request.host,
+            controller: self
+          )
+
+          jwt = raw_token_result.is_a?(String) && raw_token_result.present? ? raw_token_result : nil
 
           unless jwt
-            Rails.logger.warn("No valid Keycloak JWT token available for user #{current_user&.id}")
             @experiments = []
             @experiments_error = "No valid Keycloak JWT token. Please log in again."
             return
           end
 
-          # Fetch experiments list (first page, 100 results)
-          result = fetch_from_tool2(jwt, "/experiment-executions?page=0&size=100")
-          
+          # Fetch experiments list (first page, sorted by last update)
+          result = fetch_from_tool2(jwt, "/experiment-executions?page=0&size=10&sort=updatedAt::DESC")
+
           if result[:error]
-            Rails.logger.error("Invalid endpoint path: #{result[:error]}")
             @experiments = []
             @experiments_error = "Invalid request parameters"
             return
@@ -302,18 +312,29 @@ module Decidim
 
           # Extract experiments array
           experiments_data = result[:data]
+
           @experiments = if experiments_data.is_a?(Array)
                            experiments_data
                          elsif experiments_data.is_a?(Hash) && experiments_data["content"].is_a?(Array)
                            experiments_data["content"]
                          else
+                           @experiments_error = I18n.t("fetch_experiments_error", scope: "decidim.ldt_use_case_scenarios.admin", default: "Unexpected response from the experiments service. Please try again.")
                            []
                          end
 
-          @total_pages = experiments_data.is_a?(Hash) ? (experiments_data["totalPages"] || 1) : 1
-          @experiments_error = nil
+          @total_pages = if experiments_data.is_a?(Hash) && experiments_data["metadata"].is_a?(Hash)
+                           metadata = experiments_data["metadata"]
+                           total = metadata["total"].to_i
+                           size = metadata["size"].to_i
+                           size > 0 ? (total.to_f / size).ceil : 1
+                         elsif experiments_data.is_a?(Hash)
+                           (experiments_data["totalPages"] || 1).to_i
+                         else
+                           1
+                         end
+          @page_size = 10
+          @experiments_error = nil unless @experiments_error
         rescue StandardError => e
-          Rails.logger.error("Error fetching experiments in fetch_experiments_for_form: #{e.message}")
           @experiments = []
           @experiments_error = "Error loading experiments: #{e.message}"
         end
@@ -324,15 +345,26 @@ module Decidim
           experiments_url = ENV["TOOL2_EXPERIMENTS_URL"] || "https://ucs-int.ldttoolbox.app/api/v1/experiment-executions"
 
           base_url = normalize_base_url(experiments_url)
-          
+
           # Validate and sanitize endpoint_path to prevent path traversal
           validated_path = validate_endpoint_path(endpoint_path)
           return { error: "Invalid endpoint path" } unless validated_path
-          
-          csrf_token, csrf_cookies = get_csrf_token(base_url, jwt)
+
+          # Log original JWT claims for debugging
+          begin
+            orig_payload = JWT.decode(jwt, nil, false).first
+          rescue StandardError => e
+          end
+
+          # TOOL2 validates the JWT audience against its own Keycloak client ID.
+          # If TOOL2_KEYCLOAK_CLIENT_ID is configured, exchange the Decidim token
+          # for a token scoped to TOOL2's audience before calling the API.
+          tool2_jwt = exchange_token_for_tool2(jwt)
+
+          csrf_token, csrf_cookies = get_csrf_token(base_url, tool2_jwt)
           data_url = "#{base_url}#{validated_path}"
 
-          data_response = make_api_request_with_retry(data_url, jwt, csrf_token, csrf_cookies)
+          data_response = make_api_request_with_retry(data_url, tool2_jwt, csrf_token, csrf_cookies)
           data = JSON.parse(data_response.body)
 
           {
@@ -340,6 +372,31 @@ module Decidim
             cookies: csrf_cookies,
             data: data
           }
+        end
+
+        # Exchange the Decidim access token for a TOOL2-scoped token if
+        # TOOL2_KEYCLOAK_CLIENT_ID is set. Falls back to the original token
+        # when no client ID is configured or exchange fails.
+        # @param jwt [String] The Decidim access token
+        # @return [String] The token to use with TOOL2
+        def exchange_token_for_tool2(jwt)
+          tool2_client_id = ENV["TOOL2_KEYCLOAK_CLIENT_ID"].presence
+          unless tool2_client_id
+            return jwt
+          end
+
+          exchanged = Decidim::Keycloak::TokenService.exchange_token_for_audience(jwt, tool2_client_id)
+
+          if exchanged.present?
+            # Decode and log the key claims so we can verify aud/azp
+            begin
+              payload = JWT.decode(exchanged, nil, false).first
+            rescue StandardError => e
+            end
+            exchanged
+          else
+            jwt
+          end
         end
 
         def reconstruct_token_from_cookies(cookies_hash, token_key)
@@ -364,6 +421,8 @@ module Decidim
           uri = URI(csrf_url)
           http = Net::HTTP.new(uri.host, uri.port)
           http.use_ssl = uri.scheme == "https"
+          http.open_timeout = 5
+          http.read_timeout = 10
 
           csrf_request = Net::HTTP::Get.new(uri)
           csrf_request["Authorization"] = "Bearer #{jwt}"
@@ -373,14 +432,13 @@ module Decidim
           csrf_response = csrf_response_obj.body
           csrf_json = begin
             JSON.parse(csrf_response)
-          rescue StandardError
+          rescue StandardError => e
             {}
           end
           csrf_token = csrf_json["csrfToken"]
           csrf_cookies = csrf_response_obj["Set-Cookie"]
 
           unless csrf_token
-            Rails.logger.warn("Failed to obtain CSRF token from TOOL2")
             raise "Failed to obtain CSRF token from TOOL2"
           end
 
@@ -391,6 +449,8 @@ module Decidim
           data_uri = URI(data_url)
           data_http = Net::HTTP.new(data_uri.host, data_uri.port)
           data_http.use_ssl = data_uri.scheme == "https"
+          data_http.open_timeout = 5
+          data_http.read_timeout = 15
 
           data_request = Net::HTTP::Get.new(data_uri)
           data_request["Authorization"] = "Bearer #{jwt}"
@@ -401,9 +461,8 @@ module Decidim
           data_response = data_http.request(data_request)
 
           if data_response.code == "401"
-            handle_unauthorized_retry(data_request, data_http, data_response)
+            data_response = handle_unauthorized_retry(data_request, data_http, data_response)
           elsif data_response.code != "200"
-            Rails.logger.error("TOOL2 API error - Status: #{data_response.code}, Body: #{data_response.body[0..500]}")
             raise "TOOL2 returned status #{data_response.code}"
           end
 
@@ -411,19 +470,21 @@ module Decidim
         end
 
         def handle_unauthorized_retry(data_request, data_http, _original_response)
-          Rails.logger.warn("TOOL2 API returned 401 - attempting token refresh and retry")
 
-          # Use TokenService to refresh token with proper keyword arguments
-          jwt = Decidim::Keycloak::TokenService.ensure_valid_token(
+          # Use cookies.to_h so any prior refresh within this request is visible.
+          # request.cookies is immutable (incoming HTTP), changes to the response
+          # cookie jar are only visible via cookies.to_h.
+          # Explicitly guard against :network_error (truthy Symbol) being used as a token.
+          raw = Decidim::Keycloak::TokenService.ensure_valid_token(
             current_user,
-            cookies_hash: request.cookies,
+            cookies_hash: cookies.to_h,
             cookies_obj: cookies,
             request_host: request.host,
             controller: self
           )
+          jwt = raw.is_a?(String) && raw.present? ? raw : nil
 
           unless jwt
-            Rails.logger.error("Token refresh failed")
             raise "Authentication failed - please log in again"
           end
 
@@ -438,7 +499,6 @@ module Decidim
           data_response = data_http.request(data_request)
 
           unless data_response.code == "200"
-            Rails.logger.error("TOOL2 API error after token refresh - Status: #{data_response.code}")
             raise "TOOL2 returned status #{data_response.code}"
           end
 

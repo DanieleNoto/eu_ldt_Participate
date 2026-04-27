@@ -7,11 +7,18 @@
 let selectedExperiment = null;
 let i18n = {}; // Store translations
 
+// Pagination state
+let currentPage = 0;
+let totalPages = 1;
+let pageSize = 10;
+
 document.addEventListener('DOMContentLoaded', function () {
 	console.log('DOMContentLoaded fired - initializing experiments_association');
 
 	// Load translations from data attributes
 	loadTranslations();
+	// Init pagination state from server-rendered data
+	initPagination();
 
 	// Setup event handlers
 	setupRadioHandlers();
@@ -319,4 +326,175 @@ function showError(message) {
 	// For general errors, show in a general location or as an alert
 	// You could also create a general error container
 	alert(message); // Fallback for general errors
+}
+
+// ============================================================
+// Pagination
+// ============================================================
+
+function initPagination() {
+	const container = document.querySelector('.experiments-association');
+	if (container) {
+		totalPages = parseInt(container.dataset.totalPages || '1', 10);
+		pageSize = parseInt(container.dataset.pageSize || '10', 10);
+	}
+	renderPaginationControls();
+}
+
+function renderPaginationControls() {
+	const paginationDiv = document.querySelector('[data-pagination]');
+	if (!paginationDiv) return;
+
+	// Clear existing controls
+	paginationDiv.innerHTML = '';
+
+	if (totalPages <= 1) return;
+
+	paginationDiv.className = 'pagination-controls flex items-center gap-x-2 mt-4';
+
+	const prevBtn = document.createElement('button');
+	prevBtn.textContent = '←';
+	prevBtn.className = 'button button__sm button__secondary';
+	prevBtn.disabled = currentPage === 0;
+	prevBtn.addEventListener('click', () => goToPage(currentPage - 1));
+	paginationDiv.appendChild(prevBtn);
+
+	const pageInfo = document.createElement('span');
+	pageInfo.className = 'text-sm';
+	pageInfo.textContent = `${currentPage + 1} / ${totalPages}`;
+	paginationDiv.appendChild(pageInfo);
+
+	const nextBtn = document.createElement('button');
+	nextBtn.textContent = '→';
+	nextBtn.className = 'button button__sm button__secondary';
+	nextBtn.disabled = currentPage >= totalPages - 1;
+	nextBtn.addEventListener('click', () => goToPage(currentPage + 1));
+	paginationDiv.appendChild(nextBtn);
+}
+
+function goToPage(page) {
+	if (page < 0 || page >= totalPages) return;
+
+	const adminPath = document.querySelector('[data-admin-path]')?.getAttribute('data-admin-path');
+	const url = `${adminPath}/external_experiments?page=${page}&size=${pageSize}`;
+
+	// Show loading state
+	const tbody = document.getElementById('experiments-tbody');
+	if (tbody) {
+		tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">Loading...</td></tr>`;
+	}
+
+	fetch(url, {
+		method: 'GET',
+		credentials: 'same-origin',
+		headers: { Accept: 'application/json' }
+	})
+		.then(response => {
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			return response.json();
+		})
+		.then(data => {
+			const experiments = Array.isArray(data) ? data : data.content || [];
+			const metadata = data.metadata;
+
+			if (metadata && metadata.total != null && metadata.size > 0) {
+				totalPages = Math.ceil(metadata.total / metadata.size);
+			}
+
+			currentPage = page;
+			renderExperimentRows(experiments);
+			renderPaginationControls();
+			setupRadioHandlers();
+		})
+		.catch(error => {
+			console.error('Error fetching experiments page:', error);
+			if (tbody) {
+				const tr = document.createElement('tr');
+				const td = document.createElement('td');
+				td.setAttribute('colspan', '6');
+				td.className = 'text-center text-red-600 py-4';
+				td.textContent = error.message;
+				tr.appendChild(td);
+				tbody.replaceChildren(tr);
+			}
+		});
+}
+
+function renderExperimentRows(experiments) {
+	const tbody = document.getElementById('experiments-tbody');
+	if (!tbody) return;
+
+	tbody.innerHTML = '';
+
+	if (!experiments.length) {
+		const tr = document.createElement('tr');
+		const td = document.createElement('td');
+		td.colSpan = 6;
+		td.className = 'text-center py-4';
+		td.textContent = 'No experiments found.';
+		tr.appendChild(td);
+		tbody.appendChild(tr);
+		return;
+	}
+
+	experiments.forEach(exp => {
+		const tr = document.createElement('tr');
+		tr.dataset.experimentId = exp.id || '';
+
+		// Select radio
+		const tdRadio = document.createElement('td');
+		const radio = document.createElement('input');
+		radio.type = 'radio';
+		radio.name = 'selected_experiment';
+		radio.value = exp.id || '';
+		radio.className = 'select-experiment-radio';
+		tdRadio.appendChild(radio);
+		tr.appendChild(tdRadio);
+
+		// Experiment name
+		const tdName = document.createElement('td');
+		tdName.className = '!text-left';
+		const strong = document.createElement('strong');
+		strong.textContent = (exp.experiment && exp.experiment.name) || '—';
+		tdName.appendChild(strong);
+		tr.appendChild(tdName);
+
+		// Experiment ID / Scenario ID
+		const tdIds = document.createElement('td');
+		tdIds.className = '!text-left';
+		const divExpId = document.createElement('div');
+		const strongExpId = document.createElement('strong');
+		strongExpId.textContent = exp.experimentId || '—';
+		divExpId.appendChild(strongExpId);
+		const divScenId = document.createElement('div');
+		divScenId.className = 'text-sm text-gray-600';
+		divScenId.textContent = exp.scenarioId || '—';
+		tdIds.appendChild(divExpId);
+		tdIds.appendChild(divScenId);
+		tr.appendChild(tdIds);
+
+		// Status
+		const tdStatus = document.createElement('td');
+		tdStatus.textContent = exp.status || '—';
+		tr.appendChild(tdStatus);
+
+		// Created
+		const tdCreated = document.createElement('td');
+		const rawDate = exp.createdAt || exp.created_at;
+		if (rawDate) {
+			try {
+				tdCreated.textContent = new Date(rawDate).toISOString().slice(0, 16).replace('T', ' ');
+			} catch {
+				tdCreated.textContent = rawDate;
+			}
+		}
+		tr.appendChild(tdCreated);
+
+		// Version
+		const tdVersion = document.createElement('td');
+		tdVersion.textContent = exp.experimentVersion != null ? exp.experimentVersion : '—';
+		tr.appendChild(tdVersion);
+
+		tbody.appendChild(tr);
+	});
 }

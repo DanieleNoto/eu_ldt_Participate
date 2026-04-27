@@ -1,12 +1,7 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-# Marco Pinnella
-# Pierluigi Spedicato
-
 # frozen_string_literal: true
 
+# This migration comes from decidim (originally 20231123111229)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:58 UTC
 class RemoveOfficialImgHeader < ActiveRecord::Migration[6.1]
   def up
     remove_column :decidim_organizations, :official_img_header

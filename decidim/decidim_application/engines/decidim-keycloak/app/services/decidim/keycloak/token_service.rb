@@ -95,7 +95,7 @@ module Decidim
         client_id = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_ID", nil)
         client_secret = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_SECRET", nil)
 
-        introspect_endpoint = "#{keycloak_site}/realms/#{realm}/protocol/openid-connect/token/introspect"
+        introspect_endpoint = "#{keycloak_site.to_s.chomp('/')}/realms/#{realm}/protocol/openid-connect/token/introspect"
 
         begin
           uri = URI(introspect_endpoint)
@@ -116,14 +116,11 @@ module Decidim
             result = JSON.parse(response.body)
             active = result["active"]
 
-            Rails.logger.debug { "[Keycloak Token Introspection] Token active: #{active}" }
             active == true
           else
-            Rails.logger.warn "[Keycloak Token Introspection] Failed: HTTP #{response.code}"
             false
           end
         rescue StandardError => e
-          Rails.logger.error "[Keycloak Token Introspection] Error: #{e.message}"
           false
         end
       end
@@ -138,7 +135,7 @@ module Decidim
         client_id = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_ID", nil)
         client_secret = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_SECRET", nil)
 
-        token_endpoint = "#{keycloak_site}/realms/#{realm}/protocol/openid-connect/token"
+        token_endpoint = "#{keycloak_site.to_s.chomp("/")}/realms/#{realm}/protocol/openid-connect/token"
 
         # Try a couple of subject_token_type and client auth strategies if Keycloak rejects the first attempt
         subject_token_types = [
@@ -181,7 +178,6 @@ module Decidim
               return result["access_token"] if result["access_token"]
             end
           rescue StandardError => e
-            Rails.logger.warn "[Keycloak TokenService] Error during token refresh attempt: #{e.class} - #{e.message}"
           end
         end
 
@@ -200,7 +196,7 @@ module Decidim
         client_id = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_ID", nil)
         client_secret = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_SECRET", nil)
 
-        token_endpoint = "#{keycloak_site}/realms/#{realm}/protocol/openid-connect/token"
+        token_endpoint = "#{keycloak_site.to_s.chomp('/')}/realms/#{realm}/protocol/openid-connect/token"
 
         uri = URI(token_endpoint)
         http = Net::HTTP.new(uri.host, uri.port)
@@ -231,19 +227,15 @@ module Decidim
           }
         when 400, 401
           # Definitive rejection: refresh token expired/revoked → logout
-          Rails.logger.info "[Keycloak TokenService] Refresh rejected (HTTP #{response.code}): #{response.body.truncate(200)} → session expired"
           nil
         else
           # Unexpected server/proxy error → keep session, retry next request
-          Rails.logger.warn "[Keycloak TokenService] Unexpected refresh response (HTTP #{response.code}) → keeping session"
           :network_error
         end
       rescue Net::TimeoutError, Net::OpenTimeout, Net::ReadTimeout,
              Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError => e
-        Rails.logger.warn "[Keycloak TokenService] Network error during refresh: #{e.class} - #{e.message}"
         :network_error
       rescue StandardError => e
-        Rails.logger.error "[Keycloak TokenService] Unexpected error during refresh: #{e.class} - #{e.message}"
         :network_error
       end
 
@@ -255,7 +247,7 @@ module Decidim
         client_id = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_ID", nil)
         client_secret = ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_SECRET", nil)
 
-        revoke_endpoint = "#{keycloak_site}/realms/#{realm}/protocol/openid-connect/revoke"
+        revoke_endpoint = "#{keycloak_site.to_s.chomp('/')}/realms/#{realm}/protocol/openid-connect/revoke"
 
         begin
           uri = URI(revoke_endpoint)
@@ -273,14 +265,11 @@ module Decidim
           response = http.request(request)
 
           if response.code == "200"
-            Rails.logger.info "✓ Successfully revoked token"
             true
           else
-            Rails.logger.warn "✗ Failed to revoke token: HTTP #{response.code} - #{response.body}"
             false
           end
         rescue StandardError => e
-          Rails.logger.error "Error revoking token: #{e.message}"
           false
         end
       end
@@ -309,14 +298,11 @@ module Decidim
         nil
       end
 
-
       def handle_token_refresh(refresh_token, cookies_obj: nil, request_host: nil, controller: nil)
         unless refresh_token && cookies_obj
-          Rails.logger.info "[Keycloak Token Validation] Cannot refresh: refresh_token=#{refresh_token.present? ? "present" : "MISSING"}, cookies_obj=#{cookies_obj.nil? ? "MISSING" : "present"}"
           return nil
         end
 
-        Rails.logger.info "[Keycloak Token Validation] Access token expired, attempting silent refresh (refresh_token present: #{refresh_token.present?})"
         new_tokens = refresh_access_token(refresh_token)
 
         case new_tokens
@@ -324,15 +310,12 @@ module Decidim
           # Successful refresh: persist new tokens and return new access token
           clear_cookies_if_controller(controller)
           save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
-          Rails.logger.info "[Keycloak Token Validation] Token refreshed successfully"
           new_tokens[:access_token]
         when :network_error
           # Transient failure: keep session alive, retry on next request
-          Rails.logger.warn "[Keycloak Token Validation] Network error during refresh → keeping session alive"
           :network_error
         else
           # nil: definitive rejection (400/401) → force logout
-          Rails.logger.info "[Keycloak Token Validation] Refresh rejected by Keycloak → session expired"
           clear_cookies_if_controller(controller)
           nil
         end

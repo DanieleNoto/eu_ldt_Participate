@@ -8,7 +8,7 @@
 module Decidim
   # This holds the decidim-analytics version.
   module Analytics
-    VERSION = "0.30.1"
-    DECIDIM_VERSION = "~> 0.30.1"
+    VERSION = "0.31.0"
+    COMPAT_DECIDIM_VERSION = [">= 0.30.0", "< 0.32.0"].freeze
   end
 end

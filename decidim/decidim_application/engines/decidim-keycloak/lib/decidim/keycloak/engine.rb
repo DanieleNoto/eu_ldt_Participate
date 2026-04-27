@@ -24,102 +24,57 @@ module Decidim
       # Load decorators when the app is prepared
       config.to_prepare do
         Dir.glob("#{Decidim::Keycloak::Engine.root}/app/decorators/**/*_decorator.rb").each do |decorator|
-          Rails.logger.info("[Keycloak] Loading decorator: #{decorator}")
           load decorator
         end
       end
 
+      initializer "decidim.keycloak.register_provider", before: "decidim.keycloak.middleware" do
+        Decidim.omniauth_providers[:keycloakopenid] = {
+          enabled: ENV["OMNIAUTH_KEYCLOAK_CLIENT_ID"].present?,
+          client_id: ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_ID", nil),
+          client_secret: ENV.fetch("OMNIAUTH_KEYCLOAK_CLIENT_SECRET", nil),
+          site: ENV.fetch("OMNIAUTH_KEYCLOAK_SITE", nil),
+          realm: ENV.fetch("OMNIAUTH_KEYCLOAK_REALM", "master"),
+          icon_path: "media/images/keycloak_logo.svg"
+        }
+      end
+
       initializer "decidim.keycloak.middleware" do |app|
-        # Ensure OmniAuth uses Devise paths (/users/auth/...)
-        OmniAuth.config.path_prefix = "/users/auth"
-        omniauth_config = Rails.application.secrets[:omniauth]
-        next if omniauth_config[:keycloakopenid].blank?
+        next unless Decidim.omniauth_providers[:keycloakopenid]&.fetch(:enabled, false)
 
         app.config.middleware.use OmniAuth::Builder do
-          provider :keycloak_openid,
-                   client_id: "dummy",
-                   client_secret: "dummy",
-                   client_options: {
-                     site: "https://dummy.com",
-                     base_url: ""
-                   },
-                   setup: lambda { |env|
-                     request = Rack::Request.new(env)
-                     organization = Decidim::Organization.find_by(host: request.host)
-                     config = organization.enabled_omniauth_providers[:keycloakopenid]
+          provider :keycloak_openid, setup: lambda { |env|
+            request = Rack::Request.new(env)
+            callback_uri = Addressable::URI.parse(env["omniauth.strategy"].callback_url).omit(:query)
+            organization = Decidim::Organization.find_by(host: request.host)
+            config = organization.enabled_omniauth_providers[:keycloakopenid]
 
-                     base_url = config[:site].chomp("/")
-                     realm = config[:realm]
+            session = env["rack.session"] || {}
+            current_locale = session["decidim-locale"] || request.params["locale"] || organization.default_locale || "en"
+            session["omniauth.locale"] = current_locale.to_s
 
-                     # Extract current locale from session or request
-                     # This ensures Keycloak login page shows in the correct language
-                     session = env["rack.session"] || {}
-                     current_locale = session["decidim-locale"] || request.params["locale"] || organization.default_locale || "en"
+            base_url = config[:site].to_s.chomp("/")
+            realm = config[:realm].to_s
 
-                     # Force override all strategy options
-                     strategy = env["omniauth.strategy"]
-                     strategy.options[:client_id] = config[:client_id]
-                     strategy.options[:client_secret] = config[:client_secret]
-                     strategy.options[:realm] = realm
-                     strategy.options[:client_options] = {
-                       site: base_url,
-                       realm: realm,
-                       base_url: "", # This tells the gem NOT to use /auth prefix for modern Keycloak
-                       authorize_url: "/realms/#{realm}/protocol/openid-connect/auth",
-                       token_url: "/realms/#{realm}/protocol/openid-connect/token",
-                       userinfo_endpoint: "/realms/#{realm}/protocol/openid-connect/userinfo",
-                       jwks_uri: "/realms/#{realm}/protocol/openid-connect/certs"
-                     }
-
-                     # Ensure we request the OpenID Connect scopes so access_token can be used with userinfo
-                     strategy.options[:scope] = "openid profile email"
-
-                     # Store locale in session to preserve it through OAuth redirect
-                     # OmniAuth preserves session data even during external redirects
-                     session["omniauth.locale"] = current_locale.to_s
-
-                     # Pass current locale to Keycloak for localized login/error messages
-                     # This fixes the "invalid credentials" issue when using non-English locales
-                     strategy.options[:authorize_params] = {
-                       ui_locales: current_locale.to_s,
-                       kc_locale: current_locale.to_s # Fallback for older Keycloak versions
-                     }
-
-                     # Force callback_url without locale parameter to match Keycloak configuration
-                     # Decidim adds locale to URLs automatically, but Keycloak requires exact redirect_uri match
-                     # Must use callback_url (full URL) not callback_path to override Decidim's locale injection
-                     protocol = request.ssl? ? "https" : "http"
-                     callback_url = "#{protocol}://#{request.host_with_port}/users/auth/keycloakopenid/callback"
-                     strategy.options[:callback_url] = callback_url
-
-                     # Override the callback_url method to ensure it returns the URL without query parameters
-                     # This is critical because OmniAuth uses callback_url() during token exchange
-                     def strategy.callback_url
-                       options[:callback_url]
-                     end
-
-                     Rails.logger.info "🌍 Keycloak login with locale: #{current_locale}, callback: #{callback_url}"
-
-                     # Additional JWT options to handle verification issues
-                     strategy.options[:jwt_options] = {
-                       # Skip some JWT verification in development due to potential SSL issues
-                       verify_iss: Rails.env.production?,
-                       verify_aud: Rails.env.production?,
-                       verify_sub: true,
-                       verify_expiration: true,
-                       verify_not_before: true,
-                       verify_iat: true,
-                       verify_jti: false,
-                       leeway: 30 # 30 seconds leeway for clock skew
-                     }
-                   }
-
-          # Add error handling callback
-          on_failure do |env|
-            Rails.logger.error "OmniAuth Keycloak failure: #{env["omniauth.error"]}"
-            Rails.logger.error "Error type: #{env["omniauth.error.type"]}"
-            Rails.logger.error "Error strategy: #{env["omniauth.error.strategy"]}"
-          end
+            env["omniauth.strategy"].options[:client_id] = config[:client_id]
+            env["omniauth.strategy"].options[:client_secret] = config[:client_secret]
+            env["omniauth.strategy"].options[:client_options] = {
+              site: base_url,
+              realm: realm,
+              base_url: "",
+              authorize_url: "/realms/#{realm}/protocol/openid-connect/auth",
+              token_url: "/realms/#{realm}/protocol/openid-connect/token",
+              userinfo_endpoint: "/realms/#{realm}/protocol/openid-connect/userinfo",
+              jwks_uri: "/realms/#{realm}/protocol/openid-connect/certs",
+              redirect_uri: callback_uri.to_s
+            }
+            env["omniauth.strategy"].options[:authorize_params] = {
+              ui_locales: current_locale.to_s,
+              kc_locale: current_locale.to_s
+            }
+            # Ensure we request the OpenID Connect scopes so id_token is returned
+            env["omniauth.strategy"].options[:scope] = "openid profile email"
+          }
         end
       end
 
@@ -165,8 +120,7 @@ module Decidim
           def add_admin_role_info(hash)
             return unless raw_info && raw_info["resource_access"]
 
-            client_key = ENV["OMNIAUTH_KEYCLOAK_CLIENT_ID"] ||
-                         Rails.application.secrets.dig(:omniauth, :keycloakopenid, :client_id) || "tool3"
+            client_key = ENV["OMNIAUTH_KEYCLOAK_CLIENT_ID"] || "tool3"
             client_key = client_key.to_s
 
             if raw_info["resource_access"][client_key]
@@ -190,7 +144,7 @@ module Decidim
         end
       end
 
-      initializer "decidim_keycloak.webpacker.assets_path" do
+      initializer "decidim_keycloak.shakapacker.assets_path" do
         Decidim.register_assets_path File.expand_path("app/packs", root)
       end
 

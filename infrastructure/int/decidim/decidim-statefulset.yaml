@@ -164,7 +164,7 @@ spec:
                       - mountPath: /code/tmp
                         name: tmp-volume
                       - mountPath: /code/log
-                        name: tmp-volume
+                        name: log-volume
 
                 - name: open-data-exporter
                   image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
@@ -260,6 +260,7 @@ spec:
                           -q decidim_production_conference_diplomas,2 \
                           -q decidim_production_user_report,2 \
                           -q decidim_production_block_user,2 \
+                          -q decidim_production_delete_inactive_participants,2 \
                           -q decidim_production_exports,1 \
                           -q decidim_production_close_meeting_reminder,1 \
                           -q decidim_production_spam_analysis,1 \
@@ -309,6 +310,8 @@ spec:
                         readOnly: true
                       - mountPath: /code/tmp
                         name: tmp-volume
+                      - mountPath: /code/log
+                        name: log-volume
 
                 - name: fluent-bit
                   image: cr.fluentbit.io/fluent/fluent-bit:2.2-debug
@@ -325,13 +328,15 @@ spec:
                           cpu: '200m'
                           memory: '200Mi'
                   volumeMounts:
-                      - name: tmp-volume
+                      - name: log-volume
                         mountPath: /code/log
                       - name: config
                         mountPath: /fluent-bit/etc/
 
             volumes:
                 - name: tmp-volume
+                  emptyDir: {}
+                - name: log-volume
                   emptyDir: {}
                 - name: fluentbit-buffer
                   emptyDir: {}

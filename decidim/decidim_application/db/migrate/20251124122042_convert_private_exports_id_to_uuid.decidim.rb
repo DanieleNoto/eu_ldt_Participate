@@ -1,11 +1,9 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Gianfranco Cedro
 # frozen_string_literal: true
 
 # This migration comes from decidim (originally 20250819110800)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:59 UTC
 # This migration comes from decidim (originally 20250819110800)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:59 UTC
 class ConvertPrivateExportsIdToUuid < ActiveRecord::Migration[7.0]
   def up
     create_table :decidim_private_exports_new, force: :cascade do |t|

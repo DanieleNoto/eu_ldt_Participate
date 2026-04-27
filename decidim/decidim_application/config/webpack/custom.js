@@ -8,7 +8,6 @@
 const { config } = require('shakapacker');
 const { InjectManifest } = require('workbox-webpack-plugin');
 const { EsbuildPlugin } = require('esbuild-loader');
-const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
 	module: {
@@ -51,7 +50,7 @@ module.exports = {
 					filename: 'media/documents/[hash][ext][query]'
 				}
 			},
-			// Overwrite webpacker files rule to amend the filename output
+			// Overwrite shakapacker files rule to amend the filename output
 			// and include the name of the file, otherwise some SVGs
 			// are not generated because the hash is the same between them
 			{
@@ -95,15 +94,6 @@ module.exports = {
 	},
 	entry: config.entrypoints,
 	plugins: [
-		// Copy workbox-sw.js to decidim-packs/js/ so the Service Worker can importScripts() it
-		new CopyPlugin({
-			patterns: [
-				{
-					from: 'node_modules/workbox-sw/build/workbox-sw.js',
-					to: 'js/workbox-sw.js'
-				}
-			]
-		}),
 		new InjectManifest({
 			swSrc: 'src/decidim/sw/sw.js',
 
@@ -115,15 +105,5 @@ module.exports = {
 			 */
 			swDest: '../sw.js'
 		})
-	],
-	devServer: {
-		client: {
-			overlay: false
-		},
-		devMiddleware: {
-			// Write sw.js to disk so Rails can serve it as a static file.
-			// Other assets remain in memory (faster HMR).
-			writeToDisk: filePath => filePath.endsWith('sw.js') || filePath.endsWith('sw.js.map')
-		}
-	}
+	]
 };

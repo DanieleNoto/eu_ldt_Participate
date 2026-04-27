@@ -1,18 +1,19 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-# Marco Pinnella
-# Pierluigi Spedicato
-
 # frozen_string_literal: true
 
+# This migration comes from decidim_meetings (originally 20201016065302)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:59 UTC
 class FixMeetingsRegistrationTerms < ActiveRecord::Migration[5.2]
+  class Meeting < ApplicationRecord
+    self.table_name = :decidim_meetings_meetings
+    include Decidim::HasComponent
+    include Decidim::Authorable
+  end
+
   def up
     reset_column_information
 
     PaperTrail.request(enabled: false) do
-      Decidim::Meetings::Meeting.unscoped.find_each do |meeting|
+      Meeting.unscoped.find_each do |meeting|
         next if meeting.component.nil?
         # Only user-created meetings have this problem
         next if meeting.official?
@@ -30,7 +31,7 @@ class FixMeetingsRegistrationTerms < ActiveRecord::Migration[5.2]
   def down; end
 
   def reset_column_information
-    Decidim::Meetings::Meeting.reset_column_information
+    Meeting.reset_column_information
     Decidim::Component.reset_column_information
   end
 end

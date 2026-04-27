@@ -52,4 +52,4 @@
 # Ignore Tailwind configuration
 tailwind.config.js
 
-/vendor/**
+/vendor/**/public/sw.js*

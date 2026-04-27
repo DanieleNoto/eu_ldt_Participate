@@ -14,6 +14,8 @@ module Decidim
       # Note that it inherits from `Decidim::Admin::Components::BaseController`, which
       # override its layout and provide all kinds of useful methods.
       class ApplicationController < Decidim::Admin::Components::BaseController
+        helper Decidim::PaginateHelper
+        
         def permission_class_chain
           [::Decidim::LdtMapVisualization::Admin::Permissions] + super
         end

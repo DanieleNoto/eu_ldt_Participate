@@ -1,10 +1,7 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-
 # frozen_string_literal: true
 
+# This migration comes from decidim_initiatives (originally 20171204103119)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:59 UTC
 class RemoveRequiresValidationFromDecidimInitiativesType < ActiveRecord::Migration[5.1]
   def change
     remove_column :decidim_initiatives_types,

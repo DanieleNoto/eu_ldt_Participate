@@ -19,22 +19,7 @@ module Decidim
       validates :name, presence: true
       validates :experiment_id, presence: true
 
-      store :experiment_data, accessors: [:experiment_name, :experiment_description, :experiment_status]
-
-      # Custom setter to handle JSON string conversion
-      def experiment_data=(value)
-        if value.is_a?(String)
-          begin
-            parsed = JSON.parse(value)
-            super(parsed)
-          rescue JSON::ParserError => e
-            Rails.logger.error("Failed to parse experiment_data JSON: #{e.message}")
-            super({})
-          end
-        else
-          super
-        end
-      end
+      store_accessor :experiment_data, :experiment_name, :experiment_description, :experiment_status
 
       validate :experiment_data_not_blank
 

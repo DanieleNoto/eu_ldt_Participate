@@ -26,6 +26,9 @@ class ApplicationController < ActionController::Base
     # Don't check if user already authenticated
     return if current_user.present?
 
+    # Don't check if current_organization is not available (e.g. ErrorsController)
+    return unless respond_to?(:current_organization, true)
+
     # Don't check if Keycloak not enabled (current_organization might be nil)
     return if current_organization.blank?
     return unless keycloak_enabled_for_organization?

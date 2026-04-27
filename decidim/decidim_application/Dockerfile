@@ -7,7 +7,7 @@
 # Pierluigi Spedicato
 # Simone Bianchelli
 # denise.scarcelli
-FROM decidim/decidim-dev:0.30.6 AS builder
+FROM decidim/decidim-dev:0.31.3 AS builder
 
 # Disable manual interaction
 ENV DEBIAN_FRONTEND=noninteractive
@@ -80,9 +80,7 @@ RUN yarn config set network-timeout 300000 && \
 COPY . .
 
 # Make entrypoint scripts executable
-RUN chmod +x docker-entrypoint.sh shakapacker-entrypoint.sh
-
-
+RUN chmod +x docker-entrypoint.sh
 
 ARG RAILS_ENV=production
 ARG NODE_ENV=production
@@ -102,7 +100,7 @@ RUN rm -rf tmp/cache vendor/bundle/spec \
   && rm -rf log/*.log
 
 ### Runtime stage: lean image with only runtime dependencies
-FROM decidim/decidim-dev:0.30.6  AS runtime
+FROM decidim/decidim-dev:0.31.3  AS runtime
 
 # Inherit build arguments for runtime
 ARG RAILS_ENV=production
@@ -146,7 +144,7 @@ RUN mkdir -p /code/tmp/pids /code/tmp/cache /code/log /code/public /code/storage
   chown -R decidim:decidim /code && \
   find /code -path /code/node_modules -prune -o -type d -exec chmod 775 {} + && \
   find /code -path /code/node_modules -prune -o -type f -exec chmod 664 {} + && \
-  chmod +x /code/docker-entrypoint.sh /code/shakapacker-entrypoint.sh && \
+  chmod +x /code/docker-entrypoint.sh && \
   find /code/bin -type f -exec chmod 775 {} + && \
   # Fix permissions for node_modules (don't reinstall, just fix what's already there)
   chown -R decidim:decidim /code/node_modules && \

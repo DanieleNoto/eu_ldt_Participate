@@ -1,12 +1,7 @@
-# SPDX-License-Identifier: AGPL-3.0
-# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
-# Authors:
-# Denis Vasilev Dimchev
-# Marco Pinnella
-# Pierluigi Spedicato
-
 # frozen_string_literal: true
 
+# This migration comes from decidim_participatory_processes (originally 20201006072346)
+# This file has been modified by `decidim upgrade:migrations` task on 2026-03-13 11:21:59 UTC
 class FixAttachmentsTitles < ActiveRecord::Migration[5.2]
   def up
     reset_column_information
