@@ -12,8 +12,10 @@ module.exports = {
 	setupFilesAfterEnv: ['dotenv/config', './tests/unit/setupEnv.ts'],
 	extensionsToTreatAsEsm: ['.ts'],
 	transform: {
-		'^/test/unit/+.test.ts?$': ['ts-jest', { useESM: true }]
+		'^.+\\.tsx?$': ['ts-jest', {}],
+		'^.+\\.js$': ['ts-jest', { diagnostics: false, tsconfig: { allowJs: true, module: 'CommonJS' } }]
 	},
+	transformIgnorePatterns: ['node_modules/(?!(uuid)/)'],
 	reporters: [
 		'default',
 		[
