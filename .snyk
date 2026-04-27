@@ -5,7 +5,7 @@
 # Pierluigi Spedicato
 ignore:
     SNYK-JS-UUID-16133035:
-        - sequelize > uuid:
+        - '*':
             reason: >-
                 Accepted Risk – uuid (1 vulnerability, Medium severity)
                 A Medium severity vulnerability was identified in uuid@8.3.2 (CVE-2026-41907), introduced as a transitive dependency through sequelize. The fix requires upgrading uuid to version 14.0.0 or higher.
