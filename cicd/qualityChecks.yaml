@@ -209,6 +209,7 @@ jobs:
                 failOnIssues: true
                 projectName: 'EU-LDT-Toobox-Participate'
                 organization: 'eutoolbox'
+                additionalArguments: '--policy-path=$(System.DefaultWorkingDirectory)/.snyk'
           - script: |
                 cd frontend
                 npm ci
@@ -222,3 +223,4 @@ jobs:
                 failOnIssues: true
                 projectName: 'EU-LDT-Toobox-Participate'
                 organization: 'eutoolbox'
+                additionalArguments: '--policy-path=$(System.DefaultWorkingDirectory)/.snyk'
