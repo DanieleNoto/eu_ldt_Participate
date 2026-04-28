@@ -25,7 +25,7 @@ if [ "$RAILS_ENV" = "production" ]; then
     exit 1
   fi
   if ! bin/rails data:migrate 2>/dev/null; then
-    echo "WARNING: Database data migration completed with non-critical errors (expected if data:migrate task not defined)"
+    echo "ERROR: Database data migration failed"
   fi
   echo "--- Database setup completed ---"
   
