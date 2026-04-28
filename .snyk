@@ -6,14 +6,7 @@
 ignore:
     SNYK-JS-UUID-16133035:
         - '*':
-            reason: >-
-                Accepted Risk – uuid (1 vulnerability, Medium severity)
-                A Medium severity vulnerability was identified in uuid@8.3.2 (CVE-2026-41907), introduced as a transitive dependency through sequelize. The fix requires upgrading uuid to version 14.0.0 or higher.
-                Why we cannot fix it today: uuid@14 is an ESM-only package, incompatible with how sequelize@6 loads it internally using CommonJS require(). Forcing an override would break database functionality entirely.
-                Why the risk is negligible for our application: The vulnerability is only exploitable when a caller passes an external memory buffer directly to the uuid generation function — a pattern our code never uses. We only
-                call uuidv4() to generate plain UUID strings. There is no realistic attack vector through our application.
-                Action taken: The vulnerability has been formally documented and suppressed in our Snyk configuration (.snyk) with a full written justification and a review expiry date of January 2027, aligned with a planned evaluation of the sequelize@7 upgrade.
-
+            reason: uuid@14 is an ESM-only package, incompatible with how sequelize@6 loads it internally using CommonJS require(). Forcing an override would break database functionality entirely. The vulnerability is only exploitable when a caller passes an external memory buffer directly to the uuid generation function — a pattern our code never uses. We only call uuidv4() to generate plain UUID strings. There is no realistic attack vector through our application.
             expires: '2027-01-01T00:00:00.000Z'
 exclude:
     global:
