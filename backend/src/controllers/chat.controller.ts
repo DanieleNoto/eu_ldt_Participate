@@ -3,8 +3,8 @@
 // # Authors:
 //   # Denis Vasilev Dimchev
 //   # Pierluigi Spedicato
+import { randomUUID } from 'node:crypto';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { v4 as uuidv4 } from 'uuid';
 import { ChatRequestSchema, ChatResponseSchema } from '../schemas/chat.schema';
 import { ChatService } from '../services/chat.service';
 
@@ -13,7 +13,7 @@ class ChatController {
 
 	async chat(request: FastifyRequest, reply: FastifyReply) {
 		const { conversationId, nodeId, language } = ChatRequestSchema.parse(request.body);
-		const convId = conversationId ?? uuidv4();
+		const convId = conversationId ?? randomUUID();
 
 		const {
 			conversationId: cid,
