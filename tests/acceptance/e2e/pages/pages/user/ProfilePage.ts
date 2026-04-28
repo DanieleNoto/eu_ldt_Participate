@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
+ * Simone Bianchelli
  */
 
 import { Locator, Page, expect } from '@playwright/test';
@@ -132,7 +133,7 @@ export class ProfilePage extends BasePage {
 		await this.followButton.waitFor({ state: 'visible' });
 		await this.followButton.click();
 		console.log('Click follow');
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 	/**
 	 * Click on the "Stop Following" button
@@ -141,7 +142,7 @@ export class ProfilePage extends BasePage {
 		await this.unfollowButton.waitFor({ state: 'visible' });
 		await this.unfollowButton.click();
 		console.log('Click unfollow');
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**

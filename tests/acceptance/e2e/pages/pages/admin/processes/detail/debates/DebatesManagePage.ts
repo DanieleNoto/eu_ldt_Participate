@@ -36,7 +36,7 @@ export class DebatesManagePage extends BaseAdminPage {
 		newDebatePage: NewDebatePage
 	): Promise<{ componentName: string; debateName: string }> {
 		await processAdminPage.getPage().goto(processEditUrl);
-		await processAdminPage.getPage().waitForLoadState('networkidle');
+		await processAdminPage.getPage().waitForLoadState('load');
 
 		// Navigate to components page
 		await componentsPage.sidebarProcessDetail.navigateToComponents();
@@ -72,7 +72,7 @@ export class DebatesManagePage extends BaseAdminPage {
 		console.log('Debates component successfully published');
 
 		await componentsPage.manageComponent(componentName);
-		await processAdminPage.getPage().waitForLoadState('networkidle');
+		await processAdminPage.getPage().waitForLoadState('load');
 
 		// Create new debate
 		await debatesPage.createNewDebate();
@@ -103,7 +103,7 @@ export class DebatesManagePage extends BaseAdminPage {
 		await newDebatePage.setCommentsEnabled(true);
 		await newDebatePage.clickCreateDebate();
 
-		await processAdminPage.getPage().waitForLoadState('networkidle');
+		await processAdminPage.getPage().waitForLoadState('load');
 		console.log('Setup completed - debate created');
 
 		return {
@@ -132,7 +132,7 @@ export class DebatesManagePage extends BaseAdminPage {
 
 			const publicProcessUrl = `/processes/${processSlug}`;
 			await userPage.goto(publicProcessUrl);
-			await userPage.waitForLoadState('networkidle');
+			await userPage.waitForLoadState('load');
 
 			const processDetailPage = new ProcessDetailPage(userPage);
 			const debatesOverviewPage = new DebatesOverviewPage(userPage);

@@ -3,16 +3,13 @@
 // # Authors:
 //   # Denis Vasilev Dimchev
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { v4 as uuidv4 } from 'uuid';
 import ChatController from '../../../src/controllers/chat.controller';
 import { ChatService } from '../../../src/services/chat.service';
 
 // Mock dependencies
 jest.mock('../../../src/services/chat.service');
-jest.mock('uuid');
 
 const mockChatService = ChatService as jest.MockedClass<typeof ChatService>;
-const mockUuid = uuidv4 as jest.MockedFunction<typeof uuidv4>;
 
 describe('ChatController', () => {
 	let mockRequest: Partial<FastifyRequest>;
@@ -50,9 +47,6 @@ describe('ChatController', () => {
 
 		// Override the service instance directly on the controller instance
 		(ChatController as any)._chatService = mockChatServiceInstance;
-
-		// Mock UUID generation
-		(mockUuid as jest.MockedFunction<typeof uuidv4>).mockReturnValue('123e4567-e89b-12d3-a456-426614174000' as any);
 	});
 
 	describe('chat()', () => {
@@ -76,10 +70,13 @@ describe('ChatController', () => {
 			await ChatController.chat(mockRequest as FastifyRequest, mockReply as FastifyReply);
 
 			expect(mockChatServiceInstance.handleRequest).toHaveBeenCalledWith(
-				'123e4567-e89b-12d3-a456-426614174000',
+				expect.any(String),
 				'node-1',
 				mockRequest,
 				'en'
+			);
+			expect(mockChatServiceInstance.handleRequest.mock.calls[0]?.[0]).toMatch(
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 			);
 
 			expect(mockReply.send).toHaveBeenCalledWith({
@@ -110,9 +107,8 @@ describe('ChatController', () => {
 
 			await ChatController.chat(mockRequest as FastifyRequest, mockReply as FastifyReply);
 
-			expect(mockUuid).toHaveBeenCalled();
 			expect(mockChatServiceInstance.handleRequest).toHaveBeenCalledWith(
-				'123e4567-e89b-12d3-a456-426614174000',
+				expect.any(String),
 				'node-1',
 				mockRequest,
 				'en'

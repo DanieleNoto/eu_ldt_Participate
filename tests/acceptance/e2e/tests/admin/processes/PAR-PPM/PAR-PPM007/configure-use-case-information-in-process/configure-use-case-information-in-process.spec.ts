@@ -59,7 +59,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 	});
 
 	test.afterEach(async ({ adminPage }) => {
-		if (selectedExperimentId && componentId) {
+		if (selectedExperimentId && componentId && componentName) {
 			try {
 				console.log('Starting cleanup: Deleting association...');
 
@@ -74,21 +74,8 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				// Navigate to components page
 				await componentsPage.navigateToComponents(processSlug);
 
-				// Hide the component
-				await componentsPage.hideComponentByName(componentName);
-
-				// Wait for success message
-				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
-				await expect(
-					adminPage.getByText('The component has been successfully hidden from the menu')
-				).toBeVisible();
-
-				// Unpublish component
+				// Unpublish component (handles Hide → Unpublish flow internally)
 				await componentsPage.unpublishComponentByName(componentName);
-
-				// Wait for success message
-				await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
-				await expect(adminPage.getByText('The component has been successfully unpublished')).toBeVisible();
 
 				// Delete component
 				await componentsPage.deleteComponentIfExists(componentName);
@@ -105,6 +92,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 		// Reset variables
 		selectedExperimentId = null;
 		componentId = null;
+		componentName = null;
 	});
 
 	test.describe('Main Flow', () => {
@@ -116,7 +104,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -140,7 +128,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
 				const page = updateProcessAdminPage['page'];
 				await page.waitForURL(new RegExp(`/admin/participatory_processes/${processSlug}/edit`));
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				// Verify we're on the edit page with process information
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -158,7 +146,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				console.log('Selected LDT Use Case Scenarios component type');
 
 				// Fill the component form
-				await ldtUseCaseScenariosPage.fillComponentForm(componentName, componentTitle);
+				await ldtUseCaseScenariosPage.fillComponentForm(componentName!, componentTitle);
 				console.log('Component form filled');
 
 				// Save the component
@@ -166,7 +154,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				console.log('Component saved successfully');
 
 				const page = componentsPage['page'];
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				// Verify redirect to components page
 				await page.waitForURL(`/admin/participatory_processes/${processSlug}/components`);
@@ -176,21 +164,21 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				await componentsPage.verifyComponentCreatedSuccessfully();
 
 				// Verify component exists in the table
-				await componentsPage.expectComponentExists(componentName);
+				await componentsPage.expectComponentExists(componentName!);
 				console.log(`Component "${componentName}" found in table`);
 
 				// Publish the component
-				await componentsPage.publishComponent(componentName);
+				await componentsPage.publishComponent(componentName!);
 				console.log(`Published component: ${componentName}`);
 
 				// Verify it was published successfully
-				const isPublished = await componentsPage.isComponentPublished(componentName);
+				const isPublished = await componentsPage.isComponentPublished(componentName!);
 				expect(isPublished).toBeTruthy();
 				console.log(`Component "${componentName}" is now published`);
 
 				// Click on component name to navigate to detail page
-				await componentsPage.clickComponentLink(componentName);
-				await page.waitForLoadState('networkidle');
+				await componentsPage.clickComponentLink(componentName!);
+				await page.waitForLoadState('load');
 
 				// Verify navigation to component manage page
 				await page.waitForURL(
@@ -208,7 +196,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				// Click on "Associate experiments results" button
 				await ldtUseCaseScenariosPage.clickAssociateExperimentsResults();
 
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 				console.log('Clicked on "Associate experiments results"');
 			});
 
@@ -264,7 +252,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				await processDetailPage.navigateToProcess(processSlug);
 				console.log(`Navigated to process public page: /processes/${processSlug}`);
 
-				await processDetailPage.navigateToComponent(componentName);
+				await processDetailPage.navigateToComponent(componentName!);
 				console.log(`Navigated to component "${componentName}"`);
 
 				await useCaseScenariosPage.verifyExperimentIdVisible(selectedExperimentId);
@@ -289,7 +277,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 			await test.step('1. User: Navigates to the "Processes" section.', async () => {
 				// Navigate to processes section using admin nav
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -313,7 +301,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information.', async () => {
 				const page = updateProcessAdminPage['page'];
 				await page.waitForURL(new RegExp(`/admin/participatory_processes/${processSlug}/edit`));
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				// Verify we're on the edit page with process information
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -331,7 +319,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				console.log('Selected LDT Use Case Scenarios component type');
 
 				// Fill the component form
-				await ldtUseCaseScenariosPage.fillComponentForm(componentName, componentTitle);
+				await ldtUseCaseScenariosPage.fillComponentForm(componentName!, componentTitle);
 				console.log('Component form filled');
 
 				// Save the component
@@ -339,27 +327,27 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				console.log('Component saved successfully');
 
 				const page = componentsPage['page'];
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				// Verify success message is displayed
 				await componentsPage.verifyComponentCreatedSuccessfully();
 
 				// Verify component exists in the table
-				await componentsPage.expectComponentExists(componentName);
+				await componentsPage.expectComponentExists(componentName!);
 				console.log(`Component "${componentName}" found in table`);
 
 				// Publish the component
-				await componentsPage.publishComponent(componentName);
+				await componentsPage.publishComponent(componentName!);
 				console.log(`Published component: ${componentName}`);
 
 				// Verify it was published successfully
-				const isPublished = await componentsPage.isComponentPublished(componentName);
+				const isPublished = await componentsPage.isComponentPublished(componentName!);
 				expect(isPublished).toBeTruthy();
 				console.log(`Component "${componentName}" is now published`);
 
 				// Click on component name to navigate to detail page
-				await componentsPage.clickComponentLink(componentName);
-				await page.waitForLoadState('networkidle');
+				await componentsPage.clickComponentLink(componentName!);
+				await page.waitForLoadState('load');
 
 				// Verify navigation to component manage page
 				await page.waitForURL(
@@ -377,7 +365,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				// Click on "Associate experiments results" button
 				await ldtUseCaseScenariosPage.clickAssociateExperimentsResults();
 
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 				console.log('Clicked on "Associate experiments results"');
 			});
 
@@ -453,7 +441,7 @@ test.describe('@useKeycloak [PAR-PPM007] - Configure use case information in pro
 				await processDetailPage.navigateToProcess(processSlug);
 				console.log(`Navigated to process public page: /processes/${processSlug}`);
 
-				await processDetailPage.navigateToComponent(componentName);
+				await processDetailPage.navigateToComponent(componentName!);
 				console.log(`Navigated to component "${componentName}"`);
 
 				await useCaseScenariosPage.verifyExperimentIdVisible(selectedExperimentId);

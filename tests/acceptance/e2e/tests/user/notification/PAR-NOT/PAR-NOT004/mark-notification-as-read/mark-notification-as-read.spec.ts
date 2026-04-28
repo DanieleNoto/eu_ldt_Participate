@@ -44,7 +44,7 @@ test.describe('@reserved [PAR-NOT004] – Mark notifications as reads', () => {
 
 		console.log(`Admin navigating to debate: ${debateUrl}`);
 		await adminPage.goto(debateUrl);
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Wait for comments to load (wait for "Loading comments..." to disappear)
 		await debateDetailPage.waitForCommentsToLoad();
@@ -75,7 +75,7 @@ test.describe('@reserved [PAR-NOT004] – Mark notifications as reads', () => {
 				const debateUrl = `/processes/${processSlug}/f/${componentId}/debates/${debateId}`;
 
 				await adminPage.goto(debateUrl);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Wait for comments to load before deleting
 				await debateDetailPage.waitForCommentsToLoad();

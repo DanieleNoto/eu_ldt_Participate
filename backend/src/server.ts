@@ -3,10 +3,10 @@
 // # Authors:
 //   # Denis Vasilev Dimchev
 //   # Pierluigi Spedicato
-import { FastifyBaseLogger } from 'fastify';
-// eslint-disable-next-line import/order
+
 import * as fs from 'node:fs';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
+import { FastifyBaseLogger } from 'fastify';
 import { build } from './app';
 import appConfig from './config/config';
 import { startChatBuiltins } from './handlers/chat.builtins';
@@ -28,7 +28,7 @@ const start = async () => {
 
 		app = await build({
 			requestIdLogLabel: 'transactionId',
-			genReqId: req => uuidv4(),
+			genReqId: req => randomUUID(),
 			loggerInstance: logger as FastifyBaseLogger
 		});
 

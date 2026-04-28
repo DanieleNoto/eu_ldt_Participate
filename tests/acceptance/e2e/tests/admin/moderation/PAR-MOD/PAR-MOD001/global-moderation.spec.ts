@@ -66,16 +66,19 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 				// Find rows containing our test comment ID and unhide them
 				for (let i = 0; i < hiddenCount; i++) {
 					const row = hiddenRows.nth(i);
-					const rowText = await row.textContent();
+					const idCellText = await row.locator('td').nth(1).textContent();
 
-					// Check if this row contains our test comment
-					if (rowText && rowText.includes(testCommentId)) {
+					// Use exact match on the ID column to avoid false positives
+					if (idCellText?.trim() === testCommentId) {
 						console.log(`Found test comment ${testCommentId} in hidden list, unhiding...`);
 
-						// Click Unhide button for this row
-						const unhideButton = row.getByRole('link', { name: 'Unhide' });
-						if ((await unhideButton.count()) > 0) {
-							await unhideButton.click();
+						// The Unhide link is inside a closed dropdown (aria-hidden="true").
+						// Must open the dropdown trigger first, then click by href
+						await row.locator('button[data-controller="dropdown"]').click();
+						const unhideLink = row.locator('a.dropdown__button[href*="/unhide"]');
+						if ((await unhideLink.count()) > 0) {
+							await unhideLink.waitFor({ state: 'visible' });
+							await unhideLink.click();
 							await adminPage.waitForLoadState('load');
 							console.log(`Unhidden content ID ${testCommentId}`);
 						}
@@ -123,7 +126,13 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 
 				// Ensure test comment is reported and in the moderation table
 				// This will navigate to the debate page to report if not already reported
-				await processModerationPage.ensureTestCommentIsReported(contentId, processSlug, componentId, debateId);
+				await processModerationPage.ensureTestCommentIsReported(
+					contentId,
+					processSlug,
+					componentId,
+					debateId,
+					'global'
+				);
 
 				// Navigate back to global moderations after ensuring comment is reported
 				await adminPage.goto('/admin/moderations');
@@ -326,7 +335,8 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 					testCommentId,
 					processSlug,
 					componentId,
-					debateId
+					debateId,
+					'global'
 				);
 
 				// Navigate back to global moderations
@@ -402,6 +412,9 @@ test.describe('@reserved PAR-MOD001 – Global Moderation Review and Management'
 					await adminPage.goto(reportedContentUrl);
 					await adminPage.waitForLoadState('load');
 					console.log(`Navigated to public debate page: ${reportedContentUrl}`);
+
+					// Decidim loads comments via AJAX: wait for the loading indicator to disappear first
+					await adminPage.locator('.loading-comments:not(.hidden)').waitFor({ state: 'hidden' });
 
 					// Verify the comment is now visible again in the public view.
 					const commentElement = adminPage.locator(`#comment_${testCommentId}`);

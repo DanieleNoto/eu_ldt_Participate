@@ -63,7 +63,7 @@ test.describe('@reserved [PAR-DE003] – Export meeting data', () => {
 			test(`should export ${exportType.toLowerCase()} data in ${fileFormat} format`, async ({ adminPage }) => {
 				await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
 					await processAdminPage.navigateToProcesses();
-					await processAdminPage.getPage().waitForLoadState('networkidle');
+					await processAdminPage.getPage().waitForLoadState('load');
 					const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 					expect(isOnProcessesPage).toBe(true);
 				});
@@ -74,7 +74,7 @@ test.describe('@reserved [PAR-DE003] – Export meeting data', () => {
 				});
 				await test.step('3. Admin: selects the process that want to update', async () => {
 					await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				});
 
 				await test.step('4. System: loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -94,7 +94,7 @@ test.describe('@reserved [PAR-DE003] – Export meeting data', () => {
 					// Access meetings component
 					console.log(`Accessing meetings component: ${componentName}`);
 					await componentsPage.manageComponent(componentName);
-					await componentsPage.getPage().waitForLoadState('networkidle');
+					await componentsPage.getPage().waitForLoadState('load');
 					console.log('Accessed meetings component');
 
 					await meetingsPage.verifyMeetingsPageVisible();
@@ -112,7 +112,7 @@ test.describe('@reserved [PAR-DE003] – Export meeting data', () => {
 				await test.step('7. User: Clicks on the "Export" button and select format', async () => {
 					await componentsPage.exportComponentData(fileFormat, exportType);
 					console.log(`Selected Export ${exportType} as ${fileFormat} format`);
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				});
 
 				await test.step('8. System: Displays a confirmation message on the platform, indicating that the export process has been initiated and that the file will be sent via email', async () => {
@@ -138,8 +138,18 @@ test.describe('@reserved [PAR-DE003] – Export meeting data', () => {
 					await webmailPage.refreshInbox();
 					console.log('Checked for new messages in inbox');
 
-					// Verify and open the meetings export email
-					await webmailPage.verifyExportEmail('meetings');
+					// Verify and open the meetings export email.
+					// The email subject key depends on the export type:
+					//   Meetings  → 'meetings'
+					//   Comments  → 'meeting_comments'
+					//   Answers   → 'responses'
+					const emailExportType =
+						exportType === 'Comments'
+							? 'meeting_comments'
+							: exportType === 'Answers'
+								? 'responses'
+								: 'meetings';
+					await webmailPage.verifyExportEmail(emailExportType);
 					console.log(`Export email for ${exportType} with ${fileFormat} format verified successfully`);
 
 					// Download the export file

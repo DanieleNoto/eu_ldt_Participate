@@ -44,22 +44,29 @@ export class AttachmentsProcessPage extends BaseAdminPage {
 	 */
 	async clickEditAttachmentByIndex(rowIndex: number): Promise<void> {
 		const row = this.tableRows.nth(rowIndex);
-		const editLink = row.locator('a.action-icon--edit');
+		await row.locator('button[data-controller="dropdown"]').click();
+		const editLink = row.locator('a.dropdown__button[href*="/edit"]');
 		await editLink.click();
 	}
 
 	/**
-	 * Clicks the delete icon for the specified row (0-based)
+	 * Clicks the delete icon for the specified row (0-based).
+	 * Opens the dropdown and clicks the delete link — does NOT confirm the modal.
+	 * Callers that need to confirm deletion must handle the modal themselves
+	 * (e.g. via ConfirmDeleteModalComponent), as PAR-PPA003 does.
 	 * @param rowIndex Row index (0-based)
 	 */
 	async clickDeleteAttachmentByIndex(rowIndex: number): Promise<void> {
 		const row = this.tableRows.nth(rowIndex);
-		const deleteLink = row.locator('a.action-icon--remove');
+		await row.locator('button[data-controller="dropdown"]').click();
+		const deleteLink = row.locator('a.dropdown__button--danger, a.dropdown__button[data-confirm]');
 		await deleteLink.click();
 	}
 
 	/**
-	 * Clicks the delete icon for an attachment with the specified title
+	 * Clicks the delete icon for an attachment with the specified title and confirms the modal.
+	 * Intended for setup/cleanup code that needs to delete attachments without going through
+	 * the full test flow (unlike PAR-PPA003 which verifies the modal explicitly).
 	 * @param title Title of the attachment to delete
 	 * @throws Error if no attachment with the specified title is found
 	 */
@@ -70,7 +77,17 @@ export class AttachmentsProcessPage extends BaseAdminPage {
 			const attachmentTitle = await this.getAttachmentTitleByIndex(i);
 
 			if (attachmentTitle === title) {
-				await this.clickDeleteAttachmentByIndex(i);
+				const row = this.tableRows.nth(i);
+				await row.locator('button[data-controller="dropdown"]').click();
+				const deleteLink = row.locator('a.dropdown__button--danger, a.dropdown__button[data-confirm]');
+				await deleteLink.click();
+
+				// Confirm the Decidim deletion modal
+				const confirmModal = this.page.locator('#confirm-modal[data-dialog="confirm-modal"]');
+				await expect(confirmModal).toBeVisible();
+				await confirmModal.locator('button[data-confirm-ok]').click();
+				await confirmModal.waitFor({ state: 'hidden' });
+				await this.page.waitForLoadState('load');
 				return;
 			}
 		}
@@ -162,5 +179,24 @@ export class AttachmentsProcessPage extends BaseAdminPage {
 	async expectAttachmentWithTitleExists(title: string): Promise<void> {
 		const exists = await this.hasAttachmentWithTitle(title);
 		expect(exists).toBe(true);
+	}
+
+	/**
+	 * Clicks the edit icon for the attachment with the specified title
+	 * @param title Title of the attachment to edit
+	 * @throws Error if no attachment with the specified title is found
+	 */
+	async clickEditAttachmentByTitle(title: string): Promise<void> {
+		const rowCount = await this.tableRows.count();
+
+		for (let i = 0; i < rowCount; i++) {
+			const attachmentTitle = await this.getAttachmentTitleByIndex(i);
+			if (attachmentTitle === title) {
+				await this.clickEditAttachmentByIndex(i);
+				return;
+			}
+		}
+
+		throw new Error(`No attachment with title "${title}" found in the table`);
 	}
 }

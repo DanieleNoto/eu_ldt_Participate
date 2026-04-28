@@ -59,15 +59,22 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 
 	test.describe('Main Flow', () => {
 		test('should allow citizen to revoke consent for data processing activities', async ({ page }) => {
-			let notificationSettings;
+			let notificationSettings: {
+				ownActivity: boolean;
+				followed: boolean;
+				newsletter: boolean;
+				publicContact: boolean;
+				assignedProposals: boolean;
+				frequency: string;
+			};
 			await test.step('1. USER: Navigates to their "Notification Settings" section within their profile.', async () => {
 				// Navigate to account page first
 				await homePage.header.navigateToMyAccount();
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				// Navigate to notification settings
 				await notificationSettingsPage.navigateToNotificationSettings();
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				// Verify that we are on the notification settings page
 				await notificationSettingsPage.verifyPageTitle();
@@ -132,7 +139,7 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 
 				// Save the changes
 				await notificationSettingsPage.saveNotificationSettings();
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				console.log('User clicked "Save changes"');
 			});
@@ -199,7 +206,7 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 				// Navigate to notification settings
 				await homePage.header.navigateToMyAccount();
 				await notificationSettingsPage.navigateToNotificationSettings();
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				// Get original settings (only available user settings)
 				const originalSettings = {
@@ -222,7 +229,7 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 
 				// Navigate away without saving - use the more specific navigation method
 				await accountPage.navigateToAccountPage();
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				console.log('User navigated away without saving changes');
 			});
@@ -231,10 +238,10 @@ test.describe('[PAR-DPACM002] – Revoke consent for data processing through not
 				// Navigate back to notification settings to verify no changes were saved
 				// First ensure we're on the account page, then navigate to notification settings
 				await homePage.header.navigateToMyAccount();
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				await notificationSettingsPage.navigateToNotificationSettings();
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 
 				// Verify that original settings are maintained
 				const currentSettings = {

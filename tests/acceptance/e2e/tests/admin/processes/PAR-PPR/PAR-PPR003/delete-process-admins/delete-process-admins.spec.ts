@@ -63,7 +63,7 @@ test.describe('[PAR-PPR003] – Delete an existing process administrator', () =>
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -77,7 +77,7 @@ test.describe('[PAR-PPR003] – Delete an existing process administrator', () =>
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.clickFirstPrivateProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -100,7 +100,7 @@ test.describe('[PAR-PPR003] – Delete an existing process administrator', () =>
 				await confirmDeleteModalComponent.clickCancel();
 			});
 			await test.step('9.2. System: Aborts the deletion process and returns to the "Process admins" section.', async () => {
-				await participatoryProcessAdminsPage.waitForLoadState('networkidle');
+				await participatoryProcessAdminsPage.waitForLoadState('load');
 			});
 			await test.step('Result.', async () => {
 				expect(countPreviousDelete).toBeGreaterThan(0);
@@ -114,7 +114,7 @@ test.describe('[PAR-PPR003] – Delete an existing process administrator', () =>
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -128,7 +128,7 @@ test.describe('[PAR-PPR003] – Delete an existing process administrator', () =>
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.clickFirstPrivateProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -151,7 +151,7 @@ test.describe('[PAR-PPR003] – Delete an existing process administrator', () =>
 				await confirmDeleteModalComponent.clickOK();
 			});
 			await test.step('10. System: Removes the selected user from the list of administrators for the process.', async () => {
-				await participatoryProcessAdminsPage.waitForLoadState('networkidle');
+				await participatoryProcessAdminsPage.waitForLoadState('load');
 			});
 			await test.step('11. System: Notifies the City Administrator that the administrator has been successfully removed.', async () => {
 				await participatoryProcessAdminsPage.expectSuccessFlashMessage(

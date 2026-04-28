@@ -77,7 +77,7 @@ test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 
 				// Navigate to components page for the test process
 				await componentsPage.navigateToComponents(processSlug);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Check if component exists before attempting cleanup
 				const componentExists = await componentsPage.findComponentByName(createdComponentName);
@@ -100,7 +100,7 @@ test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 				if (await unpublishButton.isVisible()) {
 					console.log(`Component "${createdComponentName}" is published, unpublishing first...`);
 					await unpublishButton.click();
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 					console.log(`Component "${createdComponentName}" unpublished`);
 				}
 
@@ -127,7 +127,7 @@ test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 		}) => {
 			await test.step('1. User navigates to the "Processes" section', async () => {
 				await processAdminPage.navigateToProcesses();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -142,7 +142,7 @@ test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 			await test.step('3. User selects the process that want to update', async () => {
 				// Search and select the fixed test process
 				await surveysManagePage.searchAndSelectProcess(processTitle);
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 
 			await test.step('4. System loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -220,7 +220,7 @@ test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 
 			await test.step('9. System validates the input for completeness and correctness', async () => {
 				// Wait for form submission to complete
-				await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
+				await newDebatesComponentPage.getPage().waitForLoadState('load');
 
 				// Check if we're redirected back to components page (success case)
 				// or if there are validation errors on the same page
@@ -257,7 +257,7 @@ test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 				await componentsPage.manageComponent(debatesComponentName);
 
 				// Component management page should load
-				await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
+				await newDebatesComponentPage.getPage().waitForLoadState('load');
 
 				// Verify we can access the component settings
 				const currentUrl = newDebatesComponentPage.getPage().url();
@@ -327,7 +327,7 @@ test.describe('[PAR-DAD001] – Add Debates Component to Process', () => {
 
 			await test.step('System detects missing or incorrect fields and displays error messages', async () => {
 				// Wait for validation response
-				await newDebatesComponentPage.getPage().waitForLoadState('networkidle');
+				await newDebatesComponentPage.getPage().waitForLoadState('load');
 
 				// The form should either show validation errors or stay on the page
 				// Check if we're still on the form page (validation failed) or redirected (form accepted empty values)

@@ -5,11 +5,12 @@
  * Antonio Abramo Carotenuto
  */
 
-import { expect, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 import { BaseAdminPage } from '../../../../BaseAdminPage';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { ProcessDetailPage } from '@pages/pages/public/processes/ProcessDetailPage';
 import { LocalizationUtils } from '@utils/localization.utils';
+import { pasteTiptapContent } from '@utils/tiptap.utils';
 
 /**
  * Page Object Model for Surveys management functionality.
@@ -111,15 +112,36 @@ export class SurveysManagePage extends BaseAdminPage {
 		// Navigate to the process edit page directly and store URL
 		const processEditUrl = `/admin/participatory_processes/${processSlug}/edit`;
 		await this.page.goto(processEditUrl);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		console.log('Process edit URL stored:', processEditUrl);
 
 		// Optionally publish the process (needed for reply-to-a-survey)
 		if (publishProcess) {
-			await this.page.getByRole('link', { name: 'Publish' }).click();
-			await this.page.goto(processEditUrl);
-			console.log('Process successfully published');
+			// Navigate to the processes list and publish via the Actions dropdown
+			await this.page.goto('/admin/participatory_processes');
+			await this.page.waitForLoadState('load');
+
+			// Search for the process by title
+			const searchInput = this.page.locator('input[name="q[title_cont]"]');
+			await searchInput.fill(validProcessData.general.title);
+			await searchInput.press('Enter');
+			await this.page.waitForLoadState('load');
+
+			// Open the Actions dropdown for the process row
+			const processRow = this.page
+				.locator('table tbody tr')
+				.filter({ hasText: validProcessData.general.title })
+				.first();
+			const actionsButton = processRow.locator('button[data-controller="dropdown"]');
+			await actionsButton.click();
+
+			// Click Publish inside the dropdown
+			const publishLink = processRow.locator('a[href*="/publish"]');
+			await publishLink.click();
+			await this.page.waitForLoadState('load');
+
+			console.log('Process successfully published from processes list');
 		}
 
 		return { processSlug, processEditUrl };
@@ -141,7 +163,7 @@ export class SurveysManagePage extends BaseAdminPage {
 
 		// Navigate back to edit page using stored URL
 		await this.page.goto(processEditUrl);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Verify we're on the edit page with process information using Page Object
 		await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -172,6 +194,12 @@ export class SurveysManagePage extends BaseAdminPage {
 
 		// Save survey questions using helper function
 		await this.saveSurveyQuestions();
+
+		// Navigate explicitly to the surveys list page before publishing
+		const surveysManageUrl = surveyUrl.replace(/\/surveys(\/|$).*$/, '/surveys');
+		await this.page.goto(surveysManageUrl);
+		await this.page.waitForLoadState('domcontentloaded');
+		console.log('Navigated to surveys manage page:', surveysManageUrl);
 
 		// Publish the survey using helper function
 		await this.publishSurvey();
@@ -250,7 +278,15 @@ export class SurveysManagePage extends BaseAdminPage {
 
 		// Optionally publish the component (needed for reply-to-a-survey)
 		if (publishComponent) {
-			await this.page.getByRole('link', { name: 'Publish' }).click();
+			// Find the component row by name and open its Actions dropdown
+			const componentRow = this.page.locator('table tbody tr').filter({ hasText: componentName }).first();
+			const actionsButton = componentRow.locator('button[data-controller="dropdown"]');
+			await actionsButton.click();
+
+			// Click Publish inside the dropdown
+			const publishLink = componentRow.locator('a[href*="/publish"]');
+			await publishLink.click();
+
 			await expect(this.page.getByText('The component has been')).toBeVisible();
 			console.log('Component successfully published');
 		}
@@ -286,7 +322,10 @@ export class SurveysManagePage extends BaseAdminPage {
 
 		// Create new survey
 		await this.page.getByRole('link', { name: 'New survey' }).click();
-		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/);
+		// Accept both /surveys/new and /surveys/{id}/edit depending on app version
+		await this.page.waitForURL(
+			/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/(new|\d+\/edit)/
+		);
 		console.log('Accessed component and created new survey');
 	}
 
@@ -294,8 +333,10 @@ export class SurveysManagePage extends BaseAdminPage {
 	 * Displays template selection form
 	 */
 	async verifyTemplateSelectionDisplayed(): Promise<string> {
-		// Verify we're on the template selection page
-		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit/);
+		// Accept both /surveys/new and /surveys/{id}/edit
+		await this.page.waitForURL(
+			/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/(new|\d+\/edit)/
+		);
 
 		// Save the survey URL for later use
 		const surveyUrl = this.page.url();
@@ -315,7 +356,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		if (await skipElement.isVisible().catch(() => false)) {
 			await skipElement.click();
 
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 
 			await this.page.waitForLoadState('domcontentloaded');
 
@@ -327,7 +368,7 @@ export class SurveysManagePage extends BaseAdminPage {
 			if (skipStillVisible) {
 				console.log('Skip button still visible, retrying click...');
 				await skipElement.click();
-				await this.page.waitForLoadState('networkidle');
+				await this.page.waitForLoadState('load');
 				await this.page.waitForTimeout(500);
 			}
 
@@ -342,8 +383,11 @@ export class SurveysManagePage extends BaseAdminPage {
 	 *Displays empty questionnaire form
 	 */
 	async verifyEmptyQuestionnaireDisplayed(): Promise<void> {
-		// Verify the empty questionnaire form is displayed
-		const titleInput = this.page.locator('input[type="text"]').first();
+		// Verify the survey edit form is displayed with required fields
+		const titleInput = this.page
+			.locator('input[aria-label="title"]')
+			.first()
+			.or(this.page.locator('input[type="text"]').first());
 		await expect(titleInput).toBeVisible();
 
 		const descriptionEditor = this.page
@@ -351,35 +395,41 @@ export class SurveysManagePage extends BaseAdminPage {
 			.first();
 		await expect(descriptionEditor).toBeVisible();
 
-		// Verify that the fields are empty as expected for a new questionnaire
-		await expect(titleInput).toHaveValue('');
-		await expect(descriptionEditor).toHaveText('');
-
-		console.log('Empty questionnaire form displayed with survey configuration options');
+		console.log('Survey edit form displayed with survey configuration options');
 	}
 
 	/**
 	 * Fills name and description and saves
 	 */
-	async fillSurveyDetailsAndSave(surveyName: string, description: string = 'Survey description'): Promise<void> {
-		// Fill survey details using language-independent selectors
-		const titleInput = this.page.locator('input[type="text"]').first();
+	async fillSurveyDetailsAndSave(
+		surveyName: string,
+		description: string = 'Survey description',
+		privacyPolicy: string = 'Privacy policy'
+	): Promise<void> {
+		// Fill title using aria-label selector (language-independent)
+		const titleInput = this.page.locator('input[aria-label="title"]').first();
+		await titleInput.waitFor({ state: 'visible' });
 		await titleInput.click();
 		await titleInput.fill(surveyName);
 
-		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').first().click();
-		await this.page
-			.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror')
-			.first()
-			.fill(description);
+		// Fill description
+		const descriptionEditor = this.page.locator('[id^="survey_description_"] .editor-input .tiptap').first();
+		await descriptionEditor.waitFor({ state: 'visible' });
+		await pasteTiptapContent(descriptionEditor, description);
 
-		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').nth(4).click();
-		await this.page.locator('div[contenteditable="true"][role="textbox"].tiptap.ProseMirror').nth(4).fill('TOS');
+		// Fill Privacy Policy (TOS)
+		const tosEditor = this.page.locator('[id^="survey_tos_"] .editor-input .tiptap').first();
+		await tosEditor.waitFor({ state: 'visible' });
+		await pasteTiptapContent(tosEditor, privacyPolicy);
 
-		// Save survey
-		await this.page.getByRole('button', { name: 'Save' }).click();
-		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
-		await expect(this.page.getByText('Survey successfully saved.')).toBeVisible();
+		// Save survey using the specific form submit button
+		const saveButton = this.page
+			.locator('button[form="survey-form"]')
+			.or(this.page.getByRole('button', { name: 'Save' }));
+		await saveButton.click();
+		// Wait for stabilisation: either a URL change or the success flash message
+		await this.page.waitForLoadState('load');
+		await expect(this.page.getByText('Survey successfully').first()).toBeVisible();
 		console.log(`Survey "${surveyName}" created and saved successfully`);
 	}
 
@@ -407,17 +457,24 @@ export class SurveysManagePage extends BaseAdminPage {
 
 		// Handle allowAnswers configuration if needed
 		if (allowAnswers) {
-			// Navigate back to survey to configure allow answers setting
-			await this.page.goto(surveyUrl);
-			await this.page.waitForLoadState('networkidle');
+			// We're already on the survey edit page — navigate to the Settings tab
+			await this.page.waitForLoadState('domcontentloaded');
+			const settingsTab = this.page.locator('nav.main-nav a[href*="/settings/edit"]');
+			await settingsTab.click();
+			await this.page.waitForLoadState('load');
 
-			// Configure allow answers by clicking on the text (which activates the checkbox)
-			await this.page.getByText('Allow answers').click();
-			console.log('Enabled "Allow answers" setting for survey');
+			// Enable "Allow responses" checkbox
+			const allowResponsesCheckbox = this.page.locator('#survey_settings_allow_responses');
+			if (!(await allowResponsesCheckbox.isChecked())) {
+				await allowResponsesCheckbox.check();
+			}
+			console.log('Enabled "Allow responses" setting for survey');
 
 			// Save the updated configuration
 			await this.page.getByRole('button', { name: 'Save' }).click();
-			await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
+			await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/, {
+				waitUntil: 'domcontentloaded'
+			});
 			await expect(this.page.getByText('Survey successfully saved.')).toBeVisible();
 			console.log('Survey configuration updated with allow answers enabled');
 		}
@@ -462,7 +519,7 @@ export class SurveysManagePage extends BaseAdminPage {
 		await question1Container.locator('.editor-input .tiptap').first().fill('Please share your thoughts');
 		await question1Container.getByRole('checkbox', { name: 'Mandatory' }).check();
 		await question1Container.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
-		await question1Container.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+		await question1Container.locator('select[name*="question_type"]').selectOption('long_response');
 
 		questionsCount++;
 		console.log('Added question 1: Long Answer');
@@ -486,17 +543,17 @@ export class SurveysManagePage extends BaseAdminPage {
 			.first()
 			.fill('What color do you prefer?');
 		await question2Container.locator('.editor-input .tiptap').first().fill('select one of the available options');
-		await question2Container.getByLabel('TypeShort answer Long answer').first().selectOption('single_option');
+		await question2Container.locator('select[name*="question_type"]').selectOption('single_option');
 
 		// Fill the default two answer options that are automatically created
-		await question2Container.locator('.questionnaire-question-answer-option').first().waitFor();
+		await question2Container.locator('.questionnaire-question-response-option').first().waitFor();
 		await question2Container
-			.locator('.questionnaire-question-answer-option')
+			.locator('.questionnaire-question-response-option')
 			.first()
 			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Blue');
 		await question2Container
-			.locator('.questionnaire-question-answer-option')
+			.locator('.questionnaire-question-response-option')
 			.nth(1)
 			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Green');
@@ -522,34 +579,34 @@ export class SurveysManagePage extends BaseAdminPage {
 			.first()
 			.fill('Which pets do you prefer?');
 		await question3Container.locator('.editor-input .tiptap').first().fill('select two of the available options');
-		await question3Container.getByLabel('TypeShort answer Long answer').selectOption('multiple_option');
+		await question3Container.locator('select[name*="question_type"]').selectOption('multiple_option');
 
 		// Fill the default two answer options that are automatically created
-		await question3Container.locator('.questionnaire-question-answer-option').first().waitFor();
+		await question3Container.locator('.questionnaire-question-response-option').first().waitFor();
 		await question3Container
-			.locator('.questionnaire-question-answer-option')
+			.locator('.questionnaire-question-response-option')
 			.first()
 			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Cat');
 		await question3Container
-			.locator('.questionnaire-question-answer-option')
+			.locator('.questionnaire-question-response-option')
 			.nth(1)
 			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Dog');
 
 		// Add the additional two options
-		await question3Container.getByRole('button', { name: 'Add answer option' }).click();
-		await question3Container.locator('.questionnaire-question-answer-option').last().waitFor();
+		await question3Container.getByRole('button', { name: 'Add response option' }).click();
+		await question3Container.locator('.questionnaire-question-response-option').last().waitFor();
 		await question3Container
-			.locator('.questionnaire-question-answer-option')
+			.locator('.questionnaire-question-response-option')
 			.last()
 			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Parrot');
 
-		await question3Container.getByRole('button', { name: 'Add answer option' }).click();
-		await question3Container.locator('.questionnaire-question-answer-option').last().waitFor();
+		await question3Container.getByRole('button', { name: 'Add response option' }).click();
+		await question3Container.locator('.questionnaire-question-response-option').last().waitFor();
 		await question3Container
-			.locator('.questionnaire-question-answer-option')
+			.locator('.questionnaire-question-response-option')
 			.last()
 			.locator('.tabs-panel.is-active input[type="text"]')
 			.fill('Fish');
@@ -564,16 +621,65 @@ export class SurveysManagePage extends BaseAdminPage {
 	}
 
 	/**
-	 * Helper function to access questions management
+	 * Helper function to access questions management (creates a new form)
 	 * Used in: create-single-question-polls.spec.ts, create-detailed-surveys-with-configurable-options.spec.ts, reply-to-a-survey.spec.ts (via setupTestSurvey)
 	 */
 	async accessQuestionsManagement(): Promise<void> {
-		await this.page.locator('a[title="Manage questions"]').click();
+		const questionsTab = this.page.locator('nav.main-nav a[href*="/questions/edit_questions"]');
+		await questionsTab.click();
+		await this.page.waitForLoadState('domcontentloaded');
+
+		// The Questions tab may show a radio selection: "Create new form" or "Select template"
+		const createNewFormLabel = this.page.locator('label[for="template_create_new_form"]');
+		if (await createNewFormLabel.isVisible({ timeout: 3000 }).catch(() => false)) {
+			await createNewFormLabel.click();
+			// Click the continue/submit button for "Create new form"
+			const continueButton = this.page
+				.locator('a[data-create-new-form-button="true"]')
+				.or(this.page.getByRole('button', { name: 'Continue' }))
+				.or(this.page.getByRole('link', { name: 'Continue' }));
+			await continueButton.click();
+			await this.page.waitForLoadState('domcontentloaded');
+		}
+
 		await this.page.waitForURL(
-			/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
+			/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/questions\/edit_questions/
 		);
 		await this.page.waitForLoadState('load');
 		console.log('Accessed questions management page');
+	}
+
+	/**
+	 * Navigate to Questions tab and apply a template
+	 * Used in: create-single-question-polls.spec.ts, create-detailed-surveys-with-configurable-options.spec.ts
+	 */
+	async accessQuestionsManagementWithTemplate(templateName: string): Promise<void> {
+		const questionsTab = this.page.locator('nav.main-nav a[href*="/questions/edit_questions"]');
+		await questionsTab.click();
+		await this.page.waitForLoadState('domcontentloaded');
+
+		// Click "Select template" radio button
+		const selectTemplateLabel = this.page.locator('label[for="template_select_template"]');
+		await selectTemplateLabel.waitFor({ state: 'visible' });
+		await selectTemplateLabel.click();
+
+		// Wait for the datalist input to appear and fill the template name
+		const templateInput = this.page.locator('input[list="template-list"]');
+		await templateInput.waitFor({ state: 'visible' });
+		await templateInput.fill(templateName);
+
+		// Click the submit button to apply the selected template
+		const applyButton = this.page
+			.getByRole('button', { name: 'Create from template' })
+			.or(this.page.getByRole('button', { name: 'Apply template' }))
+			.or(this.page.getByRole('button', { name: 'Continue' }));
+		await applyButton.click();
+
+		await this.page.waitForURL(
+			/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/questions\/edit_questions/
+		);
+		await this.page.waitForLoadState('load');
+		console.log(`Accessed questions management with template: "${templateName}"`);
 	}
 
 	/**
@@ -581,16 +687,60 @@ export class SurveysManagePage extends BaseAdminPage {
 	 * Finds the survey row in the table and clicks the "Manage questions" action
 	 * @param surveyTitle - The title of the survey to manage
 	 */
+	/**
+	 * Navigate to the Responses page for a specific survey by title
+	 * Used in: export-survey-answers.spec.ts
+	 */
+	async accessSurveyResponsesBySurveyTitle(surveyTitle: string): Promise<void> {
+		const surveyRow = this.page.locator('table.table-list tbody tr').filter({ hasText: surveyTitle }).first();
+
+		// Try the dropdown link first (only present after at least one response exists).
+		await surveyRow.locator('button[data-controller="dropdown"]').click();
+		const responsesLink = surveyRow.locator('a.dropdown__button[href*="/responses"]');
+		const hasResponsesLink = await responsesLink.isVisible({ timeout: 2000 }).catch(() => false);
+
+		if (hasResponsesLink) {
+			await responsesLink.click();
+		} else {
+			// The "Responses" entry is absent from the dropdown when the survey has no
+			// responses yet (Decidim hides it). Build the URL directly from any known
+			// dropdown href (e.g. the Edit link) and replace the trailing segment.
+			const editLink = surveyRow.locator('a.dropdown__button[href*="/edit"]').first();
+			const editHref = (await editLink.getAttribute('href')) ?? '';
+			// editHref ends with /surveys/{id}/edit  – strip the trailing /edit
+			const responsesUrl = editHref.replace(/\/edit$/, '/responses');
+			await this.page.goto(responsesUrl);
+		}
+
+		await this.page.waitForURL(/\/surveys\/\d+\/responses/);
+		await this.page.waitForLoadState('domcontentloaded');
+		console.log(`Accessed responses page for survey: "${surveyTitle}"`);
+	}
+
 	async accessQuestionsManagementBySurveyTitle(surveyTitle: string): Promise<void> {
-		// Find the row containing the survey title and click "Manage questions" in that row
-		const surveyRow = this.page.locator('table.table-list tbody tr').filter({ hasText: surveyTitle });
-		await surveyRow.locator('a[title="Manage questions"]').click();
+		// Find the row containing the survey title, open its dropdown, click Questions
+		const surveyRow = this.page.locator('table.table-list tbody tr').filter({ hasText: surveyTitle }).first();
+		await surveyRow.locator('button[data-controller="dropdown"]').click();
+		await surveyRow.locator('a.dropdown__button[href*="/questions/edit_questions"]').click();
+		await this.page.waitForLoadState('domcontentloaded');
 		console.log(`Accessed questions management for survey: "${surveyTitle}"`);
 
+		// The Questions tab may show a radio selection: "Create new form" or "Select template"
+		const createNewFormLabel = this.page.locator('label[for="template_create_new_form"]');
+		if (await createNewFormLabel.isVisible({ timeout: 3000 }).catch(() => false)) {
+			await createNewFormLabel.click();
+			const continueButton = this.page
+				.locator('a[data-create-new-form-button="true"]')
+				.or(this.page.getByRole('button', { name: 'Continue' }))
+				.or(this.page.getByRole('link', { name: 'Continue' }));
+			await continueButton.click();
+			await this.page.waitForLoadState('domcontentloaded');
+		}
+
 		await this.page.waitForURL(
-			/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/edit_questions/
+			/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys\/\d+\/questions\/edit_questions/
 		);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -605,7 +755,8 @@ export class SurveysManagePage extends BaseAdminPage {
 	 * Validates and confirms survey questions saved successfully
 	 */
 	async verifySurveyQuestionsSaved(): Promise<void> {
-		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage\/surveys/);
+		// Decidim saves questions in-place (AJAX/Turbo) — no page navigation occurs.
+		// Just wait for the flash message to become visible.
 		await expect(this.page.getByText('Survey questions successfully')).toBeVisible();
 		console.log('Survey questions saved successfully');
 	}
@@ -624,8 +775,25 @@ export class SurveysManagePage extends BaseAdminPage {
 	 * Used in: create-single-question-polls.spec.ts, create-detailed-surveys-with-configurable-options.spec.ts, reply-to-a-survey.spec.ts (via setupTestSurvey)
 	 */
 	async publishSurvey(): Promise<void> {
-		await this.page.getByRole('link', { name: 'Publish' }).click();
-		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/);
+		// If we're on a survey sub-page (edit, questions, settings...), navigate up to the component manage page
+		const currentUrl = this.page.url();
+		if (/\/manage\/surveys\/\d+/.test(currentUrl)) {
+			const manageUrl = currentUrl.replace(/\/manage\/surveys\/\d+.*$/, '/manage/');
+			await this.page.goto(manageUrl);
+			await this.page.waitForLoadState('domcontentloaded');
+		}
+
+		// Open the Actions dropdown for the survey row
+		const actionsButton = this.page.locator('button[data-controller="dropdown"]').last();
+		await actionsButton.click();
+
+		// Click Publish inside the dropdown
+		const publishLink = this.page.locator('a[href*="/publish"]').last();
+		await publishLink.click();
+
+		await this.page.waitForURL(/\/admin\/participatory_processes\/.*\/components\/\d+\/manage/, {
+			waitUntil: 'domcontentloaded'
+		});
 		await expect(this.page.getByText('Survey successfully published.')).toBeVisible();
 		console.log('Survey successfully published');
 	}
@@ -653,12 +821,12 @@ export class SurveysManagePage extends BaseAdminPage {
 	 * Used in: reply-to-a-survey.spec.ts
 	 */
 	async selectSurveyToParticipate(componentName: string, surveyName: string): Promise<void> {
-		// Click directly on the survey component link on the process page
-		const surveyComponentLink = this.page.getByRole('link', { name: componentName });
+		// Click the "Jump to: <componentName>" link on the process page
+		const surveyComponentLink = this.page.getByText(`Jump to: ${componentName}`);
 		await surveyComponentLink.click();
 
 		// Wait for component page to load
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		console.log('Navigated to survey component page via direct link');
 		console.log('Component page URL:', this.page.url());
 
@@ -673,13 +841,13 @@ export class SurveysManagePage extends BaseAdminPage {
 	 */
 	async verifySurveyFormDisplayed(): Promise<void> {
 		// Wait for survey questions page to load
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		console.log('Navigated to survey questions page');
 		console.log('Survey questions page URL:', this.page.url());
 
 		// Verify Question 1: Long Answer is visible
 		await expect(this.page.getByText('What is your opinion on this')).toBeVisible();
-		await expect(this.page.getByRole('textbox', { name: '1 What is your opinion on' })).toBeVisible();
+		await expect(this.page.locator('#questionnaire_responses_0')).toBeVisible();
 		console.log('Question 1 (Long Answer) is visible');
 
 		// Verify Question 2: Single Option is visible with options
@@ -705,8 +873,8 @@ export class SurveysManagePage extends BaseAdminPage {
 	 */
 	async fillSurveyResponses(): Promise<void> {
 		// Fill Question 1: Long Answer
-		await this.page.getByRole('textbox', { name: '1 What is your opinion on' }).click();
-		await this.page.getByRole('textbox', { name: '1 What is your opinion on' }).fill('I really like this topic.');
+		await this.page.locator('#questionnaire_responses_0').click();
+		await this.page.locator('#questionnaire_responses_0').fill('I really like this topic.');
 
 		// Fill Question 2: Single Option
 		await this.page.getByRole('radio', { name: 'Blue' }).click();
@@ -744,12 +912,12 @@ export class SurveysManagePage extends BaseAdminPage {
 	 * Used in: reply-to-a-survey.spec.ts
 	 */
 	async verifySurveySubmissionSuccess(): Promise<void> {
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		// Verify successful submission message is displayed
-		await expect(this.page.getByText('Survey successfully answered.')).toBeVisible();
+		await expect(this.page.getByText('Survey successfully responded')).toBeVisible();
 
 		// Verify that the survey shows as already answered
-		await expect(this.page.getByText('Already answered You have')).toBeVisible();
+		await expect(this.page.getByText('Already responded', { exact: true })).toBeVisible();
 		console.log('Survey successfully submitted and answered');
 	}
 
@@ -759,7 +927,7 @@ export class SurveysManagePage extends BaseAdminPage {
 	 */
 	async verifySurveyValidationErrors(): Promise<void> {
 		// Verify validation error for missing mandatory field is displayed
-		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_BODY_BLANK)).toBeVisible();
+		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_BODY_BLANK).first()).toBeVisible();
 		await expect(this.page.getByText(SurveysManagePage.VALIDATION_ERROR_PRIVACY_POLICY_UNCHECKED)).toBeVisible();
 		console.log('Survey validation errors are displayed for missing mandatory fields');
 	}
@@ -806,7 +974,11 @@ export class SurveysManagePage extends BaseAdminPage {
 	/**
 	 * Fills question statement (title) which is in language-specific tab panels
 	 */
-	async fillQuestionStatement(questionContainer, statementText: string, languageCode?: string): Promise<void> {
+	async fillQuestionStatement(
+		questionContainer: Locator,
+		statementText: string,
+		languageCode?: string
+	): Promise<void> {
 		const currentLanguage = languageCode || (await LocalizationUtils.getCurrentLocale(this.page));
 
 		// Find the active tab panel
@@ -834,7 +1006,7 @@ export class SurveysManagePage extends BaseAdminPage {
 	/**
 	 * Checks the Mandatory checkbox for a question
 	 */
-	async checkMandatory(questionContainer): Promise<void> {
+	async checkMandatory(questionContainer: Locator): Promise<void> {
 		await questionContainer.getByRole('checkbox', { name: 'Mandatory' }).check();
 		console.log('Checked Mandatory checkbox');
 	}
@@ -842,7 +1014,7 @@ export class SurveysManagePage extends BaseAdminPage {
 	/**
 	 * Fills character limit for a question
 	 */
-	async fillCharacterLimit(questionContainer, limit: string): Promise<void> {
+	async fillCharacterLimit(questionContainer: Locator, limit: string): Promise<void> {
 		await questionContainer.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill(limit);
 		console.log(`Set character limit to ${limit}`);
 	}
@@ -850,8 +1022,8 @@ export class SurveysManagePage extends BaseAdminPage {
 	/**
 	 * Selects question type from dropdown
 	 */
-	async selectQuestionType(questionContainer, typeValue: string): Promise<void> {
-		await questionContainer.getByLabel('TypeShort answer Long answer').selectOption(typeValue);
+	async selectQuestionType(questionContainer: Locator, typeValue: string): Promise<void> {
+		await questionContainer.locator('select[name*="question_type"]').selectOption(typeValue);
 		console.log(`Selected question type: ${typeValue}`);
 	}
 

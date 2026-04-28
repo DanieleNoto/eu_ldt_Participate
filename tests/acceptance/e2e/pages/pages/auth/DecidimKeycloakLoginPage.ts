@@ -27,14 +27,21 @@ export class DecidimLoginPage extends BasePage {
 	 * Flow: sign_in → Keycloak auth → Continue → credentials → Accept → app
 	 */
 	async loginWithKeycloak(username: string, password: string): Promise<void> {
+		// Use a larger timeout in CI because setup contexts (browser.newContext()) do not
+		// inherit actionTimeout / navigationTimeout from playwright.config.ts and default to 30s.
+		const isCI = process.env.CI === 'true';
+		const redirectTimeout = isCI ? 90000 : 60000;
+
 		// 1. Navigate to the Decidim login page
+		// Use 'load' (instead of 'domcontentloaded') to ensure JS-rendered elements
+		// such as the Keycloak SSO button are already present in the DOM.
 		console.log('Navigating to sign_in page...');
-		await this.page.goto('/users/sign_in', { waitUntil: 'domcontentloaded' });
+		await this.page.goto('/users/sign_in', { waitUntil: 'load', timeout: redirectTimeout });
 
 		// 2. Click the Keycloak SSO button
 		console.log('Waiting for Keycloak button...');
 		const keycloakButton = this.page.locator('a[href*="/users/auth/keycloakopenid"]').first();
-		await keycloakButton.waitFor({ state: 'visible' });
+		await keycloakButton.waitFor({ state: 'visible', timeout: redirectTimeout });
 		console.log('Keycloak button found – clicking and waiting for Keycloak auth page...');
 
 		// Register the URL listener before the click to avoid the race condition.
@@ -69,14 +76,22 @@ export class DecidimLoginPage extends BasePage {
 		// 5. OIDC consent screen ("Accept")
 		console.log('Waiting for Accept button...');
 		const acceptButton = this.page.getByRole('button', { name: 'Accept' });
-		await acceptButton.waitFor({ state: 'visible' });
+		await acceptButton.waitFor({ state: 'visible', timeout: redirectTimeout });
 		console.log('Clicking Accept...');
 		await acceptButton.click();
 
 		// 6. Wait for the final redirect back to the app
 		console.log('Waiting for redirect to app...');
-		await this.page.waitForURL(`${auth_redirect_uri}/**`);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForURL(
+			url => url.toString().startsWith(`${auth_redirect_uri}/`) && !url.toString().includes('/users/sign_in'),
+			{ timeout: redirectTimeout }
+		);
+		await this.page.locator('body').waitFor({ state: 'attached', timeout: redirectTimeout });
+		// Public pages use #trigger-dropdown-account; the admin panel uses #admin-dropdown-menu-login-trigger.
+		const accountDropdown = this.page
+			.locator('#trigger-dropdown-account, #admin-dropdown-menu-login-trigger')
+			.first();
+		await accountDropdown.waitFor({ state: 'visible', timeout: redirectTimeout });
 
 		if (this.page.url().includes('/users/sign_in')) {
 			throw new Error('Authentication failed - still on login page after redirect');

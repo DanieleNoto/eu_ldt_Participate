@@ -3,8 +3,19 @@
 # Authors:
 # Gianfranco Cedro
 # Pierluigi Spedicato
+ignore:
+    SNYK-JS-UUID-16133035:
+        - '*':
+            # uuid@14 is an ESM-only package, incompatible with how sequelize@6 loads it internally using CommonJS require(). 
+            # Forcing an override would break database functionality entirely. 
+            # The vulnerability is only exploitable when a caller passes an external memory buffer directly to the uuid generation function — a pattern our code never uses. 
+            #   We only call uuidv4() to generate plain UUID strings. There is no realistic attack vector through our application.
+            reason: "No fix available - awaiting sequelize release"
+            expires: "2026-08-01T00:00:00.000Z"
+            created: "2026-04-28T00:00:00.000Z"
 exclude:
     global:
-        - tests
+        - 'tests/**'
+        - 'backend/tests/**'
         - decidim/decidim_application/app/controllers/api/chatbot_controller.rb
         - decidim/decidim_application/engines/decidim-module-ldt_map_visualization/app/controllers/decidim/ldt_map_visualization/admin/map_visualizations_controller.rb

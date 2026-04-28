@@ -102,13 +102,13 @@ export class ProcessAdminPage extends BaseAdminPage {
 
 	// Page loading helpers
 	private async waitForProcessesPageLoad() {
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		await this.processTabNavigation.isComponentFullyLoaded();
 		await this.processTable.waitForTableLoad();
 	}
 
 	private async waitForNewProcessPageLoad() {
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Wait for the form to be present
 		try {
@@ -405,7 +405,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 	}
 
 	async expectErrorMessage() {
-		await expect(this.page.locator('div.slug span.form-error')).toBeVisible();
+		await expect(this.page.locator('[data-controller="slug"] span.form-error.is-visible')).toBeVisible();
 	}
 
 	async expectToBeOnProcessesAdminPage() {
@@ -479,7 +479,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 	async createPrivateParticipants() {
 		await this.navigateToProcesses();
 		await this.processTable.clickFirstPrivateProcess();
-		await this.getPage().waitForLoadState('networkidle');
+		await this.getPage().waitForLoadState('load');
 		const updateProcessAdminPage = new UpdateProcessAdminPage(this.page);
 		await updateProcessAdminPage.navigateToPrivateParticipants();
 		const privateParticipantsPage = new PrivateParticipantsPage(this.page);
@@ -519,7 +519,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 	async createPrivateAdmins() {
 		await this.navigateToProcesses();
 		await this.processTable.clickFirstPrivateProcess();
-		await this.getPage().waitForLoadState('networkidle');
+		await this.getPage().waitForLoadState('load');
 		const updateProcessAdminPage = new UpdateProcessAdminPage(this.page);
 		await updateProcessAdminPage.navigateToProcessAdmins();
 		const processAdminsPage = new ParticipatoryProcessAdminsPage(this.page);
@@ -571,7 +571,7 @@ export class ProcessAdminPage extends BaseAdminPage {
 		await this.editProcess(processName);
 	}
 	async waitForEditFormToLoad(): Promise<void> {
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Wait for the edit form to be present using the exact form class from HTML
 		try {

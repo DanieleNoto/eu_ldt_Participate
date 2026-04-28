@@ -34,6 +34,8 @@ test.describe('[PAR-PPR002] – Edit process administrator role', () => {
 	let newAdminPage: NewAdminPage;
 
 	let validProcessData: any;
+	let editedAdminName: string;
+	let editedAdminEmail: string;
 
 	test.beforeEach(async ({ adminPage }) => {
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
@@ -60,7 +62,7 @@ test.describe('[PAR-PPR002] – Edit process administrator role', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -74,7 +76,7 @@ test.describe('[PAR-PPR002] – Edit process administrator role', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.clickFirstPrivateProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -87,6 +89,8 @@ test.describe('[PAR-PPR002] – Edit process administrator role', () => {
 				await participatoryProcessAdminsPage.expectTableIsVisible();
 			});
 			await test.step('7. User: Select a specific Process Admin that want to edit', async () => {
+				editedAdminName = await participatoryProcessAdminsPage.getAdminNameAtRow(0);
+				editedAdminEmail = await participatoryProcessAdminsPage.getAdminEmailAtRow(0);
 				await participatoryProcessAdminsPage.performActionOnRow(0, 'edit');
 			});
 			await test.step('8. System: Displays the current permissions assigned to the administrator.', async () => {
@@ -99,7 +103,7 @@ test.describe('[PAR-PPR002] – Edit process administrator role', () => {
 				await newAdminPage.submitForm();
 			});
 			await test.step('11. System: Validates the updated permissions.', async () => {
-				await participatoryProcessAdminsPage.waitForLoadState('networkidle');
+				await participatoryProcessAdminsPage.waitForLoadState('load');
 			});
 			await test.step('12. System: Saves the updated permissions for the administrator.', async () => {
 				await participatoryProcessAdminsPage.expectToBeOnParticipatoryProcessAdminsPage();
@@ -110,8 +114,8 @@ test.describe('[PAR-PPR002] – Edit process administrator role', () => {
 				);
 			});
 			await test.step('Result.', async () => {
-				await participatoryProcessAdminsPage.expectAdminIsInTable('Test Admin', 'testadmin@example.com');
-				const newRole = await participatoryProcessAdminsPage.getRoleForAdmin('testadmin@example.com');
+				await participatoryProcessAdminsPage.expectAdminIsInTable(editedAdminName, editedAdminEmail);
+				const newRole = await participatoryProcessAdminsPage.getRoleForAdmin(editedAdminEmail);
 				expect(newRole.toLowerCase()).toBe('collaborator');
 			});
 		});

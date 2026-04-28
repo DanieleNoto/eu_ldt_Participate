@@ -53,15 +53,15 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 
 		// Navigate to meetings section
 		await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 		await componentsPage.sidebarProcessDetail.navigateToComponents();
 		const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
 		await meetingsLink.click();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Create the meeting
 		await meetingsPage.clickNewMeeting();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Fill meeting details
 		await formMeetingPage.fillTitle(createdMeetingTitle);
@@ -90,7 +90,7 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 
 		// Submit the form - meeting is created as UNPUBLISHED by default
 		await formMeetingPage.createMeeting();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 
 		// Verify meeting was created
 		await meetingsPage.verifyMeetingsPageVisible();
@@ -100,50 +100,71 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 		const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 		await expect(meetingRow).toBeVisible();
 
-		// Click the publish button on this specific row
-		const publishButton = meetingRow.locator('a[title="Publish"]');
-		await publishButton.click();
-		await adminPage.waitForLoadState('networkidle');
+		// Click the publish button on this specific row via dropdown
+		await meetingRow.locator('button[data-controller="dropdown"]').click();
+		await meetingRow.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+		await meetingRow.locator('a.dropdown__button[href*="/publish"]:not([href*="/unpublish"])').click();
+		await adminPage.waitForLoadState('load');
 
-		// Verify meeting is now published (has unpublish button)
-		const unpublishButton = meetingRow.locator('a[title="Unpublish"]');
-		await expect(unpublishButton).toBeVisible();
+		// Verify meeting is now published (has unpublish link in DOM)
+		expect(await meetingRow.locator('a.dropdown__button[href*="/unpublish"]').count()).toBeGreaterThan(0);
 	});
 
 	test.afterEach(async ({ adminPage }) => {
-		// Cleanup: delete the created meeting
+		const meetingsComponentId = '6';
+
+		const deleteMeetingByTitle = async (searchText: string): Promise<void> => {
+			await adminPage.goto(
+				`/admin/participatory_processes/${processSlug}/components/${meetingsComponentId}/manage/meetings`
+			);
+			await adminPage.waitForLoadState('load');
+
+			// Search by title to avoid pagination issues
+			await adminPage.locator('#q_id_string_or_title_cont').fill(searchText);
+			await adminPage.locator('#q_id_string_or_title_cont').press('Enter');
+			await adminPage.waitForLoadState('load');
+
+			const row = adminPage.locator('table tbody tr').filter({ hasText: searchText });
+			const found = await row
+				.first()
+				.waitFor({ state: 'visible' })
+				.then(() => true)
+				.catch(() => false);
+			if (!found) {
+				console.log(`[Cleanup] Meeting not found: ${searchText}`);
+				return;
+			}
+
+			// Open dropdown and unpublish first if needed
+			await row.locator('button[data-controller="dropdown"]').click();
+			await row.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+			const unpublishLink = row.locator('a.dropdown__button[href*="/unpublish"]');
+			if ((await unpublishLink.count()) > 0) {
+				await unpublishLink.click();
+				await adminPage.locator('[data-confirm-ok]').waitFor({ state: 'visible' });
+				await adminPage.locator('[data-confirm-ok]').click();
+				await adminPage.waitForLoadState('load');
+				// After page reload, re-search and re-find the row (old locator is stale)
+				await adminPage.locator('#q_id_string_or_title_cont').fill(searchText);
+				await adminPage.locator('#q_id_string_or_title_cont').press('Enter');
+				await adminPage.waitForLoadState('load');
+				const freshRow = adminPage.locator('table tbody tr').filter({ hasText: searchText }).first();
+				await freshRow.locator('button[data-controller="dropdown"]').click();
+				await freshRow.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+				await freshRow.locator('a.dropdown__button[href*="soft_delete"]').click();
+			} else {
+				await row.locator('a.dropdown__button[href*="soft_delete"]').click();
+			}
+			await adminPage.locator('[data-confirm-ok]').waitFor({ state: 'visible' });
+			await adminPage.locator('[data-confirm-ok]').click();
+			await adminPage.waitForLoadState('load');
+			console.log(`[Cleanup] Meeting deleted: ${searchText}`);
+		};
+
 		try {
-			// Navigate to meetings list inside the Meetings component
-			await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-			await adminPage.waitForLoadState('networkidle');
-			await componentsPage.sidebarProcessDetail.navigateToComponents();
-			const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
-			await meetingsLink.click();
-			await adminPage.waitForLoadState('networkidle');
-
-			// Find and delete meeting by title pattern
-			const deleteMeetingByPattern = async (pattern: RegExp) => {
-				const row = adminPage.locator('table tbody tr', { hasText: pattern });
-				if ((await row.count()) > 0) {
-					const deleteLink = row
-						.first()
-						.locator('a.action-icon--remove, a[title="Delete"], a.action-icon--delete');
-					if ((await deleteLink.count()) > 0) {
-						await deleteLink.first().click();
-						// Confirm deletion
-						const okButton = adminPage.getByRole('button', { name: 'OK' });
-						if ((await okButton.count()) > 0) {
-							await okButton.click();
-							await adminPage.waitForLoadState('networkidle');
-						}
-						console.log(`Deleted meeting matching: ${pattern}`);
-					}
-				}
-			};
-
-			await deleteMeetingByPattern(new RegExp(`Unpublish Test Meeting ${timestamp}`, 'i'));
+			await deleteMeetingByTitle(`Unpublish Test Meeting ${timestamp}`);
 		} catch (error) {
-			console.log(`Cleanup warning: Could not delete meeting:`, error);
+			console.error(`[Cleanup] Failed to delete meeting:`, error);
 		}
 	});
 
@@ -153,7 +174,7 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 		}) => {
 			await test.step('1. User: Navigates to the "Processes" section', async () => {
 				await processAdminPage.navigateToProcesses();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -168,7 +189,7 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Navigate directly to the specific process edit page
 				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -189,9 +210,8 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 				await expect(meetingRow).toBeVisible();
 
-				// Verify it's published (has unpublish button)
-				const unpublishButton = meetingRow.locator('a[title="Unpublish"]');
-				await expect(unpublishButton).toBeVisible();
+				// Verify it's published (has unpublish link in DOM)
+				expect(await meetingRow.locator('a.dropdown__button[href*="/unpublish"]').count()).toBeGreaterThan(0);
 			});
 
 			await test.step('7. User: Finds a specific meeting and clicks on the "Unpublish" button to hide it from public view', async () => {
@@ -199,18 +219,13 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 				await expect(meetingRow).toBeVisible();
 
-				// Click unpublish on our specific meeting
-				const unpublishButton = meetingRow.locator('a[title="Unpublish"]');
-				await unpublishButton.click();
+				// Click unpublish on our specific meeting via dropdown
+				await meetingRow.locator('button[data-controller="dropdown"]').click();
+				await meetingRow.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+				await meetingRow.locator('a.dropdown__button[href*="/unpublish"]').click();
+				await adminPage.locator('[data-confirm-ok]').waitFor({ state: 'visible' });
+				await adminPage.locator('[data-confirm-ok]').click();
 				await adminPage.waitForLoadState('load');
-
-				// Handle confirmation dialog if present
-				const okButton = adminPage.locator('button[data-confirm-ok]');
-				if ((await okButton.count()) > 0) {
-					await okButton.click();
-					await adminPage.waitForLoadState('load');
-				}
-				await adminPage.waitForLoadState('networkidle');
 			});
 
 			await test.step('8. System: Updates the meeting status to "Unpublished"', async () => {
@@ -225,9 +240,10 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 				await expect(meetingRow).toBeVisible();
 
-				// Verify the publish button is now visible for this meeting (meaning it's unpublished)
-				const publishButton = meetingRow.locator('a[title="Publish"]');
-				await expect(publishButton).toBeVisible();
+				// Verify the meeting is now unpublished (has publish link in DOM)
+				expect(
+					await meetingRow.locator('a.dropdown__button[href*="/publish"]:not([href*="/unpublish"])').count()
+				).toBeGreaterThan(0);
 			});
 
 			await test.step('9. System: Notifies the City Administrator that the meeting has been successfully unpublished', async () => {
@@ -248,9 +264,10 @@ test.describe('[PAR-EA005] – Unpublish a meeting', () => {
 				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 				await expect(meetingRow).toBeVisible();
 
-				// Confirm the publish button is visible (meaning it's unpublished)
-				const publishButton = meetingRow.locator('a[title="Publish"]');
-				await expect(publishButton).toBeVisible();
+				// Confirm the meeting is unpublished (has publish link in DOM)
+				expect(
+					await meetingRow.locator('a.dropdown__button[href*="/publish"]:not([href*="/unpublish"])').count()
+				).toBeGreaterThan(0);
 
 				// Test completed successfully - meeting unpublish functionality is working
 				console.log('✅ Meeting unpublish test completed successfully');

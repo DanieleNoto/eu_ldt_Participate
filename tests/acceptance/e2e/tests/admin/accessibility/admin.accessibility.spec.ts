@@ -45,7 +45,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to admin homepage
 		await test.step('Admin homepage accessibility check', async () => {
 			await adminHomePage.navigateToAdminHomePage();
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 			await expect(page).toHaveURL(/\/admin/);
 
 			await tryAnalyze(adminHomePage.getPage(), 'AdminHomePage');
@@ -54,7 +54,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to processes list page
 		await test.step('Processes list page accessibility check', async () => {
 			await adminHomePage.navigateViaAdminNav('processes');
-			await processAdminPage.waitForLoadState('networkidle');
+			await processAdminPage.waitForLoadState('load');
 
 			const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 			expect(isOnProcessesPage).toBe(true);
@@ -65,7 +65,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to edit process page
 		await test.step('Edit Process page accessibility check', async () => {
 			await page.goto(`/admin/participatory_processes/${processSlug}/edit`);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			const isOnEditPage = await processAdminPage.isOnProcessEditPage();
 			expect(isOnEditPage).toBe(true);
@@ -76,7 +76,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to Decidim Awesome editors config page
 		await test.step('Decidim Awesome editors config page accessibility check', async () => {
 			await page.goto('/admin/decidim_awesome/config/editors');
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'decidimAwesomeEditorsConfig');
 		});
@@ -84,7 +84,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to Decidim Awesome custom styles for admin panel
 		await test.step('Decidim Awesome custom styles page accessibility check', async () => {
 			await page.goto('/admin/decidim_awesome/config/scoped_admin_styles');
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'decidimAwesomeAdminStyles');
 		});
@@ -92,7 +92,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to meetings management page
 		await test.step('Meetings management page accessibility check', async () => {
 			await page.goto(`/admin/participatory_processes/${processSlug}/components/${meetingsComponentId}/manage/`);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'meetingsManagementPage');
 		});
@@ -102,7 +102,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 			await page.goto(
 				`/admin/participatory_processes/${processSlug}/components/${meetingsComponentId}/manage/meetings/${meetingId}/edit`
 			);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'meetingEditPage');
 		});
@@ -110,7 +110,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to surveys management page
 		await test.step('Surveys management page accessibility check', async () => {
 			await page.goto(`/admin/participatory_processes/${processSlug}/components/${surveysComponentId}/manage/`);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'surveysManagementPage');
 		});
@@ -120,7 +120,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 			await page.goto(
 				`/admin/participatory_processes/${processSlug}/components/${surveysComponentId}/manage/surveys/${surveyId}/edit`
 			);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'surveyEditPage');
 		});
@@ -128,7 +128,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to debates management page
 		await test.step('Debates management page accessibility check', async () => {
 			await page.goto(`/admin/participatory_processes/${processSlug}/components/${debatesComponentId}/manage/`);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'debatesManagementPage');
 		});
@@ -138,7 +138,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 			await page.goto(
 				`/admin/participatory_processes/${processSlug}/components/${debatesComponentId}/manage/debates/${debateId}/edit`
 			);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'debateEditPage');
 		});
@@ -148,7 +148,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 			await page.goto(
 				`/admin/participatory_processes/${processSlug}/components/${playandvisualizeComponentId}/manage/`
 			);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'playAndVisualizeManagementPage');
 		});
@@ -158,7 +158,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 			await page.goto(
 				`/admin/participatory_processes/${processSlug}/components/${playandvisualizeComponentId}/edit`
 			);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'playAndVisualizeEditPage');
 		});
@@ -168,7 +168,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 			await page.goto(
 				`/admin/participatory_processes/${processSlug}/components/${playandvisualizeComponentId}/manage/map_visualizations/new`
 			);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'createMapVisualizationPage');
 		});
@@ -178,7 +178,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 			await page.goto(
 				`/admin/participatory_processes/${processSlug}/components/${usecasescenariosComponentId}/manage/`
 			);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'useCaseScenariosManagementPage');
 		});
@@ -188,7 +188,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 			await page.goto(
 				`/admin/participatory_processes/${processSlug}/components/${usecasescenariosComponentId}/edit`
 			);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'useCaseScenariosEditPage');
 		});
@@ -198,7 +198,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 			await page.goto(
 				`/admin/participatory_processes/${processSlug}/components/${usecasescenariosComponentId}/manage/ldt_use_case_scenarios/new`
 			);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'associateExperimentResultsPage');
 		});
@@ -206,7 +206,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to Matomo Analytics page
 		await test.step('Matomo Analytics page accessibility check', async () => {
 			await page.goto('/admin/analytics/analytics');
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'matomoAnalyticsPage');
 		});
@@ -214,7 +214,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to Questionnaire templates page
 		await test.step('Questionnaire templates page accessibility check', async () => {
 			await page.goto('/admin/templates/questionnaire_templates');
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'questionnaireTemplatesPage');
 		});
@@ -222,7 +222,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to New questionnaire template page
 		await test.step('New questionnaire template page accessibility check', async () => {
 			await page.goto('/admin/templates/questionnaire_templates/new');
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'newQuestionnaireTemplatePage');
 		});
@@ -230,7 +230,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to Edit questionnaire template page
 		await test.step('Edit questionnaire template page accessibility check', async () => {
 			await page.goto(`/admin/templates/questionnaire_templates/${questionnairetemplateId}/edit`);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'editQuestionnaireTemplatePage');
 		});
@@ -238,7 +238,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to Newsletters page
 		await test.step('Newsletters page accessibility check', async () => {
 			await page.goto('/admin/newsletters');
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'newslettersPage');
 		});
@@ -246,7 +246,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to Newsletter templates page
 		await test.step('Newsletter templates page accessibility check', async () => {
 			await page.goto('/admin/newsletter_templates');
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'newsletterTemplatesPage');
 		});
@@ -254,7 +254,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to New newsletter page
 		await test.step('New newsletter page accessibility check', async () => {
 			await page.goto('/admin/newsletter_templates/basic_only_text/newsletters/new');
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'newNewsletterPage');
 		});
@@ -262,7 +262,7 @@ test.describe('@useKeycloak [PAR-USA02] Accessibility - Admin Section', () => {
 		// Navigate to Select recipients to deliver page
 		await test.step('Select recipients to deliver page accessibility check', async () => {
 			await page.goto(`/admin/newsletters/${newsletterId}/select_recipients_to_deliver`);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 
 			await tryAnalyze(page, 'selectRecipientsToDeliverPage');
 		});

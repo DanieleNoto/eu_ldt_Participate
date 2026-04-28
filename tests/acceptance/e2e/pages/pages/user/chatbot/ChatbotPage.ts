@@ -93,7 +93,7 @@ export class ChatbotPage extends BasePage {
 	 */
 	async openHelpAssistant(): Promise<void> {
 		await this.openHelpAssistantButton.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -101,7 +101,7 @@ export class ChatbotPage extends BasePage {
 	 */
 	async clickTopicByName(topicName: string): Promise<void> {
 		await this.page.getByRole('button', { name: topicName }).click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -109,7 +109,7 @@ export class ChatbotPage extends BasePage {
 	 */
 	async clickSupportButton(): Promise<void> {
 		await this.SupportButton.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -120,11 +120,16 @@ export class ChatbotPage extends BasePage {
 	}
 
 	/**
-	 * Clicks the "Send" button
+	 * Clicks the "Send" button and waits for the chatbot backend API to respond with 200.
 	 */
 	async clickSendButton(): Promise<void> {
+		const responsePromise = this.page.waitForResponse(
+			response => response.url().includes('/chatbot-backend-api/api/v1/support/send') && response.status() === 200
+		);
 		await this.sendButton.click();
-		await this.waitForLoadState('networkidle');
+		const response = await responsePromise;
+		const body = await response.json().catch(() => null);
+		console.log(`[ChatbotPage] Support send API responded 200:`, JSON.stringify(body));
 	}
 
 	/**
@@ -134,7 +139,14 @@ export class ChatbotPage extends BasePage {
 		await expect(this.chatbotDialog).toBeVisible();
 		await expect(this.closeHelpAssistantButton).toBeVisible();
 		await this.closeHelpAssistantButton.scrollIntoViewIfNeeded();
-		await this.closeHelpAssistantButton.click();
+
+		// Try clicking the close button; if it fails, fall back to Escape
+		try {
+			await this.closeHelpAssistantButton.click({ force: true });
+		} catch (error: unknown) {
+			console.warn('closeHelpAssistant: click failed, falling back to Escape key.', error);
+			await this.page.keyboard.press('Escape');
+		}
 
 		if (await this.chatbotDialog.isVisible().catch(() => false)) {
 			await this.page.keyboard.press('Escape');
@@ -239,24 +251,24 @@ export class ChatbotPage extends BasePage {
 	 * Fills the "Describe your issue" textbox with a question
 	 */
 	async fillDescribeIssueTextbox(question: string): Promise<void> {
-		await this.describeIssueTextbox.fill(question);
-
-		// Trigger input event on the textbox
-		await this.describeIssueTextbox.dispatchEvent('input');
+		await this.describeIssueTextbox.click();
+		// Use pressSequentially to fire real keyboard events (keydown/keypress/input/keyup)
+		// which reliably triggers reactive framework bindings on all browsers including Firefox CI.
+		await this.describeIssueTextbox.pressSequentially(question);
 
 		// Wait for the Send button to be enabled
-		await this.page.waitForFunction(() => {
-			const button = document.querySelector('button[type="submit"]');
-			return button && !button.hasAttribute('disabled');
-		});
+		await this.sendButton.waitFor({ state: 'visible' });
+		await expect(this.sendButton).toBeEnabled();
 	}
 
 	/**
-	 * Checks if the confirmation message is visible
+	 * Checks if the confirmation message is visible.
+	 * clickSendButton() already awaits the API 200 response, so by the time this is called
+	 * the component only needs to re-render — the default timeout is sufficient.
 	 */
 	async isConfirmationMessageVisible(): Promise<boolean> {
-		await this.confirmationMessage.waitFor({ state: 'visible' });
-		return await this.confirmationMessage.isVisible();
+		await expect(this.confirmationMessage).toBeVisible();
+		return true;
 	}
 
 	/**

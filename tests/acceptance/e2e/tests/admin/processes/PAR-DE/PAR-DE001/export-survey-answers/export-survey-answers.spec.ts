@@ -124,21 +124,17 @@ test.describe('@reserved [PAR-DE001] – Export survey answers', () => {
 					});
 
 					await test.step('6. User: Select specific Survey that want to export.', async () => {
-						await surveysManagePage.accessQuestionsManagementBySurveyTitle(surveyTitle);
-						console.log(`Navigated to Manage questions page for survey: "${surveyTitle}"`);
+						await surveysManagePage.accessSurveyResponsesBySurveyTitle(surveyTitle);
+						console.log(`Navigated to Responses page for survey: "${surveyTitle}"`);
 					});
 
 					await test.step('7. System: Displays survey details, including an option to "Export all"', async () => {
-						// Verify we're on the survey details/manage questions page
-						expect(adminPage.url()).toMatch(/\/edit_questions$/);
+						// Verify we're on the responses page
+						expect(adminPage.url()).toMatch(/\/surveys\/\d+\/responses$/);
 
 						// Verify the "Export" button is visible
 						await componentsPage.expectExportButtonVisible();
 						console.log('Export button is visible');
-
-						// Verify the confirmation message is present
-						await expect(adminPage.getByText('The form is already answered')).toBeVisible();
-						console.log('Confirmation message is visible');
 					});
 
 					await test.step('8. User: Clicks on the "Export" button and select format', async () => {
@@ -169,7 +165,7 @@ test.describe('@reserved [PAR-DE001] – Export survey answers', () => {
 						console.log('Checked for new messages in inbox');
 
 						// Verify and open the survey export email
-						await webmailPage.verifyExportEmail('survey_user_answers');
+						await webmailPage.verifyExportEmail('survey_user_responses');
 						console.log(`Export email with ${fileFormat} attachment verified successfully`);
 
 						// Download export file

@@ -49,7 +49,7 @@ export class DecidimKeycloakAuthHelper {
 				await page.context().addCookies(storageState.cookies);
 
 				await page.goto(checkUrl);
-				await page.waitForLoadState('networkidle');
+				await page.waitForLoadState('load');
 				if (!page.url().includes('/users/sign_in')) {
 					console.log('Existing Keycloak session is still valid');
 					return;

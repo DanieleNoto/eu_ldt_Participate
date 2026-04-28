@@ -51,7 +51,7 @@ export class MapVisualizationPage {
 		const associationName = `association test ${expectedMapId}`;
 
 		// Wait for navigation to complete
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Verify URL pattern
 		await expect(this.page).toHaveURL(/\/map_visualizations\/\d+/);

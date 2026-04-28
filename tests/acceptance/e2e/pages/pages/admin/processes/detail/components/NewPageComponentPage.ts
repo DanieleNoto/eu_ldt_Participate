@@ -4,6 +4,7 @@
  * Denis Vasilev Dimchev
  * Gianfranco Cedro
  * Antonio Abramo Carotenuto
+ * Simone Bianchelli
  */
 
 import { expect, Locator, Page } from '@playwright/test';
@@ -134,7 +135,7 @@ export class NewPageComponentPage extends BaseAdminPage {
 	// Form submission methods
 	async submitForm() {
 		await this.submitButton.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	async isSubmitButtonEnabled(): Promise<boolean> {

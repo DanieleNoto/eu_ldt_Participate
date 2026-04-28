@@ -54,13 +54,16 @@ export class UseCaseScenariosPage extends BasePage {
 	}
 
 	async verifyScenariosDisplayed(): Promise<void> {
+		await this.page.waitForLoadState('load');
 		const scenarioList = this.page.locator(TEST_SELECTORS.PROCESS.SCENARIO_LIST);
+		await expect(scenarioList.first()).toBeVisible();
 		const countScenarios = await scenarioList.count();
 		expect(countScenarios).toBeGreaterThan(0);
 	}
 
 	async selectFirstScenario(): Promise<void> {
 		const firstScenario = this.page.locator(TEST_SELECTORS.PROCESS.FIRST_SCENARIO);
+		await expect(firstScenario).toBeVisible();
 		const firstScenarioTitleLocator = this.page.locator(
 			TEST_SELECTORS.PROCESS.FIRST_SCENARIO + ' .card__list-title'
 		);
@@ -82,7 +85,7 @@ export class UseCaseScenariosPage extends BasePage {
 		}
 
 		await firstScenario.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -91,6 +94,7 @@ export class UseCaseScenariosPage extends BasePage {
 	 */
 	async selectScenarioByTitle(scenarioTitle: string): Promise<void> {
 		const scenarios = this.page.locator(TEST_SELECTORS.PROCESS.SCENARIO_LIST);
+		await expect(scenarios.first()).toBeVisible();
 		const scenarioCount = await scenarios.count();
 
 		let foundScenario = false;

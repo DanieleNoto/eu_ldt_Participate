@@ -5,9 +5,10 @@
  * Antonio Abramo Carotenuto
  */
 
-import test, { expect } from '@playwright/test';
+import { test } from '@fixtures/parallel-test-reserved';
+import { expect } from '@playwright/test';
 import { ExtraUserFieldsTestDataGenerator } from '@fixtures/extra-user-fields-fixtures';
-import { TempWebmailPage } from '@pages/base/TempWebmailPage';
+import { WebmailPage } from '@pages/base/WebmailPage';
 import { HomePage } from '@pages/pages/public/HomePage';
 import { SignUpPage } from '@pages/pages/public/SignUpPage';
 import { UserExtraFieldsPage } from '@pages/pages/user/account/UserExtraFieldsPage';
@@ -27,15 +28,19 @@ import { tmpdir } from 'os';
  * - The administrator has configured additional personal data fields.
  */
 
-//Test marked as skipped due to the inability to register a new user on Decidim via Mailinator email
-test.describe.skip('[PAR-PIM002] – Collect additional personal data on registration', () => {
-	// Force fresh unauthenticated context for this test
+test.describe('@reserved [PAR-PIM002] – Collect additional personal data on registration', () => {
+	test.describe.configure({ mode: 'serial' });
+
+	// Force fresh unauthenticated context for the registration page
 	test.use({ storageState: { cookies: [], origins: [] } });
+
+	// Fixed email account used for registration
+	const testUserEmail = process.env.OVH_USER4_EMAIL ?? '';
+	// Password used when registering on Decidim
+	const testUserPassword = 'decidim123456789';
 
 	// Variables for test data - Basic fields
 	let testUserName: string;
-	let testUserEmail: string;
-	let testUserPassword: string;
 
 	// Variables for test data - Extra fields
 	let testDateOfBirth: string;
@@ -47,14 +52,12 @@ test.describe.skip('[PAR-PIM002] – Collect additional personal data on registr
 
 	let homePage: HomePage;
 	let signUpPage: SignUpPage;
-	let tempwebmailPage: TempWebmailPage;
+	let webmailPage: WebmailPage;
 
 	test.beforeEach(async ({ page }) => {
 		// Generate unique test user data
 		const timestamp = Date.now().toString().slice(-8);
 		testUserName = `TestUser${timestamp}`;
-		testUserEmail = `testuser${timestamp}@mailinator.com`;
-		testUserPassword = 'decidim123456789';
 
 		// Generate test data - Extra fields using fixture
 		const extraFieldsData = ExtraUserFieldsTestDataGenerator.generateValidUserData(timestamp);
@@ -67,7 +70,7 @@ test.describe.skip('[PAR-PIM002] – Collect additional personal data on registr
 
 		homePage = new HomePage(page);
 		signUpPage = new SignUpPage(page);
-		tempwebmailPage = new TempWebmailPage(page);
+		webmailPage = new WebmailPage(page);
 
 		await homePage.navigateToHomePage();
 	});
@@ -85,38 +88,83 @@ test.describe.skip('[PAR-PIM002] – Collect additional personal data on registr
 				await cleanupPage.getByRole('textbox', { name: 'Password' }).fill(testUserPassword);
 				await cleanupPage.getByRole('button', { name: 'Log in' }).click();
 
-				await cleanupPage.waitForURL(/.*/, { waitUntil: 'domcontentloaded' });
+				// Wait for the page to fully settle after login (redirect on success, same page on failure)
+				await cleanupPage.waitForLoadState('networkidle');
 
 				// Verify if login was successful
 				const currentUrl = cleanupPage.url();
 
-				if (currentUrl.includes('/users/sign_in')) {
+				if (!currentUrl.includes('/users/sign_in')) {
+					// Login succeeded (account confirmed) — delete via self-service account deletion
+					console.log('Logged in successfully for cleanup');
+
+					await cleanupPage.goto(ROUTES.accountDeletePage.pattern);
+
+					const accountDeletionPage = new AccountDeletionPage(cleanupPage);
+					await accountDeletionPage.fillDeleteReason('Test cleanup - automated test user deletion');
+					await accountDeletionPage.clickDeleteAccountButton();
+					await accountDeletionPage.waitForConfirmationModal();
+					await accountDeletionPage.confirmDeletion();
+
+					const cleanupHomePage = new HomePage(cleanupPage);
+					await cleanupHomePage.expectToBeOnHomePage();
+					await expect(cleanupPage.getByText('Your account was successfully deleted.')).toBeVisible();
+
+					console.log(`User account deleted successfully: ${testUserName} (${testUserEmail})`);
+				} else {
+					// Login failed — account may not exist, or email is not yet confirmed.
+					// Try to confirm the account via webmail, then retry login and delete.
 					console.log(
-						'Login failed - user account does not exist (test likely failed before registration completed)'
+						'User login failed (account may not exist or email not confirmed). Trying webmail confirmation fallback...'
 					);
-					console.log('Skipping account deletion - nothing to clean up');
-					await cleanupContext.close();
-					return;
+
+					const webmailFallback = new WebmailPage(cleanupPage);
+					await webmailFallback.navigateToWebmail();
+					await webmailFallback.login(process.env.OVH_USER4_EMAIL!, process.env.OVH_USER4_PASSWORD!);
+
+					// getConfirmationLinkIfExists finds the email regardless of read/unread status,
+					// waits properly for the iframe link, and deletes the email internally.
+					const confirmationUrl = await webmailFallback.getConfirmationLinkIfExists();
+
+					if (!confirmationUrl) {
+						console.log(
+							'No confirmation email found in webmail — account likely does not exist, skipping cleanup'
+						);
+						await cleanupContext.close();
+						return;
+					}
+
+					// Open the confirmation link in a separate page
+					const confirmPage = await cleanupContext.newPage();
+					await confirmPage.goto(confirmationUrl, { waitUntil: 'networkidle' });
+					await expect(
+						confirmPage.getByText('Your email address has been successfully confirmed')
+					).toBeVisible();
+					await confirmPage.close();
+					console.log('Account confirmed via webmail link');
+
+					// confirmPage and cleanupPage share cleanupContext — Decidim auto-logs in on
+					// confirmation, so the session cookie is already set. Go straight to deletion.
+					console.log('Session already authenticated via confirmation. Proceeding with account deletion...');
+
+					await cleanupPage.goto(ROUTES.accountDeletePage.pattern);
+
+					const accountDeletionPageFallback = new AccountDeletionPage(cleanupPage);
+					await accountDeletionPageFallback.fillDeleteReason('Test cleanup - automated test user deletion');
+					await accountDeletionPageFallback.clickDeleteAccountButton();
+					await accountDeletionPageFallback.waitForConfirmationModal();
+					await accountDeletionPageFallback.confirmDeletion();
+
+					const cleanupHomePage2 = new HomePage(cleanupPage);
+					await cleanupHomePage2.expectToBeOnHomePage();
+					await expect(cleanupPage.getByText('Your account was successfully deleted.')).toBeVisible();
+
+					console.log(`User account deleted successfully after confirmation: ${testUserEmail}`);
 				}
-
-				console.log('Logged in successfully for cleanup');
-
-				await cleanupPage.goto(ROUTES.accountDeletePage.pattern);
-
-				const accountDeletionPage = new AccountDeletionPage(cleanupPage);
-				await accountDeletionPage.fillDeleteReason('Test cleanup - automated test user deletion');
-				await accountDeletionPage.clickDeleteAccountButton();
-				await accountDeletionPage.waitForConfirmationModal();
-				await accountDeletionPage.confirmDeletion();
-
-				const homePage = new HomePage(cleanupPage);
-				await homePage.expectToBeOnHomePage();
-
-				console.log(`User account deleted successfully: ${testUserName} (${testUserEmail})`);
 
 				await cleanupContext.close();
 				console.log('Cleanup context closed');
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error(
 					`Failed to delete test user account: ${testUserName} (${testUserEmail})`,
 					error instanceof Error ? error.message : String(error)
@@ -177,22 +225,22 @@ test.describe.skip('[PAR-PIM002] – Collect additional personal data on registr
 			});
 
 			await test.step('4. System: Confirms successful data submission', async () => {
-				// Navigate to temporary webmail inbox
-				await tempwebmailPage.navigateToTempInbox(testUserEmail);
-				await page.waitForLoadState('networkidle');
-				console.log(`Navigated to temp inbox for: ${testUserEmail}`);
+				// Navigate to OVH webmail and log in
+				await webmailPage.navigateToWebmail();
+				await webmailPage.login(process.env.OVH_USER4_EMAIL!, process.env.OVH_USER4_PASSWORD!);
+				console.log(`Logged in to OVH webmail as: ${testUserEmail}`);
 
-				// Wait for the confirmation email to arrive
-				await tempwebmailPage.waitForEmailToArrive();
-				console.log('Confirmation email arrived successfully');
+				// Wait for the confirmation email to arrive and open it
+				await webmailPage.waitForConfirmationEmailAndOpen();
+				console.log('Confirmation email arrived and opened successfully');
 
-				// Click on the confirmation email
-				await tempwebmailPage.clickConfirmationEmail();
-				console.log('Clicked on confirmation email');
-
-				// Find and click on the confirmation link in the email
-				const confirmationUrl = await tempwebmailPage.getConfirmationLink();
+				// Extract the confirmation link from the email
+				const confirmationUrl = await webmailPage.getConfirmationLink();
 				console.log('Extracted confirmation link from email');
+
+				// Delete the email from the webmail inbox to keep it clean
+				await webmailPage.deleteCurrentEmail();
+				console.log('Confirmation email deleted from OVH inbox');
 
 				const freshContext = await browser.newContext();
 				const freshPage = await freshContext.newPage();
@@ -383,22 +431,22 @@ test.describe.skip('[PAR-PIM002] – Collect additional personal data on registr
 			});
 
 			await test.step('6. System: Confirms successful data submission', async () => {
-				// Navigate to temporary webmail inbox
-				await tempwebmailPage.navigateToTempInbox(testUserEmail);
-				await page.waitForLoadState('networkidle');
-				console.log(`Navigated to temp inbox for: ${testUserEmail}`);
+				// Navigate to OVH webmail and log in
+				await webmailPage.navigateToWebmail();
+				await webmailPage.login(process.env.OVH_USER4_EMAIL!, process.env.OVH_USER4_PASSWORD!);
+				console.log(`Logged in to OVH webmail as: ${testUserEmail}`);
 
-				// Wait for the confirmation email to arrive
-				await tempwebmailPage.waitForEmailToArrive();
-				console.log('Confirmation email arrived successfully');
+				// Wait for the confirmation email to arrive and open it
+				await webmailPage.waitForConfirmationEmailAndOpen();
+				console.log('Confirmation email arrived and opened successfully');
 
-				// Click on the confirmation email
-				await tempwebmailPage.clickConfirmationEmail();
-				console.log('Clicked on confirmation email');
-
-				// Find and click on the confirmation link in the email
-				const confirmationUrl = await tempwebmailPage.getConfirmationLink();
+				// Extract the confirmation link from the email
+				const confirmationUrl = await webmailPage.getConfirmationLink();
 				console.log('Extracted confirmation link from email');
+
+				// Delete the email from the webmail inbox to keep it clean
+				await webmailPage.deleteCurrentEmail();
+				console.log('Confirmation email deleted from OVH inbox');
 
 				const freshContext = await browser.newContext();
 				const freshPage = await freshContext.newPage();

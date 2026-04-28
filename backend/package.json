@@ -32,11 +32,10 @@
 		"@fastify/swagger": "^9.5.1",
 		"@fastify/swagger-ui": "^5.2.3",
 		"@fastify/under-pressure": "^9.0.3",
-		"@ngneat/falso": "^8.0.2",
 		"@types/axios": "^0.9.36",
 		"@types/jest": "^30.0.0",
 		"@types/lodash": "^4.17.20",
-		"axios": "^1.13.5",
+		"axios": "^1.15.2",
 		"bcryptjs": "^3.0.2",
 		"body-parser": "^2.2.2",
 		"dotenv": "^17.2.1",
@@ -63,7 +62,6 @@
 		"ts-jest": "^29.4.1",
 		"umzug": "^3.8.2",
 		"undici": "^7.24.0",
-		"uuid": "^11.1.0",
 		"zod": "^4.0.17"
 	},
 	"devDependencies": {
@@ -84,13 +82,7 @@
 	},
 	"overrides": {
 		"ajv": "^8.18.0",
-		"bn.js": "^5.2.3",
-		"dottie": "2.0.7",
 		"glob": "^9.3.5",
-		"js-yaml": "^4.1.1",
-		"lodash": "^4.17.23",
-		"minimatch": "^8.0.5",
-		"validator": "13.15.23",
 		"tar": "^7.5.8"
 	}
 }

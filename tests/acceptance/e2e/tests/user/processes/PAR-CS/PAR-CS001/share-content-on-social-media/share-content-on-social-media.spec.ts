@@ -44,7 +44,7 @@ test.describe('[PAR-CS001] – Share content on social media', () => {
 			await test.step('1. User: Navigates to the content they want to share', async () => {
 				// Navigate to processes section to find content to share
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 
 				// Verify we are on the processes overview page
 				await processesOverviewPage.expectToBeOnProcessesOverviewPage();
@@ -91,7 +91,7 @@ test.describe('[PAR-CS001] – Share content on social media', () => {
 				// Get count of available social options
 				const socialOptionsCount = await debateDetailPage.shareModal.getSocialOptionsCount();
 				console.log('Number of social media platforms available:', socialOptionsCount);
-				expect(socialOptionsCount).toBe(4); // Facebook, X, WhatsApp, Telegram
+				expect(socialOptionsCount).toBeGreaterThanOrEqual(4); // Facebook, X, WhatsApp, Telegram + optional QR
 			});
 
 			await test.step('4. User: Selects the social media platform they wish to share the content on', async () => {

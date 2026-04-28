@@ -297,7 +297,7 @@ export class AdminHomePage extends BaseAdminPage {
 		if (isEnglishAvailable) {
 			await this.selectLanguage('en');
 			// Waits for the page to reload with the new locale
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 			return true;
 		}
 

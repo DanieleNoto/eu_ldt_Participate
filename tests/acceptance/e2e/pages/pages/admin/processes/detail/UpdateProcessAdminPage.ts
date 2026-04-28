@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
+ * Simone Bianchelli
  */
 
 import { expect, Locator, Page } from '@playwright/test';
@@ -126,7 +127,7 @@ export class UpdateProcessAdminPage extends BaseAdminPage {
 	// Page state validation
 	async waitForUpdateProcessPageLoad() {
 		await this.page.waitForSelector('form[data-remote="true"], form[action*="participatory_processes"]');
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async isOnUpdateProcessPage(): Promise<boolean> {
@@ -224,7 +225,7 @@ export class UpdateProcessAdminPage extends BaseAdminPage {
 	// Form submission and validation
 	async saveProcess() {
 		await this.saveButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// URL validation methods

@@ -97,7 +97,7 @@ export class DebateDetailPage {
 		this.instructionsSection = this.page.locator('[data-announcement] .rich-text-display');
 
 		// Action buttons
-		this.likeButton = this.page.locator('#endorsement-button');
+		this.likeButton = this.page.locator('#like-button');
 		this.endorsementDropdown = this.page.locator('button#dropdown-trigger');
 		this.commentButton = this.page.getByRole('link', { name: 'Comment' });
 		this.followButton = this.page.locator('button[id^="follow_debate"]');
@@ -105,7 +105,7 @@ export class DebateDetailPage {
 		this.reportButton = this.page.locator('button[data-dialog-open="loginModal"]', { hasText: 'Rapporto' });
 
 		// Endorsement/Like system
-		this.endorsementButton = this.page.locator('#endorsement-button').first();
+		this.endorsementButton = this.page.locator('#like-button').first();
 		this.endorsersListDropdown = this.page.locator('#dropdown-menu-endorsers-list');
 		this.endorsersListGrid = this.page.locator('.endorsers-list__grid');
 		this.endorsersListText = this.page.locator('.endorsers-list__text');
@@ -155,7 +155,7 @@ export class DebateDetailPage {
 		this.referenceItem = this.page.locator('.metadata__item', { hasText: 'Riferimento:' });
 		this.versionItem = this.page.locator('.metadata__item', { hasText: 'Versione' });
 
-		this.closeDebateLink = this.page.locator('a.button[href*="debate_closes"]');
+		this.closeDebateLink = this.page.locator('a.dropdown__button[href*="debate_closes"]');
 
 		// Initialize components
 		this.shareModal = new ShareModalComponent(this.page);
@@ -400,7 +400,7 @@ export class DebateDetailPage {
 	 */
 	async submitComment(): Promise<void> {
 		await this.commentSubmitButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -561,8 +561,8 @@ export class DebateDetailPage {
 	 * @returns True if the textarea has tribute data attributes
 	 */
 	async isTributeInitialized(): Promise<boolean> {
-		const hasTributeAttr = await this.commentTextarea.getAttribute('data-tribute');
-		return hasTributeAttr === 'true';
+		const controller = await this.commentTextarea.getAttribute('data-controller');
+		return controller !== null && controller.split(' ').includes('mention');
 	}
 
 	/**
@@ -824,7 +824,7 @@ export class DebateDetailPage {
 		} catch {
 			// Loading indicator might not appear for fast loads
 		}
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -925,7 +925,7 @@ export class DebateDetailPage {
 	async upvoteCommentByIndex(index: number): Promise<void> {
 		const upvoteButton = this.commentUpvoteButtons.nth(index);
 		await upvoteButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -939,7 +939,7 @@ export class DebateDetailPage {
 		// Find the upvote button within the specific comment
 		const upvoteButton = this.page.locator(`${commentSelector} .js-comment__votes--up`);
 		await upvoteButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -949,7 +949,7 @@ export class DebateDetailPage {
 	async downvoteCommentByIndex(index: number): Promise<void> {
 		const downvoteButton = this.commentDownvoteButtons.nth(index);
 		await downvoteButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -978,7 +978,7 @@ export class DebateDetailPage {
 		// Submit the reply
 		const submitButton = replyForm.locator('button[type="submit"]');
 		await submitButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -1338,7 +1338,7 @@ export class DebateDetailPage {
 			await confirmOkButton.click();
 
 			// Wait for action to complete
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 
 			console.log(`Successfully deleted comment ${commentId}`);
 		} catch (error) {

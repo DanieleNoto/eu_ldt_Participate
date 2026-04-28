@@ -59,25 +59,21 @@ export class ComponentsPage extends BaseAdminPage {
 		this.pageTitle = page.locator('.item_show__header-title h1, h1.item_show__header-title');
 
 		// Add component dropdown
-		this.addComponentButton = page.locator('button[data-toggle="add-component-dropdown"]');
+		this.addComponentButton = page.locator('button[data-target="add-component-dropdown"]');
 		this.addComponentDropdown = page.locator('#add-component-dropdown');
 
 		// Component type links
 		this.accountabilityLink = page.locator('a.accountability[href*="components/new?type=accountability"]');
 		this.blogLink = page.locator('a.blogs[href*="components/new?type=blogs"]');
 		this.budgetsLink = page.locator('a.budgets[href*="components/new?type=budgets"]');
-		this.debatesLink = page.locator('a.debates[href*="components/new?type=debates"]');
-		this.meetingsLink = page.locator('a.meetings[href*="components/new?type=meetings"]');
-		this.pagesLink = page.locator('a.pages[href*="components/new?type=pages"]');
+		this.debatesLink = page.locator('a[href*="components/new?type=debates"]');
+		this.meetingsLink = page.locator('a[href*="components/new?type=meetings"]');
+		this.pagesLink = page.locator('a[href*="components/new?type=pages"]');
 		this.proposalsLink = page.locator('a.proposals[href*="components/new?type=proposals"]');
 		this.sortitionsLink = page.locator('a.sortitions[href*="components/new?type=sortitions"]');
-		this.surveysLink = page.locator('a.surveys[href*="components/new?type=surveys"]');
-		this.ldtUseCaseScenariosLink = page.locator(
-			'a.ldt_use_case_scenarios[href*="components/new?type=ldt_use_case_scenarios"]'
-		);
-		this.ldtMapVisualizationLink = page.locator(
-			'a.ldt_map_visualization[href*="components/new?type=ldt_map_visualization"]'
-		);
+		this.surveysLink = page.locator('a[href*="components/new?type=surveys"]');
+		this.ldtUseCaseScenariosLink = page.locator('a[href*="components/new?type=ldt_use_case_scenarios"]');
+		this.ldtMapVisualizationLink = page.locator('a[href*="components/new?type=ldt_map_visualization"]');
 
 		// Components table
 		this.tableHeaders = page.locator('.table-list thead th');
@@ -111,7 +107,7 @@ export class ComponentsPage extends BaseAdminPage {
 	}
 
 	// Convenience method for waiting for load state
-	async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle' = 'networkidle') {
+	async waitForLoadState(state: 'load' | 'domcontentloaded' | 'networkidle' = 'load') {
 		await this.page.waitForLoadState(state);
 	}
 
@@ -122,7 +118,6 @@ export class ComponentsPage extends BaseAdminPage {
 
 	async openAddComponentDropdown() {
 		await this.addComponentButton.click();
-		await expect(this.addComponentDropdown).toHaveAttribute('aria-hidden', 'false');
 	}
 
 	async closeAddComponentDropdown() {
@@ -141,19 +136,19 @@ export class ComponentsPage extends BaseAdminPage {
 	async addAccountabilityComponent() {
 		await this.openAddComponentDropdown();
 		await this.accountabilityLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addBlogComponent() {
 		await this.openAddComponentDropdown();
 		await this.blogLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addBudgetsComponent() {
 		await this.openAddComponentDropdown();
 		await this.budgetsLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addDebatesComponent() {
@@ -167,43 +162,43 @@ export class ComponentsPage extends BaseAdminPage {
 	async addMeetingsComponent() {
 		await this.openAddComponentDropdown();
 		await this.meetingsLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addPagesComponent() {
 		await this.openAddComponentDropdown();
 		await this.pagesLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addProposalsComponent() {
 		await this.openAddComponentDropdown();
 		await this.proposalsLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addSortitionsComponent() {
 		await this.openAddComponentDropdown();
 		await this.sortitionsLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addSurveysComponent() {
 		await this.openAddComponentDropdown();
 		await this.surveysLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addLDTUseCaseScenariosComponent() {
 		await this.openAddComponentDropdown();
 		await this.ldtUseCaseScenariosLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async addLDTMapVisualizationComponent() {
 		await this.openAddComponentDropdown();
 		await this.ldtMapVisualizationLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Generic method to add component by type
@@ -258,12 +253,19 @@ export class ComponentsPage extends BaseAdminPage {
 		return this.componentRows.nth(index);
 	}
 
+	// Opens the 3-dots actions dropdown for a given row
+	private async openRowActionsDropdown(row: Locator): Promise<void> {
+		await row.locator('button[data-controller="dropdown"]').click();
+		// Wait for the dropdown menu to become visible before interacting with its items
+		await row.locator('ul.dropdown__action:not([aria-hidden="true"])').waitFor({ state: 'visible' });
+	}
+
 	// Component actions
 	async manageComponent(componentName: string) {
-		const row = this.getComponentRow(componentName).first();
-		const manageLink = row.locator('a.action-icon--manage');
-		await manageLink.click();
-		await this.page.waitForLoadState('networkidle');
+		const row = this.getComponentRow(componentName);
+		await this.openRowActionsDropdown(row);
+		await row.locator('a[href*="/manage/"]').first().click();
+		await this.page.waitForLoadState('load');
 	}
 
 	async checkPageComponent(componentName: string) {
@@ -271,7 +273,7 @@ export class ComponentsPage extends BaseAdminPage {
 		await this.newPageComponentPage.waitForNewPageComponentPageLoad();
 		await this.newPageComponentPage.fillComponentName(componentName);
 		await this.newPageComponentPage.submitForm();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		await this.expectComponentExists(componentName);
 		await this.manageComponent(componentName);
 		await this.managePageComponentPage.fillBody('This is a test page body');
@@ -280,23 +282,23 @@ export class ComponentsPage extends BaseAdminPage {
 
 	async shareComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
-		const shareLink = row.locator('a.action-icon--share');
-		await shareLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.openRowActionsDropdown(row);
+		await row.locator('a[href*="/share_tokens"]').click();
+		await this.page.waitForLoadState('load');
 	}
 
 	async configureComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
-		const configureLink = row.locator('a.action-icon--configure').first();
-		await configureLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.openRowActionsDropdown(row);
+		await row.locator('a[href$="/edit"]').first().click();
+		await this.page.waitForLoadState('load');
 	}
 
 	async configureFirstComponent() {
 		const row = this.getComponentRowByIndex(0);
-		const configureLink = row.locator('a.action-icon--configure').first();
-		await configureLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.openRowActionsDropdown(row);
+		await row.locator('a[href$="/edit"]').first().click();
+		await this.page.waitForLoadState('load');
 	}
 
 	/**
@@ -304,95 +306,90 @@ export class ComponentsPage extends BaseAdminPage {
 	 */
 	async hideComponentByName(componentName: string): Promise<void> {
 		const row = this.getComponentRow(componentName);
-		const hideLink = row.locator('a.action-icon--unpublish');
-		if (await hideLink.isVisible()) {
+		await this.openRowActionsDropdown(row);
+		const hideLink = row.locator('a[href*="/hide"]');
+		if ((await hideLink.count()) > 0) {
 			await hideLink.click();
+			await this.page.waitForLoadState('load');
 		}
 	}
 
 	/**
 	 * Click on the "Unpublish" action link to unpublish a component.
+	 * Always hides first (idempotent), then unpublishes.
 	 */
 	async unpublishComponentByName(componentName: string): Promise<void> {
+		// Hide first if needed (hideComponentByName already checks if hide link exists)
+		await this.hideComponentByName(componentName);
+
+		// Open dropdown and click unpublish
 		const row = this.getComponentRow(componentName);
-		const unpublishLink = row.locator('a.action-icon--menu-hidden');
+		await this.openRowActionsDropdown(row);
+		const unpublishLink = row.locator('a[href$="/unpublish"]');
 		await unpublishLink.waitFor({ state: 'visible' });
-		if (await unpublishLink.isVisible()) {
-			await unpublishLink.click();
-		}
+		await unpublishLink.click();
+		await this.page.waitForLoadState('load');
 	}
 
 	async publishComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
-		const publishLink = row.locator('a.action-icon--publish');
+		await this.openRowActionsDropdown(row);
+		const publishLink = row.locator('a[href$="/publish"]');
+		await publishLink.waitFor({ state: 'visible' });
 		await publishLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async previewComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
-		const previewLink = row.locator('a.action-icon--preview');
-		await previewLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.openRowActionsDropdown(row);
+		await row.locator('a[href*="/processes/"]').click();
+		await this.page.waitForLoadState('load');
 	}
 
 	async deleteComponent(componentName: string) {
 		const row = this.getComponentRow(componentName);
-		const deleteLink = row.locator('a.action-icon--remove');
-
-		// Handle potential confirmation dialog
-		this.page.on('dialog', async dialog => {
-			if (dialog.type() === 'confirm') {
-				await dialog.accept();
-			}
-		});
-
-		await deleteLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.openRowActionsDropdown(row);
+		await row.locator('a[href*="/soft_delete"]').click();
+		await this.page.waitForLoadState('load');
 	}
 
 	// Component state checks
 	async isComponentPublished(componentName: string): Promise<boolean> {
 		const row = this.getComponentRow(componentName);
-		const unpublishAction = row.locator('a.action-icon--unpublish');
-		return await unpublishAction.isVisible();
+		// If published, no "Unpublished" badge is visible in the Visibility column
+		return (await row.locator('strong.label', { hasText: 'Unpublished' }).count()) === 0;
 	}
 
 	async isComponentUnpublished(componentName: string): Promise<boolean> {
 		const row = this.getComponentRow(componentName);
-		const publishAction = row.locator('a.action-icon--publish');
-		return await publishAction.isVisible();
+		return (await row.locator('strong.label', { hasText: 'Unpublished' }).count()) > 0;
 	}
 
 	async hasManagePermission(componentName: string): Promise<boolean> {
 		const row = this.getComponentRow(componentName);
-		const manageAction = row.locator('a.action-icon--manage');
-		return await manageAction.isVisible();
+		return (await row.locator('a[href*="/manage/"]').count()) > 0;
 	}
 
 	async hasDeletePermission(componentName: string): Promise<boolean> {
 		const row = this.getComponentRow(componentName);
-		const deleteAction = row.locator('a.action-icon--remove');
-		return await deleteAction.isVisible();
+		return (await row.locator('a[href$="/soft_delete"]').count()) > 0;
 	}
 
 	// Component link methods
 	async getComponentManageUrl(componentName: string): Promise<string | null> {
 		const row = this.getComponentRow(componentName);
-		const manageLink = row.locator('a.action-icon--manage');
-		return await manageLink.getAttribute('href');
+		return await row.locator('a[href*="/manage/"]').first().getAttribute('href');
 	}
 
 	async getComponentPreviewUrl(componentName: string): Promise<string | null> {
 		const row = this.getComponentRow(componentName);
-		const previewLink = row.locator('a.action-icon--preview');
-		return await previewLink.getAttribute('href');
+		return await row.locator('a[href*="/processes/"]').getAttribute('href');
 	}
 
 	async getComponentConfigureUrl(componentName: string): Promise<string | null> {
 		const row = this.getComponentRow(componentName);
-		const configureLink = row.locator('a.action-icon--configure');
-		return await configureLink.getAttribute('href');
+		return await row.locator('a[href$="/edit"]').first().getAttribute('href');
 	}
 
 	// Bulk operations
@@ -410,9 +407,8 @@ export class ComponentsPage extends BaseAdminPage {
 			const typeElement = row.locator('td:nth-child(3)');
 			const type = (await typeElement.textContent()) || '';
 
-			// Check if component is published by looking for the unpublish action button
-			const unpublishButton = row.locator('a.action-icon--unpublish');
-			const published = await unpublishButton.isVisible();
+			// Check if component is published by absence of the "Unpublished" badge
+			const published = (await row.locator('strong.label', { hasText: 'Unpublished' }).count()) === 0;
 
 			components.push({
 				name: name.trim(),
@@ -492,9 +488,10 @@ export class ComponentsPage extends BaseAdminPage {
 			return;
 		}
 
-		// take the first match and click the delete link in the actions cell
+		// take the first match and open its actions dropdown, then click delete
 		const row = rowLocator.first();
-		const deleteLink = row.locator('a.action-icon--delete');
+		await this.openRowActionsDropdown(row);
+		const deleteLink = row.locator('a[href$="/soft_delete"]');
 
 		if ((await deleteLink.count()) === 0) {
 			console.log(`Delete link not found for "${componentName}", skipping deletion.`);
@@ -503,13 +500,15 @@ export class ComponentsPage extends BaseAdminPage {
 
 		await deleteLink.first().click();
 
-		// confirm the deletion (adjust the button name if necessary)
-		const okButton = this.page.getByRole('button', { name: 'OK' });
-		await okButton.evaluate((element: HTMLElement) => element.click());
+		// confirm the deletion via the custom confirm modal
+		const okButton = this.page.locator('button[data-confirm-ok]');
+		await okButton.click();
 
-		// wait for success message or for the row to be removed
-		const deletionSuccessMessage = this.page.locator('.flash.success, .alert.success, [role="alert"]');
-		await expect(deletionSuccessMessage).toBeVisible();
+		// Wait for the page to reload after deletion
+		await this.page.waitForLoadState('load');
+
+		// Verify the row is no longer visible
+		await expect(rowLocator.first()).not.toBeVisible();
 	}
 
 	/**
@@ -530,14 +529,14 @@ export class ComponentsPage extends BaseAdminPage {
 	 * Verify that the Export button is visible
 	 */
 	async expectExportButtonVisible(): Promise<void> {
-		await expect(this.page.locator('[data-toggle="export-dropdown"]')).toBeVisible();
+		await expect(this.page.locator('button[data-target="export-dropdown"]')).toBeVisible();
 	}
 
 	/**
 	 * Click on the Export button to open export dropdown/modal
 	 */
 	async clickExportButton(): Promise<void> {
-		await this.page.locator('[data-toggle="export-dropdown"]').click();
+		await this.page.locator('button[data-target="export-dropdown"]').click();
 	}
 
 	/**
@@ -547,9 +546,33 @@ export class ComponentsPage extends BaseAdminPage {
 	 * @param exportType - Optional: The type of data to export
 	 */
 	async selectExportFormat(fileFormat: string, exportType?: string): Promise<void> {
-		// The text is inside a li child of the link, so we need to find the link that contains the text
-		const linkSelector = `a:has(li:has-text("Export ${fileFormat}"))`;
-		await this.page.locator(linkSelector).first().click();
+		const exportDropdown = this.page.locator('#export-dropdown');
+
+		// PDF format: Decidim uses 'FormPDF' in the href
+		const hrefFormat = fileFormat === 'PDF' ? 'FormPDF' : fileFormat;
+
+		if (!exportType) {
+			// No disambiguation needed (e.g. surveys: single set of links)
+			await exportDropdown.locator(`a.dropdown__button:has-text("Export ${fileFormat}")`).click();
+			return;
+		}
+
+		// Detect component type by checking which id-params are present in the dropdown,
+		// then resolve the human-readable exportType to the ?id= query param.
+		const hasMeetings = (await this.page.locator('#export-dropdown a[href*="id=meetings"]').count()) > 0;
+		const exportTypeToId: Record<string, string> = hasMeetings
+			? { Meetings: 'meetings', Comments: 'meeting_comments', Answers: 'responses' }
+			: { Debates: 'debates', Comments: 'debate_comments' };
+
+		const idParam = exportTypeToId[exportType];
+		if (idParam) {
+			await exportDropdown
+				.locator(`a.dropdown__button[href*="exports.${hrefFormat}"][href*="id=${idParam}"]`)
+				.click();
+		} else {
+			// Fallback: match by visible text (works when only one link exists for this format)
+			await exportDropdown.locator(`a.dropdown__button:has-text("Export ${fileFormat}")`).click();
+		}
 	}
 
 	/**

@@ -45,7 +45,7 @@ test.describe('[PAR-PPM003] – Configure available components', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -59,7 +59,7 @@ test.describe('[PAR-PPM003] – Configure available components', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -81,7 +81,7 @@ test.describe('[PAR-PPM003] – Configure available components', () => {
 				await configureAccountabilityComponentPage.submitForm();
 			});
 			await test.step('10. System: Validates the selection for completeness and consistency.', async () => {
-				await componentPage.waitForLoadState('networkidle');
+				await componentPage.waitForLoadState('load');
 				await componentPage.expectToBeOnComponentsPage();
 			});
 			await test.step('11. System: Saves the configuration and updates the process accordingly.', async () => {
@@ -101,7 +101,7 @@ test.describe('[PAR-PPM003] – Configure available components', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -115,7 +115,7 @@ test.describe('[PAR-PPM003] – Configure available components', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -137,7 +137,7 @@ test.describe('[PAR-PPM003] – Configure available components', () => {
 				await configureAccountabilityComponentPage.submitForm();
 			});
 			await test.step('10.1. System: Detects that the selected component configuration is incomplete or inconsistent.', async () => {
-				await configureAccountabilityComponentPage.waitForLoadState('networkidle');
+				await configureAccountabilityComponentPage.waitForLoadState('load');
 				await configureAccountabilityComponentPage.expectErrorFlashMessage(
 					'There was a problem updating this component.'
 				);
@@ -153,7 +153,7 @@ test.describe('[PAR-PPM003] – Configure available components', () => {
 				await configureAccountabilityComponentPage.submitForm();
 			});
 			await test.step('Result.', async () => {
-				await componentPage.waitForLoadState('networkidle');
+				await componentPage.waitForLoadState('load');
 				await componentPage.expectToBeOnComponentsPage();
 				await componentPage.expectSuccessFlashMessage('The component was updated successfully.');
 				await componentPage.expectComponentExists('Valid Component Name');

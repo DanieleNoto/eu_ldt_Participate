@@ -99,12 +99,12 @@ export class NewsletterAdminPage extends BaseAdminPage {
 	// Action methods
 	async clickNewNewsletter() {
 		await this.newNewsletterButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async selectBasicTemplate() {
 		await this.basicTemplateUseButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async fillNewsletterForm(subject: string, body: string) {
@@ -120,12 +120,12 @@ export class NewsletterAdminPage extends BaseAdminPage {
 
 	async saveNewsletter() {
 		await this.saveButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async clickEditNewsletter() {
 		await this.editButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async editNewsletterBody(newBody: string) {
@@ -139,23 +139,23 @@ export class NewsletterAdminPage extends BaseAdminPage {
 
 	async saveAndPreviewNewsletter() {
 		await this.saveAndPreviewButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async clickSelectRecipients() {
 		await this.selectRecipientsButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async selectSendToAllUsers() {
 		await this.sendToAllUsersRadio.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async selectSendToParticipants(processName?: string) {
 		// Check the "Send to participants" checkbox
 		await this.sendToParticipantsCheckbox.check();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Click to open the participatory processes dropdown
 		await this.page.locator('#participatory_processes-spaces-select-ts-control').click();
@@ -181,17 +181,17 @@ export class NewsletterAdminPage extends BaseAdminPage {
 			await firstProcessOption.click();
 		}
 
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async clickDeliverNewsletter() {
 		await this.deliverNewsletterButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async confirmDelivery() {
 		await this.confirmOKButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Verification methods
@@ -261,7 +261,7 @@ export class NewsletterAdminPage extends BaseAdminPage {
 		// SMTP delivery can be slow
 		await expect(async () => {
 			await this.page.reload();
-			await this.page.waitForLoadState('networkidle');
+			await this.page.waitForLoadState('load');
 
 			const newsletterRow = this.newsletterRowBySubject(subject);
 			const sentToCell = newsletterRow.locator('td').nth(3);
@@ -316,7 +316,7 @@ export class NewsletterAdminPage extends BaseAdminPage {
 
 	async confirmRecipients() {
 		await this.confirmRecipientsButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async expectConfirmRecipientsPageToBeVisible() {
@@ -346,20 +346,21 @@ export class NewsletterAdminPage extends BaseAdminPage {
 		const newsletterRow = this.newsletterRowBySubject(subject);
 		await expect(newsletterRow).toBeVisible();
 
-		// Find and click the delete button (last action icon in the row)
-		const deleteButton = newsletterRow.locator('a.action-icon--remove[title="Delete"]');
-		await deleteButton.click();
+		// Open the actions dropdown
+		const actionsButton = newsletterRow.locator('button[data-controller="dropdown"]');
+		await actionsButton.click();
 
-		// Wait for the confirmation modal to appear
-		const confirmModal = this.page.locator('#confirm-modal-content');
-		await expect(confirmModal).toBeVisible();
+		// Find and click the Delete link inside the dropdown
+		const deleteLink = newsletterRow.locator('a.dropdown__button--danger');
+		await deleteLink.click();
 
-		// Click the OK button to confirm deletion
-		const okButton = confirmModal.locator('button[data-confirm-ok]');
+		// Wait for the custom confirm modal and click OK
+		const okButton = this.page.locator('button[data-confirm-ok]');
+		await okButton.waitFor();
 		await okButton.click();
 
 		// Wait for the page to reload after deletion
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		console.log(`Newsletter "${subject}" deleted successfully`);
 	}
 }
