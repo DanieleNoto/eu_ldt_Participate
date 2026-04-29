@@ -42,6 +42,34 @@
         </div>
       <% else %>
         <div id="experiments-container" style="display: block;">
+          <!-- Filters: date range and status – auto-apply on change -->
+          <div class="experiments-filters" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <label for="filter-execution-id" style="font-weight: 600;"><%= t(".filter_execution_id_label", default: "Execution ID") %>:</label>
+            <input id="filter-execution-id" type="text"
+                   placeholder="<%= t('.filter_execution_id_placeholder', default: 'Full UUID…') %>"
+                   style="padding: 0.25rem;" />
+
+            <label for="filter-experiment-id" style="font-weight: 600;"><%= t(".filter_experiment_id_label", default: "Experiment ID") %>:</label>
+            <input id="filter-experiment-id" type="text"
+                   placeholder="<%= t('.filter_experiment_id_placeholder', default: 'Full UUID…') %>"
+                   style="padding: 0.25rem;" />
+
+            <label for="filter-status" style="font-weight: 600;"><%= t(".filter_status_label", default: "Status") %>:</label>
+            <select id="filter-status" style="padding: 0.25rem;">
+              <option value="">-- <%= t('.all_status', default: 'All') %> --</option>
+              <option value="DRAFT">DRAFT</option>
+              <option value="COMPLETED">COMPLETED</option>
+              <option value="WORKFLOW_TRIGGERED">WORKFLOW_TRIGGERED</option>
+              <option value="INFERENCE_TRIGGERED">INFERENCE_TRIGGERED</option>
+              <option value="FAILED">FAILED</option>
+              <option value="DELETED">DELETED</option>
+            </select>
+
+            <button id="filter-clear" class="button button__sm" type="button" style="margin-left: auto;" disabled>
+              <%= t('.clear', default: 'Clear') %>
+            </button>
+          </div>
+
           <div class="table-stacked">
             <table class="table-list w-full" style="width: 100%;">
               <thead id="experiments-thead">
@@ -61,13 +89,13 @@
                       <input type="radio" name="selected_experiment" value="<%= exp['id'] %>" class="select-experiment-radio">
                     </td>
                     <td class="!text-left" data-label="Experiment Name">
-                      <strong><%= exp.dig('experiment', 'name') || t(".no_name") %></strong>
+                      <strong class="experiment-name"><%= exp.dig('experiment', 'name') || t(".no_name") %></strong>
                     </td>
                     <td class="!text-left" data-label="Experiment ID / Scenario ID">
                       <div><strong><%= exp['experimentId'] %></strong></div>
                       <div class="text-sm text-gray-600"><%= exp['scenarioId'] %></div>
                     </td>
-                    <td data-label="Status">
+                    <td data-label="Status" class="experiment-status">
                       <%= exp['status'] %>
                     </td>
                     <td data-label="Created">
@@ -88,6 +116,7 @@
             <div data-pagination></div>
           </div>
         </div>
+
       <% end %>
 
       <!-- Form Section - Always visible -->

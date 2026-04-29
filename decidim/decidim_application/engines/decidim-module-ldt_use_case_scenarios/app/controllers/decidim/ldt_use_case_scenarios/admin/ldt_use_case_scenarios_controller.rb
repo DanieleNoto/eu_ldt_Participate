@@ -7,6 +7,7 @@
 
 require "net/http"
 require "uri"
+require "cgi"
 
 module Decidim
   module LdtUseCaseScenarios
@@ -41,17 +42,37 @@ module Decidim
             10
           end
 
-          # Fetch experiments from TOOL2, always sorted by last update descending
-          result = fetch_from_tool2(jwt, "/experiment-executions?page=#{page}&size=#{size}&sort=updatedAt::DESC")
-          
+          filter_execution_id  = sanitize_filter_uuid(params[:filter_execution_id])
+          filter_experiment_id = sanitize_filter_uuid(params[:filter_experiment_id])
+          filter_status        = sanitize_filter_status(params[:filter_status])
+
+          Rails.logger.info("[LDT] external_experiments params: page=#{page} size=#{size} " \
+                            "execution_id=#{filter_execution_id.inspect} " \
+                            "experiment_id=#{filter_experiment_id.inspect} " \
+                            "status=#{filter_status.inspect}")
+
+          search_parts = []
+          search_parts << "id::#{filter_execution_id}"             if filter_execution_id.present?
+          search_parts << "experimentId::#{filter_experiment_id}"  if filter_experiment_id.present?
+          search_parts << "status::#{filter_status}"               if filter_status.present?
+
+          search_query = search_parts.map { |s| "&search=#{CGI.escape(s)}" }.join
+          api_path     = "/experiment-executions?page=#{page}&size=#{size}&sort=updatedAt::DESC#{search_query}"
+          Rails.logger.info("[LDT] external_experiments api_path=#{api_path}")
+
+          result = fetch_from_tool2(jwt, api_path)
+
           if result[:error]
+            Rails.logger.error("[LDT] external_experiments TOOL2 error: #{result[:error]}")
             return render json: { error: "Invalid request parameters" }, status: :bad_request
           end
-          
+
           render json: result[:data]
         rescue JSON::ParserError => e
+          Rails.logger.error("[LDT] external_experiments JSON parse error: #{e.message}")
           render json: { error: "parsing error: #{e.message}" }, status: :unprocessable_entity
         rescue StandardError => e
+          Rails.logger.error("[LDT] external_experiments unexpected error: #{e.class} #{e.message}")
           render json: { error: "unexpected error: #{e.message}" }, status: :internal_server_error
         end
 
@@ -302,7 +323,9 @@ module Decidim
           end
 
           # Fetch experiments list (first page, sorted by last update)
-          result = fetch_from_tool2(jwt, "/experiment-executions?page=0&size=10&sort=updatedAt::DESC")
+          filter_status = sanitize_filter_status(params[:filter_status])
+          search_str    = build_search_params(nil, filter_status)
+          result = fetch_from_tool2(jwt, "/experiment-executions?page=0&size=10&sort=updatedAt::DESC#{search_str}")
 
           if result[:error]
             @experiments = []
@@ -463,6 +486,7 @@ module Decidim
           if data_response.code == "401"
             data_response = handle_unauthorized_retry(data_request, data_http, data_response)
           elsif data_response.code != "200"
+            Rails.logger.error("[LDT] TOOL2 returned #{data_response.code} for #{data_url}. Body: #{data_response.body.to_s.first(500)}")
             raise "TOOL2 returned status #{data_response.code}"
           end
 
@@ -524,6 +548,33 @@ module Decidim
           return nil unless endpoint_path.match?(%r{\A/[\w\-/.~:@!$&'()*+,;=?%]*\z})
           
           endpoint_path
+        end
+
+        # Validates a full UUID (e.g. "cd054685-1234-5678-abcd-ef0123456789").
+        # Returns nil for partial strings — partial UUIDs cause PostgreSQL validation errors in TOOL2.
+        def sanitize_filter_uuid(value)
+          return nil unless value.present?
+
+          stripped = value.to_s.strip.downcase
+          stripped.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/) ? stripped : nil
+        end
+
+        # Validates a status filter against the known execution status enum values.
+        def sanitize_filter_status(value)
+          allowed = %w[DRAFT COMPLETED WORKFLOW_TRIGGERED INFERENCE_TRIGGERED FAILED DELETED]
+          return nil unless value.present?
+
+          upcase = value.to_s.upcase
+          allowed.include?(upcase) ? upcase : nil
+        end
+
+        # Builds URL-encoded search query string fragments for the TOOL2 API.
+        # Name filter is handled in Ruby (contains match) so only status is sent as a scope.
+        # Status filter targets the direct `status` column (STRING type → iLike on the API side).
+        def build_search_params(_filter_name, filter_status)
+          return "" unless filter_status.present?
+
+          "&search=#{CGI.escape("status::#{filter_status}")}"
         end
 
         # Validate experiment_id to prevent path traversal attacks

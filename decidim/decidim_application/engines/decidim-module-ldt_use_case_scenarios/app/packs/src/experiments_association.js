@@ -12,6 +12,9 @@ let currentPage = 0;
 let totalPages = 1;
 let pageSize = 10;
 
+// Filter state (kept in sync with the filter inputs; included in every AJAX request)
+let currentFilters = { executionId: '', experimentId: '', status: '' };
+
 document.addEventListener('DOMContentLoaded', function () {
 	console.log('DOMContentLoaded fired - initializing experiments_association');
 
@@ -25,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	setupCancelHandler();
 	setupSubmitHandler();
 	setupInputValidation();
+	setupFilterHandlers();
 	console.log('Handlers setup complete');
 });
 
@@ -329,6 +333,70 @@ function showError(message) {
 }
 
 // ============================================================
+// Filters
+// ============================================================
+
+function setupFilterHandlers() {
+	const clearBtn = document.getElementById('filter-clear');
+
+	function readFilters() {
+		const executionId = document.getElementById('filter-execution-id');
+		const experimentId = document.getElementById('filter-experiment-id');
+		const status = document.getElementById('filter-status');
+		return {
+			executionId: executionId ? executionId.value : '',
+			experimentId: experimentId ? experimentId.value : '',
+			status: status ? status.value : ''
+		};
+	}
+
+	function updateClearButton(filters) {
+		if (clearBtn) clearBtn.disabled = !(filters.executionId || filters.experimentId || filters.status);
+	}
+
+	function applyFilters() {
+		currentFilters = readFilters();
+		currentPage = 0;
+		totalPages = 1;
+		updateClearButton(currentFilters);
+		goToPage(0);
+	}
+
+	// Debounce helper for text inputs
+	let debounceTimer = null;
+	function debounceApplyFilters() {
+		clearTimeout(debounceTimer);
+		debounceTimer = setTimeout(applyFilters, 300);
+	}
+
+	const executionIdInput = document.getElementById('filter-execution-id');
+	const experimentIdInput = document.getElementById('filter-experiment-id');
+	if (executionIdInput) executionIdInput.addEventListener('input', debounceApplyFilters);
+	if (experimentIdInput) experimentIdInput.addEventListener('input', debounceApplyFilters);
+
+	const statusSelect = document.getElementById('filter-status');
+	if (statusSelect) statusSelect.addEventListener('change', applyFilters);
+
+	if (clearBtn) {
+		clearBtn.addEventListener('click', function () {
+			const execInput = document.getElementById('filter-execution-id');
+			const expInput = document.getElementById('filter-experiment-id');
+			if (execInput) execInput.value = '';
+			if (expInput) expInput.value = '';
+
+			const status = document.getElementById('filter-status');
+			if (status) status.value = '';
+
+			currentFilters = { executionId: '', experimentId: '', status: '' };
+			currentPage = 0;
+			totalPages = 1;
+			clearBtn.disabled = true;
+			goToPage(0);
+		});
+	}
+}
+
+// ============================================================
 // Pagination
 // ============================================================
 
@@ -376,7 +444,10 @@ function goToPage(page) {
 	if (page < 0 || page >= totalPages) return;
 
 	const adminPath = document.querySelector('[data-admin-path]')?.getAttribute('data-admin-path');
-	const url = `${adminPath}/external_experiments?page=${page}&size=${pageSize}`;
+	let url = `${adminPath}/external_experiments?page=${page}&size=${pageSize}`;
+	if (currentFilters.executionId) url += `&filter_execution_id=${encodeURIComponent(currentFilters.executionId)}`;
+	if (currentFilters.experimentId) url += `&filter_experiment_id=${encodeURIComponent(currentFilters.experimentId)}`;
+	if (currentFilters.status) url += `&filter_status=${encodeURIComponent(currentFilters.status)}`;
 
 	// Show loading state
 	const tbody = document.getElementById('experiments-tbody');
