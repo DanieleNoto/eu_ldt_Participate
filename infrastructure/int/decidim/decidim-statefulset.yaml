@@ -129,11 +129,11 @@ spec:
                 - name: decidim
                   resources:
                       requests:
-                          memory: '512Mi'
+                          memory: '1Gi'
                           cpu: '500m'
                           ephemeral-storage: '2Gi'
                       limits:
-                          memory: '1Gi'
+                          memory: '2Gi'
                           cpu: '1'
                           ephemeral-storage: '4Gi'
                   image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_

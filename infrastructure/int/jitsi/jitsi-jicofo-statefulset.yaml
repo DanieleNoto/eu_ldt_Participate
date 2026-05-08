@@ -21,7 +21,7 @@ spec:
             automountServiceAccountToken: false
             containers:
                 - name: jitsi-jicofo
-                  image: jitsi/jicofo:stable-8960
+                  image: jitsi/jicofo:stable-10888
                   imagePullPolicy: IfNotPresent
                   resources:
                       requests:

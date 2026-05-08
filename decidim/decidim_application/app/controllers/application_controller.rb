@@ -50,9 +50,21 @@ class ApplicationController < ActionController::Base
 
     Rails.logger.info "[Keycloak BG Auto-Login] Initiating SSO auto-login (tokens=#{has_valid_tokens}, cross-tool=#{from_same_domain})"
 
+    # Prevent concurrent auto-login redirects (race condition):
+    # Multiple parallel browser requests can all trigger this method simultaneously,
+    # each writing a different omniauth.state to the session. When their callbacks
+    # return, only the last-written state matches → all others fail with csrf_detected.
+    # Guard: if a redirect was initiated within the last 30 seconds, skip.
+    last_redirect_at = session["keycloak_autologin_redirect_at"].to_i
+    if last_redirect_at > 0 && (Time.now.to_i - last_redirect_at) < 30
+      Rails.logger.info "[Keycloak BG Auto-Login] Skipping: redirect already initiated #{Time.now.to_i - last_redirect_at}s ago (concurrent request protection)"
+      return
+    end
+
     # Generate CSRF state for OmniAuth
     state = SecureRandom.hex(32)
     session["omniauth.state"] = state
+    session["keycloak_autologin_redirect_at"] = Time.now.to_i
 
     # Build callback URL
     protocol = request.ssl? ? "https" : "http"

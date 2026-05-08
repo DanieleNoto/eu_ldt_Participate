@@ -115,7 +115,7 @@
 		0px 3px 14px 2px rgba(0, 0, 0, 0.12);
 	width: 280px;
 	z-index: 1000;
-	padding: 16px 0px;
+	padding: 16px 5.5px;
 	overflow: hidden;
 	letter-spacing: 0.14994px;
 	transition: max-height 0.3s ease;
@@ -127,7 +127,7 @@
 }
 
 .tools-dropdown hr {
-	margin: 8px 8px 0px;
+	margin: 16px 8px 5px;
 	flex-shrink: 0;
 	border-width: 0px 0px thin;
 	border-style: solid;
@@ -154,7 +154,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 8px 8px 8px 16px;
+		padding: 0px 8px;
 		background: none;
 		border: none;
 		cursor: pointer;
@@ -274,6 +274,7 @@
 			display: none !important;
 		}
 	}
+
 	span.inline-block {
 		display: none;
 	}
@@ -376,7 +377,8 @@
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 400;
-		line-height: 24px; /* 150% */
+		line-height: 24px;
+		/* 150% */
 		letter-spacing: 0.5px;
 	}
 }

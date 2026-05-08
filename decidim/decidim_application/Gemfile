@@ -10,7 +10,7 @@ source "https://rubygems.org"
 
 ruby RUBY_VERSION
 
-DECIDIM_VERSION = "0.31.3"
+DECIDIM_VERSION = "0.31.4"
 
 gem "decidim", DECIDIM_VERSION
 gem "decidim-calendar", path: "./engines/decidim-module-calendar"
@@ -37,7 +37,7 @@ gem "decidim-ldt_map_visualization", path: "./engines/decidim-module-ldt_map_vis
 gem "decidim-ldt_use_case_scenarios", path: "./engines/decidim-module-ldt_use_case_scenarios"
 gem "decidim-meetings-jitsi", path: "./engines/decidim-meetings-jitsi"
 
-gem "decidim-decidim_awesome", git: "https://github.com/decidim-ice/decidim-module-decidim_awesome.git", tag: "v0.14.1"
+gem "decidim-decidim_awesome", git: "https://github.com/decidim-ice/decidim-module-decidim_awesome.git", tag: "v0.14.2"
 gem "lograge"
 gem "logstash-event"
 

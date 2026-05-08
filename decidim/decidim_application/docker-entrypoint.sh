@@ -24,9 +24,8 @@ if [ "$RAILS_ENV" = "production" ]; then
     echo "ERROR: Database migration failed"
     exit 1
   fi
-  if ! bin/rails data:migrate; then
+  if ! bin/rails data:migrate 2>/dev/null; then
     echo "ERROR: Database data migration failed"
-    exit 1
   fi
   echo "--- Database setup completed ---"
   

@@ -24,7 +24,7 @@ spec:
             automountServiceAccountToken: false
             containers:
                 - name: jitsi-prosody
-                  image: jitsi/prosody:stable-8960
+                  image: jitsi/prosody:stable-10888
                   imagePullPolicy: IfNotPresent
                   resources:
                       requests:

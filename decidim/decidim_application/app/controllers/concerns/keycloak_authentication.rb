@@ -136,6 +136,10 @@ module KeycloakAuthentication
   end
 
   def perform_automatic_logout
+    Rails.logger.warn "[Keycloak AutoLogout] Forcing logout for user #{current_user&.id} — " \
+                      "access_token=#{cookies["access_token"].present? ? 'present' : 'missing'}, " \
+                      "refresh_token=#{cookies["refresh_token"].present? ? 'present' : 'missing'}, " \
+                      "path=#{request.path}"
 
     # Back-channel SLO: notify Keycloak server-to-server so other SSO apps get logged out
     notify_keycloak_session_end(cookies["id_token"])
@@ -172,7 +176,13 @@ module KeycloakAuthentication
     request.set_form_data(params)
 
     response = http.request(request)
+    unless response.code.to_i.between?(200, 299)
+      Rails.logger.warn "[Keycloak SLO] Back-channel logout returned HTTP #{response.code} — " \
+                        "Keycloak SSO session may still be active; user could be auto-re-logged in"
+    end
   rescue StandardError => e
+    Rails.logger.warn "[Keycloak SLO] Back-channel logout failed (#{e.class}: #{e.message}) — " \
+                      "Keycloak SSO session may still be active; user could be auto-re-logged in"
   end
 
   def detect_keycloak_locale(current_session_locale)

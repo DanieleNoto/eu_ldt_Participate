@@ -123,3 +123,5 @@ tests/acceptance/e2e/playwright/.cache/**
 # Jitsi configuration directories
 jitsi-meet-cfg/
 frontend/.__mf__temp/
+**/api/docs/*
+/vendor/**/public/sw.js*

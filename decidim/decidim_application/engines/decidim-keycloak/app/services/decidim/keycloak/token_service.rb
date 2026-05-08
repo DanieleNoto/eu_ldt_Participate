@@ -50,6 +50,8 @@ module Decidim
       #   2. Token expired/missing → attempt silent refresh via Keycloak
       #   3. HTTP 200 → save new tokens, return new access_token
       #   4. HTTP 400/401 → return nil (definitive rejection → logout)
+      #      Exception: if a successful refresh happened recently (concurrent request race),
+      #      return :network_error to keep the session alive for this request.
       #   5. Network error → return :network_error (truthy → keep session, retry later)
       #
       # @param _user [Decidim::User] The user (unused but kept for API compatibility)
@@ -61,6 +63,12 @@ module Decidim
       def ensure_valid_token(_user, cookies_hash: nil, cookies_obj: nil, request_host: nil, controller: nil)
         access_token = reconstruct_token_from_cookies(cookies_hash, "access_token")
         refresh_token = reconstruct_token_from_cookies(cookies_hash, "refresh_token")
+
+        Rails.logger.debug do
+          at = access_token.present? ? extract_jwt_expiration(access_token)&.iso8601 : "missing"
+          rt = refresh_token.present? ? "present" : "missing"
+          "[Keycloak TokenService] ensure_valid_token: access_token expires=#{at}, refresh_token=#{rt}"
+        end
 
         # Step 1: Local JWT expiry check — no network call
         if access_token.present?
@@ -125,6 +133,10 @@ module Decidim
         end
       end
 
+      # How long (seconds) after a successful refresh during which a concurrent
+      # 400/401 is treated as a token-rotation race rather than a genuine expiry.
+      REFRESH_RACE_WINDOW_SECONDS = 30
+
       private
 
       # Exchange an incoming token (subject_token) for a token targeted at a specific audience/client
@@ -187,7 +199,28 @@ module Decidim
       def reconstruct_token_from_cookies(cookies_hash, token_key)
         return nil unless cookies_hash
 
-        cookies_hash[token_key]
+        # First, try direct access (normal single cookie)
+        token = cookies_hash[token_key]
+        return token if token.present?
+
+        # Handle Rails cookie fragmentation for large tokens
+        # Rails splits cookies > 4KB into fragments: token_0, token_1, ... + token.count
+        fragment_count_key = "#{token_key}.count"
+        fragment_count = cookies_hash[fragment_count_key].to_i
+
+        if fragment_count > 0
+          # Reassemble fragments in order
+          fragments = []
+          fragment_count.times do |i|
+            fragment_key = "#{token_key}_#{i}"
+            fragment = cookies_hash[fragment_key]
+            fragments << fragment if fragment.present?
+          end
+
+          return fragments.join if fragments.length == fragment_count
+        end
+
+        nil
       end
 
       def refresh_access_token(refresh_token)
@@ -300,6 +333,7 @@ module Decidim
 
       def handle_token_refresh(refresh_token, cookies_obj: nil, request_host: nil, controller: nil)
         unless refresh_token && cookies_obj
+          Rails.logger.warn "[Keycloak TokenService] handle_token_refresh: refresh_token=#{refresh_token.present? ? 'present' : 'nil'}, cookies_obj=#{cookies_obj.present? ? 'present' : 'nil'} — returning nil"
           return nil
         end
 
@@ -307,15 +341,35 @@ module Decidim
 
         case new_tokens
         when Hash
-          # Successful refresh: persist new tokens and return new access token
+          # Successful refresh: persist new tokens, record timestamp, return new access token
           clear_cookies_if_controller(controller)
           save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
+          record_refresh_timestamp(controller)
           new_tokens[:access_token]
         when :network_error
           # Transient failure: keep session alive, retry on next request
           :network_error
         else
-          # nil: definitive rejection (400/401) → force logout
+          # nil: definitive rejection (400/401).
+          #
+          # Guard against token-rotation race condition: if two requests arrive
+          # simultaneously when the access_token just expired, both read the same
+          # stale refresh_token from request.cookies. The first request refreshes
+          # successfully and Keycloak rotates the refresh_token; the second gets a
+          # 400 (old token already used). Without this guard, the losing request
+          # would immediately trigger perform_automatic_logout.
+          #
+          # Solution: if a successful refresh happened recently (within the race
+          # window), treat the 400 as a transient error rather than a definitive
+          # rejection. The browser will send the new tokens on the next request.
+          if recent_successful_refresh?(controller)
+            Rails.logger.warn "[Keycloak TokenService] 400/401 on refresh but a successful refresh occurred within " \
+                              "#{REFRESH_RACE_WINDOW_SECONDS}s — likely a token-rotation race condition. " \
+                              "Keeping session alive for this request."
+            return :network_error
+          end
+
+          Rails.logger.warn "[Keycloak TokenService] 400/401 on refresh with no recent successful refresh — definitive rejection, forcing logout"
           clear_cookies_if_controller(controller)
           nil
         end
@@ -323,6 +377,28 @@ module Decidim
 
       def clear_cookies_if_controller(controller)
         controller.clear_keycloak_cookies if controller.respond_to?(:clear_keycloak_cookies)
+      end
+
+      # Store the timestamp of the last successful token refresh in the session.
+      # Used by recent_successful_refresh? to detect token-rotation race conditions.
+      def record_refresh_timestamp(controller)
+        return unless controller.respond_to?(:session)
+
+        controller.session[:keycloak_last_refresh_at] = Time.now.to_i
+      rescue StandardError
+        # Non-fatal: worst case the race-condition guard is simply unavailable
+      end
+
+      # Returns true if a successful refresh occurred within REFRESH_RACE_WINDOW_SECONDS.
+      # A 400/401 received during this window is almost certainly a token-rotation
+      # race (another concurrent request already refreshed) rather than a genuine expiry.
+      def recent_successful_refresh?(controller, window_seconds: REFRESH_RACE_WINDOW_SECONDS)
+        return false unless controller.respond_to?(:session)
+
+        last_at = controller.session[:keycloak_last_refresh_at].to_i
+        last_at.positive? && (Time.now.to_i - last_at) < window_seconds
+      rescue StandardError
+        false
       end
     end
   end

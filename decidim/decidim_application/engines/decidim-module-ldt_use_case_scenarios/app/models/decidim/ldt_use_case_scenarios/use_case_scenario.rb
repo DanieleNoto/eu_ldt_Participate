@@ -26,7 +26,9 @@ module Decidim
       private
 
       def experiment_data_not_blank
-        errors.add(:experiment_data, "cannot be blank") if experiment_data.blank? || (experiment_data.is_a?(Hash) && experiment_data.empty?)
+        return errors.add(:experiment_data, "must be a hash") unless experiment_data.is_a?(Hash)
+
+        errors.add(:experiment_data, "cannot be blank") if experiment_data.empty?
       end
     end
   end

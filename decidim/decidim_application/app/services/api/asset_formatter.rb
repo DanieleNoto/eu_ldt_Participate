@@ -121,7 +121,7 @@ module Api
         updatedAt: record.updated_at.iso8601,
         deleted: record.respond_to?(:deleted_at) ? record.deleted_at.present? : false,
         lineage: build_lineage(record),
-        changes: [] # TODO: Implement change history
+        changes: build_changes(record)
       }
     end
 
@@ -176,6 +176,25 @@ module Api
         name: extract_name(record),
         relationship: relationship
       }
+    end
+
+    IGNORED_CHANGE_FIELDS = %w[updated_at created_at].freeze
+
+    def self.build_changes(record)
+      return [] unless record.respond_to?(:versions)
+
+      record.versions.where(event: "update").order(:created_at).filter_map do |version|
+        next unless version.object_changes.present?
+
+        meaningful_changes = version.object_changes.except(*IGNORED_CHANGE_FIELDS)
+        next if meaningful_changes.empty?
+
+        {
+          changed_at: version.created_at.iso8601,
+          changed_by: version.whodunnit,
+          fields: meaningful_changes
+        }
+      end
     end
 
     def self.extract_owner(record)

@@ -75,7 +75,43 @@ module Api
     end
 
     def apply_filters
-      # TODO: Implement filtering logic
+      fp = params[:filters]
+
+      # Filter by type — single or multiple (filters[type]=Meeting or filters[type][]=Meeting&filters[type][]=Proposal)
+      if fp[:type].present?
+        types = Array.wrap(fp[:type])
+        @assets = @assets.select { |a| types.include?(a[:type]) }
+      end
+
+      # Filter by deleted status (filters[deleted]=true/false)
+      if fp[:deleted].present?
+        deleted_val = ActiveModel::Type::Boolean.new.cast(fp[:deleted])
+        @assets = @assets.select { |a| a[:deleted] == deleted_val }
+      end
+
+      # Filter by created_at range
+      if fp[:created_after].present?
+        date = Time.zone.parse(fp[:created_after].to_s)
+        @assets = @assets.select { |a| a[:created_at] >= date }
+      end
+
+      if fp[:created_before].present?
+        date = Time.zone.parse(fp[:created_before].to_s)
+        @assets = @assets.select { |a| a[:created_at] <= date }
+      end
+
+      # Filter by updated_at (last_modified) range
+      if fp[:updated_after].present?
+        date = Time.zone.parse(fp[:updated_after].to_s)
+        @assets = @assets.select { |a| a[:last_modified] >= date }
+      end
+
+      if fp[:updated_before].present?
+        date = Time.zone.parse(fp[:updated_before].to_s)
+        @assets = @assets.select { |a| a[:last_modified] <= date }
+      end
+    rescue ArgumentError, TypeError => e
+      raise ArgumentError, "Invalid filter value: #{e.message}"
     end
   end
 end
