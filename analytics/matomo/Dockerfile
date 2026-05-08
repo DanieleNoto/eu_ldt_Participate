@@ -2,7 +2,7 @@
 # Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
 # Authors:
 # Gianfranco Cedro
-FROM matomo:5.5.0
+FROM matomo:5.10.0
 
 # Enable Apache headers module and create configuration for iframe embedding
 RUN a2enmod headers && \
