@@ -73,6 +73,7 @@ en:
                         owner: Owner
                         scope: Scope
                         description: Description
+                        enter_description: Add a brief description shown above the map (optional)
                         no_image: No image
                     create:
                         success: Map visualization created successfully

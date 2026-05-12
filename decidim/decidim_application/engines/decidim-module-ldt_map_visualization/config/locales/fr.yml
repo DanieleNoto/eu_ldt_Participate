@@ -73,6 +73,7 @@ fr:
                         owner: Propriétaire
                         scope: Portée
                         description: Description
+                        enter_description: Ajoutez une brève description affichée au-dessus de la carte (optionnel)
                         no_image: Aucune image
                     create:
                         success: Visualisation de carte créée avec succès

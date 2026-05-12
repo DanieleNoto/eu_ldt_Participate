@@ -73,6 +73,7 @@ es:
                         owner: Propietario
                         scope: Alcance
                         description: Descripción
+                        enter_description: Añada una breve descripción que se mostrará encima del mapa (opcional)
                         no_image: Sin imagen
                     create:
                         success: Visualización de mapa creada exitosamente

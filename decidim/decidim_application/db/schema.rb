@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_14_073223) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_12_092345) do
   create_schema "example_schema"
 
   # These are extensions that must be enabled in order to support this database
@@ -1037,6 +1037,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_14_073223) do
     t.bigint "decidim_component_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description"
     t.index ["decidim_component_id", "map_id"], name: "index_ldt_map_viz_on_component_and_map_id", unique: true
     t.index ["decidim_component_id"], name: "index_ldt_map_viz_on_decidim_component_id"
     t.index ["reference"], name: "index_decidim_ldt_map_visualizations_on_reference", unique: true

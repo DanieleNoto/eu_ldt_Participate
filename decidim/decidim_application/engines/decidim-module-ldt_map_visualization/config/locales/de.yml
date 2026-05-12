@@ -73,6 +73,7 @@ de:
                         owner: Eigentümer
                         scope: Umfang
                         description: Beschreibung
+                        enter_description: Fügen Sie eine kurze Beschreibung hinzu, die über der Karte angezeigt wird (optional)
                         no_image: Kein Bild
                     create:
                         success: Kartendarstellung erfolgreich erstellt

@@ -22,6 +22,9 @@ module Decidim
       validates :name, presence: true
       validates :map_id, presence: true
 
+      # description is an admin-authored plain-text field stored directly in the DB.
+      # map_description (below) comes from the external API JSON payload.
+
       # Parse map_data JSON for easy access
       def parsed_map_data
         return {} if map_data.blank?

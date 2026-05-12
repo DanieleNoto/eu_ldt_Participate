@@ -99,6 +99,15 @@
                   placeholder: t('.enter_map_name'),
                   required: true %>
             </div>
+
+            <!-- Description Field -->
+            <div class="field">
+              <%= f.label :description, t('.description') %>
+              <%= f.text_area :description,
+                  id: "map-description",
+                  placeholder: t('.enter_description'),
+                  rows: 3 %>
+            </div>
           </div>
         </div>
 

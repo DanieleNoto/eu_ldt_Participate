@@ -27,13 +27,24 @@
       <h1 class="title-decorator my-12"><%= @map_visualization.name %></h1>
     </div>
 
-    <% if @map_visualization.map_image.present? %>
-      <div class="blog__image grow">
-        <%= image_tag @map_visualization.map_image,
-                      alt: @map_visualization.name,
-                      style: "width: 100%; height: auto; border-radius: 4px;" %>
+    <% embed_base = ENV.fetch("PV_EMBED_BASE_URL", "https://pv-int.ldttoolbox.app/embed/maps_visualisation") %>
+    <% embed_url = "#{embed_base}/#{@map_visualization.map_id}?lng=#{I18n.locale}" %>
+
+    <% if @map_visualization.description.present? %>
+      <div class="editor-content mb-4">
+        <%= simple_format(html_escape(@map_visualization.description)) %>
       </div>
     <% end %>
+
+    <div class="blog__image grow">
+      <iframe
+        src="<%= embed_url %>"
+        style="width: 100%; height: 600px; border: none; border-radius: 4px;"
+        allowfullscreen
+        loading="lazy"
+        title="<%= html_escape(@map_visualization.name) %>">
+      </iframe>
+    </div>
 
     <div class="layout-author">
       
@@ -60,36 +71,6 @@
         </div>
       
     </div>
-  </section>
-
-  <section class="layout-main__section">
-    <% if @map_visualization.map_description.present? %>
-      <div class="editor-content">
-        <%= simple_format(@map_visualization.map_description) %>
-      </div>
-    <% end %>
-
-    <% if @map_visualization.map_id.present? || @map_visualization.map_scope.present? %>
-      <div class="card mt-4">
-        <div class="card__content">
-          <h3 class="h5"><%= t("decidim.ldt_map_visualization.map_visualizations.show.map_details") %></h3>
-
-          <% if @map_visualization.map_id.present? %>
-            <p class="mt-2">
-              <strong><%= t("decidim.ldt_map_visualization.map_visualizations.show.map_id") %>:</strong>
-              <%= @map_visualization.map_id %>
-            </p>
-          <% end %>
-
-          <% if @map_visualization.map_scope.present? %>
-            <p class="mt-2">
-              <strong><%= t("decidim.ldt_map_visualization.map_visualizations.show.scope") %>:</strong>
-              <%= @map_visualization.map_scope %>
-            </p>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
   </section>
 
   <!-- Full map data JSON for debugging/advanced use -->
