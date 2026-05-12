@@ -37,7 +37,7 @@ test.describe('[PAR-USA03] Accessibility - Footer Navigation', () => {
 	}) => {
 		await test.step('Visit homepage and accessibility check', async () => {
 			await homePage.navigateToHomePage();
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState('load');
 			await homePage.expectToBeOnHomePage();
 			console.log(`✅ Visiting: ${page.url()} (name: user_homepage)`);
 			await tryAnalyze(homePage.getPage(), 'user_homepage');
@@ -63,8 +63,9 @@ test.describe('[PAR-USA03] Accessibility - Footer Navigation', () => {
 
 		for (const route of footerRoutes) {
 			await test.step(`Visit footer link ${route.name} and accessibility check`, async () => {
-				await page.goto(route.pattern);
-				await page.waitForLoadState('networkidle');
+				await page.goto(route.pattern, { waitUntil: 'domcontentloaded' });
+				await page.waitForLoadState('load');
+
 				console.log(`✅ Visiting: ${page.url()} (name: ${route.name})`);
 				await tryAnalyze(page, route.name);
 			});
@@ -90,8 +91,8 @@ test.describe('[PAR-USA03] Accessibility - Footer Navigation', () => {
 
 				for (const sub of subPages) {
 					await test.step(`Open ${sub.name} and accessibility check`, async () => {
-						await page.goto(sub.href);
-						await page.waitForLoadState('networkidle');
+						await page.goto(sub.href, { waitUntil: 'domcontentloaded' });
+						await page.waitForLoadState('load');
 						console.log(`✅ Visiting: ${page.url()} (name: ${sub.name})`);
 						await tryAnalyze(page, sub.name);
 					});
@@ -100,20 +101,20 @@ test.describe('[PAR-USA03] Accessibility - Footer Navigation', () => {
 
 			if (route.name === 'account') {
 				await test.step('Open notifications settings and accessibility check', async () => {
-					await page.goto('/notifications_settings');
-					await page.waitForLoadState('networkidle');
+					await page.goto('/notifications_settings', { waitUntil: 'domcontentloaded' });
+					await page.waitForLoadState('load');
 					console.log(`✅ Visiting: ${page.url()} (name: notifications_settings)`);
 					await tryAnalyze(page, 'notifications_settings');
 				});
 				await test.step('Open download your data and accessibility check', async () => {
-					await page.goto('/download_your_data');
-					await page.waitForLoadState('networkidle');
+					await page.goto('/download_your_data', { waitUntil: 'domcontentloaded' });
+					await page.waitForLoadState('load');
 					console.log(`✅ Visiting: ${page.url()} (name: download_your_data)`);
 					await tryAnalyze(page, 'download_your_data');
 				});
 				await test.step('Open account delete and accessibility check', async () => {
-					await page.goto('/account/delete');
-					await page.waitForLoadState('networkidle');
+					await page.goto('/account/delete', { waitUntil: 'domcontentloaded' });
+					await page.waitForLoadState('load');
 					console.log(`✅ Visiting: ${page.url()} (name: account_delete)`);
 					await tryAnalyze(page, 'account_delete');
 				});
@@ -123,7 +124,7 @@ test.describe('[PAR-USA03] Accessibility - Footer Navigation', () => {
 				await test.step('Open meeting detail and accessibility check', async () => {
 					await meetingsPage.expectOnMeetingsPage();
 					await meetingsPage.clickMeetingCardByIndex(0);
-					await page.waitForLoadState('networkidle');
+					await page.waitForLoadState('load');
 					console.log(`✅ Visiting: ${page.url()} (name: meetings_detail)`);
 					await tryAnalyze(page, 'meetings_detail');
 				});

@@ -48,7 +48,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 
 			await test.step('1. Admin: Navigates to the "Processes" section.', async () => {
 				await processAdminPage.navigateToProcesses();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				// Verify we're on the processes page
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -62,7 +62,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 
 			await test.step('3. Admin: selects the process that want to update', async () => {
 				await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('4. System: loads the selected process and displays the content in an editable form, including all existing information', async () => {
@@ -103,7 +103,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 			await test.step('9. Admin: Clicks on "Save Component" to add the Meetings component to the process.', async () => {
 				// Submit the form
 				await addMeetingsComponentPage.submitForm();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 			});
 
 			await test.step('10. System: Validates the component details for completeness and correctness.', async () => {
@@ -126,7 +126,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 
 			await test.step('Result.', async () => {
 				// Final verification: check the new component appears in the components list with correct type
-				const row = adminPage.getByRole('option', { name: new RegExp(newName, 'i') }).first();
+				const row = adminPage.locator('.table-list tbody tr', { hasText: newName }).first();
 				await expect(row).toBeVisible();
 				const typeCell = row.locator('td').nth(2);
 				await expect(typeCell).toHaveText(/Meetings/i);
@@ -146,14 +146,14 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 
 			// Navigate directly to the process components page
 			await adminPage.goto(`/admin/participatory_processes/${processSlug}/components`);
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 
 			// Create the component Meetings first with "blank name"
 			await componentsPage.addMeetingsComponent();
 			await addMeetingsComponentPage.fillNameEn(newNameBlank);
 			await addMeetingsComponentPage.fillAnnouncementEn('');
 			await addMeetingsComponentPage.submitForm();
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 
 			const flashIcon = adminPage.locator('.flash__icon svg[aria-hidden="true"]');
 			await expect(flashIcon).toBeVisible();
@@ -165,7 +165,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 			// Now fill in a lowercase name to test that validation
 			await addMeetingsComponentPage.fillNameEn('lowercase');
 			await addMeetingsComponentPage.submitForm();
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 			await expect(flashIcon).toBeVisible();
 			await expect(errorMessage).toBeVisible();
 
@@ -175,7 +175,7 @@ test.describe('[PAR-EA001] – Add meetings component to a specific process', ()
 				'Announcement visible to participants on the meeting landing page.'
 			);
 			await addMeetingsComponentPage.submitForm();
-			await adminPage.waitForLoadState('networkidle');
+			await adminPage.waitForLoadState('load');
 
 			// Verify the component was created
 			const currentUrl = await componentsPage.getCurrentUrl();

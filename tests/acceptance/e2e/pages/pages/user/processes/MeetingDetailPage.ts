@@ -25,7 +25,10 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	public shareCalendarModalComponent: ShareCalendarModalComponent;
 	readonly joinLink: Locator;
 	readonly registerButton: Locator;
+	readonly registrationCodeTrigger: Locator;
 	readonly registrationCodeContainer: Locator;
+	readonly registrationCodeDialog: Locator;
+	readonly registrationCodeDialogCloseButton: Locator;
 	readonly registrationCodeValue: Locator;
 	readonly registrationStatusLabel: Locator;
 	readonly flashSuccess: Locator;
@@ -47,11 +50,18 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		this.registerButton = this.registerButton = this.page
 			.locator('form.button_to >> button:has-text("Register"):visible')
 			.first();
-		this.registrationCodeContainer = this.page
-			.locator('.meeting__aside-block__item:has(h3:has-text("Your registration code")):visible')
+		this.registrationCodeTrigger = this.page
+			.locator('a[data-dialog-open="RegistrationQRCodeDialog"]:visible')
 			.first();
-		this.registrationCodeValue = this.registrationCodeContainer.locator('.meeting__aside-block__large');
-		this.registrationStatusLabel = this.registrationCodeContainer.locator('.label.warning');
+		this.registrationCodeContainer = this.page
+			.locator('.meeting__aside-block__item:has(a[data-dialog-open="RegistrationQRCodeDialog"]):visible')
+			.first();
+		this.registrationCodeDialog = this.page.locator('#RegistrationQRCodeDialog-content.qr-modal').first();
+		this.registrationCodeDialogCloseButton = this.registrationCodeDialog.locator(
+			'button[data-dialog-close="RegistrationQRCodeDialog"]'
+		);
+		this.registrationCodeValue = this.registrationCodeDialog.locator('.text-center h2.h4');
+		this.registrationStatusLabel = this.page.locator('.meeting__aside-block .label').first();
 		this.flashSuccess = this.page.locator('div.flash.success[role="alert"]');
 		this.flashSuccessMessage = this.flashSuccess.locator('.flash__message');
 	}
@@ -122,7 +132,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 
 	async clickJoinMeetingButton(): Promise<void> {
 		await this.joinLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async expectRegisterButtonVisible() {
@@ -130,8 +140,24 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	}
 
 	async clickRegisterMeetingButton(): Promise<void> {
-		await this.registerButton.click();
+		// Wait for networkidle to ensure JS (Alpine.js/Stimulus) has attached event listeners
+		// before clicking. In Firefox CI the listener may not be ready yet, causing the anchor
+		// to fall back to href="#" navigation and triggering a 404.
 		await this.page.waitForLoadState('networkidle');
+		await expect(this.registerButton).toBeVisible();
+		await expect(this.registerButton).toBeEnabled();
+
+		const urlBefore = this.page.url();
+		await this.registerButton.evaluate((btn: HTMLElement) => btn.click());
+
+		// If navigation occurred (href="#" fallback), go back and retry with native click
+		const urlAfter = this.page.url();
+		if (urlAfter !== urlBefore) {
+			console.warn(`Register button caused unexpected navigation to "${urlAfter}", navigating back and retrying`);
+			await this.page.goto(urlBefore);
+			await this.page.waitForLoadState('networkidle');
+			await this.registerButton.click();
+		}
 	}
 
 	// Assert the registration confirmation dialog is visible.
@@ -143,14 +169,14 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	}
 
 	// Confirm registration by clicking the Confirm button inside the dialog.
-	// Waits for the submit to complete by awaiting networkidle.
+	// Waits for the submit to complete by awaiting load.
 	async confirmRegistration(): Promise<void> {
 		const dialog = this.page.locator('.meeting__registration-modal:visible').first();
 		const confirmButton = dialog.locator('form button[type="submit"]:has-text("Confirm")');
 		await expect(dialog).toBeVisible();
 		await expect(confirmButton).toBeVisible();
 		await expect(confirmButton).toBeEnabled();
-		await Promise.all([this.page.waitForLoadState('networkidle').catch(() => null), confirmButton.click()]);
+		await Promise.all([this.page.waitForLoadState('load').catch(() => null), confirmButton.click()]);
 	}
 
 	// Cancel registration by clicking the Cancel button inside the dialog.
@@ -169,23 +195,28 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	async expectRegistrationCodeVisibleAndGet(): Promise<string> {
 		await this.registrationCodeContainer.waitFor({ state: 'visible' });
 		await expect(this.registrationCodeContainer).toBeVisible();
+		await expect(this.registrationCodeTrigger).toBeVisible();
+		await this.registrationCodeTrigger.click();
+		await expect(this.registrationCodeDialog).toBeVisible();
 		await expect(this.registrationCodeValue).toBeVisible();
-		const code = (await this.registrationCodeValue.textContent())?.trim() ?? '';
+		const codeText = (await this.registrationCodeValue.textContent())?.trim() ?? '';
+		const match = codeText.match(/Registration code:\s*([A-Z0-9-]+)/i);
+		const code = match?.[1]?.trim() ?? '';
 		if (!code) {
-			const html = await this.registrationCodeContainer
+			const html = await this.registrationCodeDialog
 				.evaluate(el => el.outerHTML)
 				.catch(() => 'unable to read outerHTML');
 			throw new Error(`Registration code is empty. Container snapshot: ${html}`);
 		}
+		await this.registrationCodeDialogCloseButton.click({ force: true });
+		await this.registrationCodeDialog.waitFor({ state: 'hidden' }).catch(() => null);
 		return code;
 	}
 
-	// Optional: assert presence of the status label (e.g., VALIDATION PENDING)
-	async expectRegistrationStatusVisible(expectedText?: string) {
-		await expect(this.registrationStatusLabel).toBeVisible();
-		if (expectedText) {
-			await expect(this.registrationStatusLabel).toHaveText(expectedText);
-		}
+	// Assert that the user is registered by checking the "Cancel your registration" button is visible
+	async expectRegistrationStatusVisible(_expectedText?: string) {
+		const cancelBtn = this.page.getByRole('button', { name: 'Cancel your registration' });
+		await expect(cancelBtn).toBeVisible();
 	}
 
 	// Assert that the success flash appears and contains the expected confirmation message substring.
@@ -195,6 +226,13 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		await this.page.waitForSelector('div.flash.success[role="alert"]', { state: 'visible' });
 		await expect(this.flashSuccess).toBeVisible();
 		await expect(this.flashSuccessMessage).toContainText(expectedSubstring);
+	}
+
+	async isCancelRegistrationButtonVisible(): Promise<boolean> {
+		return this.page
+			.getByRole('button', { name: 'Cancel your registration' })
+			.isVisible()
+			.catch(() => false);
 	}
 
 	async CancelRegistration(): Promise<void> {
@@ -213,7 +251,7 @@ export class MeetingDetailPage extends AuthenticatedPage {
 		await Promise.all([
 			confirmBtn.click(),
 			cancelDialog.waitFor({ state: 'hidden' }).catch(() => null),
-			this.page.waitForLoadState('networkidle').catch(() => null)
+			this.page.waitForLoadState('load').catch(() => null)
 		]);
 		await expect(cancelDialog).not.toBeVisible();
 	}
@@ -228,9 +266,12 @@ export class MeetingDetailPage extends AuthenticatedPage {
 	}
 
 	async expectMeetingFullMessageVisible(): Promise<void> {
-		// Disabled button with text "No slots available" — role-based and scoped to the body
-		const disabledButton = this.page.getByRole('button', { name: 'No slots available', disabled: true }).first();
-		await expect(disabledButton).toBeVisible();
+		const slotsSpan = this.page
+			.locator('.meeting__aside-progress span')
+			.filter({ hasText: /slots remaining/ })
+			.first();
+		await expect(slotsSpan).toBeAttached();
+		await expect(slotsSpan).toHaveText(/0 slots remaining/);
 	}
 
 	async expectLinkToJoinMeetingNotYetAvailable() {

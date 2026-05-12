@@ -55,7 +55,7 @@ export class SignUpPage {
 	}
 
 	get postalCodeInput(): Locator {
-		return this.page.getByRole('textbox', { name: 'Postal code Required field' });
+		return this.page.getByRole('textbox', { name: 'Postal code' });
 	}
 
 	get phoneNumberInput(): Locator {
@@ -63,7 +63,7 @@ export class SignUpPage {
 	}
 
 	get locationInput(): Locator {
-		return this.page.getByRole('textbox', { name: 'Location Required field' });
+		return this.page.getByRole('textbox', { name: 'Location' });
 	}
 
 	// Checkboxes
@@ -188,15 +188,26 @@ export class SignUpPage {
 	async expectFieldValidationError(fieldId: string): Promise<void> {
 		const errorMessage = 'There is an error in this field.';
 
+		// Primary strategy: use aria-describedby on the input (works for visible inputs)
+		const input = this.page.locator(`#${fieldId}`);
+		const ariaDescribedBy = await input.getAttribute('aria-describedby').catch(() => null);
+
+		if (ariaDescribedBy) {
+			const errorEl = this.page.locator(`#${ariaDescribedBy}`);
+			await expect(errorEl).toContainText(errorMessage);
+			await expect(errorEl).toBeVisible();
+			return;
+		}
+
+		// Fallback: find any visible form-error span in the ancestor container
+		// that wraps the field (works for hidden inputs like date_of_birth)
 		const errorLocator = this.page
 			.locator(
-				`.user-password .form-error.is-visible, ` +
-					`label[for="${fieldId}"] .form-error.is-visible, ` +
-					`#${fieldId} ~ .form-error.is-visible`
+				`xpath=//span[contains(@class,"form-error") and contains(@class,"is-visible") ` +
+					`and ancestor::*[descendant::*[@id="${fieldId}"]]]`
 			)
 			.first();
 
-		// Verify the error message contains the expected text and is visible
 		await expect(errorLocator).toContainText(errorMessage);
 		await expect(errorLocator).toBeVisible();
 	}

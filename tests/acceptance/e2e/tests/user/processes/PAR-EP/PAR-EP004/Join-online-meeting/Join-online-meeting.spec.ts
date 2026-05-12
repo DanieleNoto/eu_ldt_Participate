@@ -57,10 +57,10 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 		await test.step('Setup: Admin edits an existing meeting', async () => {
 			await adminHomePage.navigateToAdminHomePage();
 			await processAdminPage.navigateToProcesses();
-			await processAdminPage.getPage().waitForLoadState('networkidle');
+			await processAdminPage.getPage().waitForLoadState('load');
 
 			await processAdminPage.editProcess('Update Test0');
-			await processAdminPage.getPage().waitForLoadState('networkidle');
+			await processAdminPage.getPage().waitForLoadState('load');
 
 			// Extract slug from URL:
 			const currentUrl = adminPage.url();
@@ -81,7 +81,7 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 
 			const index = await meetingsPageAdmin.findMeetingByTitle(meetingTitle);
 			await meetingsPageAdmin.clickEdit(index);
-			await meetingsPageAdmin.getPage().waitForLoadState('networkidle');
+			await meetingsPageAdmin.getPage().waitForLoadState('load');
 
 			// Conditional: Main flow only modifies dates in beforeEach
 			if (testInfo.title.includes('Main Flow')) {
@@ -94,7 +94,7 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 				await formMeetingPage.selectCustomDate(endDate, 1, 1);
 
 				await formMeetingPage.submitForm();
-				await formMeetingPage.getPage().waitForLoadState('networkidle');
+				await formMeetingPage.getPage().waitForLoadState('load');
 
 				// Verify we're back on meetings list (successful save)
 				await meetingsPageAdmin.verifyMeetingsPageVisible();
@@ -121,10 +121,10 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 		await test.step('Cleanup: Restore meeting original dates', async () => {
 			await adminHomePage.navigateToAdminHomePage();
 			await processAdminPage.navigateToProcesses();
-			await processAdminPage.getPage().waitForLoadState('networkidle');
+			await processAdminPage.getPage().waitForLoadState('load');
 
 			await processAdminPage.editProcess('Update Test0');
-			await processAdminPage.getPage().waitForLoadState('networkidle');
+			await processAdminPage.getPage().waitForLoadState('load');
 
 			await updateProcessPage.sidebarProcessDetail.navigateToMeetings();
 			await meetingsPageAdmin.verifyMeetingsPageVisible();
@@ -134,7 +134,7 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 			if (meetingFound) {
 				const index = await meetingsPageAdmin.findMeetingByTitle(meetingTitle);
 				await meetingsPageAdmin.clickEdit(index);
-				await meetingsPageAdmin.getPage().waitForLoadState('networkidle');
+				await meetingsPageAdmin.getPage().waitForLoadState('load');
 
 				// Restore original dates
 				const originalStartDate = new Date('2040-11-18T00:00:00');
@@ -145,7 +145,7 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 				await formMeetingPage.selectCustomDate(originalEndDate, 1, 1);
 
 				await formMeetingPage.submitForm();
-				await formMeetingPage.getPage().waitForLoadState('networkidle');
+				await formMeetingPage.getPage().waitForLoadState('load');
 
 				// Verify we're back on meetings list (successful save)
 				await meetingsPageAdmin.verifyMeetingsPageVisible();
@@ -153,14 +153,14 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 				// Double-check: Edit again and save to ensure dates are persisted
 				const indexAfter = await meetingsPageAdmin.findMeetingByTitle(meetingTitle);
 				await meetingsPageAdmin.clickEdit(indexAfter);
-				await meetingsPageAdmin.getPage().waitForLoadState('networkidle');
+				await meetingsPageAdmin.getPage().waitForLoadState('load');
 
 				await formMeetingPage.selectCustomDate(originalStartDate, 0, 0);
 				await formMeetingPage.selectCustomTime(0, 0, 0, 0); // Restore original start time (00:00)
 				await formMeetingPage.selectCustomDate(originalEndDate, 1, 1);
 
 				await formMeetingPage.submitForm();
-				await formMeetingPage.getPage().waitForLoadState('networkidle');
+				await formMeetingPage.getPage().waitForLoadState('load');
 				await meetingsPageAdmin.verifyMeetingsPageVisible();
 			}
 		});
@@ -173,7 +173,7 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await homePage.goToProcessesFromHomeMenu();
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 			});
 
 			await test.step('2. System: Displays the details of the selected process, including the title, description, phases, key objectives.', async () => {
@@ -181,7 +181,7 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 			});
 			await test.step('3. User: Scrolls through the process details to understand the context and purpose of the process and navigates to “Meetings', async () => {
 				await processesOverviewPage.navigateToProcessByTitle('Update Test0', processSlug);
-				await processesOverviewPage.getPage().waitForLoadState('networkidle');
+				await processesOverviewPage.getPage().waitForLoadState('load');
 				await processDetailPage.navigateToMeetingsPage();
 			});
 			await test.step('4. System: Displays a list of available meetings, including relevant details such as title, date, time, location, and availability.', async () => {
@@ -229,10 +229,10 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 		await test.step('', async () => {
 			// Navigate to processes section
 			await homePage.goToProcessesFromHomeMenu();
-			await processesOverviewPage.getPage().waitForLoadState('networkidle');
+			await processesOverviewPage.getPage().waitForLoadState('load');
 			await processesOverviewPage.expectToBeOnProcessesOverviewPage();
 			await processesOverviewPage.navigateToProcessByTitle('Update Test0', processSlug);
-			await processesOverviewPage.getPage().waitForLoadState('networkidle');
+			await processesOverviewPage.getPage().waitForLoadState('load');
 			await processDetailPage.navigateToMeetingsPage();
 			await processDetailPage.expectUrlContainsMeetings();
 			const index = await processDetailPage.findMeetingCardIndexByTitle('New meeting test');
@@ -255,15 +255,15 @@ test.describe('[PAR-EP004] – Flow meeting admin + user @reserved', () => {
 			await formMeetingPage.selectCustomDate(endDate, 1, 1);
 
 			await formMeetingPage.submitForm();
-			await formMeetingPage.getPage().waitForLoadState('networkidle');
+			await formMeetingPage.getPage().waitForLoadState('load');
 			await meetingsPageAdmin.verifyMeetingsPageVisible();
 
 			// Navigate back to home to force refresh of meeting data
 			await homePage.navigateToHomePage();
 			await homePage.goToProcessesFromHomeMenu();
-			await processesOverviewPage.getPage().waitForLoadState('networkidle');
+			await processesOverviewPage.getPage().waitForLoadState('load');
 			await processesOverviewPage.navigateToProcessByTitle('Update Test0', processSlug);
-			await processesOverviewPage.getPage().waitForLoadState('networkidle');
+			await processesOverviewPage.getPage().waitForLoadState('load');
 			await processDetailPage.navigateToMeetingsPage();
 			await processDetailPage.expectUrlContainsMeetings();
 			const indexAfter = await processDetailPage.findMeetingCardIndexByTitle('New meeting test');

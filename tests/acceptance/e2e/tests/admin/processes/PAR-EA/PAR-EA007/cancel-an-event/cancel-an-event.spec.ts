@@ -101,39 +101,60 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 	});
 
 	test.afterEach(async ({ adminPage }) => {
-		// Cleanup: delete the created meeting if it still exists
+		const meetingsComponentId = '6';
+
+		const deleteMeetingByTitle = async (searchText: string): Promise<void> => {
+			await adminPage.goto(
+				`/admin/participatory_processes/${processSlug}/components/${meetingsComponentId}/manage/meetings`
+			);
+			await adminPage.waitForLoadState('load');
+
+			// Search by title to avoid pagination issues
+			await adminPage.locator('#q_id_string_or_title_cont').fill(searchText);
+			await adminPage.locator('#q_id_string_or_title_cont').press('Enter');
+			await adminPage.waitForLoadState('load');
+
+			const row = adminPage.locator('table tbody tr').filter({ hasText: searchText });
+			const found = await row
+				.first()
+				.waitFor({ state: 'visible' })
+				.then(() => true)
+				.catch(() => false);
+			if (!found) {
+				console.log(`[Cleanup] Meeting not found: ${searchText}`);
+				return;
+			}
+
+			// Open dropdown and unpublish first if needed
+			await row.locator('button[data-controller="dropdown"]').click();
+			await row.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+			const unpublishLink = row.locator('a.dropdown__button[href*="/unpublish"]');
+			if ((await unpublishLink.count()) > 0) {
+				await unpublishLink.click();
+				await adminPage.locator('[data-confirm-ok]').waitFor({ state: 'visible' });
+				await adminPage.locator('[data-confirm-ok]').click();
+				await adminPage.waitForLoadState('load');
+				// After page reload, re-search and re-find the row (old locator is stale)
+				await adminPage.locator('#q_id_string_or_title_cont').fill(searchText);
+				await adminPage.locator('#q_id_string_or_title_cont').press('Enter');
+				await adminPage.waitForLoadState('load');
+				const freshRow = adminPage.locator('table tbody tr').filter({ hasText: searchText }).first();
+				await freshRow.locator('button[data-controller="dropdown"]').click();
+				await freshRow.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+				await freshRow.locator('a.dropdown__button[href*="soft_delete"]').click();
+			} else {
+				await row.locator('a.dropdown__button[href*="soft_delete"]').click();
+			}
+			await adminPage.locator('[data-confirm-ok]').waitFor({ state: 'visible' });
+			await adminPage.locator('[data-confirm-ok]').click();
+			await adminPage.waitForLoadState('load');
+			console.log(`[Cleanup] Meeting deleted: ${searchText}`);
+		};
+
 		try {
-			// Navigate to meetings list inside the Meetings component
-			await adminPage.goto(`/admin/participatory_processes/${processSlug}/edit`);
-			await adminPage.waitForLoadState('load');
-			await componentsPage.sidebarProcessDetail.navigateToComponents();
-			const meetingsLink = componentsPage.getComponentLinkByName('Meetings');
-			await meetingsLink.click();
-			await adminPage.waitForLoadState('load');
-
-			// Find and delete meeting by title pattern
-			const deleteMeetingByPattern = async (pattern: RegExp) => {
-				const row = adminPage.locator('table tbody tr', { hasText: pattern });
-				if ((await row.count()) > 0) {
-					const deleteLink = row
-						.first()
-						.locator('a.action-icon--remove, a[title="Delete"], a.action-icon--delete');
-					if ((await deleteLink.count()) > 0) {
-						await deleteLink.first().click();
-						// Confirm deletion
-						const okButton = adminPage.getByRole('button', { name: 'OK' });
-						if ((await okButton.count()) > 0) {
-							await okButton.click();
-							await adminPage.waitForLoadState('load');
-						}
-						console.log(`Deleted meeting matching: ${pattern}`);
-					}
-				}
-			};
-
-			await deleteMeetingByPattern(new RegExp(`Cancel Test Meeting ${timestamp}`, 'i'));
+			await deleteMeetingByTitle(`Cancel Test Meeting ${timestamp}`);
 		} catch (error) {
-			console.log(`Cleanup warning: Could not delete meeting:`, error);
+			console.error(`[Cleanup] Failed to delete meeting:`, error);
 		}
 	});
 
@@ -183,23 +204,22 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 				await expect(meetingRow).toBeVisible();
 
-				// Click the delete link for our specific meeting
-				const deleteLink = meetingRow.locator(
-					'a.action-icon--remove, a[title="Delete"], a.action-icon--delete'
-				);
+				// Open dropdown then click "Move to trash"
+				await meetingRow.locator('button[data-controller="dropdown"]').click();
+				const deleteLink = meetingRow.locator('a.dropdown__button[href*="soft_delete"]');
 				await deleteLink.click();
 			});
 
 			await test.step('8. System: Display a dialog asking to confirm the action', async () => {
 				// Wait for confirmation dialog to appear
-				const okButton = adminPage.getByRole('button', { name: 'OK' });
+				const okButton = adminPage.locator('button[data-confirm-ok]');
 				await expect(okButton).toBeVisible();
 				console.log('Confirmation dialog displayed');
 			});
 
 			await test.step('9. User: Click on "Ok"', async () => {
 				// Confirm deletion
-				const okButton = adminPage.getByRole('button', { name: 'OK' });
+				const okButton = adminPage.locator('button[data-confirm-ok]');
 				await okButton.click();
 				await adminPage.waitForLoadState('load');
 				console.log('Deletion confirmed');
@@ -243,20 +263,19 @@ test.describe('[PAR-EA007] – Cancel an event', () => {
 				const meetingRow = adminPage.locator('table tbody tr', { hasText: createdMeetingTitle });
 				await expect(meetingRow).toBeVisible();
 
-				// Click the delete link for our specific meeting
-				const deleteLink = meetingRow.locator(
-					'a.action-icon--remove, a[title="Delete"], a.action-icon--delete'
-				);
+				// Open dropdown then click "Move to trash"
+				await meetingRow.locator('button[data-controller="dropdown"]').click();
+				const deleteLink = meetingRow.locator('a.dropdown__button[href*="soft_delete"]');
 				await deleteLink.click();
 
 				// Wait for confirmation dialog to appear
-				const okButton = adminPage.getByRole('button', { name: 'OK' });
+				const okButton = adminPage.locator('button[data-confirm-ok]');
 				await expect(okButton).toBeVisible();
 			});
 
 			await test.step('9.1. User: Decides to abort the cancellation flow', async () => {
 				// Click Cancel instead of OK
-				const cancelButton = adminPage.getByRole('button', { name: 'Cancel' });
+				const cancelButton = adminPage.locator('button[data-confirm-cancel]');
 				await cancelButton.click();
 				await adminPage.waitForLoadState('load');
 			});

@@ -33,7 +33,7 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 		validProcessData = ProcessTestDataGenerator.generateValidProcessData();
 		await adminHomePage.navigateToAdminHomePage();
 		await processAdminPage.navigateToProcesses();
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('load');
 	});
 
 	test.describe('Main Flow - Create Process', () => {
@@ -73,7 +73,7 @@ test.describe('[PAR-PPM001] – Create new process', () => {
 				}
 
 				// Wait for page stability
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				await processAdminPage.fillGeneralInfo(validProcessData.general);
 			});

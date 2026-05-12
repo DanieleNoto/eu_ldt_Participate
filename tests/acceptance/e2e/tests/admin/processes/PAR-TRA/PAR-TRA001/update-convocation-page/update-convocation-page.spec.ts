@@ -59,62 +59,41 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 	test.afterEach(async ({ adminPage }) => {
 		if (componentName && processSlug) {
 			try {
-				console.log('Starting cleanup: Deleting component...');
+				console.log(`[Cleanup] Attempting to delete component: ${componentName}`);
 
 				// Navigate to components page
 				await componentsPage.navigateToComponents(processSlug);
+				await adminPage.waitForLoadState('load');
 
-				// Unpublish component first (must be done before hide)
-				try {
-					await componentsPage.unpublishComponentByName(componentName);
-					await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
-					await expect(adminPage.getByText('The component has been successfully unpublished')).toBeVisible();
-				} catch (error) {
-					console.log('Component already unpublished or unpublish failed:', error);
-				}
+				// Find the component row by name
+				const row = adminPage
+					.locator('.table-list tbody tr')
+					.filter({ has: adminPage.locator('td a', { hasText: componentName }) });
 
-				// Hide the component after unpublishing
-				try {
-					await componentsPage.hideComponentByName(componentName);
-					await adminPage.waitForURL(/\/admin\/participatory_processes\/.*\/components$/);
-					await expect(
-						adminPage.getByText('The component has been successfully hidden from the menu')
-					).toBeVisible();
-				} catch (error) {
-					console.log('Component already hidden or hide failed:', error);
-				}
+				const found = await row
+					.first()
+					.waitFor({ state: 'visible' })
+					.then(() => true)
+					.catch(() => false);
 
-				// Delete component
-				// Find and click delete button
-				const componentRow = componentsPage.getComponentRow(componentName);
-				const deleteLink = componentRow.locator('a.action-icon--delete');
-				await deleteLink.click();
+				if (found) {
+					// Open dropdown and click "Move to trash" (soft_delete)
+					await row.locator('button[data-controller="dropdown"]').click();
+					await row.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+					await row.locator('a.dropdown__button[href*="soft_delete"]').click();
 
-				// Wait for confirmation modal to appear
-				const confirmModal = adminPage.locator('#confirm-modal-content');
-				await expect(confirmModal).toBeVisible();
+					// Confirm deletion via custom modal
+					const confirmOkButton = adminPage.locator('[data-confirm-ok]');
+					await confirmOkButton.waitFor({ state: 'visible' });
+					await confirmOkButton.click();
 
-				// Click OK button in the modal
-				const okButton = adminPage.locator('button[data-confirm-ok]');
-				await okButton.click();
-
-				// Wait for deletion to complete
-				await adminPage.waitForTimeout(1000);
-
-				// Verify component is no longer visible
-				const rowExists = await componentRow.isVisible().catch(() => false);
-				if (!rowExists) {
-					console.log('Component deleted successfully');
+					await adminPage.waitForLoadState('load');
+					console.log(`[Cleanup] Component deleted successfully`);
 				} else {
-					console.log('Component still visible after deletion attempt');
+					console.log(`[Cleanup] Component not found, may have been already deleted`);
 				}
 			} catch (error) {
-				if (error instanceof Error) {
-					console.error('Cleanup failed:', error.message);
-					console.error('Stack trace:', error.stack);
-				} else {
-					console.error('Cleanup failed with unknown error:', String(error));
-				}
+				console.error(`[Cleanup] Failed to delete component:`, error);
 			}
 		}
 
@@ -155,10 +134,10 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 			await test.step('5. User: Navigate to convocation page management', async () => {
 				// Navigate to convocation page component management
 				await updateProcessAdminPage.sidebarProcessDetail.navigateToComponents();
-				await componentsPage.checkPageComponent(componentName);
+				await componentsPage.checkPageComponent(componentName!);
 				// checkPageComponent creates, manages and saves the component, then returns to components list
 				// We need to navigate back to manage the component for updating
-				await componentsPage.manageComponent(componentName);
+				await componentsPage.manageComponent(componentName!);
 				await managePageComponentPage.verifyPageLoaded();
 				await managePageComponentPage.fillBody(bodyContent);
 			});
@@ -180,9 +159,10 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 				await updateProcessAdminPage.sidebarProcessDetail.navigateToComponents();
 				await componentsPage.waitForComponentsPageLoad();
 
-				// Find the row for our specific component and click its preview link
-				const componentRow = componentsPage.getComponentRow(componentName);
-				const previewLink = componentRow.locator('a[href*="/f/"]');
+				// Find the row for our specific component, open dropdown and click preview
+				const componentRow = componentsPage.getComponentRow(componentName!);
+				await componentRow.locator('button[data-controller="dropdown"]').click();
+				const previewLink = componentRow.locator('a.dropdown__button[href*="/f/"]');
 				await expect(previewLink).toBeVisible();
 
 				const [previewPage] = await Promise.all([
@@ -228,8 +208,8 @@ test.describe('[PAR-TRA001] – Update convocation page after process completion
 			await test.step('5. User: Navigate to convocation page management', async () => {
 				// Navigate to convocation page component management
 				await updateProcessAdminPage.sidebarProcessDetail.navigateToComponents();
-				await componentsPage.checkPageComponent(componentName);
-				await componentsPage.manageComponent(componentName);
+				await componentsPage.checkPageComponent(componentName!);
+				await componentsPage.manageComponent(componentName!);
 
 				// Verify being on the management page
 				await managePageComponentPage.verifyPageLoaded();

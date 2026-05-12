@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denis Vasilev Dimchev
+ * Simone Bianchelli
  */
 
 import { expect, Locator, Page } from '@playwright/test';
@@ -82,7 +83,7 @@ export class MeetingAgendaPage extends BaseAdminPage {
 		await this.page.waitForSelector('.item_show__wrapper');
 		// Wait for either new agenda form or edit agenda form
 		await this.page.waitForSelector('form.new_agenda, form.edit_agenda');
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async isOnNewAgendaPage(): Promise<boolean> {
@@ -125,7 +126,7 @@ export class MeetingAgendaPage extends BaseAdminPage {
 			await this.titleInput.waitFor({ state: 'visible' });
 			await this.titleInput.fill(title);
 		} catch (error) {
-			console.log('Title input not found or not visible:', error.message);
+			console.log('Title input not found or not visible:', error instanceof Error ? error.message : error);
 			// Try to wait for the page to load properly
 			await this.waitForAgendaPageLoad();
 			await this.titleInput.waitFor({ state: 'visible' });
@@ -345,7 +346,7 @@ export class MeetingAgendaPage extends BaseAdminPage {
 	// Form submission
 	async createAgenda() {
 		await this.createButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async isCreateButtonEnabled(): Promise<boolean> {

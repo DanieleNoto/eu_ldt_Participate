@@ -44,6 +44,7 @@ export class NewPhasePage extends BaseAdminPage {
 	 * Fill the phase title (English)
 	 */
 	async fillTitle(title: string): Promise<void> {
+		await this.titleInput.click();
 		await this.titleInput.fill(title);
 	}
 

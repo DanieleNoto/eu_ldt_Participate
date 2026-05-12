@@ -80,22 +80,29 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 			try {
 				console.log(`[Cleanup] Attempting to delete debate: ${createdDebateTitle}`);
 
-				// Navigate directly to the debates management page
+				// Navigate to the debates management page
 				await adminPage.goto(
 					`/admin/participatory_processes/${processSlug}/components/${debatesComponentId}/manage/debates`
 				);
 				await adminPage.waitForLoadState('load');
 
-				// Find the debate by title and delete it
-				const debateIndex = await debatesPage.findDebateIndexByTitle(createdDebateTitle);
+				// Find the debate row directly by title text
+				const row = adminPage.locator('table.table-list tbody tr').filter({ hasText: createdDebateTitle });
 
-				if (debateIndex >= 0) {
-					console.log(`[Cleanup] Found debate at index ${debateIndex}, deleting...`);
+				// Wait for the row to appear (handles async rendering); falls back to false if not found
+				const found = await row
+					.first()
+					.waitFor({ state: 'visible' })
+					.then(() => true)
+					.catch(() => false);
 
-					// Click the soft delete button (uses .action-icon--delete class)
-					const row = adminPage.locator('table.table-list tbody tr').nth(debateIndex);
-					const deleteButton = row.locator('.action-icon--delete');
-					await deleteButton.click();
+				if (found) {
+					console.log(`[Cleanup] Found debate row, deleting...`);
+
+					// Open dropdown and wait for it to actually open (aria-hidden flips to false)
+					await row.locator('button[data-controller="dropdown"]').click();
+					await row.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+					await row.locator('a[href*="soft_delete"]').click();
 
 					// Wait for confirm modal and click OK button
 					const confirmOkButton = adminPage.locator('[data-confirm-ok]');
@@ -105,7 +112,14 @@ test.describe('[PAR-DAD002] – Create New Debate Topic', () => {
 					await adminPage.waitForLoadState('load');
 					console.log(`[Cleanup] Debate deleted successfully`);
 				} else {
-					console.log(`[Cleanup] Debate not found, may have been already deleted`);
+					// Diagnostic: print all titles currently in the table
+					const allRows = adminPage.locator('table.table-list tbody tr');
+					const rowCount = await allRows.count();
+					console.log(`[Cleanup] Debate not found. Rows in table (${rowCount}):`);
+					for (let i = 0; i < rowCount; i++) {
+						const text = (await allRows.nth(i).locator('td').first().textContent()) ?? '';
+						console.log(`  [${i}] "${text.trim()}"`);
+					}
 				}
 			} catch (error) {
 				console.error(`[Cleanup] Failed to delete debate:`, error);

@@ -78,7 +78,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				templateId = currentUrl.match(/\/questionnaire_templates\/(\d+)\/edit/)?.[1] || '2';
 
 				// Verify template management options are available
-				await expect(adminPage.getByRole('link', { name: 'Manage questions' })).toBeVisible();
+				await expect(adminPage.getByRole('link', { name: 'Questions' })).toBeVisible();
 
 				console.log(`Template created successfully with ID: ${templateId}`);
 				console.log('Template editing page displayed with questionnaire management options');
@@ -86,7 +86,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 
 			await test.step('6. USER: Clicks "Add Question" to add question to the poll.', async () => {
 				// Navigate to questions management
-				await adminPage.getByRole('link', { name: 'Manage questions' }).click();
+				await adminPage.getByRole('link', { name: 'Questions' }).click();
 
 				// Verify we are on questions management page
 				expect(adminPage.url()).toContain('/edit_questions');
@@ -126,7 +126,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				await firstQuestion.locator('.editor-input .tiptap').first().fill('Please provide your full name');
 				await firstQuestion.getByRole('checkbox', { name: 'Mandatory' }).check();
 				await firstQuestion.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('100');
-				await firstQuestion.getByLabel('TypeShort answer Long answer').selectOption('short_answer');
+				await firstQuestion.getByLabel('TypeShort response Long response').selectOption('short_response');
 
 				console.log('Created first question: Short answer with character limit and mandatory setting');
 
@@ -156,29 +156,29 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 					.fill('Select your preferred way to be contacted');
 
 				// Set question type to single option first - this will show the answer options section
-				await secondQuestion.getByLabel('TypeShort answer Long answer').selectOption('single_option');
+				await secondQuestion.getByLabel('TypeShort response Long response').selectOption('single_option');
 
 				// Wait for answer options section to become visible
-				await secondQuestion.getByRole('button', { name: 'Add answer option' }).waitFor();
+				await secondQuestion.getByRole('button', { name: 'Add response option' }).waitFor();
 
 				// Fill the default two answer options that are automatically created
-				await secondQuestion.locator('.questionnaire-question-answer-option').first().waitFor();
+				await secondQuestion.locator('.questionnaire-question-response-option').first().waitFor();
 				await secondQuestion
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.first()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Email');
 				await secondQuestion
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.nth(1)
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('Phone');
 
 				// Add only 1 additional answer option (total 3)
-				await secondQuestion.getByRole('button', { name: 'Add answer option' }).click();
-				await secondQuestion.locator('.questionnaire-question-answer-option').last().waitFor();
+				await secondQuestion.getByRole('button', { name: 'Add response option' }).click();
+				await secondQuestion.locator('.questionnaire-question-response-option').last().waitFor();
 				await secondQuestion
-					.locator('.questionnaire-question-answer-option')
+					.locator('.questionnaire-question-response-option')
 					.last()
 					.locator('.tabs-panel.is-active input[type="text"]')
 					.fill('SMS');
@@ -210,7 +210,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 					.first()
 					.fill('Share your detailed feedback and suggestions');
 				await thirdQuestion.getByRole('spinbutton', { name: 'Character limit (leave to 0' }).fill('500');
-				await thirdQuestion.getByLabel('TypeShort answer Long answer').selectOption('long_answer');
+				await thirdQuestion.getByLabel('TypeShort response Long response').selectOption('long_response');
 
 				console.log('Created third question: Long answer with character limit');
 
@@ -255,7 +255,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 
 			await test.step('10. SYSTEM: Validates the form for completeness and correctness.', async () => {
 				// Wait for save operation to complete
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify we're on the template edit page
 				expect(adminPage.url()).toMatch(/\/admin\/templates\/questionnaire_templates\/\d+\/edit/);
@@ -274,16 +274,18 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 
 				// Verify the 3 questions are present in the template
 				await expect(
-					adminPage.locator('.answer-questionnaire__question-label').filter({ hasText: 'What is your name?' })
+					adminPage
+						.locator('.response-questionnaire__question-label')
+						.filter({ hasText: 'What is your name?' })
 				).toBeVisible();
 				await expect(
 					adminPage
-						.locator('.answer-questionnaire__question-label')
+						.locator('.response-questionnaire__question-label')
 						.filter({ hasText: 'What is your preferred communication method?' })
 				).toBeVisible();
 				await expect(
 					adminPage
-						.locator('.answer-questionnaire__question-label')
+						.locator('.response-questionnaire__question-label')
 						.filter({ hasText: 'Please provide your feedback about our services' })
 				).toBeVisible();
 
@@ -295,7 +297,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				expect(adminPage.url()).toMatch(/\/admin\/templates\/questionnaire_templates\/\d+\/edit/);
 
 				// Verify we can access questions management, confirming the template is fully saved
-				await expect(adminPage.getByRole('link', { name: 'Manage questions' })).toBeVisible();
+				await expect(adminPage.getByRole('link', { name: 'Questions' })).toBeVisible();
 
 				console.log('Template saved successfully with all questions');
 			});
@@ -305,13 +307,13 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				await adminPage.goto(`/admin/templates/questionnaire_templates/${templateId}/edit`);
 
 				// Verify template exists and has questions
-				await expect(adminPage.getByRole('link', { name: 'Manage questions' })).toBeVisible();
+				await expect(adminPage.getByRole('link', { name: 'Questions' })).toBeVisible();
 
 				// Navigate to questions page to verify questions were saved
-				await adminPage.getByRole('link', { name: 'Manage questions' }).click();
+				await adminPage.getByRole('link', { name: 'Questions' }).click();
 
 				// Wait for questions to load
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Verify questions exist by checking for question content instead of heading numbers
 				await expect(adminPage.getByText('What is your name?')).toBeVisible();
@@ -379,7 +381,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 			await test.step('10.2. SYSTEM: Detects missing or invalid fields.', async () => {
 				// Try to save without filling required name field
 				await adminPage.getByRole('button', { name: 'Save' }).click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 
 				// Check for validation error message or validation state
 				const hasValidationError =
@@ -403,7 +405,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 				// If we're not on the new template page, navigate there
 				if (!currentUrl.includes('/new') && !currentUrl.includes('template')) {
 					await adminPage.goto('/admin/templates/questionnaire_templates/new');
-					await adminPage.waitForLoadState('networkidle');
+					await adminPage.waitForLoadState('load');
 				}
 
 				// Wait for the form to be visible
@@ -422,7 +424,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 			await test.step('10.4. USER: Attempts to save the template again.', async () => {
 				// Try to save again with corrected data
 				await adminPage.getByRole('button', { name: 'Save' }).click();
-				await adminPage.waitForLoadState('networkidle');
+				await adminPage.waitForLoadState('load');
 				console.log('Attempted to save template again');
 			});
 
@@ -435,7 +437,7 @@ test.describe('[PAR-PAS001] – Create Survey and Poll Templates', () => {
 
 			await test.step('Result.', async () => {
 				// Verify template was saved successfully
-				await expect(adminPage.getByRole('link', { name: 'Manage questions' })).toBeVisible();
+				await expect(adminPage.getByRole('link', { name: 'Questions' })).toBeVisible();
 				console.log('Template saved successfully after validation correction');
 			});
 		});

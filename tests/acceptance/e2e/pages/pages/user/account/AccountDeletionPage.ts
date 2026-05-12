@@ -235,7 +235,7 @@ export class AccountDeletionPage {
 	}
 
 	async waitForPageLoad(): Promise<void> {
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		await this.pageTitle.waitFor({ state: 'visible' });
 	}
 

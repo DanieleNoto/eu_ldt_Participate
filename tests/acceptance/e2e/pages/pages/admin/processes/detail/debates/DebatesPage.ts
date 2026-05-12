@@ -23,6 +23,7 @@ export class DebatesPage extends BaseAdminPage {
 
 	constructor(page: Page) {
 		super(page);
+		this.sidebarProcessDetail = new SidebarProcessDetailComponent(page);
 		this.newDebateButton = page.locator('a.button:has-text("New debate")');
 
 		// Table elements
@@ -103,7 +104,6 @@ export class DebatesPage extends BaseAdminPage {
 	 */
 	async isDebateClosedByTitle(title: string): Promise<boolean> {
 		const count = await this.getDebatesCount();
-
 		for (let i = 0; i < count; i++) {
 			const rowTitle = (await this.getDebateTitleByIndex(i)).toLowerCase();
 
@@ -115,9 +115,13 @@ export class DebatesPage extends BaseAdminPage {
 				const titleLink = row.locator('td').first().locator('a');
 				const hasTitleLink = (await titleLink.count()) > 0;
 
-				// Check if edit button exists
-				const editButton = row.locator('.action-icon--edit');
-				const hasEditButton = (await editButton.count()) > 0;
+				// Check if debate edit button exists in dropdown (excludes debate_closes and permissions links)
+				await row.locator('button[data-controller="dropdown"]').click();
+				const editLink = row.locator(
+					'a.dropdown__button[href*="/manage/debates/"][href$="/edit"]:not([href*="debate_closes"])'
+				);
+				const hasEditButton = (await editLink.count()) > 0;
+				await this.page.keyboard.press('Escape');
 
 				// Debate is closed if title is not clickable AND there's no edit button
 				return !hasTitleLink && !hasEditButton;
@@ -135,8 +139,11 @@ export class DebatesPage extends BaseAdminPage {
 	 */
 	async hasEditButtonByIndex(index: number): Promise<boolean> {
 		const row = this.tableRows.nth(index);
-		const editButton = row.locator('.action-icon--edit');
-		return (await editButton.count()) > 0;
+		await row.locator('button[data-controller="dropdown"]').click();
+		const editLink = row.locator('a.dropdown__button[href*="/edit"]:not([href*="debate_closes"])');
+		const exists = (await editLink.count()) > 0;
+		await this.page.keyboard.press('Escape');
+		return exists;
 	}
 
 	/**
@@ -171,11 +178,12 @@ export class DebatesPage extends BaseAdminPage {
 	 */
 	async clickEditButtonByIndex(index: number): Promise<void> {
 		const row = this.tableRows.nth(index);
-		const editButton = row.locator('.action-icon--edit');
-
-		if ((await editButton.count()) > 0) {
-			await editButton.click();
+		await row.locator('button[data-controller="dropdown"]').click();
+		const editLink = row.locator('a.dropdown__button[href*="/edit"]:not([href*="debate_closes"])');
+		if ((await editLink.count()) > 0) {
+			await editLink.click();
 		} else {
+			await this.page.keyboard.press('Escape');
 			throw new Error(`Edit button not found for debate at index ${index} (possibly closed)`);
 		}
 	}
@@ -186,8 +194,8 @@ export class DebatesPage extends BaseAdminPage {
 	 */
 	async clickCloseButtonByIndex(index: number): Promise<void> {
 		const row = this.tableRows.nth(index);
-		const closeButton = row.locator('.action-icon--close');
-		await closeButton.click();
+		await row.locator('button[data-controller="dropdown"]').click();
+		await row.locator('a.dropdown__button[href*="debate_closes"]').click();
 	}
 
 	/**
@@ -196,8 +204,9 @@ export class DebatesPage extends BaseAdminPage {
 	 */
 	async clickPreviewButtonByIndex(index: number): Promise<void> {
 		const row = this.tableRows.nth(index);
-		const previewButton = row.locator('.action-icon--preview');
-		await previewButton.click();
+		await row.locator('button[data-controller="dropdown"]').click();
+		const previewLink = row.locator('a.dropdown__button[target="blank"]');
+		await previewLink.click();
 	}
 
 	/**
@@ -206,8 +215,8 @@ export class DebatesPage extends BaseAdminPage {
 	 */
 	async clickPermissionsButtonByIndex(index: number): Promise<void> {
 		const row = this.tableRows.nth(index);
-		const permissionsButton = row.locator('.action-icon--permissions');
-		await permissionsButton.click();
+		await row.locator('button[data-controller="dropdown"]').click();
+		await row.locator('a.dropdown__button[href*="permissions"]').click();
 	}
 
 	/**
@@ -216,8 +225,9 @@ export class DebatesPage extends BaseAdminPage {
 	 */
 	async clickDeleteButtonByIndex(index: number): Promise<void> {
 		const row = this.tableRows.nth(index);
-		const deleteButton = row.locator('.action-icon--delete');
-		await deleteButton.click();
+		await row.locator('button[data-controller="dropdown"]').click();
+		await row.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'attached' });
+		await row.locator('a[href*="soft_delete"]').click();
 	}
 
 	/**

@@ -3,6 +3,7 @@
  * Authors:
  * Gianfranco Cedro
  * Antonio Abramo Carotenuto
+ * Simone Bianchelli
  */
 
 import { Page, expect } from '@playwright/test';
@@ -36,12 +37,12 @@ export class BaseAdminPage extends AuthenticatedPage {
 	async navigateToTaxonomies() {
 		// First navigate to Settings page
 		await this.navigateToSettings();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Then click on Taxonomies link
 		await this.page.getByRole('link', { name: 'Taxonomies' }).click();
 		await this.page.waitForURL(/\/admin\/taxonomies/);
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Login workflow for admin
@@ -223,7 +224,7 @@ export class BaseAdminPage extends AuthenticatedPage {
 
 	// Improved admin verification
 	async waitForAdminPageLoad(): Promise<void> {
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 		await this.waitForElement('.layout-wrapper');
 
 		await this.adminNavigation.isNavigationVisible();

@@ -3,6 +3,7 @@
  * Authors:
  * Denise Scarcelli
  * Gianfranco Cedro
+ * Simone Bianchelli
  */
 
 import { expect, Locator, Page } from '@playwright/test';
@@ -129,7 +130,7 @@ export class ManagePageComponentPage extends BaseAdminPage {
 	async savePage(): Promise<void> {
 		await this.clickUpdateButton();
 		// Wait for the form to submit and page to reload or show success message
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	// Validation methods

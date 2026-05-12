@@ -49,7 +49,7 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 	test.afterEach(async ({ adminPage }) => {
 		// Clean up taxonomies created during tests (they may or may not exist depending on test flow)
 		await adminPage.goto('/admin/taxonomies');
-		await newTaxonomyPage.waitForLoadState('networkidle');
+		await newTaxonomyPage.waitForLoadState('load');
 
 		// Try to delete test taxonomies
 		await newTaxonomyPage.deleteTaxonomyByName(`New Beautiful Taxonomy 1 ${timestamp}`);
@@ -82,7 +82,7 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -96,7 +96,7 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -119,7 +119,7 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 				await confirmDeleteModalComponent.confirmDelete();
 			});
 			await test.step('10. System: Deletes the selected category from the process and updates the list of categories.', async () => {
-				await newTaxonomyPage.waitForLoadState('networkidle');
+				await newTaxonomyPage.waitForLoadState('load');
 				await confirmDeleteModalComponent.expectModalNotVisible();
 			});
 			await test.step('11. System: Notifies the City Administrator that the category has been successfully deleted.', async () => {
@@ -137,7 +137,7 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -151,7 +151,7 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.editFirstProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -174,7 +174,7 @@ test.describe('[PAR-PPM006] – Delete category in process', () => {
 				await confirmDeleteModalComponent.cancelDelete();
 			});
 			await test.step('10. System: Aborts the deletion process and returns the user to the list of categories.', async () => {
-				await newTaxonomyPage.waitForLoadState('networkidle');
+				await newTaxonomyPage.waitForLoadState('load');
 				await confirmDeleteModalComponent.expectModalNotVisible();
 			});
 			await test.step('Result.', async () => {

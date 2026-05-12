@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Gianfranco Cedro
+ * Simone Bianchelli
  */
 
 import { Locator, Page, expect } from '@playwright/test';
@@ -25,7 +26,7 @@ export class ConversationDetailPage extends AuthenticatedPage {
 		super(page);
 		this.conversationTitle = page.locator('h2.conversation__title');
 		this.participantsSection = page.locator('.conversation__participants');
-		this.participantNames = page.locator('.author__name.underline');
+		this.participantNames = page.locator('.author__name');
 		this.messagesContainer = page.locator('#messages');
 		this.messages = page.locator('.conversation__message');
 		this.replyTextarea = page.locator('#message_body');

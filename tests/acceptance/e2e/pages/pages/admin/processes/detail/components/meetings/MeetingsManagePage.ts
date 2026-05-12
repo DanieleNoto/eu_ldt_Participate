@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denis Vasilev Dimchev
+ * Simone Bianchelli
  */
 
 import { expect, Locator, Page } from '@playwright/test';
@@ -143,7 +144,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 	async waitForMeetingsPageLoad() {
 		await this.page.waitForSelector('.item_show__wrapper');
 		await this.page.waitForSelector('.table-list');
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async isOnMeetingsPage(): Promise<boolean> {
@@ -160,12 +161,12 @@ export class MeetingsManagePage extends BaseAdminPage {
 	// Header actions
 	async clickNewMeeting() {
 		await this.newMeetingButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async clickConfigure() {
 		await this.configureButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Export functionality
@@ -252,7 +253,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 				await this.hybridFilter.click();
 				break;
 		}
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async filterByState(state: 'closed' | 'open') {
@@ -264,7 +265,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 		} else {
 			await this.openFilter.click();
 		}
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async filterByDate(dateType: 'upcoming' | 'past') {
@@ -276,7 +277,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 		} else {
 			await this.pastFilter.click();
 		}
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async filterByOrigin(origin: 'participants' | 'official' | 'user_group') {
@@ -294,51 +295,51 @@ export class MeetingsManagePage extends BaseAdminPage {
 				await this.userGroupOriginFilter.click();
 				break;
 		}
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Search functionality
 	async searchMeetings(searchTerm: string) {
 		await this.searchInput.fill(searchTerm);
 		await this.searchButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async clearSearch() {
 		await this.searchInput.clear();
 		await this.searchButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Table sorting
 	async sortById(direction: 'asc' | 'desc' = 'desc') {
 		await this.idHeader.locator('a').click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async sortByTitle(direction: 'asc' | 'desc' = 'desc') {
 		await this.titleHeader.locator('a').click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async sortByStartDate(direction: 'asc' | 'desc' = 'desc') {
 		await this.startDateHeader.locator('a').click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async sortByEndDate(direction: 'asc' | 'desc' = 'desc') {
 		await this.endDateHeader.locator('a').click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async sortByClosed(direction: 'asc' | 'desc' = 'desc') {
 		await this.closedHeader.locator('a').click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async sortByTaxonomies(direction: 'asc' | 'desc' = 'asc') {
 		await this.taxonomiesHeader.locator('a').click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Table data methods
@@ -410,56 +411,56 @@ export class MeetingsManagePage extends BaseAdminPage {
 		const row = this.getMeetingRow(meetingId);
 		const editButton = row.locator('a.action-icon--edit');
 		await editButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async duplicateMeeting(meetingId: string) {
 		const row = this.getMeetingRow(meetingId);
 		const duplicateButton = row.locator('a.action-icon--copy');
 		await duplicateButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async manageFolders(meetingId: string) {
 		const row = this.getMeetingRow(meetingId);
 		const foldersButton = row.locator('a.action-icon--attachment_collections');
 		await foldersButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async manageAttachments(meetingId: string) {
 		const row = this.getMeetingRow(meetingId);
 		const attachmentsButton = row.locator('a.action-icon--attachments');
 		await attachmentsButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async manageRegistrations(meetingId: string) {
 		const row = this.getMeetingRow(meetingId);
 		const registrationsButton = row.locator('a.action-icon--registrations');
 		await registrationsButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async manageAgenda(meetingId: string) {
 		const row = this.getMeetingRow(meetingId);
 		const agendaButton = row.locator('a.action-icon--agenda');
 		await agendaButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async managePoll(meetingId: string) {
 		const row = this.getMeetingRow(meetingId);
 		const pollButton = row.locator('a.action-icon--manage-poll-questionnaire');
 		await pollButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async closeMeeting(meetingId: string) {
 		const row = this.getMeetingRow(meetingId);
 		const closeButton = row.locator('a.action-icon--close');
 		await closeButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async unpublishMeeting(meetingId: string) {
@@ -479,7 +480,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 
 		// Wait for the modal to disappear and the action to complete
 		await confirmModal.waitFor({ state: 'hidden' });
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async previewMeeting(meetingId: string) {
@@ -492,7 +493,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 		const row = this.getMeetingRow(meetingId);
 		const permissionsButton = row.locator('a.action-icon--permissions');
 		await permissionsButton.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	async softDeleteMeeting(meetingId: string, opts: { confirm?: boolean } = { confirm: true }) {
@@ -519,7 +520,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 
 		// Wait for the modal to disappear and the action to complete or abort
 		await confirmModal.waitFor({ state: 'hidden' });
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Meeting state checks
@@ -581,7 +582,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 	// Footer actions
 	async viewDeletedMeetings() {
 		await this.deletedMeetingsLink.click();
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 
 	// Validation methods
@@ -658,7 +659,8 @@ export class MeetingsManagePage extends BaseAdminPage {
 			const startDate = (await row.locator('td:nth-child(3)').textContent()) || '';
 			const endDate = (await row.locator('td:nth-child(4)').textContent()) || '';
 			const closed = (await row.locator('td:nth-child(5)').textContent()) || '';
-			const taxonomies = (await row.locator('td:nth-child(6)').textContent()) || '';
+			const hasMap = await row.locator('td:nth-child(6) a.static-map__admin').isVisible();
+			const taxonomies = (await row.locator('td:nth-child(7)').textContent()) || '';
 
 			meetings.push({
 				id: id.trim().split('\n')[0],
@@ -666,6 +668,7 @@ export class MeetingsManagePage extends BaseAdminPage {
 				startDate: startDate.trim(),
 				endDate: endDate.trim(),
 				closed: closed.trim(),
+				hasMap,
 				taxonomies: taxonomies.trim()
 			});
 		}

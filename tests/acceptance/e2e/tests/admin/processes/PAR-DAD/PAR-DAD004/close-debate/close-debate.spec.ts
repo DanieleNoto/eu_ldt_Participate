@@ -93,9 +93,12 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 
 		const debateIndex = await debatesPage.findDebateIndexByTitle(debateTitle);
 		if (debateIndex >= 0) {
-			// Get the debate ID from the edit link
+			// Get the debate ID from the edit link inside the actions dropdown
 			const row = adminPage.locator('table.table-list tbody tr').nth(debateIndex);
-			const editLink = row.locator('a.action-icon--edit');
+			await row.locator('button[data-controller="dropdown"]').click();
+			const editLink = row.locator(
+				'a.dropdown__button[href*="/debates/"][href$="/edit"]:not([href*="debate_closes"])'
+			);
 			const href = await editLink.getAttribute('href');
 			const idMatch = href?.match(/\/debates\/(\d+)\/edit/);
 			if (idMatch) {
@@ -121,18 +124,25 @@ test.describe('[PAR-DAD004] – Close debate', () => {
 			);
 			await adminPage.waitForLoadState('load');
 
-			// Find the debate by title
-			const debateIndex = await debatesPage.findDebateIndexByTitle(debateTitle);
+			// Find the debate row directly by title text
+			const row = adminPage.locator('table.table-list tbody tr').filter({ hasText: debateTitle });
 
-			if (debateIndex >= 0) {
-				console.log(`[Cleanup] Found debate at index ${debateIndex}, deleting...`);
+			// Wait for the row to appear (handles async rendering); falls back to false if not found
+			const found = await row
+				.first()
+				.waitFor({ state: 'visible' })
+				.then(() => true)
+				.catch(() => false);
 
-				// Click the delete button
-				const row = adminPage.locator('table.table-list tbody tr').nth(debateIndex);
-				const deleteButton = row.locator('.action-icon--delete');
-				await deleteButton.click();
+			if (found) {
+				console.log(`[Cleanup] Found debate row, deleting...`);
 
-				// Confirm deletion
+				// Open dropdown and wait for it to actually open (aria-hidden flips to false)
+				await row.locator('button[data-controller="dropdown"]').click();
+				await row.locator('ul.dropdown[aria-hidden="false"]').waitFor({ state: 'visible' });
+				await row.locator('a[href*="soft_delete"]').click();
+
+				// Confirm deletion via custom modal
 				const confirmOkButton = adminPage.locator('[data-confirm-ok]');
 				await confirmOkButton.waitFor({ state: 'visible' });
 				await confirmOkButton.click();

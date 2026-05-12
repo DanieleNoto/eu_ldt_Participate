@@ -20,7 +20,7 @@ export class ExtraUserFieldsAdminPage extends BaseAdminPage {
 
 	// Navigation specific to extra user fields
 	async navigateToExtraUserFields() {
-		await this.page.goto('/admin/organization/edit');
+		await this.page.goto('/admin/users');
 		await this.page.getByRole('link', { name: 'Manage extra user fields' }).click();
 	}
 
@@ -36,12 +36,13 @@ export class ExtraUserFieldsAdminPage extends BaseAdminPage {
 	async enableAllExtraUserFields() {
 		await this.navigateToExtraUserFieldsConfig();
 		await this.page.getByRole('checkbox', { name: 'Enable extra user fields' }).check();
-		await this.page.getByRole('checkbox', { name: 'Enable date of birth field' }).check();
-		await this.page.getByRole('checkbox', { name: 'Enable country field' }).check();
-		await this.page.getByRole('checkbox', { name: 'Enable postal code field' }).check();
-		await this.page.getByRole('checkbox', { name: 'Enable gender field' }).check();
-		await this.page.getByRole('checkbox', { name: 'Enable phone number field' }).check();
-		await this.page.getByRole('checkbox', { name: 'Enable location field' }).check();
+		await this.page.getByRole('checkbox', { name: 'Age range enabled' }).check();
+		await this.page.getByRole('checkbox', { name: 'Date of birth enabled' }).check();
+		await this.page.getByRole('checkbox', { name: 'Country enabled' }).check();
+		await this.page.getByRole('checkbox', { name: 'Postal code enabled' }).check();
+		await this.page.getByRole('checkbox', { name: 'Gender enabled' }).check();
+		await this.page.getByRole('checkbox', { name: 'Phone number enabled' }).check();
+		await this.page.getByRole('checkbox', { name: 'Location enabled' }).check();
 	}
 
 	async enableExtraUserField(fieldName: string) {

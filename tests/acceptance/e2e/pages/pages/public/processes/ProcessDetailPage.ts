@@ -118,7 +118,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	async navigateToDebatesPage(): Promise<void> {
 		// Find and click the debates page link
 		await this.debatesLink.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -128,7 +128,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	async navigateToMeetingsPage(): Promise<void> {
 		// Find and click the meetings page link
 		await this.meetingsLink.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	/**
@@ -137,27 +137,30 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	 */
 
 	async navigateToComponent(componentName: string): Promise<void> {
-		// Ensure the dropdown is open
-		await this.openNavigationDropdown();
-
 		// Find and click the component link
 		const componentLink = this.navItems.filter({ hasText: componentName });
 		await componentLink.click();
-		await this.waitForLoadState('networkidle');
+		await this.waitForLoadState('load');
 	}
 
 	// Navigation dropdown interaction methods
 
 	/**
-	 * Opens the navigation dropdown if not already open
+	 * Opens the navigation dropdown if not already open.
+	 * In desktop mode the trigger is hidden and nav items are always visible;
+	 * only click the trigger when it is actually visible (mobile mode).
 	 */
 
 	async openNavigationDropdown(): Promise<void> {
-		const isExpanded = await this.navDropdownTrigger.getAttribute('aria-expanded');
-		if (isExpanded !== 'true') {
-			await this.navDropdownTrigger.click();
-			await this.navDropdownMenu.waitFor({ state: 'visible' });
+		const isTriggerVisible = await this.navDropdownTrigger.isVisible();
+		if (isTriggerVisible) {
+			const isExpanded = await this.navDropdownTrigger.getAttribute('aria-expanded');
+			if (isExpanded !== 'true') {
+				await this.navDropdownTrigger.click();
+				await this.navDropdownMenu.waitFor({ state: 'visible' });
+			}
 		}
+		// In desktop mode the nav items are always visible — nothing to do
 	}
 
 	/**
@@ -206,6 +209,8 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	async getAvailableComponents(): Promise<string[]> {
 		await this.openNavigationDropdown();
 
+		// navItems (.participatory-space__nav-item) are always in the DOM;
+		// in desktop they are visible directly, in mobile they appear inside the dropdown.
 		const components: string[] = [];
 		const count = await this.navItems.count();
 
@@ -214,7 +219,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 			if (text) {
 				// Remove the arrow icon text and trim
 				const componentName = text.replace(/\s*→\s*$/, '').trim();
-				components.push(componentName);
+				if (componentName) components.push(componentName);
 			}
 		}
 
@@ -661,14 +666,16 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		// Ensures that the container is present in the DOM
 		await expect(this.navDropdownMenu).toHaveCount(1);
 
-		// If the menu is initially hidden, try opening it by clicking the trigger
+		// If the menu is initially hidden and the trigger is visible (mobile mode), open it
 		const ariaHidden = await this.navDropdownMenu.getAttribute('aria-hidden');
 		if (ariaHidden === 'true' && openIfHidden) {
-			if ((await this.navDropdownTrigger.count()) > 0) {
+			const isTriggerVisible = await this.navDropdownTrigger.isVisible();
+			if (isTriggerVisible) {
 				await this.navDropdownTrigger.click();
 				await this.navDropdownMenu.waitFor({ state: 'visible' }).catch(() => null);
 				await expect(this.navDropdownMenu).toBeVisible();
 			}
+			// In desktop mode the trigger is hidden but nav items are always in the DOM — proceed as-is
 		}
 
 		// Collect the items inside the menu (li > a)

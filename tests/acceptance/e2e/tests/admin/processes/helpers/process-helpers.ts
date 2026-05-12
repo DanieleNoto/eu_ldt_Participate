@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denis Vasilev Dimchev
+ * Simone Bianchelli
  */
 
 import { AdminHomePage } from '@pages/pages/admin/AdminHomePage';
@@ -25,7 +26,7 @@ export async function findProcessWithMeetings(
 
 	// Ensure we are on processes page
 	await adminHomePage.navigateViaAdminNav('processes');
-	await processAdminPage.waitForLoadState('networkidle');
+	await processAdminPage.waitForLoadState('load');
 
 	const processCount = await processAdminPage.getProcessCount();
 	const limit = Math.min(processCount, maxProcesses);
@@ -34,11 +35,11 @@ export async function findProcessWithMeetings(
 		try {
 			if (i > 0) {
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 			}
 
 			await processAdminPage.processTable.editProcess(await getProcessNameAtIndex(processAdminPage, i));
-			await processAdminPage.getPage().waitForLoadState('networkidle');
+			await processAdminPage.getPage().waitForLoadState('load');
 
 			await updateProcessAdminPage.navigateToComponents();
 			await componentsPage.waitForComponentsPageLoad();

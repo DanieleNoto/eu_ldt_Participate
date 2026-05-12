@@ -3,6 +3,7 @@
  * Authors:
  * Gianfranco Cedro
  * Antonio Abramo Carotenuto
+ * Simone Bianchelli
  */
 
 import { Locator, Page, expect } from '@playwright/test';
@@ -85,17 +86,22 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 	 */
 	async performActionOnRow(rowIndex: number, action: 'edit' | 'resend' | 'delete'): Promise<void> {
 		const row = this.tableRows.nth(rowIndex);
-		let actionSelector: Locator;
 
+		if (action === 'resend') {
+			await row.locator('a.resend-invitation').click();
+			return;
+		}
+
+		// edit and delete are inside the dropdown menu
+		await row.locator('button[data-controller="dropdown"]').click();
+
+		let actionSelector: Locator;
 		switch (action) {
 			case 'edit':
-				actionSelector = row.locator('a.action-icon--edit');
-				break;
-			case 'resend':
-				actionSelector = row.locator('a.resend-invitation');
+				actionSelector = row.locator('a.dropdown__button[href*="/edit"]');
 				break;
 			case 'delete':
-				actionSelector = row.locator('a.action-icon--remove');
+				actionSelector = row.locator('a.dropdown__button--danger, a.dropdown__button[data-confirm]');
 				break;
 			default:
 				throw new Error(`Unknown action: ${action}`);
@@ -137,6 +143,28 @@ export class ParticipatoryProcessAdminsPage extends BaseAdminPage {
 	async expectSearchResultsCount(expectedCount: number): Promise<void> {
 		const rows = this.page.locator('table.table-list tbody tr');
 		await expect(rows).toHaveCount(expectedCount);
+	}
+
+	/**
+	 * Returns the name of the admin at the given row index.
+	 * @param rowIndex The index of the row (0-based).
+	 * @returns The name as a string.
+	 */
+	async getAdminNameAtRow(rowIndex: number): Promise<string> {
+		const row = this.tableRows.nth(rowIndex);
+		const nameCell = row.locator('td[data-label="Name"]');
+		return (await nameCell.textContent())?.trim() || '';
+	}
+
+	/**
+	 * Returns the email of the admin at the given row index.
+	 * @param rowIndex The index of the row (0-based).
+	 * @returns The email as a string.
+	 */
+	async getAdminEmailAtRow(rowIndex: number): Promise<string> {
+		const row = this.tableRows.nth(rowIndex);
+		const emailCell = row.locator('td[data-label="Email"]');
+		return (await emailCell.textContent())?.trim() || '';
 	}
 
 	/**

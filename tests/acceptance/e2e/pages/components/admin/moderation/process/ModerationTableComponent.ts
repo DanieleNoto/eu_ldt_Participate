@@ -166,9 +166,9 @@ export class ModerationTableComponent {
 	// Row actions
 	async expandRow(rowIndex: number): Promise<void> {
 		const row = this.tableRows.nth(rowIndex);
-		const expandButton = row.locator('a.action-icon.action-icon--expand');
-
-		await expandButton.click();
+		await row.locator('button[data-controller="dropdown"]').click();
+		const expandLink = row.locator('a.dropdown__button[href*="/reports"]');
+		await expandLink.click();
 		await this.page.waitForLoadState('load');
 	}
 
@@ -181,9 +181,10 @@ export class ModerationTableComponent {
 			const unreportButton = this.page.locator('.item__edit-sticky a[href*="/unreport"]');
 			await unreportButton.click();
 		} else {
-			// On main listing, look for unreport button in the row
+			// On main listing, open dropdown then click unreport
 			const row = this.tableRows.nth(rowIndex);
-			const unreportButton = row.locator('a.action-icon.action-icon--unreport');
+			await row.locator('button[data-controller="dropdown"]').click();
+			const unreportButton = row.locator('a.dropdown__button[href*="/unreport"]');
 			await unreportButton.click();
 		}
 
@@ -199,9 +200,10 @@ export class ModerationTableComponent {
 			const hideButton = this.page.locator('.item__edit-sticky a[href*="/hide"]');
 			await hideButton.click();
 		} else {
-			// On main listing, look for hide button in the row
+			// On main listing, open dropdown then click hide
 			const row = this.tableRows.nth(rowIndex);
-			const hideButton = row.locator('a.action-icon.action-icon--hide');
+			await row.locator('button[data-controller="dropdown"]').click();
+			const hideButton = row.locator('a.dropdown__button[href*="/hide"]');
 			await hideButton.click();
 		}
 
@@ -211,24 +213,24 @@ export class ModerationTableComponent {
 	// Row actions by ID
 	async expandRowById(dataId: string): Promise<void> {
 		const row = this.tableRows.filter({ has: this.page.locator(`[data-id="${dataId}"]`) });
-		const expandButton = row.locator('a.action-icon.action-icon--expand');
-
-		await expandButton.click();
+		await row.locator('button[data-controller="dropdown"]').click();
+		const expandLink = row.locator('a.dropdown__button[href*="/reports"]');
+		await expandLink.click();
 		await this.page.waitForLoadState('load');
 	}
 
 	async unreportRowById(dataId: string): Promise<void> {
 		const row = this.tableRows.filter({ has: this.page.locator(`[data-id="${dataId}"]`) });
-		const unreportButton = row.locator('a.action-icon.action-icon--unreport');
-
+		await row.locator('button[data-controller="dropdown"]').click();
+		const unreportButton = row.locator('a.dropdown__button[href*="/unreport"]');
 		await unreportButton.click();
 		await this.page.waitForLoadState('load');
 	}
 
 	async hideRowById(dataId: string): Promise<void> {
 		const row = this.tableRows.filter({ has: this.page.locator(`[data-id="${dataId}"]`) });
-		const hideButton = row.locator('a.action-icon.action-icon--hide');
-
+		await row.locator('button[data-controller="dropdown"]').click();
+		const hideButton = row.locator('a.dropdown__button[href*="/hide"]');
 		await hideButton.click();
 		await this.page.waitForLoadState('load');
 	}

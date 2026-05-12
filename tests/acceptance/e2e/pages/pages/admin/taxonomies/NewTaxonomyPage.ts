@@ -124,10 +124,10 @@ export class NewTaxonomyPage extends BaseAdminPage {
 	 */
 	async clickEditButtonByIndex(index: number): Promise<void> {
 		const row = this.tableRows.nth(index);
-		const editButton = row.locator('.action-icon--edit');
-
-		if ((await editButton.count()) > 0) {
-			await editButton.click();
+		await row.locator('button[data-controller="dropdown"]').click();
+		const editLink = row.locator('a.dropdown__button[href*="/edit"]');
+		if ((await editLink.count()) > 0) {
+			await editLink.click();
 		} else {
 			throw new Error(`Edit button not found for taxonomy at index ${index}`);
 		}
@@ -140,7 +140,8 @@ export class NewTaxonomyPage extends BaseAdminPage {
 	async clickDeleteButtonByName(name: string): Promise<void> {
 		const index = await this.getIndexByTitle(name);
 		const row = this.tableRows.nth(index);
-		const deleteButton = row.locator('a.action-icon--remove[title="Delete taxonomy & items"]');
+		await row.locator('button[data-controller="dropdown"]').click();
+		const deleteButton = row.locator('a.dropdown__button--danger, a.dropdown__button[data-confirm]');
 		await deleteButton.click();
 	}
 
@@ -157,8 +158,9 @@ export class NewTaxonomyPage extends BaseAdminPage {
 			return;
 		}
 
-		// Click the delete button in the row
-		const deleteButton = row.locator('a.action-icon--remove[title="Delete taxonomy & items"]');
+		// Click the delete button in the row via dropdown
+		await row.locator('button[data-controller="dropdown"]').click();
+		const deleteButton = row.locator('a.dropdown__button--danger, a.dropdown__button[data-confirm]');
 		await deleteButton.click();
 
 		// Wait for confirmation modal and click OK
@@ -166,6 +168,6 @@ export class NewTaxonomyPage extends BaseAdminPage {
 		await confirmButton.click();
 
 		// Wait for the deletion to complete
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 	}
 }

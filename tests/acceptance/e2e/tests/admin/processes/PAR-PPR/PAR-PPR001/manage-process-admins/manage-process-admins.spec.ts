@@ -59,7 +59,7 @@ test.describe('[PAR-PPR001] – Manage process administrators', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -73,7 +73,7 @@ test.describe('[PAR-PPR001] – Manage process administrators', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.clickFirstPrivateProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();
@@ -98,7 +98,7 @@ test.describe('[PAR-PPR001] – Manage process administrators', () => {
 				await newAdminPage.submitForm();
 			});
 			await test.step('10. System: Validates the user selection and checks permissions.', async () => {
-				await participatoryProcessAdminsPage.waitForLoadState('networkidle');
+				await participatoryProcessAdminsPage.waitForLoadState('load');
 				await participatoryProcessAdminsPage.expectToBeOnParticipatoryProcessAdminsPage();
 			});
 			await test.step('11. System: Adds the selected user as an administrator of the process.', async () => {
@@ -120,7 +120,7 @@ test.describe('[PAR-PPR001] – Manage process administrators', () => {
 			await test.step('1. User: navigates to the "Processes" section', async () => {
 				// Navigate to processes section
 				await adminHomePage.navigateViaAdminNav('processes');
-				await processAdminPage.waitForLoadState('networkidle');
+				await processAdminPage.waitForLoadState('load');
 
 				const isOnProcessesPage = await processAdminPage.isOnProcessesPage();
 				expect(isOnProcessesPage).toBe(true);
@@ -134,7 +134,7 @@ test.describe('[PAR-PPR001] – Manage process administrators', () => {
 			await test.step('3. User: Selects the process that want to update', async () => {
 				// Click edit on the first process in the table
 				await processAdminPage.processTable.clickFirstPrivateProcess();
-				await processAdminPage.getPage().waitForLoadState('networkidle');
+				await processAdminPage.getPage().waitForLoadState('load');
 			});
 			await test.step('4. System: Loads the selected process and displays the content in an editable form, including all existing information', async () => {
 				await updateProcessAdminPage.expectToBeOnUpdateProcessPage();

@@ -2,6 +2,7 @@
  * Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
  * Authors:
  * Denis Vasilev Dimchev
+ * Simone Bianchelli
  */
 
 import { Page } from '@playwright/test';
@@ -136,7 +137,7 @@ export class QuestionnaireTemplatesPage {
 
 	// Wait for page to be ready
 	async waitForPageToLoad(): Promise<void> {
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('load');
 
 		// Wait for key components to be visible
 		await this.templatesList.isComponentFullyLoaded();

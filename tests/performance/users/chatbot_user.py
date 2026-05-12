@@ -15,15 +15,6 @@ from common import AuthenticatedUser
 import random
 
 
-# Available topics from chatbot initial suggestions
-TOPICS = [
-    {"id": "participate_tool", "text": "What can I do in EU LDT Participate Tool?"},
-    {"id": "participatory_process", "text": "What is a participatory process?"},
-    {"id": "assemblies", "text": "What are assemblies?"},
-    {"id": "conferences", "text": "What are conferences?"},
-    {"id": "initiatives", "text": "What are initiatives?"}
-]
-
 # Custom questions for "Further support" (simulate user typing custom questions)
 CUSTOM_QUESTIONS = [
     "I need help with configuring my account settings",
@@ -34,6 +25,16 @@ CUSTOM_QUESTIONS = [
     "Is there a manual that can i refer to for this platform?",
     "Can you provide more details how can i be involved in process participation?",
     "I have a question about data privacy and GDPR compliance"
+]
+
+
+# Available topics from chatbot initial suggestions
+TOPICS = [
+    {"id": "participate_tool", "text": "What can I do in EU LDT Participate Tool?"},
+    {"id": "participatory_process", "text": "What is a participatory process?"},
+    {"id": "assemblies", "text": "What are assemblies?"},
+    {"id": "conferences", "text": "What are conferences?"},
+    {"id": "initiatives", "text": "What are initiatives?"}
 ]
 
 
