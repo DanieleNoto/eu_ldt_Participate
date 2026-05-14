@@ -42,6 +42,8 @@ es:
                     back_to_list: Volver a la lista
                     edit: Editar
                     created_at: Creado el
+                    disclaimer_title: Información y Descargo de Responsabilidad del Mapa
+                    disclaimer_content: Este mapa se proporciona solo con fines informativos. Aunque nos esforzamos por la precisión, tenga en cuenta que los datos y visualizaciones pueden estar sujetos a cambios. Siempre verifique la información crítica a través de fuentes oficiales antes de tomar decisiones.
             admin:
                 map_visualizations:
                     index:

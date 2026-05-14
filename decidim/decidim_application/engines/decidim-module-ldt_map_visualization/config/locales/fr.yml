@@ -42,6 +42,8 @@ fr:
                     back_to_list: Retour à la liste
                     edit: Modifier
                     created_at: Créé le
+                    disclaimer_title: Informations et Clause de Non-Responsabilité de la Carte
+                    disclaimer_content: Cette carte est fournie à titre informatif uniquement. Bien que nous nous eforcions d'assurer l'exactitude, veuillez noter que les données et les visualisations peuvent être sujettes à modification. Vérifiez toujours les informations critiques auprès de sources officielles avant de prendre des décisions.
             admin:
                 map_visualizations:
                     index:

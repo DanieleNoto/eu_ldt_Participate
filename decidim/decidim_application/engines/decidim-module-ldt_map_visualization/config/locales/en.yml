@@ -42,6 +42,8 @@ en:
                     back_to_list: Back to list
                     edit: Edit
                     created_at: Created at
+                    disclaimer_title: Map Information & Disclaimer
+                    disclaimer_content: This map is provided for informational purposes only. While we strive for accuracy, please note that the data and visualizations may be subject to change. Always verify critical information through official sources before making decisions.
             admin:
                 map_visualizations:
                     index:
