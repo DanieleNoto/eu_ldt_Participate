@@ -1,0 +1,68 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alvaro Iglesias
+# Alvaro Iglesias Sanchez
+# Gianfranco Cedro
+# marcocerdelli
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    labels:
+        io.kompose.service: db-home-adminlnx-temp1-env
+    name: decidim-configmap
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+data:
+    CHATBOT_ENABLED: 'true'
+    CHATBOT_URL: {{ .Values.chatbot.frontend.url | quote }}
+    CHATBOT_BACKEND_URL: {{ .Values.chatbot.backend.url | quote }}
+    DATABASE_HOST: {{ .Values.decidim.db.host | quote }}
+    DATABASE_NAME: {{ .Values.decidim.db.name | quote }}
+    # DATABASE_USERNAME: postgres
+    DECIDIM_AVAILABLE_LOCALES: {{ .Values.decidim.availableLocales | quote }}
+    DECIDIM_DEFAULT_LOCALE: {{ .Values.decidim.defaultLocale | quote }}
+    DECIDIM_FORCE_SSL: 'true'
+    DECIDIM_FOLLOW_HTTP_X_FORWARDED_HOST: 'true'
+    DECIDIM_HOST: {{ .Values.decidim.host | quote }}
+    DECIDIM_JITSI_URL: {{ .Values.decidim.jitsiUrl | quote }}
+    DECIDIM_JITSI_ROOM_PREFIX: decidim-meeting-
+    DECIDIM_MAILER_SENDER: {{ .Values.decidim.mailerSender | quote }}
+    DECIDIM_PROTOCOL: https
+    DECIDIM_ENABLE_HTML_HEADER_SNIPPETS: 'true'
+    DECIDIM_SERVICE_WORKER_ENABLED: 'false'
+    DECIDIM_THROTTLING_MAX_REQUESTS: {{ .Values.decidim.throttlingMaxRequests | quote }}
+    DOCKER_HOST_ADDRESS: 127.0.0.1
+    ENABLE_JSON_LOGS: {{ .Values.decidim.enableJsonLogs | quote }}
+    GF_SERVER_DOMAIN: {{ .Values.grafana.serverDomain | quote }}
+    GF_SERVER_ROOT_URL: {{ .Values.grafana.serverRootUrl | quote }}
+    HELP_URL: {{ .Values.decidim.helpUrl | quote }}
+    KEYCLOAK_DISABLE_SSL_VERIFY: {{ .Values.decidim.keycloak.disableSslVerify | quote }}
+    MATOMO_SITE_ID: {{ .Values.matomo.siteId | quote }}
+    MATOMO_SERVER_ADDRESS: {{ .Values.matomo.serverAddress | quote }}
+    MEETINGS_EMBEDDABLE_SERVICES: {{ .Values.decidim.meetingsEmbeddableServices | quote }}
+    NODE_ENV: production
+    OMNIAUTH_KEYCLOAK_CLIENT_ID: {{ .Values.decidim.keycloak.clientId | quote }}
+    OMNIAUTH_KEYCLOAK_REALM: {{ .Values.decidim.keycloak.realm | quote }}
+    OMNIAUTH_KEYCLOAK_SITE: {{ .Values.decidim.keycloak.site | quote }}
+    QUEUE_ADAPTER: {{ .Values.decidim.queueAdapter | quote }}
+    PV_EMBED_BASE_URL: {{ .Values.decidim.pvEmbedBaseUrl | quote }}
+    RAILS_LOG_LEVEL: {{ .Values.decidim.railsLogLevel | quote }}
+    RAILS_ENV: production
+    RAILS_ASSET_HOST: {{ .Values.decidim.railsAssetHost | quote }}
+    REDIS_URL: {{ .Values.decidim.redisUrl | quote }}
+    RESTART_POLICY: {{ .Values.decidim.restartPolicy | quote }}
+    SMTP_ADDRESS: {{ .Values.smtp.address | quote }}
+    SMTP_AUTHENTICATION: {{ .Values.smtp.authentication | quote }}
+    SMTP_DOMAIN: {{ .Values.smtp.domain | quote }}
+    SMTP_STARTTLS_AUTO: {{ .Values.smtp.enableStarttlsAuto | quote }}
+    SMTP_PORT: {{ .Values.smtp.port | quote }}
+    SMTP_TLS: {{ .Values.smtp.tls | quote }}
+    SMTP_USERNAME: {{ .Values.smtp.username | quote }}
+    SMTP_OPEN_TIMEOUT: {{ .Values.smtp.openTimeout | quote }}
+    SMTP_READ_TIMEOUT: {{ .Values.smtp.readTimeout | quote }}
+    TOOL0_API_TOOLBAR_APPLICATIONS: {{ .Values.externalTools.tool0.apiToolbarApplications | quote }}
+    TOOL0_FULL_URL: {{ .Values.externalTools.tool0.fullUrl | quote }}
+    TOOL0_DOMAIN: {{ .Values.externalTools.tool0.domain | quote }}
+    TOOL2_EXPERIMENTS_URL: {{ .Values.externalTools.tool2.experimentsUrl | quote }}
+    TOOL2_IFRAME_URL: {{ .Values.externalTools.tool2.iframeUrl | quote }}
+    TOOL1_MAPS_URL: {{ .Values.externalTools.tool1.mapsUrl | quote }}

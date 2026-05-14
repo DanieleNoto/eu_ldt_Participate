@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alvaro Iglesias Sanchez
+# Gianfranco Cedro
+{{- if .Values.jitsi.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: jitsi-config
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+    labels:
+        io.kompose.service: jitsi-config
+data:
+    AUTH_TYPE: jwt
+    CONFIG: ./jitsi-meet-cfg
+    DISABLE_GRANT_MODERATOR: 'true'
+    DISABLE_LOCAL_RECORDING: 'false'
+    ENABLE_AUTH: '1'
+    ENABLE_GUESTS: '1'
+    ENABLE_WELCOME_PAGE: '0'
+    ENABLE_LOCAL_RECORDING_NOTIFY_ALL_PARTICIPANT: '1'
+    JICOFO_AUTH_USER: focus
+    JITSI_HTTP_PORT: '8000'
+    JITSI_HTTPS_PORT: '8443'
+    JITSI_UDP_PORT: '10000'
+    JVB_AUTH_USER: jvb
+    JVB_BREWERY_MUC: jvbbrewery
+    JVB_ENABLE_APIS: rest,colibri
+    JVB_PORT: '10000'
+    JVB_STUN_SERVERS: {{ .Values.jitsi.jvbStunServers | quote }}
+    JWT_APP_ID: {{ .Values.jitsi.jwtAppId | quote }}
+    JWT_ACCEPTED_ISSUERS: {{ .Values.jitsi.jwtAcceptedIssuers | quote }}
+    JWT_ACCEPTED_AUDIENCES: {{ .Values.jitsi.jwtAcceptedAudiences | quote }}
+    PUBLIC_URL: {{ .Values.jitsi.publicUrl | quote }}
+    RESTART_POLICY: {{ .Values.decidim.restartPolicy | quote }}
+    TZ: Europe/Rome
+    XMPP_AUTH_DOMAIN: auth.meet.jitsi
+    XMPP_BOSH_URL_BASE: https://jitsi-prosody:5280/http-bind
+    XMPP_DOMAIN: meet.jitsi
+    XMPP_GUEST_DOMAIN: guest.meet.jitsi
+    XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
+    XMPP_MODULES: ''
+    XMPP_MUC_DOMAIN: muc.meet.jitsi
+    XMPP_RECORDER_DOMAIN: recorder.meet.jitsi
+    XMPP_SERVER: jitsi-prosody
+    ENABLE_XMPP_WEBSOCKET: '1'
+    SUBDIR: ''
+    ENABLE_SUBDOMAINS: 'true'
+    TOOLBAR_BUTTONS: 'camera,chat,closedcaptions,desktop,download,embedmeeting,etherpad,feedback,filmstrip,fullscreen,hangup,help,highlight,invite,linktosalesforce,livestreaming,microphone,participants-pane,profile,raisehand,recording,security,select-background,settings,shortcuts,tileview,toggle-camera,videoquality'
+
+    # No embedded config.js here — rely on the image default config.js or mount a separate file
+    # If you need custom JS, mount a file at /config/web/config.js via a ConfigMap or a volume.
+{{- end }}

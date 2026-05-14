@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alvaro Iglesias Sanchez
+# Gianfranco Cedro
+{{- if .Values.jitsi.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: jitsi-jicofo
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+spec:
+    serviceName: 'jitsi-jicofo'
+    replicas: 1
+    selector:
+        matchLabels:
+            app: jitsi-jicofo
+    template:
+        metadata:
+            labels:
+                app: jitsi-jicofo
+        spec:
+            automountServiceAccountToken: false
+            containers:
+                - name: jitsi-jicofo
+                  image: jitsi/jicofo:stable-10888
+                  imagePullPolicy: IfNotPresent
+                  resources:
+                      requests:
+                          memory: '128Mi'
+                          cpu: '100m'
+                          ephemeral-storage: '512Mi'
+                      limits:
+                          memory: '512Mi'
+                          cpu: '250m'
+                          ephemeral-storage: '1Gi'
+                  envFrom:
+                      - configMapRef:
+                            name: jitsi-config
+                      - secretRef:
+                            name: jitsi-secret
+                  volumeMounts:
+                      - mountPath: /config
+                        name: jitsi-jicofo-storage
+    volumeClaimTemplates:
+        - metadata:
+              name: jitsi-jicofo-storage
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 100Mi
+{{- end }}

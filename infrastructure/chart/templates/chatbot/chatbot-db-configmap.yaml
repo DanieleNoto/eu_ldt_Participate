@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+# marcocerdelli
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: chatbot-backend-db-config
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+data:
+    DB_MAX_POOL: '100'
+    DB_MIN_POOL: '2'
+    DB_IDLE_POOL: '1000'
+    DB_DIALECT: postgres
+    DB_HOST: 127.0.0.1
+    DB_PORT: '5432'
+    DB_SCHEMA: public
+    DB_NAME: {{ .Values.chatbot.db.name | quote }}
+    POSTGRES_DATABASE: {{ .Values.chatbot.db.name | quote }}
+    PGDATA: /var/lib/postgresql/data/pgdata

@@ -1,0 +1,273 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+
+# IMAGE
+image:
+  registry: "euldtshared.azurecr.io"
+  tag: "latest"
+  pullPolicy: "Always"
+
+# NAMESPACE
+namespace: "participate"
+
+# ACR (Azure Container Registry)
+# acr.dockerconfigjson: base64-encoded dockerconfigjson for ACR pull secret (SECRET)
+acr:
+  enabled: false
+  dockerconfigjson: ""
+
+# INGRESS
+# ingress.participateHost: _%PARTICIPATE-HOST%_
+ingress:
+  participateHost: ""
+
+# DECIDIM
+# decidim.host: _%DECIDIM-HOST%_
+# decidim.jitsiUrl: _%DECIDIM-JITSI-URL%_
+# decidim.mailerSender: _%DECIDIM-MAILER-SENDER%_
+# decidim.availableLocales: _%DECIDIM-AVAILABLE-LOCALES%_
+# decidim.defaultLocale: _%DECIDIM-DEFAULT-LOCALE%_
+# decidim.throttlingMaxRequests: _%DECIDIM-THROTTLING-MAX-REQUESTS%_
+# decidim.db.host: _%DATABASE-HOST-DECIDIM%_
+# decidim.db.name: _%DATABASE-NAME-DECIDIM%_ / _%POSTGRES-DATABASE%_
+# decidim.db.username: _%DATABASE-USERNAME-DECIDIM%_ (SECRET)
+# decidim.db.password: _%DATABASE-PASSWORD-DECIDIM%_ (SECRET)
+# decidim.db.url: _%DATABASE-URL-DECIDIM%_ (SECRET)
+# decidim.secretKeyBase: _%SECRET-KEY-BASE%_ (SECRET)
+# decidim.keycloak.clientId: _%OMNIAUTH-KEYCLOAK-CLIENT-ID%_
+# decidim.keycloak.clientSecret: _%OMNIAUTH-KEYCLOAK-CLIENT-SECRET%_ (SECRET)
+# decidim.keycloak.realm: _%OMNIAUTH-KEYCLOAK-REALM%_
+# decidim.keycloak.site: _%OMNIAUTH-KEYCLOAK-SITE%_
+# decidim.keycloak.disableSslVerify: _%KEYCLOAK-DISABLE-SSL-VERIFY%_
+# decidim.redisUrl: _%REDIS-URL%_
+# decidim.queueAdapter: _%QUEUE-ADAPTER%_
+# decidim.enableJsonLogs: _%ENABLE-JSON-LOGS%_
+# decidim.railsLogLevel: _%RAILS-LOG-LEVEL%_
+# decidim.railsAssetHost: _%RAILS-ASSET-HOST%_
+# decidim.restartPolicy: _%RESTART-POLICY%_
+# decidim.helpUrl: _%HELP-URL%_
+# decidim.meetingsEmbeddableServices: _%MEETINGS-EMBEDDABLE-SERVICES%_
+# decidim.pvEmbedBaseUrl: _%PV-EMBED-BASE-URL%_
+# decidim.primaryColor: _%DECIDIM-PRIMARY-COLOR%_
+# decidim.organizationName: _%DECIDIM-ORGANIZATION-NAME%_
+# decidim.logoUrl: _%DECIDIM-LOGO-URL%_
+# decidim.privacyPolicyUrl: _%PRIVACY-POLICY-URL%_
+# decidim.notificationPreferencesUrl: _%NOTIFICATION-PREFERENCES-URL%_
+decidim:
+  host: ""
+  jitsiUrl: ""
+  mailerSender: ""
+  availableLocales: "en,it,fr,de,es"
+  defaultLocale: "en"
+  throttlingMaxRequests: "100"
+  db:
+    host: "db"
+    name: ""
+    username: ""
+    password: ""
+    url: ""
+  secretKeyBase: ""
+  keycloak:
+    clientId: ""
+    clientSecret: ""
+    realm: ""
+    site: ""
+    disableSslVerify: "false"
+  redisUrl: "redis://redis:6379/0"
+  queueAdapter: "sidekiq"
+  enableJsonLogs: "true"
+  railsLogLevel: "info"
+  railsAssetHost: ""
+  restartPolicy: "always"
+  helpUrl: ""
+  meetingsEmbeddableServices: "www.youtube.com www.twitch.tv meet.jit.si localhost"
+  pvEmbedBaseUrl: ""
+  primaryColor: "#1976d2"
+  organizationName: "EU LDT Participate"
+  logoUrl: ""
+  privacyPolicyUrl: "/privacy"
+  notificationPreferencesUrl: "/notifications"
+
+# CHATBOT
+# chatbot.backend.corsOrigins: _%CORS-ORIGINS%_
+# chatbot.backend.rateLimitMax: _%RATE-LIMIT-MAX%_
+# chatbot.backend.rateLimitTimeWindow: _%RATE-LIMIT-TIME-WINDOW%_
+# chatbot.backend.maxEventLoopUse: _%MAX-EVENT-LOOP-USE%_
+# chatbot.backend.supportEmail: _%CHATBOT-SUPPORT-EMAIL%_
+# chatbot.backend.fromEmail: _%CHATBOT-FROM-EMAIL%_
+# chatbot.backend.cypherSecret: _%CYPHER-SECRET%_ (SECRET)
+# chatbot.backend.cypherSalt: _%CYPHER-SALT%_ (SECRET)
+# chatbot.backend.url: _%CHATBOT-BACKEND-URL%_
+# chatbot.frontend.url: _%CHATBOT-URL%_
+# chatbot.frontend.apiUrl: _%VITE-API-URL%_
+# chatbot.db.name: _%DB-NAME-CHATBOT%_
+# chatbot.db.username: _%DB-USERNAME-CHATBOT%_ (SECRET)
+# chatbot.db.password: _%DB-PASSWORD-CHATBOT%_ (SECRET)
+# chatbot.db.url: _%DATABASE-URL-CHATBOT%_ (SECRET)
+chatbot:
+  backend:
+    corsOrigins: ""
+    rateLimitMax: "100"
+    rateLimitTimeWindow: "1 minute"
+    maxEventLoopUse: "0.98"
+    supportEmail: "support@example.com"
+    fromEmail: "noreply@example.com"
+    cypherSecret: ""
+    cypherSalt: ""
+    url: ""
+  frontend:
+    url: ""
+    apiUrl: ""
+  db:
+    name: ""
+    username: ""
+    password: ""
+    url: ""
+
+# SMTP
+# smtp.address: _%SMTP-ADDRESS%_
+# smtp.port: _%SMTP-PORT%_
+# smtp.domain: _%SMTP-DOMAIN%_
+# smtp.authentication: _%SMTP-AUTHENTICATION%_
+# smtp.enableStarttlsAuto: _%SMTP-ENABLE-STARTTLS-AUTO%_
+# smtp.tls: _%SMTP-TLS%_
+# smtp.openTimeout: _%SMTP-OPEN-TIMEOUT%_
+# smtp.readTimeout: _%SMTP-READ-TIMEOUT%_
+# smtp.username: _%SMTP-USERNAME%_ (decidim uses this key)
+# smtp.userName: _%SMTP-USER-NAME%_ (chatbot uses this key)
+# smtp.password: _%SMTP-PASSWORD%_ (SECRET)
+smtp:
+  address: ""
+  port: "587"
+  domain: ""
+  authentication: "plain"
+  enableStarttlsAuto: "true"
+  tls: "false"
+  openTimeout: "10"
+  readTimeout: "10"
+  username: ""
+  userName: ""
+  password: ""
+
+# EXTERNAL TOOLS
+# externalTools.tool0.domain: _%TOOL0-DOMAIN%_
+# externalTools.tool0.fullUrl: _%TOOL0-FULL-URL%_
+# externalTools.tool0.apiToolbarApplications: _%TOOL0-API-TOOLBAR-APPLICATIONS%_
+# externalTools.tool1.mapsUrl: _%TOOL1-MAPS-URL%_
+# externalTools.tool2.experimentsUrl: _%TOOL2-EXPERIMENTS-URL%_
+# externalTools.tool2.iframeUrl: _%TOOL2-IFRAME-URL%_
+externalTools:
+  tool0:
+    domain: ""
+    fullUrl: ""
+    apiToolbarApplications: "/api/dashboard/applications/external-tools"
+  tool1:
+    mapsUrl: ""
+  tool2:
+    experimentsUrl: ""
+    iframeUrl: ""
+
+# GRAFANA
+# grafana.serverDomain: _%GF-SERVER-DOMAIN%_
+# grafana.serverRootUrl: _%GF-SERVER-ROOT-URL%_
+# grafana.serveFromSubPath: _%GF-SERVER-SERVE-FROM-SUB-PATH%_
+# grafana.db.type: _%GF-DATABASE-TYPE%_
+# grafana.db.host: _%GF-DATABASE-HOST%_
+# grafana.db.name: _%GF-DATABASE-NAME%_
+# grafana.db.user: _%GF-DATABASE-USER%_
+# grafana.db.password: _%GF-DATABASE-PASSWORD%_ (SECRET)
+# grafana.db.pgdataPath: _%GRAFANA-PGDATA-PATH%_
+# grafana.admin.user: _%GF-SECURITY-ADMIN-USER%_
+# grafana.admin.password: _%GF-SECURITY-ADMIN-PASSWORD%_ (SECRET)
+# grafana.oauth.allowSignUp: _%GF-AUTH-GENERIC-OAUTH-ALLOW-SIGN-UP%_
+# grafana.oauth.allowAssignGrafanaAdmin: _%GF-AUTH-GENERIC-OAUTH-ALLOW-ASSIGN-GRAFANA-ADMIN%_
+# grafana.oauth.apiUrl: _%GF-AUTH-GENERIC-OAUTH-API-URL%_
+# grafana.oauth.authUrl: _%GF-AUTH-GENERIC-OAUTH-AUTH-URL%_
+# grafana.oauth.clientId: _%GF-AUTH-GENERIC-OAUTH-CLIENT-ID%_ (SECRET)
+# grafana.oauth.clientSecret: _%GF-AUTH-GENERIC-OAUTH-CLIENT-SECRET%_ (SECRET)
+# grafana.oauth.emailAttributePath: _%GF-AUTH-GENERIC-OAUTH-EMAIL-ATTRIBUTE-PATH%_
+# grafana.oauth.groupsAttributePath: _%GF-AUTH-GENERIC-OAUTH-GROUPS-ATTRIBUTE-PATH%_
+# grafana.oauth.loginAttributePath: _%GF-AUTH-GENERIC-OAUTH-LOGIN-ATTRIBUTE-PATH%_
+# grafana.oauth.name: _%GF-AUTH-GENERIC-OAUTH-NAME%_
+# grafana.oauth.nameAttributePath: _%GF-AUTH-GENERIC-OAUTH-NAME-ATTRIBUTE-PATH%_
+# grafana.oauth.roleAttributePath: _%GF-AUTH-GENERIC-OAUTH-ROLE-ATTRIBUTE-PATH%_
+# grafana.oauth.scopes: _%GF-AUTH-GENERIC-OAUTH-SCOPES%_
+# grafana.oauth.signoutRedirectUrl: _%GF-AUTH-GENERIC-OAUTH-SIGNOUT-REDIRECT-URL%_
+# grafana.oauth.tokenUrl: _%GF-AUTH-GENERIC-OAUTH-TOKEN-URL%_
+grafana:
+  serverDomain: ""
+  serverRootUrl: ""
+  serveFromSubPath: "false"
+  db:
+    type: "postgres"
+    host: "grafana-db"
+    name: "grafana"
+    user: "grafana"
+    password: ""
+    pgdataPath: "/var/lib/postgresql/data/pgdata"
+  admin:
+    user: "admin"
+    password: ""
+  oauth:
+    allowSignUp: "true"
+    allowAssignGrafanaAdmin: "true"
+    apiUrl: ""
+    authUrl: ""
+    clientId: ""
+    clientSecret: ""
+    emailAttributePath: "email"
+    groupsAttributePath: "groups"
+    loginAttributePath: "username"
+    name: "Keycloak-OAuth"
+    nameAttributePath: "full_name"
+    roleAttributePath: "contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
+    scopes: "openid email profile offline_access roles"
+    signoutRedirectUrl: ""
+    tokenUrl: ""
+
+# MATOMO
+# matomo.siteId: _%MATOMO-SITE-ID%_
+# matomo.serverAddress: _%MATOMO-SERVER-ADDRESS%_
+# matomo.tokenAuth: _%MATOMO-TOKEN-AUTH%_ (SECRET)
+# matomo.rootUrl: _%MATOMO-ROOT-URL%_
+# matomo.trustedHost: _%MATOMO-TRUSTED-HOST%_
+# matomo.db.host: _%MATOMO-DATABASE-HOST%_
+# matomo.db.name: _%MATOMO-DATABASE-DBNAME%_ / _%MYSQL-DATABASE%_
+# matomo.db.username: _%MATOMO-DATABASE-USERNAME%_ / _%MYSQL-USER%_ (SECRET in prod)
+# matomo.db.password: _%MATOMO-DATABASE-PASSWORD%_ / _%MYSQL-PASSWORD%_ (SECRET)
+# matomo.db.rootPassword: _%MYSQL-ROOT-PASSWORD%_ (SECRET)
+matomo:
+  siteId: "1"
+  serverAddress: ""
+  tokenAuth: ""
+  rootUrl: ""
+  trustedHost: ""
+  db:
+    host: "matomo-db-svc"
+    name: "matomo"
+    username: "matomo"
+    password: ""
+    rootPassword: ""
+
+# JITSI
+# jitsi.enabled: set false to skip all Jitsi resources
+# jitsi.host: _%JITSI-HOST%_
+# jitsi.publicUrl: _%PUBLIC-URL%_
+# jitsi.jwtAppId: _%JWT-APP-ID%_
+# jitsi.jwtAcceptedIssuers: _%JWT-ACCEPTED-ISSUERS%_
+# jitsi.jwtAcceptedAudiences: _%JWT-ACCEPTED-AUDIENCES%_
+# jitsi.jvbStunServers: _%JVB-STUN-SERVERS%_
+# jitsi.jicofoAuthPassword: _%JICOFO-AUTH-PASSWORD%_ (SECRET)
+# jitsi.jvbAuthPassword: _%JVB-AUTH-PASSWORD%_ (SECRET)
+# jitsi.jwtAppSecret: _%JWT-APP-SECRET%_ (SECRET)
+jitsi:
+  enabled: true
+  host: ""
+  publicUrl: ""
+  jwtAppId: "decidim_app"
+  jwtAcceptedIssuers: "decidim"
+  jwtAcceptedAudiences: "decidim"
+  jvbStunServers: "stun.l.google.com:19302,stun1.l.google.com:19302"
+  jicofoAuthPassword: ""
+  jvbAuthPassword: ""
+  jwtAppSecret: ""

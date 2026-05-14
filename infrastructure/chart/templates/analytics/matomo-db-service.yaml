@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alvaro Iglesias Sanchez
+# Gianfranco Cedro
+apiVersion: v1
+kind: Service
+metadata:
+    name: matomo-db-svc
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+spec:
+    selector:
+        io.kompose.service: matomo-db
+    ports:
+        - port: 3306
+          targetPort: 3306
+    type: ClusterIP

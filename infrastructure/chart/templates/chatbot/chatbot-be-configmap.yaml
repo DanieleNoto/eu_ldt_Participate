@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+# marcocerdelli
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: chatbot-backend-config
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+data:
+    PORT: '3002'
+    NODE_ENV: 'production'
+    CONTEXT_URL: '/api/v1'
+    # CORS
+    CORS_ORIGINS: {{ .Values.chatbot.backend.corsOrigins | quote }}
+    SWAGGER_GEN_DOC_FILE: 'false'
+    # Security
+    DISABLE_HELMET: 'false'
+    JWT_ENABLE_CHECK: 'false'
+    DATABASE_SYNC: 'false'
+    LOGGER_LEVEL: 'info'
+    RATE_LIMIT_TIME_WINDOW: {{ .Values.chatbot.backend.rateLimitTimeWindow | quote }}
+    RATE_LIMIT_MAX: {{ .Values.chatbot.backend.rateLimitMax | quote }}
+    EVENT_LOOP_DELAY: '900000'
+    MAX_HEAP_USED_BYTES: '90000000000'
+    MAX_RSS_BYTES: '90000000000'
+    MAX_EVENT_LOOP_USE: {{ .Values.chatbot.backend.maxEventLoopUse | quote }}
+    # Chatbot Configuration
+    CHATBOT_SUPPORT_EMAIL: {{ .Values.chatbot.backend.supportEmail | quote }}
+    CHATBOT_FROM_EMAIL: {{ .Values.chatbot.backend.fromEmail | quote }}
+    # Database
+    DB_NAME: {{ .Values.chatbot.db.name | quote }}
+    DB_HOST: 127.0.0.1
+    DB_PORT: '5432'
+    DB_DIALECT: postgres
+    DB_MAX_POOL: '100'
+    DB_MIN_POOL: '2'
+    DB_IDLE_POOL: '1000'
+    DB_SCHEMA: public
+    #Sequelize
+    SEQUELIZE_SEEDER_STORAGE: sequelize
+    SEQUELIZE_SEEDER_STORAGE_TABLE_NAME: SequelizeData
+    SEQUELIZE_MIGRATION_STORAGE: sequelize
+    SEQUELIZE_MIGRATION_STORAGE_TABLE_NAME: SequelizeData
+    # SMTP/Email Configuration
+    SMTP_ADDRESS: {{ .Values.smtp.address | quote }}
+    SMTP_PORT: {{ .Values.smtp.port | quote }}
+    SMTP_DOMAIN: {{ .Values.smtp.domain | quote }}
+    SMTP_AUTHENTICATION: {{ .Values.smtp.authentication | quote }}
+    SMTP_ENABLE_STARTTLS_AUTO: {{ .Values.smtp.enableStarttlsAuto | quote }}
+    SMTP_USER_NAME: {{ .Values.smtp.userName | quote }}
+    # Service URLs
+    GRAFANA_URL: https://grafana
+    DECIDIM_URL: https://decidim
+    MATOMO_URL: https://matomo
+    {{- if .Values.jitsi.enabled }}
+    JITSI_WEB_URL: https://jitsi-web
+    {{- else }}
+    JITSI_WEB_URL: ""
+    {{- end }}
+    DECIDIM_PRIMARY_COLOR: {{ .Values.decidim.primaryColor | quote }}
+    DECIDIM_ORGANIZATION_NAME: {{ .Values.decidim.organizationName | quote }}
+    DECIDIM_LOGO_URL: {{ .Values.decidim.logoUrl | quote }}
+    # Email Footer Links
+    PRIVACY_POLICY_URL: {{ .Values.decidim.privacyPolicyUrl | quote }}
+    NOTIFICATION_PREFERENCES_URL: {{ .Values.decidim.notificationPreferencesUrl | quote }}

@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+{{- if .Values.jitsi.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: jitsi-jvb
+  namespace: {{ include "eu-ldt-participate.namespace" . }}
+  labels:
+    io.kompose.service: jitsi-jvb
+spec:
+  selector:
+    app: jitsi-jvb
+  ports:
+    - name: udp
+      port: 10000
+      targetPort: 10000
+      protocol: UDP
+    - name: colibri
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+  type: LoadBalancer
+{{- end }}
