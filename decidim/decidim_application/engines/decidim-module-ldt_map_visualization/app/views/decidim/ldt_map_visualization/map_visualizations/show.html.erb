@@ -43,7 +43,17 @@
             ⚠️ <%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_title") %>
           </summary>
           <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;">
-            <p><%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_content") %></p>
+            <p><%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_intro") %></p>
+            <ul style="margin-left: 1.5rem; list-style-type: disc;">
+              <li><%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_tabs.map_configuration") %></li>
+              <li>
+                <%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_tabs.layers_tab") %>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem; list-style-type: circle;">
+                  <li><%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_layers.layers") %></li>
+                  <li><%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_layers.plots") %></li>
+                </ul>
+              </li>
+            </ul>
           </div>
         </details>
       </div>

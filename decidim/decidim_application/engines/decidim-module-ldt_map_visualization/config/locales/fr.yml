@@ -42,8 +42,14 @@ fr:
                     back_to_list: Retour à la liste
                     edit: Modifier
                     created_at: Créé le
-                    disclaimer_title: Informations et Clause de Non-Responsabilité de la Carte
-                    disclaimer_content: Cette carte est fournie à titre informatif uniquement. Bien que nous nous eforcions d'assurer l'exactitude, veuillez noter que les données et les visualisations peuvent être sujettes à modification. Vérifiez toujours les informations critiques auprès de sources officielles avant de prendre des décisions.
+                    disclaimer_title: Comment utiliser l'interface de la carte
+                    disclaimer_intro: "La barre latérale gauche contient deux onglets pour vous aider à naviguer et à personnaliser l'affichage de la carte :"
+                    disclaimer_tabs:
+                        map_configuration: "Onglet Configuration de la carte (Premier onglet) : Vue par défaut. Il fournit une vue d'ensemble de l'expérience de carte en cours, y compris son nom, sa description et son périmètre de visibilité."
+                        layers_tab: "Onglet Couches (Deuxième onglet) : Permet de personnaliser les données affichées sur la carte."
+                    disclaimer_layers:
+                        layers: "Couches : Activez ou désactivez des données spécifiques de l'expérience (comme des scénarios ou des données de référence). Cliquez sur l'icône en forme d'œil à côté d'une couche pour la masquer ou l'afficher sur la carte."
+                        plots: "Graphiques : Activez ou désactivez les visualisations statistiques (comme l'histogramme de flux). Cliquez sur l'icône en forme d'œil pour masquer ou afficher les données du graphique. Pour consulter les graphiques générés, cliquez sur l'icône Graphique/Histogramme située sur le côté droit de la carte, juste en dessous des boutons de zoom + et -."
             admin:
                 map_visualizations:
                     index:

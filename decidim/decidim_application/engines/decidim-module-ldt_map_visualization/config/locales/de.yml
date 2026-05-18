@@ -42,8 +42,14 @@ de:
                     back_to_list: Zurück zur Liste
                     edit: Bearbeiten
                     created_at: Erstellt am
-                    disclaimer_title: Karteninformationen und Haftungsausschluss
-                    disclaimer_content: Diese Karte wird nur zu Informationszwecken bereitgestellt. Obwohl wir uns um Genauigkeit bemühen, beachten Sie bitte, dass die Daten und Visualisierungen Änderungen unterliegen können. Überprüfen Sie kritische Informationen immer bei offiziellen Quellen, bevor Sie Entscheidungen treffen.
+                    disclaimer_title: So verwenden Sie die Kartenoberfläche
+                    disclaimer_intro: "Die linke Seitenleiste enthält zwei Registerkarten, mit denen Sie die Kartenansicht navigieren und anpassen können:"
+                    disclaimer_tabs:
+                        map_configuration: "Registerkarte Kartenkonfiguration (Erste Registerkarte): Die Standardansicht. Sie zeigt Übersichtsdetails zum aktuellen Kartenexperiment, einschließlich Name, Beschreibung und Sichtbarkeitsbereich."
+                        layers_tab: "Registerkarte Layer (Zweite Registerkarte): Ermöglicht es Ihnen, anzupassen, welche Daten auf der Karte angezeigt werden."
+                    disclaimer_layers:
+                        layers: "Layer: Schalten Sie bestimmte Experimentdaten (wie Szenarien oder Basisdaten) ein oder aus. Klicken Sie auf das Augensymbol neben einem Layer, um ihn auf der Karte ein- oder auszublenden."
+                        plots: "Diagramme: Schalten Sie statistische Visualisierungen (wie das Flusshistogramm) ein oder aus. Klicken Sie auf das Augensymbol, um die Diagrammdaten ein- oder auszublenden. Um die erzeugten Diagramme anzuzeigen, klicken Sie auf das Symbol Plot/Histogramm auf der rechten Seite der Karte, direkt unter den Zoom-Schaltflächen + und -."
             admin:
                 map_visualizations:
                     index:
