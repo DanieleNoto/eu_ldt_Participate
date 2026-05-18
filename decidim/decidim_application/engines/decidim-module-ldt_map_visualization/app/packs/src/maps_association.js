@@ -318,6 +318,7 @@ function goToPage(page) {
 function renderMapRows(maps) {
 	const tbody = document.getElementById('maps-tbody');
 	if (!tbody) return;
+	const mapDetailBaseUrl = document.querySelector('.maps-association')?.dataset.mapDetailBaseUrl || '';
 
 	tbody.innerHTML = '';
 
@@ -365,7 +366,16 @@ function renderMapRows(maps) {
 		const tdName = document.createElement('td');
 		tdName.className = '!text-left';
 		tdName.dataset.label = 'Name';
-		tdName.textContent = map.name || '';
+		if (map.id && mapDetailBaseUrl) {
+			const anchor = document.createElement('a');
+			anchor.href = `${mapDetailBaseUrl}/maps_visualisation/${encodeURIComponent(map.id)}`;
+			anchor.target = '_blank';
+			anchor.rel = 'noopener noreferrer';
+			anchor.textContent = map.name || '';
+			tdName.appendChild(anchor);
+		} else {
+			tdName.textContent = map.name || '';
+		}
 		tr.appendChild(tdName);
 
 		// Owner

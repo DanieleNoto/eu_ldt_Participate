@@ -44,7 +44,7 @@ module Decidim
 
           filter_execution_id  = sanitize_filter_uuid(params[:filter_execution_id])
           filter_experiment_id = sanitize_filter_uuid(params[:filter_experiment_id])
-          filter_status        = sanitize_filter_status(params[:filter_status])
+          filter_status        = "COMPLETED"
 
           Rails.logger.info("[LDT] external_experiments params: page=#{page} size=#{size} " \
                             "execution_id=#{filter_execution_id.inspect} " \
@@ -322,8 +322,8 @@ module Decidim
             return
           end
 
-          # Fetch experiments list (first page, sorted by last update)
-          filter_status = sanitize_filter_status(params[:filter_status])
+          # Fetch only completed experiment executions (first page, sorted by last update)
+          filter_status = "COMPLETED"
           search_str    = build_search_params(nil, filter_status)
           result = fetch_from_tool2(jwt, "/experiment-executions?page=0&size=10&sort=updatedAt::DESC#{search_str}")
 
