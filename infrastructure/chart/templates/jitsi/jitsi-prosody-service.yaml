@@ -12,8 +12,16 @@ metadata:
     io.kompose.service: jitsi-prosody
 spec:
   selector:
-    app: jitsi-prosody
+    io.kompose.service: jitsi-prosody
   ports:
+    - name: '5222'
+      port: 5222
+      targetPort: 5222
+      protocol: TCP
+    - name: '5347'
+      port: 5347
+      targetPort: 5347
+      protocol: TCP
     - name: bosh
       port: 5280
       targetPort: 5280

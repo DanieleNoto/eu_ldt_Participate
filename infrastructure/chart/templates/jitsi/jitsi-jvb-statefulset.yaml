@@ -57,24 +57,6 @@ spec:
                       storage: 100Mi
 ---
 apiVersion: v1
-kind: Service
-metadata:
-    name: jitsi-jvb
-    namespace: {{ include "eu-ldt-participate.namespace" . }}
-    labels:
-        app: jitsi-jvb
-spec:
-    type: ClusterIP
-    selector:
-        app: jitsi-jvb
-    ports:
-        - name: udp-10000
-          port: 10000
-          targetPort: 10000
-          protocol: UDP
-
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
     name: jitsi-jvb-claim0

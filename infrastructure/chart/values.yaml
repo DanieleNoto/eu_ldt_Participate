@@ -23,6 +23,8 @@ ingress:
 
 # DECIDIM
 # decidim.host: _%DECIDIM-HOST%_
+# decidim.forceSsl: _%DECIDIM-FORCE-SSL%_
+# decidim.protocol: _%DECIDIM-PROTOCOL%_
 # decidim.jitsiUrl: _%DECIDIM-JITSI-URL%_
 # decidim.mailerSender: _%DECIDIM-MAILER-SENDER%_
 # decidim.availableLocales: _%DECIDIM-AVAILABLE-LOCALES%_
@@ -55,6 +57,8 @@ ingress:
 # decidim.notificationPreferencesUrl: _%NOTIFICATION-PREFERENCES-URL%_
 decidim:
   host: ""
+  forceSsl: "true"
+  protocol: "https"
   jitsiUrl: ""
   mailerSender: ""
   availableLocales: "en,it,fr,de,es"

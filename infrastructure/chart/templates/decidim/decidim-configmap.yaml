@@ -21,13 +21,13 @@ data:
     # DATABASE_USERNAME: postgres
     DECIDIM_AVAILABLE_LOCALES: {{ .Values.decidim.availableLocales | quote }}
     DECIDIM_DEFAULT_LOCALE: {{ .Values.decidim.defaultLocale | quote }}
-    DECIDIM_FORCE_SSL: 'true'
+    DECIDIM_FORCE_SSL: {{ .Values.decidim.forceSsl | quote }}
     DECIDIM_FOLLOW_HTTP_X_FORWARDED_HOST: 'true'
     DECIDIM_HOST: {{ .Values.decidim.host | quote }}
     DECIDIM_JITSI_URL: {{ .Values.decidim.jitsiUrl | quote }}
     DECIDIM_JITSI_ROOM_PREFIX: decidim-meeting-
     DECIDIM_MAILER_SENDER: {{ .Values.decidim.mailerSender | quote }}
-    DECIDIM_PROTOCOL: https
+    DECIDIM_PROTOCOL: {{ .Values.decidim.protocol | quote }}
     DECIDIM_ENABLE_HTML_HEADER_SNIPPETS: 'true'
     DECIDIM_SERVICE_WORKER_ENABLED: 'false'
     DECIDIM_THROTTLING_MAX_REQUESTS: {{ .Values.decidim.throttlingMaxRequests | quote }}
