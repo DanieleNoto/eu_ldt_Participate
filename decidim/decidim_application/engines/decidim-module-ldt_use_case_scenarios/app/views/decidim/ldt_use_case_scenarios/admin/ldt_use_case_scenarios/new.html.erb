@@ -8,7 +8,7 @@
 <% add_decidim_page_title(t(".title")) %>
 <%
   experiments_api_url = ENV.fetch("TOOL2_EXPERIMENTS_URL", "https://ucs-int.ldttoolbox.app/api/v1/experiment-executions")
-  experiment_detail_base_url = ENV.fetch("TOOL2_UI_BASE_URL", experiments_api_url.sub(%r{/api/v1/experiment-executions/?$}, ""))
+  experiment_detail_base_url = ENV.fetch("TOOL2_UI_BASE_URL", "https://ucs-int.ldttoolbox.app")
 %>
 
 <div class="item_show__header">
