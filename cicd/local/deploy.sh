@@ -70,8 +70,8 @@ do_up() {
     echo ""
 
     run_step "install/validatePrerequisites.sh"
-    run_step "cluster-noncloud/createCluster.sh"
-    run_step "cluster-noncloud/validateCluster.sh"
+    run_step "cluster/createCluster.sh"
+    run_step "cluster/validateCluster.sh"
     run_step "install/pullImages.sh"
     run_step "install/applyManifests.sh"
 
@@ -160,7 +160,7 @@ show_menu() {
         2) do_down ;;
         3) do_status ;;
         s0) run_step "install/validatePrerequisites.sh" ;;
-        s1) run_step "cluster-noncloud/createCluster.sh" ;;
+        s1) run_step "cluster/createCluster.sh" ;;
         s2) run_step "install/pullImages.sh" ;;
         s3) run_step "install/applyManifests.sh" ;;
         q|Q) ok "Bye."; exit 0 ;;
@@ -173,7 +173,7 @@ case "${1:-menu}" in
     down) do_down ;;
     status) do_status ;;
     0|step0) run_step "install/validatePrerequisites.sh" ;;
-    1|step1) run_step "cluster-noncloud/createCluster.sh" ;;
+    1|step1) run_step "cluster/createCluster.sh" ;;
     2|step2) run_step "install/pullImages.sh" ;;
     3|step3) run_step "install/applyManifests.sh" ;;
     menu) show_menu ;;
