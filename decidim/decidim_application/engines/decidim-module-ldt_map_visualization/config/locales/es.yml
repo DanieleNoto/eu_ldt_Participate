@@ -42,6 +42,14 @@ es:
                     back_to_list: Volver a la lista
                     edit: Editar
                     created_at: Creado el
+                    disclaimer_title: Cómo usar la interfaz del mapa
+                    disclaimer_intro: "La barra lateral izquierda incluye dos pestañas para ayudarte a navegar y personalizar la vista del mapa:"
+                    disclaimer_tabs:
+                        map_configuration: "Pestaña de Configuración del Mapa (Primera pestaña): La vista predeterminada. Proporciona detalles generales sobre el experimento de mapa actual, incluyendo su nombre, descripción y alcance de visibilidad."
+                        layers_tab: "Pestaña de Capas (Segunda pestaña): Te permite personalizar qué datos se muestran en el mapa."
+                    disclaimer_layers:
+                        layers: "Capas: Activa o desactiva datos específicos del experimento (como escenarios o datos base). Haz clic en el icono de ojo junto a una capa para ocultarla o mostrarla en el mapa."
+                        plots: "Gráficos: Activa o desactiva visualizaciones estadísticas (como el Histograma de Flujo). Haz clic en el icono de ojo para ocultar o mostrar los datos del gráfico. Para ver los gráficos generados, haz clic en el icono de Gráfico/Histograma ubicado en el lado derecho del mapa, justo debajo de los botones de zoom + y -."
             admin:
                 map_visualizations:
                     index:
@@ -73,6 +81,7 @@ es:
                         owner: Propietario
                         scope: Alcance
                         description: Descripción
+                        enter_description: Añada una breve descripción que se mostrará encima del mapa (opcional)
                         no_image: Sin imagen
                     create:
                         success: Visualización de mapa creada exitosamente

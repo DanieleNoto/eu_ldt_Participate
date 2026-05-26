@@ -62,6 +62,8 @@ The gem uses the following constants for default values:
 
 These can be overridden through component settings.
 
+`DECIDIM_JITSI_URL` can be provided as host only in the environment/config map; the engine prepends `https://` when it builds the default component value.
+
 ## Installation
 
 Add this line to your application's Gemfile:

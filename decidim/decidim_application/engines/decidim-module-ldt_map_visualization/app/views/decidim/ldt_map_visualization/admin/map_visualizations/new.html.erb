@@ -5,6 +5,13 @@
    Gianfranco Cedro
 %>
 <% add_decidim_page_title(t(".title")) %>
+<%
+  maps_api_url = ENV.fetch("TOOL1_MAPS_URL", "https://maps-int.ldttoolbox.app/api/v1/maps")
+  map_detail_base_url = ENV.fetch(
+    "TOOL1_MAPS_UI_BASE_URL",
+    maps_api_url.sub(%r{/(?:api/(?:v1/)?maps|embed/maps_visualisation)/?$}, "")
+  )
+%>
 
 <div class="item_show__header">
   <h1 class="item_show__header-title">
@@ -16,9 +23,10 @@
   <div class="item__edit-form">
     <div class="card maps-association"
          data-admin-path="<%= "/admin/participatory_processes/#{current_participatory_space.slug}/components/#{current_component.id}/manage/map_visualizations" %>"
-         data-has-more="<%= @has_more ? 'true' : 'false' %>"
-         data-page-size="<%= @page_size || 20 %>"
-         data-i18n-name-required="<%= t(".name_required") %>"
+       data-map-detail-base-url="<%= map_detail_base_url %>"
+       data-has-more="<%= @has_more ? 'true' : 'false' %>"
+       data-page-size="<%= @page_size || 20 %>"
+       data-i18n-name-required="<%= t(".name_required") %>"
          data-i18n-save-error="<%= t(".save_error") %>">
 
       <% if @maps_error.present? %>
@@ -59,7 +67,12 @@
                       <% end %>
                     </td>
                     <td class="!text-left" data-label="Name">
-                      <%= map['name'] || '' %>
+                      <% map_external_url = "#{map_detail_base_url}/maps_visualisation/#{ERB::Util.url_encode(map['id'].to_s)}" %>
+                      <% if map['id'].present? %>
+                        <%= link_to(map['name'] || '', map_external_url, target: "_blank", rel: "noopener noreferrer") %>
+                      <% else %>
+                        <%= map['name'] || '' %>
+                      <% end %>
                     </td>
                     <td data-label="Owner">
                       <%= map['owner'] || '' %>
@@ -98,6 +111,15 @@
                   id: "map-name",
                   placeholder: t('.enter_map_name'),
                   required: true %>
+            </div>
+
+            <!-- Description Field -->
+            <div class="field">
+              <%= f.label :description, t('.description') %>
+              <%= f.text_area :description,
+                  id: "map-description",
+                  placeholder: t('.enter_description'),
+                  rows: 3 %>
             </div>
           </div>
         </div>

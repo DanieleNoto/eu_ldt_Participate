@@ -10,7 +10,12 @@ module Decidim
     module Jitsi
       # Shared constants for Jitsi integration
       module Constants
-        JITSI_DEFAULT_SERVER_URL = ENV.fetch("DECIDIM_JITSI_URL", "https://jitsi-part-int.ldttoolbox.app/")
+        def self.normalize_server_url(server_url)
+          clean_server_url = server_url.sub(/\Ahttps?:\/\//, "")
+          "https://#{clean_server_url}"
+        end
+
+        JITSI_DEFAULT_SERVER_URL = normalize_server_url(ENV.fetch("DECIDIM_JITSI_URL", "jitsi-part-int.ldttoolbox.app/"))
         JITSI_DEFAULT_ROOM_PREFIX = ENV.fetch("DECIDIM_JITSI_ROOM_PREFIX", "decidim-meeting-")
       end
     end

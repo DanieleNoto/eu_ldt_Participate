@@ -42,6 +42,14 @@ en:
                     back_to_list: Back to list
                     edit: Edit
                     created_at: Created at
+                    disclaimer_title: How to Use the Map Interface
+                    disclaimer_intro: "The left-hand sidebar features two tabs to help you navigate and customize the map view:"
+                    disclaimer_tabs:
+                        map_configuration: "Map Configuration Tab (First Tab): The default view. It provides overview details about the current map experiment, including its name, description, and visibility scope."
+                        layers_tab: "Layers Tab (Second Tab): Allows you to customize what data is displayed on the map."
+                    disclaimer_layers:
+                        layers: "Layers: Toggle specific experiment data (like scenarios or baseline data) on or off. Click the eye icon next to a layer to hide or show it on the map."
+                        plots: "Plots: Toggle statistical visualizations (like the Flow Histogram). Click the eye icon to hide or show the plot data. To view the generated charts, click the Plot/Histogram icon located on the right side of the map, directly below the + and - zoom buttons."
             admin:
                 map_visualizations:
                     index:
@@ -73,6 +81,7 @@ en:
                         owner: Owner
                         scope: Scope
                         description: Description
+                        enter_description: Add a brief description shown above the map (optional)
                         no_image: No image
                     create:
                         success: Map visualization created successfully

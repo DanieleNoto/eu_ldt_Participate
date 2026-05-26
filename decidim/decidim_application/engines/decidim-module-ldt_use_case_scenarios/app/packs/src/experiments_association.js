@@ -13,7 +13,7 @@ let totalPages = 1;
 let pageSize = 10;
 
 // Filter state (kept in sync with the filter inputs; included in every AJAX request)
-let currentFilters = { executionId: '', experimentId: '', status: '' };
+let currentFilters = { executionId: '', experimentId: '' };
 
 document.addEventListener('DOMContentLoaded', function () {
 	console.log('DOMContentLoaded fired - initializing experiments_association');
@@ -342,16 +342,14 @@ function setupFilterHandlers() {
 	function readFilters() {
 		const executionId = document.getElementById('filter-execution-id');
 		const experimentId = document.getElementById('filter-experiment-id');
-		const status = document.getElementById('filter-status');
 		return {
 			executionId: executionId ? executionId.value : '',
-			experimentId: experimentId ? experimentId.value : '',
-			status: status ? status.value : ''
+			experimentId: experimentId ? experimentId.value : ''
 		};
 	}
 
 	function updateClearButton(filters) {
-		if (clearBtn) clearBtn.disabled = !(filters.executionId || filters.experimentId || filters.status);
+		if (clearBtn) clearBtn.disabled = !(filters.executionId || filters.experimentId);
 	}
 
 	function applyFilters() {
@@ -374,9 +372,6 @@ function setupFilterHandlers() {
 	if (executionIdInput) executionIdInput.addEventListener('input', debounceApplyFilters);
 	if (experimentIdInput) experimentIdInput.addEventListener('input', debounceApplyFilters);
 
-	const statusSelect = document.getElementById('filter-status');
-	if (statusSelect) statusSelect.addEventListener('change', applyFilters);
-
 	if (clearBtn) {
 		clearBtn.addEventListener('click', function () {
 			const execInput = document.getElementById('filter-execution-id');
@@ -384,10 +379,7 @@ function setupFilterHandlers() {
 			if (execInput) execInput.value = '';
 			if (expInput) expInput.value = '';
 
-			const status = document.getElementById('filter-status');
-			if (status) status.value = '';
-
-			currentFilters = { executionId: '', experimentId: '', status: '' };
+			currentFilters = { executionId: '', experimentId: '' };
 			currentPage = 0;
 			totalPages = 1;
 			clearBtn.disabled = true;
@@ -447,7 +439,6 @@ function goToPage(page) {
 	let url = `${adminPath}/external_experiments?page=${page}&size=${pageSize}`;
 	if (currentFilters.executionId) url += `&filter_execution_id=${encodeURIComponent(currentFilters.executionId)}`;
 	if (currentFilters.experimentId) url += `&filter_experiment_id=${encodeURIComponent(currentFilters.experimentId)}`;
-	if (currentFilters.status) url += `&filter_status=${encodeURIComponent(currentFilters.status)}`;
 
 	// Show loading state
 	const tbody = document.getElementById('experiments-tbody');
@@ -479,32 +470,44 @@ function goToPage(page) {
 		})
 		.catch(error => {
 			console.error('Error fetching experiments page:', error);
-			if (tbody) {
-				const tr = document.createElement('tr');
-				const td = document.createElement('td');
-				td.setAttribute('colspan', '6');
-				td.className = 'text-center text-red-600 py-4';
-				td.textContent = error.message;
-				tr.appendChild(td);
-				tbody.replaceChildren(tr);
-			}
+			showTableMessage(error.message, true);
 		});
+}
+
+function showTableMessage(message, isError = false) {
+	const container = document.getElementById('experiments-container');
+	if (!container) return;
+	clearTableMessage();
+	const div = document.createElement('div');
+	div.id = 'table-status-message';
+	div.className = isError ? 'callout alert' : 'callout';
+	div.style.cssText = 'margin-bottom: 1rem;';
+	const p = document.createElement('p');
+	p.textContent = message;
+	div.appendChild(p);
+	const tableDiv = container.querySelector('.table-stacked');
+	if (tableDiv) {
+		container.insertBefore(div, tableDiv);
+	} else {
+		container.insertBefore(div, container.firstChild);
+	}
+}
+
+function clearTableMessage() {
+	document.getElementById('table-status-message')?.remove();
 }
 
 function renderExperimentRows(experiments) {
 	const tbody = document.getElementById('experiments-tbody');
 	if (!tbody) return;
+	const experimentDetailBaseUrl =
+		document.querySelector('.experiments-association')?.dataset.experimentDetailBaseUrl || '';
 
 	tbody.innerHTML = '';
+	clearTableMessage();
 
 	if (!experiments.length) {
-		const tr = document.createElement('tr');
-		const td = document.createElement('td');
-		td.colSpan = 6;
-		td.className = 'text-center py-4';
-		td.textContent = 'No experiments found.';
-		tr.appendChild(td);
-		tbody.appendChild(tr);
+		showTableMessage('No experiments found.');
 		return;
 	}
 
@@ -526,7 +529,18 @@ function renderExperimentRows(experiments) {
 		const tdName = document.createElement('td');
 		tdName.className = '!text-left';
 		const strong = document.createElement('strong');
-		strong.textContent = (exp.experiment && exp.experiment.name) || '—';
+		const experimentName = (exp.experiment && exp.experiment.name) || '—';
+		const experimentLink = buildExperimentExecutionUrl(experimentDetailBaseUrl, exp);
+		if (experimentLink) {
+			const anchor = document.createElement('a');
+			anchor.href = experimentLink;
+			anchor.target = '_blank';
+			anchor.rel = 'noopener noreferrer';
+			anchor.textContent = experimentName;
+			strong.appendChild(anchor);
+		} else {
+			strong.textContent = experimentName;
+		}
 		tdName.appendChild(strong);
 		tr.appendChild(tdName);
 
@@ -568,4 +582,14 @@ function renderExperimentRows(experiments) {
 
 		tbody.appendChild(tr);
 	});
+}
+
+function buildExperimentExecutionUrl(baseUrl, experiment) {
+	const executionId = experiment?.id;
+	const experimentId = experiment?.experimentId;
+	const scenarioId = experiment?.scenarioId;
+
+	if (!baseUrl || !executionId || !experimentId || !scenarioId) return null;
+
+	return `${baseUrl}/simulation/scenarios/${encodeURIComponent(scenarioId)}/create/experiment/${encodeURIComponent(experimentId)}/execute/${encodeURIComponent(executionId)}`;
 }
