@@ -55,16 +55,4 @@ spec:
               resources:
                   requests:
                       storage: 100Mi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-    name: jitsi-jvb-claim0
-    namespace: {{ include "eu-ldt-participate.namespace" . }}
-spec:
-    accessModes:
-        - ReadWriteOnce
-    resources:
-        requests:
-            storage: 100Mi
 {{- end }}
