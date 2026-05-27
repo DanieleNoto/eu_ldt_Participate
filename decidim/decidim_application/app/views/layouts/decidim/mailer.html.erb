@@ -19,6 +19,20 @@
         color: #ffffff !important;
         text-decoration: underline;
       }
+      /* Override Foundation Email default red ($primary) for CTA buttons */
+      table.button table td,
+      table.button:hover table td,
+      table.button:active table td,
+      table.button:visited table td {
+        background: <%= @organization.colors["primary"] || '#004494' %> !important;
+        border-color: <%= @organization.colors["primary"] || '#004494' %> !important;
+      }
+      table.button table td a,
+      table.button table td a:visited,
+      table.button:hover table td a,
+      table.button:active table td a {
+        color: #ffffff !important;
+      }
     </style>
   </head>
 
