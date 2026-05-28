@@ -66,8 +66,13 @@ module Decidim
         # many roles can exceed this limit — browsers silently drop oversized cookies).
         access_token = reconstruct_token_from_cookies(cookies_hash, "access_token") ||
                        reconstruct_token_from_session(controller, :keycloak_access_token)
-        refresh_token = reconstruct_token_from_cookies(cookies_hash, "refresh_token") ||
-                        reconstruct_token_from_session(controller, :keycloak_refresh_token)
+        # For refresh_token: session takes priority over cookie. Multiple concurrent SSO
+        # login callbacks can overwrite the shared .ldttoolbox.app cookie, replacing one
+        # session's refresh_token with another's. The session (Redis, per-session) holds
+        # the correct token for THIS session; the cookie is only a fallback for the first
+        # request before the session is populated.
+        refresh_token = reconstruct_token_from_session(controller, :keycloak_refresh_token) ||
+                        reconstruct_token_from_cookies(cookies_hash, "refresh_token")
 
         Rails.logger.debug do
           at = access_token.present? ? extract_jwt_expiration(access_token)&.iso8601 : "missing"
@@ -75,7 +80,9 @@ module Decidim
           session_id = controller.respond_to?(:session) ? controller.session.id.to_s.first(8) : "n/a"
           at_cookie = reconstruct_token_from_cookies(cookies_hash, "access_token").present? ? "cookie" : "missing"
           at_session = reconstruct_token_from_session(controller, :keycloak_access_token).present? ? "session" : "missing"
-          "[Keycloak TokenService] ensure_valid_token: access_token=#{at} (src: cookie=#{at_cookie}, session=#{at_session}), refresh_token=#{rt}, session_id=#{session_id}"
+          rt_session = reconstruct_token_from_session(controller, :keycloak_refresh_token).present? ? "session" : "missing"
+          rt_cookie = reconstruct_token_from_cookies(cookies_hash, "refresh_token").present? ? "cookie" : "missing"
+          "[Keycloak TokenService] ensure_valid_token: access_token=#{at} (src: cookie=#{at_cookie}, session=#{at_session}), refresh_token=#{rt} (src: session=#{rt_session}, cookie=#{rt_cookie}), session_id=#{session_id}"
         end
 
         # Step 1: Local JWT expiry check — no network call
