@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alvaro Iglesias
+# Gianfranco Cedro
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: matomo-configmap
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+data:
+    # Database configuration
+    MATOMO_DATABASE_HOST: {{ .Values.matomo.db.host }}
+    DATABASE_HOST: {{ .Values.matomo.db.host }}
+    MATOMO_DATABASE_ADAPTER: 'mysqli'
+    MATOMO_DATABASE_TABLES_PREFIX: 'matomo_'
+    MATOMO_DATABASE_DBNAME: {{ .Values.matomo.db.name }}
+    MYSQL_DATABASE: {{ .Values.matomo.db.name }}
+    MATOMO_ROOT_URL: {{ .Values.matomo.rootUrl }}
+
+    MATOMO_FORCE_SSL: '1'
+    MATOMO_ASSUME_SECURE_PROTOCOL: '1'
+    MATOMO_PROXY_URI_HEADER: '1'
+
+    # Trusted host configuration
+    MATOMO_TRUSTED_HOST: {{ .Values.matomo.trustedHost }}
+
+    # PHP settings
+    PHP_MEMORY_LIMIT: '256M'
+    PHP_MAX_EXECUTION_TIME: '300'

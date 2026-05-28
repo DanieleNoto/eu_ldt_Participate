@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+{{- if .Values.jitsi.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: jitsi-prosody
+  namespace: {{ include "eu-ldt-participate.namespace" . }}
+  labels:
+    io.kompose.service: jitsi-prosody
+spec:
+  selector:
+    io.kompose.service: jitsi-prosody
+  ports:
+    - name: '5222'
+      port: 5222
+      targetPort: 5222
+      protocol: TCP
+    - name: '5347'
+      port: 5347
+      targetPort: 5347
+      protocol: TCP
+    - name: bosh
+      port: 5280
+      targetPort: 5280
+      protocol: TCP
+  type: ClusterIP
+{{- end }}

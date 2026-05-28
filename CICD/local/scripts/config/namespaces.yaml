@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Reference namespace definition for EU LDT Participate local (Kind) deployments.
+# The namespace is created by Helm via --create-namespace in applyManifests.sh.
+namespaces:
+  - name: participate
+    labels:
+      app: eu-ldt-participate
+      managed-by: helm
