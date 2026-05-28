@@ -30,13 +30,12 @@ gem "mutex_m", "~> 0.2.0"
 
 gem "decidim-admin_header", path: "./engines/decidim-admin_header"
 gem "decidim-analytics", path: "./engines/decidim-module-analytics"
-# gem "decidim-extra_user_fields", path: "./engines/decidim-extra_user_fields"
-gem "decidim-extra_user_fields", github: 'openpoke/decidim-module-extra_user_fields', branch: 'main'
 gem "decidim-keycloak", path: "./engines/decidim-keycloak"
 gem "decidim-ldt_map_visualization", path: "./engines/decidim-module-ldt_map_visualization"
 gem "decidim-ldt_use_case_scenarios", path: "./engines/decidim-module-ldt_use_case_scenarios"
 gem "decidim-meetings-jitsi", path: "./engines/decidim-meetings-jitsi"
 
+gem "decidim-extra_user_fields", github: 'openpoke/decidim-module-extra_user_fields', branch: 'main'
 gem "decidim-decidim_awesome", git: "https://github.com/decidim-ice/decidim-module-decidim_awesome.git", tag: "v0.14.2"
 gem "lograge"
 gem "logstash-event"

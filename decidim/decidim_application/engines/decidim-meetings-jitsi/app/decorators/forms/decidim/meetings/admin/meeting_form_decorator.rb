@@ -25,7 +25,8 @@ Decidim::Meetings::Admin::MeetingForm.class_eval do
   def jitsi_server_url
     return Decidim::Meetings::Jitsi::Constants::JITSI_DEFAULT_SERVER_URL unless current_component&.settings
 
-    current_component.settings.jitsi_server_url.presence || Decidim::Meetings::Jitsi::Constants::JITSI_DEFAULT_SERVER_URL
+    server_url = current_component.settings.jitsi_server_url.presence || Decidim::Meetings::Jitsi::Constants::JITSI_DEFAULT_SERVER_URL
+    server_url.start_with?("http://", "https://") ? server_url : "https://#{server_url}"
   end
 
   # Helper to get the Jitsi room prefix

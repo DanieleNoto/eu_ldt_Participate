@@ -13,8 +13,7 @@
   resource: @map_visualization
 ) %>
 
-<%= render layout: "layouts/decidim/shared/layout_center", locals: { columns: 8 } do %>
-  
+<div style="padding: 2rem;">
   <section class="layout-main__section layout-main__heading">
     <div class="row mt-4">
       <div class="columns large-12">
@@ -27,69 +26,80 @@
       <h1 class="title-decorator my-12"><%= @map_visualization.name %></h1>
     </div>
 
-    <% if @map_visualization.map_image.present? %>
-      <div class="blog__image grow">
-        <%= image_tag @map_visualization.map_image,
-                      alt: @map_visualization.name,
-                      style: "width: 100%; height: auto; border-radius: 4px;" %>
+    <% embed_base = ENV.fetch("PV_EMBED_BASE_URL", "https://pv-int.ldttoolbox.app/embed/maps_visualisation") %>
+    <% embed_url = "#{embed_base}/#{@map_visualization.map_id}?lng=#{I18n.locale}" %>
+
+    <% if @map_visualization.description.present? %>
+      <div class="editor-content mb-4">
+        <%= simple_format(html_escape(@map_visualization.description)) %>
       </div>
     <% end %>
 
-    <div class="layout-author">
-      
-        <div class="flex items-center justify-between w-full">
-          <% if @map_visualization.map_owner.present? %>
+    <!-- Collapsable Map Disclaimer -->
+    <div class="row" style="margin-bottom: 1.5rem;">
+      <div class="columns large-12">
+        <details style="border: 1px solid #ddd; border-radius: 4px; padding: 1rem;">
+          <summary style="cursor: pointer; font-weight: bold; user-select: none;">
+            ⚠️ <%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_title") %>
+          </summary>
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+            <p><%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_intro") %></p>
+            <ul style="margin-left: 1.5rem; list-style-type: disc;">
+              <li><%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_tabs.map_configuration") %></li>
+              <li>
+                <%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_tabs.layers_tab") %>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem; list-style-type: circle;">
+                  <li><%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_layers.layers") %></li>
+                  <li><%= t("decidim.ldt_map_visualization.map_visualizations.show.disclaimer_layers.plots") %></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="columns large-12">
+        <div class="blog__image grow">
+          <iframe
+            src="<%= embed_url %>"
+            style="width: 100%; height: 800px; border: none; border-radius: 4px;"
+            allowfullscreen
+            loading="lazy"
+            title="<%= html_escape(@map_visualization.name) %>">
+          </iframe>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top: 2rem;">
+      <div class="columns large-12">
+        <div class="layout-author">
+          <div class="flex items-center justify-between w-full">
+            <% if @map_visualization.map_owner.present? %>
+              <div class="flex flex-col">
+                <div class="text-sm text-secondary">
+                  <%= t("decidim.ldt_map_visualization.map_visualizations.show.owner") %>
+                </div>
+                <div class="font-semibold">
+                  <%= @map_visualization.map_owner %>
+                </div>
+              </div>
+            <% end %>
+
             <div class="flex flex-col">
               <div class="text-sm text-secondary">
-                <%= t("decidim.ldt_map_visualization.map_visualizations.show.owner") %>
+                <%= t("decidim.ldt_map_visualization.map_visualizations.show.created_at") %>
               </div>
               <div class="font-semibold">
-                <%= @map_visualization.map_owner %>
+                <%= l @map_visualization.created_at, format: :decidim_short %>
               </div>
-            </div>
-          <% end %>
-
-          <div class="flex flex-col">
-            <div class="text-sm text-secondary">
-              <%= t("decidim.ldt_map_visualization.map_visualizations.show.created_at") %>
-            </div>
-            <div class="font-semibold">
-              <%= l @map_visualization.created_at, format: :decidim_short %>
             </div>
           </div>
         </div>
-      
+      </div>
     </div>
-  </section>
-
-  <section class="layout-main__section">
-    <% if @map_visualization.map_description.present? %>
-      <div class="editor-content">
-        <%= simple_format(@map_visualization.map_description) %>
-      </div>
-    <% end %>
-
-    <% if @map_visualization.map_id.present? || @map_visualization.map_scope.present? %>
-      <div class="card mt-4">
-        <div class="card__content">
-          <h3 class="h5"><%= t("decidim.ldt_map_visualization.map_visualizations.show.map_details") %></h3>
-
-          <% if @map_visualization.map_id.present? %>
-            <p class="mt-2">
-              <strong><%= t("decidim.ldt_map_visualization.map_visualizations.show.map_id") %>:</strong>
-              <%= @map_visualization.map_id %>
-            </p>
-          <% end %>
-
-          <% if @map_visualization.map_scope.present? %>
-            <p class="mt-2">
-              <strong><%= t("decidim.ldt_map_visualization.map_visualizations.show.scope") %>:</strong>
-              <%= @map_visualization.map_scope %>
-            </p>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
   </section>
 
   <!-- Full map data JSON for debugging/advanced use -->
@@ -101,4 +111,4 @@
       </details>
     </section>
   <% end %>
-<% end %>
+</div>

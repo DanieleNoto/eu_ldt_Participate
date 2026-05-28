@@ -12,7 +12,7 @@ module Decidim
     class MapVisualizationForm
       include ActiveModel::Model
 
-      attr_accessor :name, :map_id, :map_data
+      attr_accessor :name, :map_id, :map_data, :description
 
       validates :name, presence: true
       validates :map_id, presence: true
@@ -22,7 +22,7 @@ module Decidim
         form = new
         if params.respond_to?(:require)
           begin
-            permitted = params.require(:map_visualization_form).permit(:name, :map_id, :map_data)
+            permitted = params.require(:map_visualization_form).permit(:name, :map_id, :map_data, :description)
           rescue StandardError => _e
             permitted = {}
           end
@@ -47,6 +47,7 @@ module Decidim
           f.name = model.name if model.respond_to?(:name)
           f.map_id = model.map_id if model.respond_to?(:map_id)
           f.map_data = model.map_data if model.respond_to?(:map_data)
+          f.description = model.description if model.respond_to?(:description)
         end
       end
     end

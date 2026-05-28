@@ -303,32 +303,43 @@ function goToPage(page) {
 		})
 		.catch(error => {
 			console.error('Error fetching maps page:', error);
-			if (tbody) {
-				const tr = document.createElement('tr');
-				const td = document.createElement('td');
-				td.setAttribute('colspan', '6');
-				td.className = 'text-center text-red-600 py-4';
-				td.textContent = error.message;
-				tr.appendChild(td);
-				tbody.replaceChildren(tr);
-			}
+			showTableMessage(error.message, true);
 		});
+}
+
+function showTableMessage(message, isError = false) {
+	const container = document.getElementById('maps-container');
+	if (!container) return;
+	clearTableMessage();
+	const div = document.createElement('div');
+	div.id = 'table-status-message';
+	div.className = isError ? 'callout alert' : 'callout';
+	div.style.cssText = 'margin-bottom: 1rem;';
+	const p = document.createElement('p');
+	p.textContent = message;
+	div.appendChild(p);
+	const tableDiv = container.querySelector('.table-stacked');
+	if (tableDiv) {
+		container.insertBefore(div, tableDiv);
+	} else {
+		container.insertBefore(div, container.firstChild);
+	}
+}
+
+function clearTableMessage() {
+	document.getElementById('table-status-message')?.remove();
 }
 
 function renderMapRows(maps) {
 	const tbody = document.getElementById('maps-tbody');
 	if (!tbody) return;
+	const mapDetailBaseUrl = document.querySelector('.maps-association')?.dataset.mapDetailBaseUrl || '';
 
 	tbody.innerHTML = '';
+	clearTableMessage();
 
 	if (!maps.length) {
-		const tr = document.createElement('tr');
-		const td = document.createElement('td');
-		td.colSpan = 6;
-		td.className = 'text-center py-4';
-		td.textContent = 'No maps found.';
-		tr.appendChild(td);
-		tbody.appendChild(tr);
+		showTableMessage('No maps found.');
 		return;
 	}
 
@@ -365,7 +376,16 @@ function renderMapRows(maps) {
 		const tdName = document.createElement('td');
 		tdName.className = '!text-left';
 		tdName.dataset.label = 'Name';
-		tdName.textContent = map.name || '';
+		if (map.id && mapDetailBaseUrl) {
+			const anchor = document.createElement('a');
+			anchor.href = `${mapDetailBaseUrl}/maps_visualisation/${encodeURIComponent(map.id)}`;
+			anchor.target = '_blank';
+			anchor.rel = 'noopener noreferrer';
+			anchor.textContent = map.name || '';
+			tdName.appendChild(anchor);
+		} else {
+			tdName.textContent = map.name || '';
+		}
 		tr.appendChild(tdName);
 
 		// Owner
