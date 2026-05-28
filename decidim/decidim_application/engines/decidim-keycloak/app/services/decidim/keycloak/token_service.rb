@@ -61,8 +61,13 @@ module Decidim
       # @param controller [ActionController::Base, nil] Controller for callbacks
       # @return [String, Symbol, nil] token string or :network_error (truthy = keep session), nil = logout
       def ensure_valid_token(_user, cookies_hash: nil, cookies_obj: nil, request_host: nil, controller: nil)
-        access_token = reconstruct_token_from_cookies(cookies_hash, "access_token")
-        refresh_token = reconstruct_token_from_cookies(cookies_hash, "refresh_token")
+        # Read from cookies first; fall back to session for large tokens that exceed
+        # the browser's ~4096-byte cookie limit (access_token JWTs for admin users with
+        # many roles can exceed this limit — browsers silently drop oversized cookies).
+        access_token = reconstruct_token_from_cookies(cookies_hash, "access_token") ||
+                       reconstruct_token_from_session(controller, :keycloak_access_token)
+        refresh_token = reconstruct_token_from_cookies(cookies_hash, "refresh_token") ||
+                        reconstruct_token_from_session(controller, :keycloak_refresh_token)
 
         Rails.logger.debug do
           at = access_token.present? ? extract_jwt_expiration(access_token)&.iso8601 : "missing"
@@ -344,6 +349,7 @@ module Decidim
           # Successful refresh: persist new tokens, record timestamp, return new access token
           clear_cookies_if_controller(controller)
           save_tokens_to_cookies(cookies_obj, new_tokens, request_host)
+          save_tokens_to_session(controller, new_tokens)
           record_refresh_timestamp(controller)
           new_tokens[:access_token]
         when :network_error
@@ -399,6 +405,27 @@ module Decidim
         last_at.positive? && (Time.now.to_i - last_at) < window_seconds
       rescue StandardError
         false
+      end
+
+      # Read a token from the Rails session (Redis-backed).
+      # Used as fallback when the cookie is absent (e.g., oversized JWT dropped by browser).
+      def reconstruct_token_from_session(controller, key)
+        return nil unless controller.respond_to?(:session)
+
+        controller.session[key].presence
+      rescue StandardError
+        nil
+      end
+
+      # Persist tokens to the Rails session (Redis-backed) so they survive even when the
+      # corresponding cookies are too large for the browser to store (silent drop at ~4096 bytes).
+      def save_tokens_to_session(controller, tokens)
+        return unless controller.respond_to?(:session)
+
+        controller.session[:keycloak_access_token] = tokens[:access_token] if tokens[:access_token]
+        controller.session[:keycloak_refresh_token] = tokens[:refresh_token] if tokens[:refresh_token]
+      rescue StandardError => e
+        Rails.logger.warn "[Keycloak TokenService] Failed to save tokens to session: #{e.message}"
       end
     end
   end
