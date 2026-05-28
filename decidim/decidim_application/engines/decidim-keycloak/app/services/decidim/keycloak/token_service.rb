@@ -72,7 +72,10 @@ module Decidim
         Rails.logger.debug do
           at = access_token.present? ? extract_jwt_expiration(access_token)&.iso8601 : "missing"
           rt = refresh_token.present? ? "present" : "missing"
-          "[Keycloak TokenService] ensure_valid_token: access_token expires=#{at}, refresh_token=#{rt}"
+          session_id = controller.respond_to?(:session) ? controller.session.id.to_s.first(8) : "n/a"
+          at_cookie = reconstruct_token_from_cookies(cookies_hash, "access_token").present? ? "cookie" : "missing"
+          at_session = reconstruct_token_from_session(controller, :keycloak_access_token).present? ? "session" : "missing"
+          "[Keycloak TokenService] ensure_valid_token: access_token=#{at} (src: cookie=#{at_cookie}, session=#{at_session}), refresh_token=#{rt}, session_id=#{session_id}"
         end
 
         # Step 1: Local JWT expiry check — no network call
@@ -422,8 +425,14 @@ module Decidim
       def save_tokens_to_session(controller, tokens)
         return unless controller.respond_to?(:session)
 
+        session_id = controller.session.id.to_s.first(8)
+        saved_at = tokens[:access_token].present?
+        saved_rt = tokens[:refresh_token].present?
         controller.session[:keycloak_access_token] = tokens[:access_token] if tokens[:access_token]
         controller.session[:keycloak_refresh_token] = tokens[:refresh_token] if tokens[:refresh_token]
+        Rails.logger.info "[Keycloak TokenService] save_tokens_to_session: session_id=#{session_id} " \
+                          "access_token=#{saved_at ? "saved(#{tokens[:access_token].to_s.bytesize}b)" : "nil"} " \
+                          "refresh_token=#{saved_rt ? "saved" : "nil"}"
       rescue StandardError => e
         Rails.logger.warn "[Keycloak TokenService] Failed to save tokens to session: #{e.message}"
       end
