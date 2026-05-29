@@ -1,4 +1,154 @@
-# Changelog from D03.04.Feb to PAR-1.0.0
+# Changelog from Alpha-PAR-1.0.0 to PAR-1.0.0
+ 
+## feat
+- added vars examples
+- added vars examples
+- add user decorator to skip password expiry for Keycloak-authenticated users
+- added vars examples
+- added vars examples
+- Add Variable to Allow External
+- added examples
+- added confCluster.sh for centralised script
+- path refactor for centralised script
+- helm deploy first review
+- improve error handling and messaging for maps and experiments pages
+- update qs and ws package versions for improved stability and security
+- enhance Jitsi server URL handling and add tests for normalization
+- enhance map and experiment links with detail base URLs for improved navigation
+- init helm charts
+- update map disclaimer and localization for improved user guidance
+- add map disclaimer and update localization for multiple languages
+- update fast-uri and postcss versions in package-lock.json
+- update dependencies in package-lock.json to latest versions
+- add iframe for P&V engine
+- update Matomo version to 5.10.0 and re-add extra user fields module from GitHub
+- update Grafana configuration to increase database connection limits and resource requests
+- update SMTP settings configuration for improved TLS handling
+- enhance Keycloak logout and token refresh handling with detailed logging
+- add filters for execution ID, experiment ID, and status in experiments association
+- sync files from update-decidim branch
+- sync files from update-decidim branch
+- update decidim_awesome to version 0.14.2 and upgrade dependencies in Gemfile.lock
+- update decidim to version 0.31.4
+- update dependencies
+- document and suppress uuid vulnerability in Snyk configuration
+- merge main into mar-test-fixes-02 branch
+- sync package files and jest configuration from feat/update-decidim
+- update axios package to version 1.15.2 in package.json and package-lock.json
+- update Jest configuration to support ESM and refine transform patterns
+- sync package files from feat/update-decidim
+- update uuid package to version 14.0.0 and remove unused @ngneat/falso dependency
+- update healthcheck syntax and upgrade Jitsi and Grafana images to latest versions
+- implement filtering logic in assets controller
+- implement change history tracking in asset formatting
+- override Decidim page title to consistently brand as "Participate"
+- add SMTP configuration initializer for production environment
+- update Jitsi and Grafana images to latest stable versions
+- restored Chatbot - Further Support perf testing
+- removed Chatbot - Further Support perf testing due to SMTP limitations
+- standardize icon dimensions and improve SVG handling in tools dropdown
+- enhance icon rendering logic in tools dropdown for better format support
+- enhance Keycloak auto-login handling to prevent CSRF errors and improve session consistency
+- fix failed tests
+- improve error handling for deleted records in Sidekiq jobs
+- implement TTL-based caching for MenuBreadcrumbLastActivityCell to optimize performance
+- increase resource requests and limits for decidim container
+- fix failed tests
+- update logging initializer to use ActiveSupport::BroadcastLogger for improved log handling
+- update package-lock dependencies
+- implement FormPDFDecorator to prevent nil crashes when exporting empty questionnaires as PDF
+- enhance experiment_data validation and handling in use case scenarios
+- fix failed tests
+- fix failed tests
+- update glob dependency to version 9.3.5 in package.json
+- add file logging support in production environment
+- update glob dependency to version 12.0.0 in package.json overrides
+- update package-lock dependencies
+- fix failed tests
+- update author attribution in sidekiq registration error handler
+- add error handling for deleted registrations in Sidekiq jobs
+- enhance token reconstruction and clear fragmented cookies in Keycloak integration
+- update logo and adjust styles in admin header for improved layout
+- fix failed test + run performance tests after Playwright jobs to avoid load interference
+- update fastify package to version 5.8.5
+- fix failed tests + increased timeout for Keycloak authentication
+- fix failed tests + removed Setup Keycloak Authentication from cicd testing script
+- fix failed tests
+- update follow-redirects package to version 1.16.0
+- update SQL queries in Grafana dashboards to include likes and improve engagement metrics
+- remove unnecessary logging and improve token handling in Keycloak integration
+- fix failed tests
+- update Decidim to version 0.31.3 and adjust related configurations
+- update axios, basic-ftp, fast-jwt, and safe-regex2 to latest versions
+- fix failed tests
+- fix failed tests
+- implement pagination for map visualizations and enhance UI controls
+- implement pagination for LdtUseCaseScenarios and enhance server startup script
+- fix failed tests
+- update package.json to remove unnecessary overrides for flatted, minimatch, and js-yaml
+- added variables in .env.ci file
+- update dependencies for @fastify/jwt and nodemailer to latest versions
+- update package-lock.json to latest versions of dependencies
+- fix failed tests
+- update decidim-awesome gem to v0.14.1
+- fix failed tests after Decidim upgrade
+- update decidim to v0.31.2
+- add DATABASE_URL to decidim-secret.yml for improved configuration
+- update .env.example with enhanced Decidim configuration and additional service settings
+- simplify entrypoint script permissions in Dockerfile
+- update fastify to version 5.8.3 in package.json and package-lock.json
+- add endpoint path validation to prevent path traversal attacks and improve error handling
+- enhance experiment_id validation to prevent path traversal attacks
+- update Decidim to version 0.31.1 and enhance Docker setup
+- add imagePullSecrets to decidim StatefulSet configuration
+- remove temporary hero ContentBlock creation for organizations in production setup
+- ensure hero ContentBlock exists for all organizations before migration
+- update flatted to version 3.4.2 in package.json and package-lock.json
+- update undici to version 7.24.0 in package.json and package-lock.json
+- update decidim to v0.31.0
+
+## PR Merge
+- fix: update Azure subscription endpoint for Fluentbit configuration- Chore: Deploy Automatic Fluent Bit- Helm deploy- Fix May Issues- Feat: add iframe for P&V engine- Fix update decidim issues- test fixes after Decidim upgrade- feat: update fastify package to version 5.8.5- feat: update decidim to v0.31+
+
+## refactor
+- remove unused old engine extra user fields
+- replace uuid with randomUUID from node:crypto
+- reorganize Sidekiq server middleware configuration for clarity
+
+## fix
+- update Azure subscription endpoint for Fluentbit configuration
+- improve refresh token handling and logging in Keycloak token service
+- enhance logging for token management in Keycloak service and Devise extension
+- enhance token management by adding session fallback for oversized JWTs
+- enable close page feature in Jitsi configuration
+- update email template styles for call-to-action buttons
+- implement Redis-backed cache store to prevent token-rotation race conditions
+- volume claims helm
+- renamed cicd to CICD
+- add additional arguments for Snyk policy path in quality checks
+- update SMTP STARTTLS configuration to use presence check
+- streamline SMTP settings configuration by removing redundant TLS setting
+- remove obsolete Snyk configuration file
+- uuid vulnerability suppression in Snyk configuration
+- update error message for database migration failure in docker entrypoint script
+- simplify justification for uuid vulnerability suppression in Snyk configuration
+- update Snyk configuration to suppress uuid vulnerability for all dependencies
+- update Snyk configuration to document and suppress uuid vulnerability with justification
+- update ingress configuration to enhance client header handling and buffer sizes
+- improve error handling in pagination for maps and experiments
+- remove RAILS_LOG_TO_STDOUT from decidim-configmap and update volume names in statefulset
+- update logger configuration and adjust Active Job queue name prefix in production environment
+- update organization check in ApplicationController and adjust SMTP config key in ConfigMap
+- update @fastify/jwt and nodemailer versions in package.json and package-lock.json
+- update package versions in package-lock.json for handlebars, lodash, and vite
+- csrf token error in experiment association
+- restore formatting in push-external-images.yml
+
+## file_changes
+- Renamed cicd to CICD
+
+
+# Changelog from D03.04.Feb to Alpha-PAR-1.0.0
  
 ## fix
 - enable failOnIssues for Snyk scans in qualityChecks.yaml
@@ -1306,6 +1456,7 @@ Pierluigi Spedicato
 ## PR Merge
 
 - [PAR-PPM001] - Create new process- [PAR-PIM003] - Update personal information- [PAR-PIM001] - Configure form for additional personal data on first login- Startup Participate project
+
 
 
 
