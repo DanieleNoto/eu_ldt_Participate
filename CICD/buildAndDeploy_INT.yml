@@ -467,7 +467,7 @@ jobs:
             displayName: "Apply Fluentbit Config (Tool10)"
             inputs:
                 connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
                 azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
                 kubernetesCluster: 'eu-ldt-tool-10-federatedlearning-aks-int'
                 namespace: 'federatedlearning'
