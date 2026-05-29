@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: grafana-db-config
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+data:
+    # POSTGRES_DB is required by the official postgres image to create the DB on first init
+    POSTGRES_DB: {{ .Values.grafana.db.name }}
+    POSTGRES_DATABASE: {{ .Values.grafana.db.name }}
+    PGDATA: {{ .Values.grafana.db.pgdataPath }}

@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alvaro Iglesias Sanchez
+# Gianfranco Cedro
+{{- if .Values.jitsi.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: jitsi-prosody
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+    labels:
+        io.kompose.service: jitsi-prosody
+spec:
+    serviceName: jitsi-prosody
+    replicas: 1
+    selector:
+        matchLabels:
+            io.kompose.service: jitsi-prosody
+    template:
+        metadata:
+            labels:
+                io.kompose.service: jitsi-prosody
+                io.kompose.network/temp1-private: 'true'
+        spec:
+            automountServiceAccountToken: false
+            containers:
+                - name: jitsi-prosody
+                  image: jitsi/prosody:stable-10888
+                  imagePullPolicy: IfNotPresent
+                  resources:
+                      requests:
+                          memory: '128Mi'
+                          cpu: '100m'
+                          ephemeral-storage: '512Mi'
+                      limits:
+                          memory: '256Mi'
+                          cpu: '250m'
+                          ephemeral-storage: '1Gi'
+                  envFrom:
+                      - configMapRef:
+                            name: jitsi-config
+                      - secretRef:
+                            name: jitsi-secret
+                  ports:
+                      - containerPort: 5222
+                        protocol: TCP
+                      - containerPort: 5347
+                        protocol: TCP
+                      - containerPort: 5280
+                        protocol: TCP
+                  volumeMounts:
+                      - mountPath: /config
+                        name: jitsi-prosody-claim0
+                      - mountPath: /prosody-plugins-custom
+                        name: jitsi-prosody-claim1
+    volumeClaimTemplates:
+        - metadata:
+              name: jitsi-prosody-claim0
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 100Mi
+        - metadata:
+              name: jitsi-prosody-claim1
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 50Mi
+{{- end }}

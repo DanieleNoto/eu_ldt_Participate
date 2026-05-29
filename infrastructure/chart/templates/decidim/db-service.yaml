@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: {{ include "eu-ldt-participate.namespace" . }}
+spec:
+  selector:
+    app: db
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP

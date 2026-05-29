@@ -105,6 +105,14 @@ module Decidim
         return unless tokens[:access_token]
 
         Decidim::Keycloak::TokenService.new.save_tokens_to_cookies(cookies, tokens, request.host)
+        # Also persist to session — access_token JWTs for admin users can exceed the browser's
+        # ~4096-byte cookie limit and get silently dropped; session (Redis-backed) has no such limit.
+        session[:keycloak_access_token] = tokens[:access_token]
+        session[:keycloak_refresh_token] = tokens[:refresh_token] if tokens[:refresh_token]
+        Rails.logger.info "[Keycloak DeviseExtension] save_tokens_if_available: " \
+                          "session_id=#{session.id.to_s.first(8)} " \
+                          "access_token=#{tokens[:access_token].to_s.bytesize}b " \
+                          "refresh_token=#{tokens[:refresh_token].present? ? "present" : "missing"}"
       end
 
       def sync_admin_role(user, auth_data)

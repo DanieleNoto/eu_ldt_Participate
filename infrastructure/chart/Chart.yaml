@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+apiVersion: v2
+name: eu-ldt-participate
+description: EU LDT Participate platform Helm chart
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

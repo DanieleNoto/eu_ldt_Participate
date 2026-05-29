@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+apiVersion: v1
+kind: Service
+metadata:
+    name: grafana
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+    labels:
+        app: grafana
+spec:
+    type: ClusterIP
+    selector:
+        io.kompose.service: grafana # Selector que apunta al StatefulSet/Deployment
+    ports:
+        - name: http
+          port: 3000 # Puerto expuesto dentro del cluster
+          targetPort: 3000 # Puerto del contenedor

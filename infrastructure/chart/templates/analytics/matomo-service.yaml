@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Alfredo Santamaria Ruiz
+# Alvaro Iglesias
+# Gianfranco Cedro
+apiVersion: v1
+kind: Service
+metadata:
+  name: matomo
+  namespace: {{ include "eu-ldt-participate.namespace" . }}
+  labels:
+    io.kompose.service: matomo
+spec:
+  selector:
+    io.kompose.service: matomo
+  ports:
+    - port: 8081
+      targetPort: 8080
+  type: ClusterIP
+  #

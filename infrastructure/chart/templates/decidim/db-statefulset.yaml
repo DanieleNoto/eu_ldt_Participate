@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+# Gianfranco Cedro
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: db
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+    labels:
+        app: db
+spec:
+    serviceName: 'db'
+    replicas: 1
+    selector:
+        matchLabels:
+            app: db
+    template:
+        metadata:
+            labels:
+                app: db
+        spec:
+            automountServiceAccountToken: false
+            containers:
+                - name: db
+                  image: postgres:16
+                  imagePullPolicy: IfNotPresent
+                  resources:
+                      requests:
+                          memory: '512Mi'
+                          cpu: '500m'
+                          ephemeral-storage: '2Gi'
+                      limits:
+                          memory: '1Gi'
+                          cpu: '1'
+                          ephemeral-storage: '5Gi'
+                  ports:
+                      - containerPort: 5432
+                  envFrom:
+                      - configMapRef:
+                            name: db-config
+                      - secretRef:
+                            name: db-secret
+                  volumeMounts:
+                      - name: postgres-data
+                        mountPath: /var/lib/postgresql/data
+    volumeClaimTemplates:
+        - metadata:
+              name: postgres-data
+          spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                  requests:
+                      storage: 1Gi

@@ -108,6 +108,8 @@ module Decidim
 
         session_obj.delete(:keycloak_authenticated)
         session_obj.delete(:keycloak_id_token)
+        session_obj.delete(:keycloak_access_token)
+        session_obj.delete(:keycloak_refresh_token)
       end
 
       # Save tokens to cookies using the JWT exp claim as source of truth for expiry.

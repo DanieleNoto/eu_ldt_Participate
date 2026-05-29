@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (c) 2025, European Commission. Licensed under the AGPL-3.0
+# Authors:
+#   Gianfranco Cedro
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: grafana-provisioning-datasources
+    namespace: {{ include "eu-ldt-participate.namespace" . }}
+data:
+    # Provisioning datasources for Grafana
+    # Passwords come from GF_DATABASE_PASSWORD env var (from grafana-secrets)
+    decidim.yml: |
+        apiVersion: 1
+        datasources:
+            - name: Decidim PostgreSQL
+              type: postgres
+              access: proxy
+              url: {{ .Values.grafana.db.host }}:5432
+              database: {{ .Values.grafana.db.name }}
+              user: {{ .Values.grafana.db.user }}
+              secureJsonData:
+                  password: ${GF_DATABASE_PASSWORD}
+              jsonData:
+                  sslmode: disable
+                  searchPath: {{ .Values.grafana.db.name }}
+                  postgresVersion: 1600
+                  timescaledb: false
+                  maxOpenConns: 100
+                  maxIdleConns: 100
+                  maxIdleConnsAuto: true
+                  connMaxLifetime: 14400
+              isDefault: true
+              uid: decidim_postgres
+              editable: true
