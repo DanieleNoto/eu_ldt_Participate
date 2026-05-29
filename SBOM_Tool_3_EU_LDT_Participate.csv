@@ -492,7 +492,7 @@ babel-plugin-macros,pkg:npm/babel-plugin-macros@3.1.0,3.1.0,MIT,YES,YES,, ,,http
 cosmiconfig,pkg:npm/cosmiconfig@7.1.0,7.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/cosmiconfig/v/7.1.0
 @types/parse-json,pkg:npm/@types/parse-json@4.0.2,4.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/parse-json/v/4.0.2
 path-type,pkg:npm/path-type@4.0.0,4.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/path-type/v/4.0.0
-yaml,pkg:npm/yaml@1.10.2,1.10.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/yaml/v/1.10.2
+yaml,pkg:npm/yaml@1.10.3,1.10.3,ISC,YES,YES,, ,,https://www.npmjs.com/package/yaml/v/1.10.3
 convert-source-map,pkg:npm/convert-source-map@1.9.0,1.9.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/convert-source-map/v/1.9.0
 source-map,pkg:npm/source-map@0.5.7,0.5.7,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/source-map/v/0.5.7
 stylis,pkg:npm/stylis@4.2.0,4.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/stylis/v/4.2.0
@@ -538,7 +538,7 @@ immer,pkg:npm/immer@10.1.1,10.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/
 redux-thunk,pkg:npm/redux-thunk@3.1.0,3.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/redux-thunk/v/3.1.0
 reselect,pkg:npm/reselect@5.1.1,5.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/reselect/v/5.1.1
 @tailwindcss/vite,pkg:npm/@tailwindcss/vite@4.1.11,4.1.11,MIT,YES,YES,, ,,https://www.npmjs.com/package/@tailwindcss/vite/v/4.1.11
-vite,pkg:npm/vite@7.3.1,7.3.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/vite/v/7.3.1
+vite,pkg:npm/vite@7.3.2,7.3.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/vite/v/7.3.2
 @types/node,pkg:npm/@types/node@24.2.1,24.2.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/node/v/24.2.1
 undici-types,pkg:npm/undici-types@7.10.0,7.10.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/undici-types/v/7.10.0
 lightningcss,pkg:npm/lightningcss@1.30.1,1.30.1,MPL-2.0,YES,YES,, ,,https://www.npmjs.com/package/lightningcss/v/1.30.1
@@ -560,6 +560,7 @@ immutable,pkg:npm/immutable@5.1.5,5.1.5,MIT,YES,YES,, ,,https://www.npmjs.com/pa
 source-map-js,pkg:npm/source-map-js@1.2.1,1.2.1,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/source-map-js/v/1.2.1
 @parcel/watcher,pkg:npm/@parcel/watcher@2.5.1,2.5.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@parcel/watcher/v/2.5.1
 detect-libc,pkg:npm/detect-libc@1.0.3,1.0.3,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/detect-libc/v/1.0.3
+picomatch,pkg:npm/picomatch@2.3.2,2.3.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/picomatch/v/2.3.2
 node-addon-api,pkg:npm/node-addon-api@7.1.1,7.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/node-addon-api/v/7.1.1
 @parcel/watcher-android-arm64,pkg:npm/@parcel/watcher-android-arm64@2.5.1,2.5.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@parcel/watcher-android-arm64/v/2.5.1
 @parcel/watcher-darwin-arm64,pkg:npm/@parcel/watcher-darwin-arm64@2.5.1,2.5.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@parcel/watcher-darwin-arm64/v/2.5.1
@@ -600,6 +601,7 @@ sass-embedded-linux-x64,pkg:npm/sass-embedded-linux-x64@1.90.0,1.90.0,MIT,YES,YE
 sass-embedded-unknown-all,pkg:npm/sass-embedded-unknown-all@1.90.0,1.90.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-unknown-all/v/1.90.0
 sass-embedded-win32-arm64,pkg:npm/sass-embedded-win32-arm64@1.90.0,1.90.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-win32-arm64/v/1.90.0
 sass-embedded-win32-x64,pkg:npm/sass-embedded-win32-x64@1.90.0,1.90.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-win32-x64/v/1.90.0
+yaml,pkg:npm/yaml@2.8.3,2.8.3,ISC,YES,YES,, ,,https://www.npmjs.com/package/yaml/v/2.8.3
 esbuild,pkg:npm/esbuild@0.27.3,0.27.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/esbuild/v/0.27.3
 @esbuild/aix-ppc64,pkg:npm/@esbuild/aix-ppc64@0.27.3,0.27.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@esbuild/aix-ppc64/v/0.27.3
 @esbuild/android-arm,pkg:npm/@esbuild/android-arm@0.27.3,0.27.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@esbuild/android-arm/v/0.27.3
@@ -628,8 +630,8 @@ esbuild,pkg:npm/esbuild@0.27.3,0.27.3,MIT,YES,YES,, ,,https://www.npmjs.com/pack
 @esbuild/win32-ia32,pkg:npm/@esbuild/win32-ia32@0.27.3,0.27.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@esbuild/win32-ia32/v/0.27.3
 @esbuild/win32-x64,pkg:npm/@esbuild/win32-x64@0.27.3,0.27.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@esbuild/win32-x64/v/0.27.3
 fdir,pkg:npm/fdir@6.5.0,6.5.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/fdir/v/6.5.0
-picomatch,pkg:npm/picomatch@4.0.3,4.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/picomatch/v/4.0.3
-postcss,pkg:npm/postcss@8.5.6,8.5.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss/v/8.5.6
+picomatch,pkg:npm/picomatch@4.0.4,4.0.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/picomatch/v/4.0.4
+postcss,pkg:npm/postcss@8.5.14,8.5.14,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss/v/8.5.14
 nanoid,pkg:npm/nanoid@3.3.11,3.3.11,MIT,YES,YES,, ,,https://www.npmjs.com/package/nanoid/v/3.3.11
 rollup,pkg:npm/rollup@4.59.0,4.59.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/rollup/v/4.59.0
 @rollup/rollup-android-arm-eabi,pkg:npm/@rollup/rollup-android-arm-eabi@4.59.0,4.59.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@rollup/rollup-android-arm-eabi/v/4.59.0
@@ -747,11 +749,12 @@ playwright-core,pkg:npm/playwright-core@1.56.1,1.56.1,Apache-2.0,YES,YES,, ,,htt
 eslint,pkg:npm/eslint@9.33.0,9.33.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/eslint/v/9.33.0
 @eslint-community/eslint-utils,pkg:npm/@eslint-community/eslint-utils@4.7.0,4.7.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@eslint-community/eslint-utils/v/4.7.0
 minimatch,pkg:npm/minimatch@3.1.5,3.1.5,ISC,YES,YES,, ,,https://www.npmjs.com/package/minimatch/v/3.1.5
+brace-expansion,pkg:npm/brace-expansion@1.1.13,1.1.13,MIT,YES,YES,, ,,https://www.npmjs.com/package/brace-expansion/v/1.1.13
 ajv,pkg:npm/ajv@8.18.0,8.18.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ajv/v/8.18.0
-fast-uri,pkg:npm/fast-uri@3.1.0,3.1.0,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/fast-uri/v/3.1.0
+fast-uri,pkg:npm/fast-uri@3.1.2,3.1.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/fast-uri/v/3.1.2
 js-yaml,pkg:npm/js-yaml@4.1.1,4.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/js-yaml/v/4.1.1
 @eslint/js,pkg:npm/@eslint/js@9.33.0,9.33.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@eslint/js/v/9.33.0
-flatted,pkg:npm/flatted@3.4.1,3.4.1,ISC,YES,YES,, ,,https://www.npmjs.com/package/flatted/v/3.4.1
+flatted,pkg:npm/flatted@3.4.2,3.4.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/flatted/v/3.4.2
 @typescript-eslint/utils,pkg:npm/@typescript-eslint/utils@8.39.1,8.39.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@typescript-eslint/utils/v/8.39.1
 @typescript-eslint/scope-manager,pkg:npm/@typescript-eslint/scope-manager@8.39.1,8.39.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@typescript-eslint/scope-manager/v/8.39.1
 @typescript-eslint/types,pkg:npm/@typescript-eslint/types@8.39.1,8.39.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@typescript-eslint/types/v/8.39.1
@@ -759,13 +762,15 @@ flatted,pkg:npm/flatted@3.4.1,3.4.1,ISC,YES,YES,, ,,https://www.npmjs.com/packag
 @typescript-eslint/typescript-estree,pkg:npm/@typescript-eslint/typescript-estree@8.39.1,8.39.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@typescript-eslint/typescript-estree/v/8.39.1
 @typescript-eslint/project-service,pkg:npm/@typescript-eslint/project-service@8.39.1,8.39.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@typescript-eslint/project-service/v/8.39.1
 @typescript-eslint/tsconfig-utils,pkg:npm/@typescript-eslint/tsconfig-utils@8.39.1,8.39.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@typescript-eslint/tsconfig-utils/v/8.39.1
+minimatch,pkg:npm/minimatch@9.0.9,9.0.9,ISC,YES,YES,, ,,https://www.npmjs.com/package/minimatch/v/9.0.9
+brace-expansion,pkg:npm/brace-expansion@2.0.3,2.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/brace-expansion/v/2.0.3
 @testing-library/jest-dom,pkg:npm/@testing-library/jest-dom@6.6.4,6.6.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/@testing-library/jest-dom/v/6.6.4
 @adobe/css-tools,pkg:npm/@adobe/css-tools@4.4.3,4.4.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@adobe/css-tools/v/4.4.3
 aria-query,pkg:npm/aria-query@5.3.0,5.3.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/aria-query/v/5.3.0
 dequal,pkg:npm/dequal@2.0.3,2.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/dequal/v/2.0.3
 css.escape,pkg:npm/css.escape@1.5.1,1.5.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/css.escape/v/1.5.1
 dom-accessibility-api,pkg:npm/dom-accessibility-api@0.6.3,0.6.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/dom-accessibility-api/v/0.6.3
-lodash,pkg:npm/lodash@4.17.23,4.17.23,MIT,YES,YES,, ,,https://www.npmjs.com/package/lodash/v/4.17.23
+lodash,pkg:npm/lodash@4.18.1,4.18.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/lodash/v/4.18.1
 redent,pkg:npm/redent@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/redent/v/3.0.0
 indent-string,pkg:npm/indent-string@4.0.0,4.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/indent-string/v/4.0.0
 strip-indent,pkg:npm/strip-indent@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/strip-indent/v/3.0.0
@@ -859,6 +864,10 @@ p-locate,pkg:npm/p-locate@4.1.0,4.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/pack
 p-limit,pkg:npm/p-limit@2.3.0,2.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/p-limit/v/2.3.0
 p-try,pkg:npm/p-try@2.2.0,2.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/p-try/v/2.2.0
 get-package-type,pkg:npm/get-package-type@0.1.0,0.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/get-package-type/v/0.1.0
+js-yaml,pkg:npm/js-yaml@3.14.2,3.14.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/js-yaml/v/3.14.2
+argparse,pkg:npm/argparse@1.0.10,1.0.10,MIT,YES,YES,, ,,https://www.npmjs.com/package/argparse/v/1.0.10
+sprintf-js,pkg:npm/sprintf-js@1.0.3,1.0.3,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/sprintf-js/v/1.0.3
+esprima,pkg:npm/esprima@4.0.1,4.0.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/esprima/v/4.0.1
 @istanbuljs/schema,pkg:npm/@istanbuljs/schema@0.1.3,0.1.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@istanbuljs/schema/v/0.1.3
 istanbul-lib-instrument,pkg:npm/istanbul-lib-instrument@6.0.3,6.0.3,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/istanbul-lib-instrument/v/6.0.3
 istanbul-lib-coverage,pkg:npm/istanbul-lib-coverage@3.2.2,3.2.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/istanbul-lib-coverage/v/3.2.2
@@ -1047,7 +1056,7 @@ uuid,pkg:npm/uuid@8.3.2,8.3.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/uuid
 xml,pkg:npm/xml@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/xml/v/1.0.1
 ts-jest,pkg:npm/ts-jest@29.4.1,29.4.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/ts-jest/v/29.4.1
 bs-logger,pkg:npm/bs-logger@0.2.6,0.2.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/bs-logger/v/0.2.6
-handlebars,pkg:npm/handlebars@4.7.8,4.7.8,MIT,YES,YES,, ,,https://www.npmjs.com/package/handlebars/v/4.7.8
+handlebars,pkg:npm/handlebars@4.7.9,4.7.9,MIT,YES,YES,, ,,https://www.npmjs.com/package/handlebars/v/4.7.9
 neo-async,pkg:npm/neo-async@2.6.2,2.6.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/neo-async/v/2.6.2
 wordwrap,pkg:npm/wordwrap@1.0.0,1.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/wordwrap/v/1.0.0
 uglify-js,pkg:npm/uglify-js@3.19.3,3.19.3,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/uglify-js/v/3.19.3
@@ -1079,8 +1088,8 @@ tinyexec,pkg:npm/tinyexec@1.0.2,1.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/pack
 why-is-node-running,pkg:npm/why-is-node-running@2.3.0,2.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/why-is-node-running/v/2.3.0
 siginfo,pkg:npm/siginfo@2.0.0,2.0.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/siginfo/v/2.0.0
 stackback,pkg:npm/stackback@0.0.2,0.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/stackback/v/0.0.2
-@decidim/browserslist-config,pkg:npm/@decidim/browserslist-config@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/browserslist-config/v/0.30.6
-@decidim/core,pkg:npm/@decidim/core@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/core/v/0.30.6
+@decidim/browserslist-config,pkg:npm/@decidim/browserslist-config@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/browserslist-config/v/0.31.4
+@decidim/core,pkg:npm/@decidim/core@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/core/v/0.31.4
 @emoji-mart/data,pkg:npm/@emoji-mart/data@1.2.1,1.2.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@emoji-mart/data/v/1.2.1
 @rails/activestorage,pkg:npm/@rails/activestorage@7.2.300,7.2.300,MIT,YES,YES,, ,,https://www.npmjs.com/package/@rails/activestorage/v/7.2.300
 spark-md5,pkg:npm/spark-md5@3.0.2,3.0.2,(WTFPL OR MIT),YES,YES,, ,,https://www.npmjs.com/package/spark-md5/v/3.0.2
@@ -1106,7 +1115,7 @@ prosemirror-markdown,pkg:npm/prosemirror-markdown@1.13.2,1.13.2,MIT,YES,YES,, ,,
 @types/markdown-it,pkg:npm/@types/markdown-it@14.1.2,14.1.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/markdown-it/v/14.1.2
 @types/linkify-it,pkg:npm/@types/linkify-it@5.0.0,5.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/linkify-it/v/5.0.0
 @types/mdurl,pkg:npm/@types/mdurl@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/mdurl/v/2.0.0
-markdown-it,pkg:npm/markdown-it@14.1.0,14.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/markdown-it/v/14.1.0
+markdown-it,pkg:npm/markdown-it@14.1.1,14.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/markdown-it/v/14.1.1
 entities,pkg:npm/entities@4.5.0,4.5.0,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/entities/v/4.5.0
 linkify-it,pkg:npm/linkify-it@5.0.0,5.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/linkify-it/v/5.0.0
 uc.micro,pkg:npm/uc.micro@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/uc.micro/v/2.1.0
@@ -1167,7 +1176,6 @@ prosemirror-trailing-node,pkg:npm/prosemirror-trailing-node@3.0.0,3.0.0,MIT,YES,
 @tiptap/extension-paragraph,pkg:npm/@tiptap/extension-paragraph@2.27.1,2.27.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@tiptap/extension-paragraph/v/2.27.1
 @tiptap/extension-strike,pkg:npm/@tiptap/extension-strike@2.27.1,2.27.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@tiptap/extension-strike/v/2.27.1
 @tiptap/extension-text,pkg:npm/@tiptap/extension-text@2.27.1,2.27.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@tiptap/extension-text/v/2.27.1
-@zeitiger/appendaround,pkg:npm/@zeitiger/appendaround@1.0.0,1.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@zeitiger/appendaround/v/1.0.0
 a11y-accordion-component,pkg:npm/a11y-accordion-component@1.2.6,1.2.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/a11y-accordion-component/v/1.2.6
 a11y-dialog-component,pkg:npm/a11y-dialog-component@5.5.1,5.5.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/a11y-dialog-component/v/5.5.1
 a11y-dropdown-component,pkg:npm/a11y-dropdown-component@1.2.0,1.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/a11y-dropdown-component/v/1.2.0
@@ -1212,7 +1220,7 @@ d3-scale-chromatic,pkg:npm/d3-scale-chromatic@3.1.0,3.1.0,ISC,YES,YES,, ,,https:
 d3-shape,pkg:npm/d3-shape@3.2.0,3.2.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/d3-shape/v/3.2.0
 d3-zoom,pkg:npm/d3-zoom@3.0.0,3.0.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/d3-zoom/v/3.0.0
 dayjs,pkg:npm/dayjs@1.11.19,1.11.19,MIT,YES,YES,, ,,https://www.npmjs.com/package/dayjs/v/1.11.19
-diff,pkg:npm/diff@5.2.0,5.2.0,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/diff/v/5.2.0
+diff,pkg:npm/diff@5.2.2,5.2.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/diff/v/5.2.2
 drag-on-drop,pkg:npm/drag-on-drop@3.6.1,3.6.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/drag-on-drop/v/3.6.1
 @babel/polyfill,pkg:npm/@babel/polyfill@7.12.1,7.12.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/polyfill/v/7.12.1
 core-js,pkg:npm/core-js@2.6.12,2.6.12,MIT,YES,YES,, ,,https://www.npmjs.com/package/core-js/v/2.6.12
@@ -1235,9 +1243,25 @@ jquery,pkg:npm/jquery@3.7.1,3.7.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/
 motion-ui,pkg:npm/motion-ui@2.0.8,2.0.8,MIT,YES,YES,, ,,https://www.npmjs.com/package/motion-ui/v/2.0.8
 sass-embedded,pkg:npm/sass-embedded@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded/v/1.93.3
 @bufbuild/protobuf,pkg:npm/@bufbuild/protobuf@2.10.1,2.10.1,(Apache-2.0 AND BSD-3-Clause),YES,YES,, ,,https://www.npmjs.com/package/@bufbuild/protobuf/v/2.10.1
-immutable,pkg:npm/immutable@5.1.4,5.1.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/immutable/v/5.1.4
+sass-embedded-all-unknown,pkg:npm/sass-embedded-all-unknown@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-all-unknown/v/1.93.3
+sass,pkg:npm/sass@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass/v/1.93.3
+sass-embedded-android-arm,pkg:npm/sass-embedded-android-arm@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-android-arm/v/1.93.3
+sass-embedded-android-arm64,pkg:npm/sass-embedded-android-arm64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-android-arm64/v/1.93.3
+sass-embedded-android-riscv64,pkg:npm/sass-embedded-android-riscv64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-android-riscv64/v/1.93.3
+sass-embedded-android-x64,pkg:npm/sass-embedded-android-x64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-android-x64/v/1.93.3
+sass-embedded-darwin-arm64,pkg:npm/sass-embedded-darwin-arm64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-darwin-arm64/v/1.93.3
+sass-embedded-darwin-x64,pkg:npm/sass-embedded-darwin-x64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-darwin-x64/v/1.93.3
+sass-embedded-linux-arm,pkg:npm/sass-embedded-linux-arm@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-linux-arm/v/1.93.3
+sass-embedded-linux-arm64,pkg:npm/sass-embedded-linux-arm64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-linux-arm64/v/1.93.3
+sass-embedded-linux-musl-arm,pkg:npm/sass-embedded-linux-musl-arm@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-linux-musl-arm/v/1.93.3
+sass-embedded-linux-musl-arm64,pkg:npm/sass-embedded-linux-musl-arm64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-linux-musl-arm64/v/1.93.3
+sass-embedded-linux-musl-riscv64,pkg:npm/sass-embedded-linux-musl-riscv64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-linux-musl-riscv64/v/1.93.3
 sass-embedded-linux-musl-x64,pkg:npm/sass-embedded-linux-musl-x64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-linux-musl-x64/v/1.93.3
+sass-embedded-linux-riscv64,pkg:npm/sass-embedded-linux-riscv64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-linux-riscv64/v/1.93.3
 sass-embedded-linux-x64,pkg:npm/sass-embedded-linux-x64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-linux-x64/v/1.93.3
+sass-embedded-unknown-all,pkg:npm/sass-embedded-unknown-all@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-unknown-all/v/1.93.3
+sass-embedded-win32-arm64,pkg:npm/sass-embedded-win32-arm64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-win32-arm64/v/1.93.3
+sass-embedded-win32-x64,pkg:npm/sass-embedded-win32-x64@1.93.3,1.93.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-win32-x64/v/1.93.3
 what-input,pkg:npm/what-input@5.2.12,5.2.12,MIT,YES,YES,, ,,https://www.npmjs.com/package/what-input/v/5.2.12
 graphiql,pkg:npm/graphiql@3.9.0,3.9.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/graphiql/v/3.9.0
 graphql,pkg:npm/graphql@16.12.0,16.12.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/graphql/v/16.12.0
@@ -1359,7 +1383,8 @@ tom-select,pkg:npm/tom-select@2.2.2,2.2.2,Apache-2.0,YES,YES,, ,,https://www.npm
 @orchidjs/unicode-variants,pkg:npm/@orchidjs/unicode-variants@1.1.2,1.1.2,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/@orchidjs/unicode-variants/v/1.1.2
 wc-datepicker,pkg:npm/wc-datepicker@0.5.3,0.5.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/wc-datepicker/v/0.5.3
 @stencil/core,pkg:npm/@stencil/core@2.22.3,2.22.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@stencil/core/v/2.22.3
-@decidim/webpacker,pkg:npm/@decidim/webpacker@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/webpacker/v/0.30.6
+@decidim/webpacker,pkg:npm/@decidim/webpacker@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/webpacker/v/0.31.4
+@hotwired/stimulus,pkg:npm/@hotwired/stimulus@3.2.2,3.2.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@hotwired/stimulus/v/3.2.2
 @rails/ujs,pkg:npm/@rails/ujs@6.1.710,6.1.710,MIT,YES,YES,, ,,https://www.npmjs.com/package/@rails/ujs/v/6.1.710
 @tailwindcss/typography,pkg:npm/@tailwindcss/typography@0.5.19,0.5.19,MIT,YES,YES,, ,,https://www.npmjs.com/package/@tailwindcss/typography/v/0.5.19
 tailwindcss,pkg:npm/tailwindcss@3.4.18,3.4.18,MIT,YES,YES,, ,,https://www.npmjs.com/package/tailwindcss/v/3.4.18
@@ -1372,6 +1397,7 @@ didyoumean,pkg:npm/didyoumean@1.2.2,1.2.2,Apache-2.0,YES,YES,, ,,https://www.npm
 dlv,pkg:npm/dlv@1.1.3,1.1.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/dlv/v/1.1.3
 jiti,pkg:npm/jiti@1.21.7,1.21.7,MIT,YES,YES,, ,,https://www.npmjs.com/package/jiti/v/1.21.7
 object-hash,pkg:npm/object-hash@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/object-hash/v/3.0.0
+postcss,pkg:npm/postcss@8.5.6,8.5.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss/v/8.5.6
 postcss-import,pkg:npm/postcss-import@15.1.0,15.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss-import/v/15.1.0
 read-cache,pkg:npm/read-cache@1.0.0,1.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/read-cache/v/1.0.0
 pify,pkg:npm/pify@2.3.0,2.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/pify/v/2.3.0
@@ -1379,7 +1405,6 @@ resolve,pkg:npm/resolve@1.22.11,1.22.11,MIT,YES,YES,, ,,https://www.npmjs.com/pa
 postcss-js,pkg:npm/postcss-js@4.1.0,4.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss-js/v/4.1.0
 camelcase-css,pkg:npm/camelcase-css@2.0.1,2.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/camelcase-css/v/2.0.1
 postcss-load-config,pkg:npm/postcss-load-config@6.0.1,6.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss-load-config/v/6.0.1
-yaml,pkg:npm/yaml@2.8.1,2.8.1,ISC,YES,YES,, ,,https://www.npmjs.com/package/yaml/v/2.8.1
 postcss-nested,pkg:npm/postcss-nested@6.2.0,6.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss-nested/v/6.2.0
 postcss-selector-parser,pkg:npm/postcss-selector-parser@6.1.2,6.1.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss-selector-parser/v/6.1.2
 cssesc,pkg:npm/cssesc@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/cssesc/v/3.0.0
@@ -1389,6 +1414,7 @@ commander,pkg:npm/commander@4.1.1,4.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/pa
 strip-ansi,pkg:npm/strip-ansi@7.1.2,7.1.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/strip-ansi/v/7.1.2
 ansi-regex,pkg:npm/ansi-regex@6.2.2,6.2.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/ansi-regex/v/6.2.2
 ansi-styles,pkg:npm/ansi-styles@6.2.3,6.2.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/ansi-styles/v/6.2.3
+brace-expansion,pkg:npm/brace-expansion@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/brace-expansion/v/2.1.0
 mz,pkg:npm/mz@2.7.0,2.7.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/mz/v/2.7.0
 any-promise,pkg:npm/any-promise@1.3.0,1.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/any-promise/v/1.3.0
 thenify-all,pkg:npm/thenify-all@1.6.0,1.6.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/thenify-all/v/1.6.0
@@ -1396,15 +1422,15 @@ thenify,pkg:npm/thenify@3.3.1,3.3.1,MIT,YES,YES,, ,,https://www.npmjs.com/packag
 ts-interface-checker,pkg:npm/ts-interface-checker@0.1.13,0.1.13,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/ts-interface-checker/v/0.1.13
 postcss-selector-parser,pkg:npm/postcss-selector-parser@6.0.10,6.0.10,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss-selector-parser/v/6.0.10
 autoprefixer,pkg:npm/autoprefixer@10.4.22,10.4.22,MIT,YES,YES,, ,,https://www.npmjs.com/package/autoprefixer/v/10.4.22
-browserslist,pkg:npm/browserslist@4.28.0,4.28.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/browserslist/v/4.28.0
-baseline-browser-mapping,pkg:npm/baseline-browser-mapping@2.8.29,2.8.29,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/baseline-browser-mapping/v/2.8.29
-caniuse-lite,pkg:npm/caniuse-lite@1.0.30001755,1.0.30001755,CC-BY-4.0,YES,YES,, ,,https://www.npmjs.com/package/caniuse-lite/v/1.0.30001755
-electron-to-chromium,pkg:npm/electron-to-chromium@1.5.255,1.5.255,ISC,YES,YES,, ,,https://www.npmjs.com/package/electron-to-chromium/v/1.5.255
-node-releases,pkg:npm/node-releases@2.0.27,2.0.27,MIT,YES,YES,, ,,https://www.npmjs.com/package/node-releases/v/2.0.27
-update-browserslist-db,pkg:npm/update-browserslist-db@1.1.4,1.1.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/update-browserslist-db/v/1.1.4
+browserslist,pkg:npm/browserslist@4.28.2,4.28.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/browserslist/v/4.28.2
+baseline-browser-mapping,pkg:npm/baseline-browser-mapping@2.10.20,2.10.20,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/baseline-browser-mapping/v/2.10.20
+caniuse-lite,pkg:npm/caniuse-lite@1.0.30001788,1.0.30001788,CC-BY-4.0,YES,YES,, ,,https://www.npmjs.com/package/caniuse-lite/v/1.0.30001788
+electron-to-chromium,pkg:npm/electron-to-chromium@1.5.341,1.5.341,ISC,YES,YES,, ,,https://www.npmjs.com/package/electron-to-chromium/v/1.5.341
+node-releases,pkg:npm/node-releases@2.0.37,2.0.37,MIT,YES,YES,, ,,https://www.npmjs.com/package/node-releases/v/2.0.37
+update-browserslist-db,pkg:npm/update-browserslist-db@1.2.3,1.2.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/update-browserslist-db/v/1.2.3
 fraction.js,pkg:npm/fraction.js@5.3.4,5.3.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/fraction.js/v/5.3.4
 compression-webpack-plugin,pkg:npm/compression-webpack-plugin@10.0.0,10.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/compression-webpack-plugin/v/10.0.0
-webpack,pkg:npm/webpack@5.103.0,5.103.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/webpack/v/5.103.0
+webpack,pkg:npm/webpack@5.106.2,5.106.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/webpack/v/5.106.2
 @types/eslint-scope,pkg:npm/@types/eslint-scope@3.7.7,3.7.7,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/eslint-scope/v/3.7.7
 @types/eslint,pkg:npm/@types/eslint@9.6.1,9.6.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/eslint/v/9.6.1
 @webassemblyjs/ast,pkg:npm/@webassemblyjs/ast@1.14.1,1.14.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@webassemblyjs/ast/v/1.14.1
@@ -1424,29 +1450,32 @@ webpack,pkg:npm/webpack@5.103.0,5.103.0,MIT,YES,YES,, ,,https://www.npmjs.com/pa
 @webassemblyjs/wasm-opt,pkg:npm/@webassemblyjs/wasm-opt@1.14.1,1.14.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@webassemblyjs/wasm-opt/v/1.14.1
 @webassemblyjs/wasm-parser,pkg:npm/@webassemblyjs/wasm-parser@1.14.1,1.14.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@webassemblyjs/wasm-parser/v/1.14.1
 @webassemblyjs/wast-printer,pkg:npm/@webassemblyjs/wast-printer@1.14.1,1.14.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@webassemblyjs/wast-printer/v/1.14.1
+acorn,pkg:npm/acorn@8.16.0,8.16.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/acorn/v/8.16.0
 acorn-import-phases,pkg:npm/acorn-import-phases@1.0.4,1.0.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/acorn-import-phases/v/1.0.4
 chrome-trace-event,pkg:npm/chrome-trace-event@1.0.4,1.0.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/chrome-trace-event/v/1.0.4
+enhanced-resolve,pkg:npm/enhanced-resolve@5.20.1,5.20.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/enhanced-resolve/v/5.20.1
 tapable,pkg:npm/tapable@2.3.0,2.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/tapable/v/2.3.0
+es-module-lexer,pkg:npm/es-module-lexer@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/es-module-lexer/v/2.0.0
 eslint-scope,pkg:npm/eslint-scope@5.1.1,5.1.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/eslint-scope/v/5.1.1
 estraverse,pkg:npm/estraverse@4.3.0,4.3.0,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/estraverse/v/4.3.0
 events,pkg:npm/events@3.3.0,3.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/events/v/3.3.0
 glob-to-regexp,pkg:npm/glob-to-regexp@0.4.1,0.4.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/glob-to-regexp/v/0.4.1
 loader-runner,pkg:npm/loader-runner@4.3.1,4.3.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/loader-runner/v/4.3.1
-mime-types,pkg:npm/mime-types@2.1.35,2.1.35,MIT,YES,YES,, ,,https://www.npmjs.com/package/mime-types/v/2.1.35
-mime-db,pkg:npm/mime-db@1.52.0,1.52.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/mime-db/v/1.52.0
+mime-db,pkg:npm/mime-db@1.54.0,1.54.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/mime-db/v/1.54.0
 schema-utils,pkg:npm/schema-utils@4.3.3,4.3.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/schema-utils/v/4.3.3
+fast-uri,pkg:npm/fast-uri@3.1.0,3.1.0,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/fast-uri/v/3.1.0
 ajv-formats,pkg:npm/ajv-formats@2.1.1,2.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/ajv-formats/v/2.1.1
 ajv-keywords,pkg:npm/ajv-keywords@5.1.0,5.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ajv-keywords/v/5.1.0
-terser-webpack-plugin,pkg:npm/terser-webpack-plugin@5.3.14,5.3.14,MIT,YES,YES,, ,,https://www.npmjs.com/package/terser-webpack-plugin/v/5.3.14
+terser-webpack-plugin,pkg:npm/terser-webpack-plugin@5.4.0,5.4.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/terser-webpack-plugin/v/5.4.0
 jest-worker,pkg:npm/jest-worker@27.5.1,27.5.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-worker/v/27.5.1
-serialize-javascript,pkg:npm/serialize-javascript@6.0.2,6.0.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/serialize-javascript/v/6.0.2
-randombytes,pkg:npm/randombytes@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/randombytes/v/2.1.0
 terser,pkg:npm/terser@5.44.1,5.44.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/terser/v/5.44.1
 @jridgewell/source-map,pkg:npm/@jridgewell/source-map@0.3.11,0.3.11,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jridgewell/source-map/v/0.3.11
 commander,pkg:npm/commander@2.20.3,2.20.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/commander/v/2.20.3
 source-map-support,pkg:npm/source-map-support@0.5.21,0.5.21,MIT,YES,YES,, ,,https://www.npmjs.com/package/source-map-support/v/0.5.21
-watchpack,pkg:npm/watchpack@2.4.4,2.4.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/watchpack/v/2.4.4
-webpack-sources,pkg:npm/webpack-sources@3.3.3,3.3.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/webpack-sources/v/3.3.3
+watchpack,pkg:npm/watchpack@2.5.1,2.5.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/watchpack/v/2.5.1
+webpack-sources,pkg:npm/webpack-sources@3.3.4,3.3.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/webpack-sources/v/3.3.4
+serialize-javascript,pkg:npm/serialize-javascript@6.0.2,6.0.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/serialize-javascript/v/6.0.2
+randombytes,pkg:npm/randombytes@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/randombytes/v/2.1.0
 core-js,pkg:npm/core-js@3.33.3,3.33.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/core-js/v/3.33.3
 css-loader,pkg:npm/css-loader@6.11.0,6.11.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/css-loader/v/6.11.0
 icss-utils,pkg:npm/icss-utils@5.1.0,5.1.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/icss-utils/v/5.1.0
@@ -1551,7 +1580,7 @@ postcss-pseudo-class-any-link,pkg:npm/postcss-pseudo-class-any-link@9.0.2,9.0.2,
 postcss-replace-overflow-wrap,pkg:npm/postcss-replace-overflow-wrap@4.0.0,4.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss-replace-overflow-wrap/v/4.0.0
 postcss-selector-not,pkg:npm/postcss-selector-not@7.0.2,7.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss-selector-not/v/7.0.2
 postcss-scss,pkg:npm/postcss-scss@4.0.9,4.0.9,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss-scss/v/4.0.9
-shakapacker,pkg:npm/shakapacker@7.1.0,7.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/shakapacker/v/7.1.0
+shakapacker,pkg:npm/shakapacker@8.3.0,8.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/shakapacker/v/8.3.0
 @babel/core,pkg:npm/@babel/core@7.28.5,7.28.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/core/v/7.28.5
 @babel/generator,pkg:npm/@babel/generator@7.28.5,7.28.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/generator/v/7.28.5
 @babel/parser,pkg:npm/@babel/parser@7.28.5,7.28.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/parser/v/7.28.5
@@ -1660,6 +1689,7 @@ lockfile,pkg:npm/lockfile@1.0.4,1.0.4,ISC,YES,YES,, ,,https://www.npmjs.com/pack
 lodash.get,pkg:npm/lodash.get@4.4.2,4.4.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/lodash.get/v/4.4.2
 lodash.has,pkg:npm/lodash.has@4.5.2,4.5.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/lodash.has/v/4.5.2
 schema-utils,pkg:npm/schema-utils@3.3.0,3.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/schema-utils/v/3.3.0
+ajv,pkg:npm/ajv@6.14.0,6.14.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ajv/v/6.14.0
 ajv-keywords,pkg:npm/ajv-keywords@3.5.2,3.5.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/ajv-keywords/v/3.5.2
 webpack-cli,pkg:npm/webpack-cli@5.1.4,5.1.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/webpack-cli/v/5.1.4
 @discoveryjs/json-ext,pkg:npm/@discoveryjs/json-ext@0.5.7,0.5.7,MIT,YES,YES,, ,,https://www.npmjs.com/package/@discoveryjs/json-ext/v/0.5.7
@@ -1705,7 +1735,6 @@ thunky,pkg:npm/thunky@1.1.0,1.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/
 compression,pkg:npm/compression@1.8.1,1.8.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/compression/v/1.8.1
 bytes,pkg:npm/bytes@3.1.2,3.1.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/bytes/v/3.1.2
 compressible,pkg:npm/compressible@2.0.18,2.0.18,MIT,YES,YES,, ,,https://www.npmjs.com/package/compressible/v/2.0.18
-mime-db,pkg:npm/mime-db@1.54.0,1.54.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/mime-db/v/1.54.0
 debug,pkg:npm/debug@2.6.9,2.6.9,MIT,YES,YES,, ,,https://www.npmjs.com/package/debug/v/2.6.9
 ms,pkg:npm/ms@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ms/v/2.0.0
 negotiator,pkg:npm/negotiator@0.6.4,0.6.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/negotiator/v/0.6.4
@@ -1713,22 +1742,24 @@ on-headers,pkg:npm/on-headers@1.1.0,1.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/
 vary,pkg:npm/vary@1.1.2,1.1.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/vary/v/1.1.2
 connect-history-api-fallback,pkg:npm/connect-history-api-fallback@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/connect-history-api-fallback/v/2.0.0
 default-gateway,pkg:npm/default-gateway@6.0.3,6.0.3,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/default-gateway/v/6.0.3
-express,pkg:npm/express@4.21.2,4.21.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/express/v/4.21.2
+express,pkg:npm/express@4.22.1,4.22.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/express/v/4.22.1
 accepts,pkg:npm/accepts@1.3.8,1.3.8,MIT,YES,YES,, ,,https://www.npmjs.com/package/accepts/v/1.3.8
+mime-types,pkg:npm/mime-types@2.1.35,2.1.35,MIT,YES,YES,, ,,https://www.npmjs.com/package/mime-types/v/2.1.35
+mime-db,pkg:npm/mime-db@1.52.0,1.52.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/mime-db/v/1.52.0
 negotiator,pkg:npm/negotiator@0.6.3,0.6.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/negotiator/v/0.6.3
 array-flatten,pkg:npm/array-flatten@1.1.1,1.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/array-flatten/v/1.1.1
-body-parser,pkg:npm/body-parser@1.20.3,1.20.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/body-parser/v/1.20.3
+body-parser,pkg:npm/body-parser@1.20.4,1.20.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/body-parser/v/1.20.4
 content-type,pkg:npm/content-type@1.0.5,1.0.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/content-type/v/1.0.5
 depd,pkg:npm/depd@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/depd/v/2.0.0
 destroy,pkg:npm/destroy@1.2.0,1.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/destroy/v/1.2.0
-http-errors,pkg:npm/http-errors@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/http-errors/v/2.0.0
+http-errors,pkg:npm/http-errors@2.0.1,2.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/http-errors/v/2.0.1
 setprototypeof,pkg:npm/setprototypeof@1.2.0,1.2.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/setprototypeof/v/1.2.0
-statuses,pkg:npm/statuses@2.0.1,2.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/statuses/v/2.0.1
+statuses,pkg:npm/statuses@2.0.2,2.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/statuses/v/2.0.2
 toidentifier,pkg:npm/toidentifier@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/toidentifier/v/1.0.1
 on-finished,pkg:npm/on-finished@2.4.1,2.4.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/on-finished/v/2.4.1
 ee-first,pkg:npm/ee-first@1.1.1,1.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/ee-first/v/1.1.1
-qs,pkg:npm/qs@6.13.0,6.13.0,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/qs/v/6.13.0
-raw-body,pkg:npm/raw-body@2.5.2,2.5.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/raw-body/v/2.5.2
+qs,pkg:npm/qs@6.14.2,6.14.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/qs/v/6.14.2
+raw-body,pkg:npm/raw-body@2.5.3,2.5.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/raw-body/v/2.5.3
 unpipe,pkg:npm/unpipe@1.0.0,1.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/unpipe/v/1.0.0
 type-is,pkg:npm/type-is@1.6.18,1.6.18,MIT,YES,YES,, ,,https://www.npmjs.com/package/type-is/v/1.6.18
 media-typer,pkg:npm/media-typer@0.3.0,0.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/media-typer/v/0.3.0
@@ -1740,10 +1771,12 @@ escape-html,pkg:npm/escape-html@1.0.3,1.0.3,MIT,YES,YES,, ,,https://www.npmjs.co
 etag,pkg:npm/etag@1.8.1,1.8.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/etag/v/1.8.1
 finalhandler,pkg:npm/finalhandler@1.3.1,1.3.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/finalhandler/v/1.3.1
 parseurl,pkg:npm/parseurl@1.3.3,1.3.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/parseurl/v/1.3.3
+statuses,pkg:npm/statuses@2.0.1,2.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/statuses/v/2.0.1
 fresh,pkg:npm/fresh@0.5.2,0.5.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/fresh/v/0.5.2
+http-errors,pkg:npm/http-errors@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/http-errors/v/2.0.0
 merge-descriptors,pkg:npm/merge-descriptors@1.0.3,1.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/merge-descriptors/v/1.0.3
 methods,pkg:npm/methods@1.1.2,1.1.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/methods/v/1.1.2
-path-to-regexp,pkg:npm/path-to-regexp@0.1.12,0.1.12,MIT,YES,YES,, ,,https://www.npmjs.com/package/path-to-regexp/v/0.1.12
+path-to-regexp,pkg:npm/path-to-regexp@0.1.13,0.1.13,MIT,YES,YES,, ,,https://www.npmjs.com/package/path-to-regexp/v/0.1.13
 proxy-addr,pkg:npm/proxy-addr@2.0.7,2.0.7,MIT,YES,YES,, ,,https://www.npmjs.com/package/proxy-addr/v/2.0.7
 forwarded,pkg:npm/forwarded@0.2.0,0.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/forwarded/v/0.2.0
 ipaddr.js,pkg:npm/ipaddr.js@1.9.1,1.9.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/ipaddr.js/v/1.9.1
@@ -1758,7 +1791,7 @@ http-proxy-middleware,pkg:npm/http-proxy-middleware@2.0.9,2.0.9,MIT,YES,YES,, ,,
 @types/http-proxy,pkg:npm/@types/http-proxy@1.17.17,1.17.17,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/http-proxy/v/1.17.17
 http-proxy,pkg:npm/http-proxy@1.18.1,1.18.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/http-proxy/v/1.18.1
 eventemitter3,pkg:npm/eventemitter3@4.0.7,4.0.7,MIT,YES,YES,, ,,https://www.npmjs.com/package/eventemitter3/v/4.0.7
-follow-redirects,pkg:npm/follow-redirects@1.15.11,1.15.11,MIT,YES,YES,, ,,https://www.npmjs.com/package/follow-redirects/v/1.15.11
+follow-redirects,pkg:npm/follow-redirects@1.16.0,1.16.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/follow-redirects/v/1.16.0
 requires-port,pkg:npm/requires-port@1.0.0,1.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/requires-port/v/1.0.0
 is-plain-obj,pkg:npm/is-plain-obj@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/is-plain-obj/v/3.0.0
 ipaddr.js,pkg:npm/ipaddr.js@2.2.0,2.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ipaddr.js/v/2.2.0
@@ -1772,9 +1805,10 @@ p-retry,pkg:npm/p-retry@4.6.2,4.6.2,MIT,YES,YES,, ,,https://www.npmjs.com/packag
 @types/retry,pkg:npm/@types/retry@0.12.0,0.12.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/retry/v/0.12.0
 retry,pkg:npm/retry@0.13.1,0.13.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/retry/v/0.13.1
 rimraf,pkg:npm/rimraf@3.0.2,3.0.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/rimraf/v/3.0.2
+brace-expansion,pkg:npm/brace-expansion@1.1.14,1.1.14,MIT,YES,YES,, ,,https://www.npmjs.com/package/brace-expansion/v/1.1.14
 selfsigned,pkg:npm/selfsigned@2.4.1,2.4.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/selfsigned/v/2.4.1
 @types/node-forge,pkg:npm/@types/node-forge@1.3.14,1.3.14,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/node-forge/v/1.3.14
-node-forge,pkg:npm/node-forge@1.3.1,1.3.1,(BSD-3-Clause OR GPL-2.0),YES,YES,, ,,https://www.npmjs.com/package/node-forge/v/1.3.1
+node-forge,pkg:npm/node-forge@1.4.0,1.4.0,(BSD-3-Clause OR GPL-2.0),YES,YES,, ,,https://www.npmjs.com/package/node-forge/v/1.4.0
 serve-index,pkg:npm/serve-index@1.9.1,1.9.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/serve-index/v/1.9.1
 batch,pkg:npm/batch@0.6.1,0.6.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/batch/v/0.6.1
 http-errors,pkg:npm/http-errors@1.6.3,1.6.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/http-errors/v/1.6.3
@@ -1808,6 +1842,8 @@ memfs,pkg:npm/memfs@3.6.0,3.6.0,Unlicense,YES,YES,, ,,https://www.npmjs.com/pack
 fs-monkey,pkg:npm/fs-monkey@1.1.0,1.1.0,Unlicense,YES,YES,, ,,https://www.npmjs.com/package/fs-monkey/v/1.1.0
 source-map-loader,pkg:npm/source-map-loader@4.0.2,4.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/source-map-loader/v/4.0.2
 style-loader,pkg:npm/style-loader@3.3.4,3.3.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/style-loader/v/3.3.4
+webpack,pkg:npm/webpack@5.105.4,5.105.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/webpack/v/5.105.4
+webpack-sources,pkg:npm/webpack-sources@3.4.0,3.4.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/webpack-sources/v/3.4.0
 workbox-recipes,pkg:npm/workbox-recipes@7.3.0,7.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/workbox-recipes/v/7.3.0
 workbox-cacheable-response,pkg:npm/workbox-cacheable-response@7.3.0,7.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/workbox-cacheable-response/v/7.3.0
 workbox-core,pkg:npm/workbox-core@7.3.0,7.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/workbox-core/v/7.3.0
@@ -1824,7 +1860,7 @@ workbox-build,pkg:npm/workbox-build@7.3.0,7.3.0,MIT,YES,YES,, ,,https://www.npmj
 json-schema,pkg:npm/json-schema@0.4.0,0.4.0,(AFL-2.1 OR BSD-3-Clause),YES,YES,, ,,https://www.npmjs.com/package/json-schema/v/0.4.0
 jsonpointer,pkg:npm/jsonpointer@5.0.1,5.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/jsonpointer/v/5.0.1
 @rollup/plugin-babel,pkg:npm/@rollup/plugin-babel@5.3.1,5.3.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@rollup/plugin-babel/v/5.3.1
-rollup,pkg:npm/rollup@2.79.2,2.79.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/rollup/v/2.79.2
+rollup,pkg:npm/rollup@2.80.0,2.80.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/rollup/v/2.80.0
 @rollup/pluginutils,pkg:npm/@rollup/pluginutils@3.1.0,3.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@rollup/pluginutils/v/3.1.0
 @types/estree,pkg:npm/@types/estree@0.0.39,0.0.39,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/estree/v/0.0.39
 estree-walker,pkg:npm/estree-walker@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/estree-walker/v/1.0.1
@@ -1843,7 +1879,7 @@ ejs,pkg:npm/ejs@3.1.10,3.1.10,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/packa
 jake,pkg:npm/jake@10.9.4,10.9.4,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/jake/v/10.9.4
 async,pkg:npm/async@3.2.6,3.2.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/async/v/3.2.6
 filelist,pkg:npm/filelist@1.0.4,1.0.4,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/filelist/v/1.0.4
-minimatch,pkg:npm/minimatch@5.1.6,5.1.6,ISC,YES,YES,, ,,https://www.npmjs.com/package/minimatch/v/5.1.6
+minimatch,pkg:npm/minimatch@5.1.9,5.1.9,ISC,YES,YES,, ,,https://www.npmjs.com/package/minimatch/v/5.1.9
 string.prototype.matchall,pkg:npm/string.prototype.matchall@4.0.12,4.0.12,MIT,YES,YES,, ,,https://www.npmjs.com/package/string.prototype.matchall/v/4.0.12
 is-generator-function,pkg:npm/is-generator-function@1.1.2,1.1.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/is-generator-function/v/1.1.2
 generator-function,pkg:npm/generator-function@2.0.1,2.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/generator-function/v/2.0.1
@@ -1879,7 +1915,6 @@ preact,pkg:npm/preact@10.12.1,10.12.1,MIT,YES,YES,, ,,https://www.npmjs.com/pack
 @fullcalendar/interaction,pkg:npm/@fullcalendar/interaction@6.1.19,6.1.19,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fullcalendar/interaction/v/6.1.19
 @fullcalendar/list,pkg:npm/@fullcalendar/list@6.1.19,6.1.19,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fullcalendar/list/v/6.1.19
 @fullcalendar/timegrid,pkg:npm/@fullcalendar/timegrid@6.1.19,6.1.19,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fullcalendar/timegrid/v/6.1.19
-@hotwired/stimulus,pkg:npm/@hotwired/stimulus@3.2.2,3.2.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@hotwired/stimulus/v/3.2.2
 axe-core,pkg:npm/axe-core@4.11.0,4.11.0,MPL-2.0,YES,YES,, ,,https://www.npmjs.com/package/axe-core/v/4.11.0
 form-storage,pkg:npm/form-storage@1.3.5,1.3.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/form-storage/v/1.3.5
 element-matches-polyfill,pkg:npm/element-matches-polyfill@1.0.0,1.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/element-matches-polyfill/v/1.0.0
@@ -1900,75 +1935,87 @@ jsrender,pkg:npm/jsrender@v1.0.16,v1.0.16,MIT,YES,YES,, ,,https://www.npmjs.com/
 through2,pkg:npm/through2@3.0.2,3.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/through2/v/3.0.2
 keycloak-js,pkg:npm/keycloak-js@26.2.1,26.2.1,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/keycloak-js/v/26.2.1
 leaflet.featuregroup.subgroup,pkg:npm/leaflet.featuregroup.subgroup@1.0.2,1.0.2,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/leaflet.featuregroup.subgroup/v/1.0.2
-@decidim/dev,pkg:npm/@decidim/dev@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/dev/v/0.30.6
-@linthtml/linthtml,pkg:npm/@linthtml/linthtml@0.9.6,0.9.6,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/linthtml/v/0.9.6
-@linthtml/cli,pkg:npm/@linthtml/cli@0.9.5,0.9.5,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/cli/v/0.9.5
-chalk,pkg:npm/chalk@4.1.1,4.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/chalk/v/4.1.1
-inquirer,pkg:npm/inquirer@8.2.7,8.2.7,MIT,YES,YES,, ,,https://www.npmjs.com/package/inquirer/v/8.2.7
-@inquirer/external-editor,pkg:npm/@inquirer/external-editor@1.0.3,1.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@inquirer/external-editor/v/1.0.3
-chardet,pkg:npm/chardet@2.1.1,2.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/chardet/v/2.1.1
-iconv-lite,pkg:npm/iconv-lite@0.7.0,0.7.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/iconv-lite/v/0.7.0
-wrap-ansi,pkg:npm/wrap-ansi@6.2.0,6.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/wrap-ansi/v/6.2.0
-js-yaml,pkg:npm/js-yaml@3.14.2,3.14.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/js-yaml/v/3.14.2
-argparse,pkg:npm/argparse@1.0.10,1.0.10,MIT,YES,YES,, ,,https://www.npmjs.com/package/argparse/v/1.0.10
-sprintf-js,pkg:npm/sprintf-js@1.0.3,1.0.3,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/sprintf-js/v/1.0.3
-esprima,pkg:npm/esprima@4.0.1,4.0.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/esprima/v/4.0.1
-kebabcase,pkg:npm/kebabcase@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/kebabcase/v/1.0.1
-meow,pkg:npm/meow@9.0.0,9.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/meow/v/9.0.0
-@types/minimist,pkg:npm/@types/minimist@1.2.5,1.2.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/minimist/v/1.2.5
-camelcase-keys,pkg:npm/camelcase-keys@6.2.2,6.2.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/camelcase-keys/v/6.2.2
-map-obj,pkg:npm/map-obj@4.3.0,4.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/map-obj/v/4.3.0
-quick-lru,pkg:npm/quick-lru@4.0.1,4.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/quick-lru/v/4.0.1
-decamelize,pkg:npm/decamelize@1.2.0,1.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/decamelize/v/1.2.0
-decamelize-keys,pkg:npm/decamelize-keys@1.1.1,1.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/decamelize-keys/v/1.1.1
-map-obj,pkg:npm/map-obj@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/map-obj/v/1.0.1
-hard-rejection,pkg:npm/hard-rejection@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/hard-rejection/v/2.1.0
-minimist-options,pkg:npm/minimist-options@4.1.0,4.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/minimist-options/v/4.1.0
-arrify,pkg:npm/arrify@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/arrify/v/1.0.1
-is-plain-obj,pkg:npm/is-plain-obj@1.1.0,1.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/is-plain-obj/v/1.1.0
-normalize-package-data,pkg:npm/normalize-package-data@3.0.3,3.0.3,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/normalize-package-data/v/3.0.3
-hosted-git-info,pkg:npm/hosted-git-info@4.1.0,4.1.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/hosted-git-info/v/4.1.0
-lru-cache,pkg:npm/lru-cache@6.0.0,6.0.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/lru-cache/v/6.0.0
-yallist,pkg:npm/yallist@4.0.0,4.0.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/yallist/v/4.0.0
-validate-npm-package-license,pkg:npm/validate-npm-package-license@3.0.4,3.0.4,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/validate-npm-package-license/v/3.0.4
-spdx-correct,pkg:npm/spdx-correct@3.2.0,3.2.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/spdx-correct/v/3.2.0
-spdx-expression-parse,pkg:npm/spdx-expression-parse@3.0.1,3.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/spdx-expression-parse/v/3.0.1
-spdx-exceptions,pkg:npm/spdx-exceptions@2.5.0,2.5.0,CC-BY-3.0,YES,YES,, ,,https://www.npmjs.com/package/spdx-exceptions/v/2.5.0
-spdx-license-ids,pkg:npm/spdx-license-ids@3.0.22,3.0.22,CC0-1.0,YES,YES,, ,,https://www.npmjs.com/package/spdx-license-ids/v/3.0.22
-read-pkg-up,pkg:npm/read-pkg-up@7.0.1,7.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/read-pkg-up/v/7.0.1
-read-pkg,pkg:npm/read-pkg@5.2.0,5.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/read-pkg/v/5.2.0
-@types/normalize-package-data,pkg:npm/@types/normalize-package-data@2.4.4,2.4.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/normalize-package-data/v/2.4.4
-normalize-package-data,pkg:npm/normalize-package-data@2.5.0,2.5.0,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/normalize-package-data/v/2.5.0
-hosted-git-info,pkg:npm/hosted-git-info@2.8.9,2.8.9,ISC,YES,YES,, ,,https://www.npmjs.com/package/hosted-git-info/v/2.8.9
-semver,pkg:npm/semver@5.7.2,5.7.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/semver/v/5.7.2
-type-fest,pkg:npm/type-fest@0.6.0,0.6.0,(MIT OR CC0-1.0),YES,YES,, ,,https://www.npmjs.com/package/type-fest/v/0.6.0
-type-fest,pkg:npm/type-fest@0.8.1,0.8.1,(MIT OR CC0-1.0),YES,YES,, ,,https://www.npmjs.com/package/type-fest/v/0.8.1
-trim-newlines,pkg:npm/trim-newlines@3.0.1,3.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/trim-newlines/v/3.0.1
-type-fest,pkg:npm/type-fest@0.18.1,0.18.1,(MIT OR CC0-1.0),YES,YES,, ,,https://www.npmjs.com/package/type-fest/v/0.18.1
-yargs-parser,pkg:npm/yargs-parser@20.2.9,20.2.9,ISC,YES,YES,, ,,https://www.npmjs.com/package/yargs-parser/v/20.2.9
-table-layout,pkg:npm/table-layout@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/table-layout/v/1.0.1
-array-back,pkg:npm/array-back@4.0.2,4.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/array-back/v/4.0.2
-deep-extend,pkg:npm/deep-extend@0.6.0,0.6.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/deep-extend/v/0.6.0
-typical,pkg:npm/typical@5.2.0,5.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/typical/v/5.2.0
-wordwrapjs,pkg:npm/wordwrapjs@4.0.1,4.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/wordwrapjs/v/4.0.1
-reduce-flatten,pkg:npm/reduce-flatten@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/reduce-flatten/v/2.0.0
-@linthtml/dom-utils,pkg:npm/@linthtml/dom-utils@0.9.5,0.9.5,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/dom-utils/v/0.9.5
+@decidim/dev,pkg:npm/@decidim/dev@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/dev/v/0.31.4
+@linthtml/linthtml,pkg:npm/@linthtml/linthtml@0.10.2,0.10.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/linthtml/v/0.10.2
+@linthtml/core,pkg:npm/@linthtml/core@0.10.2,0.10.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/core/v/0.10.2
+@linthtml/dom-utils,pkg:npm/@linthtml/dom-utils@0.10.0,0.10.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/dom-utils/v/0.10.0
 domelementtype,pkg:npm/domelementtype@2.3.0,2.3.0,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/domelementtype/v/2.3.0
 domhandler,pkg:npm/domhandler@4.3.1,4.3.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/domhandler/v/4.3.1
-@linthtml/html-parser,pkg:npm/@linthtml/html-parser@0.9.5,0.9.5,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/html-parser/v/0.9.5
+@linthtml/html-parser,pkg:npm/@linthtml/html-parser@0.10.0,0.10.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/html-parser/v/0.10.0
 htmlparser2,pkg:npm/htmlparser2@7.2.0,7.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/htmlparser2/v/7.2.0
 domutils,pkg:npm/domutils@2.8.0,2.8.0,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/domutils/v/2.8.0
 dom-serializer,pkg:npm/dom-serializer@1.4.1,1.4.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/dom-serializer/v/1.4.1
 entities,pkg:npm/entities@2.2.0,2.2.0,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/entities/v/2.2.0
 entities,pkg:npm/entities@3.0.1,3.0.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/entities/v/3.0.1
 bulk-require,pkg:npm/bulk-require@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/bulk-require/v/1.0.1
-cosmiconfig,pkg:npm/cosmiconfig@7.0.0,7.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/cosmiconfig/v/7.0.0
 global-modules,pkg:npm/global-modules@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/global-modules/v/2.0.0
 global-prefix,pkg:npm/global-prefix@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/global-prefix/v/3.0.0
-globby,pkg:npm/globby@11.1.0,11.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/globby/v/11.1.0
-array-union,pkg:npm/array-union@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/array-union/v/2.1.0
+globby,pkg:npm/globby@13.2.2,13.2.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/globby/v/13.2.2
 dir-glob,pkg:npm/dir-glob@3.0.1,3.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/dir-glob/v/3.0.1
+slash,pkg:npm/slash@4.0.0,4.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/slash/v/4.0.0
 lodash.pull,pkg:npm/lodash.pull@4.1.0,4.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/lodash.pull/v/4.1.0
+chalk,pkg:npm/chalk@5.6.2,5.6.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/chalk/v/5.6.2
+chalk-template,pkg:npm/chalk-template@1.1.2,1.1.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/chalk-template/v/1.1.2
+inquirer,pkg:npm/inquirer@9.3.8,9.3.8,MIT,YES,YES,, ,,https://www.npmjs.com/package/inquirer/v/9.3.8
+@inquirer/external-editor,pkg:npm/@inquirer/external-editor@1.0.3,1.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@inquirer/external-editor/v/1.0.3
+chardet,pkg:npm/chardet@2.1.1,2.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/chardet/v/2.1.1
+iconv-lite,pkg:npm/iconv-lite@0.7.2,0.7.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/iconv-lite/v/0.7.2
+@inquirer/figures,pkg:npm/@inquirer/figures@1.0.15,1.0.15,MIT,YES,YES,, ,,https://www.npmjs.com/package/@inquirer/figures/v/1.0.15
+cli-width,pkg:npm/cli-width@4.1.0,4.1.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/cli-width/v/4.1.0
+mute-stream,pkg:npm/mute-stream@1.0.0,1.0.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/mute-stream/v/1.0.0
+run-async,pkg:npm/run-async@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/run-async/v/3.0.0
+wrap-ansi,pkg:npm/wrap-ansi@6.2.0,6.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/wrap-ansi/v/6.2.0
+yoctocolors-cjs,pkg:npm/yoctocolors-cjs@2.1.3,2.1.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/yoctocolors-cjs/v/2.1.3
+kebabcase,pkg:npm/kebabcase@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/kebabcase/v/1.0.1
+meow,pkg:npm/meow@11.0.0,11.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/meow/v/11.0.0
+@types/minimist,pkg:npm/@types/minimist@1.2.5,1.2.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/minimist/v/1.2.5
+camelcase-keys,pkg:npm/camelcase-keys@8.0.2,8.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/camelcase-keys/v/8.0.2
+camelcase,pkg:npm/camelcase@7.0.1,7.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/camelcase/v/7.0.1
+map-obj,pkg:npm/map-obj@4.3.0,4.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/map-obj/v/4.3.0
+quick-lru,pkg:npm/quick-lru@6.1.2,6.1.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/quick-lru/v/6.1.2
+type-fest,pkg:npm/type-fest@2.19.0,2.19.0,(MIT OR CC0-1.0),YES,YES,, ,,https://www.npmjs.com/package/type-fest/v/2.19.0
+decamelize,pkg:npm/decamelize@6.0.1,6.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/decamelize/v/6.0.1
+decamelize-keys,pkg:npm/decamelize-keys@1.1.1,1.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/decamelize-keys/v/1.1.1
+decamelize,pkg:npm/decamelize@1.2.0,1.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/decamelize/v/1.2.0
+map-obj,pkg:npm/map-obj@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/map-obj/v/1.0.1
+hard-rejection,pkg:npm/hard-rejection@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/hard-rejection/v/2.1.0
+minimist-options,pkg:npm/minimist-options@4.1.0,4.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/minimist-options/v/4.1.0
+arrify,pkg:npm/arrify@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/arrify/v/1.0.1
+is-plain-obj,pkg:npm/is-plain-obj@1.1.0,1.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/is-plain-obj/v/1.1.0
+normalize-package-data,pkg:npm/normalize-package-data@4.0.1,4.0.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/normalize-package-data/v/4.0.1
+hosted-git-info,pkg:npm/hosted-git-info@5.2.1,5.2.1,ISC,YES,YES,, ,,https://www.npmjs.com/package/hosted-git-info/v/5.2.1
+lru-cache,pkg:npm/lru-cache@7.18.3,7.18.3,ISC,YES,YES,, ,,https://www.npmjs.com/package/lru-cache/v/7.18.3
+semver,pkg:npm/semver@7.7.4,7.7.4,ISC,YES,YES,, ,,https://www.npmjs.com/package/semver/v/7.7.4
+validate-npm-package-license,pkg:npm/validate-npm-package-license@3.0.4,3.0.4,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/validate-npm-package-license/v/3.0.4
+spdx-correct,pkg:npm/spdx-correct@3.2.0,3.2.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/spdx-correct/v/3.2.0
+spdx-expression-parse,pkg:npm/spdx-expression-parse@3.0.1,3.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/spdx-expression-parse/v/3.0.1
+spdx-exceptions,pkg:npm/spdx-exceptions@2.5.0,2.5.0,CC-BY-3.0,YES,YES,, ,,https://www.npmjs.com/package/spdx-exceptions/v/2.5.0
+spdx-license-ids,pkg:npm/spdx-license-ids@3.0.22,3.0.22,CC0-1.0,YES,YES,, ,,https://www.npmjs.com/package/spdx-license-ids/v/3.0.22
+read-pkg-up,pkg:npm/read-pkg-up@9.1.0,9.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/read-pkg-up/v/9.1.0
+read-pkg,pkg:npm/read-pkg@7.1.0,7.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/read-pkg/v/7.1.0
+@types/normalize-package-data,pkg:npm/@types/normalize-package-data@2.4.4,2.4.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/normalize-package-data/v/2.4.4
+normalize-package-data,pkg:npm/normalize-package-data@3.0.3,3.0.3,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/normalize-package-data/v/3.0.3
+hosted-git-info,pkg:npm/hosted-git-info@4.1.0,4.1.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/hosted-git-info/v/4.1.0
+lru-cache,pkg:npm/lru-cache@6.0.0,6.0.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/lru-cache/v/6.0.0
+yallist,pkg:npm/yallist@4.0.0,4.0.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/yallist/v/4.0.0
+redent,pkg:npm/redent@4.0.0,4.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/redent/v/4.0.0
+indent-string,pkg:npm/indent-string@5.0.0,5.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/indent-string/v/5.0.0
+strip-indent,pkg:npm/strip-indent@4.1.1,4.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/strip-indent/v/4.1.1
+trim-newlines,pkg:npm/trim-newlines@4.1.1,4.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/trim-newlines/v/4.1.1
+type-fest,pkg:npm/type-fest@3.13.1,3.13.1,(MIT OR CC0-1.0),YES,YES,, ,,https://www.npmjs.com/package/type-fest/v/3.13.1
+table-layout,pkg:npm/table-layout@3.0.2,3.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/table-layout/v/3.0.2
+@75lb/deep-merge,pkg:npm/@75lb/deep-merge@1.1.3,1.1.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@75lb/deep-merge/v/1.1.3
+typical,pkg:npm/typical@7.3.0,7.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/typical/v/7.3.0
+array-back,pkg:npm/array-back@6.2.2,6.2.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/array-back/v/6.2.2
+command-line-args,pkg:npm/command-line-args@5.2.1,5.2.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/command-line-args/v/5.2.1
+array-back,pkg:npm/array-back@3.1.0,3.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/array-back/v/3.1.0
+find-replace,pkg:npm/find-replace@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/find-replace/v/3.0.0
+typical,pkg:npm/typical@4.0.0,4.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/typical/v/4.0.0
+command-line-usage,pkg:npm/command-line-usage@7.0.4,7.0.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/command-line-usage/v/7.0.4
+chalk-template,pkg:npm/chalk-template@0.4.0,0.4.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/chalk-template/v/0.4.0
+table-layout,pkg:npm/table-layout@4.1.1,4.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/table-layout/v/4.1.1
+wordwrapjs,pkg:npm/wordwrapjs@5.1.1,5.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/wordwrapjs/v/5.1.1
+stream-read-all,pkg:npm/stream-read-all@3.0.1,3.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/stream-read-all/v/3.0.1
 markdownlint-cli,pkg:npm/markdownlint-cli@0.35.0,0.35.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/markdownlint-cli/v/0.35.0
 commander,pkg:npm/commander@11.0.0,11.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/commander/v/11.0.0
 get-stdin,pkg:npm/get-stdin@9.0.0,9.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/get-stdin/v/9.0.0
@@ -1984,8 +2031,9 @@ uc.micro,pkg:npm/uc.micro@1.0.6,1.0.6,MIT,YES,YES,, ,,https://www.npmjs.com/pack
 mdurl,pkg:npm/mdurl@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/mdurl/v/1.0.1
 markdownlint-micromark,pkg:npm/markdownlint-micromark@0.1.5,0.1.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/markdownlint-micromark/v/0.1.5
 run-con,pkg:npm/run-con@1.2.12,1.2.12,(BSD-2-Clause OR MIT OR Apache-2.0),YES,YES,, ,,https://www.npmjs.com/package/run-con/v/1.2.12
+deep-extend,pkg:npm/deep-extend@0.6.0,0.6.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/deep-extend/v/0.6.0
 ini,pkg:npm/ini@3.0.1,3.0.1,ISC,YES,YES,, ,,https://www.npmjs.com/package/ini/v/3.0.1
-@decidim/eslint-config,pkg:npm/@decidim/eslint-config@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/eslint-config/v/0.30.6
+@decidim/eslint-config,pkg:npm/@decidim/eslint-config@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/eslint-config/v/0.31.4
 eslint,pkg:npm/eslint@8.57.1,8.57.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/eslint/v/8.57.1
 @eslint-community/regexpp,pkg:npm/@eslint-community/regexpp@4.12.2,4.12.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@eslint-community/regexpp/v/4.12.2
 @eslint/eslintrc,pkg:npm/@eslint/eslintrc@2.1.4,2.1.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/@eslint/eslintrc/v/2.1.4
@@ -2039,9 +2087,9 @@ eslint-plugin-es,pkg:npm/eslint-plugin-es@3.0.1,3.0.1,MIT,YES,YES,, ,,https://ww
 eslint-utils,pkg:npm/eslint-utils@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/eslint-utils/v/2.1.0
 eslint-visitor-keys,pkg:npm/eslint-visitor-keys@1.3.0,1.3.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/eslint-visitor-keys/v/1.3.0
 regexpp,pkg:npm/regexpp@3.2.0,3.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/regexpp/v/3.2.0
-@decidim/prettier-config,pkg:npm/@decidim/prettier-config@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/prettier-config/v/0.30.6
+@decidim/prettier-config,pkg:npm/@decidim/prettier-config@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/prettier-config/v/0.31.4
 prettier,pkg:npm/prettier@2.8.8,2.8.8,MIT,YES,YES,, ,,https://www.npmjs.com/package/prettier/v/2.8.8
-@decidim/stylelint-config,pkg:npm/@decidim/stylelint-config@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/stylelint-config/v/0.30.6
+@decidim/stylelint-config,pkg:npm/@decidim/stylelint-config@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/stylelint-config/v/0.31.4
 stylelint,pkg:npm/stylelint@15.11.0,15.11.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/stylelint/v/15.11.0
 balanced-match,pkg:npm/balanced-match@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/balanced-match/v/2.0.0
 colord,pkg:npm/colord@2.9.3,2.9.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/colord/v/2.9.3
@@ -2049,6 +2097,8 @@ css-functions-list,pkg:npm/css-functions-list@3.2.3,3.2.3,MIT,YES,YES,, ,,https:
 css-tree,pkg:npm/css-tree@2.3.1,2.3.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/css-tree/v/2.3.1
 mdn-data,pkg:npm/mdn-data@2.0.30,2.0.30,CC0-1.0,YES,YES,, ,,https://www.npmjs.com/package/mdn-data/v/2.0.30
 file-entry-cache,pkg:npm/file-entry-cache@7.0.2,7.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/file-entry-cache/v/7.0.2
+globby,pkg:npm/globby@11.1.0,11.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/globby/v/11.1.0
+array-union,pkg:npm/array-union@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/array-union/v/2.1.0
 globjoin,pkg:npm/globjoin@0.1.4,0.1.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/globjoin/v/0.1.4
 html-tags,pkg:npm/html-tags@3.3.1,3.3.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/html-tags/v/3.3.1
 import-lazy,pkg:npm/import-lazy@4.0.0,4.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/import-lazy/v/4.0.0
@@ -2062,10 +2112,7 @@ type-fest,pkg:npm/type-fest@1.4.0,1.4.0,(MIT OR CC0-1.0),YES,YES,, ,,https://www
 decamelize,pkg:npm/decamelize@5.0.1,5.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/decamelize/v/5.0.1
 read-pkg-up,pkg:npm/read-pkg-up@8.0.0,8.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/read-pkg-up/v/8.0.0
 read-pkg,pkg:npm/read-pkg@6.0.0,6.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/read-pkg/v/6.0.0
-redent,pkg:npm/redent@4.0.0,4.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/redent/v/4.0.0
-indent-string,pkg:npm/indent-string@5.0.0,5.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/indent-string/v/5.0.0
-strip-indent,pkg:npm/strip-indent@4.1.1,4.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/strip-indent/v/4.1.1
-trim-newlines,pkg:npm/trim-newlines@4.1.1,4.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/trim-newlines/v/4.1.1
+yargs-parser,pkg:npm/yargs-parser@20.2.9,20.2.9,ISC,YES,YES,, ,,https://www.npmjs.com/package/yargs-parser/v/20.2.9
 postcss-resolve-nested-selector,pkg:npm/postcss-resolve-nested-selector@0.1.6,0.1.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss-resolve-nested-selector/v/0.1.6
 postcss-safe-parser,pkg:npm/postcss-safe-parser@6.0.0,6.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/postcss-safe-parser/v/6.0.0
 style-search,pkg:npm/style-search@0.1.0,0.1.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/style-search/v/0.1.0
@@ -2085,16 +2132,40 @@ copy-webpack-plugin,pkg:npm/copy-webpack-plugin@13.0.1,13.0.1,MIT,YES,YES,, ,,ht
 @fullcalendar/list,pkg:npm/@fullcalendar/list@6.1.17,6.1.17,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fullcalendar/list/v/6.1.17
 @fullcalendar/timegrid,pkg:npm/@fullcalendar/timegrid@6.1.17,6.1.17,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fullcalendar/timegrid/v/6.1.17
 @decidim/dev,pkg:npm/@decidim/dev@0.30.0,0.30.0,AGPL-3.0-or-later,YES,NO,, ,,https://www.npmjs.com/package/@decidim/dev/v/0.30.0
+@linthtml/linthtml,pkg:npm/@linthtml/linthtml@0.9.6,0.9.6,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/linthtml/v/0.9.6
+@linthtml/cli,pkg:npm/@linthtml/cli@0.9.5,0.9.5,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/cli/v/0.9.5
+chalk,pkg:npm/chalk@4.1.1,4.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/chalk/v/4.1.1
 inquirer,pkg:npm/inquirer@8.2.6,8.2.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/inquirer/v/8.2.6
 js-yaml,pkg:npm/js-yaml@3.14.1,3.14.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/js-yaml/v/3.14.1
+meow,pkg:npm/meow@9.0.0,9.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/meow/v/9.0.0
+camelcase-keys,pkg:npm/camelcase-keys@6.2.2,6.2.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/camelcase-keys/v/6.2.2
+quick-lru,pkg:npm/quick-lru@4.0.1,4.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/quick-lru/v/4.0.1
 semver,pkg:npm/semver@7.5.4,7.5.4,ISC,YES,YES,, ,,https://www.npmjs.com/package/semver/v/7.5.4
 spdx-exceptions,pkg:npm/spdx-exceptions@2.3.0,2.3.0,CC-BY-3.0,YES,YES,, ,,https://www.npmjs.com/package/spdx-exceptions/v/2.3.0
 spdx-license-ids,pkg:npm/spdx-license-ids@3.0.16,3.0.16,CC0-1.0,YES,YES,, ,,https://www.npmjs.com/package/spdx-license-ids/v/3.0.16
+read-pkg-up,pkg:npm/read-pkg-up@7.0.1,7.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/read-pkg-up/v/7.0.1
+read-pkg,pkg:npm/read-pkg@5.2.0,5.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/read-pkg/v/5.2.0
+normalize-package-data,pkg:npm/normalize-package-data@2.5.0,2.5.0,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/normalize-package-data/v/2.5.0
+hosted-git-info,pkg:npm/hosted-git-info@2.8.9,2.8.9,ISC,YES,YES,, ,,https://www.npmjs.com/package/hosted-git-info/v/2.8.9
 resolve,pkg:npm/resolve@1.22.8,1.22.8,MIT,YES,YES,, ,,https://www.npmjs.com/package/resolve/v/1.22.8
+semver,pkg:npm/semver@5.7.2,5.7.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/semver/v/5.7.2
 @babel/code-frame,pkg:npm/@babel/code-frame@7.26.2,7.26.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/code-frame/v/7.26.2
 @babel/helper-validator-identifier,pkg:npm/@babel/helper-validator-identifier@7.25.9,7.25.9,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/helper-validator-identifier/v/7.25.9
+type-fest,pkg:npm/type-fest@0.6.0,0.6.0,(MIT OR CC0-1.0),YES,YES,, ,,https://www.npmjs.com/package/type-fest/v/0.6.0
+type-fest,pkg:npm/type-fest@0.8.1,0.8.1,(MIT OR CC0-1.0),YES,YES,, ,,https://www.npmjs.com/package/type-fest/v/0.8.1
+trim-newlines,pkg:npm/trim-newlines@3.0.1,3.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/trim-newlines/v/3.0.1
+type-fest,pkg:npm/type-fest@0.18.1,0.18.1,(MIT OR CC0-1.0),YES,YES,, ,,https://www.npmjs.com/package/type-fest/v/0.18.1
+table-layout,pkg:npm/table-layout@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/table-layout/v/1.0.1
+array-back,pkg:npm/array-back@4.0.2,4.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/array-back/v/4.0.2
+typical,pkg:npm/typical@5.2.0,5.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/typical/v/5.2.0
+wordwrapjs,pkg:npm/wordwrapjs@4.0.1,4.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/wordwrapjs/v/4.0.1
+reduce-flatten,pkg:npm/reduce-flatten@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/reduce-flatten/v/2.0.0
+@linthtml/dom-utils,pkg:npm/@linthtml/dom-utils@0.9.5,0.9.5,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/dom-utils/v/0.9.5
+@linthtml/html-parser,pkg:npm/@linthtml/html-parser@0.9.5,0.9.5,ISC,YES,YES,, ,,https://www.npmjs.com/package/@linthtml/html-parser/v/0.9.5
 brace-expansion,pkg:npm/brace-expansion@1.1.11,1.1.11,MIT,YES,YES,, ,,https://www.npmjs.com/package/brace-expansion/v/1.1.11
+cosmiconfig,pkg:npm/cosmiconfig@7.0.0,7.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/cosmiconfig/v/7.0.0
 import-fresh,pkg:npm/import-fresh@3.3.0,3.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/import-fresh/v/3.3.0
+yaml,pkg:npm/yaml@1.10.2,1.10.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/yaml/v/1.10.2
 fast-glob,pkg:npm/fast-glob@3.3.2,3.3.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/fast-glob/v/3.3.2
 fastq,pkg:npm/fastq@1.16.0,1.16.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/fastq/v/1.16.0
 reusify,pkg:npm/reusify@1.0.4,1.0.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/reusify/v/1.0.4
@@ -2154,6 +2225,7 @@ enhanced-resolve,pkg:npm/enhanced-resolve@5.18.1,5.18.1,MIT,YES,YES,, ,,https://
 tapable,pkg:npm/tapable@2.2.1,2.2.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/tapable/v/2.2.1
 loader-runner,pkg:npm/loader-runner@4.3.0,4.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/loader-runner/v/4.3.0
 schema-utils,pkg:npm/schema-utils@4.3.2,4.3.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/schema-utils/v/4.3.2
+terser-webpack-plugin,pkg:npm/terser-webpack-plugin@5.3.14,5.3.14,MIT,YES,YES,, ,,https://www.npmjs.com/package/terser-webpack-plugin/v/5.3.14
 @types/node,pkg:npm/@types/node@22.15.3,22.15.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/node/v/22.15.3
 terser,pkg:npm/terser@5.39.0,5.39.0,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/terser/v/5.39.0
 @jridgewell/source-map,pkg:npm/@jridgewell/source-map@0.3.6,0.3.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jridgewell/source-map/v/0.3.6
@@ -2235,6 +2307,7 @@ sass-embedded-linux-x64,pkg:npm/sass-embedded-linux-x64@1.87.0,1.87.0,MIT,YES,YE
 sass-embedded-win32-arm64,pkg:npm/sass-embedded-win32-arm64@1.87.0,1.87.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-win32-arm64/v/1.87.0
 sass-embedded-win32-ia32,pkg:npm/sass-embedded-win32-ia32@1.87.0,1.87.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-win32-ia32/v/1.87.0
 sass-embedded-win32-x64,pkg:npm/sass-embedded-win32-x64@1.87.0,1.87.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/sass-embedded-win32-x64/v/1.87.0
+shakapacker,pkg:npm/shakapacker@7.1.0,7.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/shakapacker/v/7.1.0
 @babel/core,pkg:npm/@babel/core@7.26.10,7.26.10,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/core/v/7.26.10
 @babel/generator,pkg:npm/@babel/generator@7.27.0,7.27.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/generator/v/7.27.0
 @babel/parser,pkg:npm/@babel/parser@7.27.0,7.27.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/parser/v/7.27.0
@@ -2343,16 +2416,24 @@ envinfo,pkg:npm/envinfo@7.14.0,7.14.0,MIT,YES,YES,, ,,https://www.npmjs.com/pack
 @types/http-errors,pkg:npm/@types/http-errors@2.0.4,2.0.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/http-errors/v/2.0.4
 compression,pkg:npm/compression@1.8.0,1.8.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/compression/v/1.8.0
 on-headers,pkg:npm/on-headers@1.0.2,1.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/on-headers/v/1.0.2
+express,pkg:npm/express@4.21.2,4.21.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/express/v/4.21.2
+body-parser,pkg:npm/body-parser@1.20.3,1.20.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/body-parser/v/1.20.3
+qs,pkg:npm/qs@6.13.0,6.13.0,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/qs/v/6.13.0
+raw-body,pkg:npm/raw-body@2.5.2,2.5.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/raw-body/v/2.5.2
+path-to-regexp,pkg:npm/path-to-regexp@0.1.12,0.1.12,MIT,YES,YES,, ,,https://www.npmjs.com/package/path-to-regexp/v/0.1.12
 @types/http-proxy,pkg:npm/@types/http-proxy@1.17.16,1.17.16,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/http-proxy/v/1.17.16
 follow-redirects,pkg:npm/follow-redirects@1.15.9,1.15.9,MIT,YES,YES,, ,,https://www.npmjs.com/package/follow-redirects/v/1.15.9
 launch-editor,pkg:npm/launch-editor@2.10.0,2.10.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/launch-editor/v/2.10.0
 shell-quote,pkg:npm/shell-quote@1.8.2,1.8.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/shell-quote/v/1.8.2
 @types/node-forge,pkg:npm/@types/node-forge@1.3.11,1.3.11,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/node-forge/v/1.3.11
+node-forge,pkg:npm/node-forge@1.3.1,1.3.1,(BSD-3-Clause OR GPL-2.0),YES,YES,, ,,https://www.npmjs.com/package/node-forge/v/1.3.1
 memfs,pkg:npm/memfs@3.5.3,3.5.3,Unlicense,YES,YES,, ,,https://www.npmjs.com/package/memfs/v/3.5.3
 fs-monkey,pkg:npm/fs-monkey@1.0.6,1.0.6,Unlicense,YES,YES,, ,,https://www.npmjs.com/package/fs-monkey/v/1.0.6
 ws,pkg:npm/ws@8.18.1,8.18.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/ws/v/8.18.1
+rollup,pkg:npm/rollup@2.79.2,2.79.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/rollup/v/2.79.2
 @rollup/pluginutils,pkg:npm/@rollup/pluginutils@5.1.4,5.1.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/@rollup/pluginutils/v/5.1.4
 jake,pkg:npm/jake@10.9.2,10.9.2,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/jake/v/10.9.2
+minimatch,pkg:npm/minimatch@5.1.6,5.1.6,ISC,YES,YES,, ,,https://www.npmjs.com/package/minimatch/v/5.1.6
 @faker-js/faker,pkg:npm/@faker-js/faker@9.9.0,9.9.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@faker-js/faker/v/9.9.0
 @fastify/autoload,pkg:npm/@fastify/autoload@6.3.1,6.3.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/autoload/v/6.3.1
 @fastify/cors,pkg:npm/@fastify/cors@11.2.0,11.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/cors/v/11.2.0
@@ -2363,82 +2444,80 @@ fast-querystring,pkg:npm/fast-querystring@1.1.2,1.1.2,MIT,YES,YES,, ,,https://ww
 fast-decode-uri-component,pkg:npm/fast-decode-uri-component@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/fast-decode-uri-component/v/1.0.1
 @fastify/helmet,pkg:npm/@fastify/helmet@13.0.2,13.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/helmet/v/13.0.2
 helmet,pkg:npm/helmet@8.1.0,8.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/helmet/v/8.1.0
-@fastify/jwt,pkg:npm/@fastify/jwt@9.1.0,9.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/jwt/v/9.1.0
+@fastify/jwt,pkg:npm/@fastify/jwt@10.0.0,10.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/jwt/v/10.0.0
 @fastify/error,pkg:npm/@fastify/error@4.2.0,4.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/error/v/4.2.0
 @lukeed/ms,pkg:npm/@lukeed/ms@2.0.2,2.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@lukeed/ms/v/2.0.2
-fast-jwt,pkg:npm/fast-jwt@5.0.6,5.0.6,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/fast-jwt/v/5.0.6
+fast-jwt,pkg:npm/fast-jwt@6.2.4,6.2.4,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/fast-jwt/v/6.2.4
 asn1.js,pkg:npm/asn1.js@5.4.1,5.4.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/asn1.js/v/5.4.1
-bn.js,pkg:npm/bn.js@5.2.3,5.2.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/bn.js/v/5.2.3
+bn.js,pkg:npm/bn.js@4.12.3,4.12.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/bn.js/v/4.12.3
 ecdsa-sig-formatter,pkg:npm/ecdsa-sig-formatter@1.0.11,1.0.11,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/ecdsa-sig-formatter/v/1.0.11
 mnemonist,pkg:npm/mnemonist@0.40.3,0.40.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/mnemonist/v/0.40.3
 obliterator,pkg:npm/obliterator@2.0.5,2.0.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/obliterator/v/2.0.5
+safe-regex2,pkg:npm/safe-regex2@5.1.1,5.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/safe-regex2/v/5.1.1
+ret,pkg:npm/ret@0.5.0,0.5.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ret/v/0.5.0
 steed,pkg:npm/steed@1.1.3,1.1.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/steed/v/1.1.3
 fastfall,pkg:npm/fastfall@1.5.1,1.5.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/fastfall/v/1.5.1
 fastparallel,pkg:npm/fastparallel@2.4.1,2.4.1,ISC,YES,YES,, ,,https://www.npmjs.com/package/fastparallel/v/2.4.1
 xtend,pkg:npm/xtend@4.0.2,4.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/xtend/v/4.0.2
 fastq,pkg:npm/fastq@1.20.1,1.20.1,ISC,YES,YES,, ,,https://www.npmjs.com/package/fastq/v/1.20.1
 fastseries,pkg:npm/fastseries@1.7.2,1.7.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/fastseries/v/1.7.2
-@fastify/middie,pkg:npm/@fastify/middie@9.3.1,9.3.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/middie/v/9.3.1
+@fastify/middie,pkg:npm/@fastify/middie@9.3.2,9.3.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/middie/v/9.3.2
 find-my-way,pkg:npm/find-my-way@9.5.0,9.5.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/find-my-way/v/9.5.0
-safe-regex2,pkg:npm/safe-regex2@5.0.0,5.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/safe-regex2/v/5.0.0
-ret,pkg:npm/ret@0.5.0,0.5.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ret/v/0.5.0
-path-to-regexp,pkg:npm/path-to-regexp@8.3.0,8.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/path-to-regexp/v/8.3.0
+path-to-regexp,pkg:npm/path-to-regexp@8.4.2,8.4.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/path-to-regexp/v/8.4.2
 @fastify/rate-limit,pkg:npm/@fastify/rate-limit@10.3.0,10.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/rate-limit/v/10.3.0
 @fastify/request-context,pkg:npm/@fastify/request-context@6.2.1,6.2.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/request-context/v/6.2.1
 @fastify/sensible,pkg:npm/@fastify/sensible@6.0.4,6.0.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/sensible/v/6.0.4
-http-errors,pkg:npm/http-errors@2.0.1,2.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/http-errors/v/2.0.1
-statuses,pkg:npm/statuses@2.0.2,2.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/statuses/v/2.0.2
 type-is,pkg:npm/type-is@2.0.1,2.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/type-is/v/2.0.1
 media-typer,pkg:npm/media-typer@1.1.0,1.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/media-typer/v/1.1.0
 mime-types,pkg:npm/mime-types@3.0.2,3.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/mime-types/v/3.0.2
 @fastify/swagger,pkg:npm/@fastify/swagger@9.7.0,9.7.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/swagger/v/9.7.0
 json-schema-resolver,pkg:npm/json-schema-resolver@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/json-schema-resolver/v/3.0.0
 openapi-types,pkg:npm/openapi-types@12.1.3,12.1.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/openapi-types/v/12.1.3
-yaml,pkg:npm/yaml@2.8.2,2.8.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/yaml/v/2.8.2
-@fastify/swagger-ui,pkg:npm/@fastify/swagger-ui@5.2.5,5.2.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/swagger-ui/v/5.2.5
-@fastify/static,pkg:npm/@fastify/static@9.0.0,9.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/static/v/9.0.0
+@fastify/swagger-ui,pkg:npm/@fastify/swagger-ui@5.2.6,5.2.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/swagger-ui/v/5.2.6
+@fastify/static,pkg:npm/@fastify/static@9.1.3,9.1.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/static/v/9.1.3
 @fastify/accept-negotiator,pkg:npm/@fastify/accept-negotiator@2.0.1,2.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/accept-negotiator/v/2.0.1
 @fastify/send,pkg:npm/@fastify/send@4.1.0,4.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/send/v/4.1.0
 mime,pkg:npm/mime@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/mime/v/3.0.0
-content-disposition,pkg:npm/content-disposition@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/content-disposition/v/1.0.1
+content-disposition,pkg:npm/content-disposition@1.1.0,1.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/content-disposition/v/1.1.0
 glob,pkg:npm/glob@9.3.5,9.3.5,ISC,YES,YES,, ,,https://www.npmjs.com/package/glob/v/9.3.5
 minimatch,pkg:npm/minimatch@8.0.7,8.0.7,ISC,YES,YES,, ,,https://www.npmjs.com/package/minimatch/v/8.0.7
 minipass,pkg:npm/minipass@4.2.8,4.2.8,ISC,YES,YES,, ,,https://www.npmjs.com/package/minipass/v/4.2.8
 minipass,pkg:npm/minipass@7.1.3,7.1.3,BlueOak-1.0.0,YES,YES,, ,,https://www.npmjs.com/package/minipass/v/7.1.3
 @fastify/under-pressure,pkg:npm/@fastify/under-pressure@9.0.3,9.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/under-pressure/v/9.0.3
-@ngneat/falso,pkg:npm/@ngneat/falso@8.0.2,8.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@ngneat/falso/v/8.0.2
-seedrandom,pkg:npm/seedrandom@3.0.5,3.0.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/seedrandom/v/3.0.5
 @types/axios,pkg:npm/@types/axios@0.9.36,0.9.36,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/axios/v/0.9.36
-expect,pkg:npm/expect@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/expect/v/30.2.0
-@jest/expect-utils,pkg:npm/@jest/expect-utils@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/expect-utils/v/30.2.0
+expect,pkg:npm/expect@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/expect/v/30.3.0
+@jest/expect-utils,pkg:npm/@jest/expect-utils@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/expect-utils/v/30.3.0
 @jest/get-type,pkg:npm/@jest/get-type@30.1.0,30.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/get-type/v/30.1.0
-jest-matcher-utils,pkg:npm/jest-matcher-utils@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-matcher-utils/v/30.2.0
-jest-diff,pkg:npm/jest-diff@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-diff/v/30.2.0
-pretty-format,pkg:npm/pretty-format@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/pretty-format/v/30.2.0
-@sinclair/typebox,pkg:npm/@sinclair/typebox@0.34.48,0.34.48,MIT,YES,YES,, ,,https://www.npmjs.com/package/@sinclair/typebox/v/0.34.48
-jest-message-util,pkg:npm/jest-message-util@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-message-util/v/30.2.0
+jest-matcher-utils,pkg:npm/jest-matcher-utils@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-matcher-utils/v/30.3.0
+jest-diff,pkg:npm/jest-diff@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-diff/v/30.3.0
+@jest/diff-sequences,pkg:npm/@jest/diff-sequences@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/diff-sequences/v/30.3.0
+pretty-format,pkg:npm/pretty-format@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/pretty-format/v/30.3.0
+@sinclair/typebox,pkg:npm/@sinclair/typebox@0.34.49,0.34.49,MIT,YES,YES,, ,,https://www.npmjs.com/package/@sinclair/typebox/v/0.34.49
+jest-message-util,pkg:npm/jest-message-util@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-message-util/v/30.3.0
 @babel/code-frame,pkg:npm/@babel/code-frame@7.29.0,7.29.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/code-frame/v/7.29.0
-@jest/types,pkg:npm/@jest/types@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/types/v/30.2.0
-@types/node,pkg:npm/@types/node@24.12.0,24.12.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/node/v/24.12.0
+@jest/types,pkg:npm/@jest/types@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/types/v/30.3.0
+@types/node,pkg:npm/@types/node@24.12.2,24.12.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/node/v/24.12.2
 @types/yargs,pkg:npm/@types/yargs@17.0.35,17.0.35,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/yargs/v/17.0.35
-jest-mock,pkg:npm/jest-mock@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-mock/v/30.2.0
-jest-util,pkg:npm/jest-util@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-util/v/30.2.0
+jest-mock,pkg:npm/jest-mock@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-mock/v/30.3.0
+jest-util,pkg:npm/jest-util@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-util/v/30.3.0
 ci-info,pkg:npm/ci-info@4.4.0,4.4.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ci-info/v/4.4.0
 @types/lodash,pkg:npm/@types/lodash@4.17.24,4.17.24,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/lodash/v/4.17.24
-axios,pkg:npm/axios@1.13.6,1.13.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/axios/v/1.13.6
+axios,pkg:npm/axios@1.15.2,1.15.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/axios/v/1.15.2
 form-data,pkg:npm/form-data@4.0.5,4.0.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/form-data/v/4.0.5
 asynckit,pkg:npm/asynckit@0.4.0,0.4.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/asynckit/v/0.4.0
 combined-stream,pkg:npm/combined-stream@1.0.8,1.0.8,MIT,YES,YES,, ,,https://www.npmjs.com/package/combined-stream/v/1.0.8
 delayed-stream,pkg:npm/delayed-stream@1.0.0,1.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/delayed-stream/v/1.0.0
-proxy-from-env,pkg:npm/proxy-from-env@1.1.0,1.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/proxy-from-env/v/1.1.0
+hasown,pkg:npm/hasown@2.0.3,2.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/hasown/v/2.0.3
+proxy-from-env,pkg:npm/proxy-from-env@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/proxy-from-env/v/2.1.0
 bcryptjs,pkg:npm/bcryptjs@3.0.3,3.0.3,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/bcryptjs/v/3.0.3
 body-parser,pkg:npm/body-parser@2.2.2,2.2.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/body-parser/v/2.2.2
-iconv-lite,pkg:npm/iconv-lite@0.7.2,0.7.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/iconv-lite/v/0.7.2
-qs,pkg:npm/qs@6.15.0,6.15.0,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/qs/v/6.15.0
+qs,pkg:npm/qs@6.15.2,6.15.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/qs/v/6.15.2
+side-channel-list,pkg:npm/side-channel-list@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/side-channel-list/v/1.0.1
 raw-body,pkg:npm/raw-body@3.0.2,3.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/raw-body/v/3.0.2
-dotenv,pkg:npm/dotenv@17.3.1,17.3.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/dotenv/v/17.3.1
-fastify,pkg:npm/fastify@5.8.2,5.8.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/fastify/v/5.8.2
+dotenv,pkg:npm/dotenv@17.4.2,17.4.2,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/dotenv/v/17.4.2
+fastify,pkg:npm/fastify@5.8.5,5.8.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/fastify/v/5.8.5
 @fastify/ajv-compiler,pkg:npm/@fastify/ajv-compiler@4.0.5,4.0.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/ajv-compiler/v/4.0.5
+ajv,pkg:npm/ajv@8.20.0,8.20.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ajv/v/8.20.0
 ajv-formats,pkg:npm/ajv-formats@3.0.1,3.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/ajv-formats/v/3.0.1
 @fastify/fast-json-stringify-compiler,pkg:npm/@fastify/fast-json-stringify-compiler@5.0.3,5.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/fast-json-stringify-compiler/v/5.0.3
 fast-json-stringify,pkg:npm/fast-json-stringify@6.3.0,6.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/fast-json-stringify/v/6.3.0
@@ -2456,7 +2535,6 @@ set-cookie-parser,pkg:npm/set-cookie-parser@2.7.2,2.7.2,MIT,YES,YES,, ,,https://
 pino-std-serializers,pkg:npm/pino-std-serializers@7.1.0,7.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/pino-std-serializers/v/7.1.0
 sonic-boom,pkg:npm/sonic-boom@4.2.1,4.2.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/sonic-boom/v/4.2.1
 secure-json-parse,pkg:npm/secure-json-parse@4.1.0,4.1.0,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/secure-json-parse/v/4.1.0
-semver,pkg:npm/semver@7.7.4,7.7.4,ISC,YES,YES,, ,,https://www.npmjs.com/package/semver/v/7.7.4
 fastify-cli,pkg:npm/fastify-cli@7.4.1,7.4.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/fastify-cli/v/7.4.1
 @fastify/deepmerge,pkg:npm/@fastify/deepmerge@3.2.1,3.2.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@fastify/deepmerge/v/3.2.1
 close-with-grace,pkg:npm/close-with-grace@2.5.0,2.5.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/close-with-grace/v/2.5.0
@@ -2469,7 +2547,7 @@ split2,pkg:npm/split2@3.2.2,3.2.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/
 help-me,pkg:npm/help-me@5.0.0,5.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/help-me/v/5.0.0
 pino-pretty,pkg:npm/pino-pretty@13.1.3,13.1.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/pino-pretty/v/13.1.3
 dateformat,pkg:npm/dateformat@4.6.3,4.6.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/dateformat/v/4.6.3
-fast-copy,pkg:npm/fast-copy@4.0.2,4.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/fast-copy/v/4.0.2
+fast-copy,pkg:npm/fast-copy@4.0.3,4.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/fast-copy/v/4.0.3
 fast-safe-stringify,pkg:npm/fast-safe-stringify@2.1.1,2.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/fast-safe-stringify/v/2.1.1
 joycon,pkg:npm/joycon@3.1.1,3.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/joycon/v/3.1.1
 pino-abstract-transport,pkg:npm/pino-abstract-transport@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/pino-abstract-transport/v/3.0.0
@@ -2482,12 +2560,12 @@ path-exists,pkg:npm/path-exists@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.co
 yargs-parser,pkg:npm/yargs-parser@22.0.0,22.0.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/yargs-parser/v/22.0.0
 fastify-type-provider-zod,pkg:npm/fastify-type-provider-zod@5.1.0,5.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/fastify-type-provider-zod/v/5.1.0
 zod,pkg:npm/zod@4.3.6,4.3.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/zod/v/4.3.6
-i18next,pkg:npm/i18next@25.8.16,25.8.16,MIT,YES,YES,, ,,https://www.npmjs.com/package/i18next/v/25.8.16
+i18next,pkg:npm/i18next@25.10.10,25.10.10,MIT,YES,YES,, ,,https://www.npmjs.com/package/i18next/v/25.10.10
 typescript,pkg:npm/typescript@5.9.3,5.9.3,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/typescript/v/5.9.3
-@babel/runtime,pkg:npm/@babel/runtime@7.28.6,7.28.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/runtime/v/7.28.6
-i18next-fs-backend,pkg:npm/i18next-fs-backend@2.6.1,2.6.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/i18next-fs-backend/v/2.6.1
-i18next-http-middleware,pkg:npm/i18next-http-middleware@3.9.2,3.9.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/i18next-http-middleware/v/3.9.2
-ioredis,pkg:npm/ioredis@5.10.0,5.10.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ioredis/v/5.10.0
+@babel/runtime,pkg:npm/@babel/runtime@7.29.2,7.29.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/runtime/v/7.29.2
+i18next-fs-backend,pkg:npm/i18next-fs-backend@2.6.5,2.6.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/i18next-fs-backend/v/2.6.5
+i18next-http-middleware,pkg:npm/i18next-http-middleware@3.9.6,3.9.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/i18next-http-middleware/v/3.9.6
+ioredis,pkg:npm/ioredis@5.10.1,5.10.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/ioredis/v/5.10.1
 @ioredis/commands,pkg:npm/@ioredis/commands@1.5.1,1.5.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@ioredis/commands/v/1.5.1
 cluster-key-slot,pkg:npm/cluster-key-slot@1.1.2,1.1.2,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/cluster-key-slot/v/1.1.2
 denque,pkg:npm/denque@2.1.0,2.1.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/denque/v/2.1.0
@@ -2496,76 +2574,75 @@ lodash.isarguments,pkg:npm/lodash.isarguments@3.1.0,3.1.0,MIT,YES,YES,, ,,https:
 redis-errors,pkg:npm/redis-errors@1.2.0,1.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/redis-errors/v/1.2.0
 redis-parser,pkg:npm/redis-parser@3.0.0,3.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/redis-parser/v/3.0.0
 standard-as-callback,pkg:npm/standard-as-callback@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/standard-as-callback/v/2.1.0
-jest,pkg:npm/jest@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest/v/30.2.0
-@jest/core,pkg:npm/@jest/core@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/core/v/30.2.0
-@jest/console,pkg:npm/@jest/console@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/console/v/30.2.0
-@jest/reporters,pkg:npm/@jest/reporters@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/reporters/v/30.2.0
-@jest/test-result,pkg:npm/@jest/test-result@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/test-result/v/30.2.0
+jest,pkg:npm/jest@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest/v/30.3.0
+@jest/core,pkg:npm/@jest/core@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/core/v/30.3.0
+@jest/console,pkg:npm/@jest/console@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/console/v/30.3.0
+@jest/reporters,pkg:npm/@jest/reporters@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/reporters/v/30.3.0
+@jest/test-result,pkg:npm/@jest/test-result@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/test-result/v/30.3.0
 collect-v8-coverage,pkg:npm/collect-v8-coverage@1.0.3,1.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/collect-v8-coverage/v/1.0.3
-@jest/transform,pkg:npm/@jest/transform@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/transform/v/30.2.0
+@jest/transform,pkg:npm/@jest/transform@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/transform/v/30.3.0
 @babel/core,pkg:npm/@babel/core@7.29.0,7.29.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/core/v/7.29.0
 @babel/generator,pkg:npm/@babel/generator@7.29.1,7.29.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/generator/v/7.29.1
-@babel/parser,pkg:npm/@babel/parser@7.29.0,7.29.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/parser/v/7.29.0
+@babel/parser,pkg:npm/@babel/parser@7.29.2,7.29.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/parser/v/7.29.2
 @babel/types,pkg:npm/@babel/types@7.29.0,7.29.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/types/v/7.29.0
 @babel/helper-compilation-targets,pkg:npm/@babel/helper-compilation-targets@7.28.6,7.28.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/helper-compilation-targets/v/7.28.6
 @babel/compat-data,pkg:npm/@babel/compat-data@7.29.0,7.29.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/compat-data/v/7.29.0
-browserslist,pkg:npm/browserslist@4.28.1,4.28.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/browserslist/v/4.28.1
-baseline-browser-mapping,pkg:npm/baseline-browser-mapping@2.10.0,2.10.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/baseline-browser-mapping/v/2.10.0
-caniuse-lite,pkg:npm/caniuse-lite@1.0.30001777,1.0.30001777,CC-BY-4.0,YES,YES,, ,,https://www.npmjs.com/package/caniuse-lite/v/1.0.30001777
-electron-to-chromium,pkg:npm/electron-to-chromium@1.5.307,1.5.307,ISC,YES,YES,, ,,https://www.npmjs.com/package/electron-to-chromium/v/1.5.307
-node-releases,pkg:npm/node-releases@2.0.36,2.0.36,MIT,YES,YES,, ,,https://www.npmjs.com/package/node-releases/v/2.0.36
-update-browserslist-db,pkg:npm/update-browserslist-db@1.2.3,1.2.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/update-browserslist-db/v/1.2.3
+baseline-browser-mapping,pkg:npm/baseline-browser-mapping@2.10.23,2.10.23,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/baseline-browser-mapping/v/2.10.23
+caniuse-lite,pkg:npm/caniuse-lite@1.0.30001791,1.0.30001791,CC-BY-4.0,YES,YES,, ,,https://www.npmjs.com/package/caniuse-lite/v/1.0.30001791
+electron-to-chromium,pkg:npm/electron-to-chromium@1.5.344,1.5.344,ISC,YES,YES,, ,,https://www.npmjs.com/package/electron-to-chromium/v/1.5.344
+node-releases,pkg:npm/node-releases@2.0.38,2.0.38,MIT,YES,YES,, ,,https://www.npmjs.com/package/node-releases/v/2.0.38
 @babel/helper-module-transforms,pkg:npm/@babel/helper-module-transforms@7.28.6,7.28.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/helper-module-transforms/v/7.28.6
 @babel/helper-module-imports,pkg:npm/@babel/helper-module-imports@7.28.6,7.28.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/helper-module-imports/v/7.28.6
 @babel/traverse,pkg:npm/@babel/traverse@7.29.0,7.29.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/traverse/v/7.29.0
 @babel/template,pkg:npm/@babel/template@7.28.6,7.28.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/template/v/7.28.6
-@babel/helpers,pkg:npm/@babel/helpers@7.28.6,7.28.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/helpers/v/7.28.6
+@babel/helpers,pkg:npm/@babel/helpers@7.29.2,7.29.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/helpers/v/7.29.2
 babel-plugin-istanbul,pkg:npm/babel-plugin-istanbul@7.0.1,7.0.1,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/babel-plugin-istanbul/v/7.0.1
 @babel/helper-plugin-utils,pkg:npm/@babel/helper-plugin-utils@7.28.6,7.28.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/helper-plugin-utils/v/7.28.6
-jest-haste-map,pkg:npm/jest-haste-map@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-haste-map/v/30.2.0
-jest-worker,pkg:npm/jest-worker@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-worker/v/30.2.0
+@istanbuljs/schema,pkg:npm/@istanbuljs/schema@0.1.6,0.1.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@istanbuljs/schema/v/0.1.6
+jest-haste-map,pkg:npm/jest-haste-map@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-haste-map/v/30.3.0
+jest-worker,pkg:npm/jest-worker@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-worker/v/30.3.0
 istanbul-reports,pkg:npm/istanbul-reports@3.2.0,3.2.0,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/istanbul-reports/v/3.2.0
-jest-changed-files,pkg:npm/jest-changed-files@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-changed-files/v/30.2.0
-jest-config,pkg:npm/jest-config@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-config/v/30.2.0
+jest-changed-files,pkg:npm/jest-changed-files@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-changed-files/v/30.3.0
+jest-config,pkg:npm/jest-config@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-config/v/30.3.0
 @tsconfig/node10,pkg:npm/@tsconfig/node10@1.0.12,1.0.12,MIT,YES,YES,, ,,https://www.npmjs.com/package/@tsconfig/node10/v/1.0.12
-acorn,pkg:npm/acorn@8.16.0,8.16.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/acorn/v/8.16.0
 acorn-walk,pkg:npm/acorn-walk@8.3.5,8.3.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/acorn-walk/v/8.3.5
-@jest/test-sequencer,pkg:npm/@jest/test-sequencer@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/test-sequencer/v/30.2.0
-babel-jest,pkg:npm/babel-jest@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/babel-jest/v/30.2.0
+@jest/test-sequencer,pkg:npm/@jest/test-sequencer@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/test-sequencer/v/30.3.0
+babel-jest,pkg:npm/babel-jest@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/babel-jest/v/30.3.0
 @types/babel__traverse,pkg:npm/@types/babel__traverse@7.28.0,7.28.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/babel__traverse/v/7.28.0
-babel-preset-jest,pkg:npm/babel-preset-jest@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/babel-preset-jest/v/30.2.0
-babel-plugin-jest-hoist,pkg:npm/babel-plugin-jest-hoist@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/babel-plugin-jest-hoist/v/30.2.0
+babel-preset-jest,pkg:npm/babel-preset-jest@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/babel-preset-jest/v/30.3.0
+babel-plugin-jest-hoist,pkg:npm/babel-plugin-jest-hoist@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/babel-plugin-jest-hoist/v/30.3.0
 babel-preset-current-node-syntax,pkg:npm/babel-preset-current-node-syntax@1.2.0,1.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/babel-preset-current-node-syntax/v/1.2.0
 @babel/plugin-syntax-import-attributes,pkg:npm/@babel/plugin-syntax-import-attributes@7.28.6,7.28.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/plugin-syntax-import-attributes/v/7.28.6
-jest-circus,pkg:npm/jest-circus@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-circus/v/30.2.0
-@jest/environment,pkg:npm/@jest/environment@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/environment/v/30.2.0
-@jest/fake-timers,pkg:npm/@jest/fake-timers@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/fake-timers/v/30.2.0
-@jest/expect,pkg:npm/@jest/expect@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/expect/v/30.2.0
-jest-snapshot,pkg:npm/jest-snapshot@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-snapshot/v/30.2.0
+jest-circus,pkg:npm/jest-circus@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-circus/v/30.3.0
+@jest/environment,pkg:npm/@jest/environment@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/environment/v/30.3.0
+@jest/fake-timers,pkg:npm/@jest/fake-timers@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/fake-timers/v/30.3.0
+@sinonjs/fake-timers,pkg:npm/@sinonjs/fake-timers@15.3.2,15.3.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/@sinonjs/fake-timers/v/15.3.2
+@jest/expect,pkg:npm/@jest/expect@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/expect/v/30.3.0
+jest-snapshot,pkg:npm/jest-snapshot@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-snapshot/v/30.3.0
 @babel/plugin-syntax-jsx,pkg:npm/@babel/plugin-syntax-jsx@7.28.6,7.28.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/plugin-syntax-jsx/v/7.28.6
 @babel/plugin-syntax-typescript,pkg:npm/@babel/plugin-syntax-typescript@7.28.6,7.28.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/@babel/plugin-syntax-typescript/v/7.28.6
-@jest/snapshot-utils,pkg:npm/@jest/snapshot-utils@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/snapshot-utils/v/30.2.0
+@jest/snapshot-utils,pkg:npm/@jest/snapshot-utils@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/snapshot-utils/v/30.3.0
 synckit,pkg:npm/synckit@0.11.12,0.11.12,MIT,YES,YES,, ,,https://www.npmjs.com/package/synckit/v/0.11.12
 dedent,pkg:npm/dedent@1.7.2,1.7.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/dedent/v/1.7.2
-jest-each,pkg:npm/jest-each@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-each/v/30.2.0
-jest-runtime,pkg:npm/jest-runtime@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-runtime/v/30.2.0
-@jest/globals,pkg:npm/@jest/globals@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/globals/v/30.2.0
+jest-each,pkg:npm/jest-each@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-each/v/30.3.0
+jest-runtime,pkg:npm/jest-runtime@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-runtime/v/30.3.0
+@jest/globals,pkg:npm/@jest/globals@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@jest/globals/v/30.3.0
 cjs-module-lexer,pkg:npm/cjs-module-lexer@2.2.0,2.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/cjs-module-lexer/v/2.2.0
-jest-resolve,pkg:npm/jest-resolve@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-resolve/v/30.2.0
-jest-validate,pkg:npm/jest-validate@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-validate/v/30.2.0
+jest-resolve,pkg:npm/jest-resolve@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-resolve/v/30.3.0
+jest-validate,pkg:npm/jest-validate@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-validate/v/30.3.0
 napi-postinstall,pkg:npm/napi-postinstall@0.3.4,0.3.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/napi-postinstall/v/0.3.4
-@emnapi/core,pkg:npm/@emnapi/core@1.8.1,1.8.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@emnapi/core/v/1.8.1
-@emnapi/wasi-threads,pkg:npm/@emnapi/wasi-threads@1.1.0,1.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@emnapi/wasi-threads/v/1.1.0
-@emnapi/runtime,pkg:npm/@emnapi/runtime@1.8.1,1.8.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@emnapi/runtime/v/1.8.1
+@emnapi/core,pkg:npm/@emnapi/core@1.10.0,1.10.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@emnapi/core/v/1.10.0
+@emnapi/wasi-threads,pkg:npm/@emnapi/wasi-threads@1.2.1,1.2.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@emnapi/wasi-threads/v/1.2.1
+@emnapi/runtime,pkg:npm/@emnapi/runtime@1.10.0,1.10.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@emnapi/runtime/v/1.10.0
 @tybys/wasm-util,pkg:npm/@tybys/wasm-util@0.10.1,0.10.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/@tybys/wasm-util/v/0.10.1
 jest-docblock,pkg:npm/jest-docblock@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-docblock/v/30.2.0
-jest-environment-node,pkg:npm/jest-environment-node@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-environment-node/v/30.2.0
-jest-runner,pkg:npm/jest-runner@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-runner/v/30.2.0
-jest-leak-detector,pkg:npm/jest-leak-detector@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-leak-detector/v/30.2.0
-jest-watcher,pkg:npm/jest-watcher@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-watcher/v/30.2.0
-jest-resolve-dependencies,pkg:npm/jest-resolve-dependencies@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-resolve-dependencies/v/30.2.0
-jest-cli,pkg:npm/jest-cli@30.2.0,30.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-cli/v/30.2.0
-joi,pkg:npm/joi@18.0.2,18.0.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/joi/v/18.0.2
+jest-environment-node,pkg:npm/jest-environment-node@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-environment-node/v/30.3.0
+jest-runner,pkg:npm/jest-runner@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-runner/v/30.3.0
+jest-leak-detector,pkg:npm/jest-leak-detector@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-leak-detector/v/30.3.0
+jest-watcher,pkg:npm/jest-watcher@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-watcher/v/30.3.0
+jest-resolve-dependencies,pkg:npm/jest-resolve-dependencies@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-resolve-dependencies/v/30.3.0
+jest-cli,pkg:npm/jest-cli@30.3.0,30.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-cli/v/30.3.0
+joi,pkg:npm/joi@18.1.2,18.1.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/joi/v/18.1.2
 @hapi/address,pkg:npm/@hapi/address@5.1.1,5.1.1,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/@hapi/address/v/5.1.1
 @hapi/hoek,pkg:npm/@hapi/hoek@11.0.7,11.0.7,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/@hapi/hoek/v/11.0.7
 @hapi/formula,pkg:npm/@hapi/formula@3.0.2,3.0.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/@hapi/formula/v/3.0.2
@@ -2578,8 +2655,8 @@ joi,pkg:npm/joi@18.0.2,18.0.2,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/pac
 decimal.js,pkg:npm/decimal.js@10.6.0,10.6.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/decimal.js/v/10.6.0
 nwsapi,pkg:npm/nwsapi@2.2.23,2.2.23,MIT,YES,YES,, ,,https://www.npmjs.com/package/nwsapi/v/2.2.23
 entities,pkg:npm/entities@6.0.1,6.0.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/entities/v/6.0.1
-ws,pkg:npm/ws@8.19.0,8.19.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ws/v/8.19.0
-nodemailer,pkg:npm/nodemailer@7.0.13,7.0.13,MIT-0,YES,YES,, ,,https://www.npmjs.com/package/nodemailer/v/7.0.13
+ws,pkg:npm/ws@8.20.1,8.20.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/ws/v/8.20.1
+nodemailer,pkg:npm/nodemailer@8.0.6,8.0.6,MIT-0,YES,YES,, ,,https://www.npmjs.com/package/nodemailer/v/8.0.6
 pg,pkg:npm/pg@8.20.0,8.20.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/pg/v/8.20.0
 pg-connection-string,pkg:npm/pg-connection-string@2.12.0,2.12.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/pg-connection-string/v/2.12.0
 pg-pool,pkg:npm/pg-pool@3.13.0,3.13.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/pg-pool/v/3.13.0
@@ -2594,7 +2671,7 @@ pgpass,pkg:npm/pgpass@1.0.5,1.0.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/
 pg-cloudflare,pkg:npm/pg-cloudflare@1.3.0,1.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/pg-cloudflare/v/1.3.0
 pg-hstore,pkg:npm/pg-hstore@2.3.4,2.3.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/pg-hstore/v/2.3.4
 underscore,pkg:npm/underscore@1.13.8,1.13.8,MIT,YES,YES,, ,,https://www.npmjs.com/package/underscore/v/1.13.8
-puppeteer,pkg:npm/puppeteer@24.38.0,24.38.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/puppeteer/v/24.38.0
+puppeteer,pkg:npm/puppeteer@24.42.0,24.42.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/puppeteer/v/24.42.0
 @puppeteer/browsers,pkg:npm/@puppeteer/browsers@2.13.0,2.13.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/@puppeteer/browsers/v/2.13.0
 extract-zip,pkg:npm/extract-zip@2.0.1,2.0.1,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/extract-zip/v/2.0.1
 get-stream,pkg:npm/get-stream@5.2.0,5.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/get-stream/v/5.2.0
@@ -2605,46 +2682,46 @@ pend,pkg:npm/pend@1.2.0,1.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/pend
 @types/yauzl,pkg:npm/@types/yauzl@2.10.3,2.10.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/yauzl/v/2.10.3
 progress,pkg:npm/progress@2.0.3,2.0.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/progress/v/2.0.3
 proxy-agent,pkg:npm/proxy-agent@6.5.0,6.5.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/proxy-agent/v/6.5.0
-lru-cache,pkg:npm/lru-cache@7.18.3,7.18.3,ISC,YES,YES,, ,,https://www.npmjs.com/package/lru-cache/v/7.18.3
 pac-proxy-agent,pkg:npm/pac-proxy-agent@7.2.0,7.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/pac-proxy-agent/v/7.2.0
 @tootallnate/quickjs-emscripten,pkg:npm/@tootallnate/quickjs-emscripten@0.23.0,0.23.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@tootallnate/quickjs-emscripten/v/0.23.0
 get-uri,pkg:npm/get-uri@6.0.5,6.0.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/get-uri/v/6.0.5
-basic-ftp,pkg:npm/basic-ftp@5.2.0,5.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/basic-ftp/v/5.2.0
+basic-ftp,pkg:npm/basic-ftp@5.3.1,5.3.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/basic-ftp/v/5.3.1
 data-uri-to-buffer,pkg:npm/data-uri-to-buffer@6.0.2,6.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/data-uri-to-buffer/v/6.0.2
 pac-resolver,pkg:npm/pac-resolver@7.0.1,7.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/pac-resolver/v/7.0.1
 degenerator,pkg:npm/degenerator@5.0.1,5.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/degenerator/v/5.0.1
 ast-types,pkg:npm/ast-types@0.13.4,0.13.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/ast-types/v/0.13.4
 escodegen,pkg:npm/escodegen@2.1.0,2.1.0,BSD-2-Clause,YES,YES,, ,,https://www.npmjs.com/package/escodegen/v/2.1.0
-netmask,pkg:npm/netmask@2.0.2,2.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/netmask/v/2.0.2
+netmask,pkg:npm/netmask@2.1.1,2.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/netmask/v/2.1.1
 socks-proxy-agent,pkg:npm/socks-proxy-agent@8.0.5,8.0.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/socks-proxy-agent/v/8.0.5
 socks,pkg:npm/socks@2.8.7,2.8.7,MIT,YES,YES,, ,,https://www.npmjs.com/package/socks/v/2.8.7
-ip-address,pkg:npm/ip-address@10.1.0,10.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ip-address/v/10.1.0
+ip-address,pkg:npm/ip-address@10.2.0,10.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ip-address/v/10.2.0
 smart-buffer,pkg:npm/smart-buffer@4.2.0,4.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/smart-buffer/v/4.2.0
+proxy-from-env,pkg:npm/proxy-from-env@1.1.0,1.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/proxy-from-env/v/1.1.0
 tar-fs,pkg:npm/tar-fs@3.1.2,3.1.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/tar-fs/v/3.1.2
 tar-stream,pkg:npm/tar-stream@3.1.8,3.1.8,MIT,YES,YES,, ,,https://www.npmjs.com/package/tar-stream/v/3.1.8
 b4a,pkg:npm/b4a@1.8.0,1.8.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/b4a/v/1.8.0
-bare-fs,pkg:npm/bare-fs@4.5.5,4.5.5,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/bare-fs/v/4.5.5
+bare-fs,pkg:npm/bare-fs@4.7.1,4.7.1,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/bare-fs/v/4.7.1
 bare-events,pkg:npm/bare-events@2.8.2,2.8.2,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/bare-events/v/2.8.2
 bare-path,pkg:npm/bare-path@3.0.0,3.0.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/bare-path/v/3.0.0
-bare-os,pkg:npm/bare-os@3.7.1,3.7.1,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/bare-os/v/3.7.1
-bare-stream,pkg:npm/bare-stream@2.8.0,2.8.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/bare-stream/v/2.8.0
-streamx,pkg:npm/streamx@2.23.0,2.23.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/streamx/v/2.23.0
+bare-os,pkg:npm/bare-os@3.9.0,3.9.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/bare-os/v/3.9.0
+bare-stream,pkg:npm/bare-stream@2.13.0,2.13.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/bare-stream/v/2.13.0
+streamx,pkg:npm/streamx@2.25.0,2.25.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/streamx/v/2.25.0
 events-universal,pkg:npm/events-universal@1.0.1,1.0.1,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/events-universal/v/1.0.1
 fast-fifo,pkg:npm/fast-fifo@1.3.2,1.3.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/fast-fifo/v/1.3.2
 text-decoder,pkg:npm/text-decoder@1.2.7,1.2.7,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/text-decoder/v/1.2.7
 teex,pkg:npm/teex@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/teex/v/1.0.1
-bare-url,pkg:npm/bare-url@2.3.2,2.3.2,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/bare-url/v/2.3.2
+bare-url,pkg:npm/bare-url@2.4.2,2.4.2,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/bare-url/v/2.4.2
 chromium-bidi,pkg:npm/chromium-bidi@14.0.0,14.0.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/chromium-bidi/v/14.0.0
-devtools-protocol,pkg:npm/devtools-protocol@0.0.1581282,0.0.1581282,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/devtools-protocol/v/0.0.1581282
+devtools-protocol,pkg:npm/devtools-protocol@0.0.1595872,0.0.1595872,BSD-3-Clause,YES,YES,, ,,https://www.npmjs.com/package/devtools-protocol/v/0.0.1595872
 mitt,pkg:npm/mitt@3.0.1,3.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/mitt/v/3.0.1
 zod,pkg:npm/zod@3.25.76,3.25.76,MIT,YES,YES,, ,,https://www.npmjs.com/package/zod/v/3.25.76
 cosmiconfig,pkg:npm/cosmiconfig@9.0.1,9.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/cosmiconfig/v/9.0.1
-puppeteer-core,pkg:npm/puppeteer-core@24.38.0,24.38.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/puppeteer-core/v/24.38.0
-typed-query-selector,pkg:npm/typed-query-selector@2.12.1,2.12.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/typed-query-selector/v/2.12.1
+puppeteer-core,pkg:npm/puppeteer-core@24.42.0,24.42.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/puppeteer-core/v/24.42.0
+typed-query-selector,pkg:npm/typed-query-selector@2.12.2,2.12.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/typed-query-selector/v/2.12.2
 webdriver-bidi-protocol,pkg:npm/webdriver-bidi-protocol@0.4.1,0.4.1,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/webdriver-bidi-protocol/v/0.4.1
 reflect-metadata,pkg:npm/reflect-metadata@0.2.2,0.2.2,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/reflect-metadata/v/0.2.2
 sequelize,pkg:npm/sequelize@6.37.8,6.37.8,MIT,YES,YES,, ,,https://www.npmjs.com/package/sequelize/v/6.37.8
-@types/debug,pkg:npm/@types/debug@4.1.12,4.1.12,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/debug/v/4.1.12
+@types/debug,pkg:npm/@types/debug@4.1.13,4.1.13,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/debug/v/4.1.13
 @types/ms,pkg:npm/@types/ms@2.1.0,2.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/ms/v/2.1.0
 @types/validator,pkg:npm/@types/validator@13.15.10,13.15.10,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/validator/v/13.15.10
 dottie,pkg:npm/dottie@2.0.7,2.0.7,MIT,YES,YES,, ,,https://www.npmjs.com/package/dottie/v/2.0.7
@@ -2654,28 +2731,32 @@ moment-timezone,pkg:npm/moment-timezone@0.5.48,0.5.48,MIT,YES,YES,, ,,https://ww
 retry-as-promised,pkg:npm/retry-as-promised@7.1.1,7.1.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/retry-as-promised/v/7.1.1
 sequelize-pool,pkg:npm/sequelize-pool@7.1.0,7.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/sequelize-pool/v/7.1.0
 toposort-class,pkg:npm/toposort-class@1.0.1,1.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/toposort-class/v/1.0.1
-validator,pkg:npm/validator@13.15.23,13.15.23,MIT,YES,YES,, ,,https://www.npmjs.com/package/validator/v/13.15.23
+validator,pkg:npm/validator@13.15.35,13.15.35,MIT,YES,YES,, ,,https://www.npmjs.com/package/validator/v/13.15.35
 wkx,pkg:npm/wkx@0.5.0,0.5.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/wkx/v/0.5.0
 sequelize-typescript,pkg:npm/sequelize-typescript@2.1.6,2.1.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/sequelize-typescript/v/2.1.6
-ts-jest,pkg:npm/ts-jest@29.4.6,29.4.6,MIT,YES,YES,, ,,https://www.npmjs.com/package/ts-jest/v/29.4.6
+ts-jest,pkg:npm/ts-jest@29.4.9,29.4.9,MIT,YES,YES,, ,,https://www.npmjs.com/package/ts-jest/v/29.4.9
 umzug,pkg:npm/umzug@3.8.2,3.8.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/umzug/v/3.8.2
 @rushstack/ts-command-line,pkg:npm/@rushstack/ts-command-line@4.23.7,4.23.7,MIT,YES,YES,, ,,https://www.npmjs.com/package/@rushstack/ts-command-line/v/4.23.7
 @rushstack/terminal,pkg:npm/@rushstack/terminal@0.15.2,0.15.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/@rushstack/terminal/v/0.15.2
 @rushstack/node-core-library,pkg:npm/@rushstack/node-core-library@5.13.0,5.13.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/@rushstack/node-core-library/v/5.13.0
 ajv-draft-04,pkg:npm/ajv-draft-04@1.0.0,1.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/ajv-draft-04/v/1.0.0
 fs-extra,pkg:npm/fs-extra@11.3.4,11.3.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/fs-extra/v/11.3.4
+jsonfile,pkg:npm/jsonfile@6.2.1,6.2.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/jsonfile/v/6.2.1
 jju,pkg:npm/jju@1.4.0,1.4.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jju/v/1.4.0
+resolve,pkg:npm/resolve@1.22.12,1.22.12,MIT,YES,YES,, ,,https://www.npmjs.com/package/resolve/v/1.22.12
 @types/argparse,pkg:npm/@types/argparse@1.0.38,1.0.38,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/argparse/v/1.0.38
 pony-cause,pkg:npm/pony-cause@2.1.11,2.1.11,0BSD,YES,YES,, ,,https://www.npmjs.com/package/pony-cause/v/2.1.11
-undici,pkg:npm/undici@7.24.0,7.24.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/undici/v/7.24.0
-uuid,pkg:npm/uuid@11.1.0,11.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/uuid/v/11.1.0
+undici,pkg:npm/undici@7.25.0,7.25.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/undici/v/7.25.0
 @types/nodemailer,pkg:npm/@types/nodemailer@6.4.23,6.4.23,MIT,YES,YES,, ,,https://www.npmjs.com/package/@types/nodemailer/v/6.4.23
 husky,pkg:npm/husky@9.1.7,9.1.7,MIT,YES,YES,, ,,https://www.npmjs.com/package/husky/v/9.1.7
-jest-html-reporter,pkg:npm/jest-html-reporter@4.3.0,4.3.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-html-reporter/v/4.3.0
+jest-html-reporter,pkg:npm/jest-html-reporter@4.4.0,4.4.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/jest-html-reporter/v/4.4.0
 dateformat,pkg:npm/dateformat@3.0.2,3.0.2,MIT,YES,YES,, ,,https://www.npmjs.com/package/dateformat/v/3.0.2
 xmlbuilder,pkg:npm/xmlbuilder@15.0.0,15.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/xmlbuilder/v/15.0.0
 nodemon,pkg:npm/nodemon@3.1.14,3.1.14,MIT,YES,YES,, ,,https://www.npmjs.com/package/nodemon/v/3.1.14
 ignore-by-default,pkg:npm/ignore-by-default@1.0.1,1.0.1,ISC,YES,YES,, ,,https://www.npmjs.com/package/ignore-by-default/v/1.0.1
+minimatch,pkg:npm/minimatch@10.2.5,10.2.5,BlueOak-1.0.0,YES,YES,, ,,https://www.npmjs.com/package/minimatch/v/10.2.5
+brace-expansion,pkg:npm/brace-expansion@5.0.5,5.0.5,MIT,YES,YES,, ,,https://www.npmjs.com/package/brace-expansion/v/5.0.5
+balanced-match,pkg:npm/balanced-match@4.0.4,4.0.4,MIT,YES,YES,, ,,https://www.npmjs.com/package/balanced-match/v/4.0.4
 pstree.remy,pkg:npm/pstree.remy@1.1.8,1.1.8,MIT,YES,YES,, ,,https://www.npmjs.com/package/pstree.remy/v/1.1.8
 simple-update-notifier,pkg:npm/simple-update-notifier@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/simple-update-notifier/v/2.0.0
 touch,pkg:npm/touch@3.1.1,3.1.1,ISC,YES,YES,, ,,https://www.npmjs.com/package/touch/v/3.1.1
@@ -2701,7 +2782,7 @@ expand-template,pkg:npm/expand-template@2.0.3,2.0.3,(MIT OR WTFPL),YES,YES,, ,,h
 github-from-package,pkg:npm/github-from-package@0.0.0,0.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/github-from-package/v/0.0.0
 mkdirp-classic,pkg:npm/mkdirp-classic@0.5.3,0.5.3,MIT,YES,YES,, ,,https://www.npmjs.com/package/mkdirp-classic/v/0.5.3
 napi-build-utils,pkg:npm/napi-build-utils@2.0.0,2.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/napi-build-utils/v/2.0.0
-node-abi,pkg:npm/node-abi@3.87.0,3.87.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/node-abi/v/3.87.0
+node-abi,pkg:npm/node-abi@3.89.0,3.89.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/node-abi/v/3.89.0
 rc,pkg:npm/rc@1.2.8,1.2.8,(BSD-2-Clause OR MIT OR Apache-2.0),YES,YES,, ,,https://www.npmjs.com/package/rc/v/1.2.8
 strip-json-comments,pkg:npm/strip-json-comments@2.0.1,2.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/strip-json-comments/v/2.0.1
 simple-get,pkg:npm/simple-get@4.0.1,4.0.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/simple-get/v/4.0.1
@@ -2713,6 +2794,7 @@ chownr,pkg:npm/chownr@1.1.4,1.1.4,ISC,YES,YES,, ,,https://www.npmjs.com/package/
 tar-stream,pkg:npm/tar-stream@2.2.0,2.2.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/tar-stream/v/2.2.0
 fs-constants,pkg:npm/fs-constants@1.0.0,1.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/fs-constants/v/1.0.0
 tunnel-agent,pkg:npm/tunnel-agent@0.6.0,0.6.0,Apache-2.0,YES,YES,, ,,https://www.npmjs.com/package/tunnel-agent/v/0.6.0
+tar,pkg:npm/tar@7.5.13,7.5.13,BlueOak-1.0.0,YES,YES,, ,,https://www.npmjs.com/package/tar/v/7.5.13
 node-gyp,pkg:npm/node-gyp@8.4.1,8.4.1,MIT,YES,YES,, ,,https://www.npmjs.com/package/node-gyp/v/8.4.1
 make-fetch-happen,pkg:npm/make-fetch-happen@9.1.0,9.1.0,ISC,YES,YES,, ,,https://www.npmjs.com/package/make-fetch-happen/v/9.1.0
 agentkeepalive,pkg:npm/agentkeepalive@4.6.0,4.6.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/agentkeepalive/v/4.6.0
@@ -2726,7 +2808,7 @@ fs-minipass,pkg:npm/fs-minipass@2.1.0,2.1.0,ISC,YES,YES,, ,,https://www.npmjs.co
 minipass,pkg:npm/minipass@3.3.6,3.3.6,ISC,YES,YES,, ,,https://www.npmjs.com/package/minipass/v/3.3.6
 infer-owner,pkg:npm/infer-owner@1.0.4,1.0.4,ISC,YES,YES,, ,,https://www.npmjs.com/package/infer-owner/v/1.0.4
 minipass-collect,pkg:npm/minipass-collect@1.0.2,1.0.2,ISC,YES,YES,, ,,https://www.npmjs.com/package/minipass-collect/v/1.0.2
-minipass-flush,pkg:npm/minipass-flush@1.0.5,1.0.5,ISC,YES,YES,, ,,https://www.npmjs.com/package/minipass-flush/v/1.0.5
+minipass-flush,pkg:npm/minipass-flush@1.0.7,1.0.7,BlueOak-1.0.0,YES,YES,, ,,https://www.npmjs.com/package/minipass-flush/v/1.0.7
 minipass-pipeline,pkg:npm/minipass-pipeline@1.2.4,1.2.4,ISC,YES,YES,, ,,https://www.npmjs.com/package/minipass-pipeline/v/1.2.4
 p-map,pkg:npm/p-map@4.0.0,4.0.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/p-map/v/4.0.0
 aggregate-error,pkg:npm/aggregate-error@3.1.0,3.1.0,MIT,YES,YES,, ,,https://www.npmjs.com/package/aggregate-error/v/3.1.0
@@ -2781,78 +2863,79 @@ ruff,pkg:pypi/ruff@0.9.6,0.9.6,MIT,YES,YES,,"Charlie Marsh <charlie.r.marsh@gmai
 pact-python,pkg:pypi/pact-python@2.3.1,2.3.1,MIT,YES,YES,,"Matthew Balvanz <matthew.balvanz@workiva.com>, Joshua Ellis <josh@jpellis.me>",,https://libraries.io/pypi/pact-python/2.3.1
 defusedxml,pkg:pypi/defusedxml@0.7.1,0.7.1,PSF-2.0,YES,YES,,Christian Heimes <christian@python.org>,,https://libraries.io/pypi/defusedxml/0.7.1
 requests,pkg:pypi/requests@2.32.3,2.32.3,Apache-2.0,YES,YES,,Kenneth Reitz <me@kennethreitz.org>,,https://libraries.io/pypi/requests/2.32.3
-decidim-decidim_awesome,pkg:gem/decidim-decidim_awesome@0.13.2,0.13.2,AGPL-3.0,YES,NO,,Ivan Vergés,,https://rubygems.org/gems/decidim-decidim_awesome/0.13.2
+decidim-decidim_awesome,pkg:gem/decidim-decidim_awesome@0.14.2,0.14.2,AGPL-3.0,YES,NO,,Ivan Vergés,,https://rubygems.org/gems/decidim-decidim_awesome/0.14.2
 active_hashcash,pkg:gem/active_hashcash@0.4.0,0.4.0,MIT,YES,YES,,Alexis Bernard,,https://rubygems.org/gems/active_hashcash/0.4.0
-decidim-admin,pkg:gem/decidim-admin@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-admin/0.30.6
-decidim-core,pkg:gem/decidim-core@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-core/0.30.6
+decidim-admin,pkg:gem/decidim-admin@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-admin/0.31.4
+decidim-core,pkg:gem/decidim-core@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-core/0.31.4
 deface,pkg:gem/deface@1.9.0,1.9.0,MIT,YES,YES,,Brian D Quinn,,https://rubygems.org/gems/deface/1.9.0
 sassc,pkg:gem/sassc@2.4.0,2.4.0,MIT,YES,YES,,Ryan Boland,,https://rubygems.org/gems/sassc/2.4.0
-decidim-extra_user_fields,pkg:gem/decidim-extra_user_fields@0.30.0,0.30.0, ,NO,NO,, ,,https://rubygems.org/gems/decidim-extra_user_fields/0.30.0
-country_select,pkg:gem/country_select@4.0.0,4.0.0,MIT,YES,YES,,Stefan Penner,,https://rubygems.org/gems/country_select/4.0.0
+decidim-extra_user_fields,pkg:gem/decidim-extra_user_fields@0.31.0,0.31.0, ,NO,NO,, ,,https://rubygems.org/gems/decidim-extra_user_fields/0.31.0
+country_select,pkg:gem/country_select@10.0.1,10.0.1,MIT,YES,YES,,Stefan Penner,,https://rubygems.org/gems/country_select/10.0.1
 decidim-admin_header,pkg:gem/decidim-admin_header@0.1.0,0.1.0, ,NO,NO,, ,,https://rubygems.org/gems/decidim-admin_header/0.1.0
-rails,pkg:gem/rails@7.0.10,7.0.10,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/rails/7.0.10
-decidim-keycloak,pkg:gem/decidim-keycloak@0.30.1,0.30.1, ,NO,NO,, ,,https://rubygems.org/gems/decidim-keycloak/0.30.1
+rails,pkg:gem/rails@7.2.3.1,7.2.3.1,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/rails/7.2.3.1
+decidim-keycloak,pkg:gem/decidim-keycloak@0.1.1,0.1.1, ,NO,NO,, ,,https://rubygems.org/gems/decidim-keycloak/0.1.1
 omniauth-keycloak,pkg:gem/omniauth-keycloak@1.5.3,1.5.3,MIT,YES,YES,,Cameron Crockett,,https://rubygems.org/gems/omniauth-keycloak/1.5.3
-decidim-meetings-jitsi,pkg:gem/decidim-meetings-jitsi@0.30.4,0.30.4, ,NO,NO,, ,,https://rubygems.org/gems/decidim-meetings-jitsi/0.30.4
-decidim-meetings,pkg:gem/decidim-meetings@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-meetings/0.30.6
+decidim-meetings-jitsi,pkg:gem/decidim-meetings-jitsi@0.31.0,0.31.0, ,NO,NO,, ,,https://rubygems.org/gems/decidim-meetings-jitsi/0.31.0
+decidim-meetings,pkg:gem/decidim-meetings@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-meetings/0.31.4
 jwt,pkg:gem/jwt@3.1.2,3.1.2,MIT,YES,YES,,Tim Rudat,,https://rubygems.org/gems/jwt/3.1.2
-decidim-analytics,pkg:gem/decidim-analytics@0.30.1,0.30.1, ,NO,NO,, ,,https://rubygems.org/gems/decidim-analytics/0.30.1
-decidim-calendar,pkg:gem/decidim-calendar@0.30.4,0.30.4, ,NO,NO,, ,,https://rubygems.org/gems/decidim-calendar/0.30.4
-decidim-ldt_map_visualization,pkg:gem/decidim-ldt_map_visualization@0.30.6,0.30.6, ,NO,NO,, ,,https://rubygems.org/gems/decidim-ldt_map_visualization/0.30.6
-decidim-ldt_use_case_scenarios,pkg:gem/decidim-ldt_use_case_scenarios@0.30.6,0.30.6, ,NO,NO,, ,,https://rubygems.org/gems/decidim-ldt_use_case_scenarios/0.30.6
-actioncable,pkg:gem/actioncable@7.0.10,7.0.10,MIT,YES,YES,,"Pratik Naik, David Heinemeier Hansson",,https://rubygems.org/gems/actioncable/7.0.10
-actionpack,pkg:gem/actionpack@7.0.10,7.0.10,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/actionpack/7.0.10
-activesupport,pkg:gem/activesupport@7.0.10,7.0.10,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/activesupport/7.0.10
+decidim-analytics,pkg:gem/decidim-analytics@0.31.0,0.31.0, ,NO,NO,, ,,https://rubygems.org/gems/decidim-analytics/0.31.0
+decidim-calendar,pkg:gem/decidim-calendar@0.31.0,0.31.0, ,NO,NO,, ,,https://rubygems.org/gems/decidim-calendar/0.31.0
+decidim-ldt_map_visualization,pkg:gem/decidim-ldt_map_visualization@0.31.0,0.31.0, ,NO,NO,, ,,https://rubygems.org/gems/decidim-ldt_map_visualization/0.31.0
+decidim-ldt_use_case_scenarios,pkg:gem/decidim-ldt_use_case_scenarios@0.31.0,0.31.0, ,NO,NO,, ,,https://rubygems.org/gems/decidim-ldt_use_case_scenarios/0.31.0
+actioncable,pkg:gem/actioncable@7.2.3.1,7.2.3.1,MIT,YES,YES,,"Pratik Naik, David Heinemeier Hansson",,https://rubygems.org/gems/actioncable/7.2.3.1
+actionpack,pkg:gem/actionpack@7.2.3.1,7.2.3.1,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/actionpack/7.2.3.1
+activesupport,pkg:gem/activesupport@7.2.3.1,7.2.3.1,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/activesupport/7.2.3.1
 nio4r,pkg:gem/nio4r@2.7.5,2.7.5,(MIT AND BSD-2-Clause),YES,YES,,"Tony Arcieri, Samuel Williams, Olle Jonsson, Gregory Longtin, Tiago Cardoso, Joao Fernandes, Thomas Dziedzic, Boaz Segev, Logan Bowers, Pedro Paiva, Jun Aruga, Omer Katz, Upekshe Jayasekera, Tim Carey-Smith, Benoit Daloze, Sergey Avseyev, Tomoya Ishida, Usaku Nakamura, Cédric Boutillier, Daniel Berger, Dirkjan Bussink, Hiroshi Shibata, Jesús Burgos Maciá, Luis Lavena, Pavel Rosický, Sadayuki Furuhashi, Stephen von Takach, Vladimir Kochnev, Vít Ondruch, Anatol Pomozov, Bernd Ahlers, Charles Oliver Nutter, Denis Washington, Elad Eyal, Jean byroot Boussier, Jeffrey Martin, John Thornton, Jun Jiang, Lars Kanis, Marek Kowalcze, Maxime Demolin, Orien Madgwick, Pavel Lobashov, Per Lundberg, Phillip Aldridge, Ravil Bayramgalin, Shannon Skipper, Tao Luo, Thomas Kuntz, Tsimnuj Hawj, Zhang Kang",,https://rubygems.org/gems/nio4r/2.7.5
 websocket-driver,pkg:gem/websocket-driver@0.8.0,0.8.0,Apache-2.0,YES,YES,,James Coglan,,https://rubygems.org/gems/websocket-driver/0.8.0
-actionmailbox,pkg:gem/actionmailbox@7.0.10,7.0.10,MIT,YES,YES,,"David Heinemeier Hansson, George Claghorn",,https://rubygems.org/gems/actionmailbox/7.0.10
-activejob,pkg:gem/activejob@7.0.10,7.0.10,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/activejob/7.0.10
-activerecord,pkg:gem/activerecord@7.0.10,7.0.10,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/activerecord/7.0.10
-activestorage,pkg:gem/activestorage@7.0.10,7.0.10,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/activestorage/7.0.10
+zeitwerk,pkg:gem/zeitwerk@2.7.5,2.7.5,MIT,YES,YES,,Xavier Noria,,https://rubygems.org/gems/zeitwerk/2.7.5
+actionmailbox,pkg:gem/actionmailbox@7.2.3.1,7.2.3.1,MIT,YES,YES,,"David Heinemeier Hansson, George Claghorn",,https://rubygems.org/gems/actionmailbox/7.2.3.1
+activejob,pkg:gem/activejob@7.2.3.1,7.2.3.1,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/activejob/7.2.3.1
+activerecord,pkg:gem/activerecord@7.2.3.1,7.2.3.1,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/activerecord/7.2.3.1
+activestorage,pkg:gem/activestorage@7.2.3.1,7.2.3.1,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/activestorage/7.2.3.1
 mail,pkg:gem/mail@2.9.0,2.9.0,MIT,YES,YES,,Mikel Lindsaar,,https://rubygems.org/gems/mail/2.9.0
-net-imap,pkg:gem/net-imap@0.6.3,0.6.3,(Ruby AND BSD-2-Clause),YES,YES,,"Shugo Maeda, nicholas a. evans",,https://rubygems.org/gems/net-imap/0.6.3
-net-pop,pkg:gem/net-pop@0.1.2,0.1.2,(Ruby AND BSD-2-Clause),YES,YES,,Yukihiro Matsumoto,,https://rubygems.org/gems/net-pop/0.1.2
-net-smtp,pkg:gem/net-smtp@0.5.1,0.5.1,(Ruby AND BSD-2-Clause),YES,YES,,Yukihiro Matsumoto,,https://rubygems.org/gems/net-smtp/0.5.1
-actionmailer,pkg:gem/actionmailer@7.0.10,7.0.10,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/actionmailer/7.0.10
-actionview,pkg:gem/actionview@7.0.10,7.0.10,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/actionview/7.0.10
+actionmailer,pkg:gem/actionmailer@7.2.3.1,7.2.3.1,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/actionmailer/7.2.3.1
+actionview,pkg:gem/actionview@7.2.3.1,7.2.3.1,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/actionview/7.2.3.1
 rails-dom-testing,pkg:gem/rails-dom-testing@2.3.0,2.3.0,MIT,YES,YES,,"Rafael Mendonça França, Kasper Timm Hansen",,https://rubygems.org/gems/rails-dom-testing/2.3.0
+cgi,pkg:gem/cgi@0.5.1,0.5.1,(Ruby AND BSD-2-Clause),YES,YES,,Yukihiro Matsumoto,,https://rubygems.org/gems/cgi/0.5.1
+nokogiri,pkg:gem/nokogiri,,MIT,YES,YES,,"Mike Dalessio, Aaron Patterson, Yoko Harada, Akinori MUSHA, John Shahid, Karol Bucek, Sam Ruby, Craig Barnes, Stephen Checkoway, Lars Kanis, Sergio Arbeo, Timothy Elliott, Nobuyoshi Nakada",,
 racc,pkg:gem/racc@1.8.1,1.8.1,(Ruby AND BSD-2-Clause),YES,YES,,"Minero Aoki, Aaron Patterson",,https://rubygems.org/gems/racc/1.8.1
-rack,pkg:gem/rack@2.2.22,2.2.22,MIT,YES,YES,,Leah Neukirchen,,https://rubygems.org/gems/rack/2.2.22
+rack,pkg:gem/rack@2.2.23,2.2.23,MIT,YES,YES,,Leah Neukirchen,,https://rubygems.org/gems/rack/2.2.23
+rack-session,pkg:gem/rack-session@1.0.2,1.0.2,MIT,YES,YES,,"Samuel Williams, Jeremy Evans, Jon Dufresne, Philip Arndt",,https://rubygems.org/gems/rack-session/1.0.2
 rack-test,pkg:gem/rack-test@2.2.0,2.2.0,MIT,YES,YES,,"Jeremy Evans, Bryan Helmkamp",,https://rubygems.org/gems/rack-test/2.2.0
 rails-html-sanitizer,pkg:gem/rails-html-sanitizer@1.7.0,1.7.0,MIT,YES,YES,,"Rafael Mendonça França, Kasper Timm Hansen, Mike Dalessio",,https://rubygems.org/gems/rails-html-sanitizer/1.7.0
-actiontext,pkg:gem/actiontext@7.0.10,7.0.10,MIT,YES,YES,,"Javan Makhmali, Sam Stephenson, David Heinemeier Hansson",,https://rubygems.org/gems/actiontext/7.0.10
+useragent,pkg:gem/useragent@0.16.11,0.16.11,MIT,YES,YES,,"Joshua Peek, Garry Shutler",,https://rubygems.org/gems/useragent/0.16.11
+actiontext,pkg:gem/actiontext@7.2.3.1,7.2.3.1,MIT,YES,YES,,"Javan Makhmali, Sam Stephenson, David Heinemeier Hansson",,https://rubygems.org/gems/actiontext/7.2.3.1
 globalid,pkg:gem/globalid@1.3.0,1.3.0,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/globalid/1.3.0
-nokogiri,pkg:gem/nokogiri,,MIT,YES,YES,,"Mike Dalessio, Aaron Patterson, Yoko Harada, Akinori MUSHA, John Shahid, Karol Bucek, Sam Ruby, Craig Barnes, Stephen Checkoway, Lars Kanis, Sergio Arbeo, Timothy Elliott, Nobuyoshi Nakada",,
 builder,pkg:gem/builder@3.3.0,3.3.0,MIT,YES,YES,,"Jim Weirich, Aaron Patterson",,https://rubygems.org/gems/builder/3.3.0
 erubi,pkg:gem/erubi@1.13.1,1.13.1,MIT,YES,YES,,"Jeremy Evans, kuwata-lab.com",,https://rubygems.org/gems/erubi/1.13.1
 active_link_to,pkg:gem/active_link_to@1.0.5,1.0.5, ,NO,NO,,Oleg Khabarov,,https://rubygems.org/gems/active_link_to/1.0.5
-addressable,pkg:gem/addressable@2.8.8,2.8.8,Apache-2.0,YES,YES,,Bob Aman,,https://rubygems.org/gems/addressable/2.8.8
-activemodel,pkg:gem/activemodel@7.0.10,7.0.10,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/activemodel/7.0.10
+addressable,pkg:gem/addressable@2.9.0,2.9.0,Apache-2.0,YES,YES,,Bob Aman,,https://rubygems.org/gems/addressable/2.9.0
+activemodel,pkg:gem/activemodel@7.2.3.1,7.2.3.1,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/activemodel/7.2.3.1
+timeout,pkg:gem/timeout@0.6.1,0.6.1,(Ruby AND BSD-2-Clause),YES,YES,,Yukihiro Matsumoto,,https://rubygems.org/gems/timeout/0.6.1
 marcel,pkg:gem/marcel@1.1.0,1.1.0,(MIT AND Apache-2.0),YES,YES,,Tom Ward,,https://rubygems.org/gems/marcel/1.1.0
-mini_mime,pkg:gem/mini_mime@1.1.5,1.1.5,MIT,YES,YES,,Sam Saffron,,https://rubygems.org/gems/mini_mime/1.1.5
 base64,pkg:gem/base64@0.3.0,0.3.0,(Ruby AND BSD-2-Clause),YES,YES,,Yusuke Endoh,,https://rubygems.org/gems/base64/0.3.0
 benchmark,pkg:gem/benchmark@0.5.0,0.5.0,(Ruby AND BSD-2-Clause),YES,YES,,Yukihiro Matsumoto,,https://rubygems.org/gems/benchmark/0.5.0
-bigdecimal,pkg:gem/bigdecimal@4.0.1,4.0.1,(Ruby AND BSD-2-Clause),YES,YES,,"Kenta Murata, Zachary Scott, Shigeo Kobayashi",,https://rubygems.org/gems/bigdecimal/4.0.1
-concurrent-ruby,pkg:gem/concurrent-ruby@1.3.4,1.3.4,MIT,YES,YES,,"Jerry D'Antonio, Petr Chalupa, The Ruby Concurrency Team",,https://rubygems.org/gems/concurrent-ruby/1.3.4
+bigdecimal,pkg:gem/bigdecimal@4.1.2,4.1.2,(Ruby AND BSD-2-Clause),YES,YES,,"Kenta Murata, Zachary Scott, Shigeo Kobayashi",,https://rubygems.org/gems/bigdecimal/4.1.2
+concurrent-ruby,pkg:gem/concurrent-ruby@1.3.6,1.3.6,MIT,YES,YES,,"Jerry D'Antonio, Petr Chalupa, The Ruby Concurrency Team",,https://rubygems.org/gems/concurrent-ruby/1.3.6
+connection_pool,pkg:gem/connection_pool@2.5.5,2.5.5,MIT,YES,YES,,"Mike Perham, Damian Janowski",,https://rubygems.org/gems/connection_pool/2.5.5
 drb,pkg:gem/drb@2.2.3,2.2.3,(Ruby AND BSD-2-Clause),YES,YES,,Masatoshi SEKI,,https://rubygems.org/gems/drb/2.2.3
 i18n,pkg:gem/i18n@1.14.8,1.14.8,MIT,YES,YES,,"Sven Fuchs, Joshua Harvey, Matt Aimonetti, Stephan Soller, Saimon Moore, Ryan Bigg",,https://rubygems.org/gems/i18n/1.14.8
 logger,pkg:gem/logger@1.7.0,1.7.0,(Ruby AND BSD-2-Clause),YES,YES,,"Naotoshi Seo, SHIBATA Hiroshi",,https://rubygems.org/gems/logger/1.7.0
-minitest,pkg:gem/minitest@6.0.2,6.0.2,MIT,YES,YES,,Ryan Davis,,https://rubygems.org/gems/minitest/6.0.2
-mutex_m,pkg:gem/mutex_m@0.2.0,0.2.0,(Ruby AND BSD-2-Clause),YES,YES,,Keiju ISHITSUKA,,https://rubygems.org/gems/mutex_m/0.2.0
+minitest,pkg:gem/minitest@5.27.0,5.27.0,MIT,YES,YES,,Ryan Davis,,https://rubygems.org/gems/minitest/5.27.0
 securerandom,pkg:gem/securerandom@0.4.1,0.4.1,(Ruby AND BSD-2-Clause),YES,YES,,Tanaka Akira,,https://rubygems.org/gems/securerandom/0.4.1
 tzinfo,pkg:gem/tzinfo@2.0.6,2.0.6,MIT,YES,YES,,Philip Ross,,https://rubygems.org/gems/tzinfo/2.0.6
 acts_as_list,pkg:gem/acts_as_list@1.2.6,1.2.6,MIT,YES,YES,,"Swanand Pagnis, Brendon Muir",,https://rubygems.org/gems/acts_as_list/1.2.6
-public_suffix,pkg:gem/public_suffix@7.0.2,7.0.2,MIT,YES,YES,,Simone Carletti,,https://rubygems.org/gems/public_suffix/7.0.2
+public_suffix,pkg:gem/public_suffix@7.0.5,7.0.5,MIT,YES,YES,,Simone Carletti,,https://rubygems.org/gems/public_suffix/7.0.5
 aes_key_wrap,pkg:gem/aes_key_wrap@1.1.0,1.1.0,MIT,YES,YES,,Tom Dalling,,https://rubygems.org/gems/aes_key_wrap/1.1.0
 ast,pkg:gem/ast@2.4.3,2.4.3,MIT,YES,YES,,whitequark,,https://rubygems.org/gems/ast/2.4.3
 batch-loader,pkg:gem/batch-loader@2.0.6,2.0.6,MIT,YES,YES,,exAspArk,,https://rubygems.org/gems/batch-loader/2.0.6
-bcrypt,pkg:gem/bcrypt@3.1.21,3.1.21,MIT,YES,YES,,Coda Hale,,https://rubygems.org/gems/bcrypt/3.1.21
+bcrypt,pkg:gem/bcrypt@3.1.22,3.1.22,MIT,YES,YES,,Coda Hale,,https://rubygems.org/gems/bcrypt/3.1.22
 better_html,pkg:gem/better_html@2.2.0,2.2.0,MIT,YES,YES,,Francois Chagnon,,https://rubygems.org/gems/better_html/2.2.0
-parser,pkg:gem/parser@3.3.10.2,3.3.10.2,MIT,YES,YES,,whitequark,,https://rubygems.org/gems/parser/3.3.10.2
+parser,pkg:gem/parser@3.3.11.1,3.3.11.1,MIT,YES,YES,,whitequark,,https://rubygems.org/gems/parser/3.3.11.1
 smart_properties,pkg:gem/smart_properties@1.17.0,1.17.0,MIT ,YES,YES,,Konstantin Tennhard,,https://rubygems.org/gems/smart_properties/1.17.0
 bindata,pkg:gem/bindata@2.5.1,2.5.1,BSD-2-Clause,YES,YES,,Dion Mendel,,https://rubygems.org/gems/bindata/2.5.1
 bindex,pkg:gem/bindex@0.8.1,0.8.1,MIT,YES,YES,,Genadi Samokovarov,,https://rubygems.org/gems/bindex/0.8.1
-bootsnap,pkg:gem/bootsnap@1.23.0,1.23.0,MIT,YES,YES,,Burke Libbey,,https://rubygems.org/gems/bootsnap/1.23.0
+bootsnap,pkg:gem/bootsnap@1.24.0,1.24.0,MIT,YES,YES,,Burke Libbey,,https://rubygems.org/gems/bootsnap/1.24.0
 msgpack,pkg:gem/msgpack@1.8.0,1.8.0,Apache-2.0,YES,YES,,"Sadayuki Furuhashi, Theo Hultberg, Satoshi Tagomori",,https://rubygems.org/gems/msgpack/1.8.0
 browser,pkg:gem/browser@6.2.0,6.2.0,MIT,YES,YES,,Nando Vieira,,https://rubygems.org/gems/browser/6.2.0
 bullet,pkg:gem/bullet@8.0.8,8.0.8,MIT,YES,YES,,Richard Huang,,https://rubygems.org/gems/bullet/8.0.8
@@ -2860,7 +2943,8 @@ uniform_notifier,pkg:gem/uniform_notifier@1.18.0,1.18.0,MIT,YES,YES,,Richard Hua
 byebug,pkg:gem/byebug@11.1.3,11.1.3,BSD-2-Clause,YES,YES,,"David Rodriguez, Kent Sibilev, Mark Moseley",,https://rubygems.org/gems/byebug/11.1.3
 capybara,pkg:gem/capybara@3.40.0,3.40.0,MIT,YES,YES,,"Thomas Walpole, Jonas Nicklas",,https://rubygems.org/gems/capybara/3.40.0
 matrix,pkg:gem/matrix@0.4.3,0.4.3,(Ruby AND BSD-2-Clause),YES,YES,,Marc-Andre Lafortune,,https://rubygems.org/gems/matrix/0.4.3
-regexp_parser,pkg:gem/regexp_parser@2.11.3,2.11.3,MIT,YES,YES,,"Ammar Ali, Janosch Müller",,https://rubygems.org/gems/regexp_parser/2.11.3
+mini_mime,pkg:gem/mini_mime@1.1.5,1.1.5,MIT,YES,YES,,Sam Saffron,,https://rubygems.org/gems/mini_mime/1.1.5
+regexp_parser,pkg:gem/regexp_parser@2.12.0,2.12.0,MIT,YES,YES,,"Ammar Ali, Janosch Müller",,https://rubygems.org/gems/regexp_parser/2.12.0
 xpath,pkg:gem/xpath@3.2.0,3.2.0,MIT,YES,YES,,Jonas Nicklas,,https://rubygems.org/gems/xpath/3.2.0
 cells,pkg:gem/cells@4.1.8,4.1.8,MIT,YES,YES,,Nick Sutterer,,https://rubygems.org/gems/cells/4.1.8
 declarative-builder,pkg:gem/declarative-builder@0.2.0,0.2.0,MIT,YES,YES,,Nick Sutterer,,https://rubygems.org/gems/declarative-builder/0.2.0
@@ -2873,48 +2957,48 @@ cells-rails,pkg:gem/cells-rails@0.1.6,0.1.6,MIT,YES,YES,,Nick Sutterer,,https://
 charlock_holmes,pkg:gem/charlock_holmes@0.7.9,0.7.9,MIT,YES,YES,,"Brian Lopez, Vicent Martí",,https://rubygems.org/gems/charlock_holmes/0.7.9
 chartkick,pkg:gem/chartkick@5.1.5,5.1.5,MIT,YES,YES,,Andrew Kane,,https://rubygems.org/gems/chartkick/5.1.5
 childprocess,pkg:gem/childprocess@5.1.0,5.1.0,MIT,YES,YES,,"Jari Bakken, Eric Kessler, Shane da Silva",,https://rubygems.org/gems/childprocess/5.1.0
+chunky_png,pkg:gem/chunky_png@1.4.0,1.4.0,MIT,YES,YES,,Willem van Bergen,,https://rubygems.org/gems/chunky_png/1.4.0
 cmdparse,pkg:gem/cmdparse@3.0.7,3.0.7,MIT,YES,YES,,Thomas Leitner,,https://rubygems.org/gems/cmdparse/3.0.7
 commonmarker,pkg:gem/commonmarker@0.23.12,0.23.12,MIT,YES,YES,,"Garen Torikian, Ashe Connor",,https://rubygems.org/gems/commonmarker/0.23.12
-connection_pool,pkg:gem/connection_pool@2.5.5,2.5.5,MIT,YES,YES,,"Mike Perham, Damian Janowski",,https://rubygems.org/gems/connection_pool/2.5.5
-countries,pkg:gem/countries@3.1.0,3.1.0,MIT,YES,YES,,"Josh Robinson, Joe Corcoran, Russell Osborne",,https://rubygems.org/gems/countries/3.1.0
-i18n_data,pkg:gem/i18n_data@0.11.0,0.11.0,MIT,YES,YES,,Michael Grosser,,https://rubygems.org/gems/i18n_data/0.11.0
-sixarm_ruby_unaccent,pkg:gem/sixarm_ruby_unaccent@1.2.2,1.2.2,(Apache-2.0 AND Artistic-2.0 AND BSD-3-Clause AND CC-BY-NC-SA-4.0 AND AGPL-3.0 AND EPL-1.0 AND GPL-2.0 AND GPL-3.0 AND LGPL-3.0 AND MIT AND MPL-2.0 AND Ruby),YES,YES,,SixArm,,https://rubygems.org/gems/sixarm_ruby_unaccent/1.2.2
-unicode_utils,pkg:gem/unicode_utils@1.4.0,1.4.0, ,NO,NO,,Stefan Lang,,https://rubygems.org/gems/unicode_utils/1.4.0
-sort_alphabetical,pkg:gem/sort_alphabetical@1.1.0,1.1.0,MIT,YES,YES,,Michael Grosser,,https://rubygems.org/gems/sort_alphabetical/1.1.0
+countries,pkg:gem/countries@7.1.1,7.1.1,MIT,YES,YES,,"Josh Robinson, Joe Corcoran, Russell Osborne, Pedro Moreira",,https://rubygems.org/gems/countries/7.1.1
+unaccent,pkg:gem/unaccent@0.4.0,0.4.0,MIT,YES,YES,,Jonian Guveli,,https://rubygems.org/gems/unaccent/0.4.0
 crack,pkg:gem/crack@1.0.1,1.0.1,MIT,YES,YES,,John Nunemaker,,https://rubygems.org/gems/crack/1.0.1
 rexml,pkg:gem/rexml@3.4.4,3.4.4,BSD-2-Clause,YES,YES,,Kouhei Sutou,,https://rubygems.org/gems/rexml/3.4.4
 crass,pkg:gem/crass@1.0.6,1.0.6,MIT,YES,YES,,Ryan Grove,,https://rubygems.org/gems/crass/1.0.6
-css_parser,pkg:gem/css_parser@2.0.0,2.0.0,MIT,YES,YES,,Alex Dunae,,https://rubygems.org/gems/css_parser/2.0.0
+css_parser,pkg:gem/css_parser@2.1.0,2.1.0,MIT,YES,YES,,Alex Dunae,,https://rubygems.org/gems/css_parser/2.1.0
 csv,pkg:gem/csv@3.3.5,3.3.5,(Ruby AND BSD-2-Clause),YES,YES,,"James Edward Gray II, Kouhei Sutou",,https://rubygems.org/gems/csv/3.3.5
+data_migrate,pkg:gem/data_migrate@11.3.1,11.3.1,MIT,YES,YES,,"Andrew J Vargo, Ilya Katz, Deborah Enomah",,https://rubygems.org/gems/data_migrate/11.3.1
+railties,pkg:gem/railties@7.2.3.1,7.2.3.1,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/railties/7.2.3.1
 date,pkg:gem/date@3.5.1,3.5.1,(Ruby AND BSD-2-Clause),YES,YES,,Tadayoshi Funaba,,https://rubygems.org/gems/date/3.5.1
 date_validator,pkg:gem/date_validator@0.12.0,0.12.0,MIT,YES,YES,,"Oriol Gual, Josep M. Bach, Josep Jaume Rey",,https://rubygems.org/gems/date_validator/0.12.0
-decidim,pkg:gem/decidim@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim/0.30.6
-decidim-accountability,pkg:gem/decidim-accountability@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-accountability/0.30.6
-decidim-api,pkg:gem/decidim-api@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-api/0.30.6
-decidim-assemblies,pkg:gem/decidim-assemblies@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-assemblies/0.30.6
-decidim-blogs,pkg:gem/decidim-blogs@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,Isaac Massot Gil,,https://rubygems.org/gems/decidim-blogs/0.30.6
-decidim-budgets,pkg:gem/decidim-budgets@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-budgets/0.30.6
-decidim-comments,pkg:gem/decidim-comments@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-comments/0.30.6
-decidim-debates,pkg:gem/decidim-debates@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva, Genis Matutes Pujol",,https://rubygems.org/gems/decidim-debates/0.30.6
-decidim-forms,pkg:gem/decidim-forms@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva, Rubén González Valero",,https://rubygems.org/gems/decidim-forms/0.30.6
-decidim-generators,pkg:gem/decidim-generators@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-generators/0.30.6
-decidim-pages,pkg:gem/decidim-pages@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-pages/0.30.6
-decidim-participatory_processes,pkg:gem/decidim-participatory_processes@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-participatory_processes/0.30.6
-decidim-proposals,pkg:gem/decidim-proposals@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-proposals/0.30.6
-decidim-sortitions,pkg:gem/decidim-sortitions@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,Juan Salvador Perez Garcia,,https://rubygems.org/gems/decidim-sortitions/0.30.6
-decidim-surveys,pkg:gem/decidim-surveys@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-surveys/0.30.6
-decidim-system,pkg:gem/decidim-system@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-system/0.30.6
-decidim-verifications,pkg:gem/decidim-verifications@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,David Rodriguez,,https://rubygems.org/gems/decidim-verifications/0.30.6
+decidim,pkg:gem/decidim@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim/0.31.4
+decidim-accountability,pkg:gem/decidim-accountability@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-accountability/0.31.4
+decidim-api,pkg:gem/decidim-api@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-api/0.31.4
+decidim-assemblies,pkg:gem/decidim-assemblies@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-assemblies/0.31.4
+decidim-blogs,pkg:gem/decidim-blogs@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,Isaac Massot Gil,,https://rubygems.org/gems/decidim-blogs/0.31.4
+decidim-budgets,pkg:gem/decidim-budgets@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-budgets/0.31.4
+decidim-comments,pkg:gem/decidim-comments@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-comments/0.31.4
+decidim-debates,pkg:gem/decidim-debates@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva, Genis Matutes Pujol",,https://rubygems.org/gems/decidim-debates/0.31.4
+decidim-forms,pkg:gem/decidim-forms@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva, Rubén González Valero",,https://rubygems.org/gems/decidim-forms/0.31.4
+decidim-generators,pkg:gem/decidim-generators@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-generators/0.31.4
+decidim-pages,pkg:gem/decidim-pages@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-pages/0.31.4
+decidim-participatory_processes,pkg:gem/decidim-participatory_processes@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-participatory_processes/0.31.4
+decidim-proposals,pkg:gem/decidim-proposals@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-proposals/0.31.4
+decidim-sortitions,pkg:gem/decidim-sortitions@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,Juan Salvador Perez Garcia,,https://rubygems.org/gems/decidim-sortitions/0.31.4
+decidim-surveys,pkg:gem/decidim-surveys@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-surveys/0.31.4
+decidim-system,pkg:gem/decidim-system@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-system/0.31.4
+decidim-verifications,pkg:gem/decidim-verifications@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,David Rodriguez,,https://rubygems.org/gems/decidim-verifications/0.31.4
 devise,pkg:gem/devise@4.9.4,4.9.4,MIT,YES,YES,,"José Valim, Carlos Antônio",,https://rubygems.org/gems/devise/4.9.4
 devise-i18n,pkg:gem/devise-i18n@1.15.0,1.15.0,MIT,YES,YES,,"Christopher Dell, mcasimir, Jason Barnabe",,https://rubygems.org/gems/devise-i18n/1.15.0
 devise_invitable,pkg:gem/devise_invitable@2.0.11,2.0.11,MIT,YES,YES,,Sergio Cambra,,https://rubygems.org/gems/devise_invitable/2.0.11
-graphql,pkg:gem/graphql@2.4.17,2.4.17,MIT,YES,YES,,Robert Mosolgo,,https://rubygems.org/gems/graphql/2.4.17
+devise-jwt,pkg:gem/devise-jwt@0.12.1,0.12.1,MIT,YES,YES,,Marc Busqué,,https://rubygems.org/gems/devise-jwt/0.12.1
+graphql,pkg:gem/graphql@2.4.18,2.4.18,MIT,YES,YES,,Robert Mosolgo,,https://rubygems.org/gems/graphql/2.4.18
 graphql-docs,pkg:gem/graphql-docs@5.2.0,5.2.0,MIT,YES,YES,,"Brett Chalupa, Garen Torikian",,https://rubygems.org/gems/graphql-docs/5.2.0
 rack-cors,pkg:gem/rack-cors@1.1.1,1.1.1,MIT,YES,YES,,Calvin Yu,,https://rubygems.org/gems/rack-cors/1.1.1
 redcarpet,pkg:gem/redcarpet@3.6.1,3.6.1,MIT,YES,YES,,"Natacha Porté, Vicent Martí",,https://rubygems.org/gems/redcarpet/3.6.1
-decidim-conferences,pkg:gem/decidim-conferences@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,Isaac Massot Gil,,https://rubygems.org/gems/decidim-conferences/0.30.6
+decidim-conferences,pkg:gem/decidim-conferences@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,Isaac Massot Gil,,https://rubygems.org/gems/decidim-conferences/0.31.4
 diffy,pkg:gem/diffy@3.4.4,3.4.4,MIT,YES,YES,,Sam Goldstein,,https://rubygems.org/gems/diffy/3.4.4
-doorkeeper,pkg:gem/doorkeeper@5.8.2,5.8.2,MIT,YES,YES,,"Felipe Elias Philipp, Tute Costa, Jon Moss, Nikita Bulai",,https://rubygems.org/gems/doorkeeper/5.8.2
+doorkeeper,pkg:gem/doorkeeper@5.9.0,5.9.0,MIT,YES,YES,,"Felipe Elias Philipp, Tute Costa, Jon Moss, Nikita Bulai",,https://rubygems.org/gems/doorkeeper/5.9.0
 doorkeeper-i18n,pkg:gem/doorkeeper-i18n@4.0.1,4.0.1,MIT,YES,YES,,Tute Costa,,https://rubygems.org/gems/doorkeeper-i18n/4.0.1
 file_validators,pkg:gem/file_validators@3.0.0,3.0.0,MIT,YES,YES,,Ahmad Musaffa,,https://rubygems.org/gems/file_validators/3.0.0
 fog-local,pkg:gem/fog-local@0.9.0,0.9.0,MIT,YES,YES,,"Wesley Beary, Ville Lautanala",,https://rubygems.org/gems/fog-local/0.9.0
@@ -2924,9 +3008,10 @@ hexapdf,pkg:gem/hexapdf@1.1.1,1.1.1,(AGPL-3.0 AND Nonstandard),YES,NO,,Thomas Le
 image_processing,pkg:gem/image_processing@1.14.0,1.14.0,MIT,YES,YES,,Janko Marohnić,,https://rubygems.org/gems/image_processing/1.14.0
 invisible_captcha,pkg:gem/invisible_captcha@0.13.0,0.13.0,MIT,YES,YES,,Marc Anguera Insa,,https://rubygems.org/gems/invisible_captcha/0.13.0
 kaminari,pkg:gem/kaminari@1.2.2,1.2.2,MIT,YES,YES,,"Akira Matsuda, Yuki Nishijima, Zachary Scott, Hiroshi Shibata",,https://rubygems.org/gems/kaminari/1.2.2
-loofah,pkg:gem/loofah@2.25.0,2.25.0,MIT,YES,YES,,"Mike Dalessio, Bryan Helmkamp",,https://rubygems.org/gems/loofah/2.25.0
+loofah,pkg:gem/loofah@2.25.1,2.25.1,MIT,YES,YES,,"Mike Dalessio, Bryan Helmkamp",,https://rubygems.org/gems/loofah/2.25.1
 mime-types,pkg:gem/mime-types@3.7.0,3.7.0,MIT,YES,YES,,Austin Ziegler,,https://rubygems.org/gems/mime-types/3.7.0
 mini_magick,pkg:gem/mini_magick@4.13.2,4.13.2,MIT,YES,YES,,"Corey Johnson, Hampton Catlin, Peter Kieltyka, James Miller, Thiago Fernandes Massa, Janko Marohnić",,https://rubygems.org/gems/mini_magick/4.13.2
+net-smtp,pkg:gem/net-smtp@0.5.1,0.5.1,(Ruby AND BSD-2-Clause),YES,YES,,Yukihiro Matsumoto,,https://rubygems.org/gems/net-smtp/0.5.1
 omniauth,pkg:gem/omniauth@2.1.4,2.1.4,MIT,YES,YES,,"Michael Bleigh, Erik Michaels-Ober, Tom Milewski",,https://rubygems.org/gems/omniauth/2.1.4
 omniauth-facebook,pkg:gem/omniauth-facebook@5.0.0,5.0.0,MIT,YES,YES,,"Mark Dodwell, Josef Šimánek",,https://rubygems.org/gems/omniauth-facebook/5.0.0
 omniauth-google-oauth2,pkg:gem/omniauth-google-oauth2@1.2.2,1.2.2,MIT,YES,YES,,"Josh Ellithorpe, Yury Korolev",,https://rubygems.org/gems/omniauth-google-oauth2/1.2.2
@@ -2942,17 +3027,18 @@ rails-i18n,pkg:gem/rails-i18n@7.0.10,7.0.10,MIT,YES,YES,,Rails I18n Group,,https
 ransack,pkg:gem/ransack@4.2.1,4.2.1,MIT,YES,YES,,"Ernie Miller, Ryan Bigg, Jon Atack, Sean Carroll, David Rodríguez",,https://rubygems.org/gems/ransack/4.2.1
 redis,pkg:gem/redis@4.8.1,4.8.1,MIT,YES,YES,,"Ezra Zygmuntowicz, Taylor Weibley, Matthew Clark, Brian McKinney, Salvatore Sanfilippo, Luca Guidi, Michel Martens, Damian Janowski, Pieter Noordhuis",,https://rubygems.org/gems/redis/4.8.1
 request_store,pkg:gem/request_store@1.7.0,1.7.0,MIT,YES,YES,,Steve Klabnik,,https://rubygems.org/gems/request_store/1.7.0
+rqrcode,pkg:gem/rqrcode@2.2.0,2.2.0,MIT,YES,YES,,Duncan Robertson,,https://rubygems.org/gems/rqrcode/2.2.0
 rubyXL,pkg:gem/rubyXL@3.4.33,3.4.33,MIT,YES,YES,,"Vivek Bhagwat, Wesha",,https://rubygems.org/gems/rubyXL/3.4.33
 rubyzip,pkg:gem/rubyzip@2.3.2,2.3.2,BSD 2-Clause,YES,YES,,Alexander Simonov,,https://rubygems.org/gems/rubyzip/2.3.2
-shakapacker,pkg:gem/shakapacker@7.1.0,7.1.0,MIT,YES,YES,,"David Heinemeier Hansson, Gaurav Tiwari, Justin Gordon",,https://rubygems.org/gems/shakapacker/7.1.0
+shakapacker,pkg:gem/shakapacker@8.3.0,8.3.0,MIT,YES,YES,,"David Heinemeier Hansson, Gaurav Tiwari, Justin Gordon",,https://rubygems.org/gems/shakapacker/8.3.0
 valid_email2,pkg:gem/valid_email2@7.0.15,7.0.15,MIT,YES,YES,,Micke Lisinge,,https://rubygems.org/gems/valid_email2/7.0.15
 web-push,pkg:gem/web-push@3.1.0,3.1.0,MIT,YES,YES,,"zaru, collimarco",,https://rubygems.org/gems/web-push/3.1.0
 wisper,pkg:gem/wisper@3.0.0,3.0.0,MIT,YES,YES,,Kris Leech,,https://rubygems.org/gems/wisper/3.0.0
-decidim-design,pkg:gem/decidim-design@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,Decidim Team,,https://rubygems.org/gems/decidim-design/0.30.6
-decidim-dev,pkg:gem/decidim-dev@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-dev/0.30.6
+decidim-design,pkg:gem/decidim-design@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,Decidim Team,,https://rubygems.org/gems/decidim-design/0.31.4
+decidim-dev,pkg:gem/decidim-dev@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-dev/0.31.4
 erb_lint,pkg:gem/erb_lint@0.8.0,0.8.0,MIT,YES,YES,,"Justin Chan, Shopify Developers",,https://rubygems.org/gems/erb_lint/0.8.0
 factory_bot_rails,pkg:gem/factory_bot_rails@6.5.1,6.5.1,MIT,YES,YES,,Joe Ferris,,https://rubygems.org/gems/factory_bot_rails/6.5.1
-faker,pkg:gem/faker@3.6.0,3.6.0,MIT,YES,YES,,"Benjamin Curtis, Vitor Oliveira",,https://rubygems.org/gems/faker/3.6.0
+faker,pkg:gem/faker@3.8.0,3.8.0,MIT,YES,YES,,"Benjamin Curtis, Vitor Oliveira",,https://rubygems.org/gems/faker/3.8.0
 i18n-tasks,pkg:gem/i18n-tasks@1.1.2,1.1.2,MIT,YES,YES,,glebm,,https://rubygems.org/gems/i18n-tasks/1.1.2
 parallel_tests,pkg:gem/parallel_tests@4.10.1,4.10.1,MIT,YES,YES,,Michael Grosser,,https://rubygems.org/gems/parallel_tests/4.10.1
 puma,pkg:gem/puma@6.6.1,6.6.1,BSD-3-Clause,YES,YES,,Evan Phoenix,,https://rubygems.org/gems/puma/6.6.1
@@ -2963,62 +3049,66 @@ rspec-html-matchers,pkg:gem/rspec-html-matchers@0.10.0,0.10.0,MIT,YES,YES,,kucaa
 rspec-rails,pkg:gem/rspec-rails@6.1.5,6.1.5,MIT,YES,YES,,"David Chelimsky, Andy Lindeman",,https://rubygems.org/gems/rspec-rails/6.1.5
 rspec-retry,pkg:gem/rspec-retry@0.6.2,0.6.2,MIT,YES,YES,,"Yusuke Mito, Michael Glass",,https://rubygems.org/gems/rspec-retry/0.6.2
 rspec_junit_formatter,pkg:gem/rspec_junit_formatter@0.6.0,0.6.0,MIT,YES,YES,,Samuel Cochran,,https://rubygems.org/gems/rspec_junit_formatter/0.6.0
-rubocop,pkg:gem/rubocop@1.69.2,1.69.2,MIT,YES,YES,,"Bozhidar Batsov, Jonas Arvidsson, Yuji Nakayama",,https://rubygems.org/gems/rubocop/1.69.2
-rubocop-capybara,pkg:gem/rubocop-capybara@2.21.0,2.21.0,MIT,YES,YES,,Yudai Takada,,https://rubygems.org/gems/rubocop-capybara/2.21.0
-rubocop-factory_bot,pkg:gem/rubocop-factory_bot@2.26.1,2.26.1,MIT,YES,YES,,"John Backus, Ian MacLeod, Phil Pirozhkov, Maxim Krizhanovsky, Andrew Bromwich",,https://rubygems.org/gems/rubocop-factory_bot/2.26.1
-rubocop-faker,pkg:gem/rubocop-faker@1.2.0,1.2.0,MIT,YES,YES,,Koichi ITO,,https://rubygems.org/gems/rubocop-faker/1.2.0
-rubocop-graphql,pkg:gem/rubocop-graphql@1.5.4,1.5.4,MIT,YES,YES,,Dmitry Tsepelev,,https://rubygems.org/gems/rubocop-graphql/1.5.4
-rubocop-performance,pkg:gem/rubocop-performance@1.23.1,1.23.1,MIT,YES,YES,,"Bozhidar Batsov, Jonas Arvidsson, Yuji Nakayama",,https://rubygems.org/gems/rubocop-performance/1.23.1
-rubocop-rails,pkg:gem/rubocop-rails@2.29.1,2.29.1,MIT,YES,YES,,"Bozhidar Batsov, Jonas Arvidsson, Yuji Nakayama",,https://rubygems.org/gems/rubocop-rails/2.29.1
-rubocop-rspec,pkg:gem/rubocop-rspec@3.4.0,3.4.0,MIT,YES,YES,,"John Backus, Ian MacLeod, Nils Gemeinhardt",,https://rubygems.org/gems/rubocop-rspec/3.4.0
-rubocop-rspec_rails,pkg:gem/rubocop-rspec_rails@2.30.0,2.30.0,MIT,YES,YES,,"Benjamin Quorning, Phil Pirozhkov, Maxim Krizhanovsky, Yudai Takada",,https://rubygems.org/gems/rubocop-rspec_rails/2.30.0
-rubocop-rubycw,pkg:gem/rubocop-rubycw@0.1.6,0.1.6,MIT,YES,YES,,Masataka Pocke Kuwabara,,https://rubygems.org/gems/rubocop-rubycw/0.1.6
-selenium-webdriver,pkg:gem/selenium-webdriver@4.41.0,4.41.0,Apache-2.0,YES,YES,,"Alex Rodionov, Titus Fortner, Thomas Walpole",,https://rubygems.org/gems/selenium-webdriver/4.41.0
+rubocop,pkg:gem/rubocop@1.78.0,1.78.0,MIT,YES,YES,,"Bozhidar Batsov, Jonas Arvidsson, Yuji Nakayama",,https://rubygems.org/gems/rubocop/1.78.0
+rubocop-capybara,pkg:gem/rubocop-capybara@2.22.1,2.22.1,MIT,YES,YES,,Yudai Takada,,https://rubygems.org/gems/rubocop-capybara/2.22.1
+rubocop-factory_bot,pkg:gem/rubocop-factory_bot@2.27.1,2.27.1,MIT,YES,YES,,"John Backus, Ian MacLeod, Phil Pirozhkov, Maxim Krizhanovsky, Andrew Bromwich",,https://rubygems.org/gems/rubocop-factory_bot/2.27.1
+rubocop-faker,pkg:gem/rubocop-faker@1.3.0,1.3.0,MIT,YES,YES,,Koichi ITO,,https://rubygems.org/gems/rubocop-faker/1.3.0
+rubocop-graphql,pkg:gem/rubocop-graphql@1.6.0,1.6.0,MIT,YES,YES,,Dmitry Tsepelev,,https://rubygems.org/gems/rubocop-graphql/1.6.0
+rubocop-performance,pkg:gem/rubocop-performance@1.26.1,1.26.1,MIT,YES,YES,,"Bozhidar Batsov, Jonas Arvidsson, Yuji Nakayama",,https://rubygems.org/gems/rubocop-performance/1.26.1
+rubocop-rails,pkg:gem/rubocop-rails@2.32.0,2.32.0,MIT,YES,YES,,"Bozhidar Batsov, Jonas Arvidsson, Yuji Nakayama",,https://rubygems.org/gems/rubocop-rails/2.32.0
+rubocop-rspec,pkg:gem/rubocop-rspec@3.7.0,3.7.0,MIT,YES,YES,,"John Backus, Ian MacLeod, Nils Gemeinhardt",,https://rubygems.org/gems/rubocop-rspec/3.7.0
+rubocop-rspec_rails,pkg:gem/rubocop-rspec_rails@2.31.0,2.31.0,MIT,YES,YES,,"Benjamin Quorning, Phil Pirozhkov, Maxim Krizhanovsky, Yudai Takada",,https://rubygems.org/gems/rubocop-rspec_rails/2.31.0
+rubocop-rubycw,pkg:gem/rubocop-rubycw@0.2.2,0.2.2,MIT,YES,YES,,Masataka Pocke Kuwabara,,https://rubygems.org/gems/rubocop-rubycw/0.2.2
+selenium-webdriver,pkg:gem/selenium-webdriver@4.43.0,4.43.0,Apache-2.0,YES,YES,,"Alex Rodionov, Titus Fortner, Thomas Walpole",,https://rubygems.org/gems/selenium-webdriver/4.43.0
 simplecov,pkg:gem/simplecov@0.22.0,0.22.0,MIT,YES,YES,,"Christoph Olszowka, Tobias Pfeiffer",,https://rubygems.org/gems/simplecov/0.22.0
 simplecov-cobertura,pkg:gem/simplecov-cobertura@2.1.0,2.1.0,Apache-2.0,YES,YES,,Jesse Bowes,,https://rubygems.org/gems/simplecov-cobertura/2.1.0
 spring,pkg:gem/spring@4.4.2,4.4.2,MIT,YES,YES,,Jon Leighton,,https://rubygems.org/gems/spring/4.4.2
 spring-watcher-listen,pkg:gem/spring-watcher-listen@2.1.0,2.1.0,MIT,YES,YES,,Jon Leighton,,https://rubygems.org/gems/spring-watcher-listen/2.1.0
 w3c_rspec_validators,pkg:gem/w3c_rspec_validators@0.3.0,0.3.0, ,NO,NO,,Dominik Goltermann,,https://rubygems.org/gems/w3c_rspec_validators/0.3.0
-webmock,pkg:gem/webmock@3.26.1,3.26.1,MIT,YES,YES,,Bartosz Blimke,,https://rubygems.org/gems/webmock/3.26.1
+webmock,pkg:gem/webmock@3.26.2,3.26.2,MIT,YES,YES,,Bartosz Blimke,,https://rubygems.org/gems/webmock/3.26.2
 wisper-rspec,pkg:gem/wisper-rspec@1.1.0,1.1.0,MIT,YES,YES,,Kris Leech,,https://rubygems.org/gems/wisper-rspec/1.1.0
-decidim-initiatives,pkg:gem/decidim-initiatives@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,Juan Salvador Perez Garcia,,https://rubygems.org/gems/decidim-initiatives/0.30.6
-icalendar,pkg:gem/icalendar@2.12.1,2.12.1,BSD-2-Clause AND GPL-3.0-only,YES,YES,,Ryan Ahearn,,https://rubygems.org/gems/icalendar/2.12.1
+decidim-initiatives,pkg:gem/decidim-initiatives@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,Juan Salvador Perez Garcia,,https://rubygems.org/gems/decidim-initiatives/0.31.4
+icalendar,pkg:gem/icalendar@2.12.2,2.12.2,BSD-2-Clause AND GPL-3.0-only,YES,YES,,Ryan Ahearn,,https://rubygems.org/gems/icalendar/2.12.2
 doc2text,pkg:gem/doc2text@0.4.8,0.4.8,Apache-2.0,YES,YES,,Valentin A.,,https://rubygems.org/gems/doc2text/0.4.8
-decidim-templates,pkg:gem/decidim-templates@0.30.6,0.30.6,AGPL-3.0-or-later,YES,NO,,Vera Rojman,,https://rubygems.org/gems/decidim-templates/0.30.6
+decidim-templates,pkg:gem/decidim-templates@0.31.4,0.31.4,AGPL-3.0-or-later,YES,NO,,Vera Rojman,,https://rubygems.org/gems/decidim-templates/0.31.4
 trailblazer-option,pkg:gem/trailblazer-option@0.1.2,0.1.2,MIT,YES,YES,,Nick Sutterer,,https://rubygems.org/gems/trailblazer-option/0.1.2
 polyglot,pkg:gem/polyglot@0.3.5,0.3.5,MIT,YES,YES,,Clifford Heath,,https://rubygems.org/gems/polyglot/0.3.5
-railties,pkg:gem/railties@7.0.10,7.0.10,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/railties/7.0.10
 rainbow,pkg:gem/rainbow@3.1.1,3.1.1,MIT,YES,YES,,"Marcin Kulik, Olle Jonsson",,https://rubygems.org/gems/rainbow/3.1.1
 orm_adapter,pkg:gem/orm_adapter@0.5.0,0.5.0,MIT,YES,YES,,"Ian White, Jose Valim",,https://rubygems.org/gems/orm_adapter/0.5.0
 responders,pkg:gem/responders@3.2.0,3.2.0,MIT,YES,YES,,José Valim,,https://rubygems.org/gems/responders/3.2.0
 warden,pkg:gem/warden@1.2.9,1.2.9,MIT,YES,YES,,"Daniel Neighman, Justin Smestad, Whitney Smestad, José Valim",,https://rubygems.org/gems/warden/1.2.9
+warden-jwt_auth,pkg:gem/warden-jwt_auth@0.12.0,0.12.0,MIT,YES,YES,,Marc Busqué,,https://rubygems.org/gems/warden-jwt_auth/0.12.0
 diff-lcs,pkg:gem/diff-lcs@1.6.2,1.6.2,(MIT AND Artistic-1.0-Perl AND GPL-2.0-or-later),YES,YES,,Austin Ziegler,,https://rubygems.org/gems/diff-lcs/1.6.2
 docile,pkg:gem/docile@1.4.1,1.4.1,MIT,YES,YES,,Marc Siegel,,https://rubygems.org/gems/docile/1.4.1
+dry-auto_inject,pkg:gem/dry-auto_inject@1.1.0,1.1.0,MIT,YES,YES,,Piotr Solnica,,https://rubygems.org/gems/dry-auto_inject/1.1.0
+dry-core,pkg:gem/dry-core@1.2.0,1.2.0,MIT,YES,YES,,Hanakai team,,https://rubygems.org/gems/dry-core/1.2.0
+dry-configurable,pkg:gem/dry-configurable@1.3.0,1.3.0,MIT,YES,YES,,Andy Holland,,https://rubygems.org/gems/dry-configurable/1.3.0
+erb,pkg:gem/erb@6.0.4,6.0.4,(Ruby AND BSD-2-Clause),YES,YES,,"Masatoshi SEKI, Takashi Kokubun",,https://rubygems.org/gems/erb/6.0.4
 temple,pkg:gem/temple@0.10.4,0.10.4,MIT,YES,YES,,"Magnus Holm, Daniel Mendler",,https://rubygems.org/gems/temple/0.10.4
 escape_utils,pkg:gem/escape_utils@1.3.0,1.3.0,MIT,YES,YES,,Brian Lopez,,https://rubygems.org/gems/escape_utils/1.3.0
-excon,pkg:gem/excon@1.3.2,1.3.2,MIT,YES,YES,,"dpiddy (Dan Peterson), geemus (Wesley Beary), nextmat (Matt Sanders)",,https://rubygems.org/gems/excon/1.3.2
+excon,pkg:gem/excon@1.4.2,1.4.2,MIT,YES,YES,,"dpiddy (Dan Peterson), geemus (Wesley Beary), nextmat (Matt Sanders)",,https://rubygems.org/gems/excon/1.4.2
 extended-markdown-filter,pkg:gem/extended-markdown-filter@0.7.0,0.7.0,MIT,YES,YES,,Garen Torikian,,https://rubygems.org/gems/extended-markdown-filter/0.7.0
 html-pipeline,pkg:gem/html-pipeline@2.14.3,2.14.3,MIT,YES,YES,,"Ryan Tomayko, Jerry Cheung, Garen J. Torikian",,https://rubygems.org/gems/html-pipeline/2.14.3
 factory_bot,pkg:gem/factory_bot@6.5.6,6.5.6,MIT,YES,YES,,"Josh Clayton, Joe Ferris",,https://rubygems.org/gems/factory_bot/6.5.6
 faraday,pkg:gem/faraday@2.14.1,2.14.1,MIT,YES,YES,,"@technoweenie, @iMacTia, @olleolleolle",,https://rubygems.org/gems/faraday/2.14.1
 faraday-net_http,pkg:gem/faraday-net_http@3.4.2,3.4.2,MIT,YES,YES,,Jan van der Pas,,https://rubygems.org/gems/faraday-net_http/3.4.2
-json,pkg:gem/json@2.18.1,2.18.1,BSD-2-Clause,YES,YES,,Daniel Luz,,https://rubygems.org/gems/json/2.18.1
+json,pkg:gem/json@2.19.4,2.19.4,BSD-2-Clause,YES,YES,,Daniel Luz,,https://rubygems.org/gems/json/2.19.4
 faraday-follow_redirects,pkg:gem/faraday-follow_redirects@0.5.0,0.5.0,MIT,YES,YES,,Sebastian Cohnen,,https://rubygems.org/gems/faraday-follow_redirects/0.5.0
 net-http,pkg:gem/net-http@0.9.1,0.9.1,(Ruby AND BSD-2-Clause),YES,YES,,"NARUSE, Yui",,https://rubygems.org/gems/net-http/0.9.1
-ffi,pkg:gem/ffi@1.17.3-x86_64-linux-gnu,1.17.3-x86_64-linux-gnu,BSD-3-Clause,YES,YES,,Wayne Meissner,,https://rubygems.org/gems/ffi/1.17.3-x86_64-linux-gnu
+ffi,pkg:gem/ffi@1.17.4-x86_64-linux-gnu,1.17.4-x86_64-linux-gnu,BSD-3-Clause,YES,YES,,Wayne Meissner,,https://rubygems.org/gems/ffi/1.17.4-x86_64-linux-gnu
 fiber-storage,pkg:gem/fiber-storage@1.0.1,1.0.1,MIT,YES,YES,,Samuel Williams,,https://rubygems.org/gems/fiber-storage/1.0.1
 fog-core,pkg:gem/fog-core@2.6.0,2.6.0,MIT,YES,YES,,"Evan Light, Wesley Beary",,https://rubygems.org/gems/fog-core/2.6.0
 formatador,pkg:gem/formatador@1.2.3,1.2.3,MIT,YES,YES,,geemus (Wesley Beary),,https://rubygems.org/gems/formatador/1.2.3
 reline,pkg:gem/reline@0.6.3,0.6.3,BSD-3-Clause,YES,YES,,aycabta,,https://rubygems.org/gems/reline/0.6.3
 gemoji,pkg:gem/gemoji@3.0.1,3.0.1,MIT,YES,YES,,GitHub,,https://rubygems.org/gems/gemoji/3.0.1
 geom2d,pkg:gem/geom2d@0.4.1,0.4.1,MIT,YES,YES,,Thomas Leitner,,https://rubygems.org/gems/geom2d/0.4.1
-google-protobuf,pkg:gem/google-protobuf@4.34.0-x86_64-linux-gnu,4.34.0-x86_64-linux-gnu,BSD-3-Clause,YES,YES,,Protobuf Authors,,https://rubygems.org/gems/google-protobuf/4.34.0-x86_64-linux-gnu
-rake,pkg:gem/rake@13.3.1,13.3.1,MIT,YES,YES,,"Hiroshi SHIBATA, Eric Hodel, Jim Weirich",,https://rubygems.org/gems/rake/13.3.1
+google-protobuf,pkg:gem/google-protobuf@4.34.1-x86_64-linux-gnu,4.34.1-x86_64-linux-gnu,BSD-3-Clause,YES,YES,,Protobuf Authors,,https://rubygems.org/gems/google-protobuf/4.34.1-x86_64-linux-gnu
+rake,pkg:gem/rake@13.4.2,13.4.2,MIT,YES,YES,,"Hiroshi SHIBATA, Eric Hodel, Jim Weirich",,https://rubygems.org/gems/rake/13.4.2
 ostruct,pkg:gem/ostruct@0.6.3,0.6.3,(Ruby AND BSD-2-Clause),YES,YES,,Marc-Andre Lafortune,,https://rubygems.org/gems/ostruct/0.6.3
 sass-embedded,pkg:gem/sass-embedded,,MIT,YES,YES,,なつき,,
 hashie,pkg:gem/hashie@5.1.0,5.1.0,MIT,YES,YES,,"Michael Bleigh, Jerry Cheung",,https://rubygems.org/gems/hashie/5.1.0
 openssl,pkg:gem/openssl@4.0.1,4.0.1,BSD-2-Clause,YES,YES,,"Martin Bosslet, SHIBATA Hiroshi, Zachary Scott, Kazuki Yamaguchi",,https://rubygems.org/gems/openssl/4.0.1
-strscan,pkg:gem/strscan@3.1.7,3.1.7,(Ruby AND BSD-2-Clause),YES,YES,,"Minero Aoki, Sutou Kouhei, Charles Oliver Nutter",,https://rubygems.org/gems/strscan/3.1.7
+strscan,pkg:gem/strscan@3.1.8,3.1.8,(Ruby AND BSD-2-Clause),YES,YES,,"Minero Aoki, Sutou Kouhei, Charles Oliver Nutter",,https://rubygems.org/gems/strscan/3.1.8
 highline,pkg:gem/highline@3.1.2,3.1.2,GPL-2.0,YES,NO,,James Edward Gray II,,https://rubygems.org/gems/highline/3.1.2
 htmlentities,pkg:gem/htmlentities@4.4.2,4.4.2,MIT,YES,YES,,Paul Battley,,https://rubygems.org/gems/htmlentities/4.4.2
 prism,pkg:gem/prism@1.9.0,1.9.0,MIT,YES,YES,,Shopify,,https://rubygems.org/gems/prism/1.9.0
@@ -3027,6 +3117,9 @@ terminal-table,pkg:gem/terminal-table@4.0.0,4.0.0,MIT,YES,YES,,"TJ Holowaychuk, 
 ice_cube,pkg:gem/ice_cube@0.17.0,0.17.0,MIT,YES,YES,,John Crepezzi,,https://rubygems.org/gems/ice_cube/0.17.0
 ruby-vips,pkg:gem/ruby-vips@2.3.0,2.3.0,MIT,YES,YES,,John Cupitt,,https://rubygems.org/gems/ruby-vips/2.3.0
 io-console,pkg:gem/io-console@0.8.2,0.8.2,(Ruby AND BSD-2-Clause),YES,YES,,Nobu Nakada,,https://rubygems.org/gems/io-console/0.8.2
+irb,pkg:gem/irb@1.18.0,1.18.0,(Ruby AND BSD-2-Clause),YES,YES,,"aycabta, Keiju ISHITSUKA",,https://rubygems.org/gems/irb/1.18.0
+pp,pkg:gem/pp@0.6.3,0.6.3,(Ruby AND BSD-2-Clause),YES,YES,,Tanaka Akira,,https://rubygems.org/gems/pp/0.6.3
+rdoc,pkg:gem/rdoc@7.2.0,7.2.0,Ruby,NO,NO,,"Eric Hodel, Dave Thomas, Phil Hagelberg, Tony Strauss, Zachary Scott, Hiroshi SHIBATA, ITOYANAGI Sakura",,https://rubygems.org/gems/rdoc/7.2.0
 json-jwt,pkg:gem/json-jwt@1.17.0,1.17.0,MIT,YES,YES,,nov matake,,https://rubygems.org/gems/json-jwt/1.17.0
 kaminari-actionview,pkg:gem/kaminari-actionview@1.2.2,1.2.2,MIT,YES,YES,,Akira Matsuda,,https://rubygems.org/gems/kaminari-actionview/1.2.2
 kaminari-activerecord,pkg:gem/kaminari-activerecord@1.2.2,1.2.2,MIT,YES,YES,,Akira Matsuda,,https://rubygems.org/gems/kaminari-activerecord/1.2.2
@@ -3035,18 +3128,20 @@ language_server-protocol,pkg:gem/language_server-protocol@3.17.0.5,3.17.0.5,MIT,
 launchy,pkg:gem/launchy@3.1.1,3.1.1,ISC,YES,YES,,Jeremy Hinegardner,,https://rubygems.org/gems/launchy/3.1.1
 letter_opener,pkg:gem/letter_opener@1.10.0,1.10.0,MIT,YES,YES,,Ryan Bates,,https://rubygems.org/gems/letter_opener/1.10.0
 letter_opener_web,pkg:gem/letter_opener_web@2.0.0,2.0.0,MIT,YES,YES,,"Fabio Rehm, David Muto",,https://rubygems.org/gems/letter_opener_web/2.0.0
+lint_roller,pkg:gem/lint_roller@1.1.0,1.1.0,MIT,YES,YES,,Justin Searls,,https://rubygems.org/gems/lint_roller/1.1.0
 listen,pkg:gem/listen@3.10.0,3.10.0,MIT,YES,YES,,Thibaud Guillaume-Gentil,,https://rubygems.org/gems/listen/3.10.0
 rb-fsevent,pkg:gem/rb-fsevent@0.11.2,0.11.2,MIT,YES,YES,,"Thibaud Guillaume-Gentil, Travis Tilley",,https://rubygems.org/gems/rb-fsevent/0.11.2
 rb-inotify,pkg:gem/rb-inotify@0.11.1,0.11.1,MIT,YES,YES,,"Natalie Weizenbaum, Samuel Williams",,https://rubygems.org/gems/rb-inotify/0.11.1
 lograge,pkg:gem/lograge@0.14.0,0.14.0,MIT,YES,YES,,"Mathias Meyer, Ben Lovell, Michael Bianco",,https://rubygems.org/gems/lograge/0.14.0
 logstash-event,pkg:gem/logstash-event@1.2.02,1.2.02,Apache-2.0,YES,YES,,Jordan Sissel,,https://rubygems.org/gems/logstash-event/1.2.02
-method_source,pkg:gem/method_source@1.1.0,1.1.0,MIT,YES,YES,,John Mair (banisterfiend),,https://rubygems.org/gems/method_source/1.1.0
-mime-types-data,pkg:gem/mime-types-data@3.2026.0224,3.2026.0224,MIT,YES,YES,,Austin Ziegler,,https://rubygems.org/gems/mime-types-data/3.2026.0224
+net-imap,pkg:gem/net-imap@0.6.4,0.6.4,(Ruby AND BSD-2-Clause),YES,YES,,"Shugo Maeda, nicholas a. evans",,https://rubygems.org/gems/net-imap/0.6.4
+net-pop,pkg:gem/net-pop@0.1.2,0.1.2,(Ruby AND BSD-2-Clause),YES,YES,,Yukihiro Matsumoto,,https://rubygems.org/gems/net-pop/0.1.2
+mime-types-data,pkg:gem/mime-types-data@3.2026.0414,3.2026.0414,MIT,YES,YES,,Austin Ziegler,,https://rubygems.org/gems/mime-types-data/3.2026.0414
 multi_xml,pkg:gem/multi_xml@0.8.1,0.8.1,MIT,YES,YES,,Erik Berlin,,https://rubygems.org/gems/multi_xml/0.8.1
+mutex_m,pkg:gem/mutex_m@0.2.0,0.2.0,(Ruby AND BSD-2-Clause),YES,YES,,Keiju ISHITSUKA,,https://rubygems.org/gems/mutex_m/0.2.0
 uri,pkg:gem/uri@1.1.1,1.1.1,(Ruby AND BSD-2-Clause),YES,YES,,Akira Yamada,,https://rubygems.org/gems/uri/1.1.1
 net-protocol,pkg:gem/net-protocol@0.2.2,0.2.2,(Ruby AND BSD-2-Clause),YES,YES,,Yukihiro Matsumoto,,https://rubygems.org/gems/net-protocol/0.2.2
-timeout,pkg:gem/timeout@0.6.0,0.6.0,(Ruby AND BSD-2-Clause),YES,YES,,Yukihiro Matsumoto,,https://rubygems.org/gems/timeout/0.6.0
-nokogiri,pkg:gem/nokogiri@1.19.1-x86_64-linux-gnu,1.19.1-x86_64-linux-gnu,MIT,YES,YES,,"Mike Dalessio, Aaron Patterson, Yoko Harada, Akinori MUSHA, John Shahid, Karol Bucek, Sam Ruby, Craig Barnes, Stephen Checkoway, Lars Kanis, Sergio Arbeo, Timothy Elliott, Nobuyoshi Nakada",,https://rubygems.org/gems/nokogiri/1.19.1-x86_64-linux-gnu
+nokogiri,pkg:gem/nokogiri@1.19.3-x86_64-linux-gnu,1.19.3-x86_64-linux-gnu,MIT,YES,YES,,"Mike Dalessio, Aaron Patterson, Yoko Harada, Akinori MUSHA, John Shahid, Karol Bucek, Sam Ruby, Craig Barnes, Stephen Checkoway, Lars Kanis, Sergio Arbeo, Timothy Elliott, Nobuyoshi Nakada",,https://rubygems.org/gems/nokogiri/1.19.3-x86_64-linux-gnu
 oauth,pkg:gem/oauth@1.1.3,1.1.3,MIT,YES,YES,,"Pelle Braendgaard, Blaine Cook, Larry Halff, Jesse Clark, Jon Crosby, Seth Fitzsimmons, Matt Sanford, Aaron Quint, Peter Boling",,https://rubygems.org/gems/oauth/1.1.3
 oauth-tty,pkg:gem/oauth-tty@1.0.6,1.0.6,MIT,YES,YES,,"Thiago Pinto, Peter Boling",,https://rubygems.org/gems/oauth-tty/1.0.6
 snaky_hash,pkg:gem/snaky_hash@2.0.3,2.0.3,MIT,YES,YES,,Peter Boling,,https://rubygems.org/gems/snaky_hash/2.0.3
@@ -3055,20 +3150,27 @@ oauth2,pkg:gem/oauth2@2.0.18,2.0.18,MIT,YES,YES,,"Peter Boling, Erik Michaels-Ob
 rack-protection,pkg:gem/rack-protection@3.2.0,3.2.0,MIT,YES,YES,,https://github.com/sinatra/sinatra/graphs/contributors,,https://rubygems.org/gems/rack-protection/3.2.0
 omniauth-oauth2,pkg:gem/omniauth-oauth2@1.8.0,1.8.0,MIT,YES,YES,,"Michael Bleigh, Erik Michaels-Ober, Tom Milewski",,https://rubygems.org/gems/omniauth-oauth2/1.8.0
 omniauth-oauth,pkg:gem/omniauth-oauth@1.2.1,1.2.1,MIT,YES,YES,,"Michael Bleigh, Erik Michaels-Ober",,https://rubygems.org/gems/omniauth-oauth/1.2.1
-parallel,pkg:gem/parallel@1.27.0,1.27.0,MIT,YES,YES,,Michael Grosser,,https://rubygems.org/gems/parallel/1.27.0
-premailer,pkg:gem/premailer@1.28.0,1.28.0,BSD-3-CLAUSE,YES,YES,,Alex Dunae,,https://rubygems.org/gems/premailer/1.28.0
+package_json,pkg:gem/package_json@0.2.0,0.2.0,MIT,YES,YES,,Gareth Jones,,https://rubygems.org/gems/package_json/0.2.0
+parallel,pkg:gem/parallel@1.28.0,1.28.0,MIT,YES,YES,,Michael Grosser,,https://rubygems.org/gems/parallel/1.28.0
+prettyprint,pkg:gem/prettyprint@0.2.0,0.2.0,(Ruby AND BSD-2-Clause),YES,YES,,Tanaka Akira,,https://rubygems.org/gems/prettyprint/0.2.0
+premailer,pkg:gem/premailer@1.29.0,1.29.0,BSD-3-CLAUSE,YES,YES,,Alex Dunae,,https://rubygems.org/gems/premailer/1.29.0
+psych,pkg:gem/psych@5.3.1,5.3.1,MIT,YES,YES,,"Aaron Patterson, SHIBATA Hiroshi, Charles Oliver Nutter",,https://rubygems.org/gems/psych/5.3.1
+stringio,pkg:gem/stringio@3.2.0,3.2.0,(Ruby AND BSD-2-Clause),YES,YES,,"Nobu Nakada, Charles Oliver Nutter",,https://rubygems.org/gems/stringio/3.2.0
 rack-proxy,pkg:gem/rack-proxy@0.7.7,0.7.7,MIT,YES,YES,,Jacek Becela,,https://rubygems.org/gems/rack-proxy/0.7.7
+rackup,pkg:gem/rackup@1.0.1,1.0.1,MIT,YES,YES,,"Samuel Williams, Jeremy Evans",,https://rubygems.org/gems/rackup/1.0.1
+webrick,pkg:gem/webrick@1.9.2,1.9.2,(Ruby AND BSD-2-Clause),YES,YES,,"TAKAHASHI Masayoshi, GOTOU YUUZOU, Eric Wong",,https://rubygems.org/gems/webrick/1.9.2
 thor,pkg:gem/thor@1.5.0,1.5.0,MIT,YES,YES,,"Yehuda Katz, José Valim",,https://rubygems.org/gems/thor/1.5.0
-zeitwerk,pkg:gem/zeitwerk@2.7.5,2.7.5,MIT,YES,YES,,Xavier Noria,,https://rubygems.org/gems/zeitwerk/2.7.5
+tsort,pkg:gem/tsort@0.2.0,0.2.0,(Ruby AND BSD-2-Clause),YES,YES,,Tanaka Akira,,https://rubygems.org/gems/tsort/0.2.0
 ffi,pkg:gem/ffi,,BSD-3-Clause,YES,YES,,Wayne Meissner,,
-redis-client,pkg:gem/redis-client@0.26.4,0.26.4,MIT,YES,YES,,Jean Boussier,,https://rubygems.org/gems/redis-client/0.26.4
+redis-client,pkg:gem/redis-client@0.28.0,0.28.0,MIT,YES,YES,,Jean Boussier,,https://rubygems.org/gems/redis-client/0.28.0
+rqrcode_core,pkg:gem/rqrcode_core@1.2.0,1.2.0,MIT,YES,YES,,Duncan Robertson,,https://rubygems.org/gems/rqrcode_core/1.2.0
 rspec-core,pkg:gem/rspec-core@3.13.6,3.13.6,MIT,YES,YES,,"Steven Baker, David Chelimsky, Chad Humphries, Myron Marston",,https://rubygems.org/gems/rspec-core/3.13.6
 rspec-expectations,pkg:gem/rspec-expectations@3.13.5,3.13.5,MIT,YES,YES,,"Steven Baker, David Chelimsky, Myron Marston",,https://rubygems.org/gems/rspec-expectations/3.13.5
-rspec-mocks,pkg:gem/rspec-mocks@3.13.7,3.13.7,MIT,YES,YES,,"Steven Baker, David Chelimsky, Myron Marston",,https://rubygems.org/gems/rspec-mocks/3.13.7
+rspec-mocks,pkg:gem/rspec-mocks@3.13.8,3.13.8,MIT,YES,YES,,"Steven Baker, David Chelimsky, Myron Marston",,https://rubygems.org/gems/rspec-mocks/3.13.8
 rspec-support,pkg:gem/rspec-support@3.13.7,3.13.7,MIT,YES,YES,,"David Chelimsky, Myron Marson, Jon Rowe, Sam Phippen, Xaviery Shay, Bradley Schaefer",,https://rubygems.org/gems/rspec-support/3.13.7
-rubocop-ast,pkg:gem/rubocop-ast@1.49.0,1.49.0,MIT,YES,YES,,"Bozhidar Batsov, Jonas Arvidsson, Yuji Nakayama",,https://rubygems.org/gems/rubocop-ast/1.49.0
+rubocop-ast,pkg:gem/rubocop-ast@1.49.1,1.49.1,MIT,YES,YES,,"Bozhidar Batsov, Jonas Arvidsson, Yuji Nakayama",,https://rubygems.org/gems/rubocop-ast/1.49.1
 unicode-display_width,pkg:gem/unicode-display_width@3.2.0,3.2.0,MIT,YES,YES,,Jan Lelis,,https://rubygems.org/gems/unicode-display_width/3.2.0
-sass-embedded,pkg:gem/sass-embedded@1.97.3-x86_64-linux-gnu,1.97.3-x86_64-linux-gnu,MIT,YES,YES,,なつき,,https://rubygems.org/gems/sass-embedded/1.97.3-x86_64-linux-gnu
+sass-embedded,pkg:gem/sass-embedded@1.99.0-x86_64-linux-gnu,1.99.0-x86_64-linux-gnu,MIT,YES,YES,,なつき,,https://rubygems.org/gems/sass-embedded/1.99.0-x86_64-linux-gnu
 websocket,pkg:gem/websocket@1.2.11,1.2.11,MIT,YES,YES,,Bernard Potocki,,https://rubygems.org/gems/websocket/1.2.11
 semantic_range,pkg:gem/semantic_range@3.1.1,3.1.1,MIT,YES,YES,,Andrew Nesbitt,,https://rubygems.org/gems/semantic_range/3.1.1
 sidekiq,pkg:gem/sidekiq@7.3.10,7.3.10,LGPL-3.0,YES,YES,,Mike Perham,,https://rubygems.org/gems/sidekiq/7.3.10
@@ -3102,6 +3204,7 @@ globalid,pkg:gem/globalid@1.2.1,1.2.1,MIT,YES,YES,,David Heinemeier Hansson,,htt
 addressable,pkg:gem/addressable@2.8.7,2.8.7,Apache-2.0,YES,YES,,Bob Aman,,https://rubygems.org/gems/addressable/2.8.7
 activemodel,pkg:gem/activemodel@7.0.8.7,7.0.8.7,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/activemodel/7.0.8.7
 marcel,pkg:gem/marcel@1.0.4,1.0.4,(MIT AND Apache-2.0),YES,YES,,Tom Ward,,https://rubygems.org/gems/marcel/1.0.4
+concurrent-ruby,pkg:gem/concurrent-ruby@1.3.4,1.3.4,MIT,YES,YES,,"Jerry D'Antonio, Petr Chalupa, The Ruby Concurrency Team",,https://rubygems.org/gems/concurrent-ruby/1.3.4
 i18n,pkg:gem/i18n@1.14.7,1.14.7,MIT,YES,YES,,"Sven Fuchs, Joshua Harvey, Matt Aimonetti, Stephan Soller, Saimon Moore, Ryan Bigg",,https://rubygems.org/gems/i18n/1.14.7
 minitest,pkg:gem/minitest@5.25.5,5.25.5,MIT,YES,YES,,Ryan Davis,,https://rubygems.org/gems/minitest/5.25.5
 acts_as_list,pkg:gem/acts_as_list@1.2.4,1.2.4,MIT,YES,YES,,"Swanand Pagnis, Brendon Muir",,https://rubygems.org/gems/acts_as_list/1.2.4
@@ -3146,6 +3249,7 @@ devise-i18n,pkg:gem/devise-i18n@1.13.0,1.13.0,MIT,YES,YES,,"Christopher Dell, mc
 devise_invitable,pkg:gem/devise_invitable@2.0.10,2.0.10,MIT,YES,YES,,Sergio Cambra,,https://rubygems.org/gems/devise_invitable/2.0.10
 graphql,pkg:gem/graphql@2.4.16,2.4.16,MIT,YES,YES,,Robert Mosolgo,,https://rubygems.org/gems/graphql/2.4.16
 diffy,pkg:gem/diffy@3.4.3,3.4.3,MIT,YES,YES,,Sam Goldstein,,https://rubygems.org/gems/diffy/3.4.3
+doorkeeper,pkg:gem/doorkeeper@5.8.2,5.8.2,MIT,YES,YES,,"Felipe Elias Philipp, Tute Costa, Jon Moss, Nikita Bulai",,https://rubygems.org/gems/doorkeeper/5.8.2
 geocoder,pkg:gem/geocoder@1.8.5,1.8.5,MIT,YES,YES,,Alex Reisner,,https://rubygems.org/gems/geocoder/1.8.5
 hashdiff,pkg:gem/hashdiff@1.1.2,1.1.2,MIT,YES,YES,,Liu Fengyun,,https://rubygems.org/gems/hashdiff/1.1.2
 loofah,pkg:gem/loofah@2.24.0,2.24.0,MIT,YES,YES,,"Mike Dalessio, Bryan Helmkamp",,https://rubygems.org/gems/loofah/2.24.0
@@ -3154,6 +3258,7 @@ omniauth,pkg:gem/omniauth@2.1.3,2.1.3,MIT,YES,YES,,"Michael Bleigh, Erik Michael
 omniauth-google-oauth2,pkg:gem/omniauth-google-oauth2@1.2.1,1.2.1,MIT,YES,YES,,"Josh Ellithorpe, Yury Korolev",,https://rubygems.org/gems/omniauth-google-oauth2/1.2.1
 rack-attack,pkg:gem/rack-attack@6.7.0,6.7.0,MIT,YES,YES,,Aaron Suggs,,https://rubygems.org/gems/rack-attack/6.7.0
 rails,pkg:gem/rails@7.0.8.7,7.0.8.7,MIT,YES,YES,,David Heinemeier Hansson,,https://rubygems.org/gems/rails/7.0.8.7
+shakapacker,pkg:gem/shakapacker@7.1.0,7.1.0,MIT,YES,YES,,"David Heinemeier Hansson, Gaurav Tiwari, Justin Gordon",,https://rubygems.org/gems/shakapacker/7.1.0
 valid_email2,pkg:gem/valid_email2@7.0.12,7.0.12,MIT,YES,YES,,Micke Lisinge,,https://rubygems.org/gems/valid_email2/7.0.12
 web-push,pkg:gem/web-push@3.0.1,3.0.1,MIT,YES,YES,,"zaru, collimarco",,https://rubygems.org/gems/web-push/3.0.1
 decidim-dev,pkg:gem/decidim-dev@0.30.0,0.30.0,AGPL-3.0-or-later,YES,NO,,"Josep Jaume Rey Peroy, Marc Riera Casals, Oriol Gual Oliva",,https://rubygems.org/gems/decidim-dev/0.30.0
@@ -3162,6 +3267,16 @@ faker,pkg:gem/faker@3.5.1,3.5.1,MIT,YES,YES,,"Benjamin Curtis, Vitor Oliveira",,
 i18n-tasks,pkg:gem/i18n-tasks@1.0.15,1.0.15,MIT,YES,YES,,glebm,,https://rubygems.org/gems/i18n-tasks/1.0.15
 puma,pkg:gem/puma@6.6.0,6.6.0,BSD-3-Clause,YES,YES,,Evan Phoenix,,https://rubygems.org/gems/puma/6.6.0
 rspec,pkg:gem/rspec@3.13.0,3.13.0,MIT,YES,YES,,"Steven Baker, David Chelimsky, Myron Marston",,https://rubygems.org/gems/rspec/3.13.0
+rubocop,pkg:gem/rubocop@1.69.2,1.69.2,MIT,YES,YES,,"Bozhidar Batsov, Jonas Arvidsson, Yuji Nakayama",,https://rubygems.org/gems/rubocop/1.69.2
+rubocop-capybara,pkg:gem/rubocop-capybara@2.21.0,2.21.0,MIT,YES,YES,,Yudai Takada,,https://rubygems.org/gems/rubocop-capybara/2.21.0
+rubocop-factory_bot,pkg:gem/rubocop-factory_bot@2.26.1,2.26.1,MIT,YES,YES,,"John Backus, Ian MacLeod, Phil Pirozhkov, Maxim Krizhanovsky, Andrew Bromwich",,https://rubygems.org/gems/rubocop-factory_bot/2.26.1
+rubocop-faker,pkg:gem/rubocop-faker@1.2.0,1.2.0,MIT,YES,YES,,Koichi ITO,,https://rubygems.org/gems/rubocop-faker/1.2.0
+rubocop-graphql,pkg:gem/rubocop-graphql@1.5.4,1.5.4,MIT,YES,YES,,Dmitry Tsepelev,,https://rubygems.org/gems/rubocop-graphql/1.5.4
+rubocop-performance,pkg:gem/rubocop-performance@1.23.1,1.23.1,MIT,YES,YES,,"Bozhidar Batsov, Jonas Arvidsson, Yuji Nakayama",,https://rubygems.org/gems/rubocop-performance/1.23.1
+rubocop-rails,pkg:gem/rubocop-rails@2.29.1,2.29.1,MIT,YES,YES,,"Bozhidar Batsov, Jonas Arvidsson, Yuji Nakayama",,https://rubygems.org/gems/rubocop-rails/2.29.1
+rubocop-rspec,pkg:gem/rubocop-rspec@3.4.0,3.4.0,MIT,YES,YES,,"John Backus, Ian MacLeod, Nils Gemeinhardt",,https://rubygems.org/gems/rubocop-rspec/3.4.0
+rubocop-rspec_rails,pkg:gem/rubocop-rspec_rails@2.30.0,2.30.0,MIT,YES,YES,,"Benjamin Quorning, Phil Pirozhkov, Maxim Krizhanovsky, Yudai Takada",,https://rubygems.org/gems/rubocop-rspec_rails/2.30.0
+rubocop-rubycw,pkg:gem/rubocop-rubycw@0.1.6,0.1.6,MIT,YES,YES,,Masataka Pocke Kuwabara,,https://rubygems.org/gems/rubocop-rubycw/0.1.6
 selenium-webdriver,pkg:gem/selenium-webdriver@4.31.0,4.31.0,Apache-2.0,YES,YES,,"Alex Rodionov, Titus Fortner, Thomas Walpole",,https://rubygems.org/gems/selenium-webdriver/4.31.0
 spring,pkg:gem/spring@4.3.0,4.3.0,MIT,YES,YES,,Jon Leighton,,https://rubygems.org/gems/spring/4.3.0
 webmock,pkg:gem/webmock@3.25.1,3.25.1,MIT,YES,YES,,Bartosz Blimke,,https://rubygems.org/gems/webmock/3.25.1
@@ -3202,6 +3317,7 @@ io-console,pkg:gem/io-console@0.8.0,0.8.0,(Ruby AND BSD-2-Clause),YES,YES,,Nobu 
 jwt,pkg:gem/jwt@2.10.1,2.10.1,MIT,YES,YES,,Tim Rudat,,https://rubygems.org/gems/jwt/2.10.1
 language_server-protocol,pkg:gem/language_server-protocol@3.17.0.4,3.17.0.4,MIT,YES,YES,,Fumiaki MATSUSHIMA,,https://rubygems.org/gems/language_server-protocol/3.17.0.4
 listen,pkg:gem/listen@3.9.0,3.9.0,MIT,YES,YES,,Thibaud Guillaume-Gentil,,https://rubygems.org/gems/listen/3.9.0
+method_source,pkg:gem/method_source@1.1.0,1.1.0,MIT,YES,YES,,John Mair (banisterfiend),,https://rubygems.org/gems/method_source/1.1.0
 mime-types-data,pkg:gem/mime-types-data@3.2025.0422,3.2025.0422,MIT,YES,YES,,Austin Ziegler,,https://rubygems.org/gems/mime-types-data/3.2025.0422
 multi_xml,pkg:gem/multi_xml@0.7.1,0.7.1,MIT,YES,YES,,Erik Berlin,,https://rubygems.org/gems/multi_xml/0.7.1
 uri,pkg:gem/uri@1.0.3,1.0.3,(Ruby AND BSD-2-Clause),YES,YES,,Akira Yamada,,https://rubygems.org/gems/uri/1.0.3
@@ -3219,6 +3335,7 @@ oauth-tty,pkg:gem/oauth-tty@1.0.5,1.0.5,MIT,YES,YES,,"Thiago Pinto, Peter Boling
 snaky_hash,pkg:gem/snaky_hash@2.0.1,2.0.1,MIT,YES,YES,,Peter Boling,,https://rubygems.org/gems/snaky_hash/2.0.1
 version_gem,pkg:gem/version_gem@1.1.7,1.1.7,MIT,YES,YES,,Peter Boling,,https://rubygems.org/gems/version_gem/1.1.7
 oauth2,pkg:gem/oauth2@2.0.9,2.0.9,MIT,YES,YES,,"Peter Boling, Erik Michaels-Ober, Michael Bleigh",,https://rubygems.org/gems/oauth2/2.0.9
+parallel,pkg:gem/parallel@1.27.0,1.27.0,MIT,YES,YES,,Michael Grosser,,https://rubygems.org/gems/parallel/1.27.0
 premailer,pkg:gem/premailer@1.27.0,1.27.0,BSD-3-CLAUSE,YES,YES,,Alex Dunae,,https://rubygems.org/gems/premailer/1.27.0
 prism,pkg:gem/prism@1.4.0,1.4.0,MIT,YES,YES,,Shopify,,https://rubygems.org/gems/prism/1.4.0
 thor,pkg:gem/thor@1.3.2,1.3.2,MIT,YES,YES,,"Yehuda Katz, José Valim",,https://rubygems.org/gems/thor/1.3.2
@@ -3652,5 +3769,4 @@ decidim-calendar,pkg:gem/decidim-calendar,,AGPL-3.0,YES,NO,,Mijail Rondon,,
 decidim-analytics,pkg:gem/decidim-analytics,, ,NO,NO,,Pierre Mesure,,
 decidim-meetings-jitsi,pkg:gem/decidim-meetings-jitsi,, ,NO,NO,,Gianfranco Cedro,,
 decidim-keycloak,pkg:gem/decidim-keycloak,, ,NO,NO,,Francisco Bolívar,,
-decidim-extra_user_fields,pkg:gem/decidim-extra_user_fields,,AGPL-3.0,YES,NO,,Eduardo Martínez,,
 decidim-admin_header,pkg:gem/decidim-admin_header,, ,NO,NO,,Gianfranco Cedro,,
