@@ -130,7 +130,6 @@ parameters:
                   }
             manifests:
                 - { display: 'Decidim - Apply ConfigMap', file: 'infrastructure/int/decidim/decidim-configmap.yml' }
-                - { display: 'Fluent - Apply ConfigMap', file: 'infrastructure/int/decidim/fluent-configMap.yml' }
                 - { display: 'Decidim - Apply Secrets', file: 'infrastructure/int/decidim/decidim-secret.yml' }
                 - {
                       display: 'Decidim - Apply Statefulset',
@@ -415,6 +414,66 @@ jobs:
                 namespace: 'participate'
                 command: 'apply'
                 arguments: '-f infrastructure/int/proxy/matomo-ingress.yml'
+
+          #Add Automation FluentBit
+
+
+          - task: Kubernetes@1
+            displayName: 'Get Alloy External IP'
+            name: getAlloyExternalIP
+            continueOnError: true
+            inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: '$(ALLOW_EXTERNAL_KUBERNETE_CLUSTER_NAME)'
+                namespace: 'integratedenvironment'
+                command: 'get'
+                arguments: 'svc alloy-external -o json'
+    
+          - bash: |
+                echo "Parsing output..."
+
+                ALLOY_EXTERNAL_IP=$(echo '$(getAlloyExternalIP.KubectlOutput)' \
+                    | jq -r '.status.loadBalancer.ingress[0].ip')
+
+                if [ -z "$ALLOY_EXTERNAL_IP" ] || [ "$ALLOY_EXTERNAL_IP" = "null" ]; then
+                    echo "No external IP found. Using fallback 0.0.0.0"
+                    ALLOY_EXTERNAL_IP="0.0.0.0"
+                fi
+
+                echo "IP: $ALLOY_EXTERNAL_IP"
+
+                echo "##vso[task.setvariable variable=ALLOY_EXTERNAL_IP]$ALLOY_EXTERNAL_IP"
+            displayName: 'Save Alloy External IP'
+            continueOnError: true
+
+          - task: replacetokens@5
+            displayName: "Replace tokens FluentBit"
+            continueOnError: true
+            inputs:
+                rootDirectory: infrastructure/int/decidim
+                targetFiles: 'fluent-configMap.yml'
+                tokenPattern: custom
+                tokenPrefix: _%
+                tokenSuffix: '%_'
+                writeBOM: false
+                verbosity: detailed
+                actionOnNoFiles: warn
+                actionOnMissing: continue
+                keepToken: true
+
+          - task: Kubernetes@1
+            displayName: "Apply Fluentbit Config (Tool10)"
+            inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'EU-LDT-Toolbox-TF-Shared-INT'
+                azureResourceGroup: 'EU-LDT-Toolbox-Shared-int'
+                kubernetesCluster: 'eu-ldt-tool-10-federatedlearning-aks-int'
+                namespace: 'federatedlearning'
+                command: 'apply'
+                arguments: '-f infrastructure/int/decidim/fluent-configMap.yml'
+
 
     # Generate deployment jobs dynamically from k8sManifests parameter
     - ${{ each app in parameters.k8sManifests }}:
