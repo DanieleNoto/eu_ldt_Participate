@@ -679,7 +679,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 		}
 
 		// Collect the items inside the menu (li > a)
-		const items = this.navDropdownMenu.locator('li[role="menuitem"] a.participatory-space__nav-item');
+		const items = this.navDropdownMenu.locator('li a.participatory-space__nav-item');
 		const count = await items.count();
 
 		if (count === 0) {
@@ -717,7 +717,7 @@ export class ProcessDetailPage extends AuthenticatedPage {
 	}
 
 	public async clickOnMenuItem(target: string): Promise<void> {
-		const items = this.navDropdownMenu.locator('li[role="menuitem"] a.participatory-space__nav-item');
+		const items = this.navDropdownMenu.locator('li a.participatory-space__nav-item');
 		const count = await items.count();
 
 		for (let i = 0; i < count; i++) {

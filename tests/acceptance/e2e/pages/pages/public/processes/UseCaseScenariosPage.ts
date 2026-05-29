@@ -177,7 +177,7 @@ export class UseCaseScenariosPage extends BasePage {
 
 		await expect(frame.locator('h2')).toHaveText('Basic information');
 
-		const labels = ['ID', 'Status', 'Experiment Version', 'Model', 'Data soure'];
+		const labels = ['ID', 'Status', 'Experiment Version', 'Model', 'Data source'];
 
 		for (const label of labels) {
 			const row = frame.locator(`tr:has-text("${label}")`);
