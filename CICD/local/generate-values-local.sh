@@ -23,7 +23,26 @@ done
 [[ -n "${OUTPUT_FILE}" ]] || { echo "ERROR: --output required" >&2; exit 1; }
 
 # ---------------------------------------------------------------------------
+# Undo bash printf %q escapes from the EU LDT toolbox installer (script.sh).
+# Handles spaces (EU\ LDT), commas (en\,it\,es), quotes, $, etc. No eval.
+# ---------------------------------------------------------------------------
+normalize_bash_percent_q() {
+    local v="${1:-}"
+    [[ "$v" != *\\* ]] && { printf '%s' "$v"; return; }
+    v="${v//\\,/,}"
+    v="${v//\\ / }"
+    v="${v//\\'/'}"
+    v="${v//\\\"/\"}"
+    v="${v//\\$/$}"
+    v="${v//\\#/#}"
+    v="${v//\\!/\!}"
+    v="${v//\\\\/\\}"
+    printf '%s' "$v"
+}
+
+# ---------------------------------------------------------------------------
 # Read a value from the .env file by exact key name (all keys use underscores).
+# Supports: KEY=value, KEY="quoted", KEY='quoted', KEY=bash\ %q\ escapes.
 # ---------------------------------------------------------------------------
 ev() {
     local key="$1"
@@ -36,6 +55,10 @@ ev() {
     raw="$(printf '%s' "${raw}" | sed -E 's/[[:space:]]+#[^"'"'"']*$//')"
     # Strip surrounding double or single quotes
     raw="$(printf '%s' "${raw}" | sed -E 's/^"(.*)"$/\1/; s/^'"'"'(.*)'"'"'$/\1/')"
+    # Unescape inner \" and \\ from quoted .env lines
+    raw="${raw//\\\"/\"}"
+    raw="${raw//\\\\/\\}"
+    raw="$(normalize_bash_percent_q "$raw")"
     printf '%s' "${raw}"
 }
 
