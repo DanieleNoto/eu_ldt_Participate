@@ -42,7 +42,7 @@ en:
                     back_to_list: Back to list
                     edit: Edit
                     created_at: Created at
-                    disclaimer_title: How to Use the Map Interface
+                    disclaimer_title: "How to Use the Map Interface (Mobile: Rotate to Landscape)"
                     disclaimer_intro: "The left-hand sidebar features two tabs to help you navigate and customize the map view:"
                     disclaimer_tabs:
                         map_configuration: "Map Configuration Tab (First Tab): The default view. It provides overview details about the current map experiment, including its name, description, and visibility scope."

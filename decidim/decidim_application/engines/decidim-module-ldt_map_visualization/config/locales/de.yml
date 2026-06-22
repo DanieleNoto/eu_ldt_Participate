@@ -42,7 +42,7 @@ de:
                     back_to_list: Zurück zur Liste
                     edit: Bearbeiten
                     created_at: Erstellt am
-                    disclaimer_title: So verwenden Sie die Kartenoberfläche
+                    disclaimer_title: "So verwenden Sie die Kartenoberfläche (Mobil: ins Querformat drehen)"
                     disclaimer_intro: "Die linke Seitenleiste enthält zwei Registerkarten, mit denen Sie die Kartenansicht navigieren und anpassen können:"
                     disclaimer_tabs:
                         map_configuration: "Registerkarte Kartenkonfiguration (Erste Registerkarte): Die Standardansicht. Sie zeigt Übersichtsdetails zum aktuellen Kartenexperiment, einschließlich Name, Beschreibung und Sichtbarkeitsbereich."
