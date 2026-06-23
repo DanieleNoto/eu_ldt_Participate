@@ -12,7 +12,7 @@ span
 | Isabel Seguí Verdú         | isabel.segui@nunsys.com       | Yes    |
 | Iván Lalaguna Alcaine       | ivan.lalaguna@inycom.es       | Yes    |
 | Sara Lucía Granados Rojas   | sara.granados@nunsys.com      | Yes    |
-| Pablo Lopez Mosquera        | pablo.lopez@inycom.es         | Yes    |
+| Pablo Lopez Mosqueda        | pablo.lopez@inycom.es         | Yes    |
 | Marco Cerdelli        | marco.cerdelli@eng.it        | Yes    |
 | Olivia De Masi        | olivia.demasi@eng.it        | Yes    |
 | Francesca Vanali        | francesca.vanali@eng.it        | Yes    |
