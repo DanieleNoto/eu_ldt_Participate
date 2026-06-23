@@ -35,7 +35,7 @@ data:
     [OUTPUT]
         Name        loki
         Match       *
-        Host        57.153.120.144
+        Host        _%ALLOY_EXTERNAL_IP%_
         Port        9999
         URI         /loki/api/v1/push
         Labels      job="app"
