@@ -24,9 +24,6 @@ echo "Applying Decidim StatefulSet and Service (if present)..."
 kubectl apply -f "$SCRIPT_DIR/decidim-statefulset.yaml" -n "$NAMESPACE" || true
 kubectl apply -f "$SCRIPT_DIR/decidim-service.yaml" -n "$NAMESPACE" || true
 
-echo "Applying Decidim Sidekiq Deployment (if present)..."
-kubectl apply -f "$SCRIPT_DIR/decidim-sidekiq-deployment.yaml" -n "$NAMESPACE" || true
-
 echo "Applying DB resources (db-*) in $SCRIPT_DIR/db"
 kubectl apply -f "$SCRIPT_DIR/db/db-configmap.yml" -n "$NAMESPACE" || true
 kubectl apply -f "$SCRIPT_DIR/db/db-secret.yml" -n "$NAMESPACE" || true
