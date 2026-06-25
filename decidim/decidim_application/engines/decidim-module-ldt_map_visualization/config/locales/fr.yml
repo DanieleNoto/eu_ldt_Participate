@@ -42,7 +42,7 @@ fr:
                     back_to_list: Retour à la liste
                     edit: Modifier
                     created_at: Créé le
-                    disclaimer_title: Comment utiliser l'interface de la carte
+                    disclaimer_title: "Comment utiliser l'interface de la carte (Mobile : passer en paysage)"
                     disclaimer_intro: "La barre latérale gauche contient deux onglets pour vous aider à naviguer et à personnaliser l'affichage de la carte :"
                     disclaimer_tabs:
                         map_configuration: "Onglet Configuration de la carte (Premier onglet) : Vue par défaut. Il fournit une vue d'ensemble de l'expérience de carte en cours, y compris son nom, sa description et son périmètre de visibilité."

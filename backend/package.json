@@ -45,13 +45,13 @@
 		"fastify-type-provider-zod": "^5.0.3",
 		"handlebars": "^4.7.8",
 		"i18next": "^25.3.4",
-		"i18next-fs-backend": "^2.6.0",
-		"i18next-http-middleware": "^3.8.0",
+		"i18next-fs-backend": "^2.6.6",
+		"i18next-http-middleware": "^3.9.7",
 		"ioredis": "^5.7.0",
 		"jest": "^30.2.0",
 		"joi": "^18.0.0",
 		"jsdom": "^26.1.0",
-		"nodemailer": "^8.0.4",
+		"nodemailer": "^9.0.1",
 		"pg": "^8.16.3",
 		"pg-hstore": "^2.3.4",
 		"pino": "^9.8.0",
@@ -83,6 +83,7 @@
 	"overrides": {
 		"ajv": "^8.18.0",
 		"glob": "^9.3.5",
-		"tar": "^7.5.8"
+		"tar": "^7.5.8",
+		"js-yaml": "^4.2.0"
 	}
 }

@@ -42,7 +42,7 @@ es:
                     back_to_list: Volver a la lista
                     edit: Editar
                     created_at: Creado el
-                    disclaimer_title: Cómo usar la interfaz del mapa
+                    disclaimer_title: "Cómo usar la interfaz del mapa (Móvil: gírelo a horizontal)"
                     disclaimer_intro: "La barra lateral izquierda incluye dos pestañas para ayudarte a navegar y personalizar la vista del mapa:"
                     disclaimer_tabs:
                         map_configuration: "Pestaña de Configuración del Mapa (Primera pestaña): La vista predeterminada. Proporciona detalles generales sobre el experimento de mapa actual, incluyendo su nombre, descripción y alcance de visibilidad."
