@@ -42,7 +42,7 @@ spec:
                         mountPath: /var/lib/postgresql/data
             containers:
                 - name: chatbot-backend
-                  image: euldtshared.azurecr.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  image: _%REGISTRY%_/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   imagePullPolicy: Always
                   resources:
                       requests:
@@ -147,7 +147,7 @@ spec:
                       timeoutSeconds: 5
                       failureThreshold: 3
                 - name: chatbot-frontend
-                  image: euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  image: _%REGISTRY%_/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   imagePullPolicy: Always
                   resources:
                       requests:

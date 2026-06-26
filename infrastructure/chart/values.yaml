@@ -3,7 +3,7 @@
 
 # IMAGE
 image:
-  registry: "euldtshared.azurecr.io"
+  registry: "registry.local"
   tag: "latest"
   pullPolicy: "Always"
 

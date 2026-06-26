@@ -30,7 +30,7 @@ spec:
                 runAsGroup: 1000
             initContainers:
                 - name: asset-compiler
-                  image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  image: _%REGISTRY%_/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   resources:
                       requests:
                           memory: '2Gi'
@@ -136,7 +136,7 @@ spec:
                           memory: '2Gi'
                           cpu: '1'
                           ephemeral-storage: '4Gi'
-                  image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  image: _%REGISTRY%_/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   envFrom:
                       - secretRef:
                             name: decidim-secret
@@ -167,7 +167,7 @@ spec:
                         name: log-volume
 
                 - name: open-data-exporter
-                  image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  image: _%REGISTRY%_/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   envFrom:
                       - secretRef:
                             name: decidim-secret
@@ -225,7 +225,7 @@ spec:
                           cpu: '200m'
                           ephemeral-storage: '2Gi'
                 - name: sidekiq
-                  image: euldtshared.azurecr.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
+                  image: _%REGISTRY%_/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_
                   command: ['/bin/sh', '-lc']
                   args:
                       - |
