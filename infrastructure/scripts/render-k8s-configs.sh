@@ -158,17 +158,21 @@ replace_placeholders() {
   # Handle Docker images specially first - replace placeholders while keeping ACR prefix
   if grep -q "euldtshared\.azurecr\.io" "$dst_file"; then
     local image_tag
+    local registry registry_escaped
+    registry="${REGISTRY:-$(env_value "REGISTRY" || true)}"
+    registry="${registry:-registry.local}"
+    registry_escaped="$(printf '%s' "$registry" | escape_perl_replacement)"
     image_tag="$(env_value "CONTAINER_IMAGE_TOOL_TAG" || true)"
     image_tag="${image_tag:-v1.0.0}"
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/matomo-custom:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_|${registry_escaped}/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_|${registry_escaped}/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_|${registry_escaped}/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|${registry_escaped}/matomo-custom:${image_tag}|g" -i "$dst_file"
     # Handle cases where the tag placeholder is missing (just ends with :)
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:\$|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:\$|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:\$|euldtshared.azurecr.io/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:\$|euldtshared.azurecr.io/matomo-custom:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:\$|${registry_escaped}/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:\$|${registry_escaped}/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:\$|${registry_escaped}/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:\$|${registry_escaped}/matomo-custom:${image_tag}|g" -i "$dst_file"
   fi
 
   while IFS= read -r var; do

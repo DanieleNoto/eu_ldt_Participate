@@ -26,7 +26,7 @@ KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-participate-local}"
 # Respect KUBE_CONTEXT exported by the Toolbox installer; fall back to Kind default.
 KUBE_CONTEXT="${KUBE_CONTEXT:-kind-${KIND_CLUSTER_NAME}}"
 NAMESPACE="${NAMESPACE:-participate}"
-REGISTRY="${REGISTRY:-euldtshared.azurecr.io}"
+REGISTRY="${REGISTRY:-registry.local}"
 ACR_USERNAME="${ACR_USERNAME:-euldtshared}"
 ACR_ENABLED="${ACR_ENABLED:-false}"
 

@@ -65,7 +65,7 @@ do_up() {
     if [[ "${USE_LOCAL_IMAGES:-false}" == "true" ]]; then
         echo "  Images    : local Docker → Kind"
     else
-        echo "  Images    : ACR (${REGISTRY:-euldtshared.azurecr.io})"
+        echo "  Images    : ACR (${REGISTRY:-registry.local})"
     fi
     echo ""
 
