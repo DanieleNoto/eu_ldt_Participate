@@ -40,6 +40,7 @@ env_value() {
 
   # Try common mappings
   case "$k" in
+    "REGISTRY") echo "registry.local" ;;
     "POSTGRES-USER") env_value "DATABASE_USERNAME" ;;
     "POSTGRES-PASSWORD") env_value "DATABASE_PASSWORD" ;;
     "POSTGRES-DATABASE"|"DB-NAME") env_value "DATABASE_NAME" ;;
@@ -82,7 +83,7 @@ env_value() {
     "TOOL2-IFRAME-URL") env_value "TOOL2_IFRAME_URL" ;;
     "HELP-URL") env_value "HELP_URL" ;;
     # Default values
-    "CONTAINER-IMAGE-TOOL-TAG"|"CONTAINER_IMAGE_TOOL_TAG") env_value "CONTAINER_IMAGE_TOOL_TAG" ;;
+    "CONTAINER-IMAGE-TOOL-TAG"|"CONTAINER_IMAGE_TOOL_TAG") echo "v1.0.0" ;;
     "DECIDIM-AVAILABLE-LOCALES") echo "en,it,fr,de,es" ;;
     "DECIDIM-DEFAULT-LOCALE") echo "en" ;;
     "DECIDIM-THROTTLING-MAX-REQUESTS") echo "100" ;;
@@ -158,23 +159,25 @@ replace_placeholders() {
   # Handle Docker images specially first - replace placeholders while keeping ACR prefix
   if grep -q "euldtshared\.azurecr\.io" "$dst_file"; then
     local image_tag
+    local registry registry_escaped
+    registry="${REGISTRY:-$(env_value "REGISTRY" || true)}"
+    registry="${registry:-registry.local}"
+    registry_escaped="$(printf '%s' "$registry" | escape_perl_replacement)"
     image_tag="$(env_value "CONTAINER_IMAGE_TOOL_TAG" || true)"
     image_tag="${image_tag:-v1.0.0}"
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|euldtshared.azurecr.io/matomo-custom:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:_%CONTAINER_IMAGE_TOOL_TAG%_|${registry_escaped}/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:_%CONTAINER_IMAGE_TOOL_TAG%_|${registry_escaped}/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:_%CONTAINER_IMAGE_TOOL_TAG%_|${registry_escaped}/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:_%CONTAINER_IMAGE_TOOL_TAG%_|${registry_escaped}/matomo-custom:${image_tag}|g" -i "$dst_file"
     # Handle cases where the tag placeholder is missing (just ends with :)
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:\$|euldtshared.azurecr.io/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:\$|euldtshared.azurecr.io/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:\$|euldtshared.azurecr.io/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
-    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:\$|euldtshared.azurecr.io/matomo-custom:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-be-int:\$|${registry_escaped}/eu-ldt-chatbot-be-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-chatbot-fe-int:\$|${registry_escaped}/eu-ldt-chatbot-fe-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/eu-ldt-part-int:\$|${registry_escaped}/eu-ldt-part-int:${image_tag}|g" -i "$dst_file"
+    perl -pe "s|euldtshared\\.azurecr\\.io/matomo-custom:\$|${registry_escaped}/matomo-custom:${image_tag}|g" -i "$dst_file"
   fi
 
   while IFS= read -r var; do
     [[ -z "$var" ]] && continue
-    # Skip Docker image tag placeholder as it's already handled above
-    [[ "$var" == "CONTAINER_IMAGE_TOOL_TAG" ]] && continue
     local val
     val="$(env_value "$var" || true)"
 

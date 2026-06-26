@@ -24,7 +24,7 @@ fi
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-participate-local}"
 USE_LOCAL_IMAGES="${USE_LOCAL_IMAGES:-false}"
 CONTAINER_IMAGE_TOOL_TAG="${CONTAINER_IMAGE_TOOL_TAG:-latest}"
-REGISTRY="${REGISTRY:-euldtshared.azurecr.io}"
+REGISTRY="${REGISTRY:-registry.local}"
 REPO_DECIDIM="${REPO_DECIDIM:-eu-ldt-part-int}"
 REPO_CHATBOT_BE="${REPO_CHATBOT_BE:-eu-ldt-chatbot-be-int}"
 REPO_CHATBOT_FE="${REPO_CHATBOT_FE:-eu-ldt-chatbot-fe-int}"
