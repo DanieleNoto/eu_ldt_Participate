@@ -40,6 +40,7 @@ env_value() {
 
   # Try common mappings
   case "$k" in
+    "REGISTRY") echo "registry.local" ;;
     "POSTGRES-USER") env_value "DATABASE_USERNAME" ;;
     "POSTGRES-PASSWORD") env_value "DATABASE_PASSWORD" ;;
     "POSTGRES-DATABASE"|"DB-NAME") env_value "DATABASE_NAME" ;;
@@ -82,7 +83,7 @@ env_value() {
     "TOOL2-IFRAME-URL") env_value "TOOL2_IFRAME_URL" ;;
     "HELP-URL") env_value "HELP_URL" ;;
     # Default values
-    "CONTAINER-IMAGE-TOOL-TAG"|"CONTAINER_IMAGE_TOOL_TAG") env_value "CONTAINER_IMAGE_TOOL_TAG" ;;
+    "CONTAINER-IMAGE-TOOL-TAG"|"CONTAINER_IMAGE_TOOL_TAG") echo "v1.0.0" ;;
     "DECIDIM-AVAILABLE-LOCALES") echo "en,it,fr,de,es" ;;
     "DECIDIM-DEFAULT-LOCALE") echo "en" ;;
     "DECIDIM-THROTTLING-MAX-REQUESTS") echo "100" ;;
@@ -177,8 +178,6 @@ replace_placeholders() {
 
   while IFS= read -r var; do
     [[ -z "$var" ]] && continue
-    # Skip Docker image tag placeholder as it's already handled above
-    [[ "$var" == "CONTAINER_IMAGE_TOOL_TAG" ]] && continue
     local val
     val="$(env_value "$var" || true)"
 
