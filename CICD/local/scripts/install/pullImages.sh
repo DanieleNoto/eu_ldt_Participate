@@ -84,8 +84,6 @@ if [[ "${USE_LOCAL_IMAGES}" == "true" ]]; then
 else
     echo "  Mode: ACR"
     echo ""
-
-    [[ -n "${ACR_PASSWORD:-}" ]] || err "ACR_PASSWORD must be set in .env"
     [[ -n "${CONTAINER_IMAGE_TOOL_TAG}" ]] || err "CONTAINER_IMAGE_TOOL_TAG must be set in .env"
 
     IMAGES=(
@@ -99,11 +97,15 @@ else
     echo "  Tag:      ${CONTAINER_IMAGE_TOOL_TAG}"
     echo ""
 
-    echo "  Logging in to ${REGISTRY}..."
-    echo "${ACR_PASSWORD}" | docker login "${REGISTRY}" \
-        --username "${ACR_USERNAME}" --password-stdin
-    ok "Logged in to registry"
-    echo ""
+    if [ -n "$REGISTRY" ] && [ -n "$ACR_USERNAME" ] && [ -n "$ACR_PASSWORD" ]; then
+        echo "  Logging in to ${REGISTRY}..."
+        echo "${ACR_PASSWORD}" | docker login "${REGISTRY}" \
+            --username "${ACR_USERNAME}" --password-stdin
+        ok "Logged in to registry"
+        echo ""
+    else
+            warn "Registry credentials not set — skipping docker login"
+    fi
 
     for image in "${IMAGES[@]}"; do
         echo "  Pulling ${image}..."
