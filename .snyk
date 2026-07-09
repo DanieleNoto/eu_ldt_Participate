@@ -13,6 +13,13 @@ ignore:
             reason: "No fix available - awaiting sequelize release"
             expires: "2026-08-01T00:00:00.000Z"
             created: "2026-04-28T00:00:00.000Z"
+    SNYK-JS-INFLIGHT-6095116:
+        - '*':
+            # inflight is unmaintained with no fix available. Requires local access to trigger.
+            # Used only as transitive dependency of glob@7 via sequelize-typescript and jest (dev/test tooling).
+            reason: "No fix available - unmaintained package, local attack vector only"
+            expires: "2026-12-31T00:00:00.000Z"
+            created: "2026-07-09T00:00:00.000Z"
 exclude:
     global:
         - 'tests/**'
