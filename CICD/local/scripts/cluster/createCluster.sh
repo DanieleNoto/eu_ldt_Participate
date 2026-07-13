@@ -79,16 +79,16 @@ kubectl --context "kind-${KIND_CLUSTER_NAME}" wait --namespace ingress-nginx \
     --timeout=300s
 
 echo ""
-echo "  Enabling snippet annotations in ingress-nginx (required for server-snippet / configuration-snippet)..."
+echo "  Configuring ingress-nginx (snippet annotations + forwarded headers)..."
 kubectl --context "kind-${KIND_CLUSTER_NAME}" patch configmap ingress-nginx-controller \
     -n ingress-nginx \
     --type merge \
-    -p '{"data":{"allow-snippet-annotations":"true"}}'
+    -p '{"data":{"allow-snippet-annotations":"true","use-forwarded-headers":"true"}}'
 kubectl --context "kind-${KIND_CLUSTER_NAME}" rollout restart deployment ingress-nginx-controller \
     -n ingress-nginx
 kubectl --context "kind-${KIND_CLUSTER_NAME}" rollout status deployment ingress-nginx-controller \
     -n ingress-nginx --timeout=120s
-ok "Snippet annotations enabled"
+ok "Snippet annotations and forwarded headers enabled"
 
 echo ""
 echo "  Installing local-path storage provisioner (PVC support for Grafana, etc.)..."
