@@ -22,13 +22,35 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
 {{- end }}
 
 {{- /*
+eu-ldt-participate.imageRepo
+Resolves the repository path for a component.
+Legacy template "repo" keys (eu-ldt-part-int, …) map to image.repositories.* from values-local.yaml.
+*/ -}}
+{{- define "eu-ldt-participate.imageRepo" -}}
+{{- $root := .root -}}
+{{- $legacy := .repo -}}
+{{- $repos := $root.Values.image.repositories | default dict -}}
+{{- if eq $legacy "eu-ldt-part-int" -}}
+{{- $repos.decidim | default "eu-ldt-part-int" -}}
+{{- else if eq $legacy "eu-ldt-chatbot-be-int" -}}
+{{- $repos.chatbotBe | default "eu-ldt-chatbot-be-int" -}}
+{{- else if eq $legacy "eu-ldt-chatbot-fe-int" -}}
+{{- $repos.chatbotFe | default "eu-ldt-chatbot-fe-int" -}}
+{{- else if eq $legacy "matomo-custom" -}}
+{{- $repos.matomo | default "matomo-custom" -}}
+{{- else -}}
+{{- $legacy -}}
+{{- end -}}
+{{- end }}
+
+{{- /*
 eu-ldt-participate.image
-Returns a full image reference given a repo name
+Returns a full image reference: <registry>/<repository-path>:<tag>
 Usage: {{ include "eu-ldt-participate.image" (dict "repo" "eu-ldt-part-int" "root" .) }}
 */ -}}
 {{- define "eu-ldt-participate.image" -}}
 {{- $root := .root -}}
-{{- $repo := .repo -}}
+{{- $repo := include "eu-ldt-participate.imageRepo" . -}}
 {{- if $root.Values.image.registry -}}
 {{- printf "%s/%s:%s" $root.Values.image.registry $repo $root.Values.image.tag -}}
 {{- else -}}

@@ -109,6 +109,14 @@ _registry="$(ev REGISTRY)"
 _pull_policy="$(ev IMAGE_PULL_POLICY)"
 [[ -z "${_pull_policy}" ]] && _pull_policy="IfNotPresent"
 _namespace="$(ev NAMESPACE)"
+_repo_decidim="$(ev REPO_DECIDIM)"
+[[ -z "${_repo_decidim}" ]] && _repo_decidim="eu-ldt-part-int"
+_repo_chatbot_be="$(ev REPO_CHATBOT_BE)"
+[[ -z "${_repo_chatbot_be}" ]] && _repo_chatbot_be="eu-ldt-chatbot-be-int"
+_repo_chatbot_fe="$(ev REPO_CHATBOT_FE)"
+[[ -z "${_repo_chatbot_fe}" ]] && _repo_chatbot_fe="eu-ldt-chatbot-fe-int"
+_repo_matomo="$(ev REPO_MATOMO)"
+[[ -z "${_repo_matomo}" ]] && _repo_matomo="matomo-custom"
 
 # --- ingress ---
 _participate_host="$(ev PARTICIPATE_HOST)"
@@ -296,6 +304,11 @@ echo "image:"
 line "  tag"        "${_tag}"
 line "  registry"   "${_acr_registry}"
 line "  pullPolicy" "${_pull_policy}"
+echo "  repositories:"
+line "    decidim"   "${_repo_decidim}"
+line "    chatbotBe" "${_repo_chatbot_be}"
+line "    chatbotFe" "${_repo_chatbot_fe}"
+line "    matomo"    "${_repo_matomo}"
 
 # ACR pull secret (only when ACR_ENABLED=true and credentials are set)
 if [[ "$(printf '%s' "${_acr_enabled}" | tr '[:upper:]' '[:lower:]')" == "true" && -n "${_acr_registry}" && -n "${_acr_user}" && -n "${_acr_pass}" ]]; then
